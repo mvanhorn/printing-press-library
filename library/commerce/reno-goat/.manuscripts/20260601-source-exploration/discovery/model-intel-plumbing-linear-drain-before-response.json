@@ -1,0 +1,62 @@
+{
+  "query": "linear drain",
+  "total": 2,
+  "models": [
+    {
+      "model": "WR02X8852",
+      "title": "PLUG DRAIN LINER",
+      "category": "liner",
+      "product_url": "https://www.geapplianceparts.com/store/parts/spec/WR02X8852",
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WR02X8852.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "benefits: Genuine Part from GE Appliances; Check Your Model Number to Confirm Compatibility; Includes a One-Year Limited Warranty"
+      ]
+    },
+    {
+      "model": "WR2X9395",
+      "title": "PLUG DRAIN LINER",
+      "category": "liner",
+      "product_url": "https://www.geapplianceparts.com/store/parts/spec/WR2X9395",
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WR2X9395.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "benefits: Genuine Part from GE Appliances; Check Your Model Number to Confirm Compatibility; Includes a One-Year Limited Warranty"
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WR02X8852.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WR2X9395.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage."
+  ],
+  "sources_run": [
+    "ge-appliances",
+    "bosch"
+  ]
+}

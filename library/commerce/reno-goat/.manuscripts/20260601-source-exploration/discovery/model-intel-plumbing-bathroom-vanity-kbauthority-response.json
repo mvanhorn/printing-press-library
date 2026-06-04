@@ -1,0 +1,112 @@
+{
+  "query": "bathroom vanity",
+  "total": 5,
+  "models": [
+    {
+      "model": "VF29624",
+      "brand": "Elegant And Furniture Lighting",
+      "title": "ELEGANT AND FURNITURE LIGHTING VF29624 BLAKELY 24 INCH SINGLE SINK FREE STANDING BATHROOM VANITY WITH ENGINEERED MARBLE COUNTERTOP",
+      "best_price": 844,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/elegant-and-furniture-lighting-vf29624-blakely-24-inch-single-sink-free-standing-bathroom-vanity-with-engineered-marble-countertop.html",
+      "image_url": "https://www.kbauthority.com/images/W/237/VF29624WH_Elegant_Furniture_and_Lighting_White.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 844,
+          "url": "https://www.kbauthority.com/elegant-and-furniture-lighting-vf29624-blakely-24-inch-single-sink-free-standing-bathroom-vanity-with-engineered-marble-countertop.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "15VVA-BERK30",
+      "brand": "Ove Decors",
+      "title": "OVE DECORS 15VVA-BERK30 GABI 30 INCH SINGLE SINK FREESTANDING WARM WALNUT BATHROOM VANITY WITH WHITE ENGINEERED STONE TOP",
+      "best_price": 964.71,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/ove-decors-15vva-berk30-gabi-30-inch-single-sink-freestanding-warm-walnut-bathroom-vanity-with-white-engineered-stone-top.html",
+      "image_url": "https://www.kbauthority.com/images/W/555/15VVA-BERK30-181EV_Ove_Decors_Warm_Walnut.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://www.kbauthority.com/files/PDF/Ove_Decors/15VVA-BERK30_Specification_Sheet.pdf",
+          "source": "kbauthority"
+        },
+        {
+          "kind": "installation",
+          "url": "https://www.kbauthority.com/files/PDF/Ove_Decors/15VVA-BERK30_Installation_Sheet.pdf",
+          "source": "kbauthority"
+        }
+      ],
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 964.71,
+          "url": "https://www.kbauthority.com/ove-decors-15vva-berk30-gabi-30-inch-single-sink-freestanding-warm-walnut-bathroom-vanity-with-white-engineered-stone-top.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "WS2518-36",
+      "brand": "Legion Furniture",
+      "title": "LEGION FURNITURE WS2518-36 36 INCH FREESTANDING SINGLE SINK BATHROOM VANITY WITH WHITE ARTIFICIAL STONE COUNTERTOP",
+      "best_price": 1105.35,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/legion-furniture-ws2518-36-36-inch-freestanding-single-sink-bathroom-vanity-with-white-artificial-stone-countertop.html",
+      "image_url": "https://www.kbauthority.com/images/W/430/WS2518-36-DW_LEGION_Furniture_Dreamy_White.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 1105.35,
+          "url": "https://www.kbauthority.com/legion-furniture-ws2518-36-36-inch-freestanding-single-sink-bathroom-vanity-with-white-artificial-stone-countertop.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "15VVA-BERK48-YJ",
+      "brand": "Ove Decors",
+      "title": "OVE DECORS 15VVA-BERK48-YJ GABI 48 INCH FREESTANDING SINGLE SINK BATHROOM VANITY WITH WHITE ENGINEERED MARBLE COUNTERTOP",
+      "best_price": 1379.54,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/ove-decors-15vva-berk48-181yj-gabi-48-inch-free-standing-single-sink-bathroom-vanity-in-warm-walnut-with-countertop.html",
+      "image_url": "https://www.kbauthority.com/images/W/555/15VVA-BERK48-174YJ_Ove_Decors_Rustic_Ash.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 1379.54,
+          "url": "https://www.kbauthority.com/ove-decors-15vva-berk48-181yj-gabi-48-inch-free-standing-single-sink-bathroom-vanity-in-warm-walnut-with-countertop.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "V-DM30SFM",
+      "brand": "Bemma Design",
+      "title": "BEMMA DESIGN V-DM30SFM DIAMOND 30 INCH FREESTANDING SINGLE SINK BATHROOM VANITY",
+      "best_price": 1391.01,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/bemma-design-v-dm30sfm-diamond-30-inch-freestanding-single-sink-bathroom-vanity.html",
+      "image_url": "https://www.kbauthority.com/images/W/297/V-DM30SFM-07BN-C03S-3_Bemma_Design_Charcoal_Black.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 1391.01,
+          "url": "https://www.kbauthority.com/bemma-design-v-dm30sfm-diamond-30-inch-freestanding-single-sink-bathroom-vanity.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category search-result model discovery used; search-derived prices are labeled as fallback evidence, not direct retailer API results."
+  ],
+  "sources_run": [
+    "kbauthority",
+    "brave-search"
+  ]
+}

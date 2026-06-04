@@ -414,8 +414,8 @@ func newProjectBudgetCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			result := map[string]any{
-				"project":    name,
-				"by_source":  bySource,
+				"project":     name,
+				"by_source":   bySource,
 				"grand_total": grandTotal,
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), result, flags)

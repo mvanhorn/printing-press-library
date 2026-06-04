@@ -1,0 +1,34 @@
+HTTP/2 301 
+server: AkamaiGHost
+content-length: 0
+location: https://www.fergusonhome.com/heating-cooling/c108416
+date: Tue, 02 Jun 2026 12:24:18 GMT
+server-timing: cdn-cache; desc=HIT
+server-timing: edge; dur=1
+set-cookie: locdata=city=WASHINGTON|state=DC|zip=20001; expires=Thu, 02-Jul-2026 12:24:18 GMT; path=/; secure; samesite=None;
+x-content-type-options: nosniff
+x-xss-protection: 1
+x-frame-options: sameorigin
+strict-transport-security: max-age=31536000; includeSubDomains
+set-cookie: _abck=B8F6C815DF702969F7A68D649711BF67~-1~YAAQj8gwF8V/vHmeAQAAILdKiBCwZwCrCbgca+sL13J3Dl66Sly4QlWFz3aKrchG8m4cMC/r/lxchBc33S3ijsz6nYkXfYwwizWyKuG4HbrEr3yakP9EjgsRF6WqnhFuSjhhOWZ+aSNycQD88rs8LS3eCRkx/YPKLO7ODWcj4soeLboQLUqlXw1G9mXtHDuOJ2uFL33wtBPXISzSHFfTeK6jmpm1K6pDD1LIu2F9grsFxjVKubl3PoAidEgt980j1fJBnRSOCLQzY45/Ksl/c9Kpr8ZttMehGr3i4lbOAbSfOrxwh4aPmL9h4s8nMELiaSZpb66tLAff5c0g6POnx292DBGDJHGsEQgAR0o5xWAC0dskcfWES1GbwG+PaO/Q+hh55FmNG1vm8YgTppAUbuVWs1PZ73CU0G0AFIbV8HtPRE2fnjZRfTLtfVJAEHA4tY9pBp5aXXZcqb+1VDd3~-1~-1~-1~-1~-1; Domain=.acwholesalers.com; Path=/; Expires=Wed, 02 Jun 2027 12:24:18 GMT; Max-Age=31536000; Secure
+set-cookie: bm_sz=952388B0F67567B2A302289B26FA35E9~YAAQj8gwF8Z/vHmeAQAAILdKiAC4d1DCH9x0VcE9yZ55LxNMFtSwoCpIwbnHXZZ9MaX/Ka/aFwVfbe6o0ZZcuFroKfN2qDERuAO1JXUOZiJt6L3eZDlZEWlVdYrPMEKVZELT6z8+eDYhbYSrYocNkef/L6UQrqFAUgbvb+2jF1D3Gl746OJqPA/Yzjvo2oSAIl8BXJmCVfQ4cxyYXq0RgM2lK6Xzfsy77x/OtX9Ad0kUiH+4VIT8YCULBPejWZTYInU9R8nrULrK2XmmTUV19bT3kwK4Dn/10IJh1H0ujk9fbarc4AiCMc3ojv6kkL3baKlngsOYFjAp9HyaAbHGb5CIMANeBLDNCcktWmmiySh0ZtAv3FaO2p53ZIS5UQ==~4404275~3421765; Domain=.acwholesalers.com; Path=/; Expires=Tue, 02 Jun 2026 16:24:18 GMT; Max-Age=14400
+server-timing: ak_p; desc="1780403058388_389073039_572493515_18_12075_1_63_15";dur=1
+
+HTTP/2 403 
+mime-version: 1.0
+content-type: text/html
+content-length: 405
+x-reference-error: 18.2c643017.1780403058.70c94e8e
+expires: Tue, 02 Jun 2026 12:24:18 GMT
+cache-control: max-age=0, no-cache, no-store
+pragma: no-cache
+date: Tue, 02 Jun 2026 12:24:18 GMT
+server-timing: cdn-cache; desc=HIT
+server-timing: edge; dur=1
+strict-transport-security: max-age=86400
+akamai-grn: 0.2c643017.1780403058.70c94e8e
+set-cookie: bm_ss=ab8e18ef4e; Secure; SameSite=None; Domain=.fergusonhome.com; Path=/; HttpOnly; Max-Age=3600
+set-cookie: bm_s=YAAQLGQwF6u/nnOeAQAAibdKiAW9XgGj4FXL9yCV/LFNmNRLEmCo7TNye6eTSCOhrXKz3QhQ+ru0LodZOYFRyVX7ajd+aAN7A168Hkg5qRGTQCxY23CvPTU0x/gmrX90u/t/7inNQBQeGsOsPehiE2EvqCuUR3NjAgNcrotGbvnw2ArLu89HdoyKE3fKIsotHwitSw6/yitSNdPvDOe1XfYz0jWBL1nTcZSD2NEB4TxCrsvfmLf1QVd+KEsJEFrhTeCH2WR313EysaOZkoS+/E8bHXxd3c8HTZbpJBuZDvo3Jz3/9g8QN2kwEE3LRmMmnsZgMu9FPuPPKkaCmxAIDy0N2NfnNsX9P3ARt8i/A0Xc0CeRwPbJ7HjGin6qOn2OBllcQIyuEXlJUpvYMq/gCOHqW12K6nbOdY5+kn+gykW4aqPHSRs8ClkPqFW9m+IS7u53I2m5lHr2gvpx+KjAZj2m5zBofb7tBxuTzLbOAkep0GlmcjhykdIKOdnucXU+okMNU3AJOshqQVctS/fvGTgpg3/NM0ySjwgeum3klRZZe7tjrNiuO3WK6UnR6sZKRDV08B8=; Domain=.fergusonhome.com; Path=/; Expires=Fri, 03 Jul 2026 12:24:18 GMT; Max-Age=2678400; SameSite=None; Secure; HttpOnly
+set-cookie: bm_so=A03E1D24C53E97CE28F521B44CCE2B463FB5B84959B4FF62162BC79DA0A1CA07~YAAQLGQwF6y/nnOeAQAAibdKiAcdAg0bV2r0tSiq5RM0tsSlEHFci+E4ARCOSDt8YKCKQAbK35MuWaI7Cca4wgXvq70zWPYoUcOMS5a4ZgczQV3Q0dek/m8ngOGZ/HfeIqJRPjYox7+c+3KTpKruknmYUqrlh58r1i+FEGT6e0h5J/NcuC7kfHORGFTFT3X6q22Oe5ns6osHhXyoS7yEx+FkWs8JVfleONAzTsTOVDS04c9tqiwGuBgh0LWcZstJA3rC/BFouuFy7fgGCXpn7vxIe+rgdHhxsXjflW6rTrOFAOopB9JOOs06PHkTl6L7TBH/Ph2LZz8VY6fIOLgm+YTYg43vN0Mwh5S9nVxLJILgmz0EXEZafV4lT4bl73vONNsoLXxY3ivk5Ph7ck6kWgdjIz4Fopy+j41MyXYQPaBsRnAxmksW8r0WOs6nzarN12pUDAjLA8jNAk/e11WOzbYhzOG4/6gq; Domain=.fergusonhome.com; Path=/; Expires=Wed, 03 Jun 2026 12:24:18 GMT; Max-Age=86400; SameSite=None; Secure
+server-timing: ak_p; desc="1780403058518_389047340_1892241038_22_16365_0_33_15";dur=1
+

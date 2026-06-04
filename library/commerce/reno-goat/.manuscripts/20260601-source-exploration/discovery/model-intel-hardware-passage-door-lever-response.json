@@ -1,0 +1,173 @@
+{
+  "query": "passage door lever",
+  "total": 8,
+  "models": [
+    {
+      "model": "359228",
+      "brand": "SUR",
+      "title": "Sure-Loc Modern Basel Door Lever Set w/Square Rosette",
+      "best_price": 27.87,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/sure-loc-modern-basel-door-lever-set-w-square-rosette-basel-lever-sq",
+      "image_url": "https://hardwarehut.com/images/moreimages/doorlevers/sure-lochardwareinc/sur-basel-sq-blk-main.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/sureloc/basel-square-2017.pdf",
+          "source": "hardware-hut"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 27.87,
+          "url": "https://hardwarehut.com/products/sure-loc-modern-basel-door-lever-set-w-square-rosette-basel-lever-sq",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "263912",
+      "brand": "EMT",
+      "title": "Emtek Modern Helios Door Leverset w/Square Rosette",
+      "best_price": 152,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/emtek-modern-helios-door-leverset-w-square-rosette-helios-square",
+      "image_url": "https://hardwarehut.com/images/moreimages/doorlevers/emtek/emt-helios-modsquare-u19-main.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 152,
+          "url": "https://hardwarehut.com/products/emtek-modern-helios-door-leverset-w-square-rosette-helios-square",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "263914",
+      "brand": "EMT",
+      "title": "Emtek Modern Helios Door Leverset w/Disk Rosette",
+      "best_price": 152,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/emtek-modern-helios-door-leverset-w-disk-rosette-helios-disk",
+      "image_url": "https://hardwarehut.com/images/moreimages/doorlevers/emtek/emt-helios-modround-u19-main.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 152,
+          "url": "https://hardwarehut.com/products/emtek-modern-helios-door-leverset-w-disk-rosette-helios-disk",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "299543",
+      "brand": "EMT",
+      "title": "Emtek Modern Helios Door Leverset w/Modern Rectangular Rosette",
+      "best_price": 152,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/emtek-modern-helios-door-leverset-w-modern-rectangular-rosette-helios-mod-rect",
+      "image_url": "https://hardwarehut.com/images/moreimages/doorlevers/emtekproductsinc/emt-helios-rect-u4-main.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 152,
+          "url": "https://hardwarehut.com/products/emtek-modern-helios-door-leverset-w-modern-rectangular-rosette-helios-mod-rect",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "348715",
+      "brand": "EMT",
+      "title": "Emtek Modern Stuttgart Door Leverset w/Modern Rectangular Rosette",
+      "best_price": 152,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/emtek-modern-stuttgart-door-leverset-w-modern-rectangular-rosette-stuttgart-mod-rect",
+      "image_url": "https://hardwarehut.com/images/moreimages/doorlevers/emtekproductsinc/emt-stuttgart-mod-rect-us15-main.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 152,
+          "url": "https://hardwarehut.com/products/emtek-modern-stuttgart-door-leverset-w-modern-rectangular-rosette-stuttgart-mod-rect",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "374070",
+      "brand": "EMT",
+      "title": "Emtek Merrimack Door Leverset w/Rectangular Rosette",
+      "best_price": 152,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/emtek-merrimack-door-leverset-w-rectangular-rosette-merrimack-rectangular",
+      "image_url": "https://hardwarehut.com/images/moreimages/doorlevers/emtekproductsinc/emt-brass-lever-merrimack-rectangular-us4-main.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 152,
+          "url": "https://hardwarehut.com/products/emtek-merrimack-door-leverset-w-rectangular-rosette-merrimack-rectangular",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "374259",
+      "brand": "EMT",
+      "title": "Emtek Merrimack Door Leverset w/Wilshire Rosette",
+      "best_price": 152,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/emtek-merrimack-door-leverset-w-wilshire-rosette-merrimack-wilshire",
+      "image_url": "https://hardwarehut.com/images/moreimages/doorlevers/emtekproductsinc/emt-brass-lever-merrimack-wilshire-us10-main.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://hardwarehut.com/images/pdf/emtek/merrimack-specs.pdf",
+          "source": "hardware-hut"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 152,
+          "url": "https://hardwarehut.com/products/emtek-merrimack-door-leverset-w-wilshire-rosette-merrimack-wilshire",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "187181",
+      "brand": "BAI",
+      "title": "Brass Accents Salem Low Profile Door Leverset",
+      "best_price": 168.3,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/brass-accents-salem-low-profile-door-leverset-salem-low-profile",
+      "image_url": "https://hardwarehut.com/images/moreimages/doorlevers/brassaccents/bai-salem-main.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/brassaccents/bai-passage-self-aligning.pdf",
+          "source": "hardware-hut"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 168.3,
+          "url": "https://hardwarehut.com/products/brass-accents-salem-low-profile-door-leverset-salem-low-profile",
+          "evidence": "normalized product search row"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: hardware"
+  ],
+  "sources_run": [
+    "hardware-hut",
+    "rejuvenation",
+    "ikea"
+  ]
+}

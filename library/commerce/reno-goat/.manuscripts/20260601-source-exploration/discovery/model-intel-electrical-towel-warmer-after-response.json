@@ -1,0 +1,104 @@
+{
+  "query": "towel warmer",
+  "total": 3,
+  "models": [
+    {
+      "model": "ABTW3216H",
+      "brand": "Alfi Brand",
+      "title": "ALFI BRAND ABTW3216H 31 1/2 INCH LIVE EDGE CEDAR WOOD TOWEL WARMER IN POLISHED CHROME",
+      "best_price": 657.56,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/alfi-brand-abtw3216h-31-1-2-inch-live-edge-cedar-wood-towel-warmer-in-polished-chrome.html",
+      "image_url": "https://www.kbauthority.com/images/T/249/ABTW3216H.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 657.56,
+          "url": "https://www.kbauthority.com/alfi-brand-abtw3216h-31-1-2-inch-live-edge-cedar-wood-towel-warmer-in-polished-chrome.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "ECMH3",
+      "brand": "Myson",
+      "title": "Myson - Ecmh3/3 Electric 120V 28 Inch H X 21 Inch W  Towel Warmer",
+      "category": "Towel Warmers",
+      "best_price": 739.5,
+      "best_source": "plumbtile",
+      "product_url": "https://plumbtile.com/products/myson-ecmh-3-3?_pos=2\u0026_psq=towel+warmer\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0623/8552/0866/files/ECMH3-3.jpg?v=1706414989",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://plumbtile.info/pdf/myson/ECMH3-3-SUBMITTAL_SPEC-2016.pdf",
+          "source": "plumbtile"
+        }
+      ],
+      "offers": [
+        {
+          "source": "plumbtile",
+          "price": 739.5,
+          "regular": 986,
+          "url": "https://plumbtile.com/products/myson-ecmh-3-3?_pos=2\u0026_psq=towel+warmer\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Specification FileManufacturer's Part Number(s): ECMH-3/3CH, ECMH-3/3MB, ECMH-3/3NI, ECMH-3/3ORB, ECMH-3/3RB, ECMH-3/3SN, ECMH-3/3WH\nspec: https://plumbtile.info/pdf/myson/ECMH3-3-SUBMITTAL_SPEC-2016.pdf"
+      ]
+    },
+    {
+      "model": "EMR750",
+      "brand": "Myson",
+      "title": "Myson - Emr750 Electric 120V 36 Inch H X 24 Inch W  Towel Warmer",
+      "category": "Towel Warmers",
+      "best_price": 2846.25,
+      "best_source": "plumbtile",
+      "product_url": "https://plumbtile.com/products/myson-emr-750?_pos=1\u0026_psq=towel+warmer\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0623/8552/0866/files/panel-radiators-emr-750.jpg?v=1706415022",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://plumbtile.info/pdf/myson/EMR750-SUBMITTAL_SPEC-2016.pdf",
+          "source": "plumbtile"
+        }
+      ],
+      "offers": [
+        {
+          "source": "plumbtile",
+          "price": 2846.25,
+          "regular": 3795,
+          "url": "https://plumbtile.com/products/myson-emr-750?_pos=1\u0026_psq=towel+warmer\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Specification FileManufacturer's Part Number(s): EMR-750CH, EMR-750NI, EMR-750ORB, EMR-750RB, EMR-750SN, EMR-750WH\nspec: https://plumbtile.info/pdf/myson/EMR750-SUBMITTAL_SPEC-2016.pdf"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: electrical, plumbing",
+    "Source warning: lightology: lightology: no category route for query \"towel warmer\"",
+    "Source warning: ferguson: ferguson: HTTP 403: \u003cHTML\u003e\u003cHEAD\u003e"
+  ],
+  "sources_run": [
+    "superbrightleds",
+    "prolighting",
+    "1000bulbs",
+    "bees-lighting",
+    "lighting-new-york",
+    "lightology",
+    "ferguson",
+    "floor-and-decor",
+    "plumbersstock",
+    "faucetdepot",
+    "faucetlist",
+    "plumbtile",
+    "modern-bathroom",
+    "kbauthority"
+  ]
+}

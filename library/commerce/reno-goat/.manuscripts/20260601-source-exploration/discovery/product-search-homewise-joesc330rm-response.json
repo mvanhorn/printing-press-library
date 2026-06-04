@@ -1,0 +1,23 @@
+{
+  "query": "JOESC330RM",
+  "total_results": 1,
+  "sources_queried": [
+    "homewise-appliance"
+  ],
+  "products": [
+    {
+      "id": "JOESC330RM",
+      "source": "homewise-appliance",
+      "title": "JennAir NOIR™ 30 Inch Single Convection Electric Smart Wall Oven with 5.0 cu. ft. Capacity, MultiMode® True Convection System, 7.8\" Full-Color Ultra Wide LCD Display, Smooth Close/Open Doors, Air Fry and Temperature Probe: NOIR™, Stainless Steel",
+      "brand": "Jennair",
+      "url": "https://www.homewiseappliance.com/jennair-noir-30-inch-single-convection-electric-smart-wall-oven-with-50-cu-ft-multimode-joesc330rm",
+      "image_url": "https://d2kv2tdugu7e0m.cloudfront.net/ProductImage/e9faa5da690d5bad.png",
+      "description": "status: S\napplianceType: Premium Appliance\nWall Oven Size (in.): 30\"\nFuel Type: Electric\nCapacity (Cu. Ft.): 5.0 cu. ft.\nHeight (in.): 26\"\nWidth (in.): 29.75\"\nDepth (in.): 24.44\"",
+      "price_min": 3899,
+      "price_max": 3899,
+      "regular_price_min": 3899,
+      "regular_price_max": 3899,
+      "category": "Cooking"
+    }
+  ]
+}

@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/reno-goat/internal/store"
+	"github.com/spf13/cobra"
 )
 
 type syncHintState struct {

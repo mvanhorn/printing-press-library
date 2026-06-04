@@ -1,0 +1,181 @@
+{
+  "query": "door hinge",
+  "total": 8,
+  "models": [
+    {
+      "model": "405313",
+      "brand": "SGS",
+      "title": "SGS Residential Duty 4\" x 4\" Door Hinge - 5/8in. Radius Corner - EACH",
+      "best_price": 5.36,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/sgs-residential-duty-4-102mm-x-4-102mm-door-hinge-5-8in-radius-corner-each-158-4",
+      "image_url": "https://hardwarehut.com/images/door_hinges/sgs-158-4-us1d.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 5.36,
+          "url": "https://hardwarehut.com/products/sgs-residential-duty-4-102mm-x-4-102mm-door-hinge-5-8in-radius-corner-each-158-4",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "3-1-2-TUMALO-SQUARE-KNUCKLE-HINGE",
+      "title": "Tumalo Square Knuckle Door Hinge",
+      "best_price": 15.97,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/3-1-2-tumalo-square-knuckle-hinge/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202605/0004/tumalo-square-knuckle-door-hinge-i.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 15.97,
+          "regular": 39,
+          "url": "https://www.rejuvenation.com/products/3-1-2-tumalo-square-knuckle-hinge/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "With an ultra-slim design, Tumalo offers a versatile, easy upgrade for any door. Details You'll Appreciate Designed by our team at our Portland, Oregon studio Crafted from solid brass in your choice of finish Product Specifications Solid brass Mounting hardware included WARNING: This product can expose you to chemicals including lead, which are known to the State of California to cause cancer and birth defects or other reproductive harm. For more information go to www.P65warnings.ca.gov Care Instructions Wipe with a dry soft cloth, and very mild soap if necessary Avoid using abrasive cloths or pads, harsh chemicals, alcohol, and ammoniated products Polished Nickel finish: Will naturally develop a milky-white tarnish over time particularly in humid environments. This patina can periodically be removed with a soft cloth and a mild solution of household ammonia"
+      ]
+    },
+    {
+      "model": "DSB3025",
+      "brand": "DEL",
+      "title": "Deltana Solid Brass 3\" x 2-1/2\" Screen Door Hinge - Square Corner",
+      "best_price": 20.96,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/deltana-solid-brass-3-76mm-x-2-1-2-64mm-screen-door-hinge-square-corner-dsb3025",
+      "image_url": "https://hardwarehut.com/images/moreimages/screen-stormdoorhardware/deltana/del-dsb3025u10b-main.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/deltana/dsb3025.pdf",
+          "source": "hardware-hut"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 20.96,
+          "url": "https://hardwarehut.com/products/deltana-solid-brass-3-76mm-x-2-1-2-64mm-screen-door-hinge-square-corner-dsb3025",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "401631",
+      "brand": "DEL",
+      "title": "Deltana Solid Brass 4\" x 4\" Door Hinge - Square Corner",
+      "best_price": 26.16,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/deltana-solid-brass-4-102mm-x-4-102mm-door-hinge-square-corner-dsb4",
+      "image_url": "https://hardwarehut.com/images/door_hinges/del-dsb43.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/deltana/dsb4.pdf",
+          "source": "hardware-hut"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 26.16,
+          "url": "https://hardwarehut.com/products/deltana-solid-brass-4-102mm-x-4-102mm-door-hinge-square-corner-dsb4",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "LACHLAN-DOOR-HINGE",
+      "title": "Lachlan Door Hinge",
+      "best_price": 27.97,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/lachlan-door-hinge/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202602/0021/img168c.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 27.97,
+          "regular": 55,
+          "url": "https://www.rejuvenation.com/products/lachlan-door-hinge/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Outfit your door with Lachlan. These traditional loose-pin hinges have removable pins attached to the top finial to make door removal and installation easier and faster. Details You’ll Appreciate Exclusive in-house design Sculptural, decorative finials—the perfect finishing touch for your doors Crafted from solid brass in your choice of finish Product Specifications Solid brass with stainless steel pin Mounting hardware included WARNING: This product can expose you to chemicals including lead, which are known to the State of California to cause cancer and birth defects or other reproductive harm. For more information go to www.P65warnings.ca.gov Care Instructions Unlacquered Brass Finish: Will naturally patina; Wipe with a dry soft cloth. Heavy tarnish may require a brass polish to brighten."
+      ]
+    },
+    {
+      "model": "3-1-2-BALL-TIP-DOOR-HINGE",
+      "title": "Ball-Tip Door Hinge",
+      "best_price": 45,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/3-1-2-ball-tip-door-hinge/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202619/0004/img97c.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 45,
+          "regular": 45,
+          "url": "https://www.rejuvenation.com/products/3-1-2-ball-tip-door-hinge/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Ball finials give this traditional hinge a period-authentic look. Details You'll Appreciate Vintage-inspired ball-tip design Crafted from solid brass in your choice of finish Product Specifications Made in a Fair Trade Certified™ factory, empowering workers who made it Solid brass Mounting hardware included WARNING: This product can expose you to chemicals including lead, which are known to the State of California to cause cancer and birth defects or other reproductive harm. For more information go to www.P65warnings.ca.gov Care Instructions Wipe with a dry soft cloth, and very mild soap if necessary Avoid using abrasive cloths or pads, harsh chemicals, alcohol, and ammoniated products Unlacquered Brass finish: Will naturally patina. Wipe with a dry soft cloth—heavy tarnish may require a brass polish to brighten Polished Nickel finish: Will naturally develop a milky-white tarnish over time particularly in humid environments. This patina can periodically be removed with a soft cloth and"
+      ]
+    },
+    {
+      "model": "SQUARE-DOOR-HINGE-SPAF-FINISH-REMAINDER",
+      "title": "Square Door Hinge",
+      "best_price": 45,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/square-door-hinge/?subGroupId=square-door-hinge-SPAF-finish-remainder",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202602/0017/img65c.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 45,
+          "regular": 45,
+          "url": "https://www.rejuvenation.com/products/square-door-hinge/?subGroupId=square-door-hinge-SPAF-finish-remainder",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Outfit your door with the perfect solid brass finishing touch. These hinges feature clean, squared-off edges for a seamless, versatile look. Details You'll Appreciate Exclusive in-house design Versatile square shaped design Crafted from solid brass or bronze in your choice of finish Product Specifications Solid brass or bronze Mounting hardware included WARNING: This product can expose you to chemicals including lead, which are known to the State of California to cause cancer and birth defects or other reproductive harm. For more information go to www.P65warnings.ca.gov Care Instructions Unlacquered Brass Finish: Will naturally patina; Wipe with a dry soft cloth. Heavy tarnish may require a brass polish to brighten."
+      ]
+    },
+    {
+      "model": "CURVED-DOOR-HINGE",
+      "title": "Curved Door Hinge",
+      "best_price": 49,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/curved-door-hinge/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202602/0014/img277c.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 49,
+          "regular": 49,
+          "url": "https://www.rejuvenation.com/products/curved-door-hinge/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Complete your door with an elevated finishing touch. The Curved Door Hinge features a seamless look with curved corners that is versatile for homes of any style. Details You'll Appreciate Exclusive in-house design Curved corners create a streamlined appearance Crafted from solid brass in your choice of finish Made in a Fair Trade Certified™ factory, empowering workers who made it Product Specifications Solid brass Knuckle hinge Mounting hardware included WARNING: This product can expose you to chemicals including lead, which are known to the State of California to cause cancer and birth defects or other reproductive harm. For more information go to www.P65warnings.ca.gov Care Instructions Wipe with a soft, non-abrasive cloth dampened with clean water. Wipe dry with a soft, nonabrasive cloth. Water residue should not be left on the product as chemicals or minerals contained within may damage the protective coating and degrade the finish. Do not use any abrasive or non-abrasive cleaners"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: hardware"
+  ],
+  "sources_run": [
+    "hardware-hut",
+    "rejuvenation",
+    "ikea"
+  ]
+}

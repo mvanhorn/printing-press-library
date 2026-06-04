@@ -116,7 +116,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name:        "reno-goat-pp-cli",
-			Description: "Search, compare, price-watch, and project-track renovation and interior products across 11 retailers",
+			Description: "Search, compare, price-watch, model-enrich, and project-track renovation selections across 33 active sources plus 5 tracked stubs",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{

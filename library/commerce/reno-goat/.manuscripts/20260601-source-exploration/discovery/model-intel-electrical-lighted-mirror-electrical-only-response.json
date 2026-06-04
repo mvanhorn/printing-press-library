@@ -1,0 +1,264 @@
+{
+  "query": "lighted mirror",
+  "total": 10,
+  "models": [
+    {
+      "model": "SE-350",
+      "brand": "90Plus Lighting",
+      "title": "2 in. Dia. - LED G16.5 Globe - 5 Watt - 40 Watt Equal - Incandescent Match - 350 Lumens - 2700 Kelvin - 90Plus Lighting SE-350.035",
+      "category": "cat2 led decorative",
+      "best_price": 2.08,
+      "best_source": "1000bulbs",
+      "product_url": "https://www.1000bulbs.com/product/209184/PLT-11297.html",
+      "image_url": "https://assets.1000bulbs.com/variants/2GE1cpyfgmWrMX7fmMXqm82V/2396028417565ec9a5980759fc72d6e316eaf3f8aa8cc250171894c07012ad4f",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://assets.1000bulbs.com/isVWpj1Ba5Up4vpD8ALyaj9M?response-content-disposition=inline%3B+filename%3D%2290plus-lighting-se-350.035-specs-and-dimmers.pdf",
+          "source": "1000bulbs"
+        },
+        {
+          "kind": "document",
+          "url": "https://assets.1000bulbs.com/FtF7qstu2CsTQpGbuLEDUKXd?response-content-disposition=inline%3B+filename%3D%2290plus-lighting-certification-compliance.vmay26.pdf",
+          "source": "1000bulbs"
+        },
+        {
+          "kind": "document",
+          "url": "https://assets.1000bulbs.com/GknpJSpJ997F9qqLqNKc2ibA?response-content-disposition=inline%3B+filename%3D%2290-plus-warranty-vapr23.pdf",
+          "source": "1000bulbs"
+        }
+      ],
+      "offers": [
+        {
+          "source": "1000bulbs",
+          "price": 2.08,
+          "url": "https://www.1000bulbs.com/product/209184/PLT-11297.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "PLT-40037",
+      "brand": "PLT",
+      "title": "40 Watt - 5 in. Dia. - G40 Globe Incandescent Light Bulb - Amber Tint - Medium Base - 120 Volt - PLT-40037",
+      "category": "cat1 incandescent filament bulbs",
+      "best_price": 9.33,
+      "best_source": "1000bulbs",
+      "product_url": "https://www.1000bulbs.com/product/177135/PLT-40037.html",
+      "image_url": "https://assets.1000bulbs.com/variants/quo6H5Sr6vgbkfw4kKbuhm6e/2396028417565ec9a5980759fc72d6e316eaf3f8aa8cc250171894c07012ad4f",
+      "offers": [
+        {
+          "source": "1000bulbs",
+          "price": 9.33,
+          "url": "https://www.1000bulbs.com/product/177135/PLT-40037.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "VM22736BL",
+      "brand": "Elegant Lighting",
+      "title": "Aqua 36 X 27 inch Blue Vanity Mirror",
+      "category": "Wall Mirrors",
+      "best_price": 65.83,
+      "best_source": "lighting-new-york",
+      "product_url": "https://lightingnewyork.com/product/furniture-and-decor/home-decor/wall-mirrors/elegant-lighting-aqua-wall-mirrors-vm22736bl/2092651.html",
+      "image_url": "https://lightingnewyork.com/on/demandware.static/-/Sites-master-catalog-lny/default/dwf4c4e8d8/brand/elg/productimages/vm22736bl.jpg",
+      "offers": [
+        {
+          "source": "lighting-new-york",
+          "price": 65.83,
+          "regular": 65.84,
+          "url": "https://lightingnewyork.com/product/furniture-and-decor/home-decor/wall-mirrors/elegant-lighting-aqua-wall-mirrors-vm22736bl/2092651.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "MR6E2024BLK",
+      "brand": "Elegant Lighting",
+      "title": "Everly 24 X 20 inch Black Mirror",
+      "category": "Wall Mirrors",
+      "best_price": 104.5,
+      "best_source": "lighting-new-york",
+      "product_url": "https://lightingnewyork.com/product/furniture-and-decor/home-decor/wall-mirrors/elegant-lighting-everly-wall-mirrors-mr6e2024blk/2641917.html",
+      "image_url": "https://lightingnewyork.com/on/demandware.static/-/Sites-master-catalog-lny/default/dwa7b99586/brand/elg/productimages/mr6e2024blk.jpg",
+      "offers": [
+        {
+          "source": "lighting-new-york",
+          "price": 104.5,
+          "regular": 104.5,
+          "url": "https://lightingnewyork.com/product/furniture-and-decor/home-decor/wall-mirrors/elegant-lighting-everly-wall-mirrors-mr6e2024blk/2641917.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "MR802424BK",
+      "brand": "Elegant Lighting",
+      "title": "Evermore 24 X 24 inch Black Vanity Mirror",
+      "category": "Wall Mirrors",
+      "best_price": 126,
+      "best_source": "lighting-new-york",
+      "product_url": "https://lightingnewyork.com/product/furniture-and-decor/home-decor/wall-mirrors/elegant-lighting-evermore-wall-mirrors-mr802424bk/2641886.html",
+      "image_url": "https://lightingnewyork.com/on/demandware.static/-/Sites-master-catalog-lny/default/dwc14d2e04/brand/elg/productimages/mr802424bk.jpg",
+      "offers": [
+        {
+          "source": "lighting-new-york",
+          "price": 126,
+          "regular": 126,
+          "url": "https://lightingnewyork.com/product/furniture-and-decor/home-decor/wall-mirrors/elegant-lighting-evermore-wall-mirrors-mr802424bk/2641886.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "MR6A2432GD",
+      "brand": "Elegant Lighting",
+      "title": "Everly 32 X 24 inch Gold Mirror",
+      "category": "Wall Mirrors",
+      "best_price": 127.6,
+      "best_source": "lighting-new-york",
+      "product_url": "https://lightingnewyork.com/product/furniture-and-decor/home-decor/wall-mirrors/elegant-lighting-everly-wall-mirrors-mr6a2432gd/2641906.html",
+      "image_url": "https://lightingnewyork.com/on/demandware.static/-/Sites-master-catalog-lny/default/dw30575e04/brand/elg/productimages/mr6a2432gd.jpg",
+      "offers": [
+        {
+          "source": "lighting-new-york",
+          "price": 127.6,
+          "regular": 127.6,
+          "url": "https://lightingnewyork.com/product/furniture-and-decor/home-decor/wall-mirrors/elegant-lighting-everly-wall-mirrors-mr6a2432gd/2641906.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "MR9101",
+      "brand": "Elegant Lighting",
+      "title": "Sparkle 35.5 X 24 inch Clear Wall Mirror",
+      "category": "Wall Mirrors",
+      "best_price": 139.7,
+      "best_source": "lighting-new-york",
+      "product_url": "https://lightingnewyork.com/product/furniture-and-decor/home-decor/wall-mirrors/elegant-lighting-sparkle-wall-mirrors-mr9101/1165505.html",
+      "image_url": "https://lightingnewyork.com/on/demandware.static/-/Sites-master-catalog-lny/default/dw278eb53a/brand/elg/productimages/mr9101.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://lightingnewyork.com/on/demandware.static/-/Sites-master-catalog-lny/default/dwf85107eb/brand/elg/assets/specsheet/mr9101_line_drawing.pdf",
+          "source": "lighting-new-york"
+        }
+      ],
+      "offers": [
+        {
+          "source": "lighting-new-york",
+          "price": 139.7,
+          "regular": 139.7,
+          "url": "https://lightingnewyork.com/product/furniture-and-decor/home-decor/wall-mirrors/elegant-lighting-sparkle-wall-mirrors-mr9101/1165505.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "MR4538BK",
+      "brand": "Elegant Lighting",
+      "title": "Eternity 38 X 32 inch Black Wall Mirror",
+      "category": "Wall Mirrors",
+      "best_price": 144.2,
+      "best_source": "lighting-new-york",
+      "product_url": "https://lightingnewyork.com/product/furniture-and-decor/home-decor/wall-mirrors/elegant-lighting-eternity-wall-mirrors-mr4538bk/1738600.html",
+      "image_url": "https://lightingnewyork.com/on/demandware.static/-/Sites-master-catalog-lny/default/dw6b3ef871/brand/elg/productimages/mr4538bk.jpg",
+      "offers": [
+        {
+          "source": "lighting-new-york",
+          "price": 144.2,
+          "regular": 206,
+          "url": "https://lightingnewyork.com/product/furniture-and-decor/home-decor/wall-mirrors/elegant-lighting-eternity-wall-mirrors-mr4538bk/1738600.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "WS-32018-TT",
+      "brand": "WAC Lighting",
+      "title": "Mirror Mirror LED 17.88 inch Titanium Bath Vanity \u0026 Wall Light, dweLED",
+      "category": "Bathroom Vanity Lights",
+      "best_price": 149,
+      "best_source": "lighting-new-york",
+      "product_url": "https://lightingnewyork.com/product/lighting/wall-lights/bathroom-vanity-lights/wac-lighting-mirror-mirror-bathroom-lights-ws-32018-tt/1893961.html",
+      "image_url": "https://lightingnewyork.com/on/demandware.static/-/Sites-master-catalog-lny/default/dwd6c2b542/brand/wac/productimages/ws-32018-tt.main.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://lightingnewyork.com/on/demandware.static/-/Sites-master-catalog-lny/default/dw10cca752/brand/wac/assets/install/pylogicwacinstallationguide_ws32018tt.pdf",
+          "source": "lighting-new-york"
+        },
+        {
+          "kind": "spec",
+          "url": "https://lightingnewyork.com/on/demandware.static/-/Sites-master-catalog-lny/default/dw1c53010b/brand/wac/assets/specsheet/pylogicwacspecsheet_ws32018tt.pdf",
+          "source": "lighting-new-york"
+        }
+      ],
+      "offers": [
+        {
+          "source": "lighting-new-york",
+          "price": 149,
+          "regular": 149,
+          "url": "https://lightingnewyork.com/product/lighting/wall-lights/bathroom-vanity-lights/wac-lighting-mirror-mirror-bathroom-lights-ws-32018-tt/1893961.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "LM1832",
+      "brand": "RAB",
+      "title": "RAB MIRA Edge LED Mirror Light - 18\" x 32\" - 23W - CCT Selectable - 120V",
+      "category": "Illuminated Mirrors \u003e Vanity Lights \u003e MIRA Lighted Mirrors",
+      "best_price": 200,
+      "best_source": "prolighting",
+      "product_url": "https://www.prolighting.com/rab-led-mirror-light-lm1832.html",
+      "image_url": "https://www.prolighting.com/media/klevu_images/320X320/l/m/lm1832.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://www.prolighting.com/LM1832_spec_sheet.pdf",
+          "source": "prolighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.prolighting.com/Mira-Mirror-Light-Sell-Sheet_1.pdf",
+          "source": "prolighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.prolighting.com/MIRA-Mirror-Light-Instructions.pdf",
+          "source": "prolighting"
+        }
+      ],
+      "offers": [
+        {
+          "source": "prolighting",
+          "price": 200,
+          "regular": 200,
+          "url": "https://www.prolighting.com/rab-led-mirror-light-lm1832.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "RAB MIRA Edge LED Mirror Light - 18\" x 32\" - 23W - CCT Selectable - 120V"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: electrical",
+    "Source warning: lightology: lightology: no category route for query \"lighted mirror\""
+  ],
+  "sources_run": [
+    "superbrightleds",
+    "prolighting",
+    "1000bulbs",
+    "bees-lighting",
+    "lighting-new-york",
+    "lightology"
+  ]
+}

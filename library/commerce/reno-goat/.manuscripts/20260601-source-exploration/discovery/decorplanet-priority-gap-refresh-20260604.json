@@ -1,0 +1,92 @@
+{
+  "source": "DecorPlanet",
+  "date": "2026-06-04",
+  "status": "blocked",
+  "transport": "plain HTTP/1.1 with browser user agent",
+  "summary": "DecorPlanet remains a bath-showroom gap, not an active Reno Goat source. Root, search, category, API, JSON, and static guesses on the www host consistently returned Cloudflare HTTP 522 with 15-byte bodies. Non-www routes timed out without saved bodies. No product payload, static app bundle, robots file, sitemap, or price-bearing endpoint was reachable under the current plain CLI transport.",
+  "product_gap": [
+    "shower valve and shower control rows with prices",
+    "shower system rows with prices",
+    "bathroom vanity rows with prices",
+    "DecorPlanet bath-showroom product URLs suitable for active fan-out"
+  ],
+  "routes_tested": [
+    {
+      "url": "https://www.decorplanet.com/",
+      "result": "HTTP 522; 15-byte body: error code: 522"
+    },
+    {
+      "url": "https://www.decorplanet.com/robots.txt",
+      "result": "HTTP 000 timeout/no body"
+    },
+    {
+      "url": "https://www.decorplanet.com/sitemap.xml",
+      "result": "HTTP 522; 15-byte body: error code: 522"
+    },
+    {
+      "url": "https://www.decorplanet.com/search?q=shower%20valve",
+      "result": "HTTP 522; 15-byte body: error code: 522"
+    },
+    {
+      "url": "https://www.decorplanet.com/search?q=bathroom%20vanity",
+      "result": "HTTP 522; 15-byte body: error code: 522"
+    },
+    {
+      "url": "https://www.decorplanet.com/search?q=shower%20system",
+      "result": "HTTP 522; 15-byte body: error code: 522"
+    },
+    {
+      "url": "https://www.decorplanet.com/bathroom-vanities",
+      "result": "HTTP 522; 15-byte body: error code: 522"
+    },
+    {
+      "url": "https://www.decorplanet.com/bathroom-vanities.html",
+      "result": "HTTP 522; 15-byte body: error code: 522"
+    },
+    {
+      "url": "https://www.decorplanet.com/shower-systems.html",
+      "result": "HTTP 522; 15-byte body: error code: 522"
+    },
+    {
+      "url": "https://www.decorplanet.com/shower-valves.html",
+      "result": "HTTP 522; 15-byte body: error code: 522"
+    },
+    {
+      "url": "https://www.decorplanet.com/api/search?q=shower%20valve",
+      "result": "HTTP 522; 15-byte body: error code: 522"
+    },
+    {
+      "url": "https://www.decorplanet.com/search/suggest.json?q=shower%20valve&resources[type]=product&resources[limit]=5",
+      "result": "HTTP 522; 15-byte body: error code: 522"
+    },
+    {
+      "url": "https://www.decorplanet.com/products.json?limit=5",
+      "result": "HTTP 522; 15-byte body: error code: 522"
+    },
+    {
+      "url": "https://www.decorplanet.com/collections/all/products.json?limit=5",
+      "result": "HTTP 522; 15-byte body: error code: 522"
+    },
+    {
+      "url": "https://www.decorplanet.com/graphql",
+      "result": "HTTP 522; 15-byte body: error code: 522"
+    },
+    {
+      "url": "https://www.decorplanet.com/_next/static/chunks/main.js",
+      "result": "HTTP 522; 15-byte body: error code: 522"
+    },
+    {
+      "url": "https://www.decorplanet.com/static/js/main.js",
+      "result": "HTTP 522; 15-byte body: error code: 522"
+    },
+    {
+      "url": "https://decorplanet.com/",
+      "result": "HTTP 000 timeout/no body"
+    },
+    {
+      "url": "https://decorplanet.com/search?q=shower%20valve",
+      "result": "HTTP 000 timeout/no body"
+    }
+  ],
+  "next_action": "Treat DecorPlanet as a GHST-293/browser-like transport or browser-resource candidate only if a normal browser can obtain product resources. Current plain replay has no static bundle or product payload to inspect, so there is no parser or source promotion task yet."
+}

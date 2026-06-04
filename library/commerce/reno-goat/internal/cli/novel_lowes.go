@@ -101,9 +101,9 @@ func newSuggestLowesSuggestCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Autocomplete suggestions from Lowe's. Returns search term completions with optional category facets.",
 		Example: "  reno-goat-pp-cli suggest lowes-suggest faucet",
 		Annotations: map[string]string{
-			"pp:endpoint":  "suggest.lowes-suggest",
-			"pp:method":    "GET",
-			"pp:path":      lowesAutocomplete,
+			"pp:endpoint":   "suggest.lowes-suggest",
+			"pp:method":     "GET",
+			"pp:path":       lowesAutocomplete,
 			"mcp:read-only": "true",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -206,9 +206,9 @@ func newStoresLowesStoresCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Find Lowe's stores near a ZIP code. Returns address, hours, coordinates, phone, and features.",
 		Example: "  reno-goat-pp-cli stores lowes-stores 66101",
 		Annotations: map[string]string{
-			"pp:endpoint":  "stores.lowes-stores",
-			"pp:method":    "GET",
-			"pp:path":      lowesStoreFinder,
+			"pp:endpoint":   "stores.lowes-stores",
+			"pp:method":     "GET",
+			"pp:path":       lowesStoreFinder,
 			"mcp:read-only": "true",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {

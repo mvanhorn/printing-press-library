@@ -1,0 +1,248 @@
+{
+  "query": "cabinet pull",
+  "total": 12,
+  "models": [
+    {
+      "model": "380582",
+      "brand": "BER",
+      "title": "Berenson Advantage Plus 5\" (128mm) Center-to-Center Square Cabinet Pull (Matte Black)",
+      "best_price": 5.75,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/berenson-advantage-plus-5-128mm-centers-square-cabinet-pull-matte-black-9014-4055-p",
+      "image_url": "https://hardwarehut.com/images/moreimages/cabinetknobsandpulls/berenson/ber-9014-4055-p-main.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 5.75,
+          "url": "https://hardwarehut.com/products/berenson-advantage-plus-5-128mm-centers-square-cabinet-pull-matte-black-9014-4055-p",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "BP36571",
+      "brand": "AME",
+      "title": "Amerock Monument 5\" (128mm) Center-to-Center Cabinet Pull",
+      "best_price": 5.87,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/amerock-monument-5-128mm-centers-cabinet-pull-bp36571",
+      "image_url": "https://hardwarehut.com/images/moreimages/cabinetknobsandpulls/amerock/ame-bp36571-pn-main.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 5.87,
+          "url": "https://hardwarehut.com/products/amerock-monument-5-128mm-centers-cabinet-pull-bp36571",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "401711",
+      "brand": "BER",
+      "title": "Berenson Metro 3-3/4\" (96mm) Center-to-Center Cabinet Pull",
+      "best_price": 7.17,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/berenson-metro-3-3-4-96mm-centers-cabinet-pull-metro-3",
+      "image_url": "https://hardwarehut.com/images/moreimages/cabinetknobsandpulls/berenson/ber-4111-1055-p-main.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/berenson/4111-1055-p_line-drawing.pdf",
+          "source": "hardware-hut"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 7.17,
+          "url": "https://hardwarehut.com/products/berenson-metro-3-3-4-96mm-centers-cabinet-pull-metro-3",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "380572",
+      "brand": "BER",
+      "title": "Berenson Advantage Plus 6-5/16\" Center-to-Center Square Cabinet Pull (Matte Black)",
+      "best_price": 7.23,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/berenson-advantage-plus-6-5-16-160mm-centers-square-cabinet-pull-matte-black-9017-4055-p",
+      "image_url": "https://hardwarehut.com/images/moreimages/cabinetknobsandpulls/berenson/ber-9017-4055-p-main.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 7.23,
+          "url": "https://hardwarehut.com/products/berenson-advantage-plus-6-5-16-160mm-centers-square-cabinet-pull-matte-black-9017-4055-p",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "401712",
+      "brand": "BER",
+      "title": "Berenson Metro 5\" (128mm) Center-to-Center Cabinet Pull",
+      "best_price": 8.77,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/berenson-metro-5-128mm-centers-cabinet-pull-metro-5",
+      "image_url": "https://hardwarehut.com/images/moreimages/cabinetknobsandpulls/berenson/ber-4116-1055-p-main.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/berenson/4116-1055-p_line-drawing.pdf",
+          "source": "hardware-hut"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 8.77,
+          "url": "https://hardwarehut.com/products/berenson-metro-5-128mm-centers-cabinet-pull-metro-5",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "401713",
+      "brand": "BER",
+      "title": "Berenson Metro 6-5/16\" Center-to-Center Cabinet Pull",
+      "best_price": 9.21,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/berenson-metro-6-5-16-160mm-centers-cabinet-pull-metro-6",
+      "image_url": "https://hardwarehut.com/images/moreimages/cabinetknobsandpulls/berenson/ber-4118-1bpn-p-main.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/berenson/4118-1bpn-p_line-drawing.pdf",
+          "source": "hardware-hut"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 9.21,
+          "url": "https://hardwarehut.com/products/berenson-metro-6-5-16-160mm-centers-cabinet-pull-metro-6",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "BP55277",
+      "brand": "AME",
+      "title": "Amerock Blackrock 5\" (128mm) Center-to-Center Cabinet Pull",
+      "best_price": 9.62,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/amerock-blackrock-5-128mm-centers-cabinet-pull-bp55277",
+      "image_url": "https://hardwarehut.com/images/moreimages/cabinetknobsandpulls/amerock/bp55277bbr-blackrock-main.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 9.62,
+          "url": "https://hardwarehut.com/products/amerock-blackrock-5-128mm-centers-cabinet-pull-bp55277",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "BP55278",
+      "brand": "AME",
+      "title": "Amerock Blackrock 6-1/4\" Center-to-Center Cabinet Pull",
+      "best_price": 10.69,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/amerock-blackrock-6-1-4-159mm-centers-cabinet-pull-bp55278",
+      "image_url": "https://hardwarehut.com/images/cabinet_knobs_pulls/amerock/ame-bp55277-orb.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 10.69,
+          "url": "https://hardwarehut.com/products/amerock-blackrock-6-1-4-159mm-centers-cabinet-pull-bp55278",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "BP55368",
+      "brand": "AME",
+      "title": "Amerock Riva 6-5/16\" Center-to-Center Cabinet Pull",
+      "best_price": 10.69,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/amerock-riva-6-5-16-160mm-centers-cabinet-pull-bp55368",
+      "image_url": "https://hardwarehut.com/images/moreimages/cabinetknobsandpulls/amerock/bp55368g10-riva-main.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 10.69,
+          "url": "https://hardwarehut.com/products/amerock-riva-6-5-16-160mm-centers-cabinet-pull-bp55368",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "BP36796",
+      "brand": "AME",
+      "title": "Amerock Renown 6-5/16\" Center-to-Center Cabinet Pull",
+      "best_price": 14.97,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/amerock-renown-6-5-16-160mm-centers-cabinet-pull-bp36796",
+      "image_url": "https://hardwarehut.com/images/moreimages/cabinetknobsandpulls/amerock/polished-chrome_pull_allison-by-amerock_cabinet-hardware_renown_bp3679626_silo-lit_20-main.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 14.97,
+          "url": "https://hardwarehut.com/products/amerock-renown-6-5-16-160mm-centers-cabinet-pull-bp36796",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "BP36783",
+      "brand": "AME",
+      "title": "Amerock Factor 7-9/16\" Center-to-Center Cabinet Pull",
+      "best_price": 16.05,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/amerock-factor-7-9-16-192mm-centers-cabinet-pull-bp36783",
+      "image_url": "https://hardwarehut.com/images/moreimages/cabinetknobsandpulls/amerock/polished-chrome_pull_allison-by-amerock_cabinet-hardware_factor_bp3678326_silo-lit_20-main.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 16.05,
+          "url": "https://hardwarehut.com/products/amerock-factor-7-9-16-192mm-centers-cabinet-pull-bp36783",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "401714",
+      "brand": "BER",
+      "title": "Berenson Metro 8-13/16\" Center-to-Center Cabinet Pull",
+      "best_price": 17.53,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/berenson-metro-8-13-16-224mm-centers-cabinet-pull-metro-8",
+      "image_url": "https://hardwarehut.com/images/moreimages/cabinetknobsandpulls/berenson/ber-9858-1055-p-main.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/berenson/9858-1055-p_line-drawing.pdf",
+          "source": "hardware-hut"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 17.53,
+          "url": "https://hardwarehut.com/products/berenson-metro-8-13-16-224mm-centers-cabinet-pull-metro-8",
+          "evidence": "normalized product search row"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: hardware"
+  ],
+  "sources_run": [
+    "hardware-hut",
+    "rejuvenation",
+    "ikea"
+  ]
+}

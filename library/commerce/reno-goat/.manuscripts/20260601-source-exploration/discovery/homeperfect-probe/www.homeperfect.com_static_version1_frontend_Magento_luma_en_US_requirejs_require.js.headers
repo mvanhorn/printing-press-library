@@ -1,0 +1,18 @@
+HTTP/1.1 200 OK
+Date: Thu, 04 Jun 2026 05:32:11 GMT
+Content-Type: application/javascript
+Content-Length: 85994
+Connection: keep-alive
+Server: cloudflare
+Last-Modified: Tue, 26 May 2026 20:42:07 GMT
+ETag: "14fea-652be874a64f8"
+Accept-Ranges: bytes
+Nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+Cache-Control: public, max-age=31536000
+Expires: Fri, 04 Jun 2027 05:32:11 GMT
+X-Frame-Options: SAMEORIGIN
+Report-To: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=cygbsbTVnPCgCDjFLMfdKZ4Ec%2BCtUeo4skPWldo0dH5KNZGzfCgcKPHIaB7Gvvh24%2FedVVyACjf6i44OZOYdQK5wvetArfag5pGzLz4xSyYMO97sNZMH6F23f6sFNn2rVA4L%2F3Pq"}]}
+cf-cache-status: MISS
+CF-RAY: a0648e38e8d629be-IAD
+alt-svc: h3=":443"; ma=86400
+

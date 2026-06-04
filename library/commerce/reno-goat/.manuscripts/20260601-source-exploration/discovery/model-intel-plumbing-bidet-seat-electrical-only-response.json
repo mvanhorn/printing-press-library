@@ -1,0 +1,96 @@
+{
+  "query": "bidet seat",
+  "total": 4,
+  "models": [
+    {
+      "model": "10242-007-FR001",
+      "brand": "Allegri",
+      "title": "Bizet 1 Light 6 inch Black Pearl Wall Bracket Wall Light",
+      "category": "Wall Sconces",
+      "best_price": 93.62,
+      "best_source": "lighting-new-york",
+      "product_url": "https://lightingnewyork.com/product/lighting/wall-lights/wall-sconces/allegri-bizet-sconces-10242-007-fr001/473457.html",
+      "image_url": "https://lightingnewyork.com/on/demandware.static/-/Sites-master-catalog-lny/default/dwa7d23024/brand/notfound.jpg",
+      "offers": [
+        {
+          "source": "lighting-new-york",
+          "price": 93.62,
+          "regular": 93.62,
+          "url": "https://lightingnewyork.com/product/lighting/wall-lights/wall-sconces/allegri-bizet-sconces-10242-007-fr001/473457.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "10242-007-SE000",
+      "brand": "Allegri",
+      "title": "Bizet 1 Light 6 inch Black Pearl Wall Bracket Wall Light in Swarovski Elements Mixed",
+      "category": "Wall Sconces",
+      "best_price": 125.28,
+      "best_source": "lighting-new-york",
+      "product_url": "https://lightingnewyork.com/product/lighting/wall-lights/wall-sconces/allegri-bizet-sconces-10242-007-se000/473456.html",
+      "image_url": "https://lightingnewyork.com/on/demandware.static/-/Sites-master-catalog-lny/default/dwa7d23024/brand/notfound.jpg",
+      "offers": [
+        {
+          "source": "lighting-new-york",
+          "price": 125.28,
+          "regular": 125.28,
+          "url": "https://lightingnewyork.com/product/lighting/wall-lights/wall-sconces/allegri-bizet-sconces-10242-007-se000/473456.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "10247-007-FR001",
+      "brand": "Allegri",
+      "title": "Bizet 4 Light 15 inch Black Pearl Chandelier Ceiling Light",
+      "category": "Chandeliers",
+      "best_price": 321.21,
+      "best_source": "lighting-new-york",
+      "product_url": "https://lightingnewyork.com/product/lighting/ceiling-lights/chandeliers/allegri-bizet-chandeliers-10247-007-fr001/472749.html",
+      "image_url": "https://lightingnewyork.com/on/demandware.static/-/Sites-master-catalog-lny/default/dw1a7d08c2/brand/alg/productimages/10247_013_se000.jpg",
+      "offers": [
+        {
+          "source": "lighting-new-york",
+          "price": 321.21,
+          "regular": 321.21,
+          "url": "https://lightingnewyork.com/product/lighting/ceiling-lights/chandeliers/allegri-bizet-chandeliers-10247-007-fr001/472749.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "10248-013-FR001",
+      "brand": "Allegri",
+      "title": "Bizet 6 Light 22.5 inch Sienna Bronze Chandelier Ceiling Light",
+      "category": "Chandeliers",
+      "best_price": 465.13,
+      "best_source": "lighting-new-york",
+      "product_url": "https://lightingnewyork.com/product/lighting/ceiling-lights/chandeliers/allegri-bizet-chandeliers-10248-013-fr001/472758.html",
+      "image_url": "https://lightingnewyork.com/on/demandware.static/-/Sites-master-catalog-lny/default/dw3395a30c/brand/alg/productimages/10248_007_se001.jpg",
+      "offers": [
+        {
+          "source": "lighting-new-york",
+          "price": 465.13,
+          "regular": 465.13,
+          "url": "https://lightingnewyork.com/product/lighting/ceiling-lights/chandeliers/allegri-bizet-chandeliers-10248-013-fr001/472758.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: electrical",
+    "Source warning: lightology: lightology: no category route for query \"bidet seat\""
+  ],
+  "sources_run": [
+    "superbrightleds",
+    "prolighting",
+    "1000bulbs",
+    "bees-lighting",
+    "lighting-new-york",
+    "lightology"
+  ]
+}

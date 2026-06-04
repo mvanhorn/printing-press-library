@@ -1,0 +1,89 @@
+{
+  "date": "2026-06-04",
+  "source": "build.com",
+  "scope": "bath_showroom_priority_gap_refresh",
+  "transport": "plain_cli_http_curl_probe_with_browser_headers",
+  "summary": "Build.com did not expose a separate replayable product-price surface. Tested Build.com category, search, API, suggest, and GraphQL routes either returned Akamai AccessDenied or redirected to Ferguson Home. Ferguson Home remains an active Reno Goat source separately, but this pass did not prove Build.com-branded shower-valve, shower-system, or bathroom-vanity rows.",
+  "product_gaps": [
+    "Build.com-branded shower valves and shower controls",
+    "Build.com-branded shower systems",
+    "Build.com-branded bathroom vanities"
+  ],
+  "routes": [
+    {
+      "url": "https://www.build.com/",
+      "final_url": "https://www.build.com/",
+      "status": 403,
+      "outcome": "blocked",
+      "evidence": "Akamai/EdgeSuite AccessDenied body."
+    },
+    {
+      "url": "https://www.build.com/robots.txt",
+      "final_url": "https://www.fergusonhome.com/robots.txt",
+      "status": 200,
+      "outcome": "redirects_to_ferguson_home",
+      "evidence": "Robots file is served from Ferguson Home and references Ferguson Home sitemap URLs."
+    },
+    {
+      "url": "https://www.build.com/shower-valves/c109331",
+      "final_url": "https://www.fergusonhome.com/shower-valves/c109331",
+      "status": 403,
+      "outcome": "redirects_then_blocked",
+      "evidence": "Build.com category route redirects to Ferguson Home and ends in AccessDenied."
+    },
+    {
+      "url": "https://www.build.com/bathroom-vanities/c115005",
+      "final_url": "https://www.fergusonhome.com/bathroom-vanities/c115005",
+      "status": 403,
+      "outcome": "redirects_then_blocked",
+      "evidence": "Build.com category route redirects to Ferguson Home and ends in AccessDenied."
+    },
+    {
+      "url": "https://www.build.com/search?term=shower%20valve",
+      "final_url": "https://www.fergusonhome.com/search?term=shower%20valve",
+      "status": 403,
+      "outcome": "redirects_then_blocked",
+      "evidence": "Search route redirects to Ferguson Home and ends in AccessDenied."
+    },
+    {
+      "url": "https://www.build.com/search?term=bathroom%20vanity",
+      "final_url": "https://www.fergusonhome.com/search?term=bathroom%20vanity",
+      "status": 403,
+      "outcome": "redirects_then_blocked",
+      "evidence": "Search route redirects to Ferguson Home and ends in AccessDenied."
+    },
+    {
+      "url": "https://www.build.com/search?term=shower%20system",
+      "final_url": "https://www.fergusonhome.com/search?term=shower%20system",
+      "status": 403,
+      "outcome": "redirects_then_blocked",
+      "evidence": "Search route redirects to Ferguson Home and ends in AccessDenied."
+    },
+    {
+      "url": "https://www.build.com/api/search?term=shower%20valve",
+      "final_url": "https://www.fergusonhome.com/api/search?term=shower%20valve",
+      "status": 404,
+      "outcome": "ferguson_home_react_shell_without_product_rows",
+      "evidence": "Response is Ferguson Home's react-build-store shell with Apollo category/nav state, app version metadata, and a guest auth token marker. It did not contain replayable Build.com product-price rows."
+    },
+    {
+      "url": "https://www.build.com/search/suggest.json?q=shower%20valve&resources%5Btype%5D=product&resources%5Blimit%5D=5",
+      "final_url": "https://www.fergusonhome.com/search/suggest.json?q=shower%20valve&resources%5Btype%5D=product&resources%5Blimit%5D=5",
+      "status": 404,
+      "outcome": "ferguson_home_react_shell_without_product_rows",
+      "evidence": "Shopify-style suggest guess resolves to Ferguson Home shell, not a product JSON API."
+    },
+    {
+      "url": "https://www.build.com/graphql",
+      "final_url": "https://www.fergusonhome.com/graphql",
+      "status": 400,
+      "outcome": "ferguson_home_graphql_endpoint",
+      "evidence": "Endpoint responds as Ferguson Home GraphQL with a CSRF/content-type error. Existing Reno Goat Ferguson source already posts to Ferguson Home GraphQL/ProductSearch separately."
+    }
+  ],
+  "decision": {
+    "promote": false,
+    "reason": "Build.com did not produce a distinct CLI-replayable Build.com product row. Treating redirected Ferguson Home rows as Build.com would double-count the active Ferguson source and obscure the actual Build.com-branded product gap.",
+    "next_action": "Use GHST-293/browser-resource extraction only if a normal browser can separate a Build.com-branded product surface from the Ferguson Home redirect/app shell."
+  }
+}

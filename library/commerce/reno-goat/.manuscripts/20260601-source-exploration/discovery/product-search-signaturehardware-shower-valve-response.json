@@ -1,0 +1,53 @@
+{
+  "query": "shower valve",
+  "total_results": 4,
+  "sources_queried": [
+    "signature-hardware"
+  ],
+  "products": [
+    {
+      "id": "948545",
+      "source": "signature-hardware",
+      "title": "Thermostatic Rough-In Shower Valve",
+      "brand": "Signature Hardware",
+      "url": "https://www.signaturehardware.com/thermostatic--rough-in-shower-valve/948545.html",
+      "image_url": "https://images.signaturehardware.com/i/signaturehdwr/447694-thermo-valve-front-MV70.jpg",
+      "price_min": 299,
+      "price_max": 299,
+      "category": "Bathroom \u003e Showers"
+    },
+    {
+      "id": "948890",
+      "source": "signature-hardware",
+      "title": "Greyfield Pressure Balance Shower Valve",
+      "brand": "Signature Hardware",
+      "url": "https://www.signaturehardware.com/greyfield-pressure-balance-shower-valve/948890.html?dwvar_948890_finish=Aged%20Brass",
+      "image_url": "https://images.signaturehardware.com/i/signaturehdwr/485520-greyfield-PB-trim-AGBR-Beauty10.jpg",
+      "price_min": 483.19,
+      "price_max": 483.19,
+      "category": "Bathroom \u003e Showers"
+    },
+    {
+      "id": "948689",
+      "source": "signature-hardware",
+      "title": "Beasley Pressure Balance Shower Valve",
+      "brand": "Signature Hardware",
+      "url": "https://www.signaturehardware.com/beasley-pressure-balance-shower-valve/948689.html?dwvar_948689_finish=Polished%20Nickel",
+      "image_url": "https://images.signaturehardware.com/i/signaturehdwr/449304-beasley-PB-trim-with-valve-PN-Beauty10.jpg",
+      "price_min": 401.4,
+      "price_max": 401.4,
+      "category": "Bathroom \u003e Showers"
+    },
+    {
+      "id": "953773",
+      "source": "signature-hardware",
+      "title": "Lexia Thermostatic Shower Valve Trim",
+      "brand": "Signature Hardware",
+      "url": "https://www.signaturehardware.com/lexia-thermostatic-shower-valve-trim/953773.html?dwvar_953773_finish=Brushed%20Gold",
+      "image_url": "https://images.signaturehardware.com/i/signaturehdwr/483860-lexia-thermo-trim-BG-Beauty10.jpg",
+      "price_min": 348.61,
+      "price_max": 348.61,
+      "category": "Bathroom \u003e Showers"
+    }
+  ]
+}

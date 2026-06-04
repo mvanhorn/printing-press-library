@@ -1,0 +1,63 @@
+{
+  "query": "dishwasher",
+  "total_results": 3,
+  "sources_queried": [
+    "abt"
+  ],
+  "products": [
+    {
+      "id": "SHP78CM5SS",
+      "source": "abt",
+      "title": "Bosch 800 Series 24-Inch Dishwasher in Anti-Fingerprint Stainless Steel - SHP78CM5N",
+      "brand": "Bosch",
+      "url": "https://www.abt.com/Bosch-800-Series-24-Inch-Dishwasher-in-Anti-Fingerprint-Stainless-Steel-SHP78CM5N/p/181764.html",
+      "image_url": "https://content.abt.com/image.php/0396496096d1da78888c9f9168202fa8?image=/images/products/BDP_Images/bosch-dishwasher-SHP78CM5N-1.jpg\u0026ck=1\u0026width=165\u0026height=150\u0026canvas",
+      "description": "availability: In Stock",
+      "price_min": 1349,
+      "price_max": 1349,
+      "regular_price_min": 1499,
+      "regular_price_max": 1499,
+      "sale_price_min": 1349,
+      "sale_price_max": 1349,
+      "on_sale": true,
+      "discount_percent": 10.006671114076049,
+      "category": "Built In Dishwashers"
+    },
+    {
+      "id": "GDT535PYVFSS",
+      "source": "abt",
+      "title": "GE Dishwasher with Sanitize Cycle and Dry Boost 24-Inch in Fingerprint Resistant Stainless - GDT535PYVFS",
+      "brand": "GE",
+      "url": "https://www.abt.com/GE-Dishwasher-with-Sanitize-Cycle-and-Dry-Boost-24-Inch-in-Fingerprint-Resistant-Stainless-GDT535PYVFS/p/213733.html",
+      "image_url": "https://content.abt.com/image.php/e4ceafd42cdd10f554e9c07294e01284?image=/images/products/BDP_Images/ge-dishwasher-GDT535PYVFS-main.jpg\u0026ck=1\u0026width=165\u0026height=150\u0026canvas",
+      "description": "availability: In Stock",
+      "price_min": 394,
+      "price_max": 394,
+      "regular_price_min": 669,
+      "regular_price_max": 669,
+      "sale_price_min": 394,
+      "sale_price_max": 394,
+      "on_sale": true,
+      "discount_percent": 41.106128550074736,
+      "category": "Built In Dishwashers"
+    },
+    {
+      "id": "FDPC4221SS",
+      "source": "abt",
+      "title": "Frigidaire 24\" Stainless Steel Built-In Dishwasher - FDPC4221AS",
+      "brand": "Frigidaire",
+      "url": "https://www.abt.com/Frigidaire-24-Stainless-Steel-Built-In-Dishwasher-FDPC4221AS/p/163363.html",
+      "image_url": "https://content.abt.com/image.php/7bd39be2245aa2369c74b3f7e644fa61?image=/images/products/BDP_Images/frigidaire-24-inch-dishwasher-FDPC4221AS.jpg\u0026ck=1\u0026width=165\u0026height=150\u0026canvas",
+      "description": "availability: In Stock",
+      "price_min": 329,
+      "price_max": 329,
+      "regular_price_min": 419,
+      "regular_price_max": 419,
+      "sale_price_min": 329,
+      "sale_price_max": 329,
+      "on_sale": true,
+      "discount_percent": 21.479713603818617,
+      "category": "Built In Dishwashers"
+    }
+  ]
+}

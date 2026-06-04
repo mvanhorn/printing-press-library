@@ -1,0 +1,262 @@
+{
+  "query": "range hood",
+  "total": 5,
+  "models": [
+    {
+      "model": "BCSEK130WW",
+      "brand": "Broan",
+      "title": "Broan® 30-Inch Convertible Under-Cabinet Range Hood, ENERGY STAR®, 300 Max Blower CFM, White",
+      "category": "Ventilation \u003e Range Hoods",
+      "product_url": "https://broan-nutone.com/en-us/product/rangehoods/bcsek130ww",
+      "image_url": "https://broan-nutone.com/getmedia/84ca6503-99b2-4d74-a9c7-ef6ed77e5b08/BCSEK1WW_1.jpg?width=1800\u0026height=1800\u0026ext=.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://www.broan-nutone.com/getmedia/0d7b5c58-fcbb-4b27-add2-994f283645bb/Spec-Sheet-BCSEK1.pdf?ext=.pdf",
+          "source": "product-page"
+        },
+        {
+          "kind": "installation",
+          "url": "https://www.broan-nutone.com/getmedia/768c2e22-ac42-48d8-874a-91e59529f972/Installation-Guide-BCDF1-BCSEK1.pdf?ext=.pdf",
+          "source": "product-page"
+        },
+        {
+          "kind": "installation",
+          "url": "https://www.broan-nutone.com/getmedia/66daebda-40d8-4394-a4f5-c2442084177a/Installation-Guide-HCK44-HCK44D-SHCK44.pdf?ext=.pdf",
+          "source": "product-page"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.broan-nutone.com/getmedia/f9f2b879-9cb3-4dbf-9f6e-530d35552aa2/ADA-Instructions-Intermediate-Hoods.pdf?ext=.pdf",
+          "source": "product-page"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.broan-nutone.com/getmedia/a415581e-2021-4725-86bc-a1e006e1cb04/LED-Light-Information.pdf?ext=.pdf",
+          "source": "product-page"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.broan-nutone.com/getmedia/5ed03e50-b57b-4185-b167-a6750006bc49/Range-Hood-Compatibility-P2RW-P3RW-Wall-Switch.pdf?ext=.pdf",
+          "source": "product-page"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "brave-search",
+          "url": "https://search.brave.com/search?q=BCSEK130WW",
+          "status": "error",
+          "reason": "HTTP 429: \u003c!doctype html\u003e\n\u003chtml class=\"\" lang=\"en-us\"\u003e\n  \u003chead\u003e\n    \u003cmeta charset=\"utf-8\" /\u003e\n    \u003c!-- Register error handler be..."
+        },
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/BCSEK130WW.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "model_discovery: broan-nutone"
+      ]
+    },
+    {
+      "model": "BUEZ330WW",
+      "brand": "Broan-NuTone",
+      "title": "Broan-NuTone 30-Inch Convertible Under-Cabinet Range Hood w/ Easy Install System, 260 Max Blower CFM, White",
+      "category": "Ventilation \u003e Range Hoods",
+      "product_url": "https://broan-nutone.com/en-us/product/rangehoods/buez330ww",
+      "image_url": "https://broan-nutone.com/getmedia/5c85cf88-d72c-4307-8eaf-c8011219f36d/BUEZ3WW_F400011_1.jpg?width=1800\u0026height=1800\u0026ext=.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://www.broan-nutone.com/getmedia/518d8906-35ff-49a5-872c-cea92b031196/Spec-Sheet-BUEZ3.pdf?ext=.pdf",
+          "source": "product-page"
+        },
+        {
+          "kind": "installation",
+          "url": "https://www.broan-nutone.com/getmedia/7fed2fd5-b601-42a0-b3d7-ff088d2aaf52/Installation_Guide_BUEZ3_C.pdf?ext=.pdf",
+          "source": "product-page"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.broan-nutone.com/getmedia/cfdb2b9e-4cc8-4e70-a953-1660202ced85/ADA_High_Voltage_Sheet_25.pdf?ext=.pdf",
+          "source": "product-page"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "brave-search",
+          "url": "https://search.brave.com/search?q=BUEZ330WW",
+          "status": "error",
+          "reason": "HTTP 429: \u003c!doctype html\u003e\n\u003chtml class=\"\" lang=\"en-us\"\u003e\n  \u003chead\u003e\n    \u003cmeta charset=\"utf-8\" /\u003e\n    \u003c!-- Register error handler be..."
+        },
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/BUEZ330WW.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "model_discovery: broan-nutone"
+      ]
+    },
+    {
+      "model": "GLA2303BLS",
+      "brand": "Broan-NuTone",
+      "title": "Broan-NuTone 30-Inch Under Cabinet Range Hood, ENERGY STAR, 350 Max Blower CFM, Black Stainless Steel",
+      "category": "Ventilation \u003e Range Hoods",
+      "product_url": "https://broan-nutone.com/en-us/product/rangehoods/gla2303bls",
+      "image_url": "https://broan-nutone.com/getmedia/6363714c-a361-4049-8779-889751b6b26b/GLA2303BLS_1.jpg?width=1800\u0026height=1800\u0026ext=.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://www.broan-nutone.com/getmedia/9b244eb7-1cef-4d4d-803a-d80172c59cd0/Installation_Guide_MPP_P1_En.pdf?ext=.pdf",
+          "source": "product-page"
+        },
+        {
+          "kind": "spec",
+          "url": "https://www.broan-nutone.com/getmedia/a8ed0605-620a-47b4-8cf2-43b66af34a31/Spec_Sheet_GLA2_En_Fr.pdf?ext=.pdf",
+          "source": "product-page"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "brave-search",
+          "url": "https://search.brave.com/search?q=GLA2303BLS",
+          "status": "error",
+          "reason": "HTTP 429: \u003c!doctype html\u003e\n\u003chtml class=\"\" lang=\"en-us\"\u003e\n  \u003chead\u003e\n    \u003cmeta charset=\"utf-8\" /\u003e\n    \u003c!-- Register error handler be..."
+        },
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GLA2303BLS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "model_discovery: broan-nutone"
+      ]
+    },
+    {
+      "model": "GLA2303SS",
+      "brand": "Broan-NuTone",
+      "title": "Broan-NuTone 30-Inch Under Cabinet Range Hood, ENERGY STAR, 350 Max Blower CFM, Stainless Steel",
+      "category": "Ventilation \u003e Range Hoods",
+      "product_url": "https://broan-nutone.com/en-us/product/rangehoods/gla2303ss",
+      "image_url": "https://broan-nutone.com/getmedia/039b5ff4-080b-4ed2-8a34-bdb7db94f966/GLA2303SS_1.jpg?width=1800\u0026height=1800\u0026ext=.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://www.broan-nutone.com/getmedia/9b244eb7-1cef-4d4d-803a-d80172c59cd0/Installation_Guide_MPP_P1_En.pdf?ext=.pdf",
+          "source": "product-page"
+        },
+        {
+          "kind": "spec",
+          "url": "https://www.broan-nutone.com/getmedia/a8ed0605-620a-47b4-8cf2-43b66af34a31/Spec_Sheet_GLA2_En_Fr.pdf?ext=.pdf",
+          "source": "product-page"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "brave-search",
+          "url": "https://search.brave.com/search?q=GLA2303SS",
+          "status": "error",
+          "reason": "HTTP 429: \u003c!doctype html\u003e\n\u003chtml class=\"\" lang=\"en-us\"\u003e\n  \u003chead\u003e\n    \u003cmeta charset=\"utf-8\" /\u003e\n    \u003c!-- Register error handler be..."
+        },
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GLA2303SS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "model_discovery: broan-nutone"
+      ]
+    },
+    {
+      "model": "RL6230SF",
+      "brand": "Broan-NuTone",
+      "title": "Broan-NuTone 30-inch Ductless Under-Cabinet Range Hood, Stainless Finish with PrintGuard™",
+      "category": "Ventilation \u003e Range Hoods",
+      "product_url": "https://broan-nutone.com/en-us/product/rangehoods/rl6230sf",
+      "image_url": "https://broan-nutone.com/getmedia/97b153ce-9907-4174-9fae-3d0c8011f856/RL62SF_1.jpg?width=1800\u0026height=1800\u0026ext=.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://www.broan-nutone.com/getmedia/b9cb222d-64ce-4631-9bfe-e54150d8f3a4/Installation_Guide_Economy_Web_EN_FR-pdf.pdf?ext=.pdf",
+          "source": "product-page"
+        },
+        {
+          "kind": "spec",
+          "url": "https://www.broan-nutone.com/getmedia/b25fa284-9090-4335-8b0d-7db127f27694/Spec_Sheet_RL6200_1.pdf?ext=.pdf",
+          "source": "product-page"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.broan-nutone.com/getmedia/008ac698-cabc-4b3f-9a7b-85087cd84a0b/ADA-Instructions_Economy_Hoods.pdf?ext=.pdf",
+          "source": "product-page"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "brave-search",
+          "url": "https://search.brave.com/search?q=RL6230SF",
+          "status": "error",
+          "reason": "HTTP 429: \u003c!doctype html\u003e\n\u003chtml class=\"\" lang=\"en-us\"\u003e\n  \u003chead\u003e\n    \u003cmeta charset=\"utf-8\" /\u003e\n    \u003c!-- Register error handler be..."
+        },
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/RL6230SF.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "model_discovery: broan-nutone"
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/BCSEK130WW.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/BUEZ330WW.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GLA2303BLS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GLA2303SS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/RL6230SF.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category search-result model discovery used; search-derived prices are labeled as fallback evidence, not direct retailer API results."
+  ],
+  "sources_run": [
+    "broan-nutone",
+    "brave-search"
+  ]
+}

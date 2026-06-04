@@ -65,6 +65,230 @@ var sourceRegistry = []sourceConfig{
 		Status:      "active",
 	},
 	{
+		Name:        "ikea",
+		DisplayName: "IKEA",
+		BaseURL:     "https://sik.search.blue.cdtapps.com",
+		Transport:   "sik_search",
+		Categories:  []string{"foundational", "appliances", "furniture", "decor"},
+		Status:      "active",
+	},
+	{
+		Name:        "ge-appliances",
+		DisplayName: "GE Appliances",
+		BaseURL:     "https://q7rntw.a.searchspring.io",
+		Transport:   "searchspring",
+		Categories:  []string{"appliances"},
+		Status:      "active",
+	},
+	{
+		Name:        "bray-and-scarff",
+		DisplayName: "Bray & Scarff",
+		BaseURL:     "https://hasura.nmg-platform.com/v1/graphql",
+		Transport:   "nmg_hasura_graphql",
+		Categories:  []string{"appliances"},
+		Status:      "active",
+	},
+	{
+		Name:        "pc-richard",
+		DisplayName: "PC Richard",
+		BaseURL:     "https://www.pcrichard.com",
+		Transport:   "demandware_embedded_json",
+		Categories:  []string{"appliances"},
+		Status:      "active",
+	},
+	{
+		Name:        "appliance-factory",
+		DisplayName: "Appliance Factory",
+		BaseURL:     "https://www.appliancefactory.com/api/rest",
+		Transport:   "avb_rest_http1",
+		Categories:  []string{"appliances"},
+		Status:      "active",
+	},
+	{
+		Name:        "best-buy",
+		DisplayName: "Best Buy",
+		BaseURL:     "https://www.bestbuy.com",
+		Transport:   "next_ssr_product_cards",
+		Categories:  []string{"appliances"},
+		Status:      "active",
+	},
+	{
+		Name:        "abt",
+		DisplayName: "Abt",
+		BaseURL:     "https://www.abt.com",
+		Transport:   "http1_search_and_product_schema",
+		Categories:  []string{"appliances"},
+		Status:      "active",
+	},
+	{
+		Name:        "homewise-appliance",
+		DisplayName: "Homewise Appliance",
+		BaseURL:     "https://0qcofybyvd.execute-api.us-west-1.amazonaws.com/hw-prod",
+		Transport:   "bloomreach_api",
+		Categories:  []string{"appliances"},
+		Status:      "active",
+	},
+	{
+		Name:        "floor-and-decor",
+		DisplayName: "Floor & Decor",
+		BaseURL:     "https://AR91I5G1KF-dsn.algolia.net",
+		Transport:   "algolia",
+		Categories:  []string{"foundational"},
+		Status:      "active",
+	},
+	{
+		Name:        "superbrightleds",
+		DisplayName: "Super Bright LEDs",
+		BaseURL:     "https://VTAW7SB4LM-dsn.algolia.net",
+		Transport:   "algolia",
+		Categories:  []string{"foundational", "electrical"},
+		Status:      "active",
+	},
+	{
+		Name:        "prolighting",
+		DisplayName: "PROLIGHTING",
+		BaseURL:     "https://uscs34v2.ksearchnet.com",
+		Transport:   "klevu",
+		Categories:  []string{"foundational", "electrical"},
+		Status:      "active",
+	},
+	{
+		Name:        "1000bulbs",
+		DisplayName: "1000Bulbs",
+		BaseURL:     "https://www.1000bulbs.com",
+		Transport:   "html_product_cards",
+		Categories:  []string{"foundational", "electrical"},
+		Status:      "active",
+	},
+	{
+		Name:        "bees-lighting",
+		DisplayName: "Bees Lighting",
+		BaseURL:     "https://www.beeslighting.com",
+		Transport:   "shopify_suggest",
+		Categories:  []string{"electrical"},
+		Status:      "active",
+	},
+	{
+		Name:        "lighting-new-york",
+		DisplayName: "Lighting New York",
+		BaseURL:     "https://lightingnewyork.com",
+		Transport:   "demandware_embedded_json",
+		Categories:  []string{"electrical", "decor"},
+		Status:      "active",
+	},
+	{
+		Name:        "lightology",
+		DisplayName: "Lightology",
+		BaseURL:     "https://www.lightology.com",
+		Transport:   "html_gtm_product_cards",
+		Categories:  []string{"electrical", "decor"},
+		Status:      "active",
+	},
+	{
+		Name:        "plumbersstock",
+		DisplayName: "PlumbersStock",
+		BaseURL:     "https://www.plumbersstock.com",
+		Transport:   "next_ssr_product_cards",
+		Categories:  []string{"plumbing"},
+		Status:      "active",
+	},
+	{
+		Name:        "faucetdepot",
+		DisplayName: "FaucetDepot",
+		BaseURL:     "https://FSDN8N73JY-dsn.algolia.net",
+		Transport:   "algolia",
+		Categories:  []string{"foundational", "plumbing"},
+		Status:      "active",
+	},
+	{
+		Name:        "faucetlist",
+		DisplayName: "FaucetList",
+		BaseURL:     "https://faucetlist.com",
+		Transport:   "shopify_suggest",
+		Categories:  []string{"plumbing"},
+		Status:      "active",
+	},
+	{
+		Name:        "plumbtile",
+		DisplayName: "PlumbTile",
+		BaseURL:     "https://plumbtile.com",
+		Transport:   "shopify_suggest",
+		Categories:  []string{"plumbing"},
+		Status:      "active",
+	},
+	{
+		Name:        "modern-bathroom",
+		DisplayName: "Modern Bathroom",
+		BaseURL:     "https://www.modernbathroom.com",
+		Transport:   "shopify_suggest",
+		Categories:  []string{"plumbing"},
+		Status:      "active",
+	},
+	{
+		Name:        "kbauthority",
+		DisplayName: "KBAuthority",
+		BaseURL:     "https://api.searchspring.net",
+		Transport:   "searchspring_autocomplete_html",
+		Categories:  []string{"plumbing", "decor"},
+		Status:      "active",
+	},
+	{
+		Name:        "vintage-tub",
+		DisplayName: "Vintage Tub",
+		BaseURL:     "https://api.searchspring.net",
+		Transport:   "searchspring",
+		Categories:  []string{"plumbing", "decor"},
+		Status:      "active",
+	},
+	{
+		Name:        "signature-hardware",
+		DisplayName: "Signature Hardware",
+		BaseURL:     "https://www.signaturehardware.com",
+		Transport:   "demandware_suggestions_html",
+		Categories:  []string{"plumbing", "decor"},
+		Status:      "active",
+	},
+	{
+		Name:        "qualitybath",
+		DisplayName: "QualityBath",
+		BaseURL:     "https://www.qualitybath.com",
+		Transport:   "react_query_hydrated_search",
+		Categories:  []string{"plumbing", "decor"},
+		Status:      "active",
+	},
+	{
+		Name:        "pioneer-mini-split",
+		DisplayName: "Pioneer Mini Split",
+		BaseURL:     "https://www.pioneerminisplit.com",
+		Transport:   "shopify_suggest",
+		Categories:  []string{"hvac"},
+		Status:      "active",
+	},
+	{
+		Name:        "sylvane",
+		DisplayName: "Sylvane",
+		BaseURL:     "https://www.sylvane.com",
+		Transport:   "shopify_suggest",
+		Categories:  []string{"hvac"},
+		Status:      "active",
+	},
+	{
+		Name:        "iwae",
+		DisplayName: "IWAe",
+		BaseURL:     "https://iwae.com",
+		Transport:   "hyva_product_cards",
+		Categories:  []string{"hvac"},
+		Status:      "active",
+	},
+	{
+		Name:        "hardware-hut",
+		DisplayName: "The Hardware Hut",
+		BaseURL:     "https://hardwarehut.com",
+		Transport:   "html_embedded_json",
+		Categories:  []string{"foundational", "hardware", "materials"},
+		Status:      "active",
+	},
+	{
 		Name:        "wayfair",
 		DisplayName: "Wayfair",
 		BaseURL:     "https://www.wayfair.com",
@@ -86,14 +310,6 @@ var sourceRegistry = []sourceConfig{
 		BaseURL:     "https://rh.com",
 		Transport:   "unknown",
 		Categories:  []string{"foundational", "furniture"},
-		Status:      "stub",
-	},
-	{
-		Name:        "ikea",
-		DisplayName: "IKEA",
-		BaseURL:     "https://www.ikea.com",
-		Transport:   "unknown",
-		Categories:  []string{"furniture", "decor", "foundational"},
 		Status:      "stub",
 	},
 	// Lowe's: assessed via Printing Press printer protocol (probe-reachability +
@@ -131,21 +347,27 @@ var sourceRegistry = []sourceConfig{
 // categoryToSources maps a furnishing category to the source names that
 // serve it. Mirrors spec.yaml category_routing.
 var categoryToSources = map[string][]string{
-	"foundational": {"ferguson", "rejuvenation"},
-	"appliances":   {"ferguson"},
-	"furniture":    {"west-elm", "article", "shopify-dtc"},
-	"decor":        {"west-elm", "article", "rejuvenation", "shopify-dtc"},
+	"foundational": {"ferguson", "rejuvenation", "ikea", "floor-and-decor", "superbrightleds", "prolighting", "1000bulbs", "faucetdepot", "hardware-hut"},
+	"plumbing":     {"ferguson", "floor-and-decor", "plumbersstock", "faucetdepot", "faucetlist", "plumbtile", "modern-bathroom", "kbauthority", "vintage-tub", "signature-hardware", "qualitybath"},
+	"electrical":   {"superbrightleds", "prolighting", "1000bulbs", "bees-lighting", "lighting-new-york", "lightology"},
+	"hvac":         {"pioneer-mini-split", "sylvane", "iwae", "hardware-hut"},
+	"flooring":     {"floor-and-decor"},
+	"hardware":     {"hardware-hut", "rejuvenation", "ikea"},
+	"materials":    {"floor-and-decor", "hardware-hut", "ikea"},
+	"appliances":   {"ferguson", "ikea", "ge-appliances", "bray-and-scarff", "pc-richard", "appliance-factory", "best-buy", "abt", "homewise-appliance"},
+	"furniture":    {"west-elm", "article", "shopify-dtc", "ikea"},
+	"decor":        {"west-elm", "article", "rejuvenation", "shopify-dtc", "ikea", "lighting-new-york", "lightology", "kbauthority", "vintage-tub", "signature-hardware", "qualitybath"},
 }
 
 // roomToCategories maps a room type to the categories typically needed
 // for that room. Mirrors spec.yaml room_templates.
 var roomToCategories = map[string][]string{
-	"bathroom": {"foundational", "furniture", "decor"},
-	"kitchen":  {"foundational", "appliances", "decor"},
+	"bathroom": {"plumbing", "electrical", "flooring", "hardware", "materials", "decor"},
+	"kitchen":  {"plumbing", "electrical", "flooring", "hardware", "materials", "appliances", "decor"},
 	"bedroom":  {"furniture", "decor"},
 	"living":   {"furniture", "decor"},
 	"dining":   {"furniture", "decor"},
-	"outdoor":  {"furniture", "decor"},
+	"outdoor":  {"electrical", "hardware", "materials", "furniture", "decor"},
 }
 
 // activeSources returns sourceConfigs filtered to status == "active".
@@ -193,7 +415,7 @@ func resolveSourcesForCategories(categories []string) []string {
 // active source names and the resolved category list (for the envelope).
 //
 // Precedence: --source overrides everything; --room expands to categories;
-// --category is used directly. When none are set, all active Tier 1 sources
+// --category is used directly. When none are set, all active sources
 // are returned.
 func resolveSources(categoryFlag, roomFlag, sourceFlag string) (sources []string, categories []string, room string, err error) {
 	// --source overrides category/room routing entirely.
@@ -235,7 +457,7 @@ func resolveSources(categoryFlag, roomFlag, sourceFlag string) (sources []string
 		return sources, categories, "", nil
 	}
 
-	// Default: all active Tier 1 sources.
+	// Default: all active sources.
 	for _, s := range activeSources() {
 		sources = append(sources, s.Name)
 	}
@@ -289,6 +511,7 @@ func newSourcesCmd(flags *rootFlags) *cobra.Command {
 		Short: "List all upstream data sources, their status, categories, and transport type.",
 		Example: `  reno-goat-pp-cli sources
   reno-goat-pp-cli sources --json`,
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil

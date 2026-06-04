@@ -1,0 +1,109 @@
+{
+  "source": "HomePerfect",
+  "date": "2026-06-04",
+  "status": "blocked",
+  "transport": "plain HTTP/1.1 with browser user agent",
+  "summary": "HomePerfect remains a bath-showroom gap, not an active Reno Goat source. Product-bearing catalogsearch routes for shower valves and bathroom vanities return Cloudflare managed challenge responses. Static Magento assets under /static/version1 are reachable and show a Magento Luma storefront with Smile ElasticSuite quick search, but the likely autocomplete/search endpoints tested returned 404 and no priced product rows were proven.",
+  "product_gap": [
+    "shower valve and shower control rows with prices",
+    "bathroom vanity rows with prices",
+    "HomePerfect bath-showroom product URLs suitable for active fan-out"
+  ],
+  "routes_tested": [
+    {
+      "url": "https://www.homeperfect.com/",
+      "result": "HTTP 404 Magento error page"
+    },
+    {
+      "url": "https://homeperfect.com/",
+      "result": "HTTP 404 Magento error page"
+    },
+    {
+      "url": "https://www.homeperfect.com/catalogsearch/result/?q=shower%20valve",
+      "result": "HTTP 403 Cloudflare managed challenge; Cf-Mitigated: challenge"
+    },
+    {
+      "url": "https://www.homeperfect.com/catalogsearch/result/?q=bathroom%20vanity",
+      "result": "HTTP 403 Cloudflare managed challenge; Cf-Mitigated: challenge"
+    },
+    {
+      "url": "https://homeperfect.com/catalogsearch/result/?q=shower%20valve",
+      "result": "HTTP 403 Cloudflare managed challenge; Cf-Mitigated: challenge"
+    },
+    {
+      "url": "https://www.homeperfect.com/graphql",
+      "result": "HTTP 404 Magento error page"
+    },
+    {
+      "url": "https://www.homeperfect.com/sitemap.xml",
+      "result": "HTTP 404 Magento error page"
+    },
+    {
+      "url": "https://www.homeperfect.com/bathroom-vanities.html",
+      "result": "HTTP 404 Magento error page"
+    },
+    {
+      "url": "https://www.homeperfect.com/shower-valves.html",
+      "result": "HTTP 404 Magento error page"
+    },
+    {
+      "url": "https://www.homeperfect.com/shower-systems.html",
+      "result": "HTTP 404 Magento error page"
+    }
+  ],
+  "static_asset_findings": [
+    "robots.txt is reachable and contains content-signal text but no product routes.",
+    "/static/version1/frontend/Magento/luma/en_US/requirejs/require.js is reachable.",
+    "/static/version1/frontend/Magento/luma/en_US/requirejs-config.js is reachable.",
+    "requirejs-config.js maps quickSearch to Smile_ElasticsuiteCore/js/form-mini, confirming Smile ElasticSuite search is present.",
+    "Smile_ElasticsuiteCore/js/form-mini.js is reachable and performs GET JSON requests to a page-configured this.options.url with data {q: value}. The static module does not contain the concrete suggest URL.",
+    "Smile_ElasticsuiteCore/template/autocomplete/term.html is reachable; product.html returned 404."
+  ],
+  "suggest_endpoint_guesses": [
+    {
+      "url": "https://www.homeperfect.com/search/ajax/suggest/?q=shower%20valve",
+      "result": "HTTP 404 Magento error page"
+    },
+    {
+      "url": "https://www.homeperfect.com/search/ajax/suggest/?q=bathroom%20vanity",
+      "result": "HTTP 404 Magento error page"
+    },
+    {
+      "url": "https://www.homeperfect.com/catalogsearch/ajax/suggest/?q=shower%20valve",
+      "result": "HTTP 404 Magento error page"
+    },
+    {
+      "url": "https://www.homeperfect.com/catalogsearch/ajax/suggest?q=shower%20valve",
+      "result": "HTTP 404 Magento error page"
+    },
+    {
+      "url": "https://www.homeperfect.com/ajaxsearch/ajax/suggest?q=shower%20valve",
+      "result": "HTTP 404 Magento error page"
+    },
+    {
+      "url": "https://www.homeperfect.com/searchautocomplete/ajax/get?q=shower%20valve",
+      "result": "HTTP 404 Magento error page"
+    },
+    {
+      "url": "https://www.homeperfect.com/searchautocomplete/ajax/suggest?q=shower%20valve",
+      "result": "HTTP 404 Magento error page"
+    },
+    {
+      "url": "https://www.homeperfect.com/elasticsuite/ajax/suggest/?q=shower%20valve",
+      "result": "HTTP 404 Magento error page"
+    },
+    {
+      "url": "https://homeperfect.com/search/ajax/suggest/?q=shower%20valve",
+      "result": "HTTP 404 Magento error page"
+    },
+    {
+      "url": "https://homeperfect.com/catalogsearch/ajax/suggest/?q=shower%20valve",
+      "result": "HTTP 404 Magento error page"
+    },
+    {
+      "url": "https://homeperfect.com/ajaxsearch/ajax/suggest/?q=shower%20valve",
+      "result": "HTTP 404 Magento error page"
+    }
+  ],
+  "next_action": "Use GHST-293/browser-like transport or a browser resource capture of the challenged catalogsearch page to recover the page-configured Smile ElasticSuite suggest URL and verify whether it returns priced product rows."
+}

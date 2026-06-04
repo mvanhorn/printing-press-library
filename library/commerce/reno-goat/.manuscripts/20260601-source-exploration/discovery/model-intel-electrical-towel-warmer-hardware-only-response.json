@@ -1,0 +1,401 @@
+{
+  "query": "towel warmer",
+  "total": 10,
+  "models": [
+    {
+      "model": "87077700",
+      "title": "HEAT Trivet",
+      "category": "Kitchenware \u0026 tableware \u003e Cookware \u003e Cooking accessories",
+      "best_price": 5.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/heat-trivet-cork-87077700/",
+      "image_url": "https://www.ikea.com/us/en/images/products/heat-trivet-cork__1204806_pe906845_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 5.99,
+          "url": "https://www.ikea.com/us/en/p/heat-trivet-cork-87077700/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "cork"
+      ]
+    },
+    {
+      "model": "60614586",
+      "title": "VALASJÖN Towel hanger, self-adhesive",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 7.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/valasjoen-towel-hanger-self-adhesive-60614586/",
+      "image_url": "https://www.ikea.com/us/en/images/products/valasjoen-towel-hanger-self-adhesive__1433086_pe983058_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/valasjoen-towel-hanger-self-adhesive__AA-2593314-3-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 7.99,
+          "url": "https://www.ikea.com/us/en/p/valasjoen-towel-hanger-self-adhesive-60614586/",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "FF0000",
+      "brand": "ATW",
+      "title": "\u003cspan style=\"#FF0000\"\u003eFree Ground Shipping!\u003c/span\u003e - Amba Hardwired Programmable Timer for Tower Warmers (White)",
+      "best_price": 8,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/amba-hardwired-programmable-timer-for-tower-warmers-white-t24",
+      "image_url": "https://hardwarehut.com/images/moreimages/towelwarmers-dryingrails/ambatowelwarmers/atw-t24-main.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/amba/2022-7-heated-towel-rack-mitigates-bacterial-growth-2.pdf",
+          "source": "hardware-hut"
+        },
+        {
+          "kind": "installation",
+          "url": "https://hardwarehut.com/images/pdf/amba/atw-t24-installation-guide-2.pdf",
+          "source": "hardware-hut"
+        },
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/amba/amba-catalog-usa-2018.pdf",
+          "source": "hardware-hut"
+        },
+        {
+          "kind": "spec",
+          "url": "https://hardwarehut.com/images/pdf/amba/atw-cdt-specification-sheet-1.pdf",
+          "source": "hardware-hut"
+        },
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/amba/atw-cdt-instruction-sheet.pdf",
+          "source": "hardware-hut"
+        },
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/amba/rhwl-cp_technical-drawing.pdf",
+          "source": "hardware-hut"
+        },
+        {
+          "kind": "installation",
+          "url": "https://hardwarehut.com/images/pdf/amba/rhwl-cp-installation-guide.pdf",
+          "source": "hardware-hut"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 72,
+          "url": "https://hardwarehut.com/products/amba-hardwired-programmable-timer-for-tower-warmers-white-t24",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "hardware-hut",
+          "price": 72,
+          "url": "https://hardwarehut.com/products/amba-hardwired-countdown-timer-for-towel-warmers-almond-ivory-white-cdt",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "hardware-hut",
+          "price": 112,
+          "url": "https://hardwarehut.com/products/amba-jeeves-wet-rated-kit-aj-wrk",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "hardware-hut",
+          "price": 552,
+          "url": "https://hardwarehut.com/products/amba-radiant-hardwired-large-curved-towel-warmer-23-5-8-600mmw-x-41-5-16-1049mmh-wall-mounted-brushed-stainless-steel-rwhl-cb",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "hardware-hut",
+          "price": 328,
+          "url": "https://hardwarehut.com/products/amba-radiant-plug-in-hardwired-small-straight-towel-warmer-20-3-8-518mmw-x-21-1-4-540mmh-wall-mounted-polished-stainless-steel-rwhs-sp",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "hardware-hut",
+          "price": 96,
+          "url": "https://hardwarehut.com/products/amba-pilot-light-switch-white-sw",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "hardware-hut",
+          "price": 1264,
+          "url": "https://hardwarehut.com/products/amba-traditional-towel-warmer-21-1-16-535mmw-x-43-1-16-1094mmh-hardwired-polished-nickel-t-2040-pn",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "hardware-hut",
+          "price": 8,
+          "url": "https://hardwarehut.com/products/amba-cover-conversion-kit-for-switch-black-t24-bl",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "hardware-hut",
+          "price": 104,
+          "url": "https://hardwarehut.com/products/amba-antus-bathrobe-hanger-brushed-stainless-steel-aa-bhb",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "hardware-hut",
+          "price": 104,
+          "url": "https://hardwarehut.com/products/amba-antus-bathrobe-hanger-polished-stainless-steel-aa-bhp",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "hardware-hut",
+          "price": 152,
+          "url": "https://hardwarehut.com/products/amba-quadro-bathrobe-hanger-brushed-stainless-steel-aq-bhb",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "hardware-hut",
+          "price": 152,
+          "url": "https://hardwarehut.com/products/amba-quadro-bathrobe-hanger-polished-stainless-steel-aq-bhp",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "hardware-hut",
+          "price": 144,
+          "url": "https://hardwarehut.com/products/amba-sirio-bathrobe-hanger-brushed-stainless-steel-as-bhb",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "hardware-hut",
+          "price": 144,
+          "url": "https://hardwarehut.com/products/amba-sirio-bathrobe-hanger-polished-stainless-steel-as-bhp",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "hardware-hut",
+          "price": 152,
+          "url": "https://hardwarehut.com/products/amba-vega-bathrobe-hanger-brushed-stainless-steel-av-bhb",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "hardware-hut",
+          "price": 152,
+          "url": "https://hardwarehut.com/products/amba-vega-bathrobe-hanger-polished-stainless-steel-av-bhp",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "10582229",
+      "title": "BROFJÄRDEN Towel holder",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 8.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/brofjaerden-towel-holder-chrome-effect-10582229/",
+      "image_url": "https://www.ikea.com/us/en/images/products/brofjaerden-towel-holder-chrome-effect__1329652_pe945220_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/brofjaerden-towel-holder-chrome-effect__AA-2476445-4-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 8.99,
+          "url": "https://www.ikea.com/us/en/p/brofjaerden-towel-holder-chrome-effect-10582229/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "chrome effect"
+      ]
+    },
+    {
+      "model": "20595976",
+      "title": "BÄSINGEN Towel rail",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 9.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/baesingen-towel-rail-anthracite-20595976/",
+      "image_url": "https://www.ikea.com/us/en/images/products/baesingen-towel-rail-anthracite__1386019_pe963589_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/baesingen-towel-rail-anthracite__AA-2538287-3-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/baesingen-towel-rail-anthracite__AA-2495644-1-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 9.99,
+          "url": "https://www.ikea.com/us/en/p/baesingen-towel-rail-anthracite-20595976/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "anthracite"
+      ]
+    },
+    {
+      "model": "70598637",
+      "title": "SKOGHALL Towel rail, self-adhesive",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 9.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/skoghall-towel-rail-self-adhesive-chrome-plated-70598637/",
+      "image_url": "https://www.ikea.com/us/en/images/products/skoghall-towel-rail-self-adhesive-chrome-plated__1386004_pe963584_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/skoghall-towel-rail-self-adhesive-chrome-plated__AA-2535491-1-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 9.99,
+          "url": "https://www.ikea.com/us/en/p/skoghall-towel-rail-self-adhesive-chrome-plated-70598637/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "chrome plated"
+      ]
+    },
+    {
+      "model": "40381286",
+      "title": "TISKEN Towel rack with suction cup",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 12.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/tisken-towel-rack-with-suction-cup-white-40381286/",
+      "image_url": "https://www.ikea.com/us/en/images/products/tisken-towel-rack-with-suction-cup-white__0749055_pe745416_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/tisken-towel-rack-with-suction-cup-white__AA-2347515-1-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 12.99,
+          "url": "https://www.ikea.com/us/en/p/tisken-towel-rack-with-suction-cup-white-40381286/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "50247216",
+      "title": "UTRUSTA Towel rail",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen systems \u003e SEKTION kitchen \u003e SEKTION kitchen cabinets \u003e SEKTION High \u0026 cleaning cabinet solutions",
+      "best_price": 14,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/utrusta-towel-rail-white-50247216/",
+      "image_url": "https://www.ikea.com/us/en/images/products/utrusta-towel-rail-white__0207995_pe361949_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/utrusta-towel-rail-white__AA-849103-6-2.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/utrusta-towel-rail-white__AA-2542998-1-1.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 14,
+          "url": "https://www.ikea.com/us/en/p/utrusta-towel-rail-white-50247216/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "10617554",
+      "title": "SKOGSSALLAT Towel with hood",
+      "category": "Baby \u0026 kids \u003e Kids \u003e Textiles for kids \u003e Baby towels \u0026 washcloths",
+      "best_price": 14.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/skogssallat-towel-with-hood-red-white-stripe-10617554/",
+      "image_url": "https://www.ikea.com/us/en/images/products/skogssallat-towel-with-hood-red-white-stripe__1401421_pe969035_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 14.99,
+          "url": "https://www.ikea.com/us/en/p/skogssallat-towel-with-hood-red-white-stripe-10617554/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "red/white/stripe"
+      ]
+    },
+    {
+      "model": "50582232",
+      "title": "BROFJÄRDEN Towel rail",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 14.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/brofjaerden-towel-rail-chrome-effect-50582232/",
+      "image_url": "https://www.ikea.com/us/en/images/products/brofjaerden-towel-rail-chrome-effect__1329663_pe945227_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/brofjaerden-towel-rail-chrome-effect__AA-2476206-4-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/brofjaerden-towel-rail-chrome-effect__AA-2476204-1-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 14.99,
+          "url": "https://www.ikea.com/us/en/p/brofjaerden-towel-rail-chrome-effect-50582232/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "chrome effect"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: hardware"
+  ],
+  "sources_run": [
+    "hardware-hut",
+    "rejuvenation",
+    "ikea"
+  ]
+}

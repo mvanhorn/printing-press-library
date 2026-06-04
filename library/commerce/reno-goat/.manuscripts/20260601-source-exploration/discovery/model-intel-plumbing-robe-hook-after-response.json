@@ -1,0 +1,236 @@
+{
+  "query": "robe hook",
+  "total": 10,
+  "models": [
+    {
+      "model": "259670",
+      "brand": "IVE",
+      "title": "Ives Wardrobe Hook (Aluminum Clear Coated)",
+      "best_price": 2.44,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/ives-wardrobe-hook-aluminum-clear-coated-581a92",
+      "image_url": "https://hardwarehut.com/images/hooks/ives/ive-581a92.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 2.44,
+          "url": "https://hardwarehut.com/products/ives-wardrobe-hook-aluminum-clear-coated-581a92",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "259673",
+      "brand": "IVE",
+      "title": "Ives Double Wardrobe Hook (Polished Brass)",
+      "best_price": 2.86,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/ives-double-wardrobe-hook-polished-brass-582a3",
+      "image_url": "https://hardwarehut.com/images/hooks/ives/ive-582mb3.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 2.86,
+          "url": "https://hardwarehut.com/products/ives-double-wardrobe-hook-polished-brass-582a3",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "50582227",
+      "title": "BROFJÄRDEN Double hook",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 3.49,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/brofjaerden-double-hook-chrome-effect-50582227/",
+      "image_url": "https://www.ikea.com/us/en/images/products/brofjaerden-double-hook-chrome-effect__1329635_pe945207_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/brofjaerden-double-hook-chrome-effect__AA-2440719-5-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 3.49,
+          "url": "https://www.ikea.com/us/en/p/brofjaerden-double-hook-chrome-effect-50582227/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "chrome effect"
+      ]
+    },
+    {
+      "model": "100584911",
+      "brand": "Studio Design Collection",
+      "title": "Grant Chrome Robe Hook",
+      "category": "Robe Hook",
+      "best_price": 12.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/bathroom-accessories/grant-chrome-robe-hook-100584911.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 12.99,
+          "regular": 12.99,
+          "url": "https://www.flooranddecor.com/bathroom-accessories/grant-chrome-robe-hook-100584911.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eGrant Chrome Robe Hook by Studio Design Collection offers a sleek and modern solution for organizing your robes and towels. Perfect for both residential and commercial usage, this robe hook combines style and functionality to enhance your bathroom decor.\u003c/p\u003e\u003cul\u003e\u003cli\u003ePolished or high gloss finish adds a touch of elegance to any bathroom.\u003c/li\u003e\u003cli\u003eDurable chrome construction ensures long-lasting performance.\u003c/li\u003e\u003cli\u003eEasy wall-only installation provides convenience and stability.\u003c/li\u003e\u003cli\u003eCompact 2 x 3 inch size fits seamlessly into any space.\u003c/li\u003e\u003cli\u003eLifetime limited warranty guarantees peace of mind and reliability.\u003c/li\u003e\u003c/ul\u003e\u003cp\u003eUpgrade your bathroom with the Grant Chrome Robe Hook, designed for those who value both form and function. It's an essential addition to any home or business.\u003c/p\u003e"
+      ]
+    },
+    {
+      "model": "100584762",
+      "brand": "Studio Design Collection",
+      "title": "Parker Brushed Nickel Robe Hook",
+      "category": "Robe Hook",
+      "best_price": 15.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/bathroom-accessories/parker-brushed-nickel-robe-hook-100584762.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 15.99,
+          "regular": 15.99,
+          "url": "https://www.flooranddecor.com/bathroom-accessories/parker-brushed-nickel-robe-hook-100584762.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Parker Brushed Nickel Robe Hook from Studio Design Collection is a sophisticated addition to any bathroom, offering both style and functionality. This elegant robe hook is designed to match a variety of decor styles, making it suitable for both residential and commercial use.\u003c/p\u003e\u003cul\u003e \u003cli\u003eThe brushed nickel finish offers a sleek, modern look that complements any bathroom decor.\u003c/li\u003e \u003cli\u003eIts durable construction ensures long-lasting use, providing reliable support for your robes.\u003c/li\u003e \u003cli\u003eEasy wall installation makes this robe hook a convenient addition to your bathroom setup.\u003c/li\u003e \u003cli\u003eThe compact 3 x 3-inch size fits well in smaller spaces without sacrificing utility.\u003c/li\u003e \u003cli\u003eBacked by a lifetime limited warranty, you can trust in the quality and durability of this robe hook.\u003c/li\u003e\u003c/ul\u003e\u003cp\u003eUpgrade your bathroom with the Parker Brushed Nickel Robe Hook a perfect blend of style, functionality, and reliability.\u003c/p\u003e"
+      ]
+    },
+    {
+      "model": "400683",
+      "brand": "SUR",
+      "title": "Sure-Loc Baden Robe Hook",
+      "best_price": 17.22,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/sure-loc-baden-robe-hook-bd-rh1",
+      "image_url": "https://hardwarehut.com/images/moreimages/bathaccessories/sure-lochardwareinc/bd-rh1-11p-main.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://hardwarehut.com/images/pdf/sureloc/sure-baden-series-specs.pdf",
+          "source": "hardware-hut"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 17.22,
+          "url": "https://hardwarehut.com/products/sure-loc-baden-robe-hook-bd-rh1",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "100584812",
+      "brand": "Studio Design Collection",
+      "title": "Dash Black Matte Robe Hook",
+      "category": "Robe Hook",
+      "best_price": 19.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/bathroom-accessories/dash-black-matte-robe-hook-100584812.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 19.99,
+          "regular": 19.99,
+          "url": "https://www.flooranddecor.com/bathroom-accessories/dash-black-matte-robe-hook-100584812.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eIntroducing the Dash Black Matte Robe Hook from Studio Design Collection, a stylish and functional addition to any residential or commercial space. With its sleek matte finish and sturdy construction, this robe hook is designed to blend seamlessly with modern decor while providing reliable performance.\u003c/p\u003e\u003cul\u003e \u003cli\u003eThe matte finish offers a sophisticated look that complements any contemporary design, enhancing the aesthetic appeal of your space.\u003c/li\u003e \u003cli\u003eCrafted with high-quality materials, the Dash Black Matte Robe Hook ensures durability and long-lasting use, providing peace of mind for years to come.\u003c/li\u003e \u003cli\u003eIts compact 3 x 3in size makes it perfect for small spaces, offering convenience without compromising on style.\u003c/li\u003e \u003cli\u003eSuitable for wall installation only, this robe hook maximizes space efficiency and keeps your robes neatly organized.\u003c/li\u003e \u003cli\u003eBacked by a lifetime limited warranty, you can trust in the quality and longevity of this product.\u003c/li\u003e\u003c/ul\u003e\u003cp\u003eUpgrade your bathroom or dressing area with the Dash Black Matte Robe Hook. Experience the perfect blend of elegance and functionality that will elevate your daily routine.\u003c/p\u003e"
+      ]
+    },
+    {
+      "model": "100995091",
+      "brand": "Studio Design Collection",
+      "title": "Carlo Brushed Gold Robe Hook",
+      "category": "Robe Hook",
+      "best_price": 20.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/bathroom-accessories/carlo-brushed-gold-robe-hook-100995091.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 20.99,
+          "regular": 20.99,
+          "url": "https://www.flooranddecor.com/bathroom-accessories/carlo-brushed-gold-robe-hook-100995091.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eIntroducing the Carlo Brushed Gold Robe Hook from the Studio Design Collection, a sophisticated addition to any residential or commercial space. This elegant robe hook combines functionality with style, ensuring your bathroom remains organized and visually appealing.\u003c/p\u003e\u003cul\u003e \u003cli\u003eThe brushed finish provides a sleek and modern look, enhancing the overall aesthetic of your bathroom.\u003c/li\u003e \u003cli\u003eCrafted for wall-only installations, this robe hook offers sturdy support and easy mounting.\u003c/li\u003e \u003cli\u003eSuitable for both residential and commercial usage, it delivers versatile utility in various settings.\u003c/li\u003e \u003cli\u003eSafe for shower walls, making it a reliable choice for wet environments without compromising durability.\u003c/li\u003e \u003cli\u003eThe compact 3 x 3-inch size ensures a space-efficient design while maintaining robust performance.\u003c/li\u003e\u003c/ul\u003e\u003cp\u003eInvest in the Carlo Brushed Gold Robe Hook to add a touch of luxury and practicality to your bathroom. Enjoy peace of mind with the lifetime limited warranty.\u003c/p\u003e"
+      ]
+    },
+    {
+      "model": "100999374",
+      "brand": "Studio Design Collection",
+      "title": "Luxe Matte Black Robe Hook",
+      "category": "Robe Hook",
+      "best_price": 20.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/bathroom-accessories/luxe-matte-black-robe-hook-100999374.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 20.99,
+          "regular": 20.99,
+          "url": "https://www.flooranddecor.com/bathroom-accessories/luxe-matte-black-robe-hook-100999374.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Luxe Matte Black Robe Hook from Studio Design Collection is the perfect addition to any modern bathroom. With its sleek matte finish and robust construction, it combines both style and functionality to enhance your space.\u003c/p\u003e\u003cul\u003e \u003cli\u003eThe matte finish provides a sophisticated look, adding elegance to any bathroom decor.\u003c/li\u003e \u003cli\u003eDesigned for wall-only installation, ensuring stability and ease of use.\u003c/li\u003e \u003cli\u003eConstructed from durable materials, guaranteeing long-lasting performance in residential settings.\u003c/li\u003e \u003cli\u003eCompact size of 3 x 2 inches fits seamlessly into small spaces without compromising on utility.\u003c/li\u003e \u003cli\u003eBacked by a lifetime limited warranty, offering peace of mind and reliability.\u003c/li\u003e\u003c/ul\u003e\u003cp\u003eUpgrade your bathroom with the Luxe Matte Black Robe Hook a stylish and practical solution for hanging robes and towels effortlessly.\u003c/p\u003e"
+      ]
+    },
+    {
+      "model": "101137636",
+      "brand": "Studio Design Collection",
+      "title": "Addison Brushed Nickel Robe Hook",
+      "category": "Robe Hook",
+      "best_price": 20.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/bathroom-accessories/addison-brushed-nickel-robe-hook-101137636.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 20.99,
+          "regular": 20.99,
+          "url": "https://www.flooranddecor.com/bathroom-accessories/addison-brushed-nickel-robe-hook-101137636.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Addison Brushed Nickel Robe Hook by Studio Design Collection is the perfect addition to your bathroom. With its sleek and modern design, it provides both functionality and style, making it an essential accessory for any residential space.\u003c/p\u003e\u003cul\u003e \u003cli\u003eThe brushed finish offers a sophisticated look that complements any bathroom decor.\u003c/li\u003e \u003cli\u003eCrafted in brushed nickel, this robe hook resists tarnishing and corrosion for long-lasting durability.\u003c/li\u003e \u003cli\u003eDesigned for wall installation only, ensuring a secure and stable mount.\u003c/li\u003e \u003cli\u003eThe compact size of 2 x 3 inches makes it ideal for small spaces without compromising on utility.\u003c/li\u003e \u003cli\u003ePart of the Studio Design Collection, this robe hook guarantees quality and style.\u003c/li\u003e\u003c/ul\u003e\u003cp\u003eElevate your bathroom aesthetics with the Addison Brushed Nickel Robe Hook, backed by a lifetime limited warranty for peace of mind.\u003c/p\u003e"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: plumbing, hardware",
+    "Source warning: ferguson: ferguson: HTTP 403: \u003cHTML\u003e\u003cHEAD\u003e"
+  ],
+  "sources_run": [
+    "ferguson",
+    "floor-and-decor",
+    "plumbersstock",
+    "faucetdepot",
+    "faucetlist",
+    "plumbtile",
+    "modern-bathroom",
+    "kbauthority",
+    "hardware-hut",
+    "rejuvenation",
+    "ikea"
+  ]
+}

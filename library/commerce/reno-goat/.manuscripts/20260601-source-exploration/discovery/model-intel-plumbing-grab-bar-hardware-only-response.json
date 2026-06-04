@@ -1,0 +1,285 @@
+{
+  "query": "grab bar",
+  "total": 10,
+  "models": [
+    {
+      "model": "80606019",
+      "title": "DRAGSMARK Clip-on handle",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen systems \u003e KNOXHULT modular kitchen \u003e Knobs and handles",
+      "best_price": 4,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/dragsmark-clip-on-handle-gray-green-80606019/",
+      "image_url": "https://www.ikea.com/us/en/images/products/dragsmark-clip-on-handle-gray-green__1458391_pe993021_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/dragsmark-clip-on-handle-gray-green__AA-2404108-3-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 4,
+          "url": "https://www.ikea.com/us/en/p/dragsmark-clip-on-handle-gray-green-80606019/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "gray-green"
+      ]
+    },
+    {
+      "model": "10628982",
+      "title": "LATMASK Clip-on handle",
+      "category": "Baby \u0026 kids \u003e Baby \u003e Kids storage \u0026 organization \u003e SMÅSTAD system \u003e SMÅSTAD knobs, handles \u0026 accessories",
+      "best_price": 5,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/latmask-clip-on-handle-black-10628982/",
+      "image_url": "https://www.ikea.com/us/en/images/products/latmask-clip-on-handle-black__1454227_pe991564_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/latmask-clip-on-handle-black__AA-2241830-5-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 5,
+          "url": "https://www.ikea.com/us/en/p/latmask-clip-on-handle-black-10628982/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "black"
+      ]
+    },
+    {
+      "model": "20595976",
+      "title": "BÄSINGEN Towel rail",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 9.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/baesingen-towel-rail-anthracite-20595976/",
+      "image_url": "https://www.ikea.com/us/en/images/products/baesingen-towel-rail-anthracite__1386019_pe963589_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/baesingen-towel-rail-anthracite__AA-2538287-3-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/baesingen-towel-rail-anthracite__AA-2495644-1-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 9.99,
+          "url": "https://www.ikea.com/us/en/p/baesingen-towel-rail-anthracite-20595976/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "anthracite"
+      ]
+    },
+    {
+      "model": "40496305",
+      "title": "GRIBBOL Handle",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen systems \u003e KNOXHULT modular kitchen \u003e Knobs and handles",
+      "best_price": 11,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/gribbol-handle-brass-color-40496305/",
+      "image_url": "https://www.ikea.com/us/en/images/products/gribbol-handle-brass-color__0945521_pe797714_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 11,
+          "url": "https://www.ikea.com/us/en/p/gribbol-handle-brass-color-40496305/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "brass color"
+      ]
+    },
+    {
+      "model": "20570419",
+      "title": "BROR 2 uprights/1 suspension rail set",
+      "category": "Storage \u0026 organization \u003e Storage solution systems \u003e BROR system \u003e All parts",
+      "best_price": 25,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/bror-2-uprights-1-suspension-rail-set-black-20570419/",
+      "image_url": "https://www.ikea.com/us/en/images/products/bror-2-uprights-1-suspension-rail-set-black__1304369_pe938736_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/bror-2-uprights-1-suspension-rail-set-black__AA-2416426-3-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/bror-2-uprights-1-suspension-rail-set-black__AA-2180177-2-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 25,
+          "url": "https://www.ikea.com/us/en/p/bror-2-uprights-1-suspension-rail-set-black-20570419/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "black"
+      ]
+    },
+    {
+      "model": "80570421",
+      "title": "BROR Rail with hooks",
+      "category": "Storage \u0026 organization \u003e Storage solution systems \u003e BROR system \u003e All parts",
+      "best_price": 25,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/bror-rail-with-hooks-black-80570421/",
+      "image_url": "https://www.ikea.com/us/en/images/products/bror-rail-with-hooks-black__1351864_pe951999_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/bror-rail-with-hooks-black__AA-2408730-3-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/bror-rail-with-hooks-black__AA-2180177-2-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 25,
+          "url": "https://www.ikea.com/us/en/p/bror-rail-with-hooks-black-80570421/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "black"
+      ]
+    },
+    {
+      "model": "40597502",
+      "title": "BÄSINGEN Step stool with handrail, 2-steps",
+      "category": "Tables \u0026 chairs \u003e Step stools \u0026 step ladders",
+      "best_price": 29.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/baesingen-step-stool-with-handrail-2-steps-anthracite-40597502/",
+      "image_url": "https://www.ikea.com/us/en/images/products/baesingen-step-stool-with-handrail-2-steps-anthracite__1386021_pe963591_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/baesingen-step-stool-with-handrail-2-steps-anthracite__AA-2577920-2-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/baesingen-step-stool-with-handrail-2-steps-anthracite__AA-2568059-2-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 29.99,
+          "url": "https://www.ikea.com/us/en/p/baesingen-step-stool-with-handrail-2-steps-anthracite-40597502/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "anthracite"
+      ]
+    },
+    {
+      "model": "00513236",
+      "title": "SKYTTA Stop bar, 2 tracks, set of 2",
+      "category": "Home improvement \u003e SKYTTA sliding door system \u003e SKYTTA accessories",
+      "best_price": 40,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/skytta-stop-bar-2-tracks-set-of-2-white-00513236/",
+      "image_url": "https://www.ikea.com/us/en/images/products/skytta-stop-bar-2-tracks-set-of-2-white__1004772_pe825169_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/skytta-stop-bar-2-tracks-set-of-2-white__AA-2269964-3-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 40,
+          "url": "https://www.ikea.com/us/en/p/skytta-stop-bar-2-tracks-set-of-2-white-00513236/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "WALL-MOUNT-SHOWER-GLASS-CLAMP",
+      "title": "Wall Mount Shower Glass Clamp",
+      "best_price": 55,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/wall-mount-shower-glass-clamp/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202552/0001/img7c.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 55,
+          "regular": 55,
+          "url": "https://www.rejuvenation.com/products/wall-mount-shower-glass-clamp/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Featuring a minimalist design that creates an all-glass look for frameless shower enclosures. Details You'll Appreciate Sleek, understated design Securely holds fixed glass panels Crafted from solid brass in your choice of finish Made in a Fair Trade Certified™ factory, empowering workers who made it Product Specifications Solid brass clip Stainless steel screws Plastic gaskets Mounting hardware included Glass fabrication and professional installation required Suitable for use in showers and high-moisture areas WARNING: This product can expose you to chemicals including lead, which are known to the State of California to cause cancer and birth defects or other reproductive harm. For more information go to www.P65warnings.ca.gov Care Instructions Wipe with a dry soft cloth, and very mild soap if necessary Avoid using abrasive cloths or pads, harsh chemicals, alcohol, and ammoniated products"
+      ]
+    },
+    {
+      "model": "WALL-MOUNT-GLASS-SHOWER-DOOR-HINGE",
+      "title": "Wall Mount Glass Shower Door Hinge",
+      "best_price": 90,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/wall-mount-glass-shower-door-hinge/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202602/0020/img217c.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 90,
+          "regular": 90,
+          "url": "https://www.rejuvenation.com/products/wall-mount-glass-shower-door-hinge/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Streamlined and understated, this hinge adds a tailored look to glass shower doors. Details You'll Appreciate Sleek, simple design Crafted from solid brass in your choice of finish Made in a Fair Trade Certified™ factory, empowering workers who made it Product Specifications Solid brass Stainless steel screws Plastic gaskets included Self-centering within 30° of closed position Holds up to 99 lb with 2 hinges, max door width 28\"; holds up to 147 lb with 3 hinges, max door width 32\" Swings 90° in or out For use with 5/16\" (8 mm) to 1/2\" (12 mm) tempered safety glass Glass fabrication and professional installation required Suitable for showers and high-moisture areas Contract Grade—designed, engineered, and tested for commercial use WARNING: This product can expose you to chemicals including lead, which are known to the State of California to cause cancer and birth defects or other reproductive harm. For more information go to www.P65warnings.ca.gov Care Instructions Wipe with a dry soft"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: hardware"
+  ],
+  "sources_run": [
+    "hardware-hut",
+    "rejuvenation",
+    "ikea"
+  ]
+}

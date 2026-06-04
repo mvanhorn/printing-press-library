@@ -1,0 +1,602 @@
+{
+  "query": "36 induction cooktop",
+  "total": 12,
+  "models": [
+    {
+      "model": "10582738",
+      "title": "IKEA 365+ Frying pan",
+      "category": "Kitchenware \u0026 tableware \u003e Cookware \u003e Frying pans \u0026 skillets",
+      "best_price": 29.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/ikea-365-frying-pan-stainless-steel-10582738/",
+      "image_url": "https://www.ikea.com/us/en/images/products/ikea-365-frying-pan-stainless-steel__1257434_pe925812_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/ikea-365-frying-pan-stainless-steel__AA-2414294-1-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 29.99,
+          "url": "https://www.ikea.com/us/en/p/ikea-365-frying-pan-stainless-steel-10582738/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "stainless steel"
+      ]
+    },
+    {
+      "model": "90483150",
+      "title": "IKEA 365+ Pressure cooker",
+      "category": "Kitchenware \u0026 tableware \u003e Cookware \u003e Pressure cookers",
+      "best_price": 69.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/ikea-365-pressure-cooker-stainless-steel-90483150/",
+      "image_url": "https://www.ikea.com/us/en/images/products/ikea-365-pressure-cooker-stainless-steel__0812235_pe771975_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/ikea-365-pressure-cooker-stainless-steel__AA-2205579-1-2.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/ikea-365-pressure-cooker-stainless-steel__AA-2255320-4-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 69.99,
+          "url": "https://www.ikea.com/us/en/p/ikea-365-pressure-cooker-stainless-steel-90483150/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "stainless steel"
+      ]
+    },
+    {
+      "model": "30587612",
+      "title": "HIDINGSTA Induction cooktop",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen appliances \u003e Cooktops \u003e Induction cooktops \u0026 burners",
+      "best_price": 699,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/hidingsta-induction-cooktop-black-30587612/",
+      "image_url": "https://www.ikea.com/us/en/images/products/hidingsta-induction-cooktop-black__1384197_pe962905_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/hidingsta-induction-cooktop-black__AA-2541905-3-1.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/hidingsta-induction-cooktop-black__AA-2541904-2-1.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/hidingsta-induction-cooktop-black__AA-2547164-1-1.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 699,
+          "url": "https://www.ikea.com/us/en/p/hidingsta-induction-cooktop-black-30587612/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/30587612.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "black"
+      ]
+    },
+    {
+      "model": "PHP9036DJBB",
+      "brand": "GE Profile",
+      "title": "GE Profile™ 36\" Built-In Touch Control Induction Cooktop",
+      "category": "Cooktop",
+      "best_price": 778.7,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-Profile-36-Built-In-Touch-Control-Induction-Cooktop-PHP9036DJBB",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/3641/1120242/fe8c3cfd918818019b24ac086e2b3c1c7f2e1f78__50380.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--HmEZTWSc--/jgckdrlqforac4ateid1.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--WJZkWK8d--/aafxql0hi6qvpirm12nh.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--WfOi32LG--/k2fwicpwlgavgdyahebw.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--jcaaFpOQ--/3a7b9e07cb6ee5ba8890e722ce659cf02f8aa123.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--MQfq5105--/mbvtnz5tiyycyfrg52zr.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://products-salsify.geappliances.com/image/upload/s--QE9NvE_W--/g7g7i78rgmnqbxbeczty.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--KYqm4G3_--/xpr8jirmdwyuuozc71qb.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 778.7,
+          "regular": 2443,
+          "url": "https://www.geappliances.com/appliance/GE-Profile-36-Built-In-Touch-Control-Induction-Cooktop-PHP9036DJBB",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/PHP9036DJBB.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 4.625 H x 36 W x 20.375 D\nappearance_color_appearance: Black\nfeatures_control_type: Electronic Touch\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--HmEZTWSc--/jgckdrlqforac4ateid1.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--WJZkWK8d--/aafxql0hi6qvpirm12nh.pdf\nbenefits: Five Induction Elements; Digital Touch Controls; Power Boil  (11\" 3,700-Watt Induction Element); SyncBurners"
+      ]
+    },
+    {
+      "model": "90591022",
+      "title": "ÖRMINGE Range with glass ceramic cooktop",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen appliances \u003e Ranges",
+      "best_price": 849,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/oerminge-range-with-glass-ceramic-cooktop-stainless-steel-90591022/",
+      "image_url": "https://www.ikea.com/us/en/images/products/oerminge-range-with-glass-ceramic-cooktop-stainless-steel__1384259_pe962935_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/oerminge-range-with-glass-ceramic-cooktop-stainless-steel__AA-2503593-6-1.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/oerminge-range-with-glass-ceramic-cooktop-stainless-steel__AA-2509234-2-1.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/oerminge-range-with-glass-ceramic-cooktop-stainless-steel__AA-2503607-3-1.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 849,
+          "url": "https://www.ikea.com/us/en/p/oerminge-range-with-glass-ceramic-cooktop-stainless-steel-90591022/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/90591022.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "Stainless steel"
+      ]
+    },
+    {
+      "model": "10587613",
+      "title": "NEDERSTA Induction cooktop",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen appliances \u003e Cooktops \u003e Induction cooktops \u0026 burners",
+      "best_price": 899,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/nedersta-induction-cooktop-black-10587613/",
+      "image_url": "https://www.ikea.com/us/en/images/products/nedersta-induction-cooktop-black__1384248_pe962930_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/nedersta-induction-cooktop-black__AA-2541905-3-1.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/nedersta-induction-cooktop-black__AA-2541904-2-1.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/nedersta-induction-cooktop-black__AA-2547164-1-1.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 899,
+          "url": "https://www.ikea.com/us/en/p/nedersta-induction-cooktop-black-10587613/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/10587613.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "black"
+      ]
+    },
+    {
+      "model": "UHCI36TCRPBK",
+      "brand": "ILVE",
+      "title": "ILVE UHCI36TCRPBK Professional Plus II 36 inch Built-In Induction Cooktop with 5 Element Zones - ILVE USA",
+      "best_price": 999,
+      "best_source": "brave-search:us.ilve.com",
+      "product_url": "https://us.ilve.com/product/ilve-uhci36tcrpbk/",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://us.ilve.com/static/product_documents/UHCI36TCRPBK-102_21812.pdf",
+          "source": "brave-search:us.ilve.com"
+        },
+        {
+          "kind": "document",
+          "url": "https://us.ilve.com/static/product_documents/UHCI36TCRPBK-102_11999.pdf",
+          "source": "brave-search:us.ilve.com"
+        },
+        {
+          "kind": "document",
+          "url": "https://us.ilve.com/static/product_documents/UHCI36TCRPBK-102_45349.pdf",
+          "source": "brave-search:us.ilve.com"
+        },
+        {
+          "kind": "document",
+          "url": "https://us.ilve.com/static/product_documents/UHCI36TCRPBK-102_26532.pdf",
+          "source": "brave-search:us.ilve.com"
+        }
+      ],
+      "offers": [
+        {
+          "source": "brave-search:us.ilve.com",
+          "title": "ILVE UHCI36TCRPBK Professional Plus II 36 inch Built-In Induction Cooktop with 5 Element Zones - ILVE USA",
+          "price": 999,
+          "url": "https://us.ilve.com/product/ilve-uhci36tcrpbk/",
+          "evidence": "Brave Search category product result price field"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/UHCI36TCRPBK.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ]
+    },
+    {
+      "model": "PHP9036BMTS",
+      "brand": "GE Profile",
+      "title": "GE Profile™ 36\" Built-In Touch Control Induction Cooktop",
+      "category": "Cooktop",
+      "best_price": 1160.9,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-Profile-36-Built-In-Touch-Control-Induction-Cooktop-PHP9036BMTS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/2958/1046528/7498d24211b51ee412750aec1064cb2308e6eb98__03685.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--HmEZTWSc--/jgckdrlqforac4ateid1.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--KYqm4G3_--/xpr8jirmdwyuuozc71qb.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--WfOi32LG--/k2fwicpwlgavgdyahebw.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--MQfq5105--/mbvtnz5tiyycyfrg52zr.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://products-salsify.geappliances.com/image/upload/s--QE9NvE_W--/g7g7i78rgmnqbxbeczty.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--jcaaFpOQ--/3a7b9e07cb6ee5ba8890e722ce659cf02f8aa123.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--WJZkWK8d--/aafxql0hi6qvpirm12nh.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 1160.9,
+          "regular": 2665,
+          "url": "https://www.geappliances.com/appliance/GE-Profile-36-Built-In-Touch-Control-Induction-Cooktop-PHP9036BMTS",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/PHP9036BMTS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 4.625 H x 36.125 W x 20.5 D\nappearance_color_appearance: Fingerprint Resistant Black Stainless\nfeatures_control_type: Electronic Touch\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--HmEZTWSc--/jgckdrlqforac4ateid1.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--KYqm4G3_--/xpr8jirmdwyuuozc71qb.pdf\nbenefits: Black Stainless finish; Five Induction Elements; Digital Touch Controls; Power Boil  (11\" 3,700-Watt Induction Element)"
+      ]
+    },
+    {
+      "model": "MCIT8036SB",
+      "brand": "MAYTAG",
+      "title": "36-Inch Wide Induction Cooktop with Power Boost",
+      "category": "Appliances \u003e Cooking \u003e Cooktops \u003e Cooktops (Electric)",
+      "best_price": 1299,
+      "best_source": "bray-and-scarff",
+      "product_url": "https://www.brayandscarff.com/appliances/cooking/cooktops/cooktops-electric/maytag/mcit8036sb/",
+      "image_url": "https://images.webfronts.com/cache/memjnyyrywxs.jpg",
+      "offers": [
+        {
+          "source": "bray-and-scarff",
+          "price": 1299,
+          "regular": 2249,
+          "url": "https://www.brayandscarff.com/appliances/cooking/cooktops/cooktops-electric/maytag/mcit8036sb/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/MCIT8036SB.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "Elevate your cooking game with the Maytag® Induction Cooktop with Power Boost. Boil water 2x faster than traditional electric cooktops* and get dinner right the first time with No Guess Presets like sauté, simmer and more. The XL Cooking Zone lets you mix and match cookware as needed, while Temp Cook™ Induction Technology helps ensure more consistent results. Plus, rely on our 10-Year Limited Parts Warranty** for lasting quality. *Compared to MEC8836HS. **Visit maytag.com for warranty details.\nWIFI Enabled: No\nSabbath Mode: No\nInduction: Yes\nDown Draft: No\nWidth: 36.3125\nHeight: 3.6875\nDepth: 21.3125\nNumber of Elements: 5"
+      ]
+    },
+    {
+      "model": "SDH3652DB",
+      "brand": "36",
+      "title": "36 in. width Induction Cooktop, European Black Mirror Finish Made with Premium SCHOTT Glass (SDH3652DB)",
+      "best_price": 1299.99,
+      "best_source": "brave-search:shop.sharpusa.com",
+      "product_url": "https://shop.sharpusa.com/36-in-width-induction-cooktop-european-black-mirror-finish-made-with-premium-schott-glass-sdh3652db/",
+      "offers": [
+        {
+          "source": "brave-search:shop.sharpusa.com",
+          "title": "36 in. width Induction Cooktop, European Black Mirror Finish Made with Premium SCHOTT Glass (SDH3652DB)",
+          "price": 1299.99,
+          "url": "https://shop.sharpusa.com/36-in-width-induction-cooktop-european-black-mirror-finish-made-with-premium-schott-glass-sdh3652db/",
+          "evidence": "Brave Search category product result price field"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/SDH3652DB.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ]
+    },
+    {
+      "model": "PHP6036DWBB",
+      "brand": "GE Profile",
+      "title": "GE Profile™ ENERGY STAR® 36\" Built-In Touch Control Induction Cooktop",
+      "category": "Cooktop",
+      "best_price": 1398,
+      "best_source": "bray-and-scarff",
+      "product_url": "https://www.geappliances.com/appliance/GE-Profile-ENERGY-STAR-36-Built-In-Touch-Control-Induction-Cooktop-PHP6036DWBB",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/426462/1048104/sqns0gjjisfxxr9kyglw__12631.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--TQISP-JA--/d5f95e32ca9dbc4286af57e8319da9355c844b8f.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--WQY8Au-K--/jugpgwdadzr6keo3ztgi.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--luR1PhSz--/29a4a13cdd6f63aa9283c75e7046ee6e2f48cb83.pdf",
+          "source": "bray-and-scarff"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--MQfq5105--/mbvtnz5tiyycyfrg52zr.pdf",
+          "source": "bray-and-scarff"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 1399,
+          "regular": 1799,
+          "url": "https://www.geappliances.com/appliance/GE-Profile-ENERGY-STAR-36-Built-In-Touch-Control-Induction-Cooktop-PHP6036DWBB",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "bray-and-scarff",
+          "price": 1398,
+          "regular": 1799,
+          "url": "https://www.brayandscarff.com/appliances/cooking/cooktops/cooktops-electric/ge-appliances/php6036dwbb/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/PHP6036DWBB.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 3.5 H x 36.625 W x 21.4375 D\nappearance_color_appearance: Black\nfeatures_control_type: Electronic,Glide Touch\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--TQISP-JA--/d5f95e32ca9dbc4286af57e8319da9355c844b8f.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--WQY8Au-K--/jugpgwdadzr6keo3ztgi.pdf\nbenefits: Quick Responsiveness; Power Boost on all Burners; Cookware Detection; Most Efficient Heating",
+        "\u003cB\u003eQuick Responsiveness\u003c/B\u003e\u003cBR /\u003eUsing induction technology and slide touch controls allows burners to quickly adjust and respond, giving you faster heat and total control.\u003cBR /\u003e\u003cBR /\u003e\u003cB\u003ePower Boost on all Burners\u003c/B\u003e\u003cBR /\u003eIntensify one burner's heat by redirecting power from others, so you can boil, sauté, reduce, brown, and char quickly.\u003cBR /\u003e\u003cBR /\u003e\u003cB\u003eCookware Detection\u003c/B\u003e\u003cBR /\u003eWhen cookware is removed from the cooking surface, the active burner automatically shuts off, helping you stay worry-free.\u003cBR /\u003e\u003cBR /\u003e\u003cB\u003eMost Efficient Heating\u003c/B\u003e\u003cBR /\u003eElectromagnetic energy directly heats the pan, instead of first heating the cooktop surface, resulting in faster, more efficient heating.\u003cBR /\u003e\u003cBR /\u003e\u003cB\u003eSynchronized Elements\u003c/B\u003e\u003cBR /\u003eControl two burners as one to create a single cooking surface for larger pans and griddles.\u003cBR /\u003e\u003cBR /\u003e\u003cB\u003eEasy-Clean Surface\u003c/B\u003e\u003cBR /\u003eA smooth glass surface makes cleaning up messes simpler than ever on this easy-clean induction cooktop.\u003cBR /\u003e\u003cBR /\u003e\u003cB\u003eTimer\u003c/B\u003e\u003cBR /\u003eHelp coordinate meal preparation and cooking with a convenient kitchen timer.\u003cBR /\u003e\u003cBR /\u003e\u003cB\u003eFit Guarantee\u003c/B\u003e\u003cBR /\u003eThis induction cooktop will fit your existing 36\" cutout or GE Appliances will help pay for modifications up to $100. See offer criteria and details\u003cBR /\u003e\u003cBR /\u003e\nWIFI Enabled: No\nENERGY STAR: No\nSabbath Mode: No\nInduction: Yes\nDown Draft: No\nWidth: 36.625\nHeight: 3.5\nDepth: 21.43\nNumber of Elements: 5"
+      ]
+    },
+    {
+      "model": "WCIT7536SS",
+      "brand": "WHIRLPOOL",
+      "title": "36\" Intelligent Induction Cooktop with Temp Cook™ Technology and WipeClean™ Coating",
+      "category": "Appliances \u003e Cooking \u003e Cooktops \u003e Cooktops (Electric)",
+      "best_price": 1399,
+      "best_source": "bray-and-scarff",
+      "product_url": "https://www.brayandscarff.com/appliances/cooking/cooktops/cooktops-electric/whirlpool/wcit7536ss/",
+      "image_url": "https://images.webfronts.com/cache/memqmygqmmqa.jpg",
+      "offers": [
+        {
+          "source": "bray-and-scarff",
+          "price": 1399,
+          "regular": 2449.99,
+          "url": "https://www.brayandscarff.com/appliances/cooking/cooktops/cooktops-electric/whirlpool/wcit7536ss/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WCIT7536SS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "The Whirlpool Intelligent Induction Cooktop helps you stay on time of meal time even with life's interuptions. Temp Cook™ Technology helps you avoid burning with dual temperature sensors that monitor and maintain your heat. Smart Presets like simmer, saute, and more put favorites at your fingertip and the Flexheat™ Plus Element matches your heat to your pan size. Voice Control allows you to do so hands-free with Alexa™ or Google™ when connected and WipeClean™ Coating simplifies cleanup so you can wet, wait, and wipe away the mess after meals.\nWIFI Enabled: Yes\nSabbath Mode: No\nInduction: Yes\nDown Draft: No\nWidth: 36.299\nHeight: 3.677\nDepth: 21.299\nNumber of Elements: 5"
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/30587612.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/PHP9036DJBB.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/90591022.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/10587613.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/UHCI36TCRPBK.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/PHP9036BMTS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/MCIT8036SB.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/SDH3652DB.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/PHP6036DWBB.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WCIT7536SS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: appliances",
+    "Category search-result model discovery used; search-derived prices are labeled as fallback evidence, not direct retailer API results.",
+    "Source warning: ferguson: ferguson: HTTP 403: \u003cHTML\u003e\u003cHEAD\u003e"
+  ],
+  "sources_run": [
+    "ferguson",
+    "ikea",
+    "ge-appliances",
+    "bray-and-scarff",
+    "brave-search"
+  ]
+}

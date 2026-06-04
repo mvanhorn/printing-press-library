@@ -1,0 +1,19 @@
+<!--
+/**
+ * DISCLAIMER
+*
+ * Do not edit or add to this file if you wish to upgrade Smile ElasticSuite to newer
+ * versions in the future.
+*
+*
+ * @category  Smile
+ * @package   Smile\ElasticsuiteCore
+ * @author    Romain Ruaud <romain.ruaud@smile.fr>
+ * @copyright 2020 Smile
+ * @license   Open Software License ("OSL") v. 3.0
+*/
+-->
+<dd class="<%- data.row_class %>" id="qs-option-<%- data.index %>" role="option">
+    <span class="qs-option-name"><%- data.title %></span>
+    <span aria-hidden="true" class="amount"><%- data.num_results %></span>
+</dd>

@@ -1,0 +1,118 @@
+{
+  "query": "JOESC330RM",
+  "total": 1,
+  "models": [
+    {
+      "model": "JOESC330RM",
+      "title": "JennAir NOIR Single Wall Oven With MultiMode 30-Inch Wide in ...",
+      "best_price": 3899,
+      "best_source": "brave-search:grandappliance.com",
+      "product_url": "https://www.abt.com/JennAir-NOIR-Single-Wall-Oven-With-MultiMode-30-Inch-Wide-in-Stainless-Steel-JOESC330RM/p/220958.html",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://content.abt.com/documents/170113/jennair-wall-oven-JOESC330RM-specs.pdf",
+          "source": "brave-search:abt.com"
+        }
+      ],
+      "offers": [
+        {
+          "source": "brave-search:abt.com",
+          "title": "JennAir NOIR Single Wall Oven With MultiMode 30-Inch Wide in ...",
+          "price": 4299,
+          "url": "https://www.abt.com/JennAir-NOIR-Single-Wall-Oven-With-MultiMode-30-Inch-Wide-in-Stainless-Steel-JOESC330RM/p/220958.html",
+          "evidence": "Brave Search exact-model product result price field"
+        },
+        {
+          "source": "brave-search:plessers.com",
+          "title": "Jenn Air JOESC330RM 30 Inch Single Convection Electric Smart Wall Oven | Plesser's Appliances",
+          "price": 3999,
+          "url": "https://www.plessers.com/jenn-air/joesc330rm",
+          "evidence": "Brave Search exact-model product result price field"
+        },
+        {
+          "source": "brave-search:fergusonhome.com",
+          "title": "JennAir JOESC330RM Noir 30 Inch Wide Electric Single Oven with Air Fry and Easy To Use Controls | Ferguson Home",
+          "price": 3999,
+          "url": "https://www.fergusonhome.com/jennair-joesc330rm/s2062276",
+          "evidence": "Brave Search exact-model product result price field"
+        },
+        {
+          "source": "brave-search:grandappliance.com",
+          "title": "Jennair® NOIR™ 30\" Stainless Steel Single Electric Wall Oven with MultiMode® True Convection | Grand Appliance and TV",
+          "price": 3899,
+          "url": "https://www.grandappliance.com/product/jennair-noir-30-stainless-steel-single-electric-wall-oven-with-multimode-true-convection-joesc330rm-1728338",
+          "evidence": "Brave Search exact-model product result price field"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "brave-search",
+          "url": "https://search.brave.com/search?q=JOESC330RM",
+          "status": "ok",
+          "reason": "4 snippet offer(s)"
+        },
+        {
+          "source": "brave-search:plessers.com",
+          "url": "https://www.plessers.com/jenn-air/joesc330rm",
+          "status": "blocked",
+          "reason": "HTTP 429: \u003c!DOCTYPE html\u003e\u003chtml lang=\"en\" data-astro-cid-nbv56vs3\u003e \u003chead\u003e\u003cmeta charset=\"utf-8\"\u003e\u003cmeta name=\"viewport\" content=\"wi..."
+        },
+        {
+          "source": "brave-search:fergusonhome.com",
+          "url": "https://www.fergusonhome.com/jennair-joesc330rm/s2062276",
+          "status": "blocked",
+          "reason": "HTTP 403: \u003cHTML\u003e\u003cHEAD\u003e\n\u003cTITLE\u003eAccess Denied\u003c/TITLE\u003e\n\u003c/HEAD\u003e\u003cBODY\u003e\n\u003cH1\u003eAccess Denied\u003c/H1\u003e\n \nYou don't have permission to access ..."
+        },
+        {
+          "source": "brave-search:grandappliance.com",
+          "url": "https://www.grandappliance.com/product/jennair-noir-30-stainless-steel-single-electric-wall-oven-with-multimode-true-convection-joesc330rm-1728338",
+          "status": "blocked",
+          "reason": "HTTP 403: \u003c!DOCTYPE html\u003e\u003chtml lang=\"en\"\u003e\u003chead\u003e\u003cmeta charset=\"utf-8\"\u003e\u003cmeta name=\"viewport\" content=\"width=device-width,initial-..."
+        },
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/JOESC330RM.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "source": "brave-search:plessers.com",
+      "url": "https://www.plessers.com/jenn-air/joesc330rm",
+      "status": "blocked",
+      "reason": "HTTP 429: \u003c!DOCTYPE html\u003e\u003chtml lang=\"en\" data-astro-cid-nbv56vs3\u003e \u003chead\u003e\u003cmeta charset=\"utf-8\"\u003e\u003cmeta name=\"viewport\" content=\"wi..."
+    },
+    {
+      "source": "brave-search:fergusonhome.com",
+      "url": "https://www.fergusonhome.com/jennair-joesc330rm/s2062276",
+      "status": "blocked",
+      "reason": "HTTP 403: \u003cHTML\u003e\u003cHEAD\u003e\n\u003cTITLE\u003eAccess Denied\u003c/TITLE\u003e\n\u003c/HEAD\u003e\u003cBODY\u003e\n\u003cH1\u003eAccess Denied\u003c/H1\u003e\n \nYou don't have permission to access ..."
+    },
+    {
+      "source": "brave-search:grandappliance.com",
+      "url": "https://www.grandappliance.com/product/jennair-noir-30-stainless-steel-single-electric-wall-oven-with-multimode-true-convection-joesc330rm-1728338",
+      "status": "blocked",
+      "reason": "HTTP 403: \u003c!DOCTYPE html\u003e\u003chtml lang=\"en\"\u003e\u003chead\u003e\u003cmeta charset=\"utf-8\"\u003e\u003cmeta name=\"viewport\" content=\"width=device-width,initial-..."
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/JOESC330RM.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Exact-model search-result offer discovery used; snippet-derived prices are labeled as search evidence, not direct retailer API results."
+  ],
+  "sources_run": [
+    "ge-appliances",
+    "bosch",
+    "brave-search"
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "query": "dishwasher",
+  "total_results": 3,
+  "sources_queried": [
+    "ge-appliances"
+  ],
+  "products": [
+    {
+      "id": "GDF460PSTSS",
+      "source": "ge-appliances",
+      "title": "GE® ENERGY STAR® Dishwasher with Front Controls",
+      "brand": "GE",
+      "url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Dishwasher-with-Front-Controls-GDF460PSTSS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/413928/1013126/jp1md8knbzwuonywqzb6__62945.1.jpg",
+      "description": "productdimensions: 33.375 H x 23.75 W x 24 D\nappearance_color_appearance: Stainless Steel\nfeatures_style: Built-In Front Control\nfeatures_control_type: Front Controls,Fully Integrated Inlaid Electronic Buttons,2 Touchpads\nfeatures_wifi_connect: Optional (Requires part no. PBX23W00Y1)\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--HHMo3_RQ--/b8e62fe5413cae69fd6ba83376c0a972d5700430.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--Qz7j35Rp--/l4fqklnhctzcbjjxipve.pdf\nbenefits: Reliable Performance; Extra Heavy Duty Dishwasher Cycle; Water Leak Sensor; Reliable Dishwasher Performance",
+      "price_min": 329,
+      "price_max": 329,
+      "regular_price_min": 552,
+      "regular_price_max": 552,
+      "sale_price_min": 329,
+      "sale_price_max": 329,
+      "on_sale": true,
+      "discount_percent": 40.39855072463768,
+      "rating": 3.7863014,
+      "review_count": 365,
+      "category": "Built-In"
+    },
+    {
+      "id": "GDT650SYVFS",
+      "source": "ge-appliances",
+      "title": "GE® ENERGY STAR® Fingerprint Resistant Top Control with Stainless Steel Interior Dishwasher with Sanitize Cycle",
+      "brand": "GE",
+      "url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Fingerprint-Resistant-Top-Control-with-Stainless-Steel-Interior-Dishwasher-with-Sanitize-Cycle-GDT650SYVFS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/422600/1014666/w0zwl7e2uxmv8gzhfh6a__50811.1.jpg",
+      "description": "productdimensions: 34 H x 23.75 W x 24 D\nappearance_color_appearance: Fingerprint Resistant Stainless\nfeatures_style: Built-In Top Control\nfeatures_control_type: Top Controls,8 Touchpads,Cap Touch Controls\nfeatures_wifi_connect: Optional (Requires part no. PBX23W00Y1)\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--uoNAXZpv--/39e2ec179ec299f5352c53da935ff714dcf53572.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--EJ2cqPt3--/pievum9r2w63zqo3hoxf.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--I4VVLPvv--/mgkg0hyxglk9sckizpm6.pdf\nbenefits: Dry Boost™ Technology; Third Rack; 4 Bottle Wash Jets; Adjustable Upper Rack",
+      "price_min": 569,
+      "price_max": 569,
+      "regular_price_min": 949,
+      "regular_price_max": 949,
+      "sale_price_min": 569,
+      "sale_price_max": 569,
+      "on_sale": true,
+      "discount_percent": 40.042149631190725,
+      "rating": 4.2958922,
+      "review_count": 1558,
+      "category": "Built-In"
+    },
+    {
+      "id": "PDT715SYVFS",
+      "source": "ge-appliances",
+      "title": "GE Profile™ ENERGY STAR® Fingerprint Resistant Top Control Stainless Interior Dishwasher with Microban™ Antimicrobial Technology",
+      "brand": "GE Profile",
+      "url": "https://www.geappliances.com/appliance/GE-Profile-ENERGY-STAR-Fingerprint-Resistant-Top-Control-Stainless-Interior-Dishwasher-with-Microban-Antimicrobial-Technology-PDT715SYVFS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/422608/1023465/kxalpmbhilmk8xyinwu8__03538.1.jpg",
+      "description": "productdimensions: 34 H x 23.75 W x 24 D\nappearance_color_appearance: Fingerprint Resistant Stainless\nfeatures_style: Built-In Top Control\nfeatures_control_type: Top Controls,Fingerprint Resistant Cap Touch Controls,8 Touchpads\nfeatures_wifi_connect: Built-In\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--uoNAXZpv--/39e2ec179ec299f5352c53da935ff714dcf53572.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--qm4clQCB--/mmvhgj8hxp3igerebtss.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--VNSo6bbO--/qp36hqysjwvzbgkepfht.pdf\nbenefits: Microban® Antimicrobial Technology; Dry Boost™; Smart Features Powered by SmartHQ™; Smart Assist",
+      "price_min": 699,
+      "price_max": 699,
+      "regular_price_min": 1199,
+      "regular_price_max": 1199,
+      "sale_price_min": 699,
+      "sale_price_max": 699,
+      "on_sale": true,
+      "discount_percent": 41.70141784820684,
+      "rating": 4.038186,
+      "review_count": 838,
+      "category": "Built-In"
+    }
+  ]
+}

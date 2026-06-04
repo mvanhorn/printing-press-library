@@ -1,0 +1,137 @@
+{
+  "query": "interior door lever",
+  "total": 5,
+  "models": [
+    {
+      "model": "31578",
+      "brand": "NOS",
+      "title": "Grandeur Grande Victorian Door Entry Handle Set",
+      "best_price": 731.26,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/grandeur-grande-victorian-door-entry-handle-set-gvc-entry",
+      "image_url": "https://hardwarehut.com/images/moreimages/doorentryhandlesets/grandeurbynostalgicwarehouse/nos-gvc-entry-tb-main.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 731.26,
+          "url": "https://hardwarehut.com/products/grandeur-grande-victorian-door-entry-handle-set-gvc-entry",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "32426",
+      "brand": "NOS",
+      "title": "Grandeur Fifth Avenue Door Entry Handle Set",
+      "best_price": 731.26,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/grandeur-fifth-avenue-door-entry-handle-set-fav-entry",
+      "image_url": "https://hardwarehut.com/images/moreimages/doorentryhandlesets/grandeurbynostalgicwarehouse/nos-fav-entry-vb-main.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 731.26,
+          "url": "https://hardwarehut.com/products/grandeur-fifth-avenue-door-entry-handle-set-fav-entry",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "10975",
+      "brand": "SCH",
+      "title": "Schlage Camelot Door Entrance Handleset",
+      "best_price": 179.45,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/schlage-camelot-door-entrance-handleset-camelot-handleset",
+      "image_url": "https://hardwarehut.com/images/moreimages/doorentryhandlesets/schlage/F58_cam_fla-605-main.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://hardwarehut.com/images/pdf/schlage/sch-f60-install.pdf",
+          "source": "product-page"
+        },
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/schlage/sch-f60-template.pdf",
+          "source": "product-page"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 179.45,
+          "url": "https://hardwarehut.com/products/schlage-camelot-door-entrance-handleset-camelot-handleset",
+          "evidence": "Hardware Hut product page schema price"
+        }
+      ]
+    },
+    {
+      "model": "10980",
+      "brand": "SCH",
+      "title": "Schlage Century Door Entrance Handleset",
+      "best_price": 179.44,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/schlage-century-door-entrance-handleset-century-handleset",
+      "image_url": "https://hardwarehut.com/images/moreimages/doorentryhandlesets/schlage/F58_cen_lat-716-main.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://hardwarehut.com/images/pdf/schlage/sch-f60-install.pdf",
+          "source": "product-page"
+        },
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/schlage/sch-f60-template.pdf",
+          "source": "product-page"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 179.44,
+          "url": "https://hardwarehut.com/products/schlage-century-door-entrance-handleset-century-handleset",
+          "evidence": "Hardware Hut product page schema price"
+        }
+      ]
+    },
+    {
+      "model": "10986",
+      "brand": "SCH",
+      "title": "Schlage Plymouth Door Entrance Handleset",
+      "best_price": 171.54,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/schlage-plymouth-door-entrance-handleset-plymouth-handleset",
+      "image_url": "https://hardwarehut.com/images/moreimages/doorentryhandlesets/schlage/F58_ply_ply-619-main.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://hardwarehut.com/images/pdf/schlage/sch-f60-install.pdf",
+          "source": "product-page"
+        },
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/schlage/sch-f60-template.pdf",
+          "source": "product-page"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 171.54,
+          "url": "https://hardwarehut.com/products/schlage-plymouth-door-entrance-handleset-plymouth-handleset",
+          "evidence": "Hardware Hut product page schema price"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: hardware"
+  ],
+  "sources_run": [
+    "hardware-hut",
+    "rejuvenation",
+    "ikea"
+  ]
+}

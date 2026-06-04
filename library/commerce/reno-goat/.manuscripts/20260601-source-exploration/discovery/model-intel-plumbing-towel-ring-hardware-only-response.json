@@ -1,0 +1,254 @@
+{
+  "query": "towel ring",
+  "total": 10,
+  "models": [
+    {
+      "model": "80541155",
+      "title": "PÅLYCKE Clip-on hook rack",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen organization \u0026 wall storage \u003e Kitchen wall organizers",
+      "best_price": 2.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/palycke-clip-on-hook-rack-80541155/",
+      "image_url": "https://www.ikea.com/us/en/images/products/palycke-clip-on-hook-rack__1093997_pe863271_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/palycke-clip-on-hook-rack__AA-2312863-1-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 2.99,
+          "url": "https://www.ikea.com/us/en/p/palycke-clip-on-hook-rack-80541155/",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "50582227",
+      "title": "BROFJÄRDEN Double hook",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 3.49,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/brofjaerden-double-hook-chrome-effect-50582227/",
+      "image_url": "https://www.ikea.com/us/en/images/products/brofjaerden-double-hook-chrome-effect__1329635_pe945207_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/brofjaerden-double-hook-chrome-effect__AA-2440719-5-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 3.49,
+          "url": "https://www.ikea.com/us/en/p/brofjaerden-double-hook-chrome-effect-50582227/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "chrome effect"
+      ]
+    },
+    {
+      "model": "90576031",
+      "title": "SLÅNHÖSTMAL Hand towel",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom textiles \u003e Towels \u003e Hand towels",
+      "best_price": 4.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/slanhoestmal-hand-towel-black-light-beige-stripe-90576031/",
+      "image_url": "https://www.ikea.com/us/en/images/products/slanhoestmal-hand-towel-black-light-beige-stripe__1255925_pe924798_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 4.99,
+          "url": "https://www.ikea.com/us/en/p/slanhoestmal-hand-towel-black-light-beige-stripe-90576031/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "black/light beige stripe"
+      ]
+    },
+    {
+      "model": "90602167",
+      "title": "RÖDSYRA Spoonrest",
+      "category": "Kitchenware \u0026 tableware \u003e Kitchen \u0026 cooking accessories \u003e Baking \u0026 cooking utensils",
+      "best_price": 4.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/roedsyra-spoonrest-light-gray-blue-90602167/",
+      "image_url": "https://www.ikea.com/us/en/images/products/roedsyra-spoonrest-light-gray-blue__1440840_pe986088_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 4.99,
+          "url": "https://www.ikea.com/us/en/p/roedsyra-spoonrest-light-gray-blue-90602167/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "light gray-blue"
+      ]
+    },
+    {
+      "model": "10436978",
+      "title": "LÄTTHET Hook and clip",
+      "category": "Baby \u0026 kids \u003e Baby \u003e Kids storage \u0026 organization \u003e SMÅSTAD system \u003e SMÅSTAD interior fittings",
+      "best_price": 5,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/laetthet-hook-and-clip-10436978/",
+      "image_url": "https://www.ikea.com/us/en/images/products/laetthet-hook-and-clip__0898666_pe782580_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 5,
+          "url": "https://www.ikea.com/us/en/p/laetthet-hook-and-clip-10436978/",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "70612445",
+      "title": "FRÖSÅDD Hook",
+      "category": "Storage containers, organizers \u0026 baskets \u003e Wall shelves \u0026 hooks \u003e Hooks \u0026 hangers \u003e Wall \u0026 door hooks",
+      "best_price": 5.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/froesadd-hook-black-70612445/",
+      "image_url": "https://www.ikea.com/us/en/images/products/froesadd-hook-black__1458418_pe993042_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/froesadd-hook-black__AA-2636724-2-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/disassembly_instructions/froesadd-hook-black__2690404_1_100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 5.99,
+          "url": "https://www.ikea.com/us/en/p/froesadd-hook-black-70612445/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "black"
+      ]
+    },
+    {
+      "model": "50567830",
+      "title": "SKOGHALL Hook, self-adhesive",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 6.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/skoghall-hook-self-adhesive-chrome-plated-50567830/",
+      "image_url": "https://www.ikea.com/us/en/images/products/skoghall-hook-self-adhesive-chrome-plated__0583461_pe671221_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/skoghall-hook-self-adhesive-chrome-plated__AA-679234-6-1.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 6.99,
+          "url": "https://www.ikea.com/us/en/p/skoghall-hook-self-adhesive-chrome-plated-50567830/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "chrome plated"
+      ]
+    },
+    {
+      "model": "00334923",
+      "title": "KUNGSFORS Magnetic clip",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen organization \u0026 wall storage \u003e Kitchen wall organizers",
+      "best_price": 7.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/kungsfors-magnetic-clip-stainless-steel-00334923/",
+      "image_url": "https://www.ikea.com/us/en/images/products/kungsfors-magnetic-clip-stainless-steel__0712626_pe728942_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 7.99,
+          "url": "https://www.ikea.com/us/en/p/kungsfors-magnetic-clip-stainless-steel-00334923/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "stainless steel"
+      ]
+    },
+    {
+      "model": "20524677",
+      "title": "BROGRUND Hook",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 7.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/brogrund-hook-stainless-steel-20524677/",
+      "image_url": "https://www.ikea.com/us/en/images/products/brogrund-hook-stainless-steel__0710516_pe727611_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/brogrund-hook-stainless-steel__AA-2002612-4-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 7.99,
+          "url": "https://www.ikea.com/us/en/p/brogrund-hook-stainless-steel-20524677/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "stainless steel"
+      ]
+    },
+    {
+      "model": "60614586",
+      "title": "VALASJÖN Towel hanger, self-adhesive",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 7.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/valasjoen-towel-hanger-self-adhesive-60614586/",
+      "image_url": "https://www.ikea.com/us/en/images/products/valasjoen-towel-hanger-self-adhesive__1433086_pe983058_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/valasjoen-towel-hanger-self-adhesive__AA-2593314-3-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 7.99,
+          "url": "https://www.ikea.com/us/en/p/valasjoen-towel-hanger-self-adhesive-60614586/",
+          "evidence": "normalized product search row"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: hardware"
+  ],
+  "sources_run": [
+    "hardware-hut",
+    "rejuvenation",
+    "ikea"
+  ]
+}

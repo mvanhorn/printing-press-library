@@ -1,0 +1,68 @@
+{
+  "query": "newport brass thermostatic valve",
+  "total": 2,
+  "models": [
+    {
+      "model": "NEWPORT-BRASS-1-743",
+      "brand": "Newport",
+      "title": "Newport Brass 1-743",
+      "best_price": 628.6,
+      "best_source": "brave-search:fergusonhome.com",
+      "product_url": "https://www.fergusonhome.com/newport-brass-1-743/s1206537?uid=2884292",
+      "offers": [
+        {
+          "source": "brave-search:fergusonhome.com",
+          "title": "Newport Brass 1-743",
+          "price": 628.6,
+          "url": "https://www.fergusonhome.com/newport-brass-1-743/s1206537?uid=2884292",
+          "evidence": "Brave Search category product result price field"
+        }
+      ]
+    },
+    {
+      "model": "NEWPORT-BRASS-1-540",
+      "brand": "Newport",
+      "title": "Newport Brass 1-540",
+      "category": "Thermostatic Control",
+      "best_price": 654.5,
+      "best_source": "brave-search:fergusonhome.com",
+      "product_url": "https://www.fergusonhome.com/newport-brass-1-540/s34080?uid=2465745",
+      "image_url": "https://cdn.shopify.com/s/files/1/0623/8552/0866/files/1-540_NF_largealt.jpg?v=1773772901",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://plumbtile.info/pdf/npb/NSP-B-SPEC_1-540%20Rev%20F.pdf",
+          "source": "plumbtile"
+        }
+      ],
+      "offers": [
+        {
+          "source": "brave-search:fergusonhome.com",
+          "title": "Newport Brass 1-540",
+          "price": 654.5,
+          "url": "https://www.fergusonhome.com/newport-brass-1-540/s34080?uid=2465745",
+          "evidence": "Brave Search category product result price field"
+        },
+        {
+          "source": "plumbtile",
+          "price": 714,
+          "regular": 1020,
+          "url": "https://plumbtile.com/products/newport-brass-1-540?_pos=1\u0026_psq=newport+brass+thermostatic+valve\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "No finishSolid brass constructionProvides anti-scald protection and temperature regulationQuarter-turn washerless ceramic disc 3/4\"valve cartridges.Must use with separate stop/volume controlHigh-temperature safety stop ensures water temperature stays below maximum settingIntegral hot and cold inlet stops ensure easy cartridge accessSpecification FileManufacturer's Part Number(s): 1-540\nspec: https://plumbtile.info/pdf/npb/NSP-B-SPEC_1-540%20Rev%20F.pdf"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category search-result model discovery used; search-derived prices are labeled as fallback evidence, not direct retailer API results."
+  ],
+  "sources_run": [
+    "plumbtile",
+    "brave-search"
+  ]
+}

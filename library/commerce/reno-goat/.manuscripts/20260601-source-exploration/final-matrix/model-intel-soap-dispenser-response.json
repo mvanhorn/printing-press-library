@@ -1,0 +1,328 @@
+{
+  "query": "soap dispenser",
+  "total": 12,
+  "models": [
+    {
+      "model": "CLEARANCE-GRAFF-G-9921",
+      "brand": "Graff Overstock",
+      "title": "Clearance Graff - Soap/Lotion Dispenser",
+      "category": "Kitchen Soap Dispensers",
+      "best_price": 25.5,
+      "best_source": "plumbtile",
+      "product_url": "https://plumbtile.com/products/clearance-graff-g-9921-xx?_pos=7\u0026_psq=soap+dispenser\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0623/8552/0866/files/G-9921-BN.jpg?v=1698698745",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://www.plumbtile.info/pdf/graff-overstock/G-9921.pdf",
+          "source": "plumbtile"
+        }
+      ],
+      "offers": [
+        {
+          "source": "plumbtile",
+          "price": 25.5,
+          "regular": 162,
+          "url": "https://plumbtile.com/products/clearance-graff-g-9921-xx?_pos=7\u0026_psq=soap+dispenser\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Quantities are Limited $500 Order Minimum Freight Not Included on Any Order Size All Sales FinalSpecification FileManufacturer's Part Number(s): G-9921-BN (Brushed Nickel), G-9921-PC (Polished Chrome)\nspec: https://www.plumbtile.info/pdf/graff-overstock/G-9921.pdf"
+      ]
+    },
+    {
+      "model": "KSD-43",
+      "brand": "Kraus",
+      "title": "KRAUS KSD-43 12 7/8 INCH DECK MOUNTED KITCHEN SOAP AND LOTION DISPENSER",
+      "best_price": 33.33,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/kraus-ksd-43-deck-mounted-solid-brass-soap-dispenser.html",
+      "image_url": "https://www.kbauthority.com/images/W/148/KSD-43CH_Kraus_Chrome.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.kbauthority.com/files/PDF/Kraus/KSD-43_Warranty_Sheet.pdf",
+          "source": "kbauthority"
+        }
+      ],
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 33.33,
+          "url": "https://www.kbauthority.com/kraus-ksd-43-deck-mounted-solid-brass-soap-dispenser.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "AB5004",
+      "brand": "Alfi Brand",
+      "title": "ALFI BRAND AB5004 2 1/2 INCH MODERN SOAP DISPENSER",
+      "best_price": 61.43,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/alfi-brand-ab5004-2-1-2-inch-modern-soap-dispenser.html",
+      "image_url": "https://www.kbauthority.com/images/W/722/AB5004-PSS_Alfi_Brand_Polished_Stainless_Steel.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 61.43,
+          "url": "https://www.kbauthority.com/alfi-brand-ab5004-2-1-2-inch-modern-soap-dispenser.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "WWW.KBAUTHORITY.COM-ZLINE-FSD-2-1-4-INCH-FAUCET-SOAP-DISPENSER.HTML",
+      "brand": "Zline Fsd",
+      "title": "ZLINE FSD 2 1/4 INCH FAUCET SOAP DISPENSER",
+      "best_price": 76.49,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/zline-fsd-2-1-4-inch-faucet-soap-dispenser.html",
+      "image_url": "https://www.kbauthority.com/images/W/405/FSD-CH_Zline_Chrome.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 76.49,
+          "url": "https://www.kbauthority.com/zline-fsd-2-1-4-inch-faucet-soap-dispenser.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "WHFXSD225STS",
+      "brand": "Whitehaus Collection",
+      "title": "Fx Navigator Soap and Lotion Dispenser - Stainless Steel",
+      "category": "Soap Dispensers",
+      "best_price": 85,
+      "best_source": "vintage-tub",
+      "product_url": "https://www.vintagetub.com/whitehaus-fx-navigator-soap-and-lotion-dispenser-whfxsd225sts.html",
+      "image_url": "https://www.vintagetub.com/media/catalog/product/cache/21d5e030aee96734973017c40d77cfe9/W/H/WHFXSD225STS.jpg",
+      "offers": [
+        {
+          "source": "vintage-tub",
+          "price": 85,
+          "url": "https://www.vintagetub.com/whitehaus-fx-navigator-soap-and-lotion-dispenser-whfxsd225sts.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "FX Navigator Collection Soap and Lotion Dispenser by Whitehaus; Solid Brass Construction; Lead-Free and Recyclable Product; Manufacturer requires delivery signature; Eligible for Free Shipping on orders $99+; Important: Item must be inspected within 48 hours of receipt"
+      ]
+    },
+    {
+      "model": "WHSD125-ORB",
+      "brand": "Whitehaus",
+      "title": "WHITEHAUS WHSD125-ORB SOLID BRASS SOAP/LOTION DISPENSER",
+      "best_price": 100.6,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/whitehaus-whsd125-orb-solid-brass-soap-lotion-dispenser.html",
+      "image_url": "https://www.kbauthority.com/images/T/287/WHSD125-ORB.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://www.kbauthority.com/files/PDF/Whitehaus/Specification_WHSD125-ORB.pdf",
+          "source": "kbauthority"
+        }
+      ],
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 100.6,
+          "url": "https://www.kbauthority.com/whitehaus-whsd125-orb-solid-brass-soap-lotion-dispenser.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "TBD130",
+      "brand": "Trim By Design",
+      "title": "Trim By Design TBD130.17 Economy Soap \u0026 Lotion Dispenser - Brushed Nickel (Pictured in Polished Chrome)",
+      "category": "Bathroom Soap Dispensers",
+      "best_price": 107.1,
+      "best_source": "faucetdepot",
+      "product_url": "https://faucetdepot.com/product/313829/trim+by+design+tbd130+17+trim+by+design+tbd130+17+economy+soap+lotion+dispenser+-+brushed+nickel+pictured+in+polished+chrome",
+      "image_url": "https://hirschcontent.com/images/TBD130.17.jpg",
+      "offers": [
+        {
+          "source": "faucetdepot",
+          "price": 107.1,
+          "regular": 126,
+          "url": "https://faucetdepot.com/product/313829/trim+by+design+tbd130+17+trim+by+design+tbd130+17+economy+soap+lotion+dispenser+-+brushed+nickel+pictured+in+polished+chrome",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "TBD130.17 Trim By Design Economy Soap \u0026 Lotion Dispenser - Brushed Nickel (Pictured in Polished Chrome)Economy Soap \u0026 Lotion DispenserRequires 1 1/4\" to 1 11/16\" Through Hole8.8 oz Capacity BottleHead And Body Made Of BrassClick here to see available Trim By Design finishes"
+      ]
+    },
+    {
+      "model": "RP79275",
+      "brand": "Brizo",
+      "title": "Brizo - Odin Soap/Lotion Dispenser",
+      "category": "Kitchen Soap Dispensers",
+      "best_price": 109.44,
+      "best_source": "plumbtile",
+      "product_url": "https://plumbtile.com/products/brizo-rp79275?_pos=1\u0026_psq=soap+dispenser\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0623/8552/0866/files/RP79275PC-B1.jpg?v=1768147605",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://media.brizo.com/SpecSheet/BSP-K-RP79275%20Rev%20B.pdf",
+          "source": "plumbtile"
+        }
+      ],
+      "offers": [
+        {
+          "source": "plumbtile",
+          "price": 109.44,
+          "regular": 152,
+          "url": "https://plumbtile.com/products/brizo-rp79275?_pos=1\u0026_psq=soap+dispenser\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Includes installation hardwareAccommodates up to 3 Inch deck thickness2 3/4” overall height13-ounce bottleRefillable from above the deckCartridges ship with the trimSpecification FileManufacturer's Part Number(s): RP79275MW (Matte White), RP79275BL (Matte Black), RP79275GL (Luxe Gold), RP79275PC (Chrome), RP79275PG (Polished Gold), RP79275PN (Polished Nickel), RP79275SL (Luxe Steel), RP79275SS (Stainless)\nspec: https://media.brizo.com/SpecSheet/BSP-K-RP79275%20Rev%20B.pdf"
+      ]
+    },
+    {
+      "model": "RP75675",
+      "brand": "Brizo",
+      "title": "Brizo - Artesso Soap/Lotion Dispenser",
+      "category": "Kitchen Soap Dispensers",
+      "best_price": 118,
+      "best_source": "plumbtile",
+      "product_url": "https://plumbtile.com/products/brizo-rp75675?_pos=6\u0026_psq=soap+dispenser\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0623/8552/0866/files/RP75675PC-B1_ffb9f6e2-f79e-4bf3-b44e-977e72f8b30a.jpg?v=1768147595",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://media.brizo.com/SpecSheet/BSP-K-RP75675%20Rev%20B.pdf",
+          "source": "plumbtile"
+        }
+      ],
+      "offers": [
+        {
+          "source": "plumbtile",
+          "price": 118,
+          "regular": 164,
+          "url": "https://plumbtile.com/products/brizo-rp75675?_pos=6\u0026_psq=soap+dispenser\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "kbauthority",
+          "price": 118,
+          "url": "https://www.kbauthority.com/brizo-rp75675-soap-dispenser.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Includes installation hardwareAccommodates up to 3 Inch deck thickness2 3/4” overall height15-ounce bottleRefillable from above the deckSpecification FileManufacturer's Part Number(s): RP75675BL (Matte Black), RP75675GL (Luxe Gold), RP75675PC (Chrome), RP75675PN (Polished Nickel), RP75675RB (Venetian Bronze), RP75675SS (Stainless)\nspec: https://media.brizo.com/SpecSheet/BSP-K-RP75675%20Rev%20B.pdf"
+      ]
+    },
+    {
+      "model": "BRIZO-695306",
+      "brand": "Brizo",
+      "title": "Brizo - Kintsu Soap/Lotion Dispenser",
+      "category": "Kitchen Soap Dispensers",
+      "best_price": 138.96,
+      "best_source": "plumbtile",
+      "product_url": "https://plumbtile.com/products/brizo-695306?_pos=9\u0026_psq=soap+dispenser\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0623/8552/0866/files/695306-BL-B1.jpg?v=1768147603",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://media.brizo.com/SpecSheet/BSP-K-695306%20Rev%20A.pdf",
+          "source": "plumbtile"
+        }
+      ],
+      "offers": [
+        {
+          "source": "plumbtile",
+          "price": 138.96,
+          "regular": 193,
+          "url": "https://plumbtile.com/products/brizo-695306?_pos=9\u0026_psq=soap+dispenser\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Includes installation hardwareAccommodates up to 3 Inch deck thickness15-ounce bottleRefillable from above the deckL = Lumicoat® TechnologySpecification FileManufacturer's Part Number(s): 695306-BL (Matte Black), 695306-BNX-L (Lumicoat Black Onyx), 695306-GL-L (Lumicoat Luxe Gold), 695306-PC-L (Lumicoat Chrome), 695306-PN-L (Lumicoat Polished Nickel), 695306-SS-L (Lumicoat Stainless)\nspec: https://media.brizo.com/SpecSheet/BSP-K-695306%20Rev%20A.pdf"
+      ]
+    },
+    {
+      "model": "BRIZO-690122",
+      "brand": "Brizo",
+      "title": "Brizo - Frank Lloyd Wright Soap/Lotion Dispenser",
+      "category": "Kitchen Soap Dispensers",
+      "best_price": 144,
+      "best_source": "plumbtile",
+      "product_url": "https://plumbtile.com/products/brizo-690122?_pos=2\u0026_psq=soap+dispenser\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0623/8552/0866/files/690122-BNX-B1.jpg?v=1768147597",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://media.brizo.com/SpecSheet/BSP-K-690122%20Rev%20A.pdf",
+          "source": "plumbtile"
+        }
+      ],
+      "offers": [
+        {
+          "source": "plumbtile",
+          "price": 144,
+          "regular": 200,
+          "url": "https://plumbtile.com/products/brizo-690122?_pos=2\u0026_psq=soap+dispenser\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Coordinates with the Frank Lloyd Wright® Kitchen CollectionIncludes all necessary installation hardwareAccommodates up to 3\" counter or sink thicknessHolds up to 15 ounces of soap or lotion Refillable from the topSpecification FileManufacturer's Part Number(s): 690122-BNX (Brilliance Black Onyx), 690122-GL (Luxe Gold), 690122-PC (Chrome), 690122-PN (Polished Nickel), 690122-SS (Stainless)\nspec: https://media.brizo.com/SpecSheet/BSP-K-690122%20Rev%20A.pdf"
+      ]
+    },
+    {
+      "model": "RP101658",
+      "brand": "Brizo",
+      "title": "Brizo - The Tulham Kitchen Collection by Brizo Soap/Lotion Dispenser",
+      "category": "Kitchen Soap Dispensers",
+      "best_price": 157,
+      "best_source": "plumbtile",
+      "product_url": "https://plumbtile.com/products/brizo-rp101658?_pos=10\u0026_psq=soap+dispenser\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0623/8552/0866/files/RP101658PC-B1.jpg?v=1768147605",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://media.brizo.com/SpecSheet/BSP-K-RP101658%20Rev%20A.pdf",
+          "source": "plumbtile"
+        }
+      ],
+      "offers": [
+        {
+          "source": "plumbtile",
+          "price": 157,
+          "regular": 218,
+          "url": "https://plumbtile.com/products/brizo-rp101658?_pos=10\u0026_psq=soap+dispenser\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Includes installation hardwareAccommodates up to 3 Inch deck thickness15-ounce bottleRefillable from above the deckSpecification FileManufacturer's Part Number(s): RP101658BLBNX (Matte Black/ Brilliance Black Onyx), RP101658GLPG (Luxe Gold/ Polished Gold), RP101658PC (Chrome), RP101658PN (Polished Nickel), RP101658SL (Luxe Steel), RP101658SS (Stainless)\nspec: https://media.brizo.com/SpecSheet/BSP-K-RP101658%20Rev%20A.pdf"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: plumbing",
+    "Source warning: ferguson: ferguson: HTTP 403: \u003cHTML\u003e\u003cHEAD\u003e"
+  ],
+  "sources_run": [
+    "ferguson",
+    "floor-and-decor",
+    "plumbersstock",
+    "faucetdepot",
+    "faucetlist",
+    "plumbtile",
+    "modern-bathroom",
+    "kbauthority",
+    "vintage-tub"
+  ]
+}

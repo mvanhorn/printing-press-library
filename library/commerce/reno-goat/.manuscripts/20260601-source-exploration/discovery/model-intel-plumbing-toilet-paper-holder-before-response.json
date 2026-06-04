@@ -1,0 +1,263 @@
+{
+  "query": "toilet paper holder",
+  "total": 10,
+  "models": [
+    {
+      "model": "914300175",
+      "title": "White Ceramic Toilet Paper Holder",
+      "category": "Toilet Paper Holder",
+      "best_price": 10.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/white-ceramic-toilet-paper-holder-914300175.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 10.99,
+          "regular": 10.99,
+          "url": "https://www.flooranddecor.com/white-ceramic-toilet-paper-holder-914300175.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eIntroducing the elegant White Ceramic Toilet Paper Holder, designed to enhance your bathroom's decor with its polished, high gloss finish. Perfect for residential use, this toilet paper holder combines functionality with a sleek, modern look that complements any shower wall.\u003c/p\u003e\u003cul\u003e \u003cli\u003eThe high gloss finish offers a sophisticated shine that adds a touch of luxury to your bathroom.\u003c/li\u003e \u003cli\u003eCrafted from high-quality ceramic, ensuring durability and a long-lasting pristine appearance.\u003c/li\u003e \u003cli\u003eThe rectangle shape provides ample space for easy accessibility and secure holding of toilet paper rolls.\u003c/li\u003e \u003cli\u003eDesigned for residential use, making it ideal for homes seeking both style and practicality.\u003c/li\u003e \u003cli\u003eSafe for shower wall installation, offering versatility in placement within your bathroom setup.\u003c/li\u003e\u003c/ul\u003e\u003cp\u003eWith a compact size of 4 x 6 inches, the White Ceramic Toilet Paper Holder is compact yet efficient. Enjoy peace of mind with the lifetime limited warranty, ensuring your satisfaction for years to come.\u003c/p\u003e"
+      ]
+    },
+    {
+      "model": "BP5380SN",
+      "brand": "Moen®",
+      "title": "Moen® BP5380SN European Toilet Paper Holder, Yorkshire®, 4.65 in H, Zinc, Satin Nickel, Import",
+      "category": "Toilet Paper Holders",
+      "best_price": 15.526,
+      "best_source": "faucetdepot",
+      "product_url": "https://faucetdepot.com/product/685762/moen+reg+bp5380sn+moen+reg+bp5380sn+european+toilet+paper+holder+yorkshire+reg+4+65+in+h+zinc+satin+nickel+import",
+      "image_url": "https://hirschcontent.com/images/Moen_BP5380SN.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://hirschcontent.com/documents/Moen_BP5380CH_Specification_Sheet.pdf",
+          "source": "faucetdepot"
+        }
+      ],
+      "offers": [
+        {
+          "source": "faucetdepot",
+          "price": 15.526,
+          "regular": 20.55,
+          "url": "https://faucetdepot.com/product/685762/moen+reg+bp5380sn+moen+reg+bp5380sn+european+toilet+paper+holder+yorkshire+reg+4+65+in+h+zinc+satin+nickel+import",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "moen",
+          "url": "https://shop.moen.com/products/bp5380sn",
+          "status": "error",
+          "reason": "HTTP 404: \u003c!doctype html\u003e\n\u003chtml class=\"no-js\" lang=\"en\"\u003e\n  \u003chead\u003e\n\u003cscript type=\"text/javascript\" src=\"https://edge.personalizer..."
+        }
+      ],
+      "source_fields": [
+        "Moen® Toilet Paper Holder, European, Yorkshire®, 4.65 in Height, 6.673 in Length, 6.67 in Width, 3.1 in Depth, Wall Mount, Zinc, Satin Nickel, Import"
+      ]
+    },
+    {
+      "model": "BP5380OWB",
+      "brand": "Moen®",
+      "title": "Moen® BP5380OWB European Toilet Paper Holder, Yorkshire®, 4.65 in H, Zinc, Old World Bronze, Import",
+      "category": "Toilet Paper Holders",
+      "best_price": 17.83,
+      "best_source": "faucetdepot",
+      "product_url": "https://faucetdepot.com/product/685776/moen+reg+bp5380owb+moen+reg+bp5380owb+european+toilet+paper+holder+yorkshire+reg+4+65+in+h+zinc+old+world+bronze+import",
+      "image_url": "https://hirschcontent.com/images/Moen_BP5380OWB.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://hirschcontent.com/documents/Moen_BP5380CH_Specification_Sheet.pdf",
+          "source": "faucetdepot"
+        }
+      ],
+      "offers": [
+        {
+          "source": "faucetdepot",
+          "price": 17.83,
+          "regular": 23.6,
+          "url": "https://faucetdepot.com/product/685776/moen+reg+bp5380owb+moen+reg+bp5380owb+european+toilet+paper+holder+yorkshire+reg+4+65+in+h+zinc+old+world+bronze+import",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "moen",
+          "url": "https://shop.moen.com/products/bp5380owb",
+          "status": "error",
+          "reason": "HTTP 404: \u003c!doctype html\u003e\n\u003chtml class=\"no-js\" lang=\"en\"\u003e\n  \u003chead\u003e\n\u003cscript type=\"text/javascript\" src=\"https://edge.personalizer..."
+        }
+      ],
+      "source_fields": [
+        "Moen® Toilet Paper Holder, European, Yorkshire®, 4.65 in Height, 6.673 in Length, 6.67 in Width, 3.1 in Depth, Wall Mount, Zinc, Old World Bronze, Import"
+      ]
+    },
+    {
+      "model": "100584952",
+      "brand": "Studio Design Collection",
+      "title": "Grant Chrome Toilet Paper Holder",
+      "category": "Toilet Paper Holder",
+      "best_price": 18.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/bathroom-accessories/grant-chrome-toilet-paper-holder-100584952.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 18.99,
+          "regular": 18.99,
+          "url": "https://www.flooranddecor.com/bathroom-accessories/grant-chrome-toilet-paper-holder-100584952.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eGrant Chrome Toilet Paper Holder by Studio Design Collection is the perfect blend of style and functionality for your bathroom. Designed for both residential and commercial use, this polished high gloss toilet paper holder adds a touch of elegance to any space.\u003c/p\u003e\u003cul\u003e \u003cli\u003eThe polished high gloss finish ensures a sleek, modern look that complements any bathroom decor.\u003c/li\u003e \u003cli\u003eCrafted from durable materials, it guarantees long-lasting performance and reliability.\u003c/li\u003e \u003cli\u003eEasy wall installation makes it convenient to set up without hassle.\u003c/li\u003e \u003cli\u003eThe compact size (6 x 4 inches) fits seamlessly into any bathroom layout.\u003c/li\u003e \u003cli\u003eBacked by a lifetime limited warranty, providing peace of mind with every purchase.\u003c/li\u003e\u003c/ul\u003e\u003cp\u003eUpgrade your bathroom with the Grant Chrome Toilet Paper Holder and enjoy its stylish design and dependable quality for years to come.\u003c/p\u003e"
+      ]
+    },
+    {
+      "model": "100584804",
+      "brand": "Studio Design Collection",
+      "title": "Parker Brushed Nickel Toilet Paper Holder",
+      "category": "Toilet Paper Holder",
+      "best_price": 21.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/bathroom-accessories/parker-brushed-nickel-toilet-paper-holder-100584804.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 21.99,
+          "regular": 21.99,
+          "url": "https://www.flooranddecor.com/bathroom-accessories/parker-brushed-nickel-toilet-paper-holder-100584804.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Parker Brushed Nickel Toilet Paper Holder by Studio Design Collection is the perfect addition to any residential or commercial bathroom. With its sleek, brushed finish and sturdy construction, this toilet paper holder combines both style and functionality.\u003c/p\u003e\u003cul\u003e \u003cli\u003eThe brushed nickel finish offers a modern and sophisticated look that complements any bathroom decor.\u003c/li\u003e \u003cli\u003eMade for wall installation only, ensuring stability and saving space in your bathroom.\u003c/li\u003e \u003cli\u003eDesigned for both residential and commercial usage, making it versatile for various settings.\u003c/li\u003e \u003cli\u003eBacked by a lifetime limited warranty, providing peace of mind and long-term reliability.\u003c/li\u003e \u003cli\u003eCompact size of 6 x 4 inches fits seamlessly into your bathroom without taking up too much space.\u003c/li\u003e\u003c/ul\u003e\u003cp\u003eUpgrade your bathroom with the Parker Brushed Nickel Toilet Paper Holder. Its elegant design and durable build make it a must-have accessory for any modern bathroom setup.\u003c/p\u003e"
+      ]
+    },
+    {
+      "model": "100584853",
+      "brand": "Studio Design Collection",
+      "title": "Dash Black Matte Toilet Paper Holder",
+      "category": "Toilet Paper Holder",
+      "best_price": 24.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/bathroom-accessories/dash-black-matte-toilet-paper-holder-100584853.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 24.99,
+          "regular": 24.99,
+          "url": "https://www.flooranddecor.com/bathroom-accessories/dash-black-matte-toilet-paper-holder-100584853.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eIntroducing the Dash Black Matte Toilet Paper Holder from Studio Design Collection, a perfect blend of style and functionality for your bathroom. This sleek holder is designed for both residential and commercial use, ensuring durability and elegance in any setting.\u003c/p\u003e\u003cul\u003e \u003cli\u003eThe matte black finish adds a modern touch, enhancing the overall aesthetic of your bathroom.\u003c/li\u003e \u003cli\u003eCrafted with high-quality materials, it ensures long-lasting performance and reliability.\u003c/li\u003e \u003cli\u003eSuitable for wall installation only, making it ideal for optimizing space in your bathroom.\u003c/li\u003e \u003cli\u003eDesigned to fit standard toilet paper rolls seamlessly, providing convenience and ease of use.\u003c/li\u003e \u003cli\u003eThe lifetime limited warranty guarantees peace of mind and confidence in your purchase.\u003c/li\u003e\u003c/ul\u003e\u003cp\u003eUpgrade your bathroom with the Dash Black Matte Toilet Paper Holder, combining style, durability, and practicality in one elegant accessory.\u003c/p\u003e"
+      ]
+    },
+    {
+      "model": "101137602",
+      "brand": "Studio Design Collection",
+      "title": "Addison Brushed Nickel Toilet Paper Holder",
+      "category": "Toilet Paper Holder",
+      "best_price": 24.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/bathroom-accessories/addison-brushed-nickel-toilet-paper-holder-101137602.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 24.99,
+          "regular": 24.99,
+          "url": "https://www.flooranddecor.com/bathroom-accessories/addison-brushed-nickel-toilet-paper-holder-101137602.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Addison Brushed Nickel Toilet Paper Holder by Studio Design Collection combines elegance and practicality, making it a perfect addition to any residential bathroom. Designed with a brushed finish, this holder seamlessly blends with various decor styles while providing durability for everyday use.\u003c/p\u003e\u003cul\u003e \u003cli\u003eThe brushed finish enhances the toilet paper holder's aesthetic appeal and resists fingerprints and water spots.\u003c/li\u003e \u003cli\u003eCrafted from high-quality materials, this holder ensures long-lasting performance and reliability in your bathroom.\u003c/li\u003e \u003cli\u003eIts compact size of 9 x 2 inches makes it ideal for maximizing space without compromising functionality.\u003c/li\u003e \u003cli\u003eEasy wall-only installation allows for a secure and stable placement, ensuring convenience and safety.\u003c/li\u003e \u003cli\u003eThe lifetime limited warranty provides peace of mind, guaranteeing that your purchase is protected against defects.\u003c/li\u003e\u003c/ul\u003e\u003cp\u003eUpgrade your bathroom with the Addison Brushed Nickel Toilet Paper Holder, combining style, durability, and functionality in one elegant package.\u003c/p\u003e"
+      ]
+    },
+    {
+      "model": "101379816",
+      "brand": "Studio Design Collection",
+      "title": "Addison Brushed Nickel Toilet Paper Holder",
+      "category": "Toilet Paper Holder",
+      "best_price": 24.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/bathroom-accessories/addison-brushed-nickel-toilet-paper-holder-101379816.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 24.99,
+          "regular": 24.99,
+          "url": "https://www.flooranddecor.com/bathroom-accessories/addison-brushed-nickel-toilet-paper-holder-101379816.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Addison Brushed Nickel Toilet Paper Holder from the Studio Design Collection is the perfect blend of elegance and functionality for any bathroom space. Designed for both residential and commercial use, this holder offers a sophisticated touch while ensuring durability and convenience.\u003c/p\u003e\u003cul\u003e \u003cli\u003eThe brushed finish provides a sleek, modern look that complements any bathroom decor.\u003c/li\u003e \u003cli\u003eMade from high-quality materials, this holder ensures long-lasting use and reliability.\u003c/li\u003e \u003cli\u003eThe brushed nickel color adds a touch of sophistication to your bathroom setup.\u003c/li\u003e \u003cli\u003eSuitable for wall installation only, making it easy to mount securely.\u003c/li\u003e \u003cli\u003eComes with a lifetime limited warranty, offering peace of mind and guaranteed satisfaction.\u003c/li\u003e\u003c/ul\u003e\u003cp\u003eUpgrade your bathroom with the Addison Brushed Nickel Toilet Paper Holder, a stylish and practical solution for keeping your toilet paper within reach. Its elegant design and durable construction make it an excellent choice for any setting.\u003c/p\u003e"
+      ]
+    },
+    {
+      "model": "100995133",
+      "brand": "Studio Design Collection",
+      "title": "Carlo Brushed Gold Toilet Paper Holder",
+      "category": "Toilet Paper Holder",
+      "best_price": 25.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/bathroom-accessories/carlo-brushed-gold-toilet-paper-holder-100995133.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 25.99,
+          "regular": 25.99,
+          "url": "https://www.flooranddecor.com/bathroom-accessories/carlo-brushed-gold-toilet-paper-holder-100995133.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Carlo Brushed Gold Toilet Paper Holder from Studio Design Collection is the perfect blend of elegance and functionality for any bathroom. Designed for both residential and commercial use, this holder offers a sophisticated touch with its brushed gold finish, ensuring durability and style.\u003c/p\u003e\u003cul\u003e \u003cli\u003eThe brushed finish provides a sleek, modern look that complements any bathroom decor.\u003c/li\u003e \u003cli\u003eThe wall-only installation ensures stability and saves space in your bathroom.\u003c/li\u003e \u003cli\u003eSuitable for shower walls, adding convenience and versatility to your bathroom setup.\u003c/li\u003e \u003cli\u003eCrafted by Studio Design Collection, known for high-quality and stylish bathroom accessories.\u003c/li\u003e \u003cli\u003eComes with a lifetime limited warranty for peace of mind and long-lasting use.\u003c/li\u003e\u003c/ul\u003e\u003cp\u003eUpgrade your bathroom with the Carlo Brushed Gold Toilet Paper Holder today, combining style, durability, and functionality seamlessly.\u003c/p\u003e"
+      ]
+    },
+    {
+      "model": "100999366",
+      "brand": "Studio Design Collection",
+      "title": "Luxe Matte Black Toilet Paper Holder",
+      "category": "Toilet Paper Holder",
+      "best_price": 25.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/bathroom-accessories/luxe-matte-black-toilet-paper-holder-100999366.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 25.99,
+          "regular": 25.99,
+          "url": "https://www.flooranddecor.com/bathroom-accessories/luxe-matte-black-toilet-paper-holder-100999366.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eIntroducing the Luxe Matte Black Toilet Paper Holder from Studio Design Collection, a sophisticated addition to your bathroom decor. Designed with elegance and functionality in mind, this toilet paper holder is perfect for residential use.\u003c/p\u003e\u003cul\u003e \u003cli\u003eThe matte black finish provides a sleek and modern look, enhancing the overall aesthetic of your bathroom.\u003c/li\u003e \u003cli\u003eCrafted for wall installation only, ensuring stability and easy access to your toilet paper.\u003c/li\u003e \u003cli\u003eThe durable construction guarantees long-lasting use, backed by a lifetime limited warranty for peace of mind.\u003c/li\u003e \u003cli\u003eCompact size of 8 x 2 inches fits seamlessly into any bathroom space without overwhelming the decor.\u003c/li\u003e \u003cli\u003ePart of the Studio Design Collection, known for quality and stylish bathroom accessories.\u003c/li\u003e\u003c/ul\u003e\u003cp\u003eThe Luxe Matte Black Toilet Paper Holder combines style with practicality, making it an essential piece for any modern bathroom.\u003c/p\u003e"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: plumbing",
+    "Source warning: ferguson: ferguson: HTTP 403: \u003cHTML\u003e\u003cHEAD\u003e"
+  ],
+  "sources_run": [
+    "ferguson",
+    "floor-and-decor",
+    "plumbersstock",
+    "faucetdepot",
+    "faucetlist",
+    "plumbtile",
+    "modern-bathroom",
+    "kbauthority"
+  ]
+}

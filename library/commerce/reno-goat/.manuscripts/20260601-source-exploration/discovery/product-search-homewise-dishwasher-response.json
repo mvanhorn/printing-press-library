@@ -1,0 +1,45 @@
+{
+  "query": "dishwasher",
+  "total_results": 2,
+  "sources_queried": [
+    "homewise-appliance"
+  ],
+  "products": [
+    {
+      "id": "WDTS7024RZ",
+      "source": "homewise-appliance",
+      "title": "Whirlpool Eco Series 24 Inch Fully Integrated Dishwasher with 15 Place Settings, 41 dBa, 5 Wash Cycles, Washing 3rd Rack, Sensor Cycle, Quick Wash, Sani Rinse, and NSF Certified",
+      "brand": "Whirlpool",
+      "url": "https://www.homewiseappliance.com/whirlpool-24-inch-eco-series-dishwasher-stainless-steel-wdts7024rz",
+      "image_url": "https://d29l4doet7kzwj.cloudfront.net/ProductImage/aec2bb07540646de.png",
+      "description": "status: A\napplianceType: Major Appliance\nsellable quantity: 11\nDishwasher Size (in.): 24\"\nDecibels (dBA): 41 dBA\nControl Location: Top Control\nHeight (in.): 33.63\"\nWidth (in.): 23.88\"\nDepth (in.): 26.75\"",
+      "price_min": 709,
+      "price_max": 709,
+      "regular_price_min": 1049,
+      "regular_price_max": 1049,
+      "sale_price_min": 709,
+      "sale_price_max": 709,
+      "on_sale": true,
+      "discount_percent": 32.41182078169685,
+      "category": "Dishwashers"
+    },
+    {
+      "id": "CDT858P2VS1",
+      "source": "homewise-appliance",
+      "title": "Cafe 24 Inch Fully Integrated Built-In Smart Dishwasher with 16 Place Setting Capacity, 6 Wash Cycles Built-In Smart Dishwasher",
+      "brand": "Cafe",
+      "url": "https://www.homewiseappliance.com/cafe-24-fully-integrated-built-in-smart-dishwasher-cdt858p2vs1",
+      "image_url": "https://d29l4doet7kzwj.cloudfront.net/ProductImage/2d0239c22f04cbe5.png",
+      "description": "status: A\napplianceType: Major Appliance\nsellable quantity: 6\nDishwasher Size (in.): 24\"\nDecibels (dBA): 44 dBA\nControl Location: Top Control\nHeight (in.): 34\"\nWidth (in.): 23.75\"\nDepth (in.): 24\"",
+      "price_min": 1029,
+      "price_max": 1029,
+      "regular_price_min": 1449,
+      "regular_price_max": 1449,
+      "sale_price_min": 1029,
+      "sale_price_max": 1029,
+      "on_sale": true,
+      "discount_percent": 28.985507246376805,
+      "category": "Dishwashers"
+    }
+  ]
+}

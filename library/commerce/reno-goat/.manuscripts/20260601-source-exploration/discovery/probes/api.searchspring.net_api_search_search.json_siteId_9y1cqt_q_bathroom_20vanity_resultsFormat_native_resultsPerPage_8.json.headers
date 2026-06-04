@@ -1,0 +1,17 @@
+HTTP/2 200 
+content-type: application/json; charset=UTF-8
+content-length: 1331
+access-control-allow-headers: *
+access-control-allow-methods: POST, GET
+access-control-allow-origin: *
+access-control-max-age: 86400
+date: Tue, 02 Jun 2026 12:24:51 GMT
+server: nginx/1.25.1
+x-request-id: 032d5088077490997654efaf505301c1
+via: 1.1 5cac25c3f8a8e7707f05f3c2c47aa970.cloudfront.net (CloudFront), 1.1 36f05977def08f4abff71f3d6cbdf918.cloudfront.net (CloudFront)
+x-amz-cf-pop: IAD61-P9
+vary: Accept-Encoding
+x-cache: Miss from cloudfront
+x-amz-cf-pop: IAD61-P12
+x-amz-cf-id: qroZKZcAq6nDVqLMdHEONZ7EtpKKGEJVF6VDDB4v7mQcdDB7e1KewQ==
+

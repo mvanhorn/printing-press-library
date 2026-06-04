@@ -1,0 +1,47 @@
+{
+  "query": "dishwasher",
+  "total_results": 2,
+  "sources_queried": [
+    "best-buy"
+  ],
+  "products": [
+    {
+      "id": "NS-DWF2SS26",
+      "source": "best-buy",
+      "title": "Insignia™ - 24” Front Control Built-In Dishwasher with DishSense™, ENERGY STAR Certification, and Operating Sound Level 52 dBA - Stainless Steel",
+      "brand": "Insignia™",
+      "url": "https://www.bestbuy.com/product/insignia-24-front-control-built-in-dishwasher-with-dishsense-energy-star-certification-and-operating-sound-level-52-dba-stainless-steel/J2FPJK926S/sku/6634716",
+      "image_url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/e8d9e41f-1771-485b-ae65-be31006d9c3a.jpg",
+      "price_min": 299.99,
+      "price_max": 299.99,
+      "regular_price_min": 399.99,
+      "regular_price_max": 399.99,
+      "sale_price_min": 299.99,
+      "sale_price_max": 299.99,
+      "on_sale": true,
+      "discount_percent": 25.00062501562539,
+      "rating": 4.5,
+      "review_count": 66,
+      "category": "Built-In Dishwasher \u003e Dishwasher \u003e Major Appliance"
+    },
+    {
+      "id": "GDT650SYVFS",
+      "source": "best-buy",
+      "title": "GE - 24\" Top Control Built-In Stainless Steel Tub Dishwasher with 3rd Rack, Sanitize Cycle and 47 dBA - Stainless Steel",
+      "brand": "GE",
+      "url": "https://www.bestbuy.com/product/ge-24-top-control-built-in-stainless-steel-tub-dishwasher-with-3rd-rack-sanitize-cycle-and-47-dba-stainless-steel/J7645SG674/sku/6549423",
+      "image_url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/28d95010-d15c-4420-a82e-2b59a031e1b8.jpg",
+      "price_min": 568.99,
+      "price_max": 568.99,
+      "regular_price_min": 854.99,
+      "regular_price_max": 854.99,
+      "sale_price_min": 568.99,
+      "sale_price_max": 568.99,
+      "on_sale": true,
+      "discount_percent": 33.450683633726705,
+      "rating": 4.4,
+      "review_count": 512,
+      "category": "Built-In Dishwasher \u003e Dishwasher \u003e Major Appliance"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"errors":[{"message":"field '_model_sku' not found in type: 'get_products_args'","extensions":{"path":"$.selectionSet.get_products_aggregate.args.args._model_sku","code":"validation-failed"}}]}

@@ -1,0 +1,144 @@
+{
+  "query": "thermostat",
+  "total": 4,
+  "models": [
+    {
+      "model": "HONEYWELL-HOME-T6-PRO",
+      "brand": "Honeywell Home",
+      "title": "Honeywell Home T6 Pro Programmable Thermostat",
+      "category": "Thermostats",
+      "best_price": 89.99,
+      "best_source": "sylvane",
+      "product_url": "https://www.sylvane.com/products/honeywell-home-t6-pro-programmable-thermostat?_pos=2\u0026_psq=thermostat\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0630/7135/4966/files/honeywell-home-t6-pro-programmable-thermostat-main.png?v=1747871014",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://www.sylvane.com/cdn/shop/files/installation-instructions-honeywell-home-t6-pro-programmable-thermostat.pdf?v=13814055050913610425",
+          "source": "sylvane"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.sylvane.com/cdn/shop/files/owners-manual-honeywell-home-t6-pro-programmable-thermostat.pdf?v=7598658258816479381",
+          "source": "sylvane"
+        }
+      ],
+      "offers": [
+        {
+          "source": "sylvane",
+          "price": 89.99,
+          "regular": 89.99,
+          "url": "https://www.sylvane.com/products/honeywell-home-t6-pro-programmable-thermostat?_pos=2\u0026_psq=thermostat\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Take the guesswork out of controlling the temperature in your home with the Honeywell Home T6 Pro Programmable Thermostat, featuring multiple modes of operation, adaptive intelligent recovery, and a programmable timer. The low-profile, sleek design of this smart thermostat fits seamlessly in any home.\n\n\n\n  This digital thermostat is compatible with multi-stage systems with a variety of heating and cooling systems, with three options to choose from:\n\n\n\n  \n    Honeywell Home T6 TH6320U2008/U: 3 Heat/2 Cool\n  \n\n  \n    Honeywell Home T6 TH6220U2000/U: 2 Heat/2 Cool\n  \n\n  \n    Honeywell Home T6 TH6210U2001/U: 2 Heat/1 Cool\n  \n\n\n\n  Easy and Remote Operation\n\n\n\n  This inclusive Honeywell Home thermostat features a variety of temperature options at the touch of a button, including:\n\n\n\n  \n    Operation Modes: Choose from Heat, Cool, or Off to turn both systems off.\n  \n\n  \n    Fan Modes: Select On for continuous operation, Auto fan mode to run while heating or cooling, or Circulate to run the fan randomly approximately 33 percent of the time.\n  \n\n  \n    Auto Mode: The thermostat automatically determines whether your home needs cooling or heating to achieve the desired temperature.\n  \n\n\n\n  Adaptive Intelligent Recovery\n\n\n\n  Incorporating the Honeywell Home T6 Pro thermostat into your daily routine means its Adaptive Intelligent Recovery technology will remember your cooling and heating routine. Once the recovery ramp is calculated based on the difference between the current room temperature and the desired temperature setting, previous equipment performance, and weather history. After one week, the thermostat will include these factors and react accordingly in the next cycle, delivering the temperature you want when you want it.\n\n\n\n  Additional Features\n\n\n\n  \n    Programmable Schedules: Select from 5-2-Day, 7-Day, or 5-1-1 pre-programmed schedules, or adjust the thermostat manually without a schedule.\n  \n\n  \n    Low Battery Indicator: While batteries are optional if wired for AC power, a low battery indicator alerts you to replace them with fresh AA batteries if needed.\n  \n\n  \n    Digital Display: The 5.44 square-inch LCD color screen shows the system status, schedule information, actual time, indoor temperature setpoint, and more.\n  \n\n  \n    Time-Based Schedule: This digital thermostat allows you to program different schedules for weekdays and weekends, making every day the same or different. There are four alterable periods per day: wake, Away, Home, and Sleep.\n  \n\n  \n    Low-Profile Design: Its slim design measures 4.06 x 4.06 x 1.09 inches, making it a clean and subtle addition to any home.\n  \n\n  \n    Alerts and Reminders: The thermostat will display various reminders and alerts, including filter changes and low indoor temperature warnings.\n  \n\n\n\n  Summary\n\n\n\n  Effortlessly control the temperature in your home with the Honeywell Home Programmable Thermostat, featuring a programmable timer and multiple operation modes."
+      ]
+    },
+    {
+      "model": "PHWT-A150H",
+      "brand": "Amana",
+      "title": "Amana Thermostat PHWT-A150H",
+      "category": "PTAC Air Conditioners",
+      "best_price": 99,
+      "best_source": "sylvane",
+      "product_url": "https://www.sylvane.com/products/amana-thermostat-phwt-a150h-for-ptac?_pos=4\u0026_psq=thermostat\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0630/7135/4966/files/amana-thermostat-phwt-a150-h-for-ptac-main.png?v=1747865544",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.sylvane.com/cdn/shop/files/owner-manual-amana-phwta150h.pdf?v=2393052681087296946",
+          "source": "sylvane"
+        }
+      ],
+      "offers": [
+        {
+          "source": "sylvane",
+          "price": 99,
+          "regular": 99,
+          "url": "https://www.sylvane.com/products/amana-thermostat-phwt-a150h-for-ptac?_pos=4\u0026_psq=thermostat\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "The Amana PHWT-A150H Thermostat is designed for Amana Packaged Terminal Air Conditioners and can be hard-wired for compatibility. It works seamlessly with Amana PTACs, whether they have electric heat or heat pumps.\n\n\n\n  For heat pump models, this thermostat provides two-stage heat and single-stage cool, while electric heat PTACs can use it for single-stage heat and single-stage cool. Additionally, it boasts a large backlit LCD display, soft-touch controls, and slide switches as its noteworthy features.\n\n\n\n  Note: This is a non-programmable thermostat.\n\n\n\n  Key Features Of The Amana PHWT-A150H Thermostat\n\n\n\n  \n    When Used With Electric Heat Models: It allows for single-stage heat and single-stage cool.\n  \n\n  \n    When Used With Heat Pump Models: Features two-stage heat and single-stage cool.\n  \n\n  \n    Accuracy: Plus or minus 1 degree Fahrenheit.\n  \n\n  \n    Adjustable Settings: Has an adjustable maximum and minimum heat level and adjustable temperature differentials.\n  \n\n  \n    Fan Speeds: Offers two fan speeds.\n  \n\n  \n    Other Key Features: Include an easy-access terminal block, field-adjustable calibration, a large backlit display, keypad lockout, and manual changeover.\n  \n\n  Must be field installed"
+      ]
+    },
+    {
+      "model": "HONEYWELL-T9-WIFI",
+      "brand": "Honeywell Home",
+      "title": "Honeywell Home T9 Wi-Fi Smart Thermostat w/ RoomSmart Sensor",
+      "category": "Thermostats",
+      "best_price": 189.99,
+      "best_source": "sylvane",
+      "product_url": "https://www.sylvane.com/products/honeywell-t9-wifi-smart-thermostat-roomsmart-sensor?_pos=3\u0026_psq=thermostat\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0630/7135/4966/files/honeywell-t9-wifi-smart-thermostat-roomsmart-sensor-main.png?v=1752260656",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.sylvane.com/cdn/shop/files/owners-manual-honeywell-wifi-smart-thermostat-roomsmart-sensor.pdf?v=15112381947688971332",
+          "source": "sylvane"
+        }
+      ],
+      "offers": [
+        {
+          "source": "sylvane",
+          "price": 189.99,
+          "regular": 189.99,
+          "url": "https://www.sylvane.com/products/honeywell-t9-wifi-smart-thermostat-roomsmart-sensor?_pos=3\u0026_psq=thermostat\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Keep any room at the perfect temperature with the Honeywell T9 Thermostat. This smart home thermostat features a room sensor that uses motion detection to adjust the temperature as you enter and exit the space. Designed for do-it-yourself installation and with programmable features, it's perfect for total temperature control.\n\n\n\nJust The Right Temperature\n\n\nA programmable thermostat, the Honeywell T9 Wi-Fi Smart Thermostat with RoomSmart Sensor is the ultimate tool for keeping your rooms and home at the perfect temperature in any season.\n\n\n\n\nAuto Home and Away Mode: Using location-based geofencing, this thermostat adjusts the temperature when everyone is out of the house to save energy.\n\n\n\nSenses The Temperature: Install its included smart room sensor in your most-used room, like a living room, and this thermostat will automatically adjust the temperature when it detects motion from people entering and exiting.\n\n\n\n\nControl It Your Way\n\n\nDesigned to work with the Honeywell Home app (iTunes, Google Play) you can control the Honeywell T9 with your phone. Use the app to set schedules, adjust your setting, and monitor the thermostat anytime, anywhere.\n\n\nThe Honeywell Home app is compatible with voice-activated devices such as:\n\n\n\n\nAmazon Alexa\n\n\n\nGoogle Assistant\n\n\n\nMicrosoft Cortana\n\n\n\n\nSimple to Install\n\n\nThe perfect project for the do-it-yourselfer, this Honeywell Wi-Fi thermostat is designed for simple installation. The Honeywell Home app will guide you through the installation process and will self-configure to your wiring. No c-wire is required.\n\n\n\nAdditional Features\n\n\n\n\nEnergy Star Rated: This is an Energy Star certified thermostat.\n\n\n\nSmart Alerts: Receive notifications on your phone when temperatures go below your set point or if it's time to replace your air filter.\n\n\n\nMonthly Energy Reports: This thermostat helps to track your heating and cooling trends.\n\n\n\nMore Reporting: The thermostat's sensor reports on your home's temperature and humidity.\n\n\n\nSummary\n\nKeep your home at the perfect temperature anytime, anywhere with the Honeywell T9 Wi-Fi Smart Thermostat.\n\n\n\nWhat Customers Love\n\n\n\n\nWi-Fi Control: Download the Honeywell Home app (iTunes, Google Play) and control the thermostat with your phone.\n\n\n\nVirtual Assistant Compatible: This thermostat can be used with Amazon Alexa, Google Home, Microsoft Cortana, and more."
+      ]
+    },
+    {
+      "model": "HONEYWELL-HOME-T10-PRO",
+      "brand": "Honeywell Home",
+      "title": "Honeywell Home T10+ Pro Smart Thermostat w/ RedLINK",
+      "category": "Thermostats",
+      "best_price": 229.99,
+      "best_source": "sylvane",
+      "product_url": "https://www.sylvane.com/products/honeywell-home-t10-pro-smart-thermostat-redlink?_pos=1\u0026_psq=thermostat\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0630/7135/4966/files/honeywell-home-t10-pro-smart-thermostat-redlink-main.png?v=1752261741",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://www.sylvane.com/cdn/shop/files/installation-instructions-honeywell-home-t10-pro-smart-thermostat-redlink.pdf?v=13880310641997457686",
+          "source": "sylvane"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.sylvane.com/cdn/shop/files/owners-manual-honeywell-home-t10-pro-smart-thermostat-redlink.pdf?v=1783756128820875449",
+          "source": "sylvane"
+        }
+      ],
+      "offers": [
+        {
+          "source": "sylvane",
+          "price": 229.99,
+          "regular": 229.99,
+          "url": "https://www.sylvane.com/products/honeywell-home-t10-pro-smart-thermostat-redlink?_pos=1\u0026_psq=thermostat\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Upgrade your home’s temperature control with the Honeywell Home T10+ Pro Smart Thermostat with RedLINK. It is equipped with technology to adjust temperature and humidity from anywhere and ensure comfort for the rooms that matter most. By placing an indoor air sensor in a room, you can prioritize any space you frequent for consistent temperature control and results. This smart digital thermostat features multiple operating modes and adaptive recovery technology and is compatible with existing smart home devices for a seamless and effortless upgrade for your comfort.\n\n\n\n  Indoor Air Sensor\n\n\n\n  This Honeywell Home smart thermostat is available with or without a RedLINK indoor air sensor. These sensors let you specify which rooms to prioritize with your thermostat or based on motion in active rooms. You can also set schedules for different rooms at different times, like bedrooms at night or living areas during the day.\n\n\n\n  \n    Functions: These sensors detect temperature, humidity, and motion to best focus on rooms based on a specific schedule of your choice or rooms based on occupancy.\n  \n\n  \n    Connections: Up to 20 RedLINK sensors can connect to a single thermostat, giving you complete control of any room in your home.\n  \n\n  \n    Range: Each sensor has a 200-foot range to pick up movement, temperature, and humidity.\n  \n\n  \n    Dimensions: 2.59 x 2.59 x 0.75 inches\n  \n\n\n\n  Easy and Remote Operation\n\n\n\n  Ensure cozy comfort at home with this inclusive Honeywell Home T10+ thermostat. By downloading the Resideo Honeywell Home app, you can control this programmable thermostat remotely from anywhere. A variety of temperature options are at your fingertips, including:\n\n\n\n  \n    Operation Modes: Choose from Heat, Cool, or Off to turn both systems off.\n  \n\n  \n    Fan Modes: Select the Auto fan mode to run only while heating or cooling, On for continuous operation, or Circulate to run the fan randomly approximately 33 percent of the time.\n  \n\n  \n    Auto Mode: The thermostat automatically determines whether your home needs cooling or heating to achieve the desired temperature.\n  \n\n  \n    Humidify: The current indoor humidity level is displayed with a relative humidity (RH) range of 10 to 60 percent. You can adjust the levels with or without window protection when a humidifier is connected to this thermostat.\n  \n\n  \n    Dehumidify: Using the cooling system or a whole-house dehumidifier, the thermostat can lower the humidity level to 25 to 80 percent RH at your discretion.\n  \n\n\n\n  Adaptive Intelligent Recovery\n\n\n\n  As you use and incorporate the Honeywell Home T10+ thermostat into your daily life, its Adaptive Intelligent Recovery technology will learn your cooling and heating routine and take steps to deliver the temperature you want when you want it. The recovery ramp is calculated based on the difference between the current room temperature and the desired temperature setting, previous equipment performance, and weather history. After around one week, the thermostat will adjust to these factors and react accordingly in the next cycle.\n\n\n\n  Additional Features\n\n\n\n  \n    Smart Home Integration: This smart thermostat is compatible with Amazon Alexa, Apple HomeKit, Google Assistant, If This Then That, and Samsung SmartThings.\n  \n\n  \n    Geofencing: This feature lets this Wi-Fi thermostat know when you’re coming and going by using your smartphone’s location and the Resideo app. When you’re on the way home, it automatically adjusts temperature settings to optimize your comfort as soon as you step through the door. A similar process happens whenever you leave, saving you a little extra money.\n  \n\n  \n    Low Battery Indicator: While the touchscreen thermostat itself does not use batteries, this function reminds you to replace the batteries in the indoor sensor every 60 days. \n  \n\n  \n    Energy-Star Certified: This thermostat has a certified Energy Star rating, so you can rest easy knowing it optimizes your home comfort with efficiency.\n  \n\n  \n    Digital Display: The LCD color touchscreen, readily accessible with its digital controls shows the current indoor temperature, priority, desired temperature, indoor humidity, and more.\n  \n\n  \n    Programmable Schedules: Choose from 5-2-Day, 7-Day, Weekly, or 5-1-1 pre-programmed schedules, or select the manual option to adjust the thermostat manually without a schedule.\n  \n\n  \n    Time-Based Schedule: With this digital thermostat, you can program a schedule where every day is the same, the weekdays and weekends are different, or even where every day is different. There are four alterable periods per day: Wake, Away, Home, and Sleep.\n  \n\n  \n    Alerts and Reminders: The thermostat or the Honeywell Home app will display various reminders and alerts, including filter changes, Wi-Fi connectivity issues, and more. Smart alerts will also indicate extreme indoor temperatures, such as when a basement is cold enough to cause a pipe to burst or if a nursery is too hot for a child.\n  \n\n  \n    Low-Profile Design: Its slim design measures 3.7 x 4.92 x 0.94 inches, making it a clean and subtle addition to any home.\n  \n\n  \n    Compressor Protection: This thermostat keeps the compress off for a few minutes before restarting to prevent equipment damage.\n  \n\n\n\n  Summary\n\n\n\n  For the next level of comfort, the Honeywell Home Programmable Thermostat offers intelligent temperature controls and works alongside an indoor room sensor to prioritize rooms of your choosing."
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: hvac"
+  ],
+  "sources_run": [
+    "pioneer-mini-split",
+    "sylvane",
+    "iwae",
+    "hardware-hut",
+    "broan-nutone"
+  ]
+}

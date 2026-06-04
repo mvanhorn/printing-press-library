@@ -3,7 +3,7 @@
   "name": "reno-goat-pp-mcp",
   "display_name": "Reno Goat",
   "version": "4.14.0",
-  "description": "Search, compare, price-watch, and project-track renovation and interior products across 11 retailers — category-routed to Ferguson, West Elm, Rejuvenation, Article, Shopify DTC, and more. No API keys required.",
+  "description": "Search, compare, price-watch, model-enrich, and project-track homeowner-visible renovation selections across 33 active sources plus 5 tracked stubs, with category routing and model intelligence across appliances, plumbing, electrical, HVAC, flooring, hardware, materials, furniture, and decor. No API keys required.",
   "author": {
     "name": "CLI Printing Press"
   },

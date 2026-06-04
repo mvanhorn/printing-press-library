@@ -1,0 +1,48 @@
+{
+  "query": "recessed light",
+  "total_results": 3,
+  "sources_queried": [
+    "1000bulbs"
+  ],
+  "products": [
+    {
+      "id": "225615",
+      "source": "1000bulbs",
+      "title": "2100 Lumens - 25 Watt - 8 in. Color Selectable New Construction LED Downlight Fixture - Hardwire - Kelvin 2700-3000-3500-4000-5000 - 150 Watt Incandescent Equal - Round - White Trim - 90 CRI - 120-277 Volt - PLT-20272",
+      "brand": "PLT",
+      "url": "https://www.1000bulbs.com/product/225615/PLT-20272.html",
+      "image_url": "https://assets.1000bulbs.com/variants/3UpDUDu2nT578TdSSArXkvGv/2396028417565ec9a5980759fc72d6e316eaf3f8aa8cc250171894c07012ad4f",
+      "price_min": 42.74,
+      "price_max": 42.74,
+      "rating": 5,
+      "review_count": 5,
+      "category": "cat6 led downlight modules"
+    },
+    {
+      "id": "225607",
+      "source": "1000bulbs",
+      "title": "1100 Lumens - 15 Watt - 6 in. Color Selectable Retrofit LED Downlight Fixture - Medium Base - Kelvin 2700-3000-3500-4000-5000 - 120 Watt Incandescent Equal - Round - White Trim - 90 CRI - 120 Volt - PLT-20275",
+      "brand": "PLT",
+      "url": "https://www.1000bulbs.com/product/225607/PLT-20275.html",
+      "image_url": "https://assets.1000bulbs.com/variants/wraYa5WzZND8cyuN1KLh6wuC/2396028417565ec9a5980759fc72d6e316eaf3f8aa8cc250171894c07012ad4f",
+      "price_min": 13.14,
+      "price_max": 13.14,
+      "rating": 5,
+      "review_count": 7,
+      "category": "cat6 led downlight modules"
+    },
+    {
+      "id": "231984",
+      "source": "1000bulbs",
+      "title": "1400 Lumens - 15 Watt - 5-6 in. Color Selectable Retrofit LED Downlight Fixture - Medium Base - Kelvin 2700-3000-3500-4000-5000 - 70 Watt Incandescent Equal - Round - White Trim - 90 CRI - 120 Volt - PLT-13631",
+      "brand": "PLT",
+      "url": "https://www.1000bulbs.com/product/231984/PLT-13631.html",
+      "image_url": "https://assets.1000bulbs.com/variants/NUkkAHSHQku6CCnFGWiakuUc/2396028417565ec9a5980759fc72d6e316eaf3f8aa8cc250171894c07012ad4f",
+      "price_min": 11.3,
+      "price_max": 11.3,
+      "rating": 5,
+      "review_count": 11,
+      "category": "cat6 led downlight modules"
+    }
+  ]
+}

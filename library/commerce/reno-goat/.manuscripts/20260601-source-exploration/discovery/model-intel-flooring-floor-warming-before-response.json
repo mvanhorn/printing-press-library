@@ -1,0 +1,646 @@
+{
+  "query": "floor warming",
+  "total": 10,
+  "models": [
+    {
+      "model": "AZ85W09DAC",
+      "brand": "GE",
+      "title": "GE Zoneline® Single Package Vertical Air Conditioner",
+      "category": "conditioners",
+      "best_price": 1630,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-Zoneline-Single-Package-Vertical-Air-Conditioner-AZ85W09DAC",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/9350/1144220/ea910da56457f2eb231f807e227a6f74f617cce4__31268.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--Wygq5Mwy--/9f246cc667fce7f2a30edb6380da0e2bbc4e0cff.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--rp5RUhHx--/85c3b179b6fdf2a8d2e854788f5900084ffd3cd4.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--QF5TdfOT--/c6bdfc74804a99325bb0df96fcb8ac02fe2034da.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--9REhigFf--/fd847276460a5fd0b6a20f308b270f4128a2c6c9.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--XxdKosdu--/f37308fe78741d1c0d9fa58076280fbb26ad8c7c.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 1630,
+          "regular": 1630,
+          "url": "https://www.geappliances.com/appliance/GE-Zoneline-Single-Package-Vertical-Air-Conditioner-AZ85W09DAC",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AZ85W09DAC.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 32 1/4 H x 23 1/8 W x 23 1/8 D\nappearance_color_appearance: Warm Gray Beige\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--Wygq5Mwy--/9f246cc667fce7f2a30edb6380da0e2bbc4e0cff.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--rp5RUhHx--/85c3b179b6fdf2a8d2e854788f5900084ffd3cd4.pdf\nbenefits: 9,500 / 9,300 cooling BTU; 10.5 / 10.5 EER; R-410A refrigerant; Vertical design"
+      ]
+    },
+    {
+      "model": "AZ85W12DAC",
+      "brand": "GE",
+      "title": "GE Zoneline® Single Package Vertical Air Conditioner",
+      "category": "conditioners",
+      "best_price": 1730,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-Zoneline-Single-Package-Vertical-Air-Conditioner-AZ85W12DAC",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/6094/1144221/ea910da56457f2eb231f807e227a6f74f617cce4__13045.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--Wygq5Mwy--/9f246cc667fce7f2a30edb6380da0e2bbc4e0cff.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--X1sDNwPh--/0c5df18b6bc4004359402aa6fb0be3013dd2803d.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--QF5TdfOT--/c6bdfc74804a99325bb0df96fcb8ac02fe2034da.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--9REhigFf--/fd847276460a5fd0b6a20f308b270f4128a2c6c9.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--XxdKosdu--/f37308fe78741d1c0d9fa58076280fbb26ad8c7c.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 1730,
+          "regular": 1730,
+          "url": "https://www.geappliances.com/appliance/GE-Zoneline-Single-Package-Vertical-Air-Conditioner-AZ85W12DAC",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AZ85W12DAC.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 32 1/4 H x 23 1/8 W x 23 1/8 D\nappearance_color_appearance: Warm Gray Beige\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--Wygq5Mwy--/9f246cc667fce7f2a30edb6380da0e2bbc4e0cff.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--X1sDNwPh--/0c5df18b6bc4004359402aa6fb0be3013dd2803d.pdf\nbenefits: 11,700 / 11,500 BTU cooling capacity; 10.7 / 10.7 E.E.R (BTU/Watt); R-410A refrigerant; Vertical design"
+      ]
+    },
+    {
+      "model": "AZ85E09EAC",
+      "brand": "GE",
+      "title": "GE Zoneline® Single Package Vertical Air Conditioner",
+      "category": "conditioners",
+      "best_price": 1829,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-Zoneline-Single-Package-Vertical-Air-Conditioner-AZ85E09EAC",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/5688/1140751/ea910da56457f2eb231f807e227a6f74f617cce4__59592.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--Wygq5Mwy--/9f246cc667fce7f2a30edb6380da0e2bbc4e0cff.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--bhkRG6Bn--/7f8deea879adec9905b032f3dda0deabd2c7ebed.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--QF5TdfOT--/c6bdfc74804a99325bb0df96fcb8ac02fe2034da.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--9REhigFf--/fd847276460a5fd0b6a20f308b270f4128a2c6c9.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--XxdKosdu--/f37308fe78741d1c0d9fa58076280fbb26ad8c7c.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 1829,
+          "regular": 1829,
+          "url": "https://www.geappliances.com/appliance/GE-Zoneline-Single-Package-Vertical-Air-Conditioner-AZ85E09EAC",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AZ85E09EAC.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 32 1/4 H x 23 1/8 W x 23 1/8 D\nappearance_color_appearance: Warm Gray Beige\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--Wygq5Mwy--/9f246cc667fce7f2a30edb6380da0e2bbc4e0cff.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--bhkRG6Bn--/7f8deea879adec9905b032f3dda0deabd2c7ebed.pdf\nbenefits: Cooling capacity; Energy efficiency; Vertical design; Freeze Sentinel"
+      ]
+    },
+    {
+      "model": "AZ85W18DAC",
+      "brand": "GE",
+      "title": "GE Zoneline® Single Package Vertical Air Conditioner",
+      "category": "conditioners",
+      "best_price": 1830,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-Zoneline-Single-Package-Vertical-Air-Conditioner-AZ85W18DAC",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/8322/1144222/ea910da56457f2eb231f807e227a6f74f617cce4__83026.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--Wygq5Mwy--/9f246cc667fce7f2a30edb6380da0e2bbc4e0cff.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--Lo9kLjkN--/f9a8d00604470170841938ae52639b127b8ade89.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--QF5TdfOT--/c6bdfc74804a99325bb0df96fcb8ac02fe2034da.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--9REhigFf--/fd847276460a5fd0b6a20f308b270f4128a2c6c9.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--XxdKosdu--/f37308fe78741d1c0d9fa58076280fbb26ad8c7c.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 1830,
+          "regular": 1830,
+          "url": "https://www.geappliances.com/appliance/GE-Zoneline-Single-Package-Vertical-Air-Conditioner-AZ85W18DAC",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AZ85W18DAC.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 32 1/4 H x 23 1/8 W x 23 1/8 D\nappearance_color_appearance: Warm Gray Beige\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--Wygq5Mwy--/9f246cc667fce7f2a30edb6380da0e2bbc4e0cff.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--Lo9kLjkN--/f9a8d00604470170841938ae52639b127b8ade89.pdf\nbenefits: 17,500 / 17,200 BTU cooling capacity; 10.0 / 10.0 E.E.R. (BTU/Watt); R-410A refrigerant; Vertical design"
+      ]
+    },
+    {
+      "model": "AZ85E09DAC",
+      "brand": "GE",
+      "title": "GE Zoneline® Single Package Vertical Air Conditioner",
+      "category": "conditioners",
+      "best_price": 1859,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-Zoneline-Single-Package-Vertical-Air-Conditioner-AZ85E09DAC",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/2495/1140748/ea910da56457f2eb231f807e227a6f74f617cce4__51902.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--Wygq5Mwy--/9f246cc667fce7f2a30edb6380da0e2bbc4e0cff.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--YeWQ3TgZ--/156be6e4c5905d26280f299f2bf460e8c8bc8fce.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--QF5TdfOT--/c6bdfc74804a99325bb0df96fcb8ac02fe2034da.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--9REhigFf--/fd847276460a5fd0b6a20f308b270f4128a2c6c9.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--XxdKosdu--/f37308fe78741d1c0d9fa58076280fbb26ad8c7c.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 1859,
+          "regular": 1859,
+          "url": "https://www.geappliances.com/appliance/GE-Zoneline-Single-Package-Vertical-Air-Conditioner-AZ85E09DAC",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AZ85E09DAC.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 32 1/4 H x 23 1/8 W x 23 1/8 D\nappearance_color_appearance: Warm Gray Beige\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--Wygq5Mwy--/9f246cc667fce7f2a30edb6380da0e2bbc4e0cff.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--YeWQ3TgZ--/156be6e4c5905d26280f299f2bf460e8c8bc8fce.pdf\nbenefits: Cooling capacity; Vertical design; Freeze Sentinel; Unique sleeve design"
+      ]
+    },
+    {
+      "model": "AZ85E12EAC",
+      "brand": "GE",
+      "title": "GE Zoneline® Single Package Vertical Air Conditioner",
+      "category": "conditioners",
+      "best_price": 1929,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-Zoneline-Single-Package-Vertical-Air-Conditioner-AZ85E12EAC",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/7556/1140759/ea910da56457f2eb231f807e227a6f74f617cce4__63095.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--Wygq5Mwy--/9f246cc667fce7f2a30edb6380da0e2bbc4e0cff.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--cgfDLLD---/16883e81d933036bdda9c0c60b3b9082c55c8c84.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--QF5TdfOT--/c6bdfc74804a99325bb0df96fcb8ac02fe2034da.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--9REhigFf--/fd847276460a5fd0b6a20f308b270f4128a2c6c9.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--XxdKosdu--/f37308fe78741d1c0d9fa58076280fbb26ad8c7c.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 1929,
+          "regular": 1929,
+          "url": "https://www.geappliances.com/appliance/GE-Zoneline-Single-Package-Vertical-Air-Conditioner-AZ85E12EAC",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AZ85E12EAC.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 32 1/4 H x 23 1/8 W x 23 1/8 D\nappearance_color_appearance: Warm Gray Beige\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--Wygq5Mwy--/9f246cc667fce7f2a30edb6380da0e2bbc4e0cff.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--cgfDLLD---/16883e81d933036bdda9c0c60b3b9082c55c8c84.pdf\nbenefits: Cooling capacity; Energy efficiency; Vertical design; Freeze Sentinel"
+      ]
+    },
+    {
+      "model": "AZ85E12DAC",
+      "brand": "GE",
+      "title": "GE Zoneline® Single Package Vertical Air Conditioner",
+      "category": "conditioners",
+      "best_price": 1959,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-Zoneline-Single-Package-Vertical-Air-Conditioner-AZ85E12DAC",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/2596/1140755/ea910da56457f2eb231f807e227a6f74f617cce4__50855.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--Wygq5Mwy--/9f246cc667fce7f2a30edb6380da0e2bbc4e0cff.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--6UCpB0XD--/1694c90462d90eac8e93f153133cc1ae154e292f.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--QF5TdfOT--/c6bdfc74804a99325bb0df96fcb8ac02fe2034da.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--9REhigFf--/fd847276460a5fd0b6a20f308b270f4128a2c6c9.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--XxdKosdu--/f37308fe78741d1c0d9fa58076280fbb26ad8c7c.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 1959,
+          "regular": 1959,
+          "url": "https://www.geappliances.com/appliance/GE-Zoneline-Single-Package-Vertical-Air-Conditioner-AZ85E12DAC",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AZ85E12DAC.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 32 1/4 H x 23 1/8 W x 23 1/8 D\nappearance_color_appearance: Warm Gray Beige\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--Wygq5Mwy--/9f246cc667fce7f2a30edb6380da0e2bbc4e0cff.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--6UCpB0XD--/1694c90462d90eac8e93f153133cc1ae154e292f.pdf\nbenefits: Cooling capacity; Energy efficiency; Vertical design; Freeze Sentinel"
+      ]
+    },
+    {
+      "model": "AZ85H09EAC",
+      "brand": "GE",
+      "title": "GE Zoneline® Single Package Vertical Air Conditioner",
+      "category": "conditioners",
+      "best_price": 1979,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-Zoneline-Single-Package-Vertical-Air-Conditioner-AZ85H09EAC",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/9969/1140775/ea910da56457f2eb231f807e227a6f74f617cce4__23679.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--Wygq5Mwy--/9f246cc667fce7f2a30edb6380da0e2bbc4e0cff.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--aczGOMMc--/e90d1eca815b8f0f91d307b0314710ce24a61eb4.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--QF5TdfOT--/c6bdfc74804a99325bb0df96fcb8ac02fe2034da.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--9REhigFf--/fd847276460a5fd0b6a20f308b270f4128a2c6c9.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--XxdKosdu--/f37308fe78741d1c0d9fa58076280fbb26ad8c7c.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 1979,
+          "regular": 1979,
+          "url": "https://www.geappliances.com/appliance/GE-Zoneline-Single-Package-Vertical-Air-Conditioner-AZ85H09EAC",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AZ85H09EAC.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 32 1/4 H x 23 1/8 W x 23 1/8 D\nappearance_color_appearance: Warm Gray Beige\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--Wygq5Mwy--/9f246cc667fce7f2a30edb6380da0e2bbc4e0cff.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--aczGOMMc--/e90d1eca815b8f0f91d307b0314710ce24a61eb4.pdf\nbenefits: Cooling capacity; Heating capacity; Energy efficiency; Vertical design"
+      ]
+    },
+    {
+      "model": "AZ85E18EAC",
+      "brand": "GE",
+      "title": "GE Zoneline® Single Package Vertical Air Conditioner",
+      "category": "conditioners",
+      "best_price": 2029,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-Zoneline-Single-Package-Vertical-Air-Conditioner-AZ85E18EAC",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/11175/1140767/ea910da56457f2eb231f807e227a6f74f617cce4__58092.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--Wygq5Mwy--/9f246cc667fce7f2a30edb6380da0e2bbc4e0cff.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--fuHyCXfC--/b37d832a11b82023599683c6f509c334669015c6.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--QF5TdfOT--/c6bdfc74804a99325bb0df96fcb8ac02fe2034da.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--9REhigFf--/fd847276460a5fd0b6a20f308b270f4128a2c6c9.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--XxdKosdu--/f37308fe78741d1c0d9fa58076280fbb26ad8c7c.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 2029,
+          "regular": 2029,
+          "url": "https://www.geappliances.com/appliance/GE-Zoneline-Single-Package-Vertical-Air-Conditioner-AZ85E18EAC",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AZ85E18EAC.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 32 1/4 H x 23 1/8 W x 23 1/8 D\nappearance_color_appearance: Warm Gray Beige\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--Wygq5Mwy--/9f246cc667fce7f2a30edb6380da0e2bbc4e0cff.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--fuHyCXfC--/b37d832a11b82023599683c6f509c334669015c6.pdf\nbenefits: Cooling capacity; Energy efficiency; Vertical design; Freeze Sentinel"
+      ]
+    },
+    {
+      "model": "AZ85E18DAC",
+      "brand": "GE",
+      "title": "GE Zoneline® Single Package Vertical Air Conditioner",
+      "category": "conditioners",
+      "best_price": 2059,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-Zoneline-Single-Package-Vertical-Air-Conditioner-AZ85E18DAC",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/3660/1140764/ea910da56457f2eb231f807e227a6f74f617cce4__46664.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--Wygq5Mwy--/9f246cc667fce7f2a30edb6380da0e2bbc4e0cff.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--ElWnGeol--/9066605aaf862a0792ff35ea84987477c16d3776.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--QF5TdfOT--/c6bdfc74804a99325bb0df96fcb8ac02fe2034da.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--9REhigFf--/fd847276460a5fd0b6a20f308b270f4128a2c6c9.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--XxdKosdu--/f37308fe78741d1c0d9fa58076280fbb26ad8c7c.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 2059,
+          "regular": 2059,
+          "url": "https://www.geappliances.com/appliance/GE-Zoneline-Single-Package-Vertical-Air-Conditioner-AZ85E18DAC",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AZ85E18DAC.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 32 1/4 H x 23 1/8 W x 23 1/8 D\nappearance_color_appearance: Warm Gray Beige\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--Wygq5Mwy--/9f246cc667fce7f2a30edb6380da0e2bbc4e0cff.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--ElWnGeol--/9066605aaf862a0792ff35ea84987477c16d3776.pdf\nbenefits: Cooling capacity; Energy efficiency; Vertical design; Freeze Sentinel"
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AZ85W09DAC.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AZ85W12DAC.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AZ85E09EAC.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AZ85W18DAC.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AZ85E09DAC.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AZ85E12EAC.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AZ85E12DAC.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AZ85H09EAC.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AZ85E18EAC.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AZ85E18DAC.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage."
+  ],
+  "sources_run": [
+    "ge-appliances",
+    "bosch"
+  ]
+}

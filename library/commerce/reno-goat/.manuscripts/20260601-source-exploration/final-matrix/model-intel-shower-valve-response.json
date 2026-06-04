@@ -1,0 +1,297 @@
+{
+  "query": "shower valve",
+  "total": 12,
+  "models": [
+    {
+      "model": "PLS15611-4-CP",
+      "brand": "Kohler®",
+      "title": "Kohler® PLS15611-4-CP Shower Valve Trim, Polished Chrome",
+      "category": "Non-Scald Protected Trims",
+      "best_price": 20.602,
+      "best_source": "faucetdepot",
+      "product_url": "https://faucetdepot.com/product/901052/kohler+reg+pls15611-4-cp+kohler+reg+pls15611-4-cp+shower+valve+trim+polished+chrome",
+      "image_url": "https://hirschcontent.com/images/Kohler_PLS156114CP.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://hirschcontent.com/documents/Kohler_PLS156014CP_Manual.pdf",
+          "source": "faucetdepot"
+        },
+        {
+          "kind": "spec",
+          "url": "https://hirschcontent.com/documents/Kohler_PLS156114CP_Specification_Sheet.pdf",
+          "source": "faucetdepot"
+        }
+      ],
+      "offers": [
+        {
+          "source": "faucetdepot",
+          "price": 20.602,
+          "regular": 53.65,
+          "url": "https://faucetdepot.com/product/901052/kohler+reg+pls15611-4-cp+kohler+reg+pls15611-4-cp+shower+valve+trim+polished+chrome",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Kohler® Shower Valve Trim, Coralais®, 1 Handles, Metal Lever, 6-1/2 in Dia Trim, Hand Shower Yes/No: No, Wall Mount, For Use with: Kohler® Shower Head, Polished Chrome"
+      ]
+    },
+    {
+      "model": "TL181",
+      "brand": "Moen®",
+      "title": "Moen® TL181 Valve Trim Only, 2.5 gpm Shower, Polished Chrome",
+      "category": "Pressure Balanced Trims",
+      "best_price": 30.174,
+      "best_source": "faucetdepot",
+      "product_url": "https://faucetdepot.com/product/180467/moen+reg+tl181+moen+reg+tl181+valve+trim+only+2+5+gpm+shower+polished+chrome",
+      "image_url": "https://hirschcontent.com/images/Moen_TL181.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://hirschcontent.com/documents/Moen_TL181_Specification_Sheet.pdf",
+          "source": "faucetdepot"
+        },
+        {
+          "kind": "installation",
+          "url": "https://assets.moen.com/shared/docs/instruction-sheets/ins10600a.pdf",
+          "source": "moen"
+        }
+      ],
+      "offers": [
+        {
+          "source": "faucetdepot",
+          "price": 30.174,
+          "regular": 46.35,
+          "url": "https://faucetdepot.com/product/180467/moen+reg+tl181+moen+reg+tl181+valve+trim+only+2+5+gpm+shower+polished+chrome",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "moen",
+          "url": "https://shop.moen.com/products/tl181",
+          "status": "ok"
+        }
+      ],
+      "source_fields": [
+        "Moen® Valve Trim Only, Series: TL181, Chateau®, 2.5 gpm Shower Flow Rate, Lever, 6-1/2 in Dia Trim, 1222 Pressure Balanced Valve/Cartridge, 1/2 in Copper Valve Inlet Connection, 1/2 in C Valve Outlet Connection, 80 psi, Wall Mount, For Use With: Chateau® 62300 1-Handle Tub/Shower Valve, Metal, Polished Chrome, 7.38 in W x 7.38 in D x 4 in H, Domestic"
+      ]
+    },
+    {
+      "model": "100840446",
+      "brand": "Studio Design Collection",
+      "title": "Rhiver Chrome Tub and Shower Combination",
+      "category": "Shower \u0026 Tub Faucet",
+      "best_price": 59.98,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/faucets/rhiver-chrome-tub-and-shower-combination-100840446.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 59.98,
+          "regular": 59.98,
+          "url": "https://www.flooranddecor.com/faucets/rhiver-chrome-tub-and-shower-combination-100840446.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Rhiver Chrome Tub and Shower Combination features a contemporary and sophisticated design with its sleek style and rounded curves. The Rhiver Collection meet WaterSense criteria to conserve water without sacrificing performance. The Versitech shower valve features superior pressure balance technology to prevent scalding, solid brass construction for maximum reliability, and optional back-to-back installation for flexibility. The Rhiver Tub \u0026amp; Shower faucet coordinates perfectly with the collections bathroom sink faucets to complete the look.\u003c/p\u003e\u003cul style=\"list-style-type: disc;\"\u003e\u003cli\u003eContemporary design complements both sleek and modern bathrooms\u003c/li\u003e\u003cli\u003eThe Versitech shower valve features superior pressure balance technology to prevent scalding, solid brass construction for maximum reliability, and optional back-to-back installation for flexibility.\u003c/li\u003e\u003cli\u003eSingle function showerhead with powerful, consistent performance\u003c/li\u003e\u003cli\u003eWaterSense certified with 1.75 GPM flow rate that conserves water without sacrificing performance\u003c/li\u003e\u003cli\u003eSpout Type: Tub Spout; Spout Reach: 5.20\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    },
+    {
+      "model": "100840438",
+      "brand": "Studio Design Collection",
+      "title": "Rhiver Brushed Nickel Tub and Shower Combination",
+      "category": "Shower \u0026 Tub Faucet",
+      "best_price": 69.98,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/faucets/rhiver-brushed-nickel-tub-and-shower-combination-100840438.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 69.98,
+          "regular": 69.98,
+          "url": "https://www.flooranddecor.com/faucets/rhiver-brushed-nickel-tub-and-shower-combination-100840438.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Rhiver Brushed Nickel Tub and Shower Combination features a contemporary and sophisticated design with its sleek style and rounded curves. The Rhiver Collection meet WaterSense criteria to conserve water without sacrificing performance. The Versitech shower valve features superior pressure balance technology to prevent scalding, solid brass construction for maximum reliability, and optional back-to-back installation for flexibility. The Rhiver Tub \u0026amp; Shower faucet coordinates perfectly with the collections bathroom sink faucets to complete the look.\u003c/p\u003e\u003cul style=\"list-style-type: disc;\"\u003e\u003cli\u003eContemporary design complements both sleek and modern bathrooms\u003c/li\u003e\u003cli\u003eThe Versitech shower valve features superior pressure balance technology to prevent scalding, solid brass construction for maximum reliability, and optional back-to-back installation for flexibility.\u003c/li\u003e\u003cli\u003eSingle function showerhead with powerful, consistent performance\u003c/li\u003e\u003cli\u003eWaterSense certified with 1.75 GPM flow rate that conserves water without sacrificing performance\u003c/li\u003e\u003cli\u003eSpout Type: Tub Spout; Spout Reach: 5.20\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    },
+    {
+      "model": "100840636",
+      "brand": "Studio Design Collection",
+      "title": "Calder Chrome Tub and Shower Combination",
+      "category": "Shower \u0026 Tub Faucet",
+      "best_price": 79.98,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/available-in-store-only/calder-chrome-tub-and-shower-combination-100840636.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 79.98,
+          "regular": 79.98,
+          "url": "https://www.flooranddecor.com/available-in-store-only/calder-chrome-tub-and-shower-combination-100840636.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Calder Chrome Tub and Shower Combination has classic beauty with smooth curves and layered design details. The Calder Collection meets WaterSense criteria to conserve water without sacrificing performance. The Versitech shower valve features superior pressure balance technology to prevent scalding, solid brass construction for maximum reliability, and optional back-to-back installation for flexibility. The Calder Tub and Shower Combo coordinates with the collections bathroom sink faucets to complete the look.\u003c/p\u003e\u003cul\u003e\u003cli\u003eThe Versitech shower valve features superior pressure balance technology to prevent scalding, solid brass construction for maximum reliability, and optional back-to-back installation for flexibility.\u003c/li\u003e\u003cli\u003eWaterSense certified with a 1.75 GPM flow rate that conserves water without sacrificing performance\u003c/li\u003e\u003cli\u003eSingle function showerhead with powerful, consistent performance\u003c/li\u003e\u003cli\u003eSpout Type: Tub Spout; Spout Reach: 4.88\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    },
+    {
+      "model": "100840479",
+      "brand": "Studio Design Collection",
+      "title": "Varana Brushed Nickel Tub and Shower Combination",
+      "category": "Shower \u0026 Tub Faucet",
+      "best_price": 89.98,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/faucets/varana-brushed-nickel-tub-and-shower-combination-100840479.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 89.98,
+          "regular": 89.98,
+          "url": "https://www.flooranddecor.com/faucets/varana-brushed-nickel-tub-and-shower-combination-100840479.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Varana Brushed Nickel Tub and Shower Combination offers a traditional design accented with angled details for a distinctive edge. The Varana Collection meets WaterSense criteria to conserve water without sacrificing performance. The Versitech shower valve features superior pressure balance technology to prevent scalding, solid brass construction for maximum reliability, and optional back-to-back installation for flexibility. The Varana Tub \u0026amp; Shower Combo faucet coordinates with items in the Varana Collection for a complete look.\u003c/p\u003e\u003cul\u003e\u003cli\u003eTraditional style ideal for timeless and sophisticated bathroom spaces\u003c/li\u003e\u003cli\u003eThe Versitech shower valve features superior pressure balance technology to prevent scalding, solid brass construction for maximum reliability, and optional back-to-back installation for flexibility.\u003c/li\u003e\u003cli\u003e5-function showerhead allows for customization of shower experience\u003c/li\u003e\u003cli\u003eWaterSense certified with a 1.75 GPM flow rate that conserves water without sacrificing performance\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    },
+    {
+      "model": "JX8-340A",
+      "brand": "Pfister",
+      "title": "PFISTER JX8-340A 0X8 SERIES TUB AND SHOWER ROUGH-IN VALVE WITH INTEGRAL STOPS",
+      "best_price": 116.94,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/pfister-jx8-340a-0x8-series-tub-and-shower-rough-in-valve-with-integral-stops.html",
+      "image_url": "https://www.kbauthority.com/images/T/325/JX8-340A.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 116.94,
+          "url": "https://www.kbauthority.com/pfister-jx8-340a-0x8-series-tub-and-shower-rough-in-valve-with-integral-stops.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "JX8-440P",
+      "brand": "Pfister",
+      "title": "PFISTER JX8-440P 0X8 SERIES TUB AND SHOWER METAL STEM ROUGH-IN VALVE WITH INTEGRAL STOPS",
+      "best_price": 116.94,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/pfister-jx8-440p-0x8-series-tub-and-shower-metal-stem-rough-in-valve-with-integral-stops.html",
+      "image_url": "https://www.kbauthority.com/images/T/325/JX8-440P.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 116.94,
+          "url": "https://www.kbauthority.com/pfister-jx8-440p-0x8-series-tub-and-shower-metal-stem-rough-in-valve-with-integral-stops.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "RMAS-VR1F-S",
+      "brand": "Randolph Morris",
+      "title": "Standard Valve - 1 Round Handle",
+      "category": "Tranquil",
+      "best_price": 116.99,
+      "best_source": "vintage-tub",
+      "product_url": "https://www.vintagetub.com/randolph-morris-standard-valve-1-round-handle-rmas-vr1f-s.html",
+      "image_url": "https://www.vintagetub.com/media/catalog/product/cache/21d5e030aee96734973017c40d77cfe9/r/m/rmas-vr1f-c_white_r2apyunwnq7cvszj.jpg",
+      "offers": [
+        {
+          "source": "vintage-tub",
+          "price": 116.99,
+          "url": "https://www.vintagetub.com/randolph-morris-standard-valve-1-round-handle-rmas-vr1f-s.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Premium finish resists tarnishing and corrosion; Solid brass construction for durable, lasting performance; Shower valve is made of brass with stainless steel cover; Features a modern round design; Durable zinc handle offers a sturdy and reliable grip; Hot and cold water mixer allows for easy temperature adjustment; The sleek cover conceals screws for a polished look; Complements a variety of bathroom styles; Choose from elegant finish options like matte black, chrome, and brushed brass; Crafted from premium materials for long-lasting durability; Easy-to-install design suitable for DIY and professionals; A perfect blend of modern innovation and timeless elegance; Designed for easy cleaning; Pairs perfectly with your favorite showerhead for a cohesive look; Compatible with standard IPS or NPT plumbing connections; Easy to install with basic plumbing tools; Designed for long-term residential use; Available in multiple finishes to match your fixtures; Eligible for Free Shipping on orders $99+; Important: Item must be inspected within 48 hours of receipt"
+      ]
+    },
+    {
+      "model": "RMAS-VSQ1F-S",
+      "brand": "Randolph Morris",
+      "title": "Standard Valve - 1 Square Handles",
+      "category": "Tranquil",
+      "best_price": 116.99,
+      "best_source": "vintage-tub",
+      "product_url": "https://www.vintagetub.com/randolph-morris-standard-valve-1-square-handles-rmas-vsq1f-s.html",
+      "image_url": "https://www.vintagetub.com/media/catalog/product/cache/21d5e030aee96734973017c40d77cfe9/r/m/rmas-vsq1f-c_white_s1qojyqxszylaob4.jpg",
+      "offers": [
+        {
+          "source": "vintage-tub",
+          "price": 116.99,
+          "url": "https://www.vintagetub.com/randolph-morris-standard-valve-1-square-handles-rmas-vsq1f-s.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Premium finish resists tarnishing and corrosion; Solid brass construction for durable, lasting performance; Shower valve is made of brass with stainless steel cover; Features a contemporary square design; Durable zinc handle offers a sturdy and reliable grip; Hot and cold water mixer allows for easy temperature adjustment; The sleek cover conceals screws for a polished look; Seamlessly integrates with various bathroom styles; Choose from elegant finish options like matte black, chrome, and brushed brass; Expertly crafted for long-lasting durability; Easy-to-install design suitable for DIY and professionals; A perfect blend of modern innovation and timeless elegance; Designed for easy cleaning; Pairs perfectly with your favorite showerhead for a cohesive look; Compatible with standard IPS or NPT plumbing connections; Easy to install with basic plumbing tools; Designed for long-term residential use; Available in multiple finishes to match your fixtures; Eligible for Free Shipping on orders $99+; Important: Item must be inspected within 48 hours of receipt"
+      ]
+    },
+    {
+      "model": "TX9-310A",
+      "brand": "Pfister",
+      "title": "PFISTER TX9-310A 1/2 INCH TUB AND SHOWER CONTROL ROUGH-IN VALVE",
+      "best_price": 130.67,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/pfister-tx9-310a-1-2-inch-tub-and-shower-control-rough-in-valve.html",
+      "image_url": "https://www.kbauthority.com/images/T/325/TX9-310A.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 130.67,
+          "url": "https://www.kbauthority.com/pfister-tx9-310a-1-2-inch-tub-and-shower-control-rough-in-valve.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "KF110",
+      "brand": "KINGSTON",
+      "title": "Kingston Brass KF110 Proseal Three Handle Center Tub and Shower Valve - Polished Chrome",
+      "category": "Pressure Balanced Trims",
+      "best_price": 135.267,
+      "best_source": "faucetdepot",
+      "product_url": "https://faucetdepot.com/product/226883/kingston+kingkf110+kingston+brass+kf110+proseal+three+handle+center+tub+and+shower+valve+-+polished+chrome",
+      "image_url": "https://hirschcontent.com/images/KINGKF110.jpg",
+      "offers": [
+        {
+          "source": "faucetdepot",
+          "price": 135.267,
+          "regular": 204.95,
+          "url": "https://faucetdepot.com/product/226883/kingston+kingkf110+kingston+brass+kf110+proseal+three+handle+center+tub+and+shower+valve+-+polished+chrome",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "KF110 Kingston Brass Proseal Three Handle Center Tub and Shower Valve - Polished ChromeBeautiful premier finishDesigned for a lifetime performanceFine artistic craftsmanshipMax 2.0 GPM/7.6 LPM Water Flow Rate At 80 PSI On ShowerheadCompliant with California Energy Commission Title 20"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: plumbing",
+    "Source warning: ferguson: ferguson: HTTP 403: \u003cHTML\u003e\u003cHEAD\u003e"
+  ],
+  "sources_run": [
+    "ferguson",
+    "floor-and-decor",
+    "plumbersstock",
+    "faucetdepot",
+    "faucetlist",
+    "plumbtile",
+    "modern-bathroom",
+    "kbauthority",
+    "vintage-tub"
+  ]
+}

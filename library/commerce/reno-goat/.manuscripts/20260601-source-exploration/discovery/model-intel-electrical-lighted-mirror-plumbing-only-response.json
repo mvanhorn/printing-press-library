@@ -1,0 +1,234 @@
+{
+  "query": "lighted mirror",
+  "total": 10,
+  "models": [
+    {
+      "model": "BUYS1",
+      "title": "Homewerks 24 in. Brushed Stainless Steel LED Mirror",
+      "category": "Mirror",
+      "best_price": 68,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/special-buys1/homewerks-24-in.-brushed-stainless-steel-led-mirror-101130318.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 68,
+          "regular": 68,
+          "url": "https://www.flooranddecor.com/special-buys1/homewerks-24-in.-brushed-stainless-steel-led-mirror-101130318.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "101135564",
+      "brand": "Studio Design Collection",
+      "title": "Matte Black 59 in. LED Mirror",
+      "category": "Mirror",
+      "best_price": 168,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/available-in-store-only/matte-black-59-in.-led-mirror-101135564.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 168,
+          "regular": 168,
+          "url": "https://www.flooranddecor.com/available-in-store-only/matte-black-59-in.-led-mirror-101135564.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "101486066",
+      "brand": "Homewerks",
+      "title": "Homewerks 24 in. Silver LED Mirror",
+      "category": "Mirror",
+      "best_price": 199,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/mirrors/homewerks-24-in.-silver-led-mirror-101486066.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 199,
+          "regular": 199,
+          "url": "https://www.flooranddecor.com/mirrors/homewerks-24-in.-silver-led-mirror-101486066.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Homewerks 24 in. Silver LED Mirror is the perfect addition to any residential space, providing both functionality and modern style. This sleek and elegant mirror is designed to be installed on the wall, making it a versatile and convenient choice for various room settings.\u003c/p\u003e\u003cul\u003e \u003cli\u003eThe silver finish offers a contemporary look that complements any decor.\u003c/li\u003e \u003cli\u003eLED lighting provides bright, energy-efficient illumination for your daily routines.\u003c/li\u003e \u003cli\u003eThe rectangular shape maximizes reflective surface area, enhancing visibility.\u003c/li\u003e \u003cli\u003eSuitable for wall installation, saving valuable counter space.\u003c/li\u003e \u003cli\u003eBacked by a 2-year limited warranty, ensuring long-term reliability.\u003c/li\u003e\u003c/ul\u003e\u003cp\u003eUpgrade your home with the Homewerks 24 in. Silver LED Mirror, combining practicality and sophistication to elevate your living environment.\u003c/p\u003e"
+      ]
+    },
+    {
+      "model": "100990092",
+      "title": "Lyla 24 in. Frameless LED Mirror",
+      "category": "Mirror",
+      "best_price": 239,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/lighting/lyla-24-in.-frameless-led-mirror-100990092.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 239,
+          "regular": 239,
+          "url": "https://www.flooranddecor.com/lighting/lyla-24-in.-frameless-led-mirror-100990092.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Lyla 24 in. Frameless LED Mirror is a timeless and versatile choice for any bathroom setting - or any room in your home. With its clear finish and attractive design, it adds a touch of elegance wherever it is placed.\u003c/p\u003e\u003cbr /\u003e\u003cul\u003e\u003cli\u003eEasy to install with the included mounting hardware.\u003c/li\u003e\u003cli\u003eThe mirror mounts .\u003c/li\u003e\u003cli\u003eMeasuring 24 x 24in., this mirror will easily fit into most spaces.\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    },
+    {
+      "model": "MR42460",
+      "brand": "Elegant Furniture Lighting",
+      "title": "ELEGANT FURNITURE LIGHTING MR42460 MONET 24 X 60 INCH RECTANGULAR WALL MOUNTED MIRROR",
+      "best_price": 252,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/elegant-furniture-lighting-mr42460-monet-24-x-60-inch-rectangular-wall-mounted-mirror.html",
+      "image_url": "https://www.kbauthority.com/images/W/552/MR42460BK_Elegant_Furniture_and_Lighting_Black.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 252,
+          "url": "https://www.kbauthority.com/elegant-furniture-lighting-mr42460-monet-24-x-60-inch-rectangular-wall-mounted-mirror.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "SHEFFIELD-VANITY-24",
+      "brand": "Wyndham Collection",
+      "title": "Sheffield Bathroom Mirror 24 inch",
+      "category": "Mirrors",
+      "best_price": 255,
+      "best_source": "modern-bathroom",
+      "product_url": "https://www.modernbathroom.com/products/sheffield-bathroom-mirror-24-inch?_pos=7\u0026_psq=lighted+mirror\u0026_ss=e\u0026_v=1.0\u0026variant=44848104702061",
+      "image_url": "https://cdn.shopify.com/s/files/1/0681/4194/0845/files/83c367623c1fe2b5282daefcb1b335ac5e80cc8e.jpg?v=1776196157",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.modernbathroom.com/37822d668db7e1996b3c6c88d823939656c8fe63.pdf",
+          "source": "modern-bathroom"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.modernbathroom.com/12aa8427be5f14370d980d9ea9998a91691f0dd4.pdf",
+          "source": "modern-bathroom"
+        }
+      ],
+      "offers": [
+        {
+          "source": "modern-bathroom",
+          "price": 255,
+          "regular": 255,
+          "url": "https://www.modernbathroom.com/products/sheffield-bathroom-mirror-24-inch?_pos=7\u0026_psq=lighted+mirror\u0026_ss=e\u0026_v=1.0\u0026variant=44848104702061",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "This mirror is strictly offered as a replacement part only. It will not match any other vanity finishes except for the Sheffield models by Wyndham Collection. If you are unsure if this is the right replacement for you, please contact a Home Depot representative or Wyndham Collection support team member to confirm."
+      ]
+    },
+    {
+      "model": "MR8A2842",
+      "brand": "Elegant And Furniture Lighting",
+      "title": "ELEGANT AND FURNITURE LIGHTING MR8A2842 REMY 28 X 42 INCH CONTOUR METAL RECTANGLE MIRROR",
+      "best_price": 258,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/elegant-and-furniture-lighting-mr8a2842-remy-28-x-42-inch-contour-metal-rectangle-mirror.html",
+      "image_url": "https://www.kbauthority.com/images/W/460/MR8A2842BLK_Elegant_Furniture_and_Lighting_Black.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 258,
+          "url": "https://www.kbauthority.com/elegant-and-furniture-lighting-mr8a2842-remy-28-x-42-inch-contour-metal-rectangle-mirror.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "MR8A3040",
+      "brand": "Elegant And Furniture Lighting",
+      "title": "ELEGANT AND FURNITURE LIGHTING MR8A3040 REMY 30 X 40 INCH CONTOUR METAL RECTANGLE MIRROR",
+      "best_price": 268,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/elegant-and-furniture-lighting-mr8a3040-remy-30-x-40-inch-contour-metal-rectangle-mirror.html",
+      "image_url": "https://www.kbauthority.com/images/W/460/MR8A3040BLK_Elegant_Furniture_and_Lighting_Black.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 268,
+          "url": "https://www.kbauthority.com/elegant-and-furniture-lighting-mr8a3040-remy-30-x-40-inch-contour-metal-rectangle-mirror.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "MR8A3636",
+      "brand": "Elegant And Furniture Lighting",
+      "title": "ELEGANT AND FURNITURE LIGHTING MR8A3636 REMY 36 X 36 INCH CONTOUR METAL RECTANGLE MIRROR",
+      "best_price": 280,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/elegant-and-furniture-lighting-mr8a3636-remy-36-x-36-inch-contour-metal-rectangle-mirror.html",
+      "image_url": "https://www.kbauthority.com/images/W/460/MR8A3636BLK_Elegant_Furniture_and_Lighting_Black.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 280,
+          "url": "https://www.kbauthority.com/elegant-and-furniture-lighting-mr8a3636-remy-36-x-36-inch-contour-metal-rectangle-mirror.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "ICON-VANITY-34",
+      "brand": "Wyndham Collection",
+      "title": "Icon Bathroom Mirror 34 inch",
+      "category": "Mirrors",
+      "best_price": 283,
+      "best_source": "modern-bathroom",
+      "product_url": "https://www.modernbathroom.com/products/icon-bathroom-mirror-34-inch?_pos=1\u0026_psq=lighted+mirror\u0026_ss=e\u0026_v=1.0\u0026variant=44848091070573",
+      "image_url": "https://cdn.shopify.com/s/files/1/0681/4194/0845/files/b6a7c7111834b16d2fcd134099e3f63545c25b9f.jpg?v=1776196147",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.modernbathroom.com/37822d668db7e1996b3c6c88d823939656c8fe63.pdf",
+          "source": "modern-bathroom"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.modernbathroom.com/7813cf44ff3b30e2693089ff2284b0b8805aee60.pdf",
+          "source": "modern-bathroom"
+        }
+      ],
+      "offers": [
+        {
+          "source": "modern-bathroom",
+          "price": 283,
+          "regular": 283,
+          "url": "https://www.modernbathroom.com/products/icon-bathroom-mirror-34-inch?_pos=1\u0026_psq=lighted+mirror\u0026_ss=e\u0026_v=1.0\u0026variant=44848091070573",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "This mirror is strictly offered as a replacement part only. It will not match any other vanity finishes except for the Icon models by Wyndham Collection. If you are unsure if this is the right replacement for you, please contact a Home Depot representative or Wyndham Collection support team member to confirm."
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: plumbing",
+    "Source warning: ferguson: ferguson: HTTP 403: \u003cHTML\u003e\u003cHEAD\u003e"
+  ],
+  "sources_run": [
+    "ferguson",
+    "floor-and-decor",
+    "plumbersstock",
+    "faucetdepot",
+    "faucetlist",
+    "plumbtile",
+    "modern-bathroom",
+    "kbauthority"
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "query": "recessed light",
+  "total_results": 3,
+  "sources_queried": [
+    "prolighting"
+  ],
+  "products": [
+    {
+      "id": "118814",
+      "source": "prolighting",
+      "title": "Task Lighting 12W 44\" Vivid Series Recessed LED Light Bar - 3000K - 661 Lumens - 12V",
+      "brand": "Task Lighting",
+      "url": "https://www.prolighting.com/task-lighting-12-watt-44-vivid-series-recessed-led-light-bar-3000k-661-lumens-12v.html",
+      "image_url": "https://www.prolighting.com/media/klevu_images/320X320/l/v/lv2px12v48-12w3_1.jpg",
+      "description": "Task Lighting 12W 44\" Vivid Series Recessed LED Light Bar - 3000K - 661 Lumens - 12V",
+      "price_min": 74.2,
+      "price_max": 74.2,
+      "regular_price_min": 74.2,
+      "regular_price_max": 74.2,
+      "category": "Indoor \u003e 12V/24V LED Light Bars \u003e Light Bars \u003e Brands \u003e Task Lighting \u003e Recessed Light Bars \u003e Vivid Series Recessed LED Light Bars"
+    },
+    {
+      "id": "118780",
+      "source": "prolighting",
+      "title": "Task Lighting 12W 44\" TandemLED Series Recessed LED Light Bar - 27K-50K - 12V",
+      "brand": "Task Lighting",
+      "url": "https://www.prolighting.com/task-lighting-12-watt-44-tandemled-series-recessed-led-light-bar-27k-50k-830-lumens-12v.html",
+      "image_url": "https://www.prolighting.com/media/klevu_images/320X320/l/t/lt2px12v48-12w_1.jpg",
+      "description": "Task Lighting 12W 44\" TandemLED Series Recessed LED Light Bar - 27K-50K - 830 Lumens - 12V",
+      "price_min": 95.32,
+      "price_max": 95.32,
+      "regular_price_min": 95.32,
+      "regular_price_max": 95.32,
+      "category": "Indoor \u003e 12V/24V LED Light Bars \u003e Light Bars \u003e Brands \u003e Task Lighting \u003e Recessed Light Bars \u003e TandemLED Series Recessed LED Light Bars"
+    },
+    {
+      "id": "119349",
+      "source": "prolighting",
+      "title": "Task Lighting 17W 36\" High Output Recessed LED Light Bar - 3000K - 1,448 Lumens - 24V",
+      "brand": "Task Lighting",
+      "url": "https://www.prolighting.com/task-lighting-17-watt-36-high-output-recessed-led-light-bar-3000k-1448-lumens-24v.html",
+      "image_url": "https://www.prolighting.com/media/klevu_images/320X320/l/s/ls6px24v39-17w3_1.jpg",
+      "description": "Task Lighting 17W 36\" High Output Recessed LED Light Bar - 3000K - 1,448 Lumens - 24V",
+      "price_min": 90.59,
+      "price_max": 90.59,
+      "regular_price_min": 90.59,
+      "regular_price_max": 90.59,
+      "category": "Indoor \u003e 12V/24V LED Light Bars \u003e Light Bars \u003e Brands \u003e Task Lighting \u003e Recessed Light Bars \u003e High Output Recessed LED Light Bars"
+    }
+  ]
+}

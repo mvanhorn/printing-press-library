@@ -1,0 +1,269 @@
+{
+  "query": "shower head",
+  "total": 10,
+  "models": [
+    {
+      "model": "SH84102",
+      "brand": "Brizo",
+      "title": "Brizo - Levoir Hydrachoice H2Okinetic Invigorating Spray Head",
+      "category": "Shower Heads",
+      "best_price": 35,
+      "best_source": "plumbtile",
+      "product_url": "https://plumbtile.com/products/brizo-sh84102?_pos=10\u0026_psq=shower+head\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0623/8552/0866/files/SH84102-PC-B1.jpg?v=1768145858",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://media.brizo.com/SpecSheet/BSP-B-SH84102%20Rev%20B.pdf",
+          "source": "plumbtile"
+        }
+      ],
+      "offers": [
+        {
+          "source": "plumbtile",
+          "price": 35,
+          "regular": 49,
+          "url": "https://plumbtile.com/products/brizo-sh84102?_pos=10\u0026_psq=shower+head\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "H2Okinetic® Technology with self-cleaning spray holesAutomatically extend 1 11/32 Inch when water is turned onInterchangeable by user offering choice and differentiation in feelAdjust up to 50° in any direction when extended3 3/4 Inch diameterSpecification FileManufacturer's Part Number(s): SH84102-SL (Luxe Steel), SH84102-PG (Polished Gold), SH84102-PN (Polished Nickel), SH84102-RB (Venetian Bronze), SH84102-BL (Matte Black), SH84102-BN (Brushed Nickel), SH84102-BNX (Brilliance Black Onyx), SH84102-GL (Luxe Gold), SH84102-NK (Luxe Nickel), SH84102-PC (Chrome)\nspec: https://media.brizo.com/SpecSheet/BSP-B-SH84102%20Rev%20B.pdf"
+      ]
+    },
+    {
+      "model": "F901-20BK",
+      "brand": "Artos",
+      "title": "Artos - Edge 6 Inch ABS Rain Shower Head",
+      "category": "Shower Heads",
+      "best_price": 41.6,
+      "best_source": "plumbtile",
+      "product_url": "https://plumbtile.com/products/artos-f901-20?_pos=3\u0026_psq=shower+head\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0623/8552/0866/files/F901-20BK_600x_96d94cec-67bf-431c-be95-969948d008d6.png?v=1773295315",
+      "offers": [
+        {
+          "source": "plumbtile",
+          "price": 41.6,
+          "regular": 52,
+          "url": "https://plumbtile.com/products/artos-f901-20?_pos=3\u0026_psq=shower+head\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Manufacturer's Part Number(s): F901-20BK (Matte Black), F901-20BN (Brushed Nickel), F901-20CH (Chrome)"
+      ]
+    },
+    {
+      "model": "CL26500EP",
+      "brand": "Moen®",
+      "title": "Moen® CL26500EP Shower Head, 2 gpm Min, 5 Sprays, 4 x 3-11/16 in Head, Import",
+      "category": "Wall Mounted Shower Heads",
+      "best_price": 52.222,
+      "best_source": "faucetdepot",
+      "product_url": "https://faucetdepot.com/product/791795/moen+reg+cl26500ep+moen+reg+cl26500ep+shower+head+2+gpm+min+5+sprays+4+x+3-11+16+in+head+import",
+      "image_url": "https://hirschcontent.com/images/Moen_CL26500EP.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://hirschcontent.com/documents/Moen_CL26500EP_Specification_Sheet.pdf",
+          "source": "faucetdepot"
+        },
+        {
+          "kind": "spec",
+          "url": "https://assets.moen.com/shared/docs/product-specifications/26500sp.pdf",
+          "source": "moen"
+        }
+      ],
+      "offers": [
+        {
+          "source": "faucetdepot",
+          "price": 52.222,
+          "regular": 71.05,
+          "url": "https://faucetdepot.com/product/791795/moen+reg+cl26500ep+moen+reg+cl26500ep+shower+head+2+gpm+min+5+sprays+4+x+3-11+16+in+head+import",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "moen",
+          "price": 86.93,
+          "url": "https://shop.moen.com/products/cl26500ep",
+          "evidence": "Moen product page price"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "moen",
+          "url": "https://shop.moen.com/products/cl26500ep",
+          "status": "ok"
+        }
+      ],
+      "source_fields": [
+        "Moen® Shower Head, 2 gpm Minimum, 1/2 in IPS Connection, Round Shape, 5 Sprays, Spray Pattern: Energizing/Invigorating/Refreshing/Relaxing/Targeted Massage, 80 psi Pressure, 4 x 3-11/16 in Head, Metal, Polished Chrome, Import"
+      ]
+    },
+    {
+      "model": "100999556",
+      "brand": "Studio Design Collection",
+      "title": "Rhiver Matte Black Shower Head",
+      "category": "Shower Head",
+      "best_price": 59.98,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/faucets/rhiver-matte-black-shower-head-100999556.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 59.98,
+          "regular": 59.98,
+          "url": "https://www.flooranddecor.com/faucets/rhiver-matte-black-shower-head-100999556.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eUpgrade your shower experience with our easy-to-install Rhiver Matte Black Shower Head by Studio Design Collection.\u003c/p\u003e\u003cp\u003eReplacing your existing shower head is a quick and simple DIY project that can be done in less than 20 minutes. Our shower heads offer a wide range of styles and innovations to suit any bathroom decor and personal preferences.\u003c/p\u003e\u003cul\u003e\u003cli\u003eWith a flow rate of 1.75 GPM (gallons per minute), enjoy a relaxing shower experience in your bathroom haven.\u003c/li\u003e\u003cli\u003eMade from durable materials, our shower heads provide a long-lasting upgrade to your bathroom. Experience the difference today!\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    },
+    {
+      "model": "KINGSTON+KINGK138",
+      "brand": "KINGSTON",
+      "title": "Kingston Brass K138A1 Designer Trimscape Showerscape Jet Spray Shower Head - Polished Chrome",
+      "category": "Wall Mounted Shower Heads",
+      "best_price": 69.267,
+      "best_source": "faucetdepot",
+      "product_url": "https://faucetdepot.com/product/656696/kingston+kingk138-a1+kingston+brass+k138a1+designer+trimscape+showerscape+jet+spray+shower+head+-+polished+chrome",
+      "image_url": "https://hirschcontent.com/images/KINGK138-A1.jpg",
+      "offers": [
+        {
+          "source": "faucetdepot",
+          "price": 69.267,
+          "regular": 69.267,
+          "url": "https://faucetdepot.com/product/656696/kingston+kingk138-a1+kingston+brass+k138a1+designer+trimscape+showerscape+jet+spray+shower+head+-+polished+chrome",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "K138A1 Kingston Brass Designer Trimscape Showerscape Jet Spray Shower Head - Polished ChromeHigh Quality Brass Construction2-1/4-Inch Diameter Shower Head6 Nozzle Power Jet2.5 GPM Water Flow Rate At 80 PSICompliant with ASME 112.18.1"
+      ]
+    },
+    {
+      "model": "RP28599PB",
+      "brand": "DELTA®",
+      "title": "DELTA® RP28599PB Shower Head, Push-Clean™, 2 gpm Minimum, 1 Sprays, Wall Mount, 2 x 2-1/2 in Head",
+      "category": "Wall Mounted Shower Heads",
+      "best_price": 94.68,
+      "best_source": "faucetdepot",
+      "product_url": "https://faucetdepot.com/product/357245/delta+reg+rp28599pb+delta+reg+rp28599pb+shower+head+push-clean+trade+2+gpm+minimum+1+sprays+wall+mount+2+x+2-1+2+in+head",
+      "image_url": "https://hirschcontent.com/images/DELTA_RP46074_N.jpg",
+      "offers": [
+        {
+          "source": "faucetdepot",
+          "price": 94.68,
+          "regular": 118.35,
+          "url": "https://faucetdepot.com/product/357245/delta+reg+rp28599pb+delta+reg+rp28599pb+shower+head+push-clean+trade+2+gpm+minimum+1+sprays+wall+mount+2+x+2-1+2+in+head",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "DELTA® Shower Head, Push-Clean™, 2 gpm Minimum Flow Rate, 1/2 in, Round, Number of Sprays: 1, Spray Pattern: Full Body, Wall Mount, 2 x 2-1/2 in Head, Metal, Polished Brass"
+      ]
+    },
+    {
+      "model": "100999606",
+      "brand": "Studio Design Collection",
+      "title": "Jadyn Brushed Nickel Shower Head",
+      "category": "Shower Head",
+      "best_price": 109.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/available-in-store-only/jadyn-brushed-nickel-shower-head-100999606.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 109.99,
+          "regular": 109.99,
+          "url": "https://www.flooranddecor.com/available-in-store-only/jadyn-brushed-nickel-shower-head-100999606.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eUpgrade your shower experience with our easy-to-install Jadyn Brushed Nickel Shower Head by Studio Design Collection.\u003c/p\u003e\u003cp\u003eReplacing your existing shower head is a quick and simple DIY project that can be done in less than 20 minutes. Our shower heads offer a wide range of styles and innovations to suit any bathroom decor and personal preferences.\u003c/p\u003e\u003cul\u003e\u003cli\u003eWith a flow rate of 1.75 GPM (gallons per minute), enjoy a relaxing shower experience in your bathroom haven.\u003c/li\u003e\u003cli\u003eMade from durable materials, our shower heads provide a long-lasting upgrade to your bathroom. Experience the difference today!\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    },
+    {
+      "model": "100999507",
+      "brand": "Studio Design Collection",
+      "title": "Tano Matte Black Shower Head",
+      "category": "Shower Head",
+      "best_price": 129.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/available-in-store-only/tano-matte-black-shower-head-100999507.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 129.99,
+          "regular": 129.99,
+          "url": "https://www.flooranddecor.com/available-in-store-only/tano-matte-black-shower-head-100999507.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eUpgrade your shower experience with our easy-to-install Tano Matte Black Shower Head by Studio Design Collection.\u003c/p\u003e\u003cp\u003eReplacing your existing shower head is a quick and simple DIY project that can be done in less than 20 minutes. Our shower heads offer a wide range of styles and innovations to suit any bathroom decor and personal preferences.\u003c/p\u003e\u003cul\u003e\u003cli\u003eWith a flow rate of 1.75 GPM (gallons per minute), enjoy a relaxing shower experience in your bathroom haven.\u003c/li\u003e\u003cli\u003eMade from durable materials, our shower heads provide a long-lasting upgrade to your bathroom. Experience the difference today!\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    },
+    {
+      "model": "100999218",
+      "brand": "Studio Design Collection",
+      "title": "Royce Matte Black Shower Head",
+      "category": "Shower Head",
+      "best_price": 139.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/available-in-store-only/royce-matte-black-shower-head-100999218.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 139.99,
+          "regular": 139.99,
+          "url": "https://www.flooranddecor.com/available-in-store-only/royce-matte-black-shower-head-100999218.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eUpgrade your shower experience with our easy-to-install Royce Matte Black Shower Head by Studio Design Collection.\u003c/p\u003e\u003cp\u003eReplacing your existing shower head is a quick and simple DIY project that can be done in less than 20 minutes. Our shower heads offer a wide range of styles and innovations to suit any bathroom decor and personal preferences.\u003c/p\u003e\u003cul\u003e\u003cli\u003eWith a flow rate of 1.75 GPM (gallons per minute), enjoy a relaxing shower experience in your bathroom haven.\u003c/li\u003e\u003cli\u003eMade from durable materials, our shower heads provide a long-lasting upgrade to your bathroom. Experience the difference today!\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    },
+    {
+      "model": "100840560",
+      "brand": "Studio Design Collection",
+      "title": "Jadyn Matte Black Tub and Shower Combination",
+      "category": "Shower \u0026 Tub Faucet",
+      "best_price": 149.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/faucets/jadyn-matte-black-tub-and-shower-combination-100840560.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 149.99,
+          "regular": 149.99,
+          "url": "https://www.flooranddecor.com/faucets/jadyn-matte-black-tub-and-shower-combination-100840560.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Jadyn Matte Black Tub and Shower Combination Combination offers a contemporary and sophisticated design with its sleek style and rounded curves. The Jayden Matte Black Collection meets WaterSense\u0026reg; criteria to conserve water without sacrificing performance. The Versitech\u0026trade; shower valve features superior pressure balance technology to prevent scalding, solid brass construction for maximum reliability, and optional back-to-back installation for flexibility. The Jadyn Tub \u0026amp; Shower Combo coordinates perfectly with the collections\u0026rsquo; bathroom sink faucets to complete the look.\u003c/p\u003e\u003cul style=\"list-style-type: disc;\"\u003e\u003cli\u003eThe Versitech\u0026trade; shower valve features superior pressure balance technology to prevent scalding, solid brass construction for maximum reliability, and optional back-to-back installation for flexibility.\u003c/li\u003e\u003cli\u003eWaterSense\u0026reg ; certified with a 1.75 GPM flow rate that conserves water without sacrificing performance\u003c/li\u003e\u003cli\u003eSingle function showerhead with powerful, consistent performance\u003c/li\u003e\u003cli\u003eSpout Type: Tub Spout; Spout Reach: 5.31\u0026rdquo;\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: plumbing",
+    "Source warning: ferguson: ferguson: HTTP 403: \u003cHTML\u003e\u003cHEAD\u003e"
+  ],
+  "sources_run": [
+    "ferguson",
+    "floor-and-decor",
+    "plumbersstock",
+    "faucetdepot",
+    "faucetlist",
+    "plumbtile",
+    "modern-bathroom",
+    "kbauthority"
+  ]
+}

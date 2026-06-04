@@ -1,0 +1,291 @@
+{
+  "query": "towel bar",
+  "total": 10,
+  "models": [
+    {
+      "model": "10582229",
+      "title": "BROFJÄRDEN Towel holder",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 8.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/brofjaerden-towel-holder-chrome-effect-10582229/",
+      "image_url": "https://www.ikea.com/us/en/images/products/brofjaerden-towel-holder-chrome-effect__1329652_pe945220_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/brofjaerden-towel-holder-chrome-effect__AA-2476445-4-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 8.99,
+          "url": "https://www.ikea.com/us/en/p/brofjaerden-towel-holder-chrome-effect-10582229/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "chrome effect"
+      ]
+    },
+    {
+      "model": "20595976",
+      "title": "BÄSINGEN Towel rail",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 9.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/baesingen-towel-rail-anthracite-20595976/",
+      "image_url": "https://www.ikea.com/us/en/images/products/baesingen-towel-rail-anthracite__1386019_pe963589_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/baesingen-towel-rail-anthracite__AA-2538287-3-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/baesingen-towel-rail-anthracite__AA-2495644-1-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 9.99,
+          "url": "https://www.ikea.com/us/en/p/baesingen-towel-rail-anthracite-20595976/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "anthracite"
+      ]
+    },
+    {
+      "model": "70598637",
+      "title": "SKOGHALL Towel rail, self-adhesive",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 9.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/skoghall-towel-rail-self-adhesive-chrome-plated-70598637/",
+      "image_url": "https://www.ikea.com/us/en/images/products/skoghall-towel-rail-self-adhesive-chrome-plated__1386004_pe963584_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/skoghall-towel-rail-self-adhesive-chrome-plated__AA-2535491-1-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 9.99,
+          "url": "https://www.ikea.com/us/en/p/skoghall-towel-rail-self-adhesive-chrome-plated-70598637/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "chrome plated"
+      ]
+    },
+    {
+      "model": "50582232",
+      "title": "BROFJÄRDEN Towel rail",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 14.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/brofjaerden-towel-rail-chrome-effect-50582232/",
+      "image_url": "https://www.ikea.com/us/en/images/products/brofjaerden-towel-rail-chrome-effect__1329663_pe945227_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/brofjaerden-towel-rail-chrome-effect__AA-2476206-4-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/brofjaerden-towel-rail-chrome-effect__AA-2476204-1-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 14.99,
+          "url": "https://www.ikea.com/us/en/p/brofjaerden-towel-rail-chrome-effect-50582232/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "chrome effect"
+      ]
+    },
+    {
+      "model": "914300177",
+      "title": "White Ceramic Towel Bar Set",
+      "category": "Towel Bar",
+      "best_price": 15.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/white-ceramic-towel-bar-set-914300177.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 15.99,
+          "regular": 15.99,
+          "url": "https://www.flooranddecor.com/white-ceramic-towel-bar-set-914300177.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThis 24 x 4in. White Ceramic Towel Bar Set in white will add a uniformed look to any bathroom.\u003c/p\u003e\u003cp\u003eOur varied selection of bathroom accessories is sure to offer just the right finishing pieces for your bath or shower project. We offer corner shelves, towel bars, soap dishes and more in a variety of materials, colors, and finishes.\u003c/p\u003e"
+      ]
+    },
+    {
+      "model": "60423822",
+      "title": "SKOGSVIKEN Towel rail",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 16.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/skogsviken-towel-rail-black-60423822/",
+      "image_url": "https://www.ikea.com/us/en/images/products/skogsviken-towel-rail-black__0811980_pe771894_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/skogsviken-towel-rail-black__AA-2144253-4-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 16.99,
+          "url": "https://www.ikea.com/us/en/p/skogsviken-towel-rail-black-60423822/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "black"
+      ]
+    },
+    {
+      "model": "20605145",
+      "title": "FLORSJÖN Towel rail",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 17.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/florsjoen-towel-rail-beige-20605145/",
+      "image_url": "https://www.ikea.com/us/en/images/products/florsjoen-towel-rail-beige__1439494_pe985335_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/florsjoen-towel-rail-beige__AA-2603952-4-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/florsjoen-towel-rail-beige__AA-2577952-2-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 17.99,
+          "url": "https://www.ikea.com/us/en/p/florsjoen-towel-rail-beige-20605145/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "beige"
+      ]
+    },
+    {
+      "model": "30328534",
+      "title": "BROGRUND Towel rail",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 17.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/brogrund-towel-rail-stainless-steel-30328534/",
+      "image_url": "https://www.ikea.com/us/en/images/products/brogrund-towel-rail-stainless-steel__0710452_pe727569_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/brogrund-towel-rail-stainless-steel__AA-2002670-6-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 17.99,
+          "url": "https://www.ikea.com/us/en/p/brogrund-towel-rail-stainless-steel-30328534/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "stainless steel"
+      ]
+    },
+    {
+      "model": "100584937",
+      "brand": "Studio Design Collection",
+      "title": "Grant Chrome 18 in. Towel Bar",
+      "category": "Towel Bar",
+      "best_price": 21.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/bathroom-accessories/grant-chrome-18-in.-towel-bar-100584937.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 21.99,
+          "regular": 21.99,
+          "url": "https://www.flooranddecor.com/bathroom-accessories/grant-chrome-18-in.-towel-bar-100584937.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eGrant Chrome 18 in. Towel Bar by Studio Design Collection is the perfect addition to any bathroom, offering both style and functionality. Designed for residential and commercial use, this towel bar combines elegance with durability to meet your everyday needs.\u003c/p\u003e\u003cul\u003e \u003cli\u003eThe polished, high gloss finish enhances the overall aesthetic appeal of your bathroom.\u003c/li\u003e \u003cli\u003eChrome complements various bathroom dcors, adding a touch of sophistication.\u003c/li\u003e \u003cli\u003eSuitable for wall installation, ensuring a secure and stable placement.\u003c/li\u003e \u003cli\u003eWarranty provides peace of mind with lifetime limited coverage for long-term reliability.\u003c/li\u003e \u003cli\u003eIdeal for residential and commercial usage, making it versatile for different settings.\u003c/li\u003e\u003c/ul\u003e\u003cp\u003eUpgrade your bathroom with the Grant Chrome 18 in. Towel Bar, combining style, durability, and functionality. Perfect for any modern space.\u003c/p\u003e"
+      ]
+    },
+    {
+      "model": "100584788",
+      "brand": "Studio Design Collection",
+      "title": "Parker Brushed Nickel 18 in. Towel Bar",
+      "category": "Towel Bar",
+      "best_price": 23.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/bathroom-accessories/parker-brushed-nickel-18-in.-towel-bar-100584788.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 23.99,
+          "regular": 23.99,
+          "url": "https://www.flooranddecor.com/bathroom-accessories/parker-brushed-nickel-18-in.-towel-bar-100584788.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eIntroducing the Parker Brushed Nickel 18 in. Towel Bar from the Studio Design Collection. This stylish and durable towel bar is designed to enhance both residential and commercial spaces with its sleek, modern look.\u003c/p\u003e\u003cul\u003e \u003cli\u003eThe brushed nickel finish offers a sophisticated appearance that complements any bathroom decor.\u003c/li\u003e \u003cli\u003eConstructed for wall installation only, ensuring a secure and stable mount for your towels.\u003c/li\u003e \u003cli\u003eSuitable for both residential and commercial use, providing versatility in various environments.\u003c/li\u003e \u003cli\u003eDesigned by the renowned Studio Design Collection, guaranteeing high-quality craftsmanship and aesthetic appeal.\u003c/li\u003e \u003cli\u003eComes with a lifetime limited warranty, offering peace of mind and long-term reliability.\u003c/li\u003e\u003c/ul\u003e\u003cp\u003eUpgrade your bathroom with the Parker Brushed Nickel 18 in. Towel Bar, combining style, functionality, and durability for an exceptional addition to your space.\u003c/p\u003e"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: plumbing, hardware",
+    "Source warning: ferguson: ferguson: HTTP 403: \u003cHTML\u003e\u003cHEAD\u003e"
+  ],
+  "sources_run": [
+    "ferguson",
+    "floor-and-decor",
+    "plumbersstock",
+    "faucetdepot",
+    "faucetlist",
+    "plumbtile",
+    "modern-bathroom",
+    "kbauthority",
+    "hardware-hut",
+    "rejuvenation",
+    "ikea"
+  ]
+}

@@ -1,0 +1,475 @@
+{
+  "query": "soap dispenser",
+  "total": 8,
+  "models": [
+    {
+      "model": "GTWN2800DWW",
+      "brand": "GE",
+      "title": "GE® 3.8 DOE cu. ft. stainless steel capacity washer",
+      "category": "washers",
+      "best_price": 468,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-3-8-DOE-cu-ft-stainless-steel-capacity-washer-GTWN2800DWW",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/135459/1145580/1e30a2bf2662a2de9dcd88a8f7cfb114e1f2e646__05795.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--dBhUJ9s5--/3f58f84eaa9d207a6fdadfa3a955c70b28005ee2.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--HstXRaCU--/9834688f4a8b2707b0424d031dbe9c8d3ae0eb49.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--vJzplv0u--/f12410773bc8995ee04a997144890fbffb8cc130.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s---DkETv2x--/a74034dc44d3468aa0b8441eb223ffae7e9412d0.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 468,
+          "regular": 600,
+          "url": "https://www.geappliances.com/appliance/GE-3-8-DOE-cu-ft-stainless-steel-capacity-washer-GTWN2800DWW",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GTWN2800DWW.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 42 H x 27 W x 25 1/2 D\nappearance_color_appearance: White\nfeatures_style: Top-Loading\nfeatures_control_type: Rotary Electromechanical\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--dBhUJ9s5--/3f58f84eaa9d207a6fdadfa3a955c70b28005ee2.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--HstXRaCU--/9834688f4a8b2707b0424d031dbe9c8d3ae0eb49.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--vJzplv0u--/f12410773bc8995ee04a997144890fbffb8cc130.pdf\nbenefits: Dual-Action Agitator; Rotary electromechanical controls; 13 wash cycles; 5 water levels"
+      ]
+    },
+    {
+      "model": "GTW180SCJWW",
+      "brand": "GE",
+      "title": "GE® 3.6 DOE cu. ft. capacity Extra Action ribbed basket",
+      "category": "washers",
+      "best_price": 500,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-3-6-DOE-cu-ft-capacity-Extra-Action-ribbed-basket-GTW180SCJWW",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/134880/1002456/5074666b71d0d93ef9b065eda691dc9a78b3f4c0__45800.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--dBhUJ9s5--/3f58f84eaa9d207a6fdadfa3a955c70b28005ee2.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--HZyg_j5S--/60d54753a8dac3552857b7087ed65582c80d5637.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--lQvCNKnZ--/e170ee0b7c1b66b1d11da3e1e2ec3b67101589eb.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--q4TDhWGf--/742d18edf89767bda17535e035792e5d94e39b98.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 500,
+          "regular": 500,
+          "url": "https://www.geappliances.com/appliance/GE-3-6-DOE-cu-ft-capacity-Extra-Action-ribbed-basket-GTW180SCJWW",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GTW180SCJWW.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 42 H x 27 W x 25 1/2 D\nappearance_color_appearance: White on White\nfeatures_style: Top-Loading\nfeatures_control_type: Rotary Electromechanical\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--dBhUJ9s5--/3f58f84eaa9d207a6fdadfa3a955c70b28005ee2.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--HZyg_j5S--/60d54753a8dac3552857b7087ed65582c80d5637.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--lQvCNKnZ--/e170ee0b7c1b66b1d11da3e1e2ec3b67101589eb.pdf\nbenefits: Dual-action agitator; Extra Action ribbed basket; Rotary electromechanical controls; 12 wash cycles"
+      ]
+    },
+    {
+      "model": "GTW180SSJWW",
+      "brand": "GE",
+      "title": "GE® 3.6 DOE cu. ft. capacity Extra Action ribbed basket",
+      "category": "washers",
+      "best_price": 500,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-3-6-DOE-cu-ft-capacity-Extra-Action-ribbed-basket-GTW180SSJWW",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/135053/1002471/5074666b71d0d93ef9b065eda691dc9a78b3f4c0__93504.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--dBhUJ9s5--/3f58f84eaa9d207a6fdadfa3a955c70b28005ee2.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--xl59LnEo--/204b5f33c224e67d050ea44c7e0b19ec399b2eab.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--Flss3XCE--/abefcd290fbfae37e3ac71e77cbbd326bfc57937.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--q4TDhWGf--/742d18edf89767bda17535e035792e5d94e39b98.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 500,
+          "regular": 500,
+          "url": "https://www.geappliances.com/appliance/GE-3-6-DOE-cu-ft-capacity-Extra-Action-ribbed-basket-GTW180SSJWW",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GTW180SSJWW.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 42 H x 27 W x 25 1/2 D\nappearance_color_appearance: White on White\nfeatures_style: Top-Loading\nfeatures_control_type: Rotary Electromechanical\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--dBhUJ9s5--/3f58f84eaa9d207a6fdadfa3a955c70b28005ee2.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--xl59LnEo--/204b5f33c224e67d050ea44c7e0b19ec399b2eab.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--Flss3XCE--/abefcd290fbfae37e3ac71e77cbbd326bfc57937.pdf\nbenefits: Dual-action agitator; Extra Action ribbed basket; Rotary electromechanical controls; 12 wash cycles"
+      ]
+    },
+    {
+      "model": "GCWP1800DWW",
+      "brand": "GE",
+      "title": "GE® 3.7 DOE cu. ft. capacity Extra Action ribbed basket",
+      "category": "washers",
+      "best_price": 549,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-3-7-DOE-cu-ft-capacity-Extra-Action-ribbed-basket-GCWP1800DWW",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/135331/996437/0b099587b0293f4e93152e71b0d1b5077128ae54__79738.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--dBhUJ9s5--/3f58f84eaa9d207a6fdadfa3a955c70b28005ee2.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--uOFp2WFb--/63a1c3a4a096635c29527a3e35fe0261289d8c9a.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--mgwccecp--/5595dd17354890b87c4c77770b208fffd72cc499.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--oTS8pUDY--/59873bbb346f0e2577825ae77975ab2eb4ac54b2.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 549,
+          "regular": 549,
+          "url": "https://www.geappliances.com/appliance/GE-3-7-DOE-cu-ft-capacity-Extra-Action-ribbed-basket-GCWP1800DWW",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GCWP1800DWW.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 42 H x 27 W x 25 1/2 D\nappearance_color_appearance: White\nfeatures_style: Top-Loading\nfeatures_control_type: Rotary Electromechanical\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--dBhUJ9s5--/3f58f84eaa9d207a6fdadfa3a955c70b28005ee2.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--uOFp2WFb--/63a1c3a4a096635c29527a3e35fe0261289d8c9a.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--mgwccecp--/5595dd17354890b87c4c77770b208fffd72cc499.pdf\nbenefits: Dual-Action Agitator; Extra Action ribbed basket; Rotary electromechanical controls; 12 wash cycles"
+      ]
+    },
+    {
+      "model": "GTWP1800DWW",
+      "brand": "GE",
+      "title": "GE® 3.6 DOE cu. ft. capacity Extra Action basket",
+      "category": "washers",
+      "best_price": 549,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-3-6-DOE-cu-ft-capacity-Extra-Action-basket-GTWP1800DWW",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/135175/1004000/1e7c3bd717670979ec2f4e1b4d4371812691a40d__72754.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--dBhUJ9s5--/3f58f84eaa9d207a6fdadfa3a955c70b28005ee2.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--HT1UOBbF--/2f95ad5e7d5699f99c10ef9594cfc1fd7bea8a64.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--mYeauDYz--/c3187904757cd865dd7f510553efa63953d6eea8.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--q4TDhWGf--/742d18edf89767bda17535e035792e5d94e39b98.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 549,
+          "regular": 549,
+          "url": "https://www.geappliances.com/appliance/GE-3-6-DOE-cu-ft-capacity-Extra-Action-basket-GTWP1800DWW",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GTWP1800DWW.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 42 H x 27 W x 25 1/2 D\nappearance_color_appearance: White\nfeatures_style: Top-Loading\nfeatures_control_type: Rotary Electromechanical\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--dBhUJ9s5--/3f58f84eaa9d207a6fdadfa3a955c70b28005ee2.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--HT1UOBbF--/2f95ad5e7d5699f99c10ef9594cfc1fd7bea8a64.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--mYeauDYz--/c3187904757cd865dd7f510553efa63953d6eea8.pdf\nbenefits: Dual-Action Agitator; Extra Action ribbed basket; Rotary electromechanical controls; 12 wash cycles"
+      ]
+    },
+    {
+      "model": "GTWP1800HWS",
+      "brand": "GE",
+      "title": "GE® 3.7 DOE cu. ft. capacity Extra Action basket",
+      "category": "washers",
+      "best_price": 550,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-3-7-DOE-cu-ft-capacity-Extra-Action-basket-GTWP1800HWS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/135324/1148661/160aeba7e093e3328d7be154e35f9569e4cb594b__46237.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--dBhUJ9s5--/3f58f84eaa9d207a6fdadfa3a955c70b28005ee2.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--mweNNw5I--/bda7d14583a403ae7a1df314d19d4fa8929d4d3a.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--Vqc4EbBk--/e7f3419df404c8025a30c47e1065bfbdac4b9471.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--oTS8pUDY--/59873bbb346f0e2577825ae77975ab2eb4ac54b2.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 550,
+          "regular": 550,
+          "url": "https://www.geappliances.com/appliance/GE-3-7-DOE-cu-ft-capacity-Extra-Action-basket-GTWP1800HWS",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GTWP1800HWS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 42 H x 27 W x 25 1/2 D\nappearance_color_appearance: White on White with Silver Backsplash\nfeatures_style: Top-Loading\nfeatures_control_type: Rotary Electromechanical\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--dBhUJ9s5--/3f58f84eaa9d207a6fdadfa3a955c70b28005ee2.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--mweNNw5I--/bda7d14583a403ae7a1df314d19d4fa8929d4d3a.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--Vqc4EbBk--/e7f3419df404c8025a30c47e1065bfbdac4b9471.pdf\nbenefits: Dual-Action Agitator; Extra Action ribbed basket; Rotary electromechanical controls; 12 wash cycles"
+      ]
+    },
+    {
+      "model": "GTWP2000FWW",
+      "brand": "GE",
+      "title": "GE® 3.7 DOE cu. ft. capacity washer",
+      "category": "washers",
+      "best_price": 599,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-3-7-DOE-cu-ft-capacity-washer-GTWP2000FWW",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/8637/1004044/9a5a6bf75562a974441a0347ddd247b730345f1e__06290.1.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--YoxpIym5--/420a808abd9379102b8fa84f7c37d707b455a35e.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--tPrfnIbl--/eb6bf775287d9cbd4e99ed09ebcbab68aaa7b67e.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--g1z7P_I9--/792ef4ac494d5106d8aaef18de9222b5b4e0ab8c.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 599,
+          "regular": 599,
+          "url": "https://www.geappliances.com/appliance/GE-3-7-DOE-cu-ft-capacity-washer-GTWP2000FWW",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GTWP2000FWW.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 42 H x 27 W x 25 1/2 D\nappearance_color_appearance: White\nfeatures_style: Top-Loading\nfeatures_control_type: Electronic\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--YoxpIym5--/420a808abd9379102b8fa84f7c37d707b455a35e.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--tPrfnIbl--/eb6bf775287d9cbd4e99ed09ebcbab68aaa7b67e.pdf\nbenefits: Dual-Action Agitator; Extra Action ribbed basket; Electronic controls with cycle status lights; 13 wash cycles"
+      ]
+    },
+    {
+      "model": "GCWN2800DWW",
+      "brand": "GE",
+      "title": "GE® 3.8 DOE cu. ft. stainless steel capacity washer",
+      "category": "washers",
+      "best_price": 600,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-3-8-DOE-cu-ft-stainless-steel-capacity-washer-GCWN2800DWW",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/135476/1146740/5dd7f083e12d174bd2baa744aeda84fed949f353__17693.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--dBhUJ9s5--/3f58f84eaa9d207a6fdadfa3a955c70b28005ee2.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--8ATQLeQ1--/45ee111f5ffe06c0ad9ce0b8c3778e4a4ab65bcc.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--tPe1im49--/e9567e1103c174c56c3ac36aa71ece18e42feaaf.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s---DkETv2x--/a74034dc44d3468aa0b8441eb223ffae7e9412d0.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 600,
+          "regular": 600,
+          "url": "https://www.geappliances.com/appliance/GE-3-8-DOE-cu-ft-stainless-steel-capacity-washer-GCWN2800DWW",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GCWN2800DWW.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 42 H x 27 W x 25 1/2 D\nappearance_color_appearance: White\nfeatures_style: Top-Loading\nfeatures_control_type: Rotary Electromechanical\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--dBhUJ9s5--/3f58f84eaa9d207a6fdadfa3a955c70b28005ee2.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--8ATQLeQ1--/45ee111f5ffe06c0ad9ce0b8c3778e4a4ab65bcc.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--tPe1im49--/e9567e1103c174c56c3ac36aa71ece18e42feaaf.pdf\nbenefits: Dual-Action Agitator; Rotary electromechanical controls; 13 wash cycles; 5 water levels"
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GTWN2800DWW.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GTW180SCJWW.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GTW180SSJWW.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GCWP1800DWW.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GTWP1800DWW.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GTWP1800HWS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GTWP2000FWW.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GCWN2800DWW.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage."
+  ],
+  "sources_run": [
+    "ge-appliances",
+    "bosch"
+  ]
+}

@@ -1,0 +1,32 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Thu, 04 Jun 2026 02:34:47 GMT
+Content-Type: application/json; charset=utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Vary: Accept-Encoding
+Vary: Accept-Encoding, Accept-Encoding
+Set-Cookie: _pxhd=ed24220771e049f855f4cee3bc985e9ebada7254d8e26defd42af5fc5458cad9:f38ccd6f-5fbd-11f1-b0be-dbf1f59ebed3; Max-Age=31536000; Path=/
+ETag: e44306cf5c961b7cb3c403b81317efe291aa4a8a1780540487
+Last-Modified: Thu, 04 Jun 2026 02:34:47 GMT
+Expires: Thu, 04 Jun 2026 02:39:47 GMT
+Cache-Control: max-age=300, public, must-revalidate
+X-Avb-Fpc-Cache: MISS
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE
+Access-Control-Allow-Headers: authorization, Content-Type, Cache-Control, X-CSRF-TOKEN
+Access-Control-Max-Age: 86400
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: https://www.appliancefactory.com
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+X-Cache-Tags: api json api_json__site_appliancefactory.com
+X-Varnish: 522553490
+Age: 0
+Via: 1.1 varnish (Varnish/7.1)
+X-Cache: PASS
+X-Cache-Note: RESP_UNCACHEABLE
+alt-svc: h3=":443"; ma=86400; h3-29=":443"; ma=86400
+x-quic: h3
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+

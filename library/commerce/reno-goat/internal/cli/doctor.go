@@ -13,16 +13,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/reno-goat/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/reno-goat/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/reno-goat/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/commerce/reno-goat/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known
 // bot-detection challenge page (Cloudflare, Akamai, Vercel, AWS WAF, DataDome,
-// PerimeterX). Only fires on the doctor probe — used to distinguish "transport
+// PerimeterX, or a generic browser proof-of-work wall). Only fires on the doctor probe — used to distinguish "transport
 // reached the wall" from "transport failed entirely." Returns the vendor name
 // when matched, or empty string when no match.
 //
@@ -58,8 +58,15 @@ func looksLikeDoctorInterstitial(body []byte) string {
 		return "AWS WAF"
 	case strings.Contains(prefix, "datadome") && (strings.Contains(prefix, "blocked") || strings.Contains(prefix, "captcha") || strings.Contains(prefix, "challenge")):
 		return "DataDome"
+	case strings.Contains(prefix, "captcha-delivery.com") || strings.Contains(prefix, "geo.captcha-delivery.com"):
+		return "DataDome"
 	case strings.Contains(prefix, "perimeterx") || strings.Contains(prefix, "px-captcha"):
 		return "PerimeterX"
+	case strings.Contains(prefix, "<title>browser security check") &&
+		(strings.Contains(prefix, "/_challenge") || strings.Contains(prefix, "crypto.subtle.digest")):
+		return "BrowserChallenge"
+	case strings.Contains(prefix, "<title>access denied") && strings.Contains(prefix, "<h1>access denied"):
+		return "AccessDenied"
 	}
 	return ""
 }

@@ -1,6 +1,6 @@
 ---
 name: pp-reno-goat
-description: "Search, compare, price-watch, and project-track renovation and interior products across 11 retailers"
+description: "Search, compare, price-watch, model-enrich, and project-track renovation selections across 33 active sources plus 5 tracked stubs"
 author: "H179922"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -37,7 +37,7 @@ go install github.com/mvanhorn/printing-press-library/library/commerce/reno-goat
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-Search, compare, price-watch, and project-track renovation and interior products across 11 retailers from one CLI. Routes each query to the sources that carry that product type — fixtures and appliances go to Ferguson, furniture to West Elm and Article, hardware and lighting to Rejuvenation, and five Shopify DTC stores (Schoolhouse, Blu Dot, Gus Modern, Floyd, Lulu & Georgia) cover furniture and decor. Standalone utilities provide Lowe's autocomplete and store locator. No API keys required.
+Search, compare, price-watch, model-enrich, and project-track homeowner-visible renovation selections across 33 active sources plus 5 tracked stubs. Reno Goat focuses on the middle ground between commodity builder supply and home decor: appliances, plumbing fixtures, bath showroom rows, electrical and lighting selections, HVAC equipment, flooring, hardware, materials, furniture, and decor. Standalone utilities provide Lowe's autocomplete and store locator. No API keys required.
 
 ## Command Reference
 
@@ -80,13 +80,29 @@ Search, compare, price-watch, and project-track renovation and interior products
 - `reno-goat-pp-cli product shopify-product` — Get full product details from a Shopify DTC store via Storefront API. Resolves store from URL.
 - `reno-goat-pp-cli product westelm-product` — Get full product details from West Elm.
 
-**product-search** — Fan-out product search across all Tier 1 sources. Category-based routing sends queries to relevant sources. Returns normalized products with unified price, rating, and brand fields.
+**product-search** — Fan-out product search across active sources. Category-based routing sends queries to relevant sources. Returns normalized products with unified price, rating, and brand fields.
 
+- `reno-goat-pp-cli product-search all "<query>" --json` — Search across all active sources with automatic category routing.
+- `reno-goat-pp-cli product-search all "<query>" --category plumbing --json` — Search a category-specific routed source set.
+- `reno-goat-pp-cli product-search all "<query>" --room kitchen --json` — Expand a room shortcut into relevant categories, then search those sources.
 - `reno-goat-pp-cli product-search article-search` — Search products via Article APQ GraphQL. Uses SEARCH_PRODUCTS persisted query hash.
 - `reno-goat-pp-cli product-search ferguson-search` — Search products via Ferguson GraphQL. Returns ProductSearchResult (count + products) or SearchRedirect.
 - `reno-goat-pp-cli product-search rejuvenation-search` — Search products via Rejuvenation Constructor.io API. Same API shape as West Elm with different key.
 - `reno-goat-pp-cli product-search shopify-search` — Search products across Shopify DTC stores via Storefront API GraphQL.
 - `reno-goat-pp-cli product-search westelm-search` — Search products via West Elm Constructor.io API. Returns faceted results with product data, prices, and images.
+
+**model-intel** — Compound lookup for installed-selection decisions. Use this when the user needs model/SKU candidates, current prices, spec/install documents, or predictable model-page probes.
+
+- `reno-goat-pp-cli model-intel "36 induction cooktop" --json` — Discover appliance model candidates, prices, and linked spec/install documents.
+- `reno-goat-pp-cli model-intel "shower valve" --sources auto --search-offers=false --json` — Route through active plumbing/bath sources without search-result offer fallback.
+- `reno-goat-pp-cli model-intel "medicine cabinet" --sources auto --json` — Use auto category inference for renovation-middle selections beyond appliances.
+- `reno-goat-pp-cli model-intel JOESC330RM --json` — Probe exact-model retailer/manufacturer routes and report blocked/readable offer evidence.
+
+**source-probe** — Triage showroom and big-box routes before promoting a source.
+
+- `reno-goat-pp-cli source-probe --candidate appliance-priority-gaps --json` — Probe ABW, ADU catalog, AJ Madison, Abt, Best Buy, Costco, PC Richard, Appliance Factory, Homewise Appliance, Spencer's, Grand Appliance, and Warners' Stellian.
+- `reno-goat-pp-cli source-probe --candidate bath-priority-gaps --json` — Probe QualityBath, Vintage Tub, HomePerfect, DecorPlanet, Build.com, and Signature Hardware.
+- `reno-goat-pp-cli source-probe --candidate none --url <url> --json` — Probe a custom route and classify readable, blocked, or unreachable responses; large bodies report `body_truncated`.
 
 **reviews** — Get product reviews from a single source. Supports Ferguson (via GraphQL) and Article (via APQ queries for reviews and UGC media).
 

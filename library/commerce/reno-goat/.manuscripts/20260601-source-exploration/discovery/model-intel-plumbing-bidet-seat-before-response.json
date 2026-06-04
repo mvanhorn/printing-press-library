@@ -1,0 +1,13 @@
+{
+  "query": "bidet seat",
+  "total": 0,
+  "models": [],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage."
+  ],
+  "sources_run": [
+    "ge-appliances",
+    "bosch"
+  ]
+}

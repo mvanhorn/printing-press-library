@@ -1,0 +1,281 @@
+{
+  "query": "towel bar",
+  "total": 10,
+  "models": [
+    {
+      "model": "30579023",
+      "title": "JORDMÅNEN Hook",
+      "category": "Storage containers, organizers \u0026 baskets \u003e Wall shelves \u0026 hooks \u003e Hooks \u0026 hangers \u003e Wall \u0026 door hooks",
+      "best_price": 3.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/jordmanen-hook-dark-gray-green-30579023/",
+      "image_url": "https://www.ikea.com/us/en/images/products/jordmanen-hook-dark-gray-green__1313500_pe940139_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/jordmanen-hook-dark-gray-green__AA-2432741-2-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 3.99,
+          "url": "https://www.ikea.com/us/en/p/jordmanen-hook-dark-gray-green-30579023/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "dark gray-green"
+      ]
+    },
+    {
+      "model": "90476343",
+      "title": "NEREBY Rail",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen organization \u0026 wall storage \u003e Kitchen wall organizers",
+      "best_price": 6,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/nereby-rail-birch-90476343/",
+      "image_url": "https://www.ikea.com/us/en/images/products/nereby-rail-birch__0924454_pe788575_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/nereby-rail-birch__AA-2231603-3-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 6,
+          "url": "https://www.ikea.com/us/en/p/nereby-rail-birch-90476343/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "birch"
+      ]
+    },
+    {
+      "model": "20524677",
+      "title": "BROGRUND Hook",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 7.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/brogrund-hook-stainless-steel-20524677/",
+      "image_url": "https://www.ikea.com/us/en/images/products/brogrund-hook-stainless-steel__0710516_pe727611_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/brogrund-hook-stainless-steel__AA-2002612-4-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 7.99,
+          "url": "https://www.ikea.com/us/en/p/brogrund-hook-stainless-steel-20524677/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "stainless steel"
+      ]
+    },
+    {
+      "model": "30238543",
+      "title": "BUMERANG Hanger",
+      "category": "Storage containers, organizers \u0026 baskets \u003e Wall shelves \u0026 hooks \u003e Hooks \u0026 hangers \u003e Clothes hangers",
+      "best_price": 7.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/bumerang-hanger-natural-30238543/",
+      "image_url": "https://www.ikea.com/us/en/images/products/bumerang-hanger-natural__0710666_pe727700_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 7.99,
+          "url": "https://www.ikea.com/us/en/p/bumerang-hanger-natural-30238543/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "natural"
+      ]
+    },
+    {
+      "model": "60614586",
+      "title": "VALASJÖN Towel hanger, self-adhesive",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 7.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/valasjoen-towel-hanger-self-adhesive-60614586/",
+      "image_url": "https://www.ikea.com/us/en/images/products/valasjoen-towel-hanger-self-adhesive__1433086_pe983058_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/valasjoen-towel-hanger-self-adhesive__AA-2593314-3-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 7.99,
+          "url": "https://www.ikea.com/us/en/p/valasjoen-towel-hanger-self-adhesive-60614586/",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "10582229",
+      "title": "BROFJÄRDEN Towel holder",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 8.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/brofjaerden-towel-holder-chrome-effect-10582229/",
+      "image_url": "https://www.ikea.com/us/en/images/products/brofjaerden-towel-holder-chrome-effect__1329652_pe945220_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/brofjaerden-towel-holder-chrome-effect__AA-2476445-4-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 8.99,
+          "url": "https://www.ikea.com/us/en/p/brofjaerden-towel-holder-chrome-effect-10582229/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "chrome effect"
+      ]
+    },
+    {
+      "model": "20595976",
+      "title": "BÄSINGEN Towel rail",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 9.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/baesingen-towel-rail-anthracite-20595976/",
+      "image_url": "https://www.ikea.com/us/en/images/products/baesingen-towel-rail-anthracite__1386019_pe963589_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/baesingen-towel-rail-anthracite__AA-2538287-3-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/baesingen-towel-rail-anthracite__AA-2495644-1-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 9.99,
+          "url": "https://www.ikea.com/us/en/p/baesingen-towel-rail-anthracite-20595976/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "anthracite"
+      ]
+    },
+    {
+      "model": "70598637",
+      "title": "SKOGHALL Towel rail, self-adhesive",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 9.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/skoghall-towel-rail-self-adhesive-chrome-plated-70598637/",
+      "image_url": "https://www.ikea.com/us/en/images/products/skoghall-towel-rail-self-adhesive-chrome-plated__1386004_pe963584_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/skoghall-towel-rail-self-adhesive-chrome-plated__AA-2535491-1-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 9.99,
+          "url": "https://www.ikea.com/us/en/p/skoghall-towel-rail-self-adhesive-chrome-plated-70598637/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "chrome plated"
+      ]
+    },
+    {
+      "model": "50448776",
+      "title": "HULTARP Rail",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen organization \u0026 wall storage \u003e Kitchen wall organizers",
+      "best_price": 10,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/hultarp-rail-polished-brass-color-50448776/",
+      "image_url": "https://www.ikea.com/us/en/images/products/hultarp-rail-polished-brass-color__0941879_pe795829_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/hultarp-rail-polished-brass-color__AA-2196308-5-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 10,
+          "url": "https://www.ikea.com/us/en/p/hultarp-rail-polished-brass-color-50448776/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "polished/brass color"
+      ]
+    },
+    {
+      "model": "40334916",
+      "title": "KUNGSFORS Rail",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen organization \u0026 wall storage \u003e Kitchen wall organizers",
+      "best_price": 11.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/kungsfors-rail-stainless-steel-40334916/",
+      "image_url": "https://www.ikea.com/us/en/images/products/kungsfors-rail-stainless-steel__0712553_pe728909_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/kungsfors-rail-stainless-steel__AA-2048590-7-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 11.99,
+          "url": "https://www.ikea.com/us/en/p/kungsfors-rail-stainless-steel-40334916/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "stainless steel"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: hardware"
+  ],
+  "sources_run": [
+    "hardware-hut",
+    "rejuvenation",
+    "ikea"
+  ]
+}

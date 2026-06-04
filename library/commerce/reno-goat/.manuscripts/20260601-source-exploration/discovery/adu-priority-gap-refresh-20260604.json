@@ -1,0 +1,61 @@
+{
+  "date": "2026-06-04",
+  "source": "ADU / Appliance Distributors Unlimited",
+  "status": "deferred",
+  "product_gap": [
+    "dishwasher category rows",
+    "exact appliance model rows"
+  ],
+  "plain_client_probe": {
+    "readable_routes": [
+      {
+        "url": "https://shop.adu.com/",
+        "status": 200,
+        "notes": "Readable Next.js AVB storefront root with __NEXT_DATA__, product/catalog Redux slices, catalog links, and PerimeterX script reference."
+      }
+    ],
+    "blocked_routes": [
+      {
+        "url": "https://shop.adu.com/catalog/shop-all-dishwashers",
+        "status": 403,
+        "blocker": "PerimeterX CAPTCHA"
+      },
+      {
+        "url": "https://shop.adu.com/catalog/dishwashers",
+        "status": 403,
+        "blocker": "PerimeterX CAPTCHA"
+      },
+      {
+        "url": "https://shop.adu.com/search/dishwasher",
+        "status": 403,
+        "blocker": "PerimeterX CAPTCHA"
+      },
+      {
+        "url": "https://shop.adu.com/api/rest/search/dishwasher?limit=5&embed=products",
+        "status": 403,
+        "blocker": "PerimeterX/API guard"
+      },
+      {
+        "url": "https://shop.adu.com/api/rest/categories/shop-all-dishwashers?limit=5&embed=products",
+        "status": 403,
+        "blocker": "PerimeterX/API guard"
+      },
+      {
+        "url": "https://shop.adu.com/api/search?query=dishwasher",
+        "status": 403,
+        "blocker": "PerimeterX/API guard"
+      },
+      {
+        "url": "https://shop.adu.com/graphql",
+        "status": 403,
+        "blocker": "PerimeterX CAPTCHA"
+      }
+    ]
+  },
+  "chunk_evidence": {
+    "directory": "discovery/adu-chunks/",
+    "frontend_contract": "Downloaded public Next.js chunks expose AVB catalog/product slices, base API prefix /api/rest, search route /search/<query>?limit=4&embed=products, category routes /catalog/<key>, product routes /products/<url_key>, and product IDs/entity_id fields.",
+    "outcome": "The frontend contract is useful for GHST-293/browser-like transport, but not enough for immediate source promotion because product-bearing /api/rest calls return HTTP 403 under the current plain CLI transport."
+  },
+  "promotion_decision": "Do not promote ADU as an active source until dishwasher/category or exact appliance product rows replay with price-bearing payloads."
+}

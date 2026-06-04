@@ -1,0 +1,224 @@
+{
+  "query": "moen shower valve",
+  "total": 8,
+  "models": [
+    {
+      "model": "TL181",
+      "brand": "Moen®",
+      "title": "Moen® TL181 Valve Trim Only, 2.5 gpm Shower, Polished Chrome",
+      "category": "Pressure Balanced Trims",
+      "best_price": 30.174,
+      "best_source": "faucetdepot",
+      "product_url": "https://faucetdepot.com/product/180467/moen+reg+tl181+moen+reg+tl181+valve+trim+only+2+5+gpm+shower+polished+chrome",
+      "image_url": "https://hirschcontent.com/images/Moen_TL181.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://hirschcontent.com/documents/Moen_TL181_Specification_Sheet.pdf",
+          "source": "faucetdepot"
+        }
+      ],
+      "offers": [
+        {
+          "source": "faucetdepot",
+          "price": 30.174,
+          "regular": 46.35,
+          "url": "https://faucetdepot.com/product/180467/moen+reg+tl181+moen+reg+tl181+valve+trim+only+2+5+gpm+shower+polished+chrome",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Moen® Valve Trim Only, Series: TL181, Chateau®, 2.5 gpm Shower Flow Rate, Lever, 6-1/2 in Dia Trim, 1222 Pressure Balanced Valve/Cartridge, 1/2 in Copper Valve Inlet Connection, 1/2 in C Valve Outlet Connection, 80 psi, Wall Mount, For Use With: Chateau® 62300 1-Handle Tub/Shower Valve, Metal, Polished Chrome, 7.38 in W x 7.38 in D x 4 in H, Domestic"
+      ]
+    },
+    {
+      "model": "UT2191",
+      "brand": "Moen",
+      "title": "MOEN UT2191 ALIGN M-CORE 2-SERIES VALVE ONLY",
+      "best_price": 280.53,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/moen-ut2191-align-m-core-2-series-valve-only.html",
+      "image_url": "https://www.kbauthority.com/images/W/247/UT2191_Moen_Chrome.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 280.53,
+          "url": "https://www.kbauthority.com/moen-ut2191-align-m-core-2-series-valve-only.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "UT3691",
+      "brand": "Moen",
+      "title": "MOEN UT3691 VOSS 6 1/4 INCH M-CORE 3-SERIES VALVE ONLY",
+      "best_price": 319.68,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/moen-ut3691-voss-6-1-4-inch-m-core-3-series-valve-only.html",
+      "image_url": "https://www.kbauthority.com/images/W/246/UT3691_Moen_Chrome.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 319.68,
+          "url": "https://www.kbauthority.com/moen-ut3691-voss-6-1-4-inch-m-core-3-series-valve-only.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "UT3291",
+      "brand": "Moen",
+      "title": "MOEN UT3291 ALIGN M-CORE 3-SERIES VALVE ONLY",
+      "best_price": 333.11,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/moen-ut3291-align-m-core-3-series-valve-only.html",
+      "image_url": "https://www.kbauthority.com/images/W/247/UT3291_Moen_Chrome.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 333.11,
+          "url": "https://www.kbauthority.com/moen-ut3291-align-m-core-3-series-valve-only.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "UT35501",
+      "brand": "Moen",
+      "title": "MOEN UT35501 WYNFORD 6 3/8 INCH M-CORE 3-SERIES VALVE ONLY",
+      "best_price": 333.11,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/moen-ut35501-wynford-6-3-8-inch-m-core-3-series-valve-only.html",
+      "image_url": "https://www.kbauthority.com/images/W/246/UT35501_Moen_Chrome.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 333.11,
+          "url": "https://www.kbauthority.com/moen-ut35501-wynford-6-3-8-inch-m-core-3-series-valve-only.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "UT3811",
+      "brand": "Moen",
+      "title": "MOEN UT3811 RIZON 6 1/4 INCH M-CORE 3-SERIES VALVE ONLY",
+      "best_price": 333.11,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/moen-ut3811-rizon-6-1-4-inch-m-core-3-series-valve-only.html",
+      "image_url": "https://www.kbauthority.com/images/W/246/UT3811_Moen_Chrome.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 333.11,
+          "url": "https://www.kbauthority.com/moen-ut3811-rizon-6-1-4-inch-m-core-3-series-valve-only.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "TS32100",
+      "brand": "Moen®",
+      "title": "Moen® TS32100 Tub/Shower Valve Trim, Polished Chrome",
+      "category": "Pressure Balanced Trims",
+      "best_price": 834.412,
+      "best_source": "faucetdepot",
+      "product_url": "https://faucetdepot.com/product/946164/moen+reg+ts32100+moen+reg+ts32100+tub+shower+valve+trim+polished+chrome",
+      "image_url": "https://hirschcontent.com/images/Moen_TS32100.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://hirschcontent.com/documents/Moen_TS2200_Manual.pdf",
+          "source": "faucetdepot"
+        },
+        {
+          "kind": "document",
+          "url": "https://hirschcontent.com/documents/Moen_TS32100_Line_Drawing.pdf",
+          "source": "faucetdepot"
+        },
+        {
+          "kind": "spec",
+          "url": "https://hirschcontent.com/documents/Moen_TS32100_Specification_Sheet.pdf",
+          "source": "faucetdepot"
+        }
+      ],
+      "offers": [
+        {
+          "source": "faucetdepot",
+          "price": 834.412,
+          "regular": 834.412,
+          "url": "https://faucetdepot.com/product/946164/moen+reg+ts32100+moen+reg+ts32100+tub+shower+valve+trim+polished+chrome",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Moen® Tub/Shower Valve Trim, Weymouth™ Collection, 2 Handles, Lever Handle, 7-5/16 in W x 3-7/16 in D x 11-1/2 in H Trim, 1222 Pressure Balanced, Hand Shower: No, Wall Mounting, For Use With: M-Pact® Posi-Temp® 2521/2571 Built-In 2-Function Diverter Transfer Valve and M-Pact® Posi-Temp® 2551 Built-In 3-Function Diverter Transfer Valve, Metal, Polished Chrome, Domestic"
+      ]
+    },
+    {
+      "model": "TS32100ORB",
+      "brand": "Moen®",
+      "title": "Moen® TS32100ORB Tub/Shower Valve Trim, Oil Rubbed Bronze",
+      "category": "Pressure Balanced Trims",
+      "best_price": 1044.29,
+      "best_source": "faucetdepot",
+      "product_url": "https://faucetdepot.com/product/91611/moen+reg+ts32100orb+moen+reg+ts32100orb+tub+shower+valve+trim+oil+rubbed+bronze",
+      "image_url": "https://hirschcontent.com/images/Moen_TS32100ORB.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://hirschcontent.com/documents/Moen_TS32100NL_Catalog.pdf",
+          "source": "faucetdepot"
+        },
+        {
+          "kind": "document",
+          "url": "https://hirschcontent.com/documents/Moen_TS2200_Manual.pdf",
+          "source": "faucetdepot"
+        },
+        {
+          "kind": "document",
+          "url": "https://hirschcontent.com/documents/Moen_TS32100_Line_Drawing.pdf",
+          "source": "faucetdepot"
+        },
+        {
+          "kind": "spec",
+          "url": "https://hirschcontent.com/documents/Moen_TS32100NL_Specification_Sheet.pdf",
+          "source": "faucetdepot"
+        },
+        {
+          "kind": "document",
+          "url": "https://hirschcontent.com/documents/Moen_TS6721BN_Warranty.pdf",
+          "source": "faucetdepot"
+        }
+      ],
+      "offers": [
+        {
+          "source": "faucetdepot",
+          "price": 1044.29,
+          "regular": 1382.25,
+          "url": "https://faucetdepot.com/product/91611/moen+reg+ts32100orb+moen+reg+ts32100orb+tub+shower+valve+trim+oil+rubbed+bronze",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Weymouth™'s gracious Victorian details include porcelain inlays with antiqued decorative script and a refined shepherd's spout. Elegant, traditional design details and distinctive finishing touches present a sense of uncommon luxury in the Weymouth™ collection. Distinctive accents include porcelain inlays that feature Euro-influenced decorative script and signature styling elements to make an extravagant statement in your traditional bath. Coordinated lighting and accessories make an extravagant design statement."
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: plumbing",
+    "Source warning: ferguson: ferguson: HTTP 403: \u003cHTML\u003e\u003cHEAD\u003e"
+  ],
+  "sources_run": [
+    "ferguson",
+    "floor-and-decor",
+    "plumbersstock",
+    "faucetdepot",
+    "faucetlist",
+    "plumbtile",
+    "modern-bathroom",
+    "kbauthority"
+  ]
+}

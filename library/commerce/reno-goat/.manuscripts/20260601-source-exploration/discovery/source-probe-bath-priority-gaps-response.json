@@ -1,0 +1,63 @@
+[
+  {
+    "label": "QualityBath shower valve search",
+    "group": "bath-priority-gaps",
+    "url": "https://www.qualitybath.com/search/shower%20valve",
+    "final_url": "https://www.qualitybath.com/search/shower%20valve",
+    "status": "readable",
+    "http_status": 200,
+    "body_bytes": 247386
+  },
+  {
+    "label": "Vintage Tub",
+    "group": "bath-priority-gaps",
+    "url": "https://www.vintagetub.com/",
+    "final_url": "https://www.vintagetub.com/",
+    "status": "blocked",
+    "http_status": 200,
+    "body_bytes": 262144,
+    "body_truncated": true,
+    "reason": "captcha/block response"
+  },
+  {
+    "label": "HomePerfect shower valve search",
+    "group": "bath-priority-gaps",
+    "url": "https://www.homeperfect.com/catalogsearch/result/?q=shower%20valve",
+    "final_url": "https://www.homeperfect.com/catalogsearch/result/?q=shower%20valve",
+    "status": "blocked",
+    "http_status": 403,
+    "body_bytes": 5810,
+    "vendor": "Cloudflare",
+    "reason": "Cloudflare interstitial"
+  },
+  {
+    "label": "DecorPlanet shower valve search",
+    "group": "bath-priority-gaps",
+    "url": "https://www.decorplanet.com/search?q=shower%20valve",
+    "final_url": "https://www.decorplanet.com/search?q=shower%20valve",
+    "status": "unreachable",
+    "http_status": 522,
+    "body_bytes": 7277,
+    "reason": "HTTP 522"
+  },
+  {
+    "label": "Build.com shower valves",
+    "group": "bath-priority-gaps",
+    "url": "https://www.build.com/shower-valves/c109331",
+    "final_url": "https://www.fergusonhome.com/shower-valves/c109331",
+    "status": "blocked",
+    "http_status": 403,
+    "body_bytes": 403,
+    "vendor": "AccessDenied",
+    "reason": "AccessDenied interstitial"
+  },
+  {
+    "label": "Signature Hardware shower valve suggestions",
+    "group": "bath-priority-gaps",
+    "url": "https://www.signaturehardware.com/on/demandware.store/Sites-SignatureHardware-Site/default/SearchServices-GetSuggestions?q=shower%20valve",
+    "final_url": "https://www.signaturehardware.com/on/demandware.store/Sites-SignatureHardware-Site/default/SearchServices-GetSuggestions?q=shower%20valve",
+    "status": "readable",
+    "http_status": 200,
+    "body_bytes": 37243
+  }
+]

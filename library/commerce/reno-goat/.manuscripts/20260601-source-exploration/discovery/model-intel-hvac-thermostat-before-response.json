@@ -1,0 +1,546 @@
+{
+  "query": "thermostat",
+  "total": 10,
+  "models": [
+    {
+      "model": "AWAS05BBA",
+      "brand": "GE",
+      "title": "GE® 5,000 BTU Mechanical Window Air Conditioner for Small Rooms up to 150 sq ft., Black",
+      "category": "Window",
+      "best_price": 159,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-5-000-BTU-Mechanical-Window-Air-Conditioner-for-Small-Rooms-up-to-150-sq-ft-Black-AWAS05BBA",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/423521/1047760/jqddsayw7l69wursrmr6__89962.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--a3uFnSfm--/bunxytxn8kvzzseygns1.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--kIauRFEq--/abjac3fif0zeqyd3ctit.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s---hnyNhBR--/ufkasm4dsddkxf9zfxo7.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 159,
+          "regular": 159,
+          "url": "https://www.geappliances.com/appliance/GE-5-000-BTU-Mechanical-Window-Air-Conditioner-for-Small-Rooms-up-to-150-sq-ft-Black-AWAS05BBA",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AWAS05BBA.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 12.59 H x 16.36 W x 13.38D\nappearance_color_appearance: Black\nfeatures_control_type: Mechanical Control\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--a3uFnSfm--/bunxytxn8kvzzseygns1.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--kIauRFEq--/abjac3fif0zeqyd3ctit.pdf\nbenefits: Cools Small Rooms; Maximum Comfort Cool; Adjustable Thermostat; Removable Filter"
+      ]
+    },
+    {
+      "model": "AWAS05BWF",
+      "brand": "GE",
+      "title": "GE® 5,000 BTU Mechanical Window Air Conditioner for Small Rooms up to 150 sq ft.",
+      "category": "Window",
+      "best_price": 159,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-5-000-BTU-Mechanical-Window-Air-Conditioner-for-Small-Rooms-up-to-150-sq-ft-AWAS05BWF",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/423465/1047238/rhbtyqgurcn7tpae1wfm__27293.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--a3uFnSfm--/bunxytxn8kvzzseygns1.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--pjrn5RJy--/lqcmqptxpmnzzdvbz1wx.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s---hnyNhBR--/ufkasm4dsddkxf9zfxo7.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 159,
+          "regular": 159,
+          "url": "https://www.geappliances.com/appliance/GE-5-000-BTU-Mechanical-Window-Air-Conditioner-for-Small-Rooms-up-to-150-sq-ft-AWAS05BWF",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AWAS05BWF.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 12.59 H x 16.36 W x 13.38D\nappearance_color_appearance: White\nfeatures_control_type: Mechanical Control\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--a3uFnSfm--/bunxytxn8kvzzseygns1.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--pjrn5RJy--/lqcmqptxpmnzzdvbz1wx.pdf\nbenefits: Cools Small Rooms; Maximum Comfort Cool; Adjustable Thermostat; Removable Filter"
+      ]
+    },
+    {
+      "model": "AWAS05BWA",
+      "brand": "GE",
+      "title": "GE® 5,000 BTU Mechanical Window Air Conditioner for Small Rooms up to 150 sq ft.",
+      "category": "Window",
+      "best_price": 164,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-5-000-BTU-Mechanical-Window-Air-Conditioner-for-Small-Rooms-up-to-150-sq-ft-AWAS05BWA",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/423468/1047282/mzufq6u0dmlhhkto6ah7__70917.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--a3uFnSfm--/bunxytxn8kvzzseygns1.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--uXibQDr3--/uesenluzl7sfe1kclrtv.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s---hnyNhBR--/ufkasm4dsddkxf9zfxo7.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 164,
+          "regular": 159,
+          "url": "https://www.geappliances.com/appliance/GE-5-000-BTU-Mechanical-Window-Air-Conditioner-for-Small-Rooms-up-to-150-sq-ft-AWAS05BWA",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AWAS05BWA.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 12.59 H x 16.36 W x 13.38D\nappearance_color_appearance: White\nfeatures_control_type: Mechanical Control\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--a3uFnSfm--/bunxytxn8kvzzseygns1.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--uXibQDr3--/uesenluzl7sfe1kclrtv.pdf\nbenefits: Cools Small Rooms; Maximum Comfort Cool; Adjustable Thermostat; Removable Filter"
+      ]
+    },
+    {
+      "model": "AHEK08AC",
+      "brand": "GE",
+      "title": "GE® 8,000 BTU Smart Electronic Window Air Conditioner for Medium Rooms up to 350 sq. ft.",
+      "category": "Window",
+      "best_price": 346,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-8-000-BTU-Smart-Electronic-Window-Air-Conditioner-for-Medium-Rooms-up-to-350-sq-ft-AHEK08AC",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/137489/999037/wyiypiq1m20amqoe7wrz__55285.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--9KCK3MyA--/eb83a0bf0dea74a49d7b6657d98af96f98ac295a.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--h9t6z-rw--/85db43783da541bd36d2e27b4cacc3a5ac4ff619.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s---hnyNhBR--/ufkasm4dsddkxf9zfxo7.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 346,
+          "regular": 329,
+          "url": "https://www.geappliances.com/appliance/GE-8-000-BTU-Smart-Electronic-Window-Air-Conditioner-for-Medium-Rooms-up-to-350-sq-ft-AHEK08AC",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AHEK08AC.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 12.625 H x 18.5625 W x 15.3125 D\nappearance_color_appearance: White\nfeatures_control_type: LED Display\nfeatures_wifi_connect: Built-In\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--9KCK3MyA--/eb83a0bf0dea74a49d7b6657d98af96f98ac295a.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--h9t6z-rw--/85db43783da541bd36d2e27b4cacc3a5ac4ff619.pdf\nbenefits: Cools Medium Rooms; Built-In WiFi; Maximum Comfort Cool; Voice Control"
+      ]
+    },
+    {
+      "model": "AWCS10WWA",
+      "brand": "GE",
+      "title": "GE® 10,000 BTU Smart Electronic Window Air Conditioner for Medium Rooms up to 450 sq. ft.",
+      "category": "Window",
+      "best_price": 364,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-10-000-BTU-Smart-Electronic-Window-Air-Conditioner-for-Medium-Rooms-up-to-450-sq-ft-AWCS10WWA",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/423529/1047179/c0aoq15qe0rxk1mwhrgm__41321.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--Rr0OzIFg--/gzocbyyrxsjniagnrabn.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--Giv2GIh4--/hkdjecagb8vbsvwhqbsz.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s---hnyNhBR--/ufkasm4dsddkxf9zfxo7.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 364,
+          "regular": 369,
+          "url": "https://www.geappliances.com/appliance/GE-10-000-BTU-Smart-Electronic-Window-Air-Conditioner-for-Medium-Rooms-up-to-450-sq-ft-AWCS10WWA",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AWCS10WWA.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 14.49 H x 18.98 W x 19.73D\nappearance_color_appearance: White\nfeatures_control_type: Electronic Control\nfeatures_wifi_connect: Built-In\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--Rr0OzIFg--/gzocbyyrxsjniagnrabn.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--Giv2GIh4--/hkdjecagb8vbsvwhqbsz.pdf\nbenefits: Cools Medium Rooms; Built-In WiFi; Maximum Comfort Cool; Electronic Thermostat with Remote"
+      ]
+    },
+    {
+      "model": "AWCS10WWF",
+      "brand": "GE",
+      "title": "GE® 10,000 BTU Smart Electronic Window Air Conditioner for Medium Rooms up to 450 sq. ft.",
+      "category": "Window",
+      "best_price": 369,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-10-000-BTU-Smart-Electronic-Window-Air-Conditioner-for-Medium-Rooms-up-to-450-sq-ft-AWCS10WWF",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/423547/1047301/p8geeqsexisynyelqn4u__26394.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--Rr0OzIFg--/gzocbyyrxsjniagnrabn.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--NXEAwJoB--/wgo1f4nodw6bqbw7spvv.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s---hnyNhBR--/ufkasm4dsddkxf9zfxo7.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 369,
+          "regular": 369,
+          "url": "https://www.geappliances.com/appliance/GE-10-000-BTU-Smart-Electronic-Window-Air-Conditioner-for-Medium-Rooms-up-to-450-sq-ft-AWCS10WWF",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AWCS10WWF.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 14.49 H x 18.98 W x 19.73D\nappearance_color_appearance: White\nfeatures_control_type: Electronic Control\nfeatures_wifi_connect: Built-In\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--Rr0OzIFg--/gzocbyyrxsjniagnrabn.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--NXEAwJoB--/wgo1f4nodw6bqbw7spvv.pdf\nbenefits: Cools Medium Rooms; Built-In WiFi; Maximum Comfort Cool; Voice Control"
+      ]
+    },
+    {
+      "model": "PWJV08WWF",
+      "brand": "GE Profile",
+      "title": "GE Profile™ 8,000 BTU Inverter Smart Ultra Quiet Window Air Conditioner for Medium Rooms up to 350 sq. ft.",
+      "category": "Window",
+      "best_price": 409,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-Profile-8-000-BTU-Inverter-Smart-Ultra-Quiet-Window-Air-Conditioner-for-Medium-Rooms-up-to-350-sq-ft-PWJV08WWF",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/426566/1049105/dvxytwpblugw7m2okd62__56971.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--vX3PUy9_--/nox5vdiez3egi1xobiar.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--EayEYL_o--/0ad5f9e34a603cacf4c354488a1b2296a8edf552.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s---hnyNhBR--/ufkasm4dsddkxf9zfxo7.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 409,
+          "regular": 409,
+          "url": "https://www.geappliances.com/appliance/GE-Profile-8-000-BTU-Inverter-Smart-Ultra-Quiet-Window-Air-Conditioner-for-Medium-Rooms-up-to-350-sq-ft-PWJV08WWF",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/PWJV08WWF.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 13.39 H x 18.54 W x 18.9D\nappearance_color_appearance: White\nfeatures_wifi_connect: Built-In\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--vX3PUy9_--/nox5vdiez3egi1xobiar.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--EayEYL_o--/0ad5f9e34a603cacf4c354488a1b2296a8edf552.pdf\nbenefits: Cools Medium Rooms; Inverter Technology; Built-in WiFi; Voice Control"
+      ]
+    },
+    {
+      "model": "AWCS12WWA",
+      "brand": "GE",
+      "title": "GE® 12,000 BTU Smart Electronic Window Air Conditioner for Large Rooms up to 550 sq. ft.",
+      "category": "Window",
+      "best_price": 439,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-12-000-BTU-Smart-Electronic-Window-Air-Conditioner-for-Large-Rooms-up-to-550-sq-ft-AWCS12WWA",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/426222/1047266/c0aoq15qe0rxk1mwhrgm__61653.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--Rr0OzIFg--/gzocbyyrxsjniagnrabn.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--0QkXGe-C--/bporpzcqylfcr6jmhpax.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s---hnyNhBR--/ufkasm4dsddkxf9zfxo7.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 439,
+          "regular": 449,
+          "url": "https://www.geappliances.com/appliance/GE-12-000-BTU-Smart-Electronic-Window-Air-Conditioner-for-Large-Rooms-up-to-550-sq-ft-AWCS12WWA",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AWCS12WWA.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 14.49 H x 18.98 W x 19.73D\nappearance_color_appearance: White\nfeatures_control_type: Electronic Control\nfeatures_wifi_connect: Built-In\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--Rr0OzIFg--/gzocbyyrxsjniagnrabn.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--0QkXGe-C--/bporpzcqylfcr6jmhpax.pdf\nbenefits: Cools Large Rooms; Built-In WiFi; Maximum Comfort Cool; Electronic Thermostat with Remote"
+      ]
+    },
+    {
+      "model": "AHTR10AC",
+      "brand": "GE Profile",
+      "title": "GE Profile™ ENERGY STAR® 10,100 BTU Inverter Smart Ultra Quiet Window Air Conditioner for Medium Rooms up to 450 sq. ft.",
+      "category": "Window",
+      "best_price": 442,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-Profile-ENERGY-STAR-10-100-BTU-Inverter-Smart-Ultra-Quiet-Window-Air-Conditioner-for-Medium-Rooms-up-to-450-sq-ft-AHTR10AC",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/413840/1109340/df3f42acd21e53a79ae929817cafc9811d11d92b__74555.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--1Gj9MhQv--/gbm56ornmlztisb8sgox.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--1RL0lZq---/fwqdnxjyhqnn6asxkkxv.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s---hnyNhBR--/ufkasm4dsddkxf9zfxo7.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 442,
+          "regular": 449,
+          "url": "https://www.geappliances.com/appliance/GE-Profile-ENERGY-STAR-10-100-BTU-Inverter-Smart-Ultra-Quiet-Window-Air-Conditioner-for-Medium-Rooms-up-to-450-sq-ft-AHTR10AC",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AHTR10AC.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 13.90625 H x 20.515625 W x 19.890625 D\nappearance_color_appearance: White\nfeatures_wifi_connect: Built-In\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--1Gj9MhQv--/gbm56ornmlztisb8sgox.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--1RL0lZq---/fwqdnxjyhqnn6asxkkxv.pdf\nbenefits: Industry's Most Efficient Window AC; Inverter Technology; Ultra Quiet; Built-in WiFi"
+      ]
+    },
+    {
+      "model": "AWCS12WWF",
+      "brand": "GE",
+      "title": "GE® 12,000 BTU Smart Electronic Window Air Conditioner for Large Rooms up to 550 sq. ft.",
+      "category": "Window",
+      "best_price": 449,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-12-000-BTU-Smart-Electronic-Window-Air-Conditioner-for-Large-Rooms-up-to-550-sq-ft-AWCS12WWF",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/422844/1033727/p8geeqsexisynyelqn4u__41123.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--Rr0OzIFg--/gzocbyyrxsjniagnrabn.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--zrV3Edns--/szf06hcdpptrwd3nz8z9.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s---hnyNhBR--/ufkasm4dsddkxf9zfxo7.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 449,
+          "regular": 449,
+          "url": "https://www.geappliances.com/appliance/GE-12-000-BTU-Smart-Electronic-Window-Air-Conditioner-for-Large-Rooms-up-to-550-sq-ft-AWCS12WWF",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AWCS12WWF.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 14.49 H x 18.98 W x 19.73D\nappearance_color_appearance: White\nfeatures_control_type: Electronic Control\nfeatures_wifi_connect: Built-In\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--Rr0OzIFg--/gzocbyyrxsjniagnrabn.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--zrV3Edns--/szf06hcdpptrwd3nz8z9.pdf\nbenefits: Cools Large Rooms; Built-In WiFi; Maximum Comfort Cool; Voice Control"
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AWAS05BBA.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AWAS05BWF.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AWAS05BWA.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AHEK08AC.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AWCS10WWA.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AWCS10WWF.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/PWJV08WWF.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AWCS12WWA.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AHTR10AC.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/AWCS12WWF.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage."
+  ],
+  "sources_run": [
+    "ge-appliances",
+    "bosch"
+  ]
+}

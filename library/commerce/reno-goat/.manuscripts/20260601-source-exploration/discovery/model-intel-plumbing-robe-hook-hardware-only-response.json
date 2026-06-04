@@ -1,0 +1,225 @@
+{
+  "query": "robe hook",
+  "total": 10,
+  "models": [
+    {
+      "model": "40448437",
+      "title": "BÄSTIS Hook",
+      "category": "Storage containers, organizers \u0026 baskets \u003e Wall shelves \u0026 hooks \u003e Hooks \u0026 hangers \u003e Wall \u0026 door hooks",
+      "best_price": 1.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/baestis-hook-black-40448437/",
+      "image_url": "https://www.ikea.com/us/en/images/products/baestis-hook-black__0740123_pe741948_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 1.99,
+          "url": "https://www.ikea.com/us/en/p/baestis-hook-black-40448437/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "black"
+      ]
+    },
+    {
+      "model": "259670",
+      "brand": "IVE",
+      "title": "Ives Wardrobe Hook (Aluminum Clear Coated)",
+      "best_price": 2.44,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/ives-wardrobe-hook-aluminum-clear-coated-581a92",
+      "image_url": "https://hardwarehut.com/images/hooks/ives/ive-581a92.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 2.44,
+          "url": "https://hardwarehut.com/products/ives-wardrobe-hook-aluminum-clear-coated-581a92",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "259673",
+      "brand": "IVE",
+      "title": "Ives Double Wardrobe Hook (Polished Brass)",
+      "best_price": 2.86,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/ives-double-wardrobe-hook-polished-brass-582a3",
+      "image_url": "https://hardwarehut.com/images/hooks/ives/ive-582mb3.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 2.86,
+          "url": "https://hardwarehut.com/products/ives-double-wardrobe-hook-polished-brass-582a3",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "20423819",
+      "title": "SKOGSVIKEN Hook for door",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 2.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/skogsviken-hook-for-door-black-20423819/",
+      "image_url": "https://www.ikea.com/us/en/images/products/skogsviken-hook-for-door-black__0833424_pe778066_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 2.99,
+          "url": "https://www.ikea.com/us/en/p/skogsviken-hook-for-door-black-20423819/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "black"
+      ]
+    },
+    {
+      "model": "50582227",
+      "title": "BROFJÄRDEN Double hook",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 3.49,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/brofjaerden-double-hook-chrome-effect-50582227/",
+      "image_url": "https://www.ikea.com/us/en/images/products/brofjaerden-double-hook-chrome-effect__1329635_pe945207_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/brofjaerden-double-hook-chrome-effect__AA-2440719-5-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 3.49,
+          "url": "https://www.ikea.com/us/en/p/brofjaerden-double-hook-chrome-effect-50582227/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "chrome effect"
+      ]
+    },
+    {
+      "model": "401064",
+      "brand": "IVE",
+      "title": "Ives Ceiling Hook / Undercounter Mount Purse Hook",
+      "best_price": 3.55,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/ives-ceiling-hook-undercounter-mount-purse-hook-580",
+      "image_url": "https://hardwarehut.com/images/moreimages/decorativeandfunctionalhooks/ives/IVE-580A716-main.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 3.55,
+          "url": "https://hardwarehut.com/products/ives-ceiling-hook-undercounter-mount-purse-hook-580",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "70532062",
+      "title": "HÖGAFFEL Wall hook",
+      "category": "Storage containers, organizers \u0026 baskets \u003e Wall shelves \u0026 hooks \u003e Hooks \u0026 hangers \u003e Wall \u0026 door hooks",
+      "best_price": 3.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/hoegaffel-wall-hook-70532062/",
+      "image_url": "https://www.ikea.com/us/en/images/products/hoegaffel-wall-hook__1108819_pe869627_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 3.99,
+          "url": "https://www.ikea.com/us/en/p/hoegaffel-wall-hook-70532062/",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "80595285",
+      "title": "OMMJÄNGE Wall hook",
+      "category": "Storage containers, organizers \u0026 baskets \u003e Wall shelves \u0026 hooks \u003e Hooks \u0026 hangers \u003e Wall \u0026 door hooks",
+      "best_price": 3.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/ommjaenge-wall-hook-multicolor-80595285/",
+      "image_url": "https://www.ikea.com/us/en/images/products/ommjaenge-wall-hook-multicolor__1378874_pe961304_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 3.99,
+          "url": "https://www.ikea.com/us/en/p/ommjaenge-wall-hook-multicolor-80595285/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "multicolor"
+      ]
+    },
+    {
+      "model": "70381275",
+      "title": "TISKEN Hook with suction cup",
+      "category": "Storage containers, organizers \u0026 baskets \u003e Wall shelves \u0026 hooks \u003e Hooks \u0026 hangers \u003e Wall \u0026 door hooks",
+      "best_price": 4.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/tisken-hook-with-suction-cup-white-70381275/",
+      "image_url": "https://www.ikea.com/us/en/images/products/tisken-hook-with-suction-cup-white__0749067_pe745422_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/tisken-hook-with-suction-cup-white__AA-2347516-1-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 4.99,
+          "url": "https://www.ikea.com/us/en/p/tisken-hook-with-suction-cup-white-70381275/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "80609367",
+      "title": "BÄNGBULA Hook",
+      "category": "Storage containers, organizers \u0026 baskets \u003e Wall shelves \u0026 hooks \u003e Hooks \u0026 hangers \u003e Wall \u0026 door hooks",
+      "best_price": 4.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/baengbula-hook-multicolor-80609367/",
+      "image_url": "https://www.ikea.com/us/en/images/products/baengbula-hook-multicolor__1443810_pe987224_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/baengbula-hook-multicolor__AA-2062446-3-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 4.99,
+          "url": "https://www.ikea.com/us/en/p/baengbula-hook-multicolor-80609367/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "multicolor"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: hardware"
+  ],
+  "sources_run": [
+    "hardware-hut",
+    "rejuvenation",
+    "ikea"
+  ]
+}

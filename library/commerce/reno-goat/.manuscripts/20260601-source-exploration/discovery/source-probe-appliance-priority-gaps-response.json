@@ -1,0 +1,120 @@
+[
+  {
+    "label": "ABW Appliances",
+    "group": "appliance-priority-gaps",
+    "url": "https://www.abwappliances.com/",
+    "final_url": "https://www.abwappliances.com/",
+    "status": "blocked",
+    "http_status": 403,
+    "body_bytes": 2200,
+    "vendor": "DataDome",
+    "reason": "DataDome interstitial"
+  },
+  {
+    "label": "ADU catalog",
+    "group": "appliance-priority-gaps",
+    "url": "https://shop.adu.com/catalog/shop-all-dishwashers",
+    "final_url": "https://shop.adu.com/catalog/shop-all-dishwashers",
+    "status": "blocked",
+    "http_status": 403,
+    "body_bytes": 4887,
+    "vendor": "PerimeterX",
+    "reason": "PerimeterX interstitial"
+  },
+  {
+    "label": "AJ Madison model",
+    "group": "appliance-priority-gaps",
+    "url": "https://www.ajmadison.com/cgi-bin/ajmadison/JOESC330RM.html",
+    "final_url": "https://www.ajmadison.com/cgi-bin/ajmadison/JOESC330RM.html",
+    "status": "blocked",
+    "http_status": 403,
+    "body_bytes": 4990,
+    "vendor": "PerimeterX",
+    "reason": "PerimeterX interstitial"
+  },
+  {
+    "label": "Abt model",
+    "group": "appliance-priority-gaps",
+    "url": "https://www.abt.com/JennAir-NOIR-Single-Wall-Oven-With-MultiMode-30-Inch-Wide-in-Stainless-Steel-JOESC330RM/p/220958.html",
+    "final_url": "https://www.abt.com/JennAir-NOIR-Single-Wall-Oven-With-MultiMode-30-Inch-Wide-in-Stainless-Steel-JOESC330RM/p/220958.html",
+    "status": "blocked",
+    "http_status": 403,
+    "body_bytes": 6025,
+    "vendor": "Cloudflare",
+    "reason": "Cloudflare interstitial"
+  },
+  {
+    "label": "Best Buy dishwashers",
+    "group": "appliance-priority-gaps",
+    "url": "https://www.bestbuy.com/site/searchpage.jsp?st=dishwasher",
+    "final_url": "https://www.bestbuy.com/site/searchpage.jsp?st=dishwasher",
+    "status": "readable",
+    "http_status": 200,
+    "body_bytes": 262144,
+    "body_truncated": true
+  },
+  {
+    "label": "Costco dishwashers",
+    "group": "appliance-priority-gaps",
+    "url": "https://www.costco.com/dishwashers.html",
+    "final_url": "https://www.costco.com/dishwashers.html",
+    "status": "blocked",
+    "http_status": 403,
+    "body_bytes": 388,
+    "vendor": "AccessDenied",
+    "reason": "AccessDenied interstitial"
+  },
+  {
+    "label": "PC Richard dishwashers",
+    "group": "appliance-priority-gaps",
+    "url": "https://www.pcrichard.com/dishwashers/",
+    "final_url": "https://www.pcrichard.com/dishwashers/",
+    "status": "readable",
+    "http_status": 200,
+    "body_bytes": 262144,
+    "body_truncated": true
+  },
+  {
+    "label": "Appliance Factory dishwashers",
+    "group": "appliance-priority-gaps",
+    "url": "https://www.appliancefactory.com/catalog/dishwashers",
+    "final_url": "https://www.appliancefactory.com/catalog/dishwashers",
+    "status": "readable",
+    "http_status": 200,
+    "body_bytes": 262144,
+    "body_truncated": true
+  },
+  {
+    "label": "Spencer's dishwashers",
+    "group": "appliance-priority-gaps",
+    "url": "https://www.spencerstv.com/catalog/dishwashers",
+    "final_url": "https://www.spencerstv.com/catalog/dishwashers",
+    "status": "blocked",
+    "http_status": 403,
+    "body_bytes": 4879,
+    "vendor": "PerimeterX",
+    "reason": "PerimeterX interstitial"
+  },
+  {
+    "label": "Grand Appliance dishwashers",
+    "group": "appliance-priority-gaps",
+    "url": "https://www.grandappliance.com/catalog/dishwashers",
+    "final_url": "https://www.grandappliance.com/catalog/dishwashers",
+    "status": "blocked",
+    "http_status": 403,
+    "body_bytes": 4887,
+    "vendor": "PerimeterX",
+    "reason": "PerimeterX interstitial"
+  },
+  {
+    "label": "Warners' Stellian dishwashers",
+    "group": "appliance-priority-gaps",
+    "url": "https://www.warnersstellian.com/category/dishwashers",
+    "final_url": "https://www.warnersstellian.com/category/dishwashers",
+    "status": "blocked",
+    "http_status": 200,
+    "body_bytes": 4681,
+    "vendor": "BrowserChallenge",
+    "reason": "BrowserChallenge interstitial"
+  }
+]

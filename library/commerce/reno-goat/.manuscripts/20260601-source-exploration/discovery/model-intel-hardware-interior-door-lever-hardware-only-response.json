@@ -1,0 +1,245 @@
+{
+  "query": "interior door lever",
+  "total": 10,
+  "models": [
+    {
+      "model": "80606019",
+      "title": "DRAGSMARK Clip-on handle",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen systems \u003e KNOXHULT modular kitchen \u003e Knobs and handles",
+      "best_price": 4,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/dragsmark-clip-on-handle-gray-green-80606019/",
+      "image_url": "https://www.ikea.com/us/en/images/products/dragsmark-clip-on-handle-gray-green__1458391_pe993021_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/dragsmark-clip-on-handle-gray-green__AA-2404108-3-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 4,
+          "url": "https://www.ikea.com/us/en/p/dragsmark-clip-on-handle-gray-green-80606019/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "gray-green"
+      ]
+    },
+    {
+      "model": "10436978",
+      "title": "LÄTTHET Hook and clip",
+      "category": "Baby \u0026 kids \u003e Baby \u003e Kids storage \u0026 organization \u003e SMÅSTAD system \u003e SMÅSTAD interior fittings",
+      "best_price": 5,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/laetthet-hook-and-clip-10436978/",
+      "image_url": "https://www.ikea.com/us/en/images/products/laetthet-hook-and-clip__0898666_pe782580_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 5,
+          "url": "https://www.ikea.com/us/en/p/laetthet-hook-and-clip-10436978/",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "60596554",
+      "title": "KALERUM Knob",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen systems \u003e KNOXHULT modular kitchen \u003e Knobs and handles",
+      "best_price": 6,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/kalerum-knob-brass-color-60596554/",
+      "image_url": "https://www.ikea.com/us/en/images/products/kalerum-knob-brass-color__1370954_pe958919_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/kalerum-knob-brass-color__AA-2407663-3-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 6,
+          "url": "https://www.ikea.com/us/en/p/kalerum-knob-brass-color-60596554/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "brass color"
+      ]
+    },
+    {
+      "model": "20334314",
+      "title": "BILLSBRO Handle",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen systems \u003e KNOXHULT modular kitchen \u003e Knobs and handles",
+      "best_price": 7,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/billsbro-handle-white-20334314/",
+      "image_url": "https://www.ikea.com/us/en/images/products/billsbro-handle-white__0754303_pe747884_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 7,
+          "url": "https://www.ikea.com/us/en/p/billsbro-handle-white-20334314/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "30342479",
+      "title": "HACKÅS Handle",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen systems \u003e KNOXHULT modular kitchen \u003e Knobs and handles",
+      "best_price": 10,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/hackas-handle-anthracite-30342479/",
+      "image_url": "https://www.ikea.com/us/en/images/products/hackas-handle-anthracite__0754253_pe747844_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/hackas-handle-anthracite__AA-2552508-1-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 10,
+          "url": "https://www.ikea.com/us/en/p/hackas-handle-anthracite-30342479/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "anthracite"
+      ]
+    },
+    {
+      "model": "80230224",
+      "title": "UTRUSTA Push opener",
+      "category": "Kitchen, appliances \u0026 supplies \u003e SEKTION cabinet shelves \u0026 drawers \u003e Kitchen cabinet \u0026 drawer organization \u003e Kitchen trash cans \u0026 bins",
+      "best_price": 10,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/utrusta-push-opener-80230224/",
+      "image_url": "https://www.ikea.com/us/en/images/products/utrusta-push-opener__0738751_pe741534_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 10,
+          "url": "https://www.ikea.com/us/en/p/utrusta-push-opener-80230224/",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "40596550",
+      "title": "KALERUM Handle",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen systems \u003e KNOXHULT modular kitchen \u003e Knobs and handles",
+      "best_price": 11,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/kalerum-handle-brass-color-40596550/",
+      "image_url": "https://www.ikea.com/us/en/images/products/kalerum-handle-brass-color__1370981_pe958920_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/kalerum-handle-brass-color__AA-2407662-4-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 11,
+          "url": "https://www.ikea.com/us/en/p/kalerum-handle-brass-color-40596550/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "brass color"
+      ]
+    },
+    {
+      "model": "50357002",
+      "title": "KALLRÖR Handle",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen systems \u003e KNOXHULT modular kitchen \u003e Knobs and handles",
+      "best_price": 12,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/kallroer-handle-stainless-steel-50357002/",
+      "image_url": "https://www.ikea.com/us/en/images/products/kallroer-handle-stainless-steel__0602018_pe680085_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 12,
+          "url": "https://www.ikea.com/us/en/p/kallroer-handle-stainless-steel-50357002/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "stainless steel"
+      ]
+    },
+    {
+      "model": "60609622",
+      "title": "STJÄRNHOV Handle",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen systems \u003e KNOXHULT modular kitchen \u003e Knobs and handles",
+      "best_price": 13,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/stjaernhov-handle-chrome-plated-60609622/",
+      "image_url": "https://www.ikea.com/us/en/images/products/stjaernhov-handle-chrome-plated__1442162_pe986704_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/stjaernhov-handle-chrome-plated__AA-2571820-1-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 13,
+          "url": "https://www.ikea.com/us/en/p/stjaernhov-handle-chrome-plated-60609622/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "chrome plated"
+      ]
+    },
+    {
+      "model": "10357004",
+      "title": "KALLRÖR Handle",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen systems \u003e KNOXHULT modular kitchen \u003e Knobs and handles",
+      "best_price": 14,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/kallroer-handle-stainless-steel-10357004/",
+      "image_url": "https://www.ikea.com/us/en/images/products/kallroer-handle-stainless-steel__0602012_pe680083_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 14,
+          "url": "https://www.ikea.com/us/en/p/kallroer-handle-stainless-steel-10357004/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "stainless steel"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: hardware"
+  ],
+  "sources_run": [
+    "hardware-hut",
+    "rejuvenation",
+    "ikea"
+  ]
+}

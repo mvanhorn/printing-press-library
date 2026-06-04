@@ -1,0 +1,23 @@
+{
+  "query": "JOESC330RM",
+  "total_results": 1,
+  "sources_queried": [
+    "abt"
+  ],
+  "products": [
+    {
+      "id": "JOESC330RM",
+      "source": "abt",
+      "title": "JennAir NOIR Single Wall Oven With MultiMode 30-Inch Wide in Stainless Steel - JOESC330RM",
+      "brand": "JennAir",
+      "url": "https://www.abt.com/JennAir-NOIR-Single-Wall-Oven-With-MultiMode-30-Inch-Wide-in-Stainless-Steel-JOESC330RM/p/220958.html",
+      "image_url": "https://content.abt.com/media/images/products/BDP_Images/jennair-wall-oven-JOESC330RM-main.jpg",
+      "description": "30-Inch Single Oven. 5 Cu. Ft. Total Capacity. True Convection. Self Clean. NOIR Design Expression.",
+      "price_min": 3899,
+      "price_max": 3899,
+      "regular_price_min": 3899,
+      "regular_price_max": 3899,
+      "category": "Appliances"
+    }
+  ]
+}

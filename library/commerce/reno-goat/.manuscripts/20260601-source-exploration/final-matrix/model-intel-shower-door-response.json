@@ -1,0 +1,341 @@
+{
+  "query": "shower door",
+  "total": 12,
+  "models": [
+    {
+      "model": "101464402",
+      "title": "Dade Matte Black Bypass Sliding Shower Door",
+      "category": "Shower Doors",
+      "best_price": 499.99,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/shower-doors/dade-matte-black-bypass-sliding-shower-door-101464402.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 499.99,
+          "regular": 499.99,
+          "url": "https://www.flooranddecor.com/shower-doors/dade-matte-black-bypass-sliding-shower-door-101464402.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Dade Collection by DreamLine is a budget-friendly semi-frameless sliding bypass shower door featuring a super sleek headrail for a modern design that will complement a variety of bathroom styles. The Dade Matte Black Bypass Sliding Shower Door offers unparalleled value with 3/16 in. certified clear tempered glass, smooth gliding rollers, and an integrated towel bar for convenience. \u003c/p\u003e\u003cp\u003e\u003c/p\u003e\u003cul\u003e\u003cli\u003eModel Size: 56-60 in. W x 70 3/8 in. H\u003c/li\u003e\u003cli\u003eThis product comes in the Matte Black finish for SKU 101464402\u003c/li\u003e\u003cli\u003eGlass Type: Clear\u003c/li\u003e\u003cli\u003eDouble sliding bypass configuration allows entry to the shower from left or right side; Reversible for a right or left installation\u003c/li\u003e\u003cli\u003eIntegrated towel bar for convenience; Top and bottom guiderails can be trimmed up to 4 in. for width adjustment\u003c/li\u003e\u003cli\u003e3/16 in. (5 mm) certified tempered glass; Aluminum water guards accommodate up to 1/4 in. for out-of-plumb (uneven) walls\u003c/li\u003e\u003cli\u003eDrilling into the threshold is optional for installation of this product; Professional installation recommended\u003c/li\u003e\u003cli\u003eMinimum threshold depth of 1 1/2 in. is required for proper installation\u003c/li\u003e\u003cli\u003eLifetime Limited Manufacturer Warranty; Three (3) Year All Hardware Finishes Warranty\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    },
+    {
+      "model": "SHDR-2430720-89",
+      "brand": "Dreamline",
+      "title": "DREAMLINE SHDR-2430720-89 UNIDOOR TOULON 30 INCH X 72 INCH FRAMELESS HINGED SHOWER DOOR",
+      "best_price": 558.87,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/dreamline-shdr-2430720-89-unidoor-toulon-30-inch-x-72-inch-frameless-hinged-shower-door.html",
+      "image_url": "https://www.kbauthority.com/images/T/502/SHDR-2428720-891_DreamLine.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.kbauthority.com/files/PDF/Dreamline/SHDR-2430720-89_Manual.pdf",
+          "source": "kbauthority"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.kbauthority.com/files/PDF/Dreamline/SHDR-2430720-89_Drawing.pdf",
+          "source": "kbauthority"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.kbauthority.com/files/PDF/Dreamline/Dreamline_Warranty_Feb_2022.pdf",
+          "source": "kbauthority"
+        }
+      ],
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 558.87,
+          "url": "https://www.kbauthority.com/dreamline-shdr-2430720-89-unidoor-toulon-30-inch-x-72-inch-frameless-hinged-shower-door.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "SHDR-6348762",
+      "brand": "Dreamline",
+      "title": "DREAMLINE SHDR-6348762 SAPPHIRE 44-48 W X 76 H SEMI-FRAMELESS BYPASS SHOWER DOOR",
+      "best_price": 594.47,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/dreamline-shdr-6348762-sapphire-44-48-w-x-76-h-semi-frameless-bypass-shower-door.html",
+      "image_url": "https://www.kbauthority.com/images/T/233/SHDR-6348762_DreamLine.png",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://www.kbauthority.com/files/PDF/Dreamline/Installation_SHDR-6348762.pdf",
+          "source": "kbauthority"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.kbauthority.com/files/PDF/Dreamline/Dreamline_Warranty.pdf",
+          "source": "kbauthority"
+        }
+      ],
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 594.47,
+          "url": "https://www.kbauthority.com/dreamline-shdr-6348762-sapphire-44-48-w-x-76-h-semi-frameless-bypass-shower-door.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "SHDR-6360762",
+      "brand": "Dreamline",
+      "title": "DREAMLINE SHDR-6360762 SAPPHIRE 56-60 W X 76 H SEMI-FRAMELESS BYPASS SHOWER DOOR",
+      "best_price": 619.99,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/dreamline-shdr-6360762-sapphire-56-60-w-x-76-h-semi-frameless-bypass-shower-door.html",
+      "image_url": "https://www.kbauthority.com/images/W/472/SHDR-6360762-01_DreamLine_Chrome.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://www.kbauthority.com/files/PDF/Dreamline/Installation_SHDR-6360762.pdf",
+          "source": "kbauthority"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.kbauthority.com/files/PDF/Dreamline/Dreamline_Warranty.pdf",
+          "source": "kbauthority"
+        }
+      ],
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 619.99,
+          "url": "https://www.kbauthority.com/dreamline-shdr-6360762-sapphire-56-60-w-x-76-h-semi-frameless-bypass-shower-door.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "SDFL34W720XTX87",
+      "brand": "Dreamline",
+      "title": "DREAMLINE SDFL34W720XTX87 34 W X 72 H INCH FRAMELESS SCREEN FROSTED GLASS SHOWER DOOR",
+      "best_price": 691.07,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/dreamline-sdfl34w720xtx87-rhone-34-x-72-inch-frameless-shower-screen-satin-black.html",
+      "image_url": "https://www.kbauthority.com/images/T/198/SDFL34W720XTX87.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 691.07,
+          "url": "https://www.kbauthority.com/dreamline-sdfl34w720xtx87-rhone-34-x-72-inch-frameless-shower-screen-satin-black.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "100832229",
+      "brand": "DreamLine",
+      "title": "Linea Toulon Satin Black Single Panel Frameless Screen Shower Door",
+      "category": "Shower Doors",
+      "best_price": 699,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/shower-doors/linea-toulon-satin-black-single-panel-frameless-screen-shower-door-100832229.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 699,
+          "regular": 699,
+          "url": "https://www.flooranddecor.com/shower-doors/linea-toulon-satin-black-single-panel-frameless-screen-shower-door-100832229.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Linea Toulon Satin Black Single Panel Frameless Screen Shower Door is a single panel, walk-in shower design with a modern industrial touch to complement your shower space. The Toulon has a stylish window-pane look, with a satin black finish that is bold and striking in any bathroom. The glass pattern is made using an application of JetGlaze durable paint, offering a unique style without the metal framing for easy maintenance. DreamLine exclusive ClearMax water repellant and stain resistant glass coating adds superior protection from stains and is nearly maintenance-free. Expand the possibility for efficient use of space with the bright and open design of a doorless shower with the Linea Toulon Satin Black Single Panel Frameless Screen Shower Door!\u0026bull;Walk In-Door Opening: 100 x 22\u0026bull;Door Type: screen\u0026bull;Handle Style: n/a\u0026bull;Configuration consists of a Single Glass Panel\u0026bull;Adjustable Width\u0026bull;Frameless walk-in shower design with an open-entry, doorless style\u0026bull;Premium 3/8 in. (10mm) thick certified tempered glass for an upscale look\u0026bull;JetGlaze glass pattern offers a unique mullion look without the metal framing\u0026bull;DreamLine exclusive ClearMax water and stain resistant glass coating\u0026bull;Panel is attached to the wall using a 1 in. thick anodized aluminum U-channel\u0026bull;U-channel allows up to 1/2 in. adjustment for out-of-plumb (uneven walls)\u0026bull;Reversible for a right or left walk-in opening to fit your specific layout\u0026bull;Professional installation recommended\u0026bull;Limited One (1) Year Manufacturer WarrantyAvailable at these locations: Mesquite (Store #131), Boynton Beach (Store #133), Pompano Beach (Store #108), Plano (Store #112), Clearwater (Store #116), Kennesaw (Store #106), West Oaks (Houston Store #113), Cypress (Store #167), St. Pete (Store # 195), Kendal (Store #192), Jacksonville (Store #103), The Colony (Store # 161), Riviera Beach (Store #173), San Antonio (Store #119), Ft. Myers (Store #158), Almeda (Houston Store #107), N Dale Mabry (Store #168), N. Richland Hills (Store #135), Katy (Store #170), Brandon (Store #114), Sarasota (Store #140), Houston N Freeway (Store #105), Arlington (Store #109), Sugarland (Store #148), Wayne (Store #156), Alexandria (Store #177)\u003c/p\u003e"
+      ]
+    },
+    {
+      "model": "15SGP-PASA41-WM",
+      "brand": "Ove Decors",
+      "title": "OVE DECORS 15SGP-PASA41-WM PASADENA 39 7/16 - 41 3/8 W X 72 H INCH ALCOVE FRAMELESS PIVOT SHOWER DOOR",
+      "best_price": 769.88,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/ove-decors-15sgp-pasa41-wm-pasadena-39-1-2-41-3-8-w-x-72-h-inch-clear-alcove-frameless-pivot-shower-door.html",
+      "image_url": "https://www.kbauthority.com/images/W/570/15SGP-PASA41-SATWM_Ove_Decors_Satin_Nickel.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.kbauthority.com/files/PDF/Ove_Decors/Pasadena_Collection_Technical_Drawing.pdf",
+          "source": "kbauthority"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.kbauthority.com/files/PDF/Ove_Decors/Pasadena_Collection_Instruction_Manual.pdf",
+          "source": "kbauthority"
+        }
+      ],
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 769.88,
+          "url": "https://www.kbauthority.com/ove-decors-15sgp-pasa41-wm-pasadena-39-1-2-41-3-8-w-x-72-h-inch-clear-alcove-frameless-pivot-shower-door.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "SDAD52W720",
+      "brand": "Dreamline",
+      "title": "DREAMLINE SDAD52W720 ASCEND 52-53 INCH W X 72 INCH H FRAMELESS PIVOT SHOWER DOOR",
+      "best_price": 779.21,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/sdad52w720.html",
+      "image_url": "https://www.kbauthority.com/images/W/266/SDAD52W720VXX01_DreamLine_Chrome.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.kbauthority.com/files/PDF/Dreamline/Dreamline_Warranty_Feb_2022.pdf",
+          "source": "kbauthority"
+        },
+        {
+          "kind": "installation",
+          "url": "https://www.kbauthority.com/files/PDF/Dreamline/ASCEND_Shower_Door_Installation_Manual_Ver_1_022021.pdf",
+          "source": "kbauthority"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.kbauthority.com/files/PDF/Dreamline/SDAD52W720.pdf",
+          "source": "kbauthority"
+        }
+      ],
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 779.21,
+          "url": "https://www.kbauthority.com/sdad52w720.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "15SGP-SELB72-WM",
+      "brand": "Ove Decors",
+      "title": "OVE DECORS 15SGP-SELB72-WM SELBY 67 1/2 - 72 W X 74 H INCH CLEAR SLIDING ALCOVE FRAMELESS GLASS SHOWER DOOR",
+      "best_price": 788.24,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/ove-decors-15sgp-selb72-wm-selby-67-1-2-72-w-x-74-h-inch-clear-sliding-alcove-frameless-glass-shower-door.html",
+      "image_url": "https://www.kbauthority.com/images/W/570/15SGP-SELB72-SATWM_Ove_Decors_Satin_Nickel.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://www.kbauthority.com/files/PDF/Ove_Decors/15SGP-SELB72-WM_Specification_Sheet.pdf",
+          "source": "kbauthority"
+        },
+        {
+          "kind": "installation",
+          "url": "https://www.kbauthority.com/files/PDF/Ove_Decors/15SGP-SELB72-WM_Installation.pdf",
+          "source": "kbauthority"
+        }
+      ],
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 788.24,
+          "url": "https://www.kbauthority.com/ove-decors-15sgp-selb72-wm-selby-67-1-2-72-w-x-74-h-inch-clear-sliding-alcove-frameless-glass-shower-door.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "AM0305D400",
+      "brand": "American Standard Brands",
+      "title": "American Standard AM0305D400.006 Continuous Hinge Shower Door, Clear Tempered Glass, Frameless Brushed Nickel Frame, 35-3/16 to 36-1/16 in Opening Width, 1/4 in THK Glass",
+      "category": "Hinged \u0026 Pivot Shower Doors",
+      "best_price": 800.65,
+      "best_source": "faucetdepot",
+      "product_url": "https://faucetdepot.com/product/848588/american+standard+brands+am0305d400+006+american+standard+am0305d400+006+continuous+hinge+shower+door+clear+tempered+glass+frameless+brushed+nickel+frame+35-3+16+to+36-1+16+in+opening+width+1+4+in+thk+glass",
+      "image_url": "https://hirschcontent.com/images/American_Standard_AM0301D400006_AINS.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://hirschcontent.com/documents/American_Standard_AM0301D400006_Warranty.pdf",
+          "source": "faucetdepot"
+        }
+      ],
+      "offers": [
+        {
+          "source": "faucetdepot",
+          "price": 800.65,
+          "regular": 800.65,
+          "url": "https://faucetdepot.com/product/848588/american+standard+brands+am0305d400+006+american+standard+am0305d400+006+continuous+hinge+shower+door+clear+tempered+glass+frameless+brushed+nickel+frame+35-3+16+to+36-1+16+in+opening+width+1+4+in+thk+glass",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "American Standard Hinge Shower Door, Continuous, Euro, 35-3/16 to 36-1/16 in Opening Width, Frameless, Clear Tempered Glass, 1/4 in Glass Thickness, 65-9/16 in Overall Height, 36-1/16 in Overall Width, Tubular D Handle, Frame Finish/Color: Brushed Nickel, Domestic"
+      ]
+    },
+    {
+      "model": "15SGP-PASA47-WM",
+      "brand": "Ove Decors",
+      "title": "OVE DECORS 15SGP-PASA47-WM PASADENA 45 7/16 - 47 3/8 W X 72 H INCH ALCOVE FRAMELESS PIVOT SHOWER DOOR",
+      "best_price": 822.59,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/ove-decors-15sgp-pasa47-wm-pasadena-45-1-2-47-3-8-w-x-72-h-inch-clear-alcove-frameless-pivot-shower-door.html",
+      "image_url": "https://www.kbauthority.com/images/W/570/15SGP-PASA47-SATWM_Ove_Decors_Satin_Nickel.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.kbauthority.com/files/PDF/Ove_Decors/Pasadena_Collection_Technical_Drawing.pdf",
+          "source": "kbauthority"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.kbauthority.com/files/PDF/Ove_Decors/Pasadena_Collection_Instruction_Manual.pdf",
+          "source": "kbauthority"
+        }
+      ],
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 822.59,
+          "url": "https://www.kbauthority.com/ove-decors-15sgp-pasa47-wm-pasadena-45-1-2-47-3-8-w-x-72-h-inch-clear-alcove-frameless-pivot-shower-door.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "15SGP-BELS60-WM",
+      "brand": "Ove Decors",
+      "title": "OVE DECORS 15SGP-BELS60-WM BEL 60 1/8 W X 78 3/4 H INCH SLIDING FRAMELESS SHOWER DOOR",
+      "best_price": 849.41,
+      "best_source": "kbauthority",
+      "product_url": "https://www.kbauthority.com/ove-decors-15sgp-bels60-wm-bel-60-1-8-w-x-78-3-4-h-inch-sliding-frameless-shower-door.html",
+      "image_url": "https://www.kbauthority.com/images/W/570/15SGP-BELS60-SATWM_Ove_Decors_Satin_Nickel.jpg",
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 849.41,
+          "url": "https://www.kbauthority.com/ove-decors-15sgp-bels60-wm-bel-60-1-8-w-x-78-3-4-h-inch-sliding-frameless-shower-door.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: plumbing",
+    "Source warning: ferguson: ferguson: HTTP 403: \u003cHTML\u003e\u003cHEAD\u003e",
+    "Source warning: vintage-tub: vintage-tub: no product rows found"
+  ],
+  "sources_run": [
+    "ferguson",
+    "floor-and-decor",
+    "plumbersstock",
+    "faucetdepot",
+    "faucetlist",
+    "plumbtile",
+    "modern-bathroom",
+    "kbauthority",
+    "vintage-tub"
+  ]
+}

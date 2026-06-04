@@ -1,0 +1,101 @@
+[
+  {
+    "label": "AJ Madison",
+    "group": "appliance-showrooms",
+    "url": "https://www.ajmadison.com/cgi-bin/ajmadison/JOESC330RM.html",
+    "final_url": "https://www.ajmadison.com/cgi-bin/ajmadison/JOESC330RM.html",
+    "status": "blocked",
+    "http_status": 403,
+    "vendor": "PerimeterX",
+    "reason": "PerimeterX interstitial"
+  },
+  {
+    "label": "Abt",
+    "group": "appliance-showrooms",
+    "url": "https://www.abt.com/JennAir-RISE-30-Stainless-Steel-Single-Wall-Oven-JOESC330RM/p/214520.html",
+    "final_url": "https://www.abt.com/JennAir-RISE-30-Stainless-Steel-Single-Wall-Oven-JOESC330RM/p/214520.html",
+    "status": "blocked",
+    "http_status": 403,
+    "vendor": "Cloudflare",
+    "reason": "Cloudflare interstitial"
+  },
+  {
+    "label": "Bray & Scarff",
+    "group": "appliance-showrooms",
+    "url": "https://www.brayandscarff.com/",
+    "final_url": "https://www.brayandscarff.com/",
+    "status": "readable",
+    "http_status": 200
+  },
+  {
+    "label": "Ferguson Home",
+    "group": "appliance-showrooms",
+    "url": "https://www.fergusonhome.com/",
+    "final_url": "https://www.fergusonhome.com/",
+    "status": "blocked",
+    "http_status": 403,
+    "reason": "HTTP 403"
+  },
+  {
+    "label": "Grand Appliance",
+    "group": "appliance-showrooms",
+    "url": "https://www.grandappliance.com/",
+    "final_url": "https://www.grandappliance.com/",
+    "status": "blocked",
+    "http_status": 403,
+    "vendor": "PerimeterX",
+    "reason": "PerimeterX interstitial"
+  },
+  {
+    "label": "Plesser's",
+    "group": "appliance-showrooms",
+    "url": "https://www.plessers.com/",
+    "final_url": "https://www.plessers.com/",
+    "status": "blocked",
+    "http_status": 429,
+    "reason": "HTTP 429"
+  },
+  {
+    "label": "Build.com",
+    "group": "bath-showrooms",
+    "url": "https://www.build.com/",
+    "final_url": "https://www.build.com/",
+    "status": "blocked",
+    "http_status": 403,
+    "reason": "HTTP 403"
+  },
+  {
+    "label": "FaucetDirect",
+    "group": "bath-showrooms",
+    "url": "https://www.faucetdirect.com/",
+    "final_url": "https://www.fergusonhome.com/",
+    "status": "blocked",
+    "http_status": 403,
+    "reason": "HTTP 403"
+  },
+  {
+    "label": "QualityBath",
+    "group": "bath-showrooms",
+    "url": "https://www.qualitybath.com/",
+    "final_url": "https://www.qualitybath.com/",
+    "status": "readable",
+    "http_status": 200
+  },
+  {
+    "label": "Signature Hardware",
+    "group": "bath-showrooms",
+    "url": "https://www.signaturehardware.com/",
+    "final_url": "https://www.signaturehardware.com/",
+    "status": "blocked",
+    "http_status": 403,
+    "reason": "HTTP 403"
+  },
+  {
+    "label": "Supply.com",
+    "group": "bath-showrooms",
+    "url": "https://www.supply.com/",
+    "final_url": "https://www.ferguson.com/content/industry-solutions/residential-plumbing/?icid=supply_redirect",
+    "status": "readable",
+    "http_status": 200
+  }
+]

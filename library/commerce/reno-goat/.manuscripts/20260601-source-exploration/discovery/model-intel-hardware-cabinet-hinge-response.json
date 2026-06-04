@@ -1,0 +1,131 @@
+{
+  "query": "cabinet hinge",
+  "total": 5,
+  "models": [
+    {
+      "model": "90382882",
+      "title": "HJÄLPA Soft closing hinge",
+      "category": "Baby \u0026 kids \u003e Baby \u003e Kids storage \u0026 organization \u003e SMÅSTAD system \u003e SMÅSTAD interior fittings",
+      "best_price": 5,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/hjaelpa-soft-closing-hinge-90382882/",
+      "image_url": "https://www.ikea.com/us/en/images/products/hjaelpa-soft-closing-hinge__0846367_pe779039_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/hjaelpa-soft-closing-hinge__AA-2210023-4-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 5,
+          "url": "https://www.ikea.com/us/en/p/hjaelpa-soft-closing-hinge-90382882/",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "PK3180T",
+      "brand": "AME",
+      "title": "Amerock 3/4\" Full Inset Partial Wrap Non-Self Closing Cabinet Hinge With Ball Tips - EACH",
+      "best_price": 5.88,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/amerock-3-4-full-inset-partial-wrap-non-self-closing-cabinet-hinge-with-ball-tips-each-pk3180t",
+      "image_url": "https://hardwarehut.com/images/moreimages/cabinethinges/amerock/matte-black_hinge_amerock_functional-hardware_non-self-closing-partial-wrap_pk3180tbfb_silo-primary_22-main.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 5.88,
+          "url": "https://hardwarehut.com/products/amerock-3-4-full-inset-partial-wrap-non-self-closing-cabinet-hinge-with-ball-tips-each-pk3180t",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "CH1515",
+      "brand": "DEL",
+      "title": "Deltana Solid Brass 1-1/2\" x 1-1/2\" Flush/Full Inset Non-Self Closing Ball Tip Cabinet Hinge",
+      "best_price": 11.12,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/deltana-solid-brass-1-1-2-38mm-x-1-1-2-38mm-flush-full-inset-non-self-closing-ball-tip-cabinet-hinge-ch1515",
+      "image_url": "https://hardwarehut.com/images/moreimages/cabinethinges/deltana/del-ch1515u14-main.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/deltana/ch1515.pdf",
+          "source": "hardware-hut"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 11.12,
+          "url": "https://hardwarehut.com/products/deltana-solid-brass-1-1-2-38mm-x-1-1-2-38mm-flush-full-inset-non-self-closing-ball-tip-cabinet-hinge-ch1515",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "CH2015",
+      "brand": "DEL",
+      "title": "Deltana Solid Brass 2\" x 1-1/2\" Flush/Full Inset Non-Self Closing Ball Tip Cabinet Hinge",
+      "best_price": 11.12,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/deltana-solid-brass-2-51mm-x-1-1-2-38mm-flush-full-inset-non-self-closing-ball-tip-cabinet-hinge-ch2015",
+      "image_url": "https://hardwarehut.com/images/moreimages/cabinethinges/deltana/del-ch2015u10b-main.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/deltana/ch2015.pdf",
+          "source": "hardware-hut"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 11.12,
+          "url": "https://hardwarehut.com/products/deltana-solid-brass-2-51mm-x-1-1-2-38mm-flush-full-inset-non-self-closing-ball-tip-cabinet-hinge-ch2015",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "20204647",
+      "title": "UTRUSTA Hinge",
+      "category": "Kitchen, appliances \u0026 supplies \u003e SEKTION cabinet shelves \u0026 drawers \u003e Cabinet hinges \u0026 dampers",
+      "best_price": 12,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/utrusta-hinge-20204647/",
+      "image_url": "https://www.ikea.com/us/en/images/products/utrusta-hinge__0624700_pe691987_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/utrusta-hinge__AA-698592-3-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 12,
+          "url": "https://www.ikea.com/us/en/p/utrusta-hinge-20204647/",
+          "evidence": "normalized product search row"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: hardware",
+    "Category search-result model discovery used; search-derived prices are labeled as fallback evidence, not direct retailer API results."
+  ],
+  "sources_run": [
+    "hardware-hut",
+    "rejuvenation",
+    "ikea",
+    "brave-search"
+  ]
+}

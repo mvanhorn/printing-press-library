@@ -1,0 +1,257 @@
+{
+  "query": "door hinge",
+  "total": 10,
+  "models": [
+    {
+      "model": "401099",
+      "brand": "IVE",
+      "title": "Ives Hinge Pin Door Stop",
+      "best_price": 2.96,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/ives-hinge-pin-door-stop-70a",
+      "image_url": "https://hardwarehut.com/images/moreimages/hingepindoorstops/ives/ive-70a-716-main.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 2.96,
+          "url": "https://hardwarehut.com/products/ives-hinge-pin-door-stop-70a",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "90382882",
+      "title": "HJÄLPA Soft closing hinge",
+      "category": "Baby \u0026 kids \u003e Baby \u003e Kids storage \u0026 organization \u003e SMÅSTAD system \u003e SMÅSTAD interior fittings",
+      "best_price": 5,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/hjaelpa-soft-closing-hinge-90382882/",
+      "image_url": "https://www.ikea.com/us/en/images/products/hjaelpa-soft-closing-hinge__0846367_pe779039_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/hjaelpa-soft-closing-hinge__AA-2210023-4-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 5,
+          "url": "https://www.ikea.com/us/en/p/hjaelpa-soft-closing-hinge-90382882/",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "405313",
+      "brand": "SGS",
+      "title": "SGS Residential Duty 4\" x 4\" Door Hinge - 5/8in. Radius Corner - EACH",
+      "best_price": 5.36,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/sgs-residential-duty-4-102mm-x-4-102mm-door-hinge-5-8in-radius-corner-each-158-4",
+      "image_url": "https://hardwarehut.com/images/door_hinges/sgs-158-4-us1d.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 5.36,
+          "url": "https://hardwarehut.com/products/sgs-residential-duty-4-102mm-x-4-102mm-door-hinge-5-8in-radius-corner-each-158-4",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "405384",
+      "brand": "PER",
+      "title": "DoorSaver 3 Residential Hinge Pin Door Stop",
+      "best_price": 5.61,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/doorsaver-3-residential-hinge-pin-door-stop-0123",
+      "image_url": "https://hardwarehut.com/images/moreimages/hingepindoorstops/perfectproducts/per-01238-main.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://hardwarehut.com/images/pdf/doorsaver3_install.pdf",
+          "source": "hardware-hut"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 5.61,
+          "url": "https://hardwarehut.com/products/doorsaver-3-residential-hinge-pin-door-stop-0123",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "405385",
+      "brand": "PER",
+      "title": "DoorSaver II Residential Hinge Pin Door Stop",
+      "best_price": 6.57,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/doorsaver-ii-residential-hinge-pin-door-stop-0127",
+      "image_url": "https://hardwarehut.com/images/moreimages/hingepindoorstops/perfectproducts/per-01278-main.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://hardwarehut.com/images/pdf/doorsaver_install.pdf",
+          "source": "hardware-hut"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 6.57,
+          "url": "https://hardwarehut.com/products/doorsaver-ii-residential-hinge-pin-door-stop-0127",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "16894",
+      "brand": "KVM",
+      "title": "Knape and Vogt 8092 Series 4x4 Pivot Pocket Door Slides",
+      "best_price": 10.12,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/knape-and-vogt-8092-series-4x4-pivot-pocket-door-slides-8092-series",
+      "image_url": "https://hardwarehut.com/images/moreimages/drawerslides-drawerglides/knapeandvogt/kvm-8092-silo-main.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/kv/kvm-8092.pdf",
+          "source": "hardware-hut"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 10.12,
+          "url": "https://hardwarehut.com/products/knape-and-vogt-8092-series-4x4-pivot-pocket-door-slides-8092-series",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "20204647",
+      "title": "UTRUSTA Hinge",
+      "category": "Kitchen, appliances \u0026 supplies \u003e SEKTION cabinet shelves \u0026 drawers \u003e Cabinet hinges \u0026 dampers",
+      "best_price": 12,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/utrusta-hinge-20204647/",
+      "image_url": "https://www.ikea.com/us/en/images/products/utrusta-hinge__0624700_pe691987_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/utrusta-hinge__AA-698592-3-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 12,
+          "url": "https://www.ikea.com/us/en/p/utrusta-hinge-20204647/",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "CBP2AC9",
+      "brand": "SAL",
+      "title": "Salice 110° Universal \"Super Hinge\" - EACH (3/8\" Lipped Door \u0026 Special Applications, Self-Closing, Screw-On)",
+      "best_price": 12.95,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/salice-110degree-universal-super-hinge-each-3-8-lipped-door-and-special-applications-self-closing-screw-on-cbp2ac9",
+      "image_url": "https://hardwarehut.com/images/moreimages/concealedeuropeanhinges/saliceamericainc/sal-cbp2ac9-hinge-spec-main.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/salice/salice_adjustment_instructions.pdf",
+          "source": "hardware-hut"
+        },
+        {
+          "kind": "spec",
+          "url": "https://hardwarehut.com/images/pdf/salice/sal-cbp2ac9-smove-spec.pdf",
+          "source": "hardware-hut"
+        },
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/salice/salice-universal-hinges-applications-usa-cdn-1.pdf",
+          "source": "hardware-hut"
+        },
+        {
+          "kind": "spec",
+          "url": "https://hardwarehut.com/images/pdf/salice/sal-cbp2ac9-spec.pdf",
+          "source": "hardware-hut"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 12.95,
+          "url": "https://hardwarehut.com/products/salice-110degree-universal-super-hinge-each-3-8-lipped-door-and-special-applications-self-closing-screw-on-cbp2ac9",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "80524882",
+      "title": "UTRUSTA Hinge w b-in damper for kitchen",
+      "category": "Kitchen, appliances \u0026 supplies \u003e SEKTION cabinet shelves \u0026 drawers \u003e Cabinet hinges \u0026 dampers",
+      "best_price": 13,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/utrusta-hinge-w-b-in-damper-for-kitchen-80524882/",
+      "image_url": "https://www.ikea.com/us/en/images/products/utrusta-hinge-w-b-in-damper-for-kitchen__1019773_pe831566_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/utrusta-hinge-w-b-in-damper-for-kitchen__AA-2033963-1-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 13,
+          "url": "https://www.ikea.com/us/en/p/utrusta-hinge-w-b-in-damper-for-kitchen-80524882/",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "00214505",
+      "title": "KOMPLEMENT Soft closing hinge",
+      "category": "Storage \u0026 organization \u003e Storage solution systems \u003e PAX wardrobe system \u003e PAX Interior organizers",
+      "best_price": 15,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/komplement-soft-closing-hinge-00214505/",
+      "image_url": "https://www.ikea.com/us/en/images/products/komplement-soft-closing-hinge__0922961_pe788288_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/komplement-soft-closing-hinge__AA-2416848-2-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 15,
+          "url": "https://www.ikea.com/us/en/p/komplement-soft-closing-hinge-00214505/",
+          "evidence": "normalized product search row"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: hardware"
+  ],
+  "sources_run": [
+    "hardware-hut",
+    "rejuvenation",
+    "ikea"
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "query": "towel warmer",
+  "total": 1,
+  "models": [
+    {
+      "model": "PFH18HSPVMC",
+      "brand": "GE Profile",
+      "title": "GE Profile™ Steam Closet with Fabric Refresh",
+      "category": "Steam Closet",
+      "best_price": 1439,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-Profile-Steam-Closet-with-Fabric-Refresh-PFH18HSPVMC",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/426298/1018525/bbno30do7rywzfgg94rc__11913.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--m7prjN4H--/8df76a654e6eb4d5cedfcf79f97c28a64c84ea5f.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--VHcEEs2w--/jvar9uaxxg9scexaqfgg.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--MSh1Jg-9--/ls22znsaz0zv4wiegq2j.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 1439,
+          "regular": 1599,
+          "url": "https://www.geappliances.com/appliance/GE-Profile-Steam-Closet-with-Fabric-Refresh-PFH18HSPVMC",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/PFH18HSPVMC.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 72.75 H x 17.5 W x 23 D\nappearance_color_appearance: Mirrored Carbon\nfeatures_wifi_connect: Built-In\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--m7prjN4H--/8df76a654e6eb4d5cedfcf79f97c28a64c84ea5f.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--VHcEEs2w--/jvar9uaxxg9scexaqfgg.pdf\nbenefits: Refresh and Dewrinkle; Remove Tough Odors; Steam Sanitize; Gentle Drying System"
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/PFH18HSPVMC.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage."
+  ],
+  "sources_run": [
+    "ge-appliances",
+    "bosch"
+  ]
+}

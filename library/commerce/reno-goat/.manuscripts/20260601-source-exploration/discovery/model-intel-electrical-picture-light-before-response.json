@@ -1,0 +1,493 @@
+{
+  "query": "picture light",
+  "total": 9,
+  "models": [
+    {
+      "model": "UVH13012MSS",
+      "brand": "GE Profile",
+      "title": "Kitchen Hub",
+      "category": "Under Cabinet Hood",
+      "best_price": 245.7,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/Kitchen-Hub-UVH13012MSS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/3515/1103775/5d325f1745a0227feef298b8cfb8a6a00ebd6c3e__33333.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--DfXOn8uu--/18bc7369828484b3e9decbb415c02cc4f47f3ebf.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--L3sKAFsL--/4e94a1e97c02018000a39e4b099fefafa10c0743.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--MnL223x6--/racnzrnrep4tqmqxc6q3.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 245.7,
+          "regular": 1199,
+          "url": "https://www.geappliances.com/appliance/Kitchen-Hub-UVH13012MSS",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/UVH13012MSS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 16.5 H x 29.75 W x 16.25 D\nappearance_color_appearance: Stainless Steel\nfeatures_control_type: 27\" Touchscreen,Android 8.x (Oreo)\nfeatures_wifi_connect: Built-In\nfeatures_exhaust_options: 3-1/4\" x 10\" Rectangular Duct\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--DfXOn8uu--/18bc7369828484b3e9decbb415c02cc4f47f3ebf.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--L3sKAFsL--/4e94a1e97c02018000a39e4b099fefafa10c0743.pdf\nbenefits: Guided cooking app; Dual camera system; Entertainment; Google Assistant"
+      ]
+    },
+    {
+      "model": "UVH13013MTS",
+      "brand": "GE Profile",
+      "title": "Kitchen Hub",
+      "category": "Under Cabinet Hood",
+      "best_price": 310.7,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/Kitchen-Hub-UVH13013MTS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/3640/1101391/69b772ca07e50a529e8182ef0cade124711c7b0d__59216.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--DfXOn8uu--/18bc7369828484b3e9decbb415c02cc4f47f3ebf.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--L3sKAFsL--/4e94a1e97c02018000a39e4b099fefafa10c0743.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--MnL223x6--/racnzrnrep4tqmqxc6q3.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 310.7,
+          "regular": 1299,
+          "url": "https://www.geappliances.com/appliance/Kitchen-Hub-UVH13013MTS",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/UVH13013MTS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 16.5 H x 29.75 W x 16.25 D\nappearance_color_appearance: Fingerprint Resistant Black Stainless\nfeatures_control_type: 27\" Touchscreen,Android 8.x (Oreo)\nfeatures_wifi_connect: Built-In\nfeatures_exhaust_options: 3-1/4\" x 10\" Rectangular Duct\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--DfXOn8uu--/18bc7369828484b3e9decbb415c02cc4f47f3ebf.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--L3sKAFsL--/4e94a1e97c02018000a39e4b099fefafa10c0743.pdf\nbenefits: Guided cooking app; Dual camera system; Entertainment; Google Assistant"
+      ]
+    },
+    {
+      "model": "UVH13014MWM",
+      "brand": "GE Profile",
+      "title": "Kitchen Hub",
+      "category": "Under Cabinet Hood",
+      "best_price": 310.7,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/Kitchen-Hub-UVH13014MWM",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/3638/1103844/8db04d085b5433d24af27c601f1070157f3a7e3b__24614.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--DfXOn8uu--/18bc7369828484b3e9decbb415c02cc4f47f3ebf.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--L3sKAFsL--/4e94a1e97c02018000a39e4b099fefafa10c0743.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--MnL223x6--/racnzrnrep4tqmqxc6q3.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 310.7,
+          "regular": 1399,
+          "url": "https://www.geappliances.com/appliance/Kitchen-Hub-UVH13014MWM",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/UVH13014MWM.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 16.5 H x 29.75 W x 16.25 D\nappearance_color_appearance: Matte White\nfeatures_control_type: 27\" Touchscreen,Android 8.x (Oreo)\nfeatures_wifi_connect: Built-In\nfeatures_exhaust_options: 3-1/4\" x 10\" Rectangular Duct\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--DfXOn8uu--/18bc7369828484b3e9decbb415c02cc4f47f3ebf.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--L3sKAFsL--/4e94a1e97c02018000a39e4b099fefafa10c0743.pdf\nbenefits: Guided cooking app; Dual camera system; Entertainment; Google Assistant"
+      ]
+    },
+    {
+      "model": "UVH13013MDS",
+      "brand": "GE Profile",
+      "title": "Kitchen Hub",
+      "category": "Under Cabinet Hood",
+      "best_price": 733.2,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/Kitchen-Hub-UVH13013MDS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/3651/1103937/6c7cd6c196e9e37e067c5153e1e3052b4fe34510__74117.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--DfXOn8uu--/18bc7369828484b3e9decbb415c02cc4f47f3ebf.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--L3sKAFsL--/4e94a1e97c02018000a39e4b099fefafa10c0743.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--MnL223x6--/racnzrnrep4tqmqxc6q3.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 733.2,
+          "regular": 1299,
+          "url": "https://www.geappliances.com/appliance/Kitchen-Hub-UVH13013MDS",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/UVH13013MDS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 16.5 H x 29.75 W x 16.25 D\nappearance_color_appearance: Matte Black\nfeatures_control_type: 27\" Touchscreen,Android 8.x (Oreo)\nfeatures_wifi_connect: Built-In\nfeatures_exhaust_options: 3-1/4\" x 10\" Rectangular Duct\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--DfXOn8uu--/18bc7369828484b3e9decbb415c02cc4f47f3ebf.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--L3sKAFsL--/4e94a1e97c02018000a39e4b099fefafa10c0743.pdf\nbenefits: Guided cooking app; Dual camera system; Entertainment; Google Assistant"
+      ]
+    },
+    {
+      "model": "UVW9361SLSS",
+      "brand": "GE Profile",
+      "title": "36” Smart Designer Wall Mount Hood w/ Perimeter Venting",
+      "category": "Designer Hood",
+      "best_price": 1099,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/36-Smart-Designer-Wall-Mount-Hood-w-Perimeter-Venting-UVW9361SLSS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/3066/1121540/51e8e48320ad3d6891eee4dc7ab593e88d95dba2__08876.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--cQKmUJvj--/93b0706e2e81215c2462a9f477596a05383af96d.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--38H1K1VI--/hwlxaxygg1lgxmp44mfy.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--MnL223x6--/racnzrnrep4tqmqxc6q3.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 1099,
+          "regular": 1379,
+          "url": "https://www.geappliances.com/appliance/36-Smart-Designer-Wall-Mount-Hood-w-Perimeter-Venting-UVW9361SLSS",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/UVW9361SLSS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 24 H x 36 W x 20 D\nappearance_color_appearance: Stainless Steel\nfeatures_control_type: Electronic Touch\nfeatures_wifi_connect: Built-In\nfeatures_exhaust_options: Vented to Outside,Recirculating\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--cQKmUJvj--/93b0706e2e81215c2462a9f477596a05383af96d.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--38H1K1VI--/hwlxaxygg1lgxmp44mfy.pdf\nbenefits: Adjustable CFM blower; Four-speed fan control; LED backlit glass touch control; Perimeter venting"
+      ]
+    },
+    {
+      "model": "UVW9361BLTS",
+      "brand": "GE Profile",
+      "title": "36” Smart Designer Wall Mount Hood w/ Perimeter Venting",
+      "category": "Designer Hood",
+      "best_price": 1233.6,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/36-Smart-Designer-Wall-Mount-Hood-w-Perimeter-Venting-UVW9361BLTS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/3373/1122375/6e099899a21c9393e7d0294e1318c72c3e9e336e__20107.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--cQKmUJvj--/93b0706e2e81215c2462a9f477596a05383af96d.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--38H1K1VI--/hwlxaxygg1lgxmp44mfy.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--MnL223x6--/racnzrnrep4tqmqxc6q3.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 1233.6,
+          "regular": 1399,
+          "url": "https://www.geappliances.com/appliance/36-Smart-Designer-Wall-Mount-Hood-w-Perimeter-Venting-UVW9361BLTS",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/UVW9361BLTS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 24 H x 36 W x 20 D\nappearance_color_appearance: Fingerprint Resistant Black Stainless\nfeatures_control_type: Electronic Touch\nfeatures_wifi_connect: Built-In\nfeatures_exhaust_options: Vented to Outside,Recirculating\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--cQKmUJvj--/93b0706e2e81215c2462a9f477596a05383af96d.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--38H1K1VI--/hwlxaxygg1lgxmp44mfy.pdf\nbenefits: Adjustable CFM blower; Four-speed fan control; LED backlit glass touch control; Perimeter venting"
+      ]
+    },
+    {
+      "model": "PFSS6SKXSS",
+      "brand": "GE Profile",
+      "title": "GE Profile™ ENERGY STAR® 25.8 Cu. Ft. French-Door Refrigerator",
+      "category": "refrigerators",
+      "best_price": 3199,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-Profile-ENERGY-STAR-25-8-Cu-Ft-French-Door-Refrigerator-PFSS6SKXSS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/14839/1163807/fff6dc9938e4b5c6503fdfbc762cb0c81d0b6476__35939.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--OePItkIK--/825f498356d0d62248f64f7c05d05d150573dd16.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--yicf-X2t--/bcaef285da30a7c817b7b1d48862522f7b385cfe.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--qpm79G8x--/a9e3745008c738fb7485833171a691d7990d9ff6.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 3199,
+          "regular": 3199,
+          "url": "https://www.geappliances.com/appliance/GE-Profile-ENERGY-STAR-25-8-Cu-Ft-French-Door-Refrigerator-PFSS6SKXSS",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/PFSS6SKXSS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 70 H x 35 3/4 W x 35 5/8 D\nappearance_color_appearance: Stainless Steel\nfeatures_control_type: External Electronic Digital Temperature Display,7\" Media Center\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--OePItkIK--/825f498356d0d62248f64f7c05d05d150573dd16.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--yicf-X2t--/bcaef285da30a7c817b7b1d48862522f7b385cfe.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--qpm79G8x--/a9e3745008c738fb7485833171a691d7990d9ff6.pdf\nbenefits: Stainless steel doors with top and bottom bevels; 7-inch media center; Integrated dispenser; LED lighting"
+      ]
+    },
+    {
+      "model": "PFSS9SKYSS",
+      "brand": "GE Profile",
+      "title": "GE Profile™ ENERGY STAR® 28.5 Cu. Ft. French-Door Refrigerator",
+      "category": "refrigerators",
+      "best_price": 3199,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-Profile-ENERGY-STAR-28-5-Cu-Ft-French-Door-Refrigerator-PFSS9SKYSS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/10588/1163839/54d52d29314abca7af999813d34bf9ffebb4fc86__90379.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--yknFjkJz--/69fb6a9330c39cbb632aa2521599f272262b0e81.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--0KZfN0q_--/b7e41f1e834eba35a106d9e81c42a09f28a372e2.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--tPQfET2C--/f5b9d93be70cd3e917340afff5d585cd0cdf23e5.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 3199,
+          "regular": 3199,
+          "url": "https://www.geappliances.com/appliance/GE-Profile-ENERGY-STAR-28-5-Cu-Ft-French-Door-Refrigerator-PFSS9SKYSS",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/PFSS9SKYSS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 70 H x 35 3/4 W x 35 5/8 D\nappearance_color_appearance: Stainless Steel\nfeatures_control_type: External Electronic Digital Temperature Display,7\" LCD Media Center\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--yknFjkJz--/69fb6a9330c39cbb632aa2521599f272262b0e81.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--0KZfN0q_--/b7e41f1e834eba35a106d9e81c42a09f28a372e2.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--tPQfET2C--/f5b9d93be70cd3e917340afff5d585cd0cdf23e5.pdf\nbenefits: Stainless steel doors with hidden hinges; 7-inch media center; Integrated dispenser; Ramp-up LED lighting"
+      ]
+    },
+    {
+      "model": "PFSS6SMXSS",
+      "brand": "GE Profile",
+      "title": "GE Profile™ 25.8 Cu. Ft. French-Door Refrigerator",
+      "category": "refrigerators",
+      "best_price": 3629,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-Profile-25-8-Cu-Ft-French-Door-Refrigerator-PFSS6SMXSS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/14840/1163808/62c69ccbea43a94489a6e1ecf550ca7fafa6000c__73405.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--OePItkIK--/825f498356d0d62248f64f7c05d05d150573dd16.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--4__HDpqQ--/530f08bd6417acd709d8f963d57317ec77ea63a8.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--p8O-m6vy--/fc42b35eea42daf66baf39b82a90695c73d1d364.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 3629,
+          "regular": 3629,
+          "url": "https://www.geappliances.com/appliance/GE-Profile-25-8-Cu-Ft-French-Door-Refrigerator-PFSS6SMXSS",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/PFSS6SMXSS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 70 H x 35 3/4 W x 35 5/8 D\nappearance_color_appearance: Stainless Steel\nfeatures_control_type: External Electronic Digital Temperature Display,7\" Media Center\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--OePItkIK--/825f498356d0d62248f64f7c05d05d150573dd16.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--4__HDpqQ--/530f08bd6417acd709d8f963d57317ec77ea63a8.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--p8O-m6vy--/fc42b35eea42daf66baf39b82a90695c73d1d364.pdf\nbenefits: Stainless steel doors with top and bottom bevels; Refreshment center; 7-inch media center; Integrated dispenser"
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/UVH13012MSS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/UVH13013MTS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/UVH13014MWM.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/UVH13013MDS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/UVW9361SLSS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/UVW9361BLTS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/PFSS6SKXSS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/PFSS9SKYSS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/PFSS6SMXSS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage."
+  ],
+  "sources_run": [
+    "ge-appliances",
+    "bosch"
+  ]
+}

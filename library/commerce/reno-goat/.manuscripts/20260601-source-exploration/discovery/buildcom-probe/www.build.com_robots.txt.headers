@@ -1,0 +1,35 @@
+HTTP/1.1 301 Moved Permanently
+Content-Type: text/html
+Content-Length: 169
+Location: https://www.fergusonhome.com/robots.txt
+Content-Security-Policy: frame-ancestors 'self' https://*.build.com/ https://*.fergusonhome.com https://*.build-catalogs.com/ https://bcom.my.salesforce.com/ https://bcom.my.salesforce-sites.com/ https://*.visual.force.com/ https://omconsole.com/ https://*.omconsole.com/ https://*.cybersource.com/ https://*.ferguson.com/
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+X-Content-Type-Options: nosniff
+Timing-Allow-Origin: *
+Cache-Control: max-age=0
+Date: Thu, 04 Jun 2026 05:46:27 GMT
+Connection: keep-alive
+Server-Timing: cdn-cache; desc=REVALIDATE
+Server-Timing: edge; dur=9
+Server-Timing: origin; dur=148
+Strict-Transport-Security: max-age=86400
+Akamai-GRN: 0.93c83017.1780551986.1dd4dcdb
+Server-Timing: ak_p; desc="1780551986911_389073043_500489435_15691_10929_11_35_-";dur=1
+
+HTTP/1.1 200 OK
+Accept-Ranges: bytes
+Content-Type: text/plain
+ETag: "ebbb436dcd4752a9d18c76324bcad65d:1767804816.567005"
+Last-Modified: Wed, 07 Jan 2026 16:53:36 GMT
+Server: AkamaiNetStorage
+Content-Length: 773
+Expires: Thu, 04 Jun 2026 05:46:27 GMT
+Cache-Control: max-age=0, no-cache, no-store
+Pragma: no-cache
+Date: Thu, 04 Jun 2026 05:46:27 GMT
+Connection: keep-alive
+Server-Timing: cdn-cache; desc=HIT
+Server-Timing: edge; dur=1
+Server-Timing: ak_p; desc="1780551987332_389073034_456977805_39_10385_12_0_-";dur=1
+

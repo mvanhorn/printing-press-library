@@ -1,0 +1,22 @@
+HTTP/2 403 
+date: Tue, 02 Jun 2026 12:24:17 GMT
+content-type: text/html; charset=UTF-8
+content-length: 5716
+accept-ch: Sec-CH-UA-Bitness, Sec-CH-UA-Arch, Sec-CH-UA-Full-Version, Sec-CH-UA-Mobile, Sec-CH-UA-Model, Sec-CH-UA-Platform-Version, Sec-CH-UA-Full-Version-List, Sec-CH-UA-Platform, Sec-CH-UA, UA-Bitness, UA-Arch, UA-Full-Version, UA-Mobile, UA-Model, UA-Platform-Version, UA-Platform, UA
+cf-mitigated: challenge
+content-security-policy: default-src 'none'; script-src 'nonce-mtT7x8AnwWZvD6EqEMG2In' 'unsafe-eval' https://challenges.cloudflare.com; script-src-attr 'none'; style-src 'unsafe-inline'; img-src 'self' https://challenges.cloudflare.com; connect-src 'self' https://challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com blob:; child-src 'self' https://challenges.cloudflare.com blob:; worker-src blob:; form-action http: https:; base-uri 'self'
+server: cloudflare
+critical-ch: Sec-CH-UA-Bitness, Sec-CH-UA-Arch, Sec-CH-UA-Full-Version, Sec-CH-UA-Mobile, Sec-CH-UA-Model, Sec-CH-UA-Platform-Version, Sec-CH-UA-Full-Version-List, Sec-CH-UA-Platform, Sec-CH-UA, UA-Bitness, UA-Arch, UA-Full-Version, UA-Mobile, UA-Model, UA-Platform-Version, UA-Platform, UA
+cross-origin-embedder-policy: require-corp
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-origin
+origin-agent-cluster: ?1
+permissions-policy: accelerometer=(),browsing-topics=(),camera=(),clipboard-read=(),clipboard-write=(),geolocation=(),gyroscope=(),hid=(),interest-cohort=(),magnetometer=(),microphone=(),payment=(),publickey-credentials-get=(),screen-wake-lock=(),serial=(),sync-xhr=(),usb=(),xr-spatial-tracking=(self)
+referrer-policy: same-origin
+server-timing: chlray;desc="a0566f275ef4a5ba"
+x-content-type-options: nosniff
+x-frame-options: SAMEORIGIN
+strict-transport-security: max-age=15552000
+set-cookie: __cf_bm=140f.j3d.y8wrG1v7KgRRSRiKLVgHbP9EIsdNG3cFh8-1780403057.8144424-1.0.1.1-JE6v8IcPxM6zlUvVT0c7VZlBmMTqu5IclR4h0JAODSLjV6k8JRYxOn4p9XonThJ5ztlcVaEUJldyYD6rLOUY.60RU2Edtx6wZuEu27qeW2SiPn.adjX63ynLiswrypti; HttpOnly; SameSite=None; Secure; Path=/; Domain=alpinehomeair.com; Expires=Tue, 02 Jun 2026 12:54:17 GMT
+cf-ray: a0566f275ef4a5ba-IAD
+

@@ -1,0 +1,592 @@
+{
+  "query": "dishwasher",
+  "total": 9,
+  "models": [
+    {
+      "model": "FDPH4316AS",
+      "brand": "Frigidaire",
+      "title": "Frigidaire 24 in. Top Control Dishwasher with 52 dBa Sound Level \u0026 MaxDry - Stainless Steel",
+      "category": "Kitchen Appliances \u003e Dishwashers \u003e Built-In Dishwashers \u003e 24 inch Built-In Dishwashers",
+      "best_price": 398.97,
+      "best_source": "pc-richard",
+      "product_url": "https://www.pcrichard.com/frigidaire-24-in-top-control-dishwasher-with-52-dba-sound-level-and-maxdry-stainless-steel/FDPH4316AS.html",
+      "image_url": "https://www.pcrichard.com/dw/image/v2/BFXM_PRD/on/demandware.static/-/Sites-pcrichard-master-product-catalog/default/dw1eeb57c7/images/hires/Z_FDPH4316AS.jpg?sw=400\u0026sh=400\u0026sm=fit",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/FDPH4316AS_Energy-Guide_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "installation",
+          "url": "https://static.pcrichard.com/docs/FDPH4316AS_Installation-Instructions_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/FDPH4316AS_Owners-Manual_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/FDPH4316AS_Quick-Reference-Guide_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "spec",
+          "url": "https://static.pcrichard.com/docs/FDPH4316AS_Specifications-Sheet_01.pdf",
+          "source": "pc-richard"
+        }
+      ],
+      "offers": [
+        {
+          "source": "pc-richard",
+          "price": 398.97,
+          "regular": 529.97,
+          "url": "https://www.pcrichard.com/frigidaire-24-in-top-control-dishwasher-with-52-dba-sound-level-and-maxdry-stainless-steel/FDPH4316AS.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/FDPH4316AS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ]
+    },
+    {
+      "model": "FDPC4314AS",
+      "brand": "Frigidaire",
+      "title": "Frigidaire 24 in. Front Control Dishwasher with 54 dBa Sound Level, MaxDry \u0026 Pocket - Stainless Steel",
+      "category": "Kitchen Appliances \u003e Dishwashers \u003e Built-In Dishwashers \u003e 24 inch Built-In Dishwashers",
+      "best_price": 498.97,
+      "best_source": "pc-richard",
+      "product_url": "https://www.pcrichard.com/frigidaire-24-in-front-control-dishwasher-with-54-dba-sound-level-maxdry-and-pocket-stainless-steel/FDPC4314AS.html",
+      "image_url": "https://www.pcrichard.com/dw/image/v2/BFXM_PRD/on/demandware.static/-/Sites-pcrichard-master-product-catalog/default/dwd9a3dcf4/images/hires/Z_FDPC4314AS.jpg?sw=400\u0026sh=400\u0026sm=fit",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/FDPC4314AS_Energy-Guide_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "installation",
+          "url": "https://static.pcrichard.com/docs/FDPC4314AS_Installation-Instructions_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/FDPC4314AS_Owners-Manual_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/FDPC4314AS_Quick-Reference-Guide_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "spec",
+          "url": "https://static.pcrichard.com/docs/FDPC4314AS_Specifications-Sheet_01.pdf",
+          "source": "pc-richard"
+        }
+      ],
+      "offers": [
+        {
+          "source": "pc-richard",
+          "price": 498.97,
+          "regular": 499.97,
+          "url": "https://www.pcrichard.com/frigidaire-24-in-front-control-dishwasher-with-54-dba-sound-level-maxdry-and-pocket-stainless-steel/FDPC4314AS.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/FDPC4314AS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ]
+    },
+    {
+      "model": "MDF18A1AST",
+      "brand": "Midea",
+      "title": "Midea 18 in. Front Control Dishwasher with 52 dBA Sound Level \u0026 Pocket Handle - Stainless Steel",
+      "category": "Kitchen Appliances \u003e Dishwashers \u003e Built-In Dishwashers \u003e 18 inch Built-In Dishwashers",
+      "best_price": 498.97,
+      "best_source": "pc-richard",
+      "product_url": "https://www.pcrichard.com/midea-18-in-front-control-dishwasher-with-52-dba-sound-level-and-pocket-handle-stainless-steel/MDF18A1AST.html",
+      "image_url": "https://www.pcrichard.com/dw/image/v2/BFXM_PRD/on/demandware.static/-/Sites-pcrichard-master-product-catalog/default/dw0eaf6a01/images/hires/Z_MDF18A1AST.jpg?sw=400\u0026sh=400\u0026sm=fit",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/MDF18A1AST_Energy-Guide_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "installation",
+          "url": "https://static.pcrichard.com/docs/MDF18A1AST_Installation-Instructions_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/MDF18A1AST_Owners-Manual_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "spec",
+          "url": "https://static.pcrichard.com/docs/MDF18A1AST_Specifications-Sheet_01.pdf",
+          "source": "pc-richard"
+        }
+      ],
+      "offers": [
+        {
+          "source": "pc-richard",
+          "price": 498.97,
+          "regular": 549.97,
+          "url": "https://www.pcrichard.com/midea-18-in-front-control-dishwasher-with-52-dba-sound-level-and-pocket-handle-stainless-steel/MDF18A1AST.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/MDF18A1AST.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ]
+    },
+    {
+      "model": "GDT670SYVFS",
+      "brand": "GE",
+      "title": "GE 24 in. Top Control Flush-Mount Dishwasher with 45 dBa Sound Level, 3rd-Rack \u0026 Dry Boost - Fingerprint Resistant Stainless",
+      "category": "Kitchen Appliances \u003e Dishwashers \u003e Built-In Dishwashers \u003e 24 inch Built-In Dishwashers",
+      "best_price": 598.97,
+      "best_source": "pc-richard",
+      "product_url": "https://www.pcrichard.com/ge-24-in-top-control-flush-mount-dishwasher-with-45-dba-sound-level-3rd-rack-and-dry-boost-fingerprint-resistant-stainless/GDT670SYVFS.html",
+      "image_url": "https://www.pcrichard.com/dw/image/v2/BFXM_PRD/on/demandware.static/-/Sites-pcrichard-master-product-catalog/default/dwf6f35cb7/images/hires/Z_GDT670SYVFS.jpg?sw=400\u0026sh=400\u0026sm=fit",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/GDT670SYVFS_Energy-Guide_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "installation",
+          "url": "https://static.pcrichard.com/docs/GDT670SYVFS_Installation-Instructions_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "installation",
+          "url": "https://static.pcrichard.com/docs/GDT670SYVFS_Installation-Instructions_02.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "installation",
+          "url": "https://static.pcrichard.com/docs/GDT670SYVFS_Installation-Instructions_03.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/GDT670SYVFS_Owners-Manual_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/GDT670SYVFS_Owners-Manual_02.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/GDT670SYVFS_Owners-Manual_03.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/GDT670SYVFS_Owners-Manual_04.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "spec",
+          "url": "https://static.pcrichard.com/docs/GDT670SYVFS_Specifications-Sheet_01.pdf",
+          "source": "pc-richard"
+        }
+      ],
+      "offers": [
+        {
+          "source": "pc-richard",
+          "price": 598.97,
+          "regular": 1049.97,
+          "url": "https://www.pcrichard.com/ge-24-in-top-control-flush-mount-dishwasher-with-45-dba-sound-level-3rd-rack-and-dry-boost-fingerprint-resistant-stainless/GDT670SYVFS.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT670SYVFS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ]
+    },
+    {
+      "model": "PDP715SYVFS",
+      "brand": "GE Profile",
+      "title": "GE Profile 24 in. Top Control Flush-Mount Smart Dishwasher with 44 dBa Sound Level, 3rd-Rack, Dry Boost \u0026 Pocket Handle - Fingerprint Resistant Stainless",
+      "category": "Kitchen Appliances \u003e Dishwashers \u003e Built-In Dishwashers \u003e 24 inch Built-In Dishwashers",
+      "best_price": 698.97,
+      "best_source": "pc-richard",
+      "product_url": "https://www.pcrichard.com/ge-profile-24-in-top-control-flush-mount-smart-dishwasher-with-44-dba-sound-level-3rd-rack-dry-boost-and-pocket-handle-fingerprint-resistant-stainless/PDP715SYVFS.html",
+      "image_url": "https://www.pcrichard.com/dw/image/v2/BFXM_PRD/on/demandware.static/-/Sites-pcrichard-master-product-catalog/default/dw786bb02d/images/hires/Z_PDP715SYVFS.jpg?sw=400\u0026sh=400\u0026sm=fit",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/PDP715SYVFS_Energy-Guide_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "installation",
+          "url": "https://static.pcrichard.com/docs/PDP715SYVFS_Installation-Instructions_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "installation",
+          "url": "https://static.pcrichard.com/docs/PDP715SYVFS_Installation-Instructions_02.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "installation",
+          "url": "https://static.pcrichard.com/docs/PDP715SYVFS_Installation-Instructions_03.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/PDP715SYVFS_Owners-Manual_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/PDP715SYVFS_Owners-Manual_02.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/PDP715SYVFS_Owners-Manual_03.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/PDP715SYVFS_Owners-Manual_04.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "spec",
+          "url": "https://static.pcrichard.com/docs/PDP715SYVFS_Specifications-Sheet_01.pdf",
+          "source": "pc-richard"
+        }
+      ],
+      "offers": [
+        {
+          "source": "pc-richard",
+          "price": 698.97,
+          "regular": 1199.97,
+          "url": "https://www.pcrichard.com/ge-profile-24-in-top-control-flush-mount-smart-dishwasher-with-44-dba-sound-level-3rd-rack-dry-boost-and-pocket-handle-fingerprint-resistant-stainless/PDP715SYVFS.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/PDP715SYVFS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ]
+    },
+    {
+      "model": "GDSH4715AF",
+      "brand": "Frigidaire Gallery",
+      "title": "Frigidaire Gallery 24 in. Top Control Dishwasher with 47 dBa Sound Level, 3rd-Rack \u0026 CleanBoost - Stainless Steel",
+      "category": "Kitchen Appliances \u003e Dishwashers \u003e Built-In Dishwashers \u003e 24 inch Built-In Dishwashers",
+      "best_price": 848.97,
+      "best_source": "pc-richard",
+      "product_url": "https://www.pcrichard.com/frigidaire-gallery-24-in-top-control-dishwasher-with-47-dba-sound-level-3rd-rack-and-cleanboost-stainless-steel/GDSH4715AF.html",
+      "image_url": "https://www.pcrichard.com/dw/image/v2/BFXM_PRD/on/demandware.static/-/Sites-pcrichard-master-product-catalog/default/dw956d73a5/images/hires/Z_GDSH4715AF.jpg?sw=400\u0026sh=400\u0026sm=fit",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/GDSH4715AF_Energy-Guide_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "installation",
+          "url": "https://static.pcrichard.com/docs/GDSH4715AF_Installation-Instructions_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/GDSH4715AF_Owners-Manual_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/GDSH4715AF_Quick-Reference-Guide_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "spec",
+          "url": "https://static.pcrichard.com/docs/GDSH4715AF_Specifications-Sheet_01.pdf",
+          "source": "pc-richard"
+        }
+      ],
+      "offers": [
+        {
+          "source": "pc-richard",
+          "price": 848.97,
+          "regular": 849.97,
+          "url": "https://www.pcrichard.com/frigidaire-gallery-24-in-top-control-dishwasher-with-47-dba-sound-level-3rd-rack-and-cleanboost-stainless-steel/GDSH4715AF.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDSH4715AF.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ]
+    },
+    {
+      "model": "KDTS324SPS",
+      "brand": "KitchenAid",
+      "title": "KitchenAid 24 in. Top Control Dishwasher with 41 dBA Sound Level, 3rd-Rack \u0026 ProDry System - Stainless Steel with PrintShield Finish",
+      "category": "Kitchen Appliances \u003e Dishwashers \u003e Built-In Dishwashers \u003e 24 inch Built-In Dishwashers",
+      "best_price": 848.97,
+      "best_source": "pc-richard",
+      "product_url": "https://www.pcrichard.com/kitchenaid-24-in-top-control-dishwasher-with-41-dba-sound-level-3rd-rack-and-prodry-system-stainless-steel-with-printshield-finish/KDTS324SPS.html",
+      "image_url": "https://www.pcrichard.com/dw/image/v2/BFXM_PRD/on/demandware.static/-/Sites-pcrichard-master-product-catalog/default/dw2a03ae5d/images/hires/Z_KDTS324SPS.jpg?sw=400\u0026sh=400\u0026sm=fit",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/KDTS324SPS_Energy-Guide_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/KDTS324SPS_Owners-Manual_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/KDTS324SPS_Quick-Reference-Guide_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "spec",
+          "url": "https://static.pcrichard.com/docs/KDTS324SPS_Specifications-Sheet_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/KDTS324SPS_Warranty_01.pdf",
+          "source": "pc-richard"
+        }
+      ],
+      "offers": [
+        {
+          "source": "pc-richard",
+          "price": 848.97,
+          "regular": 1199.97,
+          "url": "https://www.pcrichard.com/kitchenaid-24-in-top-control-dishwasher-with-41-dba-sound-level-3rd-rack-and-prodry-system-stainless-steel-with-printshield-finish/KDTS324SPS.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/KDTS324SPS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ]
+    },
+    {
+      "model": "KDPS624SPS",
+      "brand": "KitchenAid",
+      "title": "KitchenAid 24 in. Top Control Dishwasher with 44 dBA Sound Level, 3rd-Rack, Advanced ProDry System \u0026 Pocket Handle - PrintShield Stainless",
+      "category": "Kitchen Appliances \u003e Dishwashers \u003e Built-In Dishwashers \u003e 24 inch Built-In Dishwashers",
+      "best_price": 1198.97,
+      "best_source": "pc-richard",
+      "product_url": "https://www.pcrichard.com/kitchenaid-24-in-top-control-dishwasher-with-44-dba-sound-level-3rd-rack-advanced-prodry-system-and-pocket-handle-printshield-stainless/KDPS624SPS.html",
+      "image_url": "https://www.pcrichard.com/dw/image/v2/BFXM_PRD/on/demandware.static/-/Sites-pcrichard-master-product-catalog/default/dwca6c9b74/images/hires/Z_KDPS624SPS.jpg?sw=400\u0026sh=400\u0026sm=fit",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/KDPS624SPS_Energy-Guide_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/KDPS624SPS_Owners-Manual_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/KDPS624SPS_Quick-Reference-Guide_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "spec",
+          "url": "https://static.pcrichard.com/docs/KDPS624SPS_Specifications-Sheet_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/KDPS624SPS_Warranty_01.pdf",
+          "source": "pc-richard"
+        }
+      ],
+      "offers": [
+        {
+          "source": "pc-richard",
+          "price": 1198.97,
+          "regular": 1449.97,
+          "url": "https://www.pcrichard.com/kitchenaid-24-in-top-control-dishwasher-with-44-dba-sound-level-3rd-rack-advanced-prodry-system-and-pocket-handle-printshield-stainless/KDPS624SPS.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/KDPS624SPS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ]
+    },
+    {
+      "model": "KDTS724SJP",
+      "brand": "KitchenAid",
+      "title": "KitchenAid 24 in. Top Control Dishwasher with 44 dBA Sound Level, 3rd-Rack \u0026 Automatic Door Open Dry System - Juniper",
+      "category": "Kitchen Appliances \u003e Dishwashers \u003e Built-In Dishwashers \u003e 24 inch Built-In Dishwashers",
+      "best_price": 1484.97,
+      "best_source": "pc-richard",
+      "product_url": "https://www.pcrichard.com/kitchenaid-24-in-top-control-dishwasher-with-44-dba-sound-level-3rd-rack-and-automatic-door-open-dry-system-juniper/KDTS724SJP.html",
+      "image_url": "https://www.pcrichard.com/dw/image/v2/BFXM_PRD/on/demandware.static/-/Sites-pcrichard-master-product-catalog/default/dwba9ee2d6/images/hires/Z_KDTS724SJP.jpg?sw=400\u0026sh=400\u0026sm=fit",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/KDTS724SJP_Energy-Guide_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/KDTS724SJP_Owners-Manual_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/KDTS724SJP_Quick-Reference-Guide_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "spec",
+          "url": "https://static.pcrichard.com/docs/KDTS724SJP_Specifications-Sheet_01.pdf",
+          "source": "pc-richard"
+        },
+        {
+          "kind": "document",
+          "url": "https://static.pcrichard.com/docs/KDTS724SJP_Warranty_01.pdf",
+          "source": "pc-richard"
+        }
+      ],
+      "offers": [
+        {
+          "source": "pc-richard",
+          "price": 1484.97,
+          "regular": 1649.97,
+          "url": "https://www.pcrichard.com/kitchenaid-24-in-top-control-dishwasher-with-44-dba-sound-level-3rd-rack-and-automatic-door-open-dry-system-juniper/KDTS724SJP.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/KDTS724SJP.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/FDPH4316AS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/FDPC4314AS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/MDF18A1AST.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT670SYVFS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/PDP715SYVFS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDSH4715AF.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/KDTS324SPS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/KDPS624SPS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/KDTS724SJP.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category search-result model discovery used; search-derived prices are labeled as fallback evidence, not direct retailer API results."
+  ],
+  "sources_run": [
+    "pc-richard",
+    "brave-search"
+  ]
+}

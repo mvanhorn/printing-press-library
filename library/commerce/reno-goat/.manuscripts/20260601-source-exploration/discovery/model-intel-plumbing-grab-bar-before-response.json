@@ -1,0 +1,596 @@
+{
+  "query": "grab bar",
+  "total": 10,
+  "models": [
+    {
+      "model": "GE02P08BAR",
+      "brand": "GE",
+      "title": "GE® 2.5 Gallon Electric Point of Use Water Heater",
+      "category": "Electric Point Of Use",
+      "best_price": 239,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-2-5-Gallon-Electric-Point-of-Use-Water-Heater-GE02P08BAR",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/273058/1015450/vgt46bkmghosowvffdoj__43847.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--GjFDahiM--/71a03143b737c7158d74bca7dbc7f88fffda9b04.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--zm_A5i_E--/qf06lmbv6ugjs362mxln.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--ocfREmT_--/b641dba2e12af752860c52044d8415e125865391.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--IHDtgm8r--/b8x7vkhgb3lj0aiqcmpv.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 239,
+          "regular": 239,
+          "url": "https://www.geappliances.com/appliance/GE-2-5-Gallon-Electric-Point-of-Use-Water-Heater-GE02P08BAR",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GE02P08BAR.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 13 H x 13 W x 11.15 D\nappearance_color_appearance: Gray\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--GjFDahiM--/71a03143b737c7158d74bca7dbc7f88fffda9b04.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--zm_A5i_E--/qf06lmbv6ugjs362mxln.pdf\nbenefits: Point of Use; Compact Design; 120 Volt; Hot Water Booster"
+      ]
+    },
+    {
+      "model": "GXCF18P",
+      "brand": "GE",
+      "title": "GE® Bottom-Loading Tri-Temperature Water Dispenser",
+      "category": "Water Filtration Systems",
+      "best_price": 249,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-Bottom-Loading-Tri-Temperature-Water-Dispenser-GXCF18P",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/426622/1174806/41d7853034fc598be280228f8ed76cb4fd63e773__14584.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--HBya3rA2--/c652c9d0860fa73719ab1e215503d2eb3ddd6694.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 249,
+          "regular": 249,
+          "url": "https://www.geappliances.com/appliance/GE-Bottom-Loading-Tri-Temperature-Water-Dispenser-GXCF18P",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GXCF18P.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 43.15 H x 12.2 W x 13.60 D\nappearance_color_appearance: Dark Gray Metallic\nfeatures_style: Bottom-Loading\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--HBya3rA2--/c652c9d0860fa73719ab1e215503d2eb3ddd6694.pdf\nbenefits: Taller Dispenser Height; Faster Flow Rate; More Chilled Water; Bottom Load"
+      ]
+    },
+    {
+      "model": "GE06P08BAR",
+      "brand": "GE",
+      "title": "GE® 6 Gallon Electric Point of Use Water Heater",
+      "category": "Electric Point Of Use",
+      "best_price": 269,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-6-Gallon-Electric-Point-of-Use-Water-Heater-GE06P08BAR",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/273059/1015550/zmtnvypzykqt0bf6nq7v__88239.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--GjFDahiM--/71a03143b737c7158d74bca7dbc7f88fffda9b04.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--_vy2XylO--/b0muygu1rpzyzdketirh.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--ocfREmT_--/b641dba2e12af752860c52044d8415e125865391.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--IHDtgm8r--/b8x7vkhgb3lj0aiqcmpv.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 269,
+          "regular": 269,
+          "url": "https://www.geappliances.com/appliance/GE-6-Gallon-Electric-Point-of-Use-Water-Heater-GE06P08BAR",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GE06P08BAR.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 17.75 H x 17.2 W x 14.37 D\nappearance_color_appearance: Gray\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--GjFDahiM--/71a03143b737c7158d74bca7dbc7f88fffda9b04.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--_vy2XylO--/b0muygu1rpzyzdketirh.pdf\nbenefits: Point of Use; Compact Design; 120 Volt; Hot Water Booster"
+      ]
+    },
+    {
+      "model": "GE10P08BAR",
+      "brand": "GE",
+      "title": "GE® 10 Gallon Electric Point of Use Water Heater",
+      "category": "Electric Point Of Use",
+      "best_price": 329,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-10-Gallon-Electric-Point-of-Use-Water-Heater-GE10P08BAR",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/273060/1015675/qcxfryw5sya3zllvyudf__82983.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--GjFDahiM--/71a03143b737c7158d74bca7dbc7f88fffda9b04.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--EuIHWWde--/fk83hwzibmnc7svdufkp.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--IHDtgm8r--/b8x7vkhgb3lj0aiqcmpv.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 329,
+          "regular": 329,
+          "url": "https://www.geappliances.com/appliance/GE-10-Gallon-Electric-Point-of-Use-Water-Heater-GE10P08BAR",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GE10P08BAR.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 24.5 H x 14.8 W x 14.75 D\nappearance_color_appearance: Gray\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--GjFDahiM--/71a03143b737c7158d74bca7dbc7f88fffda9b04.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--EuIHWWde--/fk83hwzibmnc7svdufkp.pdf\nbenefits: Point of Use; Compact Design; 120 Volt; Hot Water Booster"
+      ]
+    },
+    {
+      "model": "GE20P08BAR",
+      "brand": "GE",
+      "title": "GE® 18 Gallon Electric Point of Use Water Heater",
+      "category": "Electric Point Of Use",
+      "best_price": 349,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-18-Gallon-Electric-Point-of-Use-Water-Heater-GE20P08BAR",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/273061/1114218/chzowm4cwng5jqlbz8qn__95884.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--eHs03oSo--/ldooge0ofrabwrnslplr.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--0x354-cj--/jofg9mppphslnwbdauzu.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--IHDtgm8r--/b8x7vkhgb3lj0aiqcmpv.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 349,
+          "regular": 349,
+          "url": "https://www.geappliances.com/appliance/GE-18-Gallon-Electric-Point-of-Use-Water-Heater-GE20P08BAR",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GE20P08BAR.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 25.75 H x 19.3 W x 19.25 D\nappearance_color_appearance: Gray\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--eHs03oSo--/ldooge0ofrabwrnslplr.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--0x354-cj--/jofg9mppphslnwbdauzu.pdf\nbenefits: Whole Home Flexibility; Compact Design; 120 Volt; Hot Water Booster"
+      ]
+    },
+    {
+      "model": "GDT535PGRBB",
+      "brand": "GE",
+      "title": "GE® ENERGY STAR® Top Control with Plastic Interior Dishwasher with Sanitize Cycle \u0026 Dry Boost",
+      "category": "Built-In",
+      "best_price": 379,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT535PGRBB",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/143854/997627/e376de1f0df38914a45ebb5c2ddbaae0cf3f5feb__91081.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--5E3SRqO---/ov9rsakkxegf0ryooovl.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--_hN5Kp5Z--/fbwy4ueo8eqx6qsgpbfg.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--EszXjA26--/2ee1c206fc195cd1717cedf8b41e2ab95579670c.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--7WJEnN9p--/de2abjl0vpzormtmlvxi.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--HuZyHYLF--/zwjpqmeih0bzy06om5kx.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 379,
+          "regular": 619,
+          "url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT535PGRBB",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT535PGRBB.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 33.375 H x 23.75 W x 24 D\nappearance_color_appearance: Black\nfeatures_style: Built-In Top Control\nfeatures_control_type: Top Controls,Fully Integrated Inlaid Electronic Buttons,4 Touchpads\nfeatures_wifi_connect: Optional (Requires part no. PBX23W00Y1)\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--5E3SRqO---/ov9rsakkxegf0ryooovl.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--_hN5Kp5Z--/fbwy4ueo8eqx6qsgpbfg.pdf\nbenefits: Reliable Performance; Dry Boost™; Steam + Sani; Water Leak Sensor"
+      ]
+    },
+    {
+      "model": "GDT535PGRWW",
+      "brand": "GE",
+      "title": "GE® ENERGY STAR® Top Control with Plastic Interior Dishwasher with Sanitize Cycle \u0026 Dry Boost",
+      "category": "Built-In",
+      "best_price": 379,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT535PGRWW",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/143855/997652/c7a0839c92bb199288edcd898eab623de403a025__27316.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--HuZyHYLF--/zwjpqmeih0bzy06om5kx.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--_hN5Kp5Z--/fbwy4ueo8eqx6qsgpbfg.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--EszXjA26--/2ee1c206fc195cd1717cedf8b41e2ab95579670c.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--7WJEnN9p--/de2abjl0vpzormtmlvxi.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--5E3SRqO---/ov9rsakkxegf0ryooovl.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 379,
+          "regular": 619,
+          "url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT535PGRWW",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT535PGRWW.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 33.375 H x 23.75 W x 24 D\nappearance_color_appearance: White\nfeatures_style: Built-In Top Control\nfeatures_control_type: Top Controls,Fully Integrated Inlaid Electronic Buttons,4 Touchpads\nfeatures_wifi_connect: Optional (Requires part no. PBX23W00Y1)\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--HuZyHYLF--/zwjpqmeih0bzy06om5kx.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--_hN5Kp5Z--/fbwy4ueo8eqx6qsgpbfg.pdf\nbenefits: Reliable Performance; Dry Boost™; Steam + Sani; Water Leak Sensor"
+      ]
+    },
+    {
+      "model": "GDT535PSRSS",
+      "brand": "GE",
+      "title": "GE® ENERGY STAR® Top Control with Plastic Interior Dishwasher with Sanitize Cycle \u0026 Dry Boost",
+      "category": "Built-In",
+      "best_price": 399,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT535PSRSS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/143856/997701/c2d8220def06b0d99835cadedead82fad59ab3a5__96022.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--5E3SRqO---/ov9rsakkxegf0ryooovl.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--_hN5Kp5Z--/fbwy4ueo8eqx6qsgpbfg.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--EszXjA26--/2ee1c206fc195cd1717cedf8b41e2ab95579670c.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--7WJEnN9p--/de2abjl0vpzormtmlvxi.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--HuZyHYLF--/zwjpqmeih0bzy06om5kx.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 399,
+          "regular": 669,
+          "url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT535PSRSS",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT535PSRSS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 33.375 H x 23.75 W x 24 D\nappearance_color_appearance: Stainless Steel\nfeatures_style: Built-In Top Control\nfeatures_control_type: Top Controls,Fully Integrated Inlaid Electronic Buttons,4 Touchpads\nfeatures_wifi_connect: Optional (Requires part no. PBX23W00Y1)\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--5E3SRqO---/ov9rsakkxegf0ryooovl.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--_hN5Kp5Z--/fbwy4ueo8eqx6qsgpbfg.pdf\nbenefits: Reliable Performance; Dry Boost™; Steam + Sani; Water Leak Sensor"
+      ]
+    },
+    {
+      "model": "GDT535PYVFS",
+      "brand": "GE",
+      "title": "GE® ENERGY STAR® Top Control with Plastic Interior Dishwasher with Sanitize Cycle \u0026 Dry Boost",
+      "category": "Built-In",
+      "best_price": 399,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT535PYVFS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/421602/1035108/c2d8220def06b0d99835cadedead82fad59ab3a5__97617.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--Ef69u-8j--/hwk7ls7avajraiqyuec7.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--EszXjA26--/2ee1c206fc195cd1717cedf8b41e2ab95579670c.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--7WJEnN9p--/de2abjl0vpzormtmlvxi.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 399,
+          "regular": 669,
+          "url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT535PYVFS",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT535PYVFS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 33.375 H x 23.75 W x 24 D\nappearance_color_appearance: Fingerprint Resistant Stainless\nfeatures_style: Built-In Top Control\nfeatures_control_type: Top Controls,Fully Integrated Inlaid Electronic Buttons,4 Touchpads\nfeatures_wifi_connect: Optional (Requires part no. PBX23W00Y1)\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--Ef69u-8j--/hwk7ls7avajraiqyuec7.pdf\nbenefits: Reliable Performance; Dry Boost™; Steam + Sani; Water Leak Sensor"
+      ]
+    },
+    {
+      "model": "GE20L08BAR",
+      "brand": "GE",
+      "title": "GE® 18 Gallon Side Port Lowboy Electric Water Heater",
+      "category": "Electric Thermostat",
+      "best_price": 399,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-18-Gallon-Side-Port-Lowboy-Electric-Water-Heater-GE20L08BAR",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/413939/1114172/n2ychksfn6ktv4eqdp7c__99277.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--eHs03oSo--/ldooge0ofrabwrnslplr.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--k0eJpyp8--/i7aff1holmgsfpu1ti3y.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--IHDtgm8r--/b8x7vkhgb3lj0aiqcmpv.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 399,
+          "regular": 399,
+          "url": "https://www.geappliances.com/appliance/GE-18-Gallon-Side-Port-Lowboy-Electric-Water-Heater-GE20L08BAR",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GE20L08BAR.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 25.75 H x 19.25 W x 19.25 D\nappearance_color_appearance: Gray\nfeatures_control_type: Thermostat\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--eHs03oSo--/ldooge0ofrabwrnslplr.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--k0eJpyp8--/i7aff1holmgsfpu1ti3y.pdf\nbenefits: Lowboy; Quick Recovery; Household Size; Inlet Tube"
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GE02P08BAR.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GXCF18P.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GE06P08BAR.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GE10P08BAR.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GE20P08BAR.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT535PGRBB.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT535PGRWW.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT535PSRSS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT535PYVFS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GE20L08BAR.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage."
+  ],
+  "sources_run": [
+    "ge-appliances",
+    "bosch"
+  ]
+}

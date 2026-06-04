@@ -1,0 +1,274 @@
+{
+  "query": "toilet paper holder",
+  "total": 10,
+  "models": [
+    {
+      "model": "20530744",
+      "title": "FAMILJ Papertowel holder",
+      "category": "Laundry \u0026 cleaning \u003e Dishwashing accessories \u003e Sink accessories",
+      "best_price": 2.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/familj-papertowel-holder-anthracite-20530744/",
+      "image_url": "https://www.ikea.com/us/en/images/products/familj-papertowel-holder-anthracite__1107753_pe869131_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 2.99,
+          "url": "https://www.ikea.com/us/en/p/familj-papertowel-holder-anthracite-20530744/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "anthracite"
+      ]
+    },
+    {
+      "model": "40574435",
+      "title": "BOLMEN Toilet brush/holder",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom accessories \u0026 organizers \u003e Toilet brushes",
+      "best_price": 3.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/bolmen-toilet-brush-holder-white-40574435/",
+      "image_url": "https://www.ikea.com/us/en/images/products/bolmen-toilet-brush-holder-white__1256500_pe925084_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 3.99,
+          "url": "https://www.ikea.com/us/en/p/bolmen-toilet-brush-holder-white-40574435/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "70381275",
+      "title": "TISKEN Hook with suction cup",
+      "category": "Storage containers, organizers \u0026 baskets \u003e Wall shelves \u0026 hooks \u003e Hooks \u0026 hangers \u003e Wall \u0026 door hooks",
+      "best_price": 4.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/tisken-hook-with-suction-cup-white-70381275/",
+      "image_url": "https://www.ikea.com/us/en/images/products/tisken-hook-with-suction-cup-white__0749067_pe745422_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/tisken-hook-with-suction-cup-white__AA-2347516-1-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 4.99,
+          "url": "https://www.ikea.com/us/en/p/tisken-hook-with-suction-cup-white-70381275/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "90576031",
+      "title": "SLÅNHÖSTMAL Hand towel",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom textiles \u003e Towels \u003e Hand towels",
+      "best_price": 4.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/slanhoestmal-hand-towel-black-light-beige-stripe-90576031/",
+      "image_url": "https://www.ikea.com/us/en/images/products/slanhoestmal-hand-towel-black-light-beige-stripe__1255925_pe924798_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 4.99,
+          "url": "https://www.ikea.com/us/en/p/slanhoestmal-hand-towel-black-light-beige-stripe-90576031/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "black/light beige stripe"
+      ]
+    },
+    {
+      "model": "30553607",
+      "title": "JÄLL Laundry bag with stand",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom laundry \u003e Laundry baskets, hampers \u0026 bags",
+      "best_price": 5.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/jaell-laundry-bag-with-stand-white-30553607/",
+      "image_url": "https://www.ikea.com/us/en/images/products/jaell-laundry-bag-with-stand-white__1195672_pe902553_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 5.99,
+          "url": "https://www.ikea.com/us/en/p/jaell-laundry-bag-with-stand-white-30553607/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/30553607.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "20423824",
+      "title": "SKOGSVIKEN Toilet roll holder",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom accessories \u0026 organizers \u003e Toilet brushes",
+      "best_price": 6.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/skogsviken-toilet-roll-holder-black-20423824/",
+      "image_url": "https://www.ikea.com/us/en/images/products/skogsviken-toilet-roll-holder-black__0769208_pe754921_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/skogsviken-toilet-roll-holder-black__AA-2144255-4-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 6.99,
+          "url": "https://www.ikea.com/us/en/p/skogsviken-toilet-roll-holder-black-20423824/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "black"
+      ]
+    },
+    {
+      "model": "50567830",
+      "title": "SKOGHALL Hook, self-adhesive",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom shelves",
+      "best_price": 6.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/skoghall-hook-self-adhesive-chrome-plated-50567830/",
+      "image_url": "https://www.ikea.com/us/en/images/products/skoghall-hook-self-adhesive-chrome-plated__0583461_pe671221_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/skoghall-hook-self-adhesive-chrome-plated__AA-679234-6-1.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 6.99,
+          "url": "https://www.ikea.com/us/en/p/skoghall-hook-self-adhesive-chrome-plated-50567830/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "chrome plated"
+      ]
+    },
+    {
+      "model": "00448769",
+      "title": "HULTARP Rail",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen organization \u0026 wall storage \u003e Kitchen wall organizers",
+      "best_price": 7.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/hultarp-rail-black-00448769/",
+      "image_url": "https://www.ikea.com/us/en/images/products/hultarp-rail-black__0941870_pe795789_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/hultarp-rail-black__AA-2196308-5-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 7.99,
+          "url": "https://www.ikea.com/us/en/p/hultarp-rail-black-00448769/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "black"
+      ]
+    },
+    {
+      "model": "70154800",
+      "title": "VARIERA Pot lid organizer",
+      "category": "Kitchen, appliances \u0026 supplies \u003e SEKTION cabinet shelves \u0026 drawers \u003e Kitchen cabinet \u0026 drawer organization \u003e Drawer dividers",
+      "best_price": 7.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/variera-pot-lid-organizer-stainless-steel-70154800/",
+      "image_url": "https://www.ikea.com/us/en/images/products/variera-pot-lid-organizer-stainless-steel__0626878_pe693056_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/variera-pot-lid-organizer-stainless-steel__AA-741347-1-1.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 7.99,
+          "url": "https://www.ikea.com/us/en/p/variera-pot-lid-organizer-stainless-steel-70154800/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "stainless steel"
+      ]
+    },
+    {
+      "model": "70581552",
+      "title": "BROFJÄRDEN Toilet roll holder",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom accessories \u0026 organizers \u003e Toilet brushes",
+      "best_price": 7.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/brofjaerden-toilet-roll-holder-chrome-effect-70581552/",
+      "image_url": "https://www.ikea.com/us/en/images/products/brofjaerden-toilet-roll-holder-chrome-effect__1329650_pe945218_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/brofjaerden-toilet-roll-holder-chrome-effect__AA-2476421-5-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 7.99,
+          "url": "https://www.ikea.com/us/en/p/brofjaerden-toilet-roll-holder-chrome-effect-70581552/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "chrome effect"
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/30553607.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: hardware"
+  ],
+  "sources_run": [
+    "hardware-hut",
+    "rejuvenation",
+    "ikea"
+  ]
+}

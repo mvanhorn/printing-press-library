@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/reno-goat/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // isNilOrEmpty checks whether a JSON object has nil or empty values for

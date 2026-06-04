@@ -157,8 +157,8 @@ func listSavedProducts(cmd *cobra.Command, db *sql.DB, flags *rootFlags) error {
 
 	if len(products) == 0 {
 		return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-			"saved":  []any{},
-			"count":  0,
+			"saved": []any{},
+			"count": 0,
 		}, flags)
 	}
 
@@ -197,8 +197,8 @@ func runStaleCheck(cmd *cobra.Command, db *sql.DB, flags *rootFlags) error {
 
 	if len(savedList) == 0 {
 		return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-			"saved":  []any{},
-			"count":  0,
+			"saved": []any{},
+			"count": 0,
 		}, flags)
 	}
 

@@ -1,0 +1,458 @@
+{
+  "query": "pendant light",
+  "total": 12,
+  "models": [
+    {
+      "model": "BOA2PLUB",
+      "brand": "RAB",
+      "title": "RAB BOA 24\" LED Linear Fixture - 2,871 Lumens - 20W - Up \u0026 Down Light - Pendant - CCT Selectable - Louver Lens - Black",
+      "category": "BOA LED Pendant Mount \u003e Up \u0026 Down Lights",
+      "best_price": 1,
+      "best_source": "prolighting",
+      "product_url": "https://www.prolighting.com/rab-linear-light-boa2plub.html",
+      "image_url": "https://www.prolighting.com/media/klevu_images/320X320/b/o/boa_2ft_up_and_down_louver_black.jpeg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://www.prolighting.com/BOA-Family-Spec-Sheet.pdf",
+          "source": "prolighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.prolighting.com/BOA-Sell-Sheet_1.pdf",
+          "source": "prolighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.prolighting.com/BOA-Instructions.pdf",
+          "source": "prolighting"
+        }
+      ],
+      "offers": [
+        {
+          "source": "prolighting",
+          "price": 1,
+          "regular": 1,
+          "url": "https://www.prolighting.com/rab-linear-light-boa2plub.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "RAB BOA 24\" LED Linear Fixture - 2,871 Lumens - 20W - Up \u0026 Down Light - Pendant - CCT Selectable - Louver Lens - Black"
+      ]
+    },
+    {
+      "model": "BOA4PLUB",
+      "brand": "RAB",
+      "title": "RAB BOA 48\" LED Linear Fixture - 5,745 Lumens - 40W - Up \u0026 Down Light - Pendant - CCT Selectable - Louver Lens - Black",
+      "category": "BOA LED Pendant Mount \u003e Up \u0026 Down Lights",
+      "best_price": 1,
+      "best_source": "prolighting",
+      "product_url": "https://www.prolighting.com/rab-linear-light-boa4plub.html",
+      "image_url": "https://www.prolighting.com/media/klevu_images/320X320/b/o/boa_4ft_up_and_down_louver_black.jpeg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://www.prolighting.com/BOA-Family-Spec-Sheet.pdf",
+          "source": "prolighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.prolighting.com/BOA-Sell-Sheet_1.pdf",
+          "source": "prolighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.prolighting.com/BOA-Instructions.pdf",
+          "source": "prolighting"
+        }
+      ],
+      "offers": [
+        {
+          "source": "prolighting",
+          "price": 1,
+          "regular": 1,
+          "url": "https://www.prolighting.com/rab-linear-light-boa4plub.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "RAB BOA 48\" LED Linear Fixture - 5,745 Lumens - 40W - Up \u0026 Down Light - Pendant - CCT Selectable - Louver Lens - Black"
+      ]
+    },
+    {
+      "model": "BOA4PLUW",
+      "brand": "RAB",
+      "title": "RAB BOA 48\" LED Linear Fixture - 5,745 Lumens - 40W - Up \u0026 Down Light - Pendant - CCT Selectable - Louver Lens - White",
+      "category": "BOA LED Pendant Mount \u003e Up \u0026 Down Lights",
+      "best_price": 1,
+      "best_source": "prolighting",
+      "product_url": "https://www.prolighting.com/rab-linear-light-boa4pluw.html",
+      "image_url": "https://www.prolighting.com/media/klevu_images/320X320/b/o/boa_4ft_up_and_down_louver_white.jpeg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://www.prolighting.com/BOA-Family-Spec-Sheet.pdf",
+          "source": "prolighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.prolighting.com/BOA-Sell-Sheet_1.pdf",
+          "source": "prolighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.prolighting.com/BOA-Instructions.pdf",
+          "source": "prolighting"
+        }
+      ],
+      "offers": [
+        {
+          "source": "prolighting",
+          "price": 1,
+          "regular": 1,
+          "url": "https://www.prolighting.com/rab-linear-light-boa4pluw.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "RAB BOA 48\" LED Linear Fixture - 5,745 Lumens - 40W - Up \u0026 Down Light - Pendant - CCT Selectable - Louver Lens - White"
+      ]
+    },
+    {
+      "model": "BOA4PUB",
+      "brand": "RAB",
+      "title": "RAB BOA 48\" LED Linear Fixture - 5,428 Lumens - 40W - Up \u0026 Down Light - Pendant - CCT Selectable - Flat Lens - Black",
+      "category": "BOA LED Pendant Mount \u003e Up \u0026 Down Lights",
+      "best_price": 1,
+      "best_source": "prolighting",
+      "product_url": "https://www.prolighting.com/rab-linear-light-boa4pub.html",
+      "image_url": "https://www.prolighting.com/media/klevu_images/320X320/b/o/boa_4ft_up_and_down_black.jpeg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://www.prolighting.com/BOA-Family-Spec-Sheet.pdf",
+          "source": "prolighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.prolighting.com/BOA-Sell-Sheet_1.pdf",
+          "source": "prolighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.prolighting.com/BOA-Instructions.pdf",
+          "source": "prolighting"
+        }
+      ],
+      "offers": [
+        {
+          "source": "prolighting",
+          "price": 1,
+          "regular": 1,
+          "url": "https://www.prolighting.com/rab-linear-light-boa4pub.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "RAB BOA 48\" LED Linear Fixture - 5,428 Lumens - 40W - Up \u0026 Down Light - Pendant - CCT Selectable - Flat Lens - Black"
+      ]
+    },
+    {
+      "model": "BOA8PUB",
+      "brand": "RAB",
+      "title": "RAB BOA 96\" LED Linear Fixture - 10,571 Lumens - 80W - Up \u0026 Down Light - Pendant - CCT Selectable - Flat Lens - Black",
+      "category": "BOA LED Pendant Mount \u003e Up \u0026 Down Lights",
+      "best_price": 1,
+      "best_source": "prolighting",
+      "product_url": "https://www.prolighting.com/rab-linear-light-boa8pub.html",
+      "image_url": "https://www.prolighting.com/media/klevu_images/320X320/b/o/boa_8ft_up_and_down_black.jpeg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://www.prolighting.com/BOA-Family-Spec-Sheet.pdf",
+          "source": "prolighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.prolighting.com/BOA-Sell-Sheet_1.pdf",
+          "source": "prolighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.prolighting.com/BOA-Instructions.pdf",
+          "source": "prolighting"
+        }
+      ],
+      "offers": [
+        {
+          "source": "prolighting",
+          "price": 1,
+          "regular": 1,
+          "url": "https://www.prolighting.com/rab-linear-light-boa8pub.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "RAB BOA 96\" LED Linear Fixture - 10,571 Lumens - 80W - Up \u0026 Down Light - Pendant - CCT Selectable - Flat Lens - Black"
+      ]
+    },
+    {
+      "model": "BOA8PUW",
+      "brand": "RAB",
+      "title": "RAB BOA 96\" LED Linear Fixture - 10,571 Lumens - 80W - Up \u0026 Down Light - Pendant - CCT Selectable - Flat Lens - White",
+      "category": "BOA LED Pendant Mount \u003e Up \u0026 Down Lights",
+      "best_price": 1,
+      "best_source": "prolighting",
+      "product_url": "https://www.prolighting.com/rab-linear-light-boa8puw.html",
+      "image_url": "https://www.prolighting.com/media/klevu_images/320X320/b/o/boa_8ft_up_and_down_white.jpeg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://www.prolighting.com/BOA-Family-Spec-Sheet.pdf",
+          "source": "prolighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.prolighting.com/BOA-Sell-Sheet_1.pdf",
+          "source": "prolighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.prolighting.com/BOA-Instructions.pdf",
+          "source": "prolighting"
+        }
+      ],
+      "offers": [
+        {
+          "source": "prolighting",
+          "price": 1,
+          "regular": 1,
+          "url": "https://www.prolighting.com/rab-linear-light-boa8puw.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "RAB BOA 96\" LED Linear Fixture - 10,571 Lumens - 80W - Up \u0026 Down Light - Pendant - CCT Selectable - Flat Lens - White"
+      ]
+    },
+    {
+      "model": "PLT-11382",
+      "brand": "PLT",
+      "title": "750 Lumens - 9 Watt - 3000 Kelvin - LED A19 Light Bulb - 60 Watt Equal - GU24 Base - 120 Volt - PLT-11382",
+      "category": "cat2 led a19",
+      "best_price": 2.54,
+      "best_source": "1000bulbs",
+      "product_url": "https://www.1000bulbs.com/product/210967/PLT-11382.html",
+      "image_url": "https://assets.1000bulbs.com/variants/QB6bPxsiGNPGqszfBW9XowZZ/2396028417565ec9a5980759fc72d6e316eaf3f8aa8cc250171894c07012ad4f",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://assets.1000bulbs.com/3cenwjtiMBstStA7WwzKBbPF?response-content-disposition=inline%3B+filename%3D%22plt-11382-specs.pdf",
+          "source": "1000bulbs"
+        },
+        {
+          "kind": "document",
+          "url": "https://assets.1000bulbs.com/fVpdeSGChvN9wFy3pfdt5k1q?response-content-disposition=inline%3B+filename%3D%22plt-solutions-plt-11381-plt-11382-dimmer.pdf",
+          "source": "1000bulbs"
+        },
+        {
+          "kind": "document",
+          "url": "https://assets.1000bulbs.com/static/homepage/creditapplication.pdf",
+          "source": "1000bulbs"
+        }
+      ],
+      "offers": [
+        {
+          "source": "1000bulbs",
+          "price": 2.54,
+          "url": "https://www.1000bulbs.com/product/210967/PLT-11382.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "PLT-13673",
+      "brand": "PLT",
+      "title": "Pendant Mount Pipe Adaptor - Converts M10 to 3/4 in. NPS - For use with Select LED UFO High Bays - PLT-13673",
+      "category": "cat6 fixture accessories",
+      "best_price": 7.52,
+      "best_source": "1000bulbs",
+      "product_url": "https://www.1000bulbs.com/product/232550/PLT-13673.html",
+      "image_url": "https://assets.1000bulbs.com/variants/npWwmzzWniWYT5oXePU1r18J/2396028417565ec9a5980759fc72d6e316eaf3f8aa8cc250171894c07012ad4f",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://assets.1000bulbs.com/w7PqjSQfbPkShkcGydKcGMk5?response-content-disposition=inline%3B+filename%3D%22plt-13673-specs.pdf",
+          "source": "1000bulbs"
+        },
+        {
+          "kind": "document",
+          "url": "https://assets.1000bulbs.com/1sSsKndFibWgmDL6zovhYErs?response-content-disposition=inline%3B+filename%3D%22plt-retrofit-bulb-and-fixture-warranty-vapr24.pdf",
+          "source": "1000bulbs"
+        },
+        {
+          "kind": "document",
+          "url": "https://assets.1000bulbs.com/static/homepage/creditapplication.pdf",
+          "source": "1000bulbs"
+        }
+      ],
+      "offers": [
+        {
+          "source": "1000bulbs",
+          "price": 7.52,
+          "url": "https://www.1000bulbs.com/product/232550/PLT-13673.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "SYLV-65702",
+      "brand": "Sylvania",
+      "title": "Black Surface/Pendant Mount Bracket, For Small UFOs 3A \u0026 5A Series",
+      "category": "Lighting Components",
+      "best_price": 14.7,
+      "best_source": "bees-lighting",
+      "product_url": "https://www.beeslighting.com/products/sylvania-sylv-65702-sylvania-ufo-high-bay-3a-black-surface-pendant-mount-bracket-for-100-150w-products?_pos=9\u0026_psq=pendant+light\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0553/9492/6650/files/SYLV-65702_100.jpg?v=1760847074",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://files.plytix.com/api/v1.1/file/public_files/pim/assets/76/31/d1/64/64d13176886739000117d282/texts/93/e3/51/65/6551e39393bceaebf3fbbd14/Selectable-UFO-High-Bay-3A-Sylvania-Lighting-specs.pdf",
+          "source": "bees-lighting"
+        }
+      ],
+      "offers": [
+        {
+          "source": "bees-lighting",
+          "price": 14.7,
+          "url": "https://www.beeslighting.com/products/sylvania-sylv-65702-sylvania-ufo-high-bay-3a-black-surface-pendant-mount-bracket-for-100-150w-products?_pos=9\u0026_psq=pendant+light\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Black Surface/Pendant Mount Bracket for 100-150W products"
+      ]
+    },
+    {
+      "model": "SYLV-66703",
+      "brand": "Sylvania",
+      "title": "Pendant Mount, For UFOs, Black",
+      "category": "Lighting Components",
+      "best_price": 17,
+      "best_source": "bees-lighting",
+      "product_url": "https://www.beeslighting.com/products/sylvania-sylv-66703-pendant-mount-for-sylvania-opti-select-ufo-high-bay-black?_pos=7\u0026_psq=pendant+light\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0553/9492/6650/files/LEDVANCE-Mount_SYLV-66703_100.jpg?v=1769515096",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://files.plytix.com/api/v1.1/file/public_files/pim/assets/76/31/d1/64/64d13176886739000117d282/texts/90/44/e6/68/68e64490680945c39dfa0320/asset-13277019_LEDLUM237_LEDVANCE_Luminaires_OPTI-SELECT_UFO_HIGH_BAY.pdf",
+          "source": "bees-lighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://files.plytix.com/api/v1.1/file/public_files/pim/assets/76/31/d1/64/64d13176886739000117d282/texts/90/44/e6/68/68e64490680945c39dfa031e/asset-13278520_VALUE_CLASS_OPTI_SELECT_UFO_HIGH_BAY.pdf",
+          "source": "bees-lighting"
+        }
+      ],
+      "offers": [
+        {
+          "source": "bees-lighting",
+          "price": 17,
+          "url": "https://www.beeslighting.com/products/sylvania-sylv-66703-pendant-mount-for-sylvania-opti-select-ufo-high-bay-black?_pos=7\u0026_psq=pendant+light\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Adapt your black LEDVANCE Sylvania OPTI-SELECT UFO High Bay for traditional pendant mounting with this durable kit. It allows for secure attachment to 3/4\" rigid conduit, giving you the flexibility to set the perfect hanging height in warehouses and other high-ceiling environments."
+      ]
+    },
+    {
+      "model": "CD34STEM",
+      "brand": "RAB Lighting",
+      "title": "Black Pendant Mount Accessory, 12\" Linkable Stems and Base",
+      "category": "Lighting Components",
+      "best_price": 21,
+      "best_source": "bees-lighting",
+      "product_url": "https://www.beeslighting.com/products/rab-lighting-cd34stem-k-black-pendant-mount-accessory-12-linkable-stems-and-base?_pos=8\u0026_psq=pendant+light\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0553/9492/6650/files/CD34STEM-K_100.png?v=1771121540",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://files.plytix.com/api/v1.1/file/public_files/pim/assets/76/31/d1/64/64d13176886739000117d282/texts/bd/48/cb/65/65cb48bdeb48e049cef8c147/CD34STEM-K-RAB-Lighting-specs.pdf",
+          "source": "bees-lighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://files.plytix.com/api/v1.1/file/public_files/pim/assets/76/31/d1/64/64d13176886739000117d282/texts/bd/48/cb/65/65cb48bdeb48e049cef8c153/CD34STEM-K-RAB-Lighting-Sellsheet.pdf",
+          "source": "bees-lighting"
+        },
+        {
+          "kind": "spec",
+          "url": "https://files.plytix.com/api/v1.1/file/public_files/pim/assets/76/31/d1/64/64d13176886739000117d282/texts/bd/48/cb/65/65cb48bdeb48e049cef8c14b/CD34STEM-K-RAB-Lighting-family-specs.pdf",
+          "source": "bees-lighting"
+        }
+      ],
+      "offers": [
+        {
+          "source": "bees-lighting",
+          "price": 21,
+          "url": "https://www.beeslighting.com/products/rab-lighting-cd34stem-k-black-pendant-mount-accessory-12-linkable-stems-and-base?_pos=8\u0026_psq=pendant+light\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "RAB CD34STEM-K black pendant mounting system transforms surface cylinders into suspended fixtures. This versatile accessory includes a mounting base and four linkable 12-inch stems, allowing custom drop heights for retail displays, restaurant dining areas, and contemporary commercial spaces requiring flexible pendant installations.\nIncludes base plus four 12-inch linkable stems\nBlack finish complements modern interiors\nAdjustable drop height up to 48 inches\nCompatible with RAB CD34 surface cylinders\nPerfect for retail, restaurants, and commercial pendants"
+      ]
+    },
+    {
+      "model": "PLT-13630",
+      "brand": "PLT",
+      "title": "Pendant Mount Pipe Adaptor - Converts M10 to 3/4 in. NPS - For use with Select LED UFO High Bays - PLT-13630",
+      "category": "cat6 fixture accessories",
+      "best_price": 21.44,
+      "best_source": "1000bulbs",
+      "product_url": "https://www.1000bulbs.com/product/231917/PLT-13630.html",
+      "image_url": "https://assets.1000bulbs.com/variants/3z7ZgAdCPyGwnxFE5NQ2CB7A/2396028417565ec9a5980759fc72d6e316eaf3f8aa8cc250171894c07012ad4f",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://assets.1000bulbs.com/utLtbQ1r4WS67g82w1eexHHr?response-content-disposition=inline%3B+filename%3D%22plt-13630-specs.pdf",
+          "source": "1000bulbs"
+        },
+        {
+          "kind": "document",
+          "url": "https://assets.1000bulbs.com/1sSsKndFibWgmDL6zovhYErs?response-content-disposition=inline%3B+filename%3D%22plt-retrofit-bulb-and-fixture-warranty-vapr24.pdf",
+          "source": "1000bulbs"
+        },
+        {
+          "kind": "document",
+          "url": "https://assets.1000bulbs.com/static/homepage/creditapplication.pdf",
+          "source": "1000bulbs"
+        }
+      ],
+      "offers": [
+        {
+          "source": "1000bulbs",
+          "price": 21.44,
+          "url": "https://www.1000bulbs.com/product/231917/PLT-13630.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: electrical",
+    "Category search-result model discovery used; search-derived prices are labeled as fallback evidence, not direct retailer API results."
+  ],
+  "sources_run": [
+    "superbrightleds",
+    "prolighting",
+    "1000bulbs",
+    "bees-lighting",
+    "lighting-new-york",
+    "brave-search"
+  ]
+}

@@ -21,7 +21,7 @@ func newProductSearchCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "product-search [query]",
-		Short: "Fan-out product search across all Tier 1 sources. Category-based routing sends queries to relevant sources.",
+		Short: "Fan-out product search across active sources. Category-based routing sends queries to relevant sources.",
 		Long: `Search all active sources in parallel when a query is provided directly.
 Use subcommands (westelm-search, ferguson-search, etc.) to target a single source.`,
 		Example: `  reno-goat-pp-cli product-search "floating vanity"
@@ -39,7 +39,7 @@ Use subcommands (westelm-search, ferguson-search, etc.) to target a single sourc
 		},
 	}
 
-	cmd.Flags().StringVar(&categoryFlag, "category", "", "Comma-separated categories: foundational, appliances, furniture, decor")
+	cmd.Flags().StringVar(&categoryFlag, "category", "", "Comma-separated categories: foundational, plumbing, electrical, hvac, flooring, hardware, materials, appliances, furniture, decor")
 	cmd.Flags().StringVar(&roomFlag, "room", "", "Room shortcut: bathroom, kitchen, bedroom, living, dining, outdoor")
 	cmd.Flags().StringVar(&sourceFlag, "source", "", "Comma-separated source names (overrides category/room routing)")
 	cmd.Flags().StringVar(&sortFlag, "sort", "relevance", "Sort merged results: relevance, price-asc, price-desc, rating")

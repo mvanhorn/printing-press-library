@@ -12,9 +12,9 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/reno-goat/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/reno-goat/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"
@@ -144,8 +144,8 @@ func isCobraUsageError(err error) bool {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "reno-goat-pp-cli",
-		Short: `Search, compare, price-watch, and project-track renovation and interior products across 11 retailers — category-routed to Ferguson, West Elm, Rejuvenation, Article, Shopify DTC, and more.`,
-		Long: `Search, compare, price-watch, and project-track renovation and interior products across 11 retailers — category-routed to Ferguson, West Elm, Rejuvenation, Article, Shopify DTC, and more.
+		Short: `Search, compare, price-watch, model-enrich, and project-track renovation selections across 33 active sources plus 5 tracked stubs.`,
+		Long: `Search, compare, price-watch, model-enrich, and project-track homeowner-visible renovation selections across 33 active sources plus 5 tracked stubs. Reno Goat focuses on the middle ground between commodity builder supply and home decor, with category routing and model intelligence across appliances, plumbing, electrical, HVAC, flooring, hardware, materials, furniture, and decor.
 
 Add --agent to any command for JSON output + non-interactive mode.
 Run 'reno-goat-pp-cli doctor' to verify auth and connectivity.`,
@@ -256,6 +256,8 @@ Run 'reno-goat-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newFindRelatedPromotedCmd(flags))
 	rootCmd.AddCommand(newFindSimilarPromotedCmd(flags))
 	rootCmd.AddCommand(newSourcesCmd(flags))
+	rootCmd.AddCommand(newSourceProbeCmd(flags))
+	rootCmd.AddCommand(newModelIntelCmd(flags))
 	rootCmd.AddCommand(newWatchCmd(flags))
 	rootCmd.AddCommand(newProjectCmd(flags))
 	rootCmd.AddCommand(newSaveCmd(flags))

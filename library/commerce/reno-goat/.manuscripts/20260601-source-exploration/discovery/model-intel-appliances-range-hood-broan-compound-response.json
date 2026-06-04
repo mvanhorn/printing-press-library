@@ -1,0 +1,280 @@
+{
+  "query": "range hood",
+  "total": 5,
+  "models": [
+    {
+      "model": "30466002",
+      "title": "LAGAN Under cabinet range hood",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen appliances \u003e Range hoods \u0026 filters \u003e Wall mounted range hoods",
+      "best_price": 89.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/lagan-under-cabinet-range-hood-white-30466002/",
+      "image_url": "https://www.ikea.com/us/en/images/products/lagan-under-cabinet-range-hood-white__0781239_pe760598_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/lagan-under-cabinet-range-hood-white__AA-2180964-5-1.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/lagan-under-cabinet-range-hood-white__AA-2180957-5-1.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 89.99,
+          "url": "https://www.ikea.com/us/en/p/lagan-under-cabinet-range-hood-white-30466002/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/30466002.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "30462136",
+      "title": "GENOMDRIVA Under cabinet range hood",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen appliances \u003e Range hoods \u0026 filters \u003e Wall mounted range hoods",
+      "best_price": 119,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/genomdriva-under-cabinet-range-hood-stainless-steel-30462136/",
+      "image_url": "https://www.ikea.com/us/en/images/products/genomdriva-under-cabinet-range-hood-stainless-steel__0781234_pe760593_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/genomdriva-under-cabinet-range-hood-stainless-steel__AA-2180964-5-1.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/genomdriva-under-cabinet-range-hood-stainless-steel__AA-2180957-5-1.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 119,
+          "url": "https://www.ikea.com/us/en/p/genomdriva-under-cabinet-range-hood-stainless-steel-30462136/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/30462136.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "Stainless steel"
+      ]
+    },
+    {
+      "model": "39559799",
+      "title": "SEKTION Wall cab w built-in range hood",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen cabinets \u003e Cabinets for built-in appliances",
+      "best_price": 158,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/sektion-wall-cab-w-built-in-range-hood-white-havstorp-light-gray-s39559799/",
+      "image_url": "https://www.ikea.com/us/en/images/products/sektion-wall-cab-w-built-in-range-hood-white-havstorp-light-gray__1324357_pe943437_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/sektion-wall-cb-f-range-hood-w-shelf-white__AA-2227917-6-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/utrusta-hinge-w-b-in-damper-for-kitchen__AA-2033963-1-2.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/sektion-wall-cb-f-range-hood-w-shelf-white__AA-2227926-1-2.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/sektion-wall-cb-f-range-hood-w-shelf-white__AA-2231634-1-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 158,
+          "url": "https://www.ikea.com/us/en/p/sektion-wall-cab-w-built-in-range-hood-white-havstorp-light-gray-s39559799/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/39559799.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "white/Havstorp light gray"
+      ]
+    },
+    {
+      "model": "JVX5300SJSS",
+      "brand": "GE",
+      "title": "GE® 30\" Under The Cabinet Hood",
+      "category": "Under Cabinet Hood",
+      "best_price": 339,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-30-Under-The-Cabinet-Hood-JVX5300SJSS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/3156/1021478/03c4a24c54ebd81b58dd1c7ec2fb16609efd456b__26496.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--bA5QdjdV--/39f2ceacf31880f385a14bf9b439bd22401434e4.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--4GV1Kptl--/mwarprlc42qjbqnw3y0e.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--MnL223x6--/racnzrnrep4tqmqxc6q3.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--QK7VvZIK--/6c58ea45d3dcd8721cdaa84b413c24c5bf24ab62.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--08u7_zah--/f92beb9c5dabc367a7ad416b68d00f5b550dd5db.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 339,
+          "regular": 339,
+          "url": "https://www.geappliances.com/appliance/GE-30-Under-The-Cabinet-Hood-JVX5300SJSS",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/JVX5300SJSS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 5.5 H x 29.875 W x 20 D\nappearance_color_appearance: Stainless Steel\nfeatures_control_type: Pushbutton,Backlit\nfeatures_exhaust_options: Vented to Outside,Recirculating\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--bA5QdjdV--/39f2ceacf31880f385a14bf9b439bd22401434e4.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--4GV1Kptl--/mwarprlc42qjbqnw3y0e.pdf\nbenefits: Easy installation; Four-speed with boost, 310-CFM venting system; Electronic backlit controls; Dual halogen lighting with nightlight"
+      ]
+    },
+    {
+      "model": "90462138",
+      "title": "UTDRAGBAR Under cabinet range hood",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen appliances \u003e Range hoods \u0026 filters \u003e Under cabinet and built-in range hoods",
+      "best_price": 399,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/utdragbar-under-cabinet-range-hood-stainless-steel-90462138/",
+      "image_url": "https://www.ikea.com/us/en/images/products/utdragbar-under-cabinet-range-hood-stainless-steel__0820715_pe775119_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/utdragbar-under-cabinet-range-hood-stainless-steel__AA-2194837-5-1.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/utdragbar-under-cabinet-range-hood-stainless-steel__AA-2194849-8-1.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 399,
+          "url": "https://www.ikea.com/us/en/p/utdragbar-under-cabinet-range-hood-stainless-steel-90462138/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/90462138.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "Stainless steel"
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/30466002.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/30462136.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/39559799.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/JVX5300SJSS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/90462138.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: appliances",
+    "Category search-result model discovery used; search-derived prices are labeled as fallback evidence, not direct retailer API results.",
+    "Source warning: ferguson: ferguson: HTTP 403: \u003cHTML\u003e\u003cHEAD\u003e"
+  ],
+  "sources_run": [
+    "ferguson",
+    "ikea",
+    "ge-appliances",
+    "bray-and-scarff",
+    "broan-nutone",
+    "brave-search"
+  ]
+}

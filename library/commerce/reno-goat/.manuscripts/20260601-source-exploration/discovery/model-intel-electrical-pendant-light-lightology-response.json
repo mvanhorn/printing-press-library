@@ -1,0 +1,194 @@
+{
+  "query": "pendant light",
+  "total": 8,
+  "models": [
+    {
+      "model": "MAMBPDLP09-ROS",
+      "brand": "Muuto",
+      "title": "Ambit Pendant",
+      "category": "Chandeliers \u0026 Pendants \u003e Pendants \u003e Pink",
+      "best_price": 314,
+      "best_source": "lightology",
+      "product_url": "https://www.lightology.com/index.php?module=prod_detail\u0026prod_id=678172\u0026cat_id=106",
+      "image_url": "https://www.lightology.com/img/prod/original/678172.jpg",
+      "offers": [
+        {
+          "source": "lightology",
+          "price": 314,
+          "url": "https://www.lightology.com/index.php?module=prod_detail\u0026prod_id=678172\u0026cat_id=106",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "BOLA-SPH-4-CRM",
+      "brand": "Pablo",
+      "title": "Bola Sphere Pendant",
+      "category": "Chandeliers \u0026 Pendants \u003e Pendants \u003e White",
+      "best_price": 340,
+      "best_source": "lightology",
+      "product_url": "https://www.lightology.com/index.php?module=prod_detail\u0026prod_id=874290\u0026cat_id=106",
+      "image_url": "https://www.lightology.com/img/prod/original/874290.jpg",
+      "offers": [
+        {
+          "source": "lightology",
+          "price": 340,
+          "url": "https://www.lightology.com/index.php?module=prod_detail\u0026prod_id=874290\u0026cat_id=106",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "PD87118-WH-UNV-010",
+      "brand": "Kuzco Lighting",
+      "title": "Cerchio Pendant",
+      "category": "Chandeliers \u0026 Pendants \u003e Pendants \u003e White",
+      "best_price": 446,
+      "best_source": "lightology",
+      "product_url": "https://www.lightology.com/index.php?module=prod_detail\u0026prod_id=1087227\u0026cat_id=106",
+      "image_url": "https://www.lightology.com/img/prod/original/1087227.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.lightology.com/img/prod/pdf/dimmer_chart/1087227.pdf",
+          "source": "lightology"
+        }
+      ],
+      "offers": [
+        {
+          "source": "lightology",
+          "price": 446,
+          "url": "https://www.lightology.com/index.php?module=prod_detail\u0026prod_id=1087227\u0026cat_id=106",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "BLM001",
+      "brand": "Resident Lighting",
+      "title": "Bloom Pendant",
+      "category": "Chandeliers \u0026 Pendants \u003e Pendants \u003e White",
+      "best_price": 695,
+      "best_source": "lightology",
+      "product_url": "https://www.lightology.com/index.php?module=prod_detail\u0026prod_id=575193\u0026cat_id=106",
+      "image_url": "https://www.lightology.com/img/prod/original/575193.jpg",
+      "offers": [
+        {
+          "source": "lightology",
+          "price": 695,
+          "url": "https://www.lightology.com/index.php?module=prod_detail\u0026prod_id=575193\u0026cat_id=106",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "SP-100978",
+      "brand": "In Common With",
+      "title": "Ceramic Spot Pendant",
+      "category": "Chandeliers \u0026 Pendants \u003e Pendants \u003e Green",
+      "best_price": 700,
+      "best_source": "lightology",
+      "product_url": "https://www.lightology.com/index.php?module=prod_detail\u0026prod_id=960505\u0026cat_id=106",
+      "image_url": "https://www.lightology.com/img/prod/original/960505.jpg",
+      "offers": [
+        {
+          "source": "lightology",
+          "price": 700,
+          "url": "https://www.lightology.com/index.php?module=prod_detail\u0026prod_id=960505\u0026cat_id=106",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "FU317557",
+      "brand": "FLOS",
+      "title": "IC Light Suspension",
+      "category": "Chandeliers \u0026 Pendants \u003e Pendants \u003e White",
+      "best_price": 715,
+      "best_source": "lightology",
+      "product_url": "https://www.lightology.com/index.php?module=prod_detail\u0026prod_id=406011\u0026cat_id=106",
+      "image_url": "https://www.lightology.com/img/prod/original/406011.jpg",
+      "offers": [
+        {
+          "source": "lightology",
+          "price": 715,
+          "url": "https://www.lightology.com/index.php?module=prod_detail\u0026prod_id=406011\u0026cat_id=106",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "MES04CH-PUSM2",
+      "brand": "Tom Dixon",
+      "title": "Melt Pendant",
+      "category": "Chandeliers \u0026 Pendants \u003e Pendants \u003e Silver Metallic",
+      "best_price": 820,
+      "best_source": "lightology",
+      "product_url": "https://www.lightology.com/index.php?module=prod_detail\u0026prod_id=851970\u0026cat_id=106",
+      "image_url": "https://www.lightology.com/img/prod/original/851970.jpg",
+      "offers": [
+        {
+          "source": "lightology",
+          "price": 820,
+          "url": "https://www.lightology.com/index.php?module=prod_detail\u0026prod_id=851970\u0026cat_id=106",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "TXSP-5W-C-48-27K-SBK",
+      "brand": "PureEdge Lighting",
+      "title": "Tie Stix Metal Center Feed Suspension",
+      "category": "Chandeliers \u0026 Pendants \u003e Pendants \u003e Black",
+      "best_price": 829,
+      "best_source": "lightology",
+      "product_url": "https://www.lightology.com/index.php?module=prod_detail\u0026prod_id=506977\u0026cat_id=106",
+      "image_url": "https://www.lightology.com/img/prod/original/506977.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.lightology.com/img/prod/pdf/PureEdge_TieStix_SuspensionLinearChannel_Power_CenterFeed_rev082021.pdf",
+          "source": "lightology"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.lightology.com/img/prod/pdf/904_txsp_uni.02.pdf",
+          "source": "lightology"
+        }
+      ],
+      "offers": [
+        {
+          "source": "lightology",
+          "price": 829,
+          "url": "https://www.lightology.com/index.php?module=prod_detail\u0026prod_id=506977\u0026cat_id=106",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/TXSP-5W-C-48-27K-SBK.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/TXSP-5W-C-48-27K-SBK.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category search-result model discovery used; search-derived prices are labeled as fallback evidence, not direct retailer API results."
+  ],
+  "sources_run": [
+    "lightology",
+    "brave-search"
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "query": "shower valve",
+  "total_results": 3,
+  "sources_queried": [
+    "qualitybath"
+  ],
+  "products": [
+    {
+      "id": "2-VR",
+      "source": "qualitybath",
+      "title": "2 Handle Tub or Shower Valve",
+      "brand": "California Faucets",
+      "url": "https://www.qualitybath.com/california-faucets-2-vr-2-handle-tub-or-shower-valve-product-366118.htm",
+      "image_url": "https://qb-res.cloudinary.com/f_auto,q_auto/products/2-VR-1_eqvjvm",
+      "price_min": 351.75,
+      "price_max": 351.75,
+      "regular_price_min": 351.75,
+      "regular_price_max": 351.75,
+      "category": "Bath \u003e shower controls"
+    },
+    {
+      "id": "73CR690",
+      "source": "qualitybath",
+      "title": "Morgana Thermostatic Shower Valve with Volume Control",
+      "brand": "Latoscana",
+      "url": "https://www.qualitybath.com/latoscana-73cr690-morgana-thermostatic-shower-valve-with-volume-control-product-82759.htm",
+      "image_url": "https://qb-res.cloudinary.com/f_auto,q_auto/products/73CR690_mgunew",
+      "price_min": 143,
+      "price_max": 143,
+      "regular_price_min": 143,
+      "regular_price_max": 143,
+      "category": "Bath \u003e shower controls"
+    },
+    {
+      "id": "34150003",
+      "source": "qualitybath",
+      "title": "Grohtherm 1000 Thermostat Shower Valve",
+      "brand": "Grohe",
+      "url": "https://www.qualitybath.com/grohe-34150-grohtherm-1000-thermostat-shower-valve-product-236804.htm",
+      "image_url": "https://qb-res.cloudinary.com/f_auto,q_auto/products/hfpmobnklct9itwpvaza3bksn8id7aoz_t7suxx",
+      "description": "Use Code QBSAVE To Save 15%",
+      "price_min": 423.3,
+      "price_max": 423.3,
+      "regular_price_min": 423.3,
+      "regular_price_max": 423.3,
+      "category": "Bath \u003e shower controls"
+    }
+  ]
+}

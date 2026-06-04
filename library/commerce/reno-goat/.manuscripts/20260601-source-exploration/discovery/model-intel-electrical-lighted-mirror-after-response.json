@@ -1,0 +1,314 @@
+{
+  "query": "lighted mirror",
+  "total": 10,
+  "models": [
+    {
+      "model": "40602711",
+      "title": "EKFÄNN Table mirror w integrated lighting",
+      "category": "Home decor \u0026 accessories \u003e Mirrors \u003e Magnifying \u0026 makeup mirrors",
+      "best_price": 39.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/ekfaenn-table-mirror-w-integrated-lighting-dimmable-black-40602711/",
+      "image_url": "https://www.ikea.com/us/en/images/products/ekfaenn-table-mirror-w-integrated-lighting-dimmable-black__1386256_pe963701_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/ekfaenn-table-mirror-w-integrated-lighting-dimmable-black__AA-2561325-1-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 39.99,
+          "url": "https://www.ikea.com/us/en/p/ekfaenn-table-mirror-w-integrated-lighting-dimmable-black-40602711/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "dimmable/black"
+      ]
+    },
+    {
+      "model": "10602703",
+      "title": "EKFÄNN Mirror with built-in light",
+      "category": "Home decor \u0026 accessories \u003e Mirrors \u003e Magnifying \u0026 makeup mirrors",
+      "best_price": 49.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/ekfaenn-mirror-with-built-in-light-dimmable-wall-mounted-black-10602703/",
+      "image_url": "https://www.ikea.com/us/en/images/products/ekfaenn-mirror-with-built-in-light-dimmable-wall-mounted-black__1386257_pe963700_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/ekfaenn-mirror-with-built-in-light-dimmable-wall-mounted-black__AA-2561089-1-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 49.99,
+          "url": "https://www.ikea.com/us/en/p/ekfaenn-mirror-with-built-in-light-dimmable-wall-mounted-black-10602703/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "dimmable wall mounted/black"
+      ]
+    },
+    {
+      "model": "BUYS1",
+      "title": "Homewerks 24 in. Brushed Stainless Steel LED Mirror",
+      "category": "Mirror",
+      "best_price": 68,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/special-buys1/homewerks-24-in.-brushed-stainless-steel-led-mirror-101130318.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 68,
+          "regular": 68,
+          "url": "https://www.flooranddecor.com/special-buys1/homewerks-24-in.-brushed-stainless-steel-led-mirror-101130318.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "101135564",
+      "brand": "Studio Design Collection",
+      "title": "Matte Black 59 in. LED Mirror",
+      "category": "Mirror",
+      "best_price": 168,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/available-in-store-only/matte-black-59-in.-led-mirror-101135564.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 168,
+          "regular": 168,
+          "url": "https://www.flooranddecor.com/available-in-store-only/matte-black-59-in.-led-mirror-101135564.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "10250084",
+      "title": "STORJORM Mirror with built-in light",
+      "category": "Home decor \u0026 accessories \u003e Mirrors \u003e Vanity mirrors with lights",
+      "best_price": 189.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/storjorm-mirror-with-built-in-light-white-10250084/",
+      "image_url": "https://www.ikea.com/us/en/images/products/storjorm-mirror-with-built-in-light-white__0637661_pe698451_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/storjorm-mirror-with-built-in-light-white__AA-816995-6-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/storjorm-mirror-with-built-in-light-white__AA-2328902-5-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 189.99,
+          "url": "https://www.ikea.com/us/en/p/storjorm-mirror-with-built-in-light-white-10250084/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "101486066",
+      "brand": "Homewerks",
+      "title": "Homewerks 24 in. Silver LED Mirror",
+      "category": "Mirror",
+      "best_price": 199,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/mirrors/homewerks-24-in.-silver-led-mirror-101486066.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 199,
+          "regular": 199,
+          "url": "https://www.flooranddecor.com/mirrors/homewerks-24-in.-silver-led-mirror-101486066.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Homewerks 24 in. Silver LED Mirror is the perfect addition to any residential space, providing both functionality and modern style. This sleek and elegant mirror is designed to be installed on the wall, making it a versatile and convenient choice for various room settings.\u003c/p\u003e\u003cul\u003e \u003cli\u003eThe silver finish offers a contemporary look that complements any decor.\u003c/li\u003e \u003cli\u003eLED lighting provides bright, energy-efficient illumination for your daily routines.\u003c/li\u003e \u003cli\u003eThe rectangular shape maximizes reflective surface area, enhancing visibility.\u003c/li\u003e \u003cli\u003eSuitable for wall installation, saving valuable counter space.\u003c/li\u003e \u003cli\u003eBacked by a 2-year limited warranty, ensuring long-term reliability.\u003c/li\u003e\u003c/ul\u003e\u003cp\u003eUpgrade your home with the Homewerks 24 in. Silver LED Mirror, combining practicality and sophistication to elevate your living environment.\u003c/p\u003e"
+      ]
+    },
+    {
+      "model": "LM1832",
+      "brand": "RAB",
+      "title": "RAB MIRA Edge LED Mirror Light - 18\" x 32\" - 23W - CCT Selectable - 120V",
+      "category": "Illuminated Mirrors \u003e Vanity Lights \u003e MIRA Lighted Mirrors",
+      "best_price": 200,
+      "best_source": "prolighting",
+      "product_url": "https://www.prolighting.com/rab-led-mirror-light-lm1832.html",
+      "image_url": "https://www.prolighting.com/media/klevu_images/320X320/l/m/lm1832.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://www.prolighting.com/LM1832_spec_sheet.pdf",
+          "source": "prolighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.prolighting.com/Mira-Mirror-Light-Sell-Sheet_1.pdf",
+          "source": "prolighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.prolighting.com/MIRA-Mirror-Light-Instructions.pdf",
+          "source": "prolighting"
+        }
+      ],
+      "offers": [
+        {
+          "source": "prolighting",
+          "price": 200,
+          "regular": 200,
+          "url": "https://www.prolighting.com/rab-led-mirror-light-lm1832.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "RAB MIRA Edge LED Mirror Light - 18\" x 32\" - 23W - CCT Selectable - 120V"
+      ]
+    },
+    {
+      "model": "LME2432",
+      "brand": "RAB",
+      "title": "RAB MIRA Edge LED Mirror Light - 24\" x 32\" Ellipse - 46W - CCT Selectable - 120V",
+      "category": "Illuminated Mirrors \u003e Vanity Lights \u003e MIRA Lighted Mirrors",
+      "best_price": 214.3,
+      "best_source": "prolighting",
+      "product_url": "https://www.prolighting.com/rab-led-mirror-light-lme2432.html",
+      "image_url": "https://www.prolighting.com/media/klevu_images/320X320/l/m/lme2432.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://www.prolighting.com/LME2432_spec_sheet.pdf",
+          "source": "prolighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.prolighting.com/Mira-Mirror-Light-Sell-Sheet_1.pdf",
+          "source": "prolighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.prolighting.com/MIRA-Mirror-Light-Instructions.pdf",
+          "source": "prolighting"
+        }
+      ],
+      "offers": [
+        {
+          "source": "prolighting",
+          "price": 214.3,
+          "regular": 214.3,
+          "url": "https://www.prolighting.com/rab-led-mirror-light-lme2432.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "RAB MIRA Edge LED Mirror Light - 24\" x 32\" Ellipse - 46W - CCT Selectable - 120V"
+      ]
+    },
+    {
+      "model": "100990092",
+      "title": "Lyla 24 in. Frameless LED Mirror",
+      "category": "Mirror",
+      "best_price": 239,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/lighting/lyla-24-in.-frameless-led-mirror-100990092.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 239,
+          "regular": 239,
+          "url": "https://www.flooranddecor.com/lighting/lyla-24-in.-frameless-led-mirror-100990092.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Lyla 24 in. Frameless LED Mirror is a timeless and versatile choice for any bathroom setting - or any room in your home. With its clear finish and attractive design, it adds a touch of elegance wherever it is placed.\u003c/p\u003e\u003cbr /\u003e\u003cul\u003e\u003cli\u003eEasy to install with the included mounting hardware.\u003c/li\u003e\u003cli\u003eThe mirror mounts .\u003c/li\u003e\u003cli\u003eMeasuring 24 x 24in., this mirror will easily fit into most spaces.\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    },
+    {
+      "model": "LM2436",
+      "brand": "RAB",
+      "title": "RAB MIRA Edge LED Mirror Light - 24\" x 36\" - 47W - CCT Selectable - 120V",
+      "category": "Illuminated Mirrors \u003e Vanity Lights \u003e MIRA Lighted Mirrors",
+      "best_price": 257.2,
+      "best_source": "prolighting",
+      "product_url": "https://www.prolighting.com/rab-led-mirror-light-lm2436.html",
+      "image_url": "https://www.prolighting.com/media/klevu_images/320X320/l/m/lm2436.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://www.prolighting.com/LM2436_spec_sheet.pdf",
+          "source": "prolighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.prolighting.com/Mira-Mirror-Light-Sell-Sheet_1.pdf",
+          "source": "prolighting"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.prolighting.com/MIRA-Mirror-Light-Instructions.pdf",
+          "source": "prolighting"
+        }
+      ],
+      "offers": [
+        {
+          "source": "prolighting",
+          "price": 257.2,
+          "regular": 257.2,
+          "url": "https://www.prolighting.com/rab-led-mirror-light-lm2436.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "RAB MIRA Edge LED Mirror Light - 24\" x 36\" - 47W - CCT Selectable - 120V"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: electrical, plumbing, decor",
+    "Source warning: lightology: lightology: no category route for query \"lighted mirror\"",
+    "Source warning: ferguson: ferguson: HTTP 403: \u003cHTML\u003e\u003cHEAD\u003e",
+    "Source warning: article: article: GraphQL error: PersistedQueryNotFound"
+  ],
+  "sources_run": [
+    "superbrightleds",
+    "prolighting",
+    "1000bulbs",
+    "bees-lighting",
+    "lighting-new-york",
+    "lightology",
+    "ferguson",
+    "floor-and-decor",
+    "plumbersstock",
+    "faucetdepot",
+    "faucetlist",
+    "plumbtile",
+    "modern-bathroom",
+    "kbauthority",
+    "west-elm",
+    "article",
+    "rejuvenation",
+    "shopify-dtc",
+    "ikea"
+  ]
+}

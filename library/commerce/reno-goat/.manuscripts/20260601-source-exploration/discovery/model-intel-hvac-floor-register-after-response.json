@@ -1,0 +1,224 @@
+{
+  "query": "floor register",
+  "total": 10,
+  "models": [
+    {
+      "model": "REGISTER-DAMPER",
+      "title": "Register Damper",
+      "best_price": 32,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/register-damper/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202621/0005/img240c.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 32,
+          "regular": 32,
+          "url": "https://www.rejuvenation.com/products/register-damper/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Designed to fit behind your register, our durable steel louver allows you to regulate the flow of the air from your floor vents with a simple open and close design—increasing heating and cooling efficiency throughout your home. Details You'll Appreciate Pairs with our cast iron and steel registers—designed to fit snugly between air vent and register Open and close easily with a flathead screwdriver Available in multiple sizes—measure air duct opening rather than old register or grille to determine your size Product Specifications Steel Floor Mount Only"
+      ]
+    },
+    {
+      "model": "REGISTER-LOUVER",
+      "title": "Register Louver",
+      "best_price": 48,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/register-louver/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202621/0005/img370c.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 48,
+          "regular": 48,
+          "url": "https://www.rejuvenation.com/products/register-louver/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Designed to fit behind your register, our durable steel louver allows you to regulate the flow of the air from your floor vents with a simple open and close design—increasing heating and cooling efficiency throughout your home. Details You'll Appreciate Pairs with our metal registers—designed to fit snugly between air vent and register Product Specifications White Oak Floor Mount Only"
+      ]
+    },
+    {
+      "model": "CLASSIC-SCROLL-REGISTER",
+      "title": "Classic Scroll Register",
+      "best_price": 58,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/classic-scroll-register/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202621/0005/img333c.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 58,
+          "regular": 58,
+          "url": "https://www.rejuvenation.com/products/classic-scroll-register/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Inspired by 20th century designs, our cast iron register features a beautiful decorative face that adds an elevated touch to your home’s air vents. Pair yours with a louver to control the flow of air throughout your room. Details You'll Appreciate 20th century-inspired design Product Specifications Cast iron Floor Mount Only Register is for use on floor vents only"
+      ]
+    },
+    {
+      "model": "LINEAR-PATTERN-REGISTER",
+      "title": "Linear Pattern Register",
+      "best_price": 64,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/linear-pattern-register/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202621/0004/img150c.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 64,
+          "regular": 64,
+          "url": "https://www.rejuvenation.com/products/linear-pattern-register/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "With a modern, linear bar face, our steel register adds an elevated touch to your home’s air vents. Pair yours with a louver to control the flow of air throughout your room. Details You'll Appreciate Gridded linear pattern Available in a range of sizes to suit your home's air vents Pair with a Register Louver Product Specifications Steel Floor Mount Only Register is for use on floor vents only"
+      ]
+    },
+    {
+      "model": "SQUARE-PATTERN-REGISTER",
+      "title": "Square Pattern Register",
+      "best_price": 65,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/square-pattern-register/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202621/0005/img353c.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 65,
+          "regular": 65,
+          "url": "https://www.rejuvenation.com/products/square-pattern-register/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "With a clean grid design, our cast iron register adds an elevated, modern touch to your home’s air vents. Pair yours with a louver to control the flow of air throughout your room. Details You'll Appreciate Clean, modern design Product Specifications Cast Aluminum Floor Mount Only Register is for use on floor vents only"
+      ]
+    },
+    {
+      "model": "SURFACE-MOUNT-WOOD-REGISTER",
+      "title": "Surface Mount Wood Register",
+      "best_price": 68,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/surface-mount-wood-register/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202621/0004/img267c.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 68,
+          "regular": 68,
+          "url": "https://www.rejuvenation.com/products/surface-mount-wood-register/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "With a classic linear pattern and beveled edge, our wood register adds an elevated touch to your home’s air vents. Pair with a damper to control the flow of air throughout your room. Details You'll Appreciate Linear pattern Product Specifications White oak Floor Mount Only Register is for use on floor vents only Care Instructions While our surface mount wood grilles can be installed in the floor, they are not recommended nor guaranteed for high traffic areas where they will be continually walked on. Flush mount wood grilles are specially made for floor installations"
+      ]
+    },
+    {
+      "model": "ROYAL-PATTERN-REGISTER",
+      "title": "Royal Pattern Register",
+      "best_price": 73,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/royal-pattern-register/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202621/0005/img178c.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 73,
+          "regular": 73,
+          "url": "https://www.rejuvenation.com/products/royal-pattern-register/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "With a modern, slatted face, our steel register adds an elevated touch to your home’s air vents. Pair yours with a louver to control the flow of air throughout your room. Details You'll Appreciate Modern design with thin rails Available in a range of sizes to suit your home's air vents Pair with a Register Louver Product Specifications Steel Floor Mount Only Register is for use on floor vents only"
+      ]
+    },
+    {
+      "model": "FLUSH-MOUNT-WOOD-REGISTER",
+      "title": "Flush Mount Wood Register",
+      "best_price": 75,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/flush-mount-wood-register/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202621/0005/img132c.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 75,
+          "regular": 75,
+          "url": "https://www.rejuvenation.com/products/flush-mount-wood-register/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "With a classic linear pattern, our wood register adds an elevated touch to your home’s air vents. A flush mount design blends seamlessly into wooden floors. Pair with a damper to control the flow of air throughout your room. Details You'll Appreciate Classic wood design Available in a range of sizes to suit your home's air vents Pair with a Register Damper Product Specifications White oak Care Instructions While our flush mount wood grilles can be installed in the floor, they are not recommended nor guaranteed for high traffic areas where they will be continually walked on. Flush mount wood grilles are specially made for floor installations Floor Mount Only Register is for use on floor vents only"
+      ]
+    },
+    {
+      "model": "IMPERIAL-PATTERN-REGISTER",
+      "title": "Imperial Pattern Register",
+      "best_price": 84,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/imperial-pattern-register/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202621/0004/img311c.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 84,
+          "regular": 84,
+          "url": "https://www.rejuvenation.com/products/imperial-pattern-register/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "With a clover leaf pattern, our steel register adds a timeless and elegant touch to your home’s air vents. Pair yours with a louver to control the flow of air throughout your room. Details You'll Appreciate Elegant clover pattern Available in a range of sizes to suit your home's air vents Pair with a Register Louver Product Specifications Steel Floor Mount Only Register is for use on floor vents only"
+      ]
+    },
+    {
+      "model": "22738",
+      "brand": "HAM",
+      "title": "Hamilton Decorative Cast Bronze Floor Register - 10x2-1/4in. (Bronze Patina)",
+      "best_price": 176.22,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/hamilton-decorative-cast-bronze-floor-register-10x2-1-4in-bronze-patina-hvf-210-bp",
+      "image_url": "https://hardwarehut.com/images/moreimages/decorativegrillesandregisters/hamiltonsinkler/ham-hvf-210-bp-main.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://hardwarehut.com/images/pdf/hamilton/ham-hvf-210-bp.pdf",
+          "source": "hardware-hut"
+        }
+      ],
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 176.22,
+          "url": "https://hardwarehut.com/products/hamilton-decorative-cast-bronze-floor-register-10x2-1-4in-bronze-patina-hvf-210-bp",
+          "evidence": "normalized product search row"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: hvac, hardware"
+  ],
+  "sources_run": [
+    "pioneer-mini-split",
+    "sylvane",
+    "iwae",
+    "hardware-hut",
+    "rejuvenation",
+    "ikea",
+    "broan-nutone"
+  ]
+}

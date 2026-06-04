@@ -1,0 +1,43 @@
+{
+  "query": "hinge",
+  "total_results": 3,
+  "sources_queried": [
+    "hardware-hut"
+  ],
+  "products": [
+    {
+      "id": "408440",
+      "source": "hardware-hut",
+      "title": "Sugatsune 3-Way Adjustable Surface Mount Concealed Hinge  for 1-3/8\" (35mm) Min. Thick Doors - EACH",
+      "brand": "SUG",
+      "url": "https://hardwarehut.com/products/sugatsune-3-way-adjustable-surface-mount-concealed-hinge-for-1-3-8-35mm-min-thick-doors-each",
+      "image_url": "https://hardwarehut.com/images/moreimages/concealedandinvisiblehinges/sugatsune/hes2s150a110bl-productimage-main-01875-main.jpg",
+      "price_min": 54.4,
+      "price_max": 54.4
+    },
+    {
+      "id": "398106",
+      "source": "hardware-hut",
+      "title": "Sugatsune 3-Way Adjustable Surface Mount Concealed Hinge  for 1-1/2\" (38mm) Min. Thick Doors - EACH",
+      "brand": "SUG",
+      "url": "https://hardwarehut.com/products/sugatsune-3-way-adjustable-surface-mount-concealed-hinge-for-1-1-2-38mm-min-thick-doors-each-hes2s-140-a125",
+      "image_url": "https://hardwarehut.com/images/moreimages/concealedandinvisiblehinges/sugatsune/hes2s-140-a125-bl_1-main.jpg",
+      "price_min": 62.9,
+      "price_max": 62.9,
+      "rating": 2,
+      "review_count": 1
+    },
+    {
+      "id": "16894",
+      "source": "hardware-hut",
+      "title": "Knape and Vogt 8092 Series 4x4 Pivot Pocket Door Slides",
+      "brand": "KVM",
+      "url": "https://hardwarehut.com/products/knape-and-vogt-8092-series-4x4-pivot-pocket-door-slides-8092-series",
+      "image_url": "https://hardwarehut.com/images/moreimages/drawerslides-drawerglides/knapeandvogt/kvm-8092-silo-main.jpg",
+      "price_min": 10.12,
+      "price_max": 139.06,
+      "rating": 4.5,
+      "review_count": 8
+    }
+  ]
+}

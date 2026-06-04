@@ -1,0 +1,467 @@
+{
+  "query": "moen shower valve",
+  "total": 12,
+  "models": [
+    {
+      "model": "TL181",
+      "brand": "Moen®",
+      "title": "Moen® TL181 Valve Trim Only, 2.5 gpm Shower, Polished Chrome",
+      "category": "Pressure Balanced Trims",
+      "best_price": 30.174,
+      "best_source": "faucetdepot",
+      "product_url": "https://faucetdepot.com/product/180467/moen+reg+tl181+moen+reg+tl181+valve+trim+only+2+5+gpm+shower+polished+chrome",
+      "image_url": "https://hirschcontent.com/images/Moen_TL181.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://hirschcontent.com/documents/Moen_TL181_Specification_Sheet.pdf",
+          "source": "faucetdepot"
+        },
+        {
+          "kind": "installation",
+          "url": "https://assets.moen.com/shared/docs/instruction-sheets/ins10600a.pdf",
+          "source": "moen"
+        }
+      ],
+      "offers": [
+        {
+          "source": "faucetdepot",
+          "price": 30.174,
+          "regular": 46.35,
+          "url": "https://faucetdepot.com/product/180467/moen+reg+tl181+moen+reg+tl181+valve+trim+only+2+5+gpm+shower+polished+chrome",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "moen",
+          "url": "https://shop.moen.com/products/tl181",
+          "status": "ok"
+        }
+      ],
+      "source_fields": [
+        "Moen® Valve Trim Only, Series: TL181, Chateau®, 2.5 gpm Shower Flow Rate, Lever, 6-1/2 in Dia Trim, 1222 Pressure Balanced Valve/Cartridge, 1/2 in Copper Valve Inlet Connection, 1/2 in C Valve Outlet Connection, 80 psi, Wall Mount, For Use With: Chateau® 62300 1-Handle Tub/Shower Valve, Metal, Polished Chrome, 7.38 in W x 7.38 in D x 4 in H, Domestic"
+      ]
+    },
+    {
+      "model": "UTS9381",
+      "brand": "Moen",
+      "title": "MOEN UTS9381 COLINET 4 INCH M-CORE TRANSFER M-CORE TRANSFER VALVE TRIM",
+      "best_price": 277.09,
+      "best_source": "kbauthority",
+      "product_url": "https://shop.moen.com/products/uts9381",
+      "image_url": "https://www.kbauthority.com/images/W/542/UTS9381_Moen_Chrome.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://assets.moen.com/shared/docs/product-specifications/uts9381sp.pdf",
+          "source": "moen"
+        },
+        {
+          "kind": "installation",
+          "url": "https://assets.moen.com/shared/docs/instruction-sheets/ins10943.pdf",
+          "source": "moen"
+        },
+        {
+          "kind": "document",
+          "url": "https://assets.moen.com/shared/docs/exploded-parts-views/uts9381pt.pdf",
+          "source": "moen"
+        }
+      ],
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 277.09,
+          "url": "https://www.kbauthority.com/moen-uts9381-colinet-4-inch-m-core-transfer-m-core-transfer-valve-trim.html",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "moen",
+          "price": 613.05,
+          "url": "https://shop.moen.com/products/uts9381",
+          "evidence": "Moen product page price"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "moen",
+          "url": "https://shop.moen.com/products/uts9381",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "model": "UTS23005",
+      "brand": "Moen",
+      "title": "MOEN UTS23005 ARRIS M-CORE TRANSFER VALVE TRIM",
+      "best_price": 207.57,
+      "best_source": "moen",
+      "product_url": "https://shop.moen.com/products/uts23005",
+      "image_url": "https://www.kbauthority.com/images/W/246/UTS23005_Moen_Chrome.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://assets.moen.com/shared/docs/product-specifications/uts23005sp.pdf",
+          "source": "moen"
+        },
+        {
+          "kind": "installation",
+          "url": "https://assets.moen.com/shared/docs/instruction-sheets/ins10943.pdf",
+          "source": "moen"
+        },
+        {
+          "kind": "document",
+          "url": "https://assets.moen.com/shared/docs/exploded-parts-views/uts23005pt.pdf",
+          "source": "moen"
+        }
+      ],
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 278.53,
+          "url": "https://www.kbauthority.com/moen-uts23005-arris-m-core-transfer-valve-trim.html",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "moen",
+          "price": 207.57,
+          "url": "https://shop.moen.com/products/uts23005",
+          "evidence": "Moen product page price"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "moen",
+          "url": "https://shop.moen.com/products/uts23005",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "model": "UT2191",
+      "brand": "Moen",
+      "title": "MOEN UT2191 ALIGN M-CORE 2-SERIES VALVE ONLY",
+      "best_price": 280.53,
+      "best_source": "kbauthority",
+      "product_url": "https://shop.moen.com/products/ut2191",
+      "image_url": "https://www.kbauthority.com/images/W/247/UT2191_Moen_Chrome.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://assets.moen.com/shared/docs/product-specifications/spc21017sp.pdf",
+          "source": "moen"
+        },
+        {
+          "kind": "installation",
+          "url": "https://assets.moen.com/shared/docs/instruction-sheets/ins11041e.pdf",
+          "source": "moen"
+        },
+        {
+          "kind": "document",
+          "url": "https://assets.moen.com/shared/docs/exploded-parts-views/exp13992apt.pdf",
+          "source": "moen"
+        }
+      ],
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 280.53,
+          "url": "https://www.kbauthority.com/moen-ut2191-align-m-core-2-series-valve-only.html",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "moen",
+          "price": 439.83,
+          "url": "https://shop.moen.com/products/ut2191",
+          "evidence": "Moen product page price"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "moen",
+          "url": "https://shop.moen.com/products/ut2191",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "model": "RMAS-2SR-RH-HSW-S",
+      "brand": "Randolph Morris",
+      "title": "Tranquil Rainfall Wall Mounted Shower Set with Round Shower Head, Round Valve and Wand Handshower",
+      "category": "Tranquil",
+      "best_price": 295.99,
+      "best_source": "vintage-tub",
+      "product_url": "https://www.vintagetub.com/randolph-morris-rainfall-shower-set-with-round-shower-head-round-valve-and-wand-handshower-rmas-2sr-rh-hsw-s.html",
+      "image_url": "https://www.vintagetub.com/media/catalog/product/cache/21d5e030aee96734973017c40d77cfe9/d/c/dcp-155-rmas-2sr-rh-hsw-s-shower-faucet-kit-rs500-05-lifestyle_c3kepbknsct60wyu.jpg",
+      "offers": [
+        {
+          "source": "vintage-tub",
+          "price": 295.99,
+          "url": "https://www.vintagetub.com/randolph-morris-rainfall-shower-set-with-round-shower-head-round-valve-and-wand-handshower-rmas-2sr-rh-hsw-s.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Premium finish resists tarnishing and corrosion; Features a minimalist design that's perfect for any bathroom; Shower system includes wall-mount rainfall showerhead, two function valve, and hand shower; Two Function diverter features 1/2\" IPS inlets; Showerhead, shower arm, and valve plate are made of stainless steel; Hand shower and shower valve are made of brass; Showerhead features a spa-like rainfall spray pattern; Seamlessly blends modern innovation and timeless elegance; Expertly crafted for long-lasting durability; A perfect choice for your renovation project; Solid brass construction ensures durability and reliability; Ceramic quarter-turn valves offer a smooth, drip-free operation; Lead free for safe everyday use; cUPC certified for safety and quality assurance; Available in multiple finishes to match your bathroom decor; Easy to install with standard connections; Designed for long-lasting, low-maintenance performance; Pairs beautifully with a wide range of sinks and basins; Eligible for Free Shipping on orders $99+; Important: Item must be inspected within 48 hours of receipt"
+      ]
+    },
+    {
+      "model": "RMAS-2SSQ-SQH-HSQQ-S",
+      "brand": "Randolph Morris",
+      "title": "Tranquill Rainfall Wall Mounted Shower Set with Shower Valve, Shower Head, Shower Arm, Handshower Holder, Handshower and Hose",
+      "category": "Tranquil",
+      "best_price": 295.99,
+      "best_source": "vintage-tub",
+      "product_url": "https://www.vintagetub.com/tranquill-rainfall-shower-set-with-shower-valve-shower-head-shower-arm-handshower-holder-handshower-and-hose-rmas-2ssq-sqh-hsqq-s.html",
+      "image_url": "https://www.vintagetub.com/media/catalog/product/cache/21d5e030aee96734973017c40d77cfe9/r/m/rmas-2ssq-sqh-hsqq-c-shower-faucet-kit-rs628-chrome-lifestyle_wlsvsrjd6as8sis4.jpg",
+      "offers": [
+        {
+          "source": "vintage-tub",
+          "price": 295.99,
+          "url": "https://www.vintagetub.com/tranquill-rainfall-shower-set-with-shower-valve-shower-head-shower-arm-handshower-holder-handshower-and-hose-rmas-2ssq-sqh-hsqq-s.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Premium finish resists tarnishing and corrosion; Features a modern design that brings a luxurious touch to any bathroom; Showerhead, shower arm, hand shower hose, and valve plate are made of stainless steel; Hand shower, wall bracket, and shower valve are made of solid brass; Square showerhead features a spa-like rainfall spray pattern; Two function diverter offers seamless functionality; Wall-mounted bracket securely holds your hand shower in place; Shower hose is lightweight and flexible for enhanced convenience; Seamlessly blends modern innovation and timeless sophistication; Choose from elegant finish options like chrome, brushed brass, and matte black; Expertly crafted for long-lasting durability; Designed with a low-maintenance, easy clean surface; Easy-to-install design suitable for DIY and professionals; Concealed mounting hardware creates a polished look; A perfect choice for your shower renovation project; Solid brass construction ensures durability and reliability; Ceramic quarter-turn valves offer a smooth, drip-free operation; Lead free for safe everyday use; Eligible for Free Shipping on orders $99+; Important: Item must be inspected within 48 hours of receipt"
+      ]
+    },
+    {
+      "model": "RMAS-2SSQ-RH-HSW-S",
+      "brand": "Randolph Morris",
+      "title": "Tranquil Rainfall Wall Mounted Shower Set with Round Shower Head, Square Valve and Wand Handshower",
+      "category": "Tranquil",
+      "best_price": 296.99,
+      "best_source": "vintage-tub",
+      "product_url": "https://www.vintagetub.com/randolph-morris-rainfall-shower-set-with-round-shower-head-square-valve-and-wand-handshower-rmas-2ssq-rh-hsw-s.html",
+      "image_url": "https://www.vintagetub.com/media/catalog/product/cache/21d5e030aee96734973017c40d77cfe9/d/c/dcp-155-rmas-2ssq-rh-hsw-s-shower-faucet-kit-rs500-05-lifestyle_caripc2cqdz9s18l.jpg",
+      "offers": [
+        {
+          "source": "vintage-tub",
+          "price": 296.99,
+          "url": "https://www.vintagetub.com/randolph-morris-rainfall-shower-set-with-round-shower-head-square-valve-and-wand-handshower-rmas-2ssq-rh-hsw-s.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Premium finish resists tarnishing and corrosion; Features a minimalist design that's perfect for any bathroom; Shower system includes wall-mount rainfall showerhead, two function valve, and hand shower; Two Function diverter features 1/2\" IPS inlets; Showerhead, shower arm, and valve plate are made of stainless steel; Hand shower and shower valve are made of brass; Showerhead features a spa-like rainfall spray pattern; Seamlessly blends modern innovation and timeless elegance; Expertly crafted for long-lasting durability; A perfect choice for your renovation project; Solid brass construction ensures durability and reliability; Ceramic quarter-turn valves offer a smooth, drip-free operation; Lead free for safe everyday use; cUPC certified for safety and quality assurance; Available in multiple finishes to match your bathroom decor; Easy to install with standard connections; Designed for long-lasting, low-maintenance performance; Pairs beautifully with a wide range of sinks and basins; Eligible for Free Shipping on orders $99+; Important: Item must be inspected within 48 hours of receipt"
+      ]
+    },
+    {
+      "model": "RMAS-2SSQ-SQH-HSQ-S",
+      "brand": "Randolph Morris",
+      "title": "Tranquil Rainfall Wall Mounted Shower Set with Square Shower Head, Square Valve and Square Handshower",
+      "category": "Tranquil",
+      "best_price": 296.99,
+      "best_source": "vintage-tub",
+      "product_url": "https://www.vintagetub.com/randolph-morris-rainfall-shower-set-with-square-shower-head-square-valve-and-square-handshower-rmas-2ssq-sqh-hsq-s.html",
+      "image_url": "https://www.vintagetub.com/media/catalog/product/cache/21d5e030aee96734973017c40d77cfe9/d/c/dcp-155-rmas-2ssq-sqh-hsq-s-shower-faucet-kit-rs500-01-lifestyle_mlfedxpozhrh7zk8.jpg",
+      "offers": [
+        {
+          "source": "vintage-tub",
+          "price": 296.99,
+          "url": "https://www.vintagetub.com/randolph-morris-rainfall-shower-set-with-square-shower-head-square-valve-and-square-handshower-rmas-2ssq-sqh-hsq-s.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Premium finish resists tarnishing and corrosion; Features a minimalist design that's perfect for any bathroom; Shower system includes wall-mount rainfall showerhead, two function valve, and hand shower; Two Function diverter features 1/2\" IPS inlets; Showerhead, shower arm, and valve plate are made of stainless steel; Hand shower and shower valve are made of brass; Showerhead features a spa-like rainfall spray pattern; Seamlessly blends modern innovation and timeless elegance; Expertly crafted for long-lasting durability; A perfect choice for your renovation project; Solid brass construction ensures durability and reliability; Ceramic quarter-turn valves offer a smooth, drip-free operation; Lead free for safe everyday use; cUPC certified for safety and quality assurance; Available in multiple finishes to match your bathroom decor; Easy to install with standard connections; Designed for long-lasting, low-maintenance performance; Pairs beautifully with a wide range of sinks and basins; Eligible for Free Shipping on orders $99+; Important: Item must be inspected within 48 hours of receipt"
+      ]
+    },
+    {
+      "model": "UT3691",
+      "brand": "Moen",
+      "title": "MOEN UT3691 VOSS 6 1/4 INCH M-CORE 3-SERIES VALVE ONLY",
+      "best_price": 319.68,
+      "best_source": "kbauthority",
+      "product_url": "https://shop.moen.com/products/ut3691",
+      "image_url": "https://www.kbauthority.com/images/W/246/UT3691_Moen_Chrome.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://assets.moen.com/shared/docs/product-specifications/ut3691ut3692ut3693sp.pdf",
+          "source": "moen"
+        },
+        {
+          "kind": "installation",
+          "url": "https://assets.moen.com/shared/docs/instruction-sheets/ins10945e.pdf",
+          "source": "moen"
+        },
+        {
+          "kind": "document",
+          "url": "https://assets.moen.com/shared/docs/exploded-parts-views/exp12414cpt.pdf",
+          "source": "moen"
+        }
+      ],
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 319.68,
+          "url": "https://www.kbauthority.com/moen-ut3691-voss-6-1-4-inch-m-core-3-series-valve-only.html",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "moen",
+          "price": 527.47,
+          "url": "https://shop.moen.com/products/ut3691",
+          "evidence": "Moen product page price"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "moen",
+          "url": "https://shop.moen.com/products/ut3691",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "model": "UTS2711",
+      "brand": "Moen",
+      "title": "MOEN UTS2711 90 DEGREE 6 INCH M-CORE 2-SERIES VALVE ONLY",
+      "best_price": 328.69,
+      "best_source": "kbauthority",
+      "product_url": "https://shop.moen.com/products/uts2711",
+      "image_url": "https://www.kbauthority.com/images/W/542/UTS2711_Moen_Chrome.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://assets.moen.com/shared/docs/product-specifications/spc21016sp.pdf",
+          "source": "moen"
+        },
+        {
+          "kind": "installation",
+          "url": "https://assets.moen.com/shared/docs/instruction-sheets/ins11041e.pdf",
+          "source": "moen"
+        },
+        {
+          "kind": "document",
+          "url": "https://assets.moen.com/shared/docs/exploded-parts-views/exp13991dpt.pdf",
+          "source": "moen"
+        }
+      ],
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 328.69,
+          "url": "https://www.kbauthority.com/moen-uts2711-90-degree-6-inch-m-core-2-series-valve-only.html",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "moen",
+          "price": 563.72,
+          "url": "https://shop.moen.com/products/uts2711",
+          "evidence": "Moen product page price"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "moen",
+          "url": "https://shop.moen.com/products/uts2711",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "model": "UT3291",
+      "brand": "Moen",
+      "title": "MOEN UT3291 ALIGN M-CORE 3-SERIES VALVE ONLY",
+      "best_price": 333.11,
+      "best_source": "kbauthority",
+      "product_url": "https://shop.moen.com/products/ut3291",
+      "image_url": "https://www.kbauthority.com/images/W/247/UT3291_Moen_Chrome.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://assets.moen.com/shared/docs/instruction-sheets/ins10945e.pdf",
+          "source": "moen"
+        },
+        {
+          "kind": "document",
+          "url": "https://assets.moen.com/shared/docs/exploded-parts-views/exp12411bpt.pdf",
+          "source": "moen"
+        }
+      ],
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 333.11,
+          "url": "https://www.kbauthority.com/moen-ut3291-align-m-core-3-series-valve-only.html",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "moen",
+          "price": 601.5,
+          "url": "https://shop.moen.com/products/ut3291",
+          "evidence": "Moen product page price"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "moen",
+          "url": "https://shop.moen.com/products/ut3291",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "model": "UT35501",
+      "brand": "Moen",
+      "title": "MOEN UT35501 WYNFORD 6 3/8 INCH M-CORE 3-SERIES VALVE ONLY",
+      "best_price": 203.96,
+      "best_source": "moen",
+      "product_url": "https://shop.moen.com/products/ut35501",
+      "image_url": "https://www.kbauthority.com/images/W/246/UT35501_Moen_Chrome.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://assets.moen.com/shared/docs/instruction-sheets/ins10945e.pdf",
+          "source": "moen"
+        },
+        {
+          "kind": "document",
+          "url": "https://assets.moen.com/shared/docs/exploded-parts-views/exp12413bpt.pdf",
+          "source": "moen"
+        }
+      ],
+      "offers": [
+        {
+          "source": "kbauthority",
+          "price": 333.11,
+          "url": "https://www.kbauthority.com/moen-ut35501-wynford-6-3-8-inch-m-core-3-series-valve-only.html",
+          "evidence": "normalized product search row"
+        },
+        {
+          "source": "moen",
+          "price": 203.96,
+          "url": "https://shop.moen.com/products/ut35501",
+          "evidence": "Moen product page price"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "moen",
+          "url": "https://shop.moen.com/products/ut35501",
+          "status": "ok"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: plumbing",
+    "Source warning: ferguson: ferguson: HTTP 403: \u003cHTML\u003e\u003cHEAD\u003e"
+  ],
+  "sources_run": [
+    "ferguson",
+    "floor-and-decor",
+    "plumbersstock",
+    "faucetdepot",
+    "faucetlist",
+    "plumbtile",
+    "modern-bathroom",
+    "kbauthority",
+    "vintage-tub"
+  ]
+}

@@ -1,0 +1,228 @@
+{
+  "query": "cabinet pull",
+  "total": 10,
+  "models": [
+    {
+      "model": "279555",
+      "brand": "QSI",
+      "title": "QuickScrews #8-32 Machine Screws - For Cabinet Knobs \u0026 Pulls (Zinc, Truss Head, Phillips/Slotted Combo)",
+      "best_price": 0.19,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/quickscrews-8-32-machine-screws-for-cabinet-knobs-and-pulls-zinc-truss-head-phillips-slotted-combo-knob-pull-screws-8-32",
+      "image_url": "https://hardwarehut.com/images/moreimages/hardwarescrews/quickscrewsinternationalcorporation/qsi-machine-8-32-main.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 0.19,
+          "url": "https://hardwarehut.com/products/quickscrews-8-32-machine-screws-for-cabinet-knobs-and-pulls-zinc-truss-head-phillips-slotted-combo-knob-pull-screws-8-32",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "VERNON-CABINET-COLLECTION",
+      "title": "Vernon Cabinet Collection",
+      "best_price": 3.97,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/vernon-cabinet-collection/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202620/0002/vernon-cabinet-collection-1-i.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.rejuvenation.com/netstorage/images/pdfs/instructions/Drawer-Pull-AI.pdf",
+          "source": "rejuvenation"
+        }
+      ],
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 3.97,
+          "regular": 15,
+          "url": "https://www.rejuvenation.com/products/vernon-cabinet-collection/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Inspired by vintage hardware discovered by our Antiques \u0026 Vintage team, our Vernon Collection combines timeless style with modern durability. Featuring an ergonomically-shaped design and a classic silhouette, Vernon is available in several finishes and sizes. Details You'll Appreciate Designed by our team at our Portland, Oregon studio Inspired by vintage designs Crafted from solid brass in your choice of finish Product Specifications Solid brass Mounting hardware included WARNING: This product can expose you to chemicals including lead, which are known to the State of California to cause cancer and birth defects or other reproductive harm. For more information go to www.P65warnings.ca.gov Care Instructions Wipe with a dry soft cloth, and very mild soap if necessary Avoid using abrasive cloths or pads, harsh chemicals, alcohol, and ammoniated products Unlacquered Brass finish: Will naturally patina. Wipe with a dry soft cloth—heavy tarnish may require a brass polish to brighten Brushed"
+      ]
+    },
+    {
+      "model": "MISSON-CABINET-COLLECTION",
+      "title": "Misson Cabinet Collection",
+      "best_price": 4.97,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/misson-cabinet-collection/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202620/0002/misson-cabinet-collection-i.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 4.97,
+          "regular": 14,
+          "url": "https://www.rejuvenation.com/products/misson-cabinet-collection/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "With a design that celebrates simple lines and authentic Arts \u0026 Crafts style, Mission is a favorite on cabinetry in kitchens, baths, and laundry rooms. Available in several finishes and sizes, the Mission Collection offers balanced symmetry and redefined historical style. Details You'll Appreciate Designed by our team at our Portland, Oregon studio Inspired by classic Arts \u0026 Crafts design Crafted from solid brass in your choice of finish Product Specifications Solid brass Mounting hardware included WARNING: This product can expose you to chemicals including lead, which are known to the State of California to cause cancer and birth defects or other reproductive harm. For more information go to www.P65warnings.ca.gov Care Instructions Wipe with a dry soft cloth, and very mild soap if necessary Avoid using abrasive cloths or pads, harsh chemicals, alcohol, and ammoniated products Unlacquered Brass finish: Will naturally patina. Wipe with a dry soft cloth—heavy tarnish may require a brass"
+      ]
+    },
+    {
+      "model": "10628982",
+      "title": "LATMASK Clip-on handle",
+      "category": "Baby \u0026 kids \u003e Baby \u003e Kids storage \u0026 organization \u003e SMÅSTAD system \u003e SMÅSTAD knobs, handles \u0026 accessories",
+      "best_price": 5,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/latmask-clip-on-handle-black-10628982/",
+      "image_url": "https://www.ikea.com/us/en/images/products/latmask-clip-on-handle-black__1454227_pe991564_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/latmask-clip-on-handle-black__AA-2241830-5-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 5,
+          "url": "https://www.ikea.com/us/en/p/latmask-clip-on-handle-black-10628982/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "black"
+      ]
+    },
+    {
+      "model": "380582",
+      "brand": "BER",
+      "title": "Berenson Advantage Plus 5\" (128mm) Center-to-Center Square Cabinet Pull (Matte Black)",
+      "best_price": 5.75,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/berenson-advantage-plus-5-128mm-centers-square-cabinet-pull-matte-black-9014-4055-p",
+      "image_url": "https://hardwarehut.com/images/moreimages/cabinetknobsandpulls/berenson/ber-9014-4055-p-main.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 5.75,
+          "url": "https://hardwarehut.com/products/berenson-advantage-plus-5-128mm-centers-square-cabinet-pull-matte-black-9014-4055-p",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "BP36571",
+      "brand": "AME",
+      "title": "Amerock Monument 5\" (128mm) Center-to-Center Cabinet Pull",
+      "best_price": 5.87,
+      "best_source": "hardware-hut",
+      "product_url": "https://hardwarehut.com/products/amerock-monument-5-128mm-centers-cabinet-pull-bp36571",
+      "image_url": "https://hardwarehut.com/images/moreimages/cabinetknobsandpulls/amerock/ame-bp36571-pn-main.jpg",
+      "offers": [
+        {
+          "source": "hardware-hut",
+          "price": 5.87,
+          "url": "https://hardwarehut.com/products/amerock-monument-5-128mm-centers-cabinet-pull-bp36571",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "ARCHIE-CABINET-COLLECTION",
+      "title": "Archie Cabinet Collection",
+      "best_price": 5.97,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/archie-cabinet-collection/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202620/0002/archie-cabinet-collection-i.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 5.97,
+          "regular": 15,
+          "url": "https://www.rejuvenation.com/products/archie-cabinet-collection/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Sturdy and streamlined, Archie’s sleek curves and weighty presence brings statement style to your cabinetry. With clean lines and durable function, Archie is the ideal update for your kitchen, bath, laundry room, or mudroom. Details You'll Appreciate Designed by our team at our Portland, Oregon studio Sturdy silhouette Crafted from solid brass in your choice of finish Product Specifications Solid brass Mounting hardware included Appliance pull weight capacity: 70 lb WARNING: This product can expose you to chemicals including lead, which are known to the State of California to cause cancer and birth defects or other reproductive harm. For more information go to www.P65warnings.ca.gov Care Instructions Wipe with a dry soft cloth, and very mild soap if necessary Avoid using abrasive cloths or pads, harsh chemicals, alcohol, and ammoniated products Unlacquered Brass finish: Will naturally patina. Wipe with a dry soft cloth—heavy tarnish may require a brass polish to brighten Polished Nicke"
+      ]
+    },
+    {
+      "model": "60596554",
+      "title": "KALERUM Knob",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen systems \u003e KNOXHULT modular kitchen \u003e Knobs and handles",
+      "best_price": 6,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/kalerum-knob-brass-color-60596554/",
+      "image_url": "https://www.ikea.com/us/en/images/products/kalerum-knob-brass-color__1370954_pe958919_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/kalerum-knob-brass-color__AA-2407663-3-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 6,
+          "url": "https://www.ikea.com/us/en/p/kalerum-knob-brass-color-60596554/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "brass color"
+      ]
+    },
+    {
+      "model": "20334314",
+      "title": "BILLSBRO Handle",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen systems \u003e KNOXHULT modular kitchen \u003e Knobs and handles",
+      "best_price": 7,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/billsbro-handle-white-20334314/",
+      "image_url": "https://www.ikea.com/us/en/images/products/billsbro-handle-white__0754303_pe747884_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 7,
+          "url": "https://www.ikea.com/us/en/p/billsbro-handle-white-20334314/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "20542860",
+      "title": "TÄRNESTAD Knob",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen systems \u003e KNOXHULT modular kitchen \u003e Knobs and handles",
+      "best_price": 7,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/taernestad-knob-oak-20542860/",
+      "image_url": "https://www.ikea.com/us/en/images/products/taernestad-knob-oak__1138794_pe880066_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 7,
+          "url": "https://www.ikea.com/us/en/p/taernestad-knob-oak-20542860/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "oak"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: hardware"
+  ],
+  "sources_run": [
+    "hardware-hut",
+    "rejuvenation",
+    "ikea"
+  ]
+}

@@ -1,0 +1,20 @@
+HTTP/2 200 
+date: Tue, 02 Jun 2026 12:24:17 GMT
+content-type: text/html; charset=utf-8
+expires: Mon, 26 Jul 1997 05:00:00 GMT
+cache-control: private, must-revalidate
+p3p: CP="NON CURa ADMa DEVa TAIa CONi OUR DELa BUS IND PHY ONL UNI PUR COM NAV DEM STA"
+set-cookie: xid_7a3de=f72084c87ca6ae49e51300332a9f8469; expires=Wed, 03-Jun-2026 12:24:17 GMT; Max-Age=86400; path=/; domain=www.kbauthority.com; HttpOnly; SameSite=Lax
+set-cookie: RefererCookie=deleted; expires=Thu, 01-Jan-1970 00:00:01 GMT; Max-Age=0; path=/; domain=www.kbauthority.com; HttpOnly; SameSite=Lax
+set-cookie: store_language=en; expires=Wed, 02-Jun-2027 12:24:17 GMT; Max-Age=31536000; path=/; domain=www.kbauthority.com; SameSite=Lax
+strict-transport-security: max-age=300; includeSubDomains; preload
+x-content-type-options: nosniff
+last-modified: Tue, 02 Jun 2026 12:24:17 GMT
+vary: Accept-Encoding
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+server: cloudflare
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=0xUkcWt%2FCHnE9Lu9h5uIcJRZj4%2FGgCZDPHkr9X7UvnMn7SLppgZJZ53dpjWzW0wa5BX5tJLUBbh2tUcReQrZYC%2FJ0xxgqyysTK963rSyXgGDaZg%2FcOSeLCy0akPk74p6LsfX5EA%3D"}]}
+cf-cache-status: DYNAMIC
+cf-ray: a0566f23fddda5ba-IAD
+alt-svc: h3=":443"; ma=86400
+

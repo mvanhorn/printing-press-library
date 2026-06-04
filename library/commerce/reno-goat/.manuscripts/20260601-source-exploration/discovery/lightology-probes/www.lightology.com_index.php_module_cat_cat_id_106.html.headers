@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+Date: Tue, 02 Jun 2026 12:31:23 GMT
+Strict-Transport-Security: max-age=15768000;includeSubDomains
+X-Frame-Options: SAMEORIGIN
+Permissions-Policy: browsing-topics=()
+Set-Cookie: PHPSESSID=qq9um287jd1n77knthm8lp2r4a; expires=Thu, 02-Jul-2026 12:31:23 GMT; Max-Age=2592000; path=/; domain=www.lightology.com; secure; HttpOnly; SameSite=Lax
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Transfer-Encoding: chunked
+Content-Type: text/html; charset=UTF-8
+

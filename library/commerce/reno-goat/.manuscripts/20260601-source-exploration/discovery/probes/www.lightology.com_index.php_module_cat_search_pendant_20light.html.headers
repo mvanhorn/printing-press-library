@@ -1,0 +1,25 @@
+HTTP/1.1 302 Found
+Date: Tue, 02 Jun 2026 12:22:24 GMT
+Strict-Transport-Security: max-age=15768000;includeSubDomains
+X-Frame-Options: SAMEORIGIN
+Permissions-Policy: browsing-topics=()
+Set-Cookie: PHPSESSID=nejo9oc819tb18p5vi5chudv7a; expires=Thu, 02-Jul-2026 12:22:24 GMT; Max-Age=2592000; path=/; domain=www.lightology.com; secure; HttpOnly; SameSite=Lax
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Location: https://www.lightology.com/
+Content-Length: 0
+Content-Type: text/html; charset=UTF-8
+
+HTTP/1.1 200 OK
+Date: Tue, 02 Jun 2026 12:22:24 GMT
+Strict-Transport-Security: max-age=15768000;includeSubDomains
+X-Frame-Options: SAMEORIGIN
+Permissions-Policy: browsing-topics=()
+Set-Cookie: PHPSESSID=kj67jjo7uet9u0o3hnh6brij42; expires=Thu, 02-Jul-2026 12:22:24 GMT; Max-Age=2592000; path=/; domain=www.lightology.com; secure; HttpOnly; SameSite=Lax
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Transfer-Encoding: chunked
+Content-Type: text/html; charset=UTF-8
+

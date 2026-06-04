@@ -1,7 +1,7 @@
 {
   "api_name": "reno-goat",
   "base_url": "https://ac.cnstrc.com",
-  "description": "Search, compare, price-watch, and project-track renovation and interior products from one CLI — product search, price comparison, store locator, delivery checks, reviews, and deal finding across Ferguson, West Elm, Rejuvenation, Article, and Shopify DTC stores (Schoolhouse, Blu Dot, Gus Modern, Floyd, Lulu \u0026 Georgia), with category-based routing that sends queries to the sources that carry each product type.",
+  "description": "Search, compare, price-watch, model-enrich, and project-track homeowner-visible renovation selections across 33 active sources plus 5 tracked stubs. Reno Goat adds category-routed product search and compound model intelligence across appliances, plumbing, electrical, HVAC, flooring, hardware, materials, furniture, and decor.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {

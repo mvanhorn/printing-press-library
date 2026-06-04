@@ -1,10 +1,10 @@
 name: reno-goat
 display_name: Reno Goat
 kind: synthetic
-description: Search, compare, price-watch, and project-track renovation and interior products from one CLI — product search, price comparison, store locator, delivery checks, reviews, and deal finding across Ferguson, West Elm, Rejuvenation, Article, and Shopify
-  DTC stores (Schoolhouse, Blu Dot, Gus Modern, Floyd, Lulu & Georgia), with category-based routing that sends queries to the sources that carry each product type.
-cli_description: 'Search, compare, price-watch, and project-track renovation and interior products across 11 retailers — category-routed
-  to Ferguson, West Elm, Rejuvenation, Article, Shopify DTC, and more. No API keys required.'
+description: Search, compare, price-watch, model-enrich, and project-track homeowner-visible renovation selections from one CLI — product search, compound model intelligence, price comparison, store locator, delivery checks, reviews, and deal finding across Ferguson, West Elm, Rejuvenation, Article, Shopify
+  DTC stores (Schoolhouse, Blu Dot, Gus Modern, Floyd, Lulu & Georgia), IKEA, GE Appliances, Bray & Scarff, PC Richard, Appliance Factory, Best Buy, Homewise Appliance, Floor & Decor, Super Bright LEDs, PROLIGHTING, 1000Bulbs, Bees Lighting, Lighting New York, Lightology, PlumbersStock, FaucetDepot, FaucetList, PlumbTile, Modern Bathroom, KBAuthority, Vintage Tub, Signature Hardware, QualityBath, Pioneer Mini Split, Sylvane, IWAe, and The Hardware Hut, with category-based routing for the middle ground between commodity builder supply and home decor.
+cli_description: 'Search, compare, price-watch, model-enrich, and project-track homeowner-visible renovation selections across 33 active sources plus 5 tracked stubs — category-routed
+  to Ferguson, West Elm, Rejuvenation, Article, Shopify DTC, IKEA, GE Appliances, Bray & Scarff, PC Richard, Appliance Factory, Best Buy, Homewise Appliance, Floor & Decor, Super Bright LEDs, PROLIGHTING, 1000Bulbs, Bees Lighting, Lighting New York, Lightology, PlumbersStock, FaucetDepot, FaucetList, PlumbTile, Modern Bathroom, KBAuthority, Vintage Tub, Signature Hardware, QualityBath, Pioneer Mini Split, Sylvane, IWAe, The Hardware Hut, and more. Includes routed compound model/SKU intelligence for installed-selection decisions. No API keys required.'
 version: 1.0.0
 spec_source: internal
 http_transport: standard
@@ -22,24 +22,68 @@ mcp:
 base_url: https://ac.cnstrc.com
 category_routing:
   foundational:
-    description: GC/specialist-installed items — toilets, faucets, recessed lights, shower systems, hardware
-    sources: [ferguson, rejuvenation]
+    description: GC/specialist-installed selections — toilets, faucets, recessed lights, shower systems, finish hardware
+    sources: [ferguson, rejuvenation, ikea, floor-and-decor, superbrightleds, prolighting, 1000bulbs, faucetdepot, hardware-hut]
+  plumbing:
+    description: Faucets, toilets, sinks, shower systems, finish trim, bath fixtures
+    sources: [ferguson, floor-and-decor, plumbersstock, faucetdepot, faucetlist, plumbtile, modern-bathroom, kbauthority, vintage-tub, signature-hardware]
+  electrical:
+    description: Recessed lights, fixture-system LED strips, controls, task lighting, under-cabinet lighting
+    sources: [superbrightleds, prolighting, 1000bulbs, bees-lighting, lighting-new-york, lightology]
+  hvac:
+    description: Mini-splits, heat pumps, whole-house dehumidifiers, bath fans, vents, registers, and visible HVAC selections
+    sources: [pioneer-mini-split, sylvane, iwae, hardware-hut]
+  flooring:
+    description: Tile, vinyl, laminate, wall surfaces, floor warming, visible finish systems
+    sources: [floor-and-decor]
+  hardware:
+    description: Cabinet hardware, door hardware, railings, visible finish supports and brackets
+    sources: [hardware-hut, rejuvenation, ikea]
+  materials:
+    description: Finish-adjacent components, floor/wall surfaces, cabinet systems, trim-adjacent selections
+    sources: [floor-and-decor, hardware-hut, ikea]
   appliances:
     description: Kitchen and laundry appliances
-    sources: [ferguson]
+    sources: [ferguson, ikea, ge-appliances, bray-and-scarff, pc-richard, appliance-factory, best-buy, abt, homewise-appliance]
   furniture:
     description: Sofas, tables, beds, vanities, shelving
-    sources: [west-elm, article, shopify-dtc]
+    sources: [west-elm, article, shopify-dtc, ikea]
   decor:
     description: Lighting, mirrors, art, accessories
-    sources: [west-elm, rejuvenation, shopify-dtc]
+    sources: [west-elm, rejuvenation, shopify-dtc, ikea, lighting-new-york, lightology, kbauthority, vintage-tub, signature-hardware]
 room_templates:
-  bathroom: [foundational, furniture, decor]
-  kitchen: [foundational, appliances, decor]
+  bathroom: [plumbing, electrical, flooring, hardware, materials, decor]
+  kitchen: [plumbing, electrical, flooring, hardware, materials, appliances, decor]
   bedroom: [furniture, decor]
   living: [furniture, decor]
   dining: [furniture, decor]
-  outdoor: [furniture, decor]
+  outdoor: [electrical, hardware, materials, furniture, decor]
+model_intel_discovery:
+  broan-nutone:
+    display_name: Broan-NuTone
+    base_url: https://www.broan-nutone.com
+    transport: html_product_cards
+    categories: [hvac, appliances]
+    routes:
+      bath_fan: /en-us/search/product?q=bath%20fan
+      range_hood: /en-us/search/product?q=range%20hood
+    notes: Discovery-only manufacturer catalog source for bath fans and range hoods. The pages expose model numbers, product URLs, images, and spec/install documents but no prices, so Reno Goat does not register Broan-NuTone as an active retail source. model-intel pairs these rows with a deterministic bounded batch of exact-model search-offer probes when readable retailer results expose pricing.
+  moen:
+    display_name: Moen
+    base_url: https://shop.moen.com
+    transport: shopify_product_page_probe
+    categories: [plumbing]
+    routes:
+      product: /products/<model>
+    notes: Manufacturer enrichment probe for already-priced Moen plumbing rows returned by active sources. Reno Goat does not register Moen as an active fan-out source; model-intel uses the retailer-provided model number to probe the matching Moen Shopify product page, add product-page price evidence where available, and capture canonical assets.moen.com spec, instruction, and exploded-parts PDFs.
+  leviton:
+    display_name: Leviton
+    base_url: https://leviton.com
+    transport: html_product_page_probe
+    categories: [electrical]
+    routes:
+      product: /products/<model>
+    notes: Manufacturer enrichment probe for already-priced Leviton electrical-control rows returned by active sources such as 1000Bulbs. Reno Goat does not register Leviton as an active fan-out source; model-intel uses the retailer-provided model number to probe the matching Leviton product page and capture product-specification and English instruction-sheet PDFs while filtering generic brochures, cleaning instructions, and credit-application documents.
 sources:
   ferguson:
     display_name: Ferguson
@@ -111,6 +155,238 @@ sources:
       name: Lulu & Georgia
       token: a1c43345d9845c6c42cd62ddb895ffbb
     notes: Shopify Storefront API with public access tokens. One client covers all stores by swapping domain and token. Standard GraphQL queries for products, collections, search.
+  ikea:
+    display_name: IKEA
+    base_url: https://sik.search.blue.cdtapps.com
+    transport: sik_search
+    categories: [foundational, appliances, furniture, decor]
+    auth:
+      type: none
+    notes: Public SIK search endpoint observed from IKEA search page via Printing Press browser-use capture. Anonymous POST search returns product cards with prices, category path, image URLs, ratings, and item numbers.
+  ge-appliances:
+    display_name: GE Appliances
+    base_url: https://q7rntw.a.searchspring.io
+    transport: searchspring
+    categories: [appliances]
+    auth:
+      type: none
+    notes: Public Searchspring catalog API exposed by GE Appliances pages. Anonymous GET search returns appliance rows with model/SKU, name, brand, category hierarchy, price, MSRP, image URL, rating/review counts, dimensions/spec fields, and installation/spec/energy-guide documents.
+  bray-and-scarff:
+    display_name: Bray & Scarff
+    base_url: https://hasura.nmg-platform.com/v1/graphql
+    site_base_url: https://www.brayandscarff.com
+    transport: nmg_hasura_graphql
+    categories: [appliances]
+    auth:
+      type: none
+    organization_id: 4708975a-2cca-4b84-a56c-5f97a82a7b59
+    notes: Public NMG Platform/Hasura GraphQL flow exposed by Bray & Scarff product listing pages. The CLI searches search_products_materialized for matching product IDs, then hydrates get_products dealer override rows; current prices come from the dealer row, while model, title, brand, image, and attributes come from default_source_product.
+  pc-richard:
+    display_name: PC Richard
+    base_url: https://www.pcrichard.com
+    transport: demandware_embedded_json
+    categories: [appliances]
+    auth:
+      type: none
+    notes: Public Salesforce Commerce Cloud/Demandware search pages render appliance product tiles with embedded `data-ga4-select-item` JSON. Reno Goat reads model ID, title, brand, category path, current price, product URL, image URL, and compare-at price from those server-rendered tiles.
+  appliance-factory:
+    display_name: Appliance Factory
+    base_url: https://www.appliancefactory.com/api/rest
+    site_base_url: https://www.appliancefactory.com
+    transport: avb_rest_http1
+    categories: [appliances]
+    auth:
+      type: none
+    required_headers:
+      x-px-access-token: storefront token observed in the public Next.js app bundle
+      language: en-US
+    notes: Public AVB/LINQ REST API exposed by Appliance Factory's Next.js catalog. Reno Goat replays `/search/<query>?limit=N&embed=products` over HTTP/1.1 with the browser headers used by the storefront, follows did-you-mean catalog redirects to `/categories/<key>?limit=N&embed=products`, and normalizes model number, manufacturer, title, final/regular price, product URL, image URL, inventory label, review counts, and rebate metadata.
+  best-buy:
+    display_name: Best Buy
+    base_url: https://www.bestbuy.com
+    transport: next_ssr_product_cards
+    categories: [appliances]
+    auth:
+      type: none
+    notes: Public Best Buy search pages render appliance product, price, rating, image, and URL data into the Next/Apollo SSR payload. Reno Goat reads `/site/searchpage.jsp?st=<query>`, skips open-box price variants, and normalizes manufacturer model numbers, Best Buy product URLs/SKUs, current/list prices, sale status, ratings, and major-appliance category labels.
+  abt:
+    display_name: Abt
+    base_url: https://www.abt.com
+    transport: http1_search_and_product_schema
+    categories: [appliances]
+    auth:
+      type: none
+    notes: Public Abt search and product pages replay over HTTP/1.1 with browser headers. Reno Goat reads `/resources/pages/search.php?keywords=<query>`, follows exact-model redirects when the site returns a product page, parses product schema for exact model pages, and parses category rows for appliance searches such as dishwashers with product URLs, images, Abt model numbers, current/regular prices, sale status, and availability labels.
+  homewise-appliance:
+    display_name: Homewise Appliance
+    base_url: https://0qcofybyvd.execute-api.us-west-1.amazonaws.com/hw-prod
+    site_base_url: https://www.homewiseappliance.com
+    transport: bloomreach_api
+    categories: [appliances]
+    auth:
+      type: none
+    notes: Public Homewise Appliance backend API exposed by the Next.js storefront formerly branded Airport Home Appliance. Reno Goat replays `/bloomreach-hw?action=search&limit=N&page=1&q=<query>&tag=&slug=&isLuxury=false` with storefront origin/referer headers and normalizes appliance SKU, brand, title, price, MSRP, product URL, image URL, category, stock quantity, and top-six specification fields.
+  floor-and-decor:
+    display_name: Floor & Decor
+    base_url: https://AR91I5G1KF-dsn.algolia.net
+    transport: algolia
+    categories: [foundational]
+    auth:
+      type: api_key_header
+      header: X-Algolia-API-Key
+      application_id: AR91I5G1KF
+    notes: Public Algolia product index exposed by Floor & Decor search page. Covers tile, flooring, vanities, sinks, faucets, floor warming, and installation materials with rich refinement fields.
+  superbrightleds:
+    display_name: Super Bright LEDs
+    base_url: https://VTAW7SB4LM-dsn.algolia.net
+    transport: algolia
+    categories: [foundational, electrical]
+    auth:
+      type: api_key_header
+      header: X-Algolia-API-Key
+      application_id: VTAW7SB4LM
+    notes: Public Magento/Algolia product index exposed by Super Bright LEDs search page. Covers recessed lighting, LED strips, drivers, switches, fixtures, controls, and electrical lighting components with voltage/wattage/CCT/CRI/IP-rating fields.
+  prolighting:
+    display_name: PROLIGHTING
+    base_url: https://uscs34v2.ksearchnet.com
+    transport: klevu
+    categories: [foundational, electrical]
+    auth:
+      type: api_key_body
+      key_value: klevu-172734557401917584
+    notes: Public Klevu search endpoint exposed by PROLIGHTING search page. Covers task lighting, recessed lighting, drivers, controls, under-cabinet lighting, tape channels, voltage/CCT/CRI/wattage/lumen fields, and contractor group pricing fields.
+  1000bulbs:
+    display_name: 1000Bulbs
+    base_url: https://www.1000bulbs.com
+    transport: html_product_cards
+    categories: [foundational, electrical]
+    auth:
+      type: none
+    notes: Public `/fil/search` result pages render product cards server-side with product IDs, brand/name, category, image URL, price, and review count. Covers recessed/downlight fixtures, lamps, drivers, controls, electrical lighting components, and commercial lighting.
+  bees-lighting:
+    display_name: Bees Lighting
+    base_url: https://www.beeslighting.com
+    transport: shopify_suggest
+    categories: [electrical]
+    auth:
+      type: none
+    notes: Public Shopify `/search/suggest.json` endpoint returns price-bearing installed lighting rows with vendor/title, product URL, image URL, product type, price fields, and body/spec metadata. Reno Goat extracts model-like SKUs from Shopify handles, captures linked spec/install PDFs from product pages, and skips under-cabinet power-strip rows for light queries.
+  lighting-new-york:
+    display_name: Lighting New York
+    base_url: https://lightingnewyork.com
+    transport: demandware_embedded_json
+    categories: [electrical, decor]
+    auth:
+      type: none
+    notes: Public Salesforce Commerce Cloud/Demandware search pages render product tiles with embedded `data-gtmdata` JSON. Reno Goat reads those structured payloads for designer lighting fixtures, ceiling fans, and decor-adjacent lighting rows with SKU, brand, category, current price, image URL, and product URL, then model-intel can enrich returned product pages for linked PDFs when the page exposes them.
+  lightology:
+    display_name: Lightology
+    base_url: https://www.lightology.com
+    transport: html_gtm_product_cards
+    categories: [electrical, decor]
+    auth:
+      type: none
+    notes: Public category pages render price-bearing product cards with `data-gtm_list_item` JSON. Reno Goat routes proven pendant, chandelier, hanging-light, and ceiling-light queries to cat_id 106 and ceiling-fan queries to cat_id 49, then parses SKU, brand, category, price range, image URL, and product URL from the server-rendered HTML.
+  plumbersstock:
+    display_name: PlumbersStock
+    base_url: https://www.plumbersstock.com
+    transport: next_ssr_product_cards
+    categories: [plumbing]
+    auth:
+      type: none
+    notes: Public Next SSR fixture category pages render product cards with product slug, brand/title, image URL, and price. Reno Goat intentionally constrains this source to faucets, sinks, toilets, and tub/shower category routes; commodity pipe, fittings, P-traps, tools, raw parts, and waterworks categories are out of scope.
+  faucetdepot:
+    display_name: FaucetDepot
+    base_url: https://FSDN8N73JY-dsn.algolia.net
+    transport: algolia
+    categories: [foundational, plumbing]
+    auth:
+      type: api_key_header
+      header: X-Algolia-API-Key
+      application_id: FSDN8N73JY
+    notes: Public Algolia product index exposed by FaucetDepot search pages. Covers price-bearing faucets, sinks, shower rough-in valves, tub/shower selections, toilets, disposals, water heaters, and water dispensers. Reno Goat filters repair cartridges, stems, seats, wax rings, connectors, fittings, and other service/commodity plumbing rows.
+  faucetlist:
+    display_name: FaucetList
+    base_url: https://faucetlist.com
+    transport: shopify_suggest
+    categories: [plumbing]
+    auth:
+      type: none
+    notes: Public Shopify `/search/suggest.json` endpoint returns plumbing fixture rows with vendor/title, product URL, image URL, price fields, and body-carried SKU/MPN metadata. Reno Goat skips rows explicitly marked unavailable so stale no-longer-available listings do not appear as sourceable products.
+  plumbtile:
+    display_name: PlumbTile
+    base_url: https://plumbtile.com
+    transport: shopify_suggest
+    categories: [plumbing]
+    auth:
+      type: none
+    notes: Public Shopify `/search/suggest.json` endpoint returns bath/plumbing showroom product rows with vendor/title, product URL, image URL, price and compare-at fields, manufacturer part numbers, and linked spec-sheet PDFs in product body HTML.
+  modern-bathroom:
+    display_name: Modern Bathroom
+    base_url: https://www.modernbathroom.com
+    transport: shopify_suggest
+    categories: [plumbing]
+    auth:
+      type: none
+    notes: Public Shopify `/search/suggest.json` endpoint returns bath showroom product rows with vendor/title, product type, URL, image URL, price and compare-at fields, and body metadata. Reno Goat routes it to plumbing, skips vanity sidesplashes/countertop accessory rows for vanity queries, keeps shower valve/trim parts when the query asks for them, and normalizes vanity handles into compact selection IDs.
+  kbauthority:
+    display_name: KBAuthority
+    base_url: https://api.searchspring.net
+    site_base_url: https://www.kbauthority.com
+    transport: searchspring_autocomplete_html
+    categories: [plumbing, decor]
+    auth:
+      type: none
+    notes: Public Searchspring autocomplete endpoint returns HTML product fragments for bath showroom queries. Reno Goat parses title, product URL, image URL, current price, and model-like SKU tokens from vanity rows while preserving KBAuthority as Searchspring evidence rather than treating the broad redirecting search page as a product source.
+  vintage-tub:
+    display_name: Vintage Tub
+    base_url: https://api.searchspring.net
+    site_base_url: https://www.vintagetub.com
+    transport: searchspring
+    categories: [plumbing, decor]
+    auth:
+      type: none
+    notes: Public Searchspring search endpoint with siteId `yncuaq` returns price-bearing bath showroom JSON rows. Reno Goat parses SKU, brand, title, product URL, image URL, current price, category hierarchy, and description fields for plumbing and bath decor queries.
+  signature-hardware:
+    display_name: Signature Hardware
+    base_url: https://www.signaturehardware.com
+    transport: demandware_suggestions_html
+    categories: [plumbing, decor]
+    auth:
+      type: none
+    notes: Public Salesforce Commerce Cloud/Demandware suggestions endpoint returns price-bearing bath showroom HTML product tiles even while normal search/category pages are Akamai-blocked under the plain client. Reno Goat queries `/on/demandware.store/Sites-SignatureHardware-Site/default/SearchServices-GetSuggestions?q=<query>` and normalizes product IDs, titles, Signature Hardware URLs, image URLs, and prices for shower-valve and bath-selection queries.
+  pioneer-mini-split:
+    display_name: Pioneer Mini Split
+    base_url: https://www.pioneerminisplit.com
+    transport: shopify_suggest
+    categories: [hvac]
+    auth:
+      type: none
+    notes: Public Shopify `/search/suggest.json` endpoint returns mini-split and heat-pump products with IDs, vendor/title, type, product URL, image URL, and price fields. Reno Goat ranks equipment rows ahead of accessories for HVAC queries.
+  sylvane:
+    display_name: Sylvane
+    base_url: https://www.sylvane.com
+    transport: shopify_suggest
+    categories: [hvac]
+    auth:
+      type: none
+    notes: Public Shopify `/search/suggest.json` endpoint returns HVAC-adjacent products such as whole-house dehumidifiers, bath fans, air quality equipment, and ductless-system products with IDs, vendor/title, type, product URL, image URL, and price fields.
+  iwae:
+    display_name: IWAe
+    base_url: https://iwae.com
+    transport: hyva_product_cards
+    categories: [hvac]
+    auth:
+      type: none
+    notes: Public Hyva/Magento HVAC category page renders server-side product cards with SKU, product ID, title, product URL, image URL, and price fields. Reno Goat routes HVAC system/equipment queries to the stable full-systems category and filters out warranty, line-set, adapter, control-board, and other service-part cards.
+  hardware-hut:
+    display_name: The Hardware Hut
+    base_url: https://hardwarehut.com
+    transport: html_embedded_json
+    categories: [foundational, hardware, materials]
+    auth:
+      type: none
+    notes: Public search page embeds product rows in window.shs_products. Covers cabinet hardware, door hardware, bath hardware, railing components, vents, registers, and visible finish hardware.
   wayfair:
     display_name: Wayfair
     base_url: https://www.wayfair.com
@@ -138,15 +414,6 @@ sources:
     auth:
       type: browser_clearance
     notes: DataDome CAPTCHA wall. No API reverse-engineered. Deferred.
-  ikea:
-    display_name: IKEA
-    base_url: https://www.ikea.com
-    transport: unknown
-    categories: [furniture, decor, foundational]
-    status: stub
-    auth:
-      type: unknown
-    notes: User-deferred to later phase. Community reverse-engineered APIs exist.
   dupe-com:
     display_name: Dupe
     base_url: https://www.dupe.com
@@ -158,7 +425,7 @@ sources:
     notes: AI visual-similarity matching. Deferred to later phase.
 resources:
   product-search:
-    description: Fan-out product search across all Tier 1 sources. Category-based routing sends queries to relevant sources. Returns normalized products with unified price, rating, and brand fields.
+    description: Fan-out product search across active sources. Category-based routing sends queries to relevant sources. Returns normalized products with unified price, rating, and brand fields.
     endpoints:
       ferguson-search:
         method: POST
@@ -901,6 +1168,9 @@ extra_commands:
   description: View and edit CLI configuration (default category routing, preferred sources, output format, SQLite database path). Reads/writes ~/.config/reno-goat-pp-cli/config.toml.
 - name: sources
   description: List all upstream API sources, their status (active/stub/deferred), categories served, rate limits, and current reachability. Pings each active source and reports latency.
+- name: source-probe
+  args: '[--candidate appliance-showrooms|appliance-priority-gaps|bath-showrooms|bath-priority-gaps|all|none] [--url <url>...]'
+  description: Probe candidate appliance, local showroom, big-box, and bath showroom routes with the current plain HTTP transport and report readable pages, WAF/CAPTCHA blockers, redirects, body truncation, and unreachable routes as structured evidence.
 - name: history
   description: Show past search queries with timestamps, result counts, and sources queried. Reads from local SQLite search history table.
 - name: save

@@ -1,0 +1,300 @@
+{
+  "query": "picture light",
+  "total": 10,
+  "models": [
+    {
+      "model": "30543166",
+      "title": "KAPPLAKE LED spotlight",
+      "category": "Storage \u0026 organization \u003e Armoires \u0026 wardrobes \u003e Closet lighting \u003e Wardrobe \u0026 bookcase lighting",
+      "best_price": 5.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/kapplake-led-spotlight-white-30543166/",
+      "image_url": "https://www.ikea.com/us/en/images/products/kapplake-led-spotlight-white__1118637_pe878605_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/kapplake-led-spotlight-white__AA-2348252-3-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 5.99,
+          "url": "https://www.ikea.com/us/en/p/kapplake-led-spotlight-white-30543166/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "70350127",
+      "title": "MÖRKRÄDD LED nightlight with sensor",
+      "category": "Lighting \u003e Lamps \u0026 light fixtures \u003e Wall lights \u003e Wall sconces \u0026 lamps",
+      "best_price": 7.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/moerkraedd-led-nightlight-with-sensor-white-70350127/",
+      "image_url": "https://www.ikea.com/us/en/images/products/moerkraedd-led-nightlight-with-sensor-white__0546112_pe655896_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/moerkraedd-led-nightlight-with-sensor-white__AA-2205805-3-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 7.99,
+          "url": "https://www.ikea.com/us/en/p/moerkraedd-led-nightlight-with-sensor-white-70350127/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "40291766",
+      "title": "MOSSLANDA Picture ledge",
+      "category": "Home decor \u0026 accessories \u003e Wall décor \u003e Display shelves \u0026 picture ledges",
+      "best_price": 9.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/mosslanda-picture-ledge-white-40291766/",
+      "image_url": "https://www.ikea.com/us/en/images/products/mosslanda-picture-ledge-white__0634119_pe696315_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/mosslanda-picture-ledge-white__AA-1416384-12-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 9.99,
+          "url": "https://www.ikea.com/us/en/p/mosslanda-picture-ledge-white-40291766/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "30121411",
+      "title": "ANSLUTA Power supply cord",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen lighting \u003e Countertop lighting",
+      "best_price": 10,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/ansluta-power-supply-cord-30121411/",
+      "image_url": "https://www.ikea.com/us/en/images/products/ansluta-power-supply-cord__77429_pe199012_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/ansluta-power-supply-cord__AA-2398648-1-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/ansluta-power-supply-cord__AA-268188-1-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 10,
+          "url": "https://www.ikea.com/us/en/p/ansluta-power-supply-cord-30121411/",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "30571951",
+      "title": "KÖLVATTEN LED lighting with sensor",
+      "category": "Storage \u0026 organization \u003e Armoires \u0026 wardrobes \u003e Closet lighting \u003e Battery operated",
+      "best_price": 20,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/koelvatten-led-lighting-with-sensor-white-battery-operated-30571951/",
+      "image_url": "https://www.ikea.com/us/en/images/products/koelvatten-led-lighting-with-sensor-white-battery-operated__1327501_pe944485_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/koelvatten-led-lighting-with-sensor-white-battery-operated__AA-2448613-3-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 20,
+          "url": "https://www.ikea.com/us/en/p/koelvatten-led-lighting-with-sensor-white-battery-operated-30571951/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white/battery operated"
+      ]
+    },
+    {
+      "model": "50516831",
+      "title": "YTBERG Cabinet lighting",
+      "category": "Storage \u0026 organization \u003e Armoires \u0026 wardrobes \u003e Closet lighting \u003e Wardrobe \u0026 bookcase lighting",
+      "best_price": 20,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/ytberg-cabinet-lighting-white-dimmable-50516831/",
+      "image_url": "https://www.ikea.com/us/en/images/products/ytberg-cabinet-lighting-white-dimmable__1051207_pe845082_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/ytberg-cabinet-lighting-white-dimmable__AA-2288775-4-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 20,
+          "url": "https://www.ikea.com/us/en/p/ytberg-cabinet-lighting-white-dimmable-50516831/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white/dimmable"
+      ]
+    },
+    {
+      "model": "40542430",
+      "title": "LAGERGÅNG LED lamp for screen",
+      "category": "Lighting \u003e Lamps \u0026 light fixtures \u003e Desk lamps",
+      "best_price": 24.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/lagergang-led-lamp-for-screen-dimmable-turquoise-40542430/",
+      "image_url": "https://www.ikea.com/us/en/images/products/lagergang-led-lamp-for-screen-dimmable-turquoise__1166865_pe891302_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/lagergang-led-lamp-for-screen-dimmable-turquoise__AA-2373213-1-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 24.99,
+          "url": "https://www.ikea.com/us/en/p/lagergang-led-lamp-for-screen-dimmable-turquoise-40542430/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "dimmable/turquoise"
+      ]
+    },
+    {
+      "model": "60446239",
+      "title": "MELLÖSA Picture ledge",
+      "category": "Home decor \u0026 accessories \u003e Wall décor \u003e Display shelves \u0026 picture ledges",
+      "best_price": 24.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/melloesa-picture-ledge-transparent-60446239/",
+      "image_url": "https://www.ikea.com/us/en/images/products/melloesa-picture-ledge-transparent__0689494_pe722995_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/melloesa-picture-ledge-transparent__AA-2127101-5-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 24.99,
+          "url": "https://www.ikea.com/us/en/p/melloesa-picture-ledge-transparent-60446239/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "transparent"
+      ]
+    },
+    {
+      "model": "40516841",
+      "title": "TVÄRDRAG Cabinet lighting",
+      "category": "Storage \u0026 organization \u003e Armoires \u0026 wardrobes \u003e Closet lighting \u003e Wardrobe \u0026 bookcase lighting",
+      "best_price": 25,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/tvaerdrag-cabinet-lighting-black-dimmable-40516841/",
+      "image_url": "https://www.ikea.com/us/en/images/products/tvaerdrag-cabinet-lighting-black-dimmable__1051158_pe845030_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/tvaerdrag-cabinet-lighting-black-dimmable__AA-2288737-3-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 25,
+          "url": "https://www.ikea.com/us/en/p/tvaerdrag-cabinet-lighting-black-dimmable-40516841/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "black/dimmable"
+      ]
+    },
+    {
+      "model": "30381606",
+      "title": "FUBBLA LED wall lamp",
+      "category": "Baby \u0026 kids \u003e Baby \u003e Kids night lights \u0026 lamps",
+      "best_price": 27.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/fubbla-led-wall-lamp-white-30381606/",
+      "image_url": "https://www.ikea.com/us/en/images/products/fubbla-led-wall-lamp-white__0607991_pe683401_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/fubbla-led-wall-lamp-white__AA-2102621-6-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/fubbla-led-wall-lamp-white__AA-2200536-2-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 27.99,
+          "url": "https://www.ikea.com/us/en/p/fubbla-led-wall-lamp-white-30381606/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: decor",
+    "Source warning: article: article: GraphQL error: PersistedQueryNotFound",
+    "Source warning: lightology: lightology: no category route for query \"picture light\""
+  ],
+  "sources_run": [
+    "west-elm",
+    "article",
+    "rejuvenation",
+    "shopify-dtc",
+    "ikea",
+    "lighting-new-york",
+    "lightology",
+    "kbauthority"
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "source": "AJ Madison",
+  "date": "2026-06-04",
+  "status": "blocked",
+  "transport": "plain HTTP/1.1 with browser user agent",
+  "summary": "AJ Madison remains a useful appliance target but is not promotable for Reno Goat. Direct product, category, search, sitemap, and visible catadmin API routes all returned PerimeterX/CAPTCHA or equivalent blocked responses. Public static assets reveal Algolia client code and AJ Madison catadmin/search endpoint shapes, but no replayable product-price rows were proven.",
+  "product_gap": [
+    "dishwasher category rows with prices",
+    "exact appliance model rows with prices, including JOESC330RM",
+    "AJ Madison appliance search rows suitable for active fan-out"
+  ],
+  "direct_routes_tested": [
+    {
+      "url": "https://www.ajmadison.com/",
+      "result": "HTTP 403 PerimeterX/CAPTCHA"
+    },
+    {
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/JOESC330RM.html",
+      "result": "HTTP 403 PerimeterX/CAPTCHA"
+    },
+    {
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/dishwasher.html",
+      "result": "HTTP 403 PerimeterX/CAPTCHA"
+    },
+    {
+      "url": "https://www.ajmadison.com/c/dishwashers/",
+      "result": "HTTP 403 PerimeterX/CAPTCHA"
+    },
+    {
+      "url": "https://www.ajmadison.com/search?query=dishwasher",
+      "result": "HTTP 403 PerimeterX/CAPTCHA"
+    },
+    {
+      "url": "https://www.ajmadison.com/catalogsearch/result/?q=dishwasher",
+      "result": "HTTP 403 PerimeterX/CAPTCHA"
+    },
+    {
+      "url": "https://www.ajmadison.com/api/search?query=dishwasher",
+      "result": "HTTP 403 PerimeterX/CAPTCHA"
+    },
+    {
+      "url": "https://www.ajmadison.com/api/catalog/search?query=dishwasher",
+      "result": "HTTP 403 PerimeterX/CAPTCHA"
+    },
+    {
+      "url": "https://www.ajmadison.com/autocomplete?term=dishwasher",
+      "result": "HTTP 403 PerimeterX/CAPTCHA"
+    },
+    {
+      "url": "https://www.ajmadison.com/search-suggest?term=dishwasher",
+      "result": "HTTP 403 PerimeterX/CAPTCHA"
+    }
+  ],
+  "static_routes_tested": [
+    {
+      "url": "https://www.ajmadison.com/robots.txt",
+      "result": "HTTP 200; lists sitemapindex.xml and api/sitemap.xml; disallows /papi/*"
+    },
+    {
+      "url": "https://www.ajmadison.com/sitemap.xml",
+      "result": "HTTP 403 PerimeterX/CAPTCHA"
+    },
+    {
+      "url": "https://www.ajmadison.com/product-sitemap.xml",
+      "result": "HTTP 403 PerimeterX/CAPTCHA"
+    },
+    {
+      "url": "https://www.ajmadison.com/sitemap_products.xml",
+      "result": "HTTP 403 PerimeterX/CAPTCHA"
+    },
+    {
+      "url": "https://www.ajmadison.com/manifest.json",
+      "result": "HTTP 403 PerimeterX/CAPTCHA"
+    }
+  ],
+  "asset_findings": [
+    "404 script guesses returned the AJ Madison HTML shell, not JavaScript, but the shell exposed public asset URLs, category links, an Algolia experiment flag, and public frontend keys.",
+    "Downloaded public assets common.d0cc10ca.js, prelude.c969bef3.js, and legacy.b8d2f30c.js.",
+    "Assets expose Algolia client code and endpoint strings including /papi/search/search-multi-query.json.php, /papi/search/search-events.json.php, /papi/list-page/top-searches.json.php, /webservices/api/catadmin/brands/, /webservices/api/catadmin/categories/, and /webservices/api/catadmin/products/.",
+    "No literal Algolia app ID plus search key pair was found in the static JavaScript assets.",
+    "/papi/* is robots-disallowed and was not selected as a Reno Goat source path."
+  ],
+  "catadmin_routes_tested": [
+    {
+      "url": "https://www.ajmadison.com/api/catadmin/products/JOESC330RM",
+      "result": "HTTP 403 PerimeterX/CAPTCHA"
+    },
+    {
+      "url": "https://www.ajmadison.com/api/catadmin/products/JOESC330RM?public_api_key=<public-key>",
+      "result": "HTTP 403 PerimeterX/CAPTCHA"
+    },
+    {
+      "url": "https://www.ajmadison.com/api/catadmin/products/?q=JOESC330RM&public_api_key=<public-key>",
+      "result": "HTTP 403 PerimeterX/CAPTCHA"
+    },
+    {
+      "url": "https://www.ajmadison.com/webservices/api/catadmin/products/?login[key]=<public-catadmin-key>&filters[sku]=JOESC330RM",
+      "result": "HTTP 403 PerimeterX/CAPTCHA"
+    },
+    {
+      "url": "https://www.ajmadison.com/webservices/api/catadmin/products/?login[key]=<public-catadmin-key>&search=JOESC330RM",
+      "result": "HTTP 403 PerimeterX/CAPTCHA"
+    },
+    {
+      "url": "https://www.ajmadison.com/webservices/api/catadmin/categories/?login[key]=<public-catadmin-key>",
+      "result": "HTTP 403 PerimeterX/CAPTCHA"
+    }
+  ],
+  "next_action": "Treat AJ Madison as a GHST-293/browser-resource extraction candidate. Do not promote until exact-model or category appliance rows with prices replay from the CLI without relying on search-result snippets."
+}

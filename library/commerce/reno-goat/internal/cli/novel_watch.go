@@ -147,13 +147,13 @@ func newWatchListCmd(flags *rootFlags) *cobra.Command {
 			var watches []map[string]any
 			for rows.Next() {
 				var (
-					id                         int64
-					productURL, source         string
-					title                      sql.NullString
-					threshold                  float64
+					id                          int64
+					productURL, source          string
+					title                       sql.NullString
+					threshold                   float64
 					originalPrice, currentPrice sql.NullFloat64
-					createdAt                  string
-					lastChecked                sql.NullString
+					createdAt                   string
+					lastChecked                 sql.NullString
 				)
 				if err := rows.Scan(&id, &productURL, &source, &title, &threshold,
 					&originalPrice, &currentPrice, &createdAt, &lastChecked); err != nil {

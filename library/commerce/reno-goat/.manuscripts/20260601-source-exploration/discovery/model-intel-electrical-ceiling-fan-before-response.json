@@ -1,0 +1,312 @@
+{
+  "query": "ceiling fan",
+  "total": 10,
+  "models": [
+    {
+      "model": "PLTS-12111",
+      "brand": "PLT",
+      "title": "40 Watt - Clear - Incandescent A15 Appliance Bulb - Medium Base - 130 Volt - PLTS-12111",
+      "category": "cat11 a lamps",
+      "best_price": 1.07,
+      "best_source": "1000bulbs",
+      "product_url": "https://www.1000bulbs.com/product/222133/PLTS-12111.html",
+      "image_url": "https://assets.1000bulbs.com/variants/Wn3z2QFpn6pjDpNLUr4vZY6g/2396028417565ec9a5980759fc72d6e316eaf3f8aa8cc250171894c07012ad4f",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://assets.1000bulbs.com/3xEW4SXt3FAQbnBruTrRbZXM?response-content-disposition=inline%3B+filename%3D%22plts-12111-specs.pdf",
+          "source": "1000bulbs"
+        }
+      ],
+      "offers": [
+        {
+          "source": "1000bulbs",
+          "price": 1.07,
+          "url": "https://www.1000bulbs.com/product/222133/PLTS-12111.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/PLTS-12111.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ]
+    },
+    {
+      "model": "PLT-11382",
+      "brand": "PLT",
+      "title": "750 Lumens - 9 Watt - 3000 Kelvin - LED A19 Light Bulb - 60 Watt Equal - GU24 Base - 120 Volt - PLT-11382",
+      "category": "cat2 led a19",
+      "best_price": 2.54,
+      "best_source": "1000bulbs",
+      "product_url": "https://www.1000bulbs.com/product/210967/PLT-11382.html",
+      "image_url": "https://assets.1000bulbs.com/variants/QB6bPxsiGNPGqszfBW9XowZZ/2396028417565ec9a5980759fc72d6e316eaf3f8aa8cc250171894c07012ad4f",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://assets.1000bulbs.com/3cenwjtiMBstStA7WwzKBbPF?response-content-disposition=inline%3B+filename%3D%22plt-11382-specs.pdf",
+          "source": "1000bulbs"
+        },
+        {
+          "kind": "document",
+          "url": "https://assets.1000bulbs.com/fVpdeSGChvN9wFy3pfdt5k1q?response-content-disposition=inline%3B+filename%3D%22plt-solutions-plt-11381-plt-11382-dimmer.pdf",
+          "source": "1000bulbs"
+        }
+      ],
+      "offers": [
+        {
+          "source": "1000bulbs",
+          "price": 2.54,
+          "url": "https://www.1000bulbs.com/product/210967/PLT-11382.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "PLT-12651",
+      "brand": "PLT",
+      "title": "800 Lumens - 9 Watt - LED A19 Light Bulb with 5 Selectable Color Temperatures - Kelvin 2700-3000-3500-4000-5000 - 60 Watt Equal - Medium Base - 120 Volt - PLT-12651",
+      "category": "cat2 led a19",
+      "best_price": 3.5,
+      "best_source": "1000bulbs",
+      "product_url": "https://www.1000bulbs.com/product/226150/PLT-12651.html",
+      "image_url": "https://assets.1000bulbs.com/variants/Y3TNZ8BDjAv5TmGHvUgGwHJH/2396028417565ec9a5980759fc72d6e316eaf3f8aa8cc250171894c07012ad4f",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://assets.1000bulbs.com/92QRGTcRfw9PHykbSTQhoKwp?response-content-disposition=inline%3B+filename%3D%22plt-a19-5cct-specs-vdec24.pdf",
+          "source": "1000bulbs"
+        },
+        {
+          "kind": "document",
+          "url": "https://assets.1000bulbs.com/XMF1mPZ9UqhEtx7HKZQTzzAJ?response-content-disposition=inline%3B+filename%3D%22plt-led-bulbs-warranty-vjan23.pdf",
+          "source": "1000bulbs"
+        }
+      ],
+      "offers": [
+        {
+          "source": "1000bulbs",
+          "price": 3.5,
+          "url": "https://www.1000bulbs.com/product/226150/PLT-12651.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "PSX24W",
+      "brand": "Super Bright LEDs",
+      "title": "PSX24W LED Fanless Headlight/Fog Light Conversion Kit with Internal Drivers - 4,000 Lumens/Set - Cool White",
+      "category": "LED Headlight \u0026 Fog Light Bulbs \u003e Miniature \u003e Cars, Trucks, and SUVs",
+      "best_price": 31.27,
+      "best_source": "superbrightleds",
+      "product_url": "https://www.superbrightleds.com/psx24w-led-fanless-headlight-fog-light-conversion-kit-with-internal-drivers-4-000-lumens-set-cool-white",
+      "image_url": "https://www.superbrightleds.com/media/catalog/product/cache/cdcea8b9e448c9365a818c302acc98c2/l/e/led-headlight-kit-psx24w-led-headlight-bulbs-conversion-kit-compact-heat-sink.jpg",
+      "offers": [
+        {
+          "source": "superbrightleds",
+          "price": 31.27,
+          "url": "https://www.superbrightleds.com/psx24w-led-fanless-headlight-fog-light-conversion-kit-with-internal-drivers-4-000-lumens-set-cool-white",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Increase your safety and visibility with this PSX24W LED headlight/fog light kit. The single-intensity LED headlight bulbs emit 4,000 lumens of cool white illumination per set (2,000 lumens each) and feature 3rd generation cooling technology. They have integrated heat sinks instead of short-lived fans or bulky braided heat sinks. This allows for a longer-lasting bulb and easier installation in tight spaces. They also have internal drivers, which eliminates the need to mount an additional part and locate an appropriate mounting spot. The compact bulbs last 13 times longer than halogen bulbs. LED arrays in each bulb are designed to mimic the filament in halogen bulbs—creating a closely matched beam style. These waterproof, CAN Bus compatible bulbs operate with in a wide 9-32 VDC range. This long-lasting kit includes 2 LED headlight bulbs and 2 adapter plugs. Price per kit.  \u003cbr\u003e\u003cbr\u003e\u003cdiv data-content-type=\"row\" data-appearance=\"contained\" data-element=\"main\"\u003e\u003cdiv data-enable-parallax=\"0\" data-parallax-speed=\"0.5\" data-background-images=\"{}\" data-background-type=\"image\" data-video-loop=\"true\" data-video-play-only-visible=\"true\" data-video-lazy-load=\"true\" data-video-fallback-src=\"\" data-element=\"inner\" data-pb-style=\"Y26KHUU\"\u003e\u003cdiv data-content-type=\"text\" data-appearance=\"default\" data-element=\"main\" data-pb-style=\"ROKGBTM\"\u003e\u003ctable style=\"border-collapse: collapse; width: 100%; margin-left: auto; margin-right: auto; border: 1px solid #ced4d9;\" border=\"1\"\u003e\u003ccolgroup\u003e\u003ccol style=\"width: 99.92%;\"\u003e\u003c/colgroup\u003e\n\u003ctbody\u003e\n\u003ctr\u003e\n\u003ctd style=\"text-align: center; border-color: #ced4d9;\"\u003e\n\u003cblockquote\u003e\n\u003cp\u003e\u003cstrong\u003eApplication Note:\u003c/strong\u003e LED bulbs are legal in the USA for Fog Light use but not compliant with DOT / FMVSS108 in the USA for Headlights. Legal for off-road and powersport applications. \u003cspan style=\"text-decoration: underline;\"\u003e\u003cspan style=\"color: #000000;\"\u003eThis restriction applies universally to all LED bulbs for use in halogen headlight housings in the USA, regardless of brand or marketing claims.\u003c/span\u003e\u003c/span\u003e\u003c/p\u003e\n\u003c/blockquote\u003e\n\u003c/td\u003e\n\u003c/tr\u003e\n\u003c/tbody\u003e\n\u003c/table\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e"
+      ]
+    },
+    {
+      "model": "PSX26W",
+      "brand": "Super Bright LEDs",
+      "title": "PSX26W LED Fanless Headlight/Fog Light Conversion Kit with Internal Drivers - 4,000 Lumens/Set - Cool White",
+      "category": "LED Headlight \u0026 Fog Light Bulbs \u003e Miniature \u003e Cars, Trucks, and SUVs",
+      "best_price": 31.27,
+      "best_source": "superbrightleds",
+      "product_url": "https://www.superbrightleds.com/psx26w-led-fanless-headlight-fog-light-conversion-kit-with-internal-drivers-4-000-lumens-set-cool-white",
+      "image_url": "https://www.superbrightleds.com/media/catalog/product/cache/cdcea8b9e448c9365a818c302acc98c2/p/s/psx26w-hlv4.jpg",
+      "offers": [
+        {
+          "source": "superbrightleds",
+          "price": 31.27,
+          "url": "https://www.superbrightleds.com/psx26w-led-fanless-headlight-fog-light-conversion-kit-with-internal-drivers-4-000-lumens-set-cool-white",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Increase your safety and visibility with this PSX26W LED headlight/fog light kit. The single-intensity LED headlight bulbs emit 4,000 lumens of cool white illumination per set (2,000 lumens each) and feature 3rd generation cooling technology. They have integrated heat sinks instead of short-lived fans or bulky braided heat sinks. This allows for a longer-lasting bulb and easier installation in tight spaces. They also have internal drivers, which eliminates the need to mount an additional part and locate an appropriate mounting spot. The compact bulbs last 13 times longer than halogen bulbs. LED arrays in each bulb are designed to mimic the filament in halogen bulbs—creating a closely matched beam style. These waterproof, CAN Bus compatible bulbs operate with in a wide 9-32 VDC range. This long-lasting kit includes 2 LED headlight bulbs and 2 adapter plugs. Price per kit. \u003cbr\u003e\u003cbr\u003e\u003cdiv data-content-type=\"row\" data-appearance=\"contained\" data-element=\"main\"\u003e\u003cdiv data-enable-parallax=\"0\" data-parallax-speed=\"0.5\" data-background-images=\"{}\" data-background-type=\"image\" data-video-loop=\"true\" data-video-play-only-visible=\"true\" data-video-lazy-load=\"true\" data-video-fallback-src=\"\" data-element=\"inner\" data-pb-style=\"Y26KHUU\"\u003e\u003cdiv data-content-type=\"text\" data-appearance=\"default\" data-element=\"main\" data-pb-style=\"ROKGBTM\"\u003e\u003ctable style=\"border-collapse: collapse; width: 100%; margin-left: auto; margin-right: auto; border: 1px solid #ced4d9;\" border=\"1\"\u003e\u003ccolgroup\u003e\u003ccol style=\"width: 99.92%;\"\u003e\u003c/colgroup\u003e\n\u003ctbody\u003e\n\u003ctr\u003e\n\u003ctd style=\"text-align: center; border-color: #ced4d9;\"\u003e\n\u003cblockquote\u003e\n\u003cp\u003e\u003cstrong\u003eApplication Note:\u003c/strong\u003e LED bulbs are legal in the USA for Fog Light use but not compliant with DOT / FMVSS108 in the USA for Headlights. Legal for off-road and powersport applications. \u003cspan style=\"text-decoration: underline;\"\u003e\u003cspan style=\"color: #000000;\"\u003eThis restriction applies universally to all LED bulbs for use in halogen headlight housings in the USA, regardless of brand or marketing claims.\u003c/span\u003e\u003c/span\u003e\u003c/p\u003e\n\u003c/blockquote\u003e\n\u003c/td\u003e\n\u003c/tr\u003e\n\u003c/tbody\u003e\n\u003c/table\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e"
+      ]
+    },
+    {
+      "model": "SW3B26",
+      "brand": "Super Bright LEDs",
+      "title": "Vapor Tight LED Jelly Jar Light - Caged Ceiling Light - Selectable Wattage and CCT - up to 2,990 Lumens - 26W / 20W / 13W - 3,000K / 4,000K / 5,000K",
+      "category": "Vapor Tight Light Fixtures",
+      "best_price": 54.99,
+      "best_source": "superbrightleds",
+      "product_url": "https://www.superbrightleds.com/vtcj-sw3b26",
+      "image_url": "https://www.superbrightleds.com/media/catalog/product/cache/cdcea8b9e448c9365a818c302acc98c2/v/t/vtcj-sw3b26-store2.jpg",
+      "offers": [
+        {
+          "source": "superbrightleds",
+          "price": 54.99,
+          "url": "https://www.superbrightleds.com/vtcj-sw3b26",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "The vapor-tight LED jelly jar light has a rugged, gray powder-coated die-cast aluminum housing and cage that protects the heavy-duty, frosted glass lens. Built for harsh environments inside or out, the caged fixture has selectable color temperature and wattage via switches inside the housing. This ceiling-mount cage light has a maximum output of 2,990 lumens and an IP65 rating making it ideal for general outdoor use. Surface mount using the built-in junction box, which has threaded holes for conduit, four with plugs on the sides and one open on the top, providing multiple options for wiring.\n\u003ch4\u003e\u003cdiv class=\"fntm bold pbs\"\u003eProduct Details:\u003c/div\u003e\u003c/h4\u003e\u003cul class=\"sc-applications\"\u003e\u003cli\u003ePowder-coated aluminum housing and cage, frosted glass lens\u003c/li\u003e\u003cli\u003eIP65 waterproof\u003c/li\u003e\u003cli\u003eBeam angle: 140° x 360°\u003c/li\u003e\u003cli\u003eSurface mount\u003c/li\u003e\u003cli\u003e4 kV surge protection\u003c/li\u003e\u003cli\u003e120–277 VAC\u003c/li\u003e\u003cli\u003eCertified by UL\u003c/li\u003e\u003cli\u003e5-year warranty\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    },
+    {
+      "model": "EPLL2",
+      "brand": "Super Bright LEDs",
+      "title": "Adjustable Surface Mount for EPLL2 series Explosion Proof Light - Wall or Ceiling Mount - EPLL2-CM",
+      "category": "Industrial \u0026 Commercial LED Lighting",
+      "best_price": 63.99,
+      "best_source": "superbrightleds",
+      "product_url": "https://www.superbrightleds.com/adjustable-surface-mount-for-epll2-series-explosion-proof-light-wall-or-ceiling-mount-epll2-cm",
+      "image_url": "https://www.superbrightleds.com/media/catalog/product/cache/cdcea8b9e448c9365a818c302acc98c2/e/p/epll2-cm-4-store.jpg",
+      "offers": [
+        {
+          "source": "superbrightleds",
+          "price": 63.99,
+          "url": "https://www.superbrightleds.com/adjustable-surface-mount-for-epll2-series-explosion-proof-light-wall-or-ceiling-mount-epll2-cm",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "EPLL2 series Surface Mount is a low-profile installation solution for compatible series Linear Explosion Proof Light. The rugged construction with stands the same tough environments as the light fixture. Includes 4 masonry anchors and mounting hardware."
+      ]
+    },
+    {
+      "model": "CFAN-DC3B52-WH",
+      "brand": "Energetic Lighting",
+      "title": "52 in. Ceiling Fan - Color Selectable LED Light Kit and Remote Included - 800 Lumens - 53 Watt - Kelvin 3000-4000-5700 - (3) 24 in. Reversible Walnut Blades - White Finish - 120 Volt - Energetic Lighting CFAN-DC3B52-WH",
+      "category": "cat9 home decor",
+      "best_price": 122.52,
+      "best_source": "1000bulbs",
+      "product_url": "https://www.1000bulbs.com/product/229168/LEDF-CFANWH.html",
+      "image_url": "https://assets.1000bulbs.com/variants/UmMEaHiQwrJ7uPH3Tdbwe2zg/2396028417565ec9a5980759fc72d6e316eaf3f8aa8cc250171894c07012ad4f",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://assets.1000bulbs.com/WF5AEfXGsGQnvxnuhFmxhQD8?response-content-disposition=inline%3B+filename%3D%22energetic-lighting-52-in-celing-fan-specs-vmar24.pdf",
+          "source": "1000bulbs"
+        },
+        {
+          "kind": "installation",
+          "url": "https://assets.1000bulbs.com/aNw5iYft4xeCUQR94Jc2KRc3?response-content-disposition=inline%3B+filename%3D%22energetic-lighting-52-in-celing-fan-installation-vmar24.pdf",
+          "source": "1000bulbs"
+        },
+        {
+          "kind": "document",
+          "url": "https://assets.1000bulbs.com/fBw4aATJrj637hxtDq9QNESL?response-content-disposition=inline%3B+filename%3D%22energetic-lighting-limited-warranty-vapr24.pdf",
+          "source": "1000bulbs"
+        }
+      ],
+      "offers": [
+        {
+          "source": "1000bulbs",
+          "price": 122.52,
+          "url": "https://www.1000bulbs.com/product/229168/LEDF-CFANWH.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/CFAN-DC3B52-WH.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ]
+    },
+    {
+      "model": "MA6721BBS",
+      "brand": "Fanimation",
+      "title": "Spitfire Brushed Brass 60\" Ceiling Fan Motor, Blades Sold Separately",
+      "category": "Ceiling Fans",
+      "best_price": 369.98,
+      "best_source": "bees-lighting",
+      "product_url": "https://www.beeslighting.com/products/fanimation-ma6721bbs-spitfire-outdoor-ceiling-fan-motor-with-remote-brushed-satin-brass-finish-set-of-3-blades-sold-separately?_pos=3\u0026_psq=ceiling+fan\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0553/9492/6650/files/fanimation_spitfire_ceiling-fans_ma6721bbs_101_ls.jpg?v=1771664272",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://files.plytix.com/api/v1.1/file/public_files/pim/assets/76/31/d1/64/64d13176886739000117d282/texts/86/d7/55/65/6555d78655dae14abd3b3e94/Spitfire-Specification-Sheet2.pdf",
+          "source": "bees-lighting"
+        },
+        {
+          "kind": "installation",
+          "url": "https://files.plytix.com/api/v1.1/file/public_files/pim/assets/76/31/d1/64/64d13176886739000117d282/texts/a7/e2/55/65/6555e2a755dae14abd3c324f/Spitfire-Installation-Sheet.pdf",
+          "source": "bees-lighting"
+        }
+      ],
+      "offers": [
+        {
+          "source": "bees-lighting",
+          "price": 369.98,
+          "url": "https://www.beeslighting.com/products/fanimation-ma6721bbs-spitfire-outdoor-ceiling-fan-motor-with-remote-brushed-satin-brass-finish-set-of-3-blades-sold-separately?_pos=3\u0026_psq=ceiling+fan\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Fanimation Spitfire 60'' Ceiling Fan — Brushed Satin BrassThe Fanimation MA6721BBS is a 60'' ceiling fan featuring a sleek design in a Brushed Satin Brass finish. It includes three blades and an AC motor, making it suitable for damp locations. This fan is designed for optimal performance with a maximum airflow of 4908 CFM.Key Features\n\nBlade Span: 60'' diameter\n\nNumber of Blades: 3\n\nMotor Type: AC Motor\n\nEnvironment Rating: Damp Location\n\nControl Options: TR500 hand-held remote control included\n\nDownrod Included: 4.5'' downrod\n\nSloped Ceiling Compatible: Up to 19°\n\nOptional Controls: Wall and Wi-Fi controls available\n\nLighting Options: Compatible with LK6721B LED light kit\n\nAirflow Efficiency: 71 CFM/W on high speed\nConstruction \u0026 DesignThis fan features a durable construction with a 21° blade pitch and a stylish Brushed Satin Brass finish, making it a perfect addition to any modern space.Advanced Control FeaturesThe fan comes with a TR500 hand-held remote control offering variable fan speeds and infinite light levels. Optional wall controls and Wi-Fi receiver units are available for enhanced control.Electrical \u0026 InstallationDesigned for 120V AC, this fan is compatible with sloped ceilings up to 19° and includes a 4.5'' downrod. Additional downrod lengths are available for customized installations.Fan PerformanceWith a maximum airflow of 4908 CFM, this fan is ideal for large spaces over 400 sq ft, providing efficient air circulation.What's Included\nTR500 hand-held remote control\n4.5'' downrod\nInstallation instructions"
+      ]
+    },
+    {
+      "model": "HF903860",
+      "brand": "Hinkley",
+      "title": "Swell 60.00 inch Indoor Ceiling Fan",
+      "category": "Indoor Ceiling Fans",
+      "best_price": 829,
+      "best_source": "lighting-new-york",
+      "product_url": "https://lightingnewyork.com/product/fans/fans/indoor-ceiling-fans/hinkley-lighting-swell-indoor-ceiling-fans-903860fmw-ndd/HF903860-30.html",
+      "image_url": "https://lightingnewyork.com/on/demandware.static/-/Sites-master-catalog-lny/default/dwacd79c10/brand/hnk/productimages/903860fmw-ndd_nocs16061x06092023noce.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://lightingnewyork.com/on/demandware.static/-/Sites-master-catalog-lny/default/dw5638a4cf/brand/hnk/assets/install/903860.pdf",
+          "source": "lighting-new-york"
+        }
+      ],
+      "offers": [
+        {
+          "source": "lighting-new-york",
+          "price": 829,
+          "url": "https://lightingnewyork.com/product/fans/fans/indoor-ceiling-fans/hinkley-lighting-swell-indoor-ceiling-fans-903860fmw-ndd/HF903860-30.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/PLTS-12111.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/CFAN-DC3B52-WH.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: electrical",
+    "Source warning: lightology: lightology: no category route for query \"ceiling fan\""
+  ],
+  "sources_run": [
+    "superbrightleds",
+    "prolighting",
+    "1000bulbs",
+    "bees-lighting",
+    "lighting-new-york",
+    "lightology"
+  ]
+}

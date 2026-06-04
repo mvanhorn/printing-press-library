@@ -1,0 +1,69 @@
+{
+  "query": "bath fan",
+  "total_results": 5,
+  "sources_queried": [
+    "broan-nutone"
+  ],
+  "products": [
+    {
+      "id": "026715275991",
+      "source": "broan-nutone",
+      "title": "Broan-NuTone FlexAir Selectable Bathroom Exhaust Fan, 80/110 CFM",
+      "brand": "Broan-NuTone",
+      "url": "https://www.broan-nutone.com/en-us/product/ventilationfans/pcpe811",
+      "image_url": "https://www.broan-nutone.com/getmedia/431ad3f9-2a95-4146-9655-1822ffd0cd60/PCPE811-complete.jpg?width=1800\u0026height=1800\u0026ext=.jpg",
+      "description": "Model: PCPE811",
+      "price_min": 0,
+      "price_max": 0,
+      "category": "Ventilation \u003e Bath Fans"
+    },
+    {
+      "id": "026715275854",
+      "source": "broan-nutone",
+      "title": "FlexAir Bath Exhaust Fan, 80-110 Selectable CFM Housing Pack",
+      "brand": "Broan-NuTone",
+      "url": "https://www.broan-nutone.com/en-us/product/ventilationfans/pcpe811h",
+      "image_url": "https://www.broan-nutone.com/getmedia/4cf23d84-2338-4e00-90fd-a6c51b95d334/PCPE811H.jpg?width=1800\u0026height=1800\u0026ext=.jpg",
+      "description": "Model: PCPE811H",
+      "price_min": 0,
+      "price_max": 0,
+      "category": "Ventilation \u003e Bath Fans"
+    },
+    {
+      "id": "026715275878",
+      "source": "broan-nutone",
+      "title": "FlexAir Bath Exhaust Fan, 80-110 Selectable CFM Finish Pack",
+      "brand": "Broan-NuTone",
+      "url": "https://www.broan-nutone.com/en-us/product/ventilationfans/pcper811f",
+      "image_url": "https://www.broan-nutone.com/getmedia/4733b436-059f-4f6b-9ee0-1a5969b07f4b/PCPER811F.jpg?width=1800\u0026height=1800\u0026ext=.jpg",
+      "description": "Model: PCPER811F",
+      "price_min": 0,
+      "price_max": 0,
+      "category": "Ventilation \u003e Bath Fans"
+    },
+    {
+      "id": "026715275861",
+      "source": "broan-nutone",
+      "title": "FlexAir Bath Exhaust Fan, 80-110 Selectable CFM, CleanCover Finish Pack",
+      "brand": "Broan-NuTone",
+      "url": "https://www.broan-nutone.com/en-us/product/ventilationfans/pcpe811kf",
+      "image_url": "https://www.broan-nutone.com/getmedia/1019eccc-e427-4657-ae75-8f8e9cfbf436/PCPE811KF.jpg?width=1800\u0026height=1800\u0026ext=.jpg",
+      "description": "Model: PCPE811KF",
+      "price_min": 0,
+      "price_max": 0,
+      "category": "Ventilation \u003e Bath Fans"
+    },
+    {
+      "id": "026715275847",
+      "source": "broan-nutone",
+      "title": "Broan-NuTone FlexAir Selectable Bathroom Exhaust Fan, 80/110 CFM w/ Louvered Grille",
+      "brand": "Broan-NuTone",
+      "url": "https://www.broan-nutone.com/en-us/product/ventilationfans/pcper811",
+      "image_url": "https://www.broan-nutone.com/getmedia/9962cfa2-4cbc-45d5-bbeb-b77b1adb5652/PCPER811-complete.jpg?width=1800\u0026height=1800\u0026ext=.jpg",
+      "description": "Model: PCPER811",
+      "price_min": 0,
+      "price_max": 0,
+      "category": "Ventilation \u003e Bath Fans"
+    }
+  ]
+}

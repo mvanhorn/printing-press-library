@@ -1,0 +1,52 @@
+HTTP/1.1 301 Moved Permanently
+Content-Type: text/html
+Location: https://www.fergusonhome.com/api/search?term=shower%20valve
+Content-Security-Policy: frame-ancestors 'self' https://*.build.com/ https://*.fergusonhome.com https://*.build-catalogs.com/ https://bcom.my.salesforce.com/ https://bcom.my.salesforce-sites.com/ https://*.visual.force.com/ https://omconsole.com/ https://*.omconsole.com/ https://*.cybersource.com/ https://*.ferguson.com/
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+X-Content-Type-Options: nosniff
+Timing-Allow-Origin: *
+X-Akamai-Transformed: 0 - 0 -
+Expires: Thu, 04 Jun 2026 05:46:29 GMT
+Cache-Control: max-age=0, no-cache, no-store
+Pragma: no-cache
+Date: Thu, 04 Jun 2026 05:46:29 GMT
+Connection: close
+Server-Timing: cdn-cache; desc=MISS
+Server-Timing: edge; dur=74
+Server-Timing: origin; dur=27
+Strict-Transport-Security: max-age=86400
+Akamai-GRN: 0.8fc83017.1780551989.36295db0
+Set-Cookie: _abck=8527075911A4CDB34ED3D30BEFCD275A~-1~YAAQj8gwF9UYzHueAQAAgzorkRDobQgkTXXkCCHFcWkY5ROlb74vxSp7kfaxhmopHQO1LtvzsiqkckyHVEc0Tuj9hmBPV+SoiQm7VZia61+ZKgiI20d4vKP6Qu+/7xrQSYPJnQ3Muw1/zWPci2eTWOovPk0yPbAh1k8JflpAH4LRMMa9Mc7B2uW1JJq+4JlpnYNO0P0YSZjouaPpbNwkGYpHFh4MTS0ejtXVst0lop20yHyWeWTluutJkcVHdypIc+HE/lUta15cKe7ymN4nlbLCM2YHakYhksMjhiRHE+wVEqogpewBoilZiY6ccmXzUxlhjkGdoci9U5pibP4ni7SBJlW4e2xos5WwQCyiGoJa2ATCcsEJhtrma3MEo92zUxq2hePitjn7w99KQ99CWNsTB7WPT5IVtgW5q/PCL0mK8vRigv36ls9BlsHA2EyKgHLYSLmGlg==~-1~-1~-1~-1~-1; Domain=.build.com; Path=/; Expires=Fri, 04 Jun 2027 05:46:29 GMT; Max-Age=31536000; SameSite=None; Secure
+Set-Cookie: bm_sz=BBA986E4D3183C05B989C40281BEB190~YAAQj8gwF9YYzHueAQAAgzorkQAkPN9di7n7Z/MBQVQQP0Qj8evo+hOm0RixWKHk2MUNZYO50biBuuhvNKib+EOfu3fSumjn8YWQ0JWDlLQAwfUm25aJeTuV+rftRJJrHGjQspYLH3fXaXaVwvcRZaTcUB+8TZf/WppSGQnPEmCP5U3IKVvi8eWFMf3PakLn7Ly9VAvRqtTC2dEdv3isBSm51gFgwbii4sFXuoMSpXHFeh5WslTblhwHn2htZDHKswLEgeDE5qY50GJCO4Egq58r3t0+eRWCIeh57WjaToFmXkb+9B0mtSIeDhKaN5/O/3AQjBU3kXHQJXb46gJtGMjCSdtfJzImsGszB68=~3487029~3491127; Domain=.build.com; Path=/; Expires=Thu, 04 Jun 2026 09:46:29 GMT; Max-Age=14400; SameSite=None; Secure
+Server-Timing: ak_p; desc="1780551989728_389073039_908680624_10043_11071_11_37_-";dur=1
+
+HTTP/1.1 404 Not Found
+Content-Type: text/html; charset=utf-8
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+ETag: W/"15c37-gVEt9dNWCj3W+kPndDzs3QggKJs"
+Content-Security-Policy: frame-ancestors 'self' https://*.build.com/ https://*.fergusonhome.com https://*.build-catalogs.com/ https://bcom.my.salesforce.com/ https://bcom.my.salesforce-sites.com/ https://*.visual.force.com/ https://omconsole.com/ https://*.omconsole.com/ https://*.cybersource.com/ https://*.ferguson.com/
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+X-Content-Type-Options: nosniff
+Timing-Allow-Origin: *
+X-Akamai-Transformed: 0 - 0 -
+Expires: Thu, 04 Jun 2026 05:46:30 GMT
+Cache-Control: max-age=0, no-cache, no-store
+Pragma: no-cache
+Date: Thu, 04 Jun 2026 05:46:30 GMT
+Transfer-Encoding:  chunked
+Connection: keep-alive
+Connection: Transfer-Encoding
+Set-Cookie: _dy_cs_gcg=Dynamic%20Yield%20Experiences; Path=/; Expires=Fri, 04 Jun 2027 05:46:30 GMT; Secure
+Set-Cookie: CID=Hq4isEUlSkFbxy5qJKr8bcjUyL9G0JU9; Path=/; Expires=Sun, 01 Jun 2036 05:46:30 GMT; HttpOnly; Secure
+Server-Timing: cdn-cache; desc=MISS
+Server-Timing: edge; dur=29
+Server-Timing: origin; dur=69
+Strict-Transport-Security: max-age=86400
+Akamai-GRN: 0.90c83017.1780551990.55066d48
+Set-Cookie: _abck=BA677B9A313CEBFBA951B869B770497D~-1~YAAQkMgwF7ZQmX6eAQAAdzsrkRCYgOX3QOIBxCvTwrS4533Db0UX6S1OfFpnJwWC0PS44i+K3ckfFfmZrdqUvdIqjVS28Vec9WG3Vd9s2zUxCBw0hE/0GrsBw7mwwt0MqOhbS1hNnVAYQ0G6dTm5dN/k581E8pI64vXo+iDcFIAsdDhWWr1oiDM5KfRBvPyLhvcXLusqBZAZXhmHjBQ1kyc5c48Mk3diGl8sQs6sfEktr9EKO+8A96iXqKFn2kL1EQs9R9RbEVu8irfsWvxAzS0kE5n/icX04COqz/0xfQFsmzcjJpfZ+bz3rIhsIQtQPVqK+aBc+xziaFTh5aO7O1/U/yUhLWwC4ZuDnTESU9hoZ0G3U12rs92fYdpoSlCVT2eSZTEjWhIikizqet70sF8T/BADwqLIRJ+Z+mSMtiSWothpagZ1dk+YEEsZWJ/adStnmFIRTfJ28gPIk3U=~-1~-1~-1~-1~-1; Domain=.fergusonhome.com; Path=/; Expires=Fri, 04 Jun 2027 05:46:30 GMT; Max-Age=31536000; SameSite=None; Secure
+Set-Cookie: bm_sz=FB723E4EC57FBF4035A73621494BB4BD~YAAQkMgwF7dQmX6eAQAAdzsrkQBfHvUWn2Q/9Ff3/SwANNQXap4JTYnLUTmfBMEM4wuwe+/4SKH5bY0ZlPm+iEysxwYL2oPNADRbBHOLEvgU/nS5saLk9LqkoNPksaluSkv9FAL7AKjHbsNbs7Y4tXzi+Je7iQog2JvDudEd6EOHmyTjehdWAFX1AQ0JAtnsy5bd1NlNRuv3/a+dJqtKBQJwrSsF2Pwc8uE21MCdZwqCpRcH7CRPFWZZdUYWf6pzIRlAXuJwTRzIugH0/OPhaRMucHXRzUpBvR4Sb4QE+XYRndD24exw5viu4H2P7fZIFsxvIdgcIVRXXdcPccFSCB5C4IYkaTaTyJm+P7GE+BwI8a5O~4468792~3227973; Domain=.fergusonhome.com; Path=/; Expires=Thu, 04 Jun 2026 09:46:30 GMT; Max-Age=14400; SameSite=None; Secure
+Server-Timing: ak_p; desc="1780551989964_389073040_1426484552_10449_14506_10_37_-";dur=1
+

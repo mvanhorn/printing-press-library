@@ -1,0 +1,57 @@
+{
+  "query": "sink",
+  "total_results": 3,
+  "sources_queried": [
+    "plumbersstock"
+  ],
+  "products": [
+    {
+      "id": "toto-lt181-12-curva",
+      "source": "plumbersstock",
+      "title": "TOTO Curva 22” x 19” Oval Undermount Lavatory Sink, Vitreous China, Rear Overflow, Sedona Beige - LT181#12",
+      "brand": "TOTO",
+      "url": "https://www.plumbersstock.com/toto-lt181-12-curva.html",
+      "price_min": 261.64,
+      "price_max": 261.64,
+      "regular_price_min": 307.81,
+      "regular_price_max": 307.81,
+      "sale_price_min": 261.64,
+      "sale_price_max": 261.64,
+      "on_sale": true,
+      "discount_percent": 14.999512686397454,
+      "category": "Bathroom \u003e Sinks"
+    },
+    {
+      "id": "toto-lt930-01",
+      "source": "plumbersstock",
+      "title": "TOTO Lloyd 28-3/4\" Pedestal Sink Top Only, 1 Hole, Fireclay, Cotton - LT930#01",
+      "brand": "TOTO",
+      "url": "https://www.plumbersstock.com/toto-lt930-01.html",
+      "price_min": 455.13,
+      "price_max": 455.13,
+      "regular_price_min": 535.45,
+      "regular_price_max": 535.45,
+      "sale_price_min": 455.13,
+      "sale_price_max": 455.13,
+      "on_sale": true,
+      "discount_percent": 15.000466897002529,
+      "category": "Bathroom \u003e Sinks"
+    },
+    {
+      "id": "toto-lt790-8-01",
+      "source": "plumbersstock",
+      "title": "TOTO Nexus 24\" Lavatory with 8\" Faucet Centers, Vitreous China, Cotton -  LT790.8#01",
+      "brand": "TOTO",
+      "url": "https://www.plumbersstock.com/toto-lt790-8-01.html",
+      "price_min": 296.79,
+      "price_max": 296.79,
+      "regular_price_min": 349.16,
+      "regular_price_max": 349.16,
+      "sale_price_min": 296.79,
+      "sale_price_max": 296.79,
+      "on_sale": true,
+      "discount_percent": 14.998854393401306,
+      "category": "Bathroom \u003e Sinks"
+    }
+  ]
+}

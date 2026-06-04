@@ -1,0 +1,64 @@
+{
+  "query": "mini split heat pump",
+  "total_results": 5,
+  "sources_queried": [
+    "iwae"
+  ],
+  "products": [
+    {
+      "id": "HA22096-30826",
+      "source": "iwae",
+      "title": "24k BTU 20.5 SEER MrCool DIY Ductless Heat Pump Split System 4th Generation - Wall Mounted",
+      "brand": "MrCool",
+      "url": "https://iwae.com/shop/24k-btu-20-5-seer-mrcool-diy-ductless-heat-pump-split-system-4th-generation-wall-mounted-ha22096.html",
+      "image_url": "https://cdn.iwae.com/media/catalog/product/cache/e981b5d7505b5689c9031607797aca8c/2/4/24k-btu-20.5-seer-mrcool-diy-ductless-heat-pump-split-system-4th-generation-wall-mounted-ha22096-01.3548.jpg",
+      "price_min": 2502,
+      "price_max": 2502,
+      "category": "HVAC \u003e Full Systems"
+    },
+    {
+      "id": "HA22045-30828",
+      "source": "iwae",
+      "title": "18k BTU 21 SEER2 Multi-Zone MrCool DIY 2 Zone Ductless Heat Pump Split System 4th Generation - 9k+9k",
+      "brand": "MrCool",
+      "url": "https://iwae.com/shop/18k-btu-21-seer2-multi-zone-mrcool-diy-2-zone-ductless-heat-pump-split-system-4th-generation-9k-9k-ha22045.html",
+      "image_url": "https://cdn.iwae.com/media/catalog/product/cache/e981b5d7505b5689c9031607797aca8c/1/8/18k-btu-21-seer-multi-zone-mrcool-diy-2-zone-ductless-heat-pump-split-system-4th-generation-9k-9k-ha22045-01.3548.jpg",
+      "price_min": 2766,
+      "price_max": 2766,
+      "category": "HVAC \u003e Full Systems"
+    },
+    {
+      "id": "HA26167-36693",
+      "source": "iwae",
+      "title": "3 Ton 16.1 SEER2 MrCool VersaPro Central Heat Pump Split System - Multiposition - R454B",
+      "brand": "MrCool",
+      "url": "https://iwae.com/shop/3-ton-16-1-seer2-mrcool-versapro-central-heat-pump-split-system-multiposition-r454b-ha26167.html",
+      "image_url": "https://cdn.iwae.com/media/catalog/product/cache/e981b5d7505b5689c9031607797aca8c/h/a/ha26167-bi-01_2_1.jpg",
+      "price_min": 3460,
+      "price_max": 3460,
+      "category": "HVAC \u003e Full Systems"
+    },
+    {
+      "id": "HA22046-30829",
+      "source": "iwae",
+      "title": "18k BTU 21 SEER Multi-Zone MrCool DIY 2 Zone Ductless Heat Pump Split System 4th Generation - 9k+12k",
+      "brand": "MrCool",
+      "url": "https://iwae.com/shop/18k-btu-21-seer-multi-zone-mrcool-diy-2-zone-ductless-heat-pump-split-system-4th-generation-9k-12k-ha22046.html",
+      "image_url": "https://cdn.iwae.com/media/catalog/product/cache/e981b5d7505b5689c9031607797aca8c/1/8/18k-btu-21-seer-multi-zone-mrcool-diy-2-zone-ductless-heat-pump-split-system-4th-generation-9k-12k-ha22046-01.3548.jpg",
+      "price_min": 2898,
+      "price_max": 2898,
+      "category": "HVAC \u003e Full Systems"
+    },
+    {
+      "id": "HA26166-36692",
+      "source": "iwae",
+      "title": "2.5 Ton 17 SEER2 MrCool VersaPro Central Heat Pump Split System - Multiposition - R454B",
+      "brand": "MrCool",
+      "url": "https://iwae.com/shop/2-5-ton-17-seer2-mrcool-versapro-central-heat-pump-split-system-multiposition-r454b-ha26166.html",
+      "image_url": "https://cdn.iwae.com/media/catalog/product/cache/e981b5d7505b5689c9031607797aca8c/h/a/ha26166-bi-01_2_1.jpg",
+      "price_min": 3090,
+      "price_max": 3090,
+      "category": "HVAC \u003e Full Systems"
+    }
+  ]
+}

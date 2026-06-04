@@ -1,0 +1,327 @@
+{
+  "query": "medicine cabinet",
+  "total": 10,
+  "models": [
+    {
+      "model": "10569096",
+      "title": "IVÖSJÖN Mirror cabinet with 1 door",
+      "category": "Home decor \u0026 accessories \u003e Mirrors \u003e Medicine cabinets with mirror",
+      "best_price": 29.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/ivoesjoen-mirror-cabinet-with-1-door-green-10569096/",
+      "image_url": "https://www.ikea.com/us/en/images/products/ivoesjoen-mirror-cabinet-with-1-door-green__1368211_pe957682_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/ivoesjoen-mirror-cabinet-with-1-door-green__AA-2534528-2-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/ivoesjoen-mirror-cabinet-with-1-door-green__AA-2134801-1-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 29.99,
+          "url": "https://www.ikea.com/us/en/p/ivoesjoen-mirror-cabinet-with-1-door-green-10569096/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "green"
+      ]
+    },
+    {
+      "model": "10470830",
+      "title": "NYSJÖN Mirror cabinet",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom systems \u003e NYSJÖN bathroom \u003e NYSJÖN storage \u0026 mirrors",
+      "best_price": 69.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/nysjoen-mirror-cabinet-white-10470830/",
+      "image_url": "https://www.ikea.com/us/en/images/products/nysjoen-mirror-cabinet-white__0971578_pe811386_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/nysjoen-mirror-cabinet-white__AA-2350913-4-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/nysjoen-mirror-cabinet-white__AA-2134801-1-2.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/nysjoen-mirror-cabinet-white__AA-2180433-1-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 69.99,
+          "url": "https://www.ikea.com/us/en/p/nysjoen-mirror-cabinet-white-10470830/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "89434575",
+      "title": "ENHET Mirror cab/1 door",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom systems \u003e ENHET bathroom \u003e ENHET mirror \u0026 mirror cabinets",
+      "best_price": 109.98,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/enhet-mirror-cab-1-door-white-s89434575/",
+      "image_url": "https://www.ikea.com/us/en/images/products/enhet-mirror-cab-1-door-white__1049536_pe844203_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/enhet-wall-cb-w-2-shelves-white__AA-2288900-2-2.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/enhet-wall-cb-w-2-shelves-white__AA-2180433-1-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 109.98,
+          "url": "https://www.ikea.com/us/en/p/enhet-mirror-cab-1-door-white-s89434575/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "60348984",
+      "title": "HEMNES Mirror cabinet with 1 door",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom systems \u003e HEMNES bathroom \u003e HEMNES mirror \u0026 mirror cabinets",
+      "best_price": 129.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/hemnes-mirror-cabinet-with-1-door-gray-60348984/",
+      "image_url": "https://www.ikea.com/us/en/images/products/hemnes-mirror-cabinet-with-1-door-gray__0487456_pe622546_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/hemnes-mirror-cabinet-with-1-door-gray__AA-565034-7-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/hemnes-mirror-cabinet-with-1-door-gray__AA-2159780-2-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 129.99,
+          "url": "https://www.ikea.com/us/en/p/hemnes-mirror-cabinet-with-1-door-gray-60348984/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "gray"
+      ]
+    },
+    {
+      "model": "KOHLER-55062",
+      "brand": "Kohler",
+      "title": "Kohler - Embark Slim 20X26 Medicine Cabinet",
+      "category": "Mirror Cabinets",
+      "best_price": 193.99,
+      "best_source": "plumbtile",
+      "product_url": "https://plumbtile.com/products/kohler-55062?_pos=5\u0026_psq=medicine+cabinet\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0623/8552/0866/files/aaf08485_rgb.jpg?v=1776470064",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://plumbtile.info/pdf/kohler/K-55062_spec_US-CA_Kohler_en.pdf",
+          "source": "plumbtile"
+        }
+      ],
+      "offers": [
+        {
+          "source": "plumbtile",
+          "price": 193.99,
+          "regular": 258.65,
+          "url": "https://plumbtile.com/products/kohler-55062?_pos=5\u0026_psq=medicine+cabinet\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Specification FileManufacturer's Part Number(s): 55062-NA\nspec: https://plumbtile.info/pdf/kohler/K-55062_spec_US-CA_Kohler_en.pdf"
+      ]
+    },
+    {
+      "model": "MR571728BRS",
+      "brand": "Elegant Lighting",
+      "title": "Wyn 28 X 17 inch Brass Medicine Cabinet",
+      "category": "Wall Mirrors",
+      "best_price": 210,
+      "best_source": "lighting-new-york",
+      "product_url": "https://lightingnewyork.com/product/furniture-and-decor/home-decor/wall-mirrors/elegant-lighting-wyn-wall-mirrors-mr571728brs/1967055.html",
+      "image_url": "https://lightingnewyork.com/on/demandware.static/-/Sites-master-catalog-lny/default/dwac926508/brand/elg/productimages/mr571728brs.jpg",
+      "offers": [
+        {
+          "source": "lighting-new-york",
+          "price": 210,
+          "regular": 210,
+          "url": "https://lightingnewyork.com/product/furniture-and-decor/home-decor/wall-mirrors/elegant-lighting-wyn-wall-mirrors-mr571728brs/1967055.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "MR572028BLK",
+      "brand": "Elegant Lighting",
+      "title": "Wyn 28 X 20 inch Black Medicine Cabinet",
+      "category": "Wall Mirrors",
+      "best_price": 224,
+      "best_source": "lighting-new-york",
+      "product_url": "https://lightingnewyork.com/product/furniture-and-decor/home-decor/wall-mirrors/elegant-lighting-wyn-wall-mirrors-mr572028blk/1967059.html",
+      "image_url": "https://lightingnewyork.com/on/demandware.static/-/Sites-master-catalog-lny/default/dwf0bbc9d3/brand/elg/productimages/mr572028blk.jpg",
+      "offers": [
+        {
+          "source": "lighting-new-york",
+          "price": 224,
+          "regular": 224,
+          "url": "https://lightingnewyork.com/product/furniture-and-decor/home-decor/wall-mirrors/elegant-lighting-wyn-wall-mirrors-mr572028blk/1967059.html",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "90576677",
+      "title": "TREASJÖN Mirror cabinet w/2 doors \u0026 light",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom wall cabinets",
+      "best_price": 229,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/treasjoen-mirror-cabinet-w-2-doors-light-90576677/",
+      "image_url": "https://www.ikea.com/us/en/images/products/treasjoen-mirror-cabinet-w-2-doors-light__1241593_pe919883_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/treasjoen-mirror-cabinet-w-2-doors-light__AA-2418904-4-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/treasjoen-mirror-cabinet-w-2-doors-light__AA-2420496-4-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/treasjoen-mirror-cabinet-w-2-doors-light__AA-2059033-1-2.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/treasjoen-mirror-cabinet-w-2-doors-light__AA-2134801-1-2.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/treasjoen-mirror-cabinet-w-2-doors-light__AA-2220473-1-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 229,
+          "url": "https://www.ikea.com/us/en/p/treasjoen-mirror-cabinet-w-2-doors-light-90576677/",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "70217685",
+      "title": "HEMNES High cabinet with mirror door",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom systems \u003e HEMNES bathroom \u003e HEMNES mirror \u0026 mirror cabinets",
+      "best_price": 229.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/hemnes-high-cabinet-with-mirror-door-white-70217685/",
+      "image_url": "https://www.ikea.com/us/en/images/products/hemnes-high-cabinet-with-mirror-door-white__0628130_pe693620_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/hemnes-high-cabinet-with-mirror-door-white__AA-565977-14-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/hemnes-high-cabinet-with-mirror-door-white__AA-2159780-2-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 229.99,
+          "url": "https://www.ikea.com/us/en/p/hemnes-high-cabinet-with-mirror-door-white-70217685/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "100902071",
+      "title": "Hampton 24 in. Chilled Gray Medicine Cabinet",
+      "category": "Medicine Cabinet",
+      "best_price": 243,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/hampton-24-in.-chilled-gray-medicine-cabinet-100902071.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 243,
+          "regular": 243,
+          "url": "https://www.flooranddecor.com/hampton-24-in.-chilled-gray-medicine-cabinet-100902071.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Hampton 24 in. Chilled Gray Medicine Cabinet is a timeless and versatile choice for any bathroom setting - or any room in your home. With its gray finish and attractive design, it adds a touch of elegance wherever it is placed.\u003c/p\u003e\u003cbr /\u003e\u003cul\u003e\u003cli\u003eEasy to install with the included mounting hardware.\u003c/li\u003e\u003cli\u003eThe mirror mounts .\u003c/li\u003e\u003cli\u003eMeasuring 24 x 30in., this mirror will easily fit into most spaces.\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: plumbing, decor",
+    "Source warning: ferguson: ferguson: HTTP 403: \u003cHTML\u003e\u003cHEAD\u003e",
+    "Source warning: article: article: GraphQL error: PersistedQueryNotFound",
+    "Source warning: lightology: lightology: no category route for query \"medicine cabinet\""
+  ],
+  "sources_run": [
+    "ferguson",
+    "floor-and-decor",
+    "plumbersstock",
+    "faucetdepot",
+    "faucetlist",
+    "plumbtile",
+    "modern-bathroom",
+    "kbauthority",
+    "west-elm",
+    "article",
+    "rejuvenation",
+    "shopify-dtc",
+    "ikea",
+    "lighting-new-york",
+    "lightology"
+  ]
+}

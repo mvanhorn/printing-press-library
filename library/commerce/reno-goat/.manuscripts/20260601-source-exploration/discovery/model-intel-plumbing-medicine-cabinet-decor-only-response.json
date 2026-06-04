@@ -1,0 +1,374 @@
+{
+  "query": "medicine cabinet",
+  "total": 10,
+  "models": [
+    {
+      "model": "10569096",
+      "title": "IVÖSJÖN Mirror cabinet with 1 door",
+      "category": "Home decor \u0026 accessories \u003e Mirrors \u003e Medicine cabinets with mirror",
+      "best_price": 29.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/ivoesjoen-mirror-cabinet-with-1-door-green-10569096/",
+      "image_url": "https://www.ikea.com/us/en/images/products/ivoesjoen-mirror-cabinet-with-1-door-green__1368211_pe957682_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/ivoesjoen-mirror-cabinet-with-1-door-green__AA-2534528-2-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/ivoesjoen-mirror-cabinet-with-1-door-green__AA-2134801-1-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 29.99,
+          "url": "https://www.ikea.com/us/en/p/ivoesjoen-mirror-cabinet-with-1-door-green-10569096/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "green"
+      ]
+    },
+    {
+      "model": "90372265",
+      "title": "KNOXHULT Wall cabinet with door",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen systems \u003e KNOXHULT modular kitchen \u003e KNOXHULT kitchen cabinets \u0026 parts",
+      "best_price": 50,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/knoxhult-wall-cabinet-with-door-white-90372265/",
+      "image_url": "https://www.ikea.com/us/en/images/products/knoxhult-wall-cabinet-with-door-white__0628105_pe693605_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/knoxhult-wall-cabinet-with-door-white__AA-1970540-2-2.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/knoxhult-wall-cabinet-with-door-white__AA-2562659-1-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 50,
+          "url": "https://www.ikea.com/us/en/p/knoxhult-wall-cabinet-with-door-white-90372265/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "10470830",
+      "title": "NYSJÖN Mirror cabinet",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom systems \u003e NYSJÖN bathroom \u003e NYSJÖN storage \u0026 mirrors",
+      "best_price": 69.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/nysjoen-mirror-cabinet-white-10470830/",
+      "image_url": "https://www.ikea.com/us/en/images/products/nysjoen-mirror-cabinet-white__0971578_pe811386_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/nysjoen-mirror-cabinet-white__AA-2350913-4-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/nysjoen-mirror-cabinet-white__AA-2134801-1-2.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/nysjoen-mirror-cabinet-white__AA-2180433-1-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 69.99,
+          "url": "https://www.ikea.com/us/en/p/nysjoen-mirror-cabinet-white-10470830/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "40594669",
+      "title": "OMMJÄNGE Cabinet with 2 doors and shelf",
+      "category": "Storage \u0026 organization \u003e Display \u0026 storage cabinets \u003e Cabinets, hutches \u0026 cupboards",
+      "best_price": 69.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/ommjaenge-cabinet-with-2-doors-and-shelf-pink-orange-stained-40594669/",
+      "image_url": "https://www.ikea.com/us/en/images/products/ommjaenge-cabinet-with-2-doors-and-shelf-pink-orange-stained__1419728_pe977095_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/ommjaenge-cabinet-with-2-doors-and-shelf-pink-orange-stained__AA-2529200-2-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 69.99,
+          "url": "https://www.ikea.com/us/en/p/ommjaenge-cabinet-with-2-doors-and-shelf-pink-orange-stained-40594669/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/40594669.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "pink orange/stained"
+      ]
+    },
+    {
+      "model": "20621640",
+      "title": "MOSSJÖN Wall cabinet with glass door",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom wall cabinets",
+      "best_price": 79.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/mossjoen-wall-cabinet-with-glass-door-anthracite-20621640/",
+      "image_url": "https://www.ikea.com/us/en/images/products/mossjoen-wall-cabinet-with-glass-door-anthracite__1465200_pe994971_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/mossjoen-wall-cabinet-with-glass-door-anthracite__AA-2608474-2-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/mossjoen-wall-cabinet-with-glass-door-anthracite__AA-2097924-4-2.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/mossjoen-wall-cabinet-with-glass-door-anthracite__AA-2175910-3-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 79.99,
+          "url": "https://www.ikea.com/us/en/p/mossjoen-wall-cabinet-with-glass-door-anthracite-20621640/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "anthracite"
+      ]
+    },
+    {
+      "model": "80515571",
+      "title": "ENHET Wall cb w 2 shelves",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom systems \u003e ENHET bathroom \u003e ENHET bathroom cabinets",
+      "best_price": 79.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/enhet-wall-cb-w-2-shelves-white-80515571/",
+      "image_url": "https://www.ikea.com/us/en/images/products/enhet-wall-cb-w-2-shelves-white__1047687_pe843485_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/enhet-wall-cb-w-2-shelves-white__AA-2288900-2-2.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/enhet-wall-cb-w-2-shelves-white__AA-2180433-1-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 79.99,
+          "url": "https://www.ikea.com/us/en/p/enhet-wall-cb-w-2-shelves-white-80515571/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "40300662",
+      "title": "BRIMNES Cabinet with doors",
+      "category": "Storage \u0026 organization \u003e Display \u0026 storage cabinets \u003e Cabinets, hutches \u0026 cupboards",
+      "best_price": 99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/brimnes-cabinet-with-doors-white-40300662/",
+      "image_url": "https://www.ikea.com/us/en/images/products/brimnes-cabinet-with-doors-white__0627105_pe693181_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/brimnes-cabinet-with-doors-white__AA-1357217-9-2.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/brimnes-cabinet-with-doors-white__AA-2180177-2-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 99,
+          "url": "https://www.ikea.com/us/en/p/brimnes-cabinet-with-doors-white-40300662/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "60567778",
+      "title": "MOSSJÖN Wall cabinet w shelves/glass door",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom wall cabinets",
+      "best_price": 99.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/mossjoen-wall-cabinet-w-shelves-glass-door-anthracite-60567778/",
+      "image_url": "https://www.ikea.com/us/en/images/products/mossjoen-wall-cabinet-w-shelves-glass-door-anthracite__1239715_pe919026_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/mossjoen-wall-cabinet-w-shelves-glass-door-anthracite__AA-2390862-4-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/mossjoen-wall-cabinet-w-shelves-glass-door-anthracite__AA-2097924-4-2.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/mossjoen-wall-cabinet-w-shelves-glass-door-anthracite__AA-2175910-3-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 99.99,
+          "url": "https://www.ikea.com/us/en/p/mossjoen-wall-cabinet-w-shelves-glass-door-anthracite-60567778/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "anthracite"
+      ]
+    },
+    {
+      "model": "89434575",
+      "title": "ENHET Mirror cab/1 door",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom systems \u003e ENHET bathroom \u003e ENHET mirror \u0026 mirror cabinets",
+      "best_price": 109.98,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/enhet-mirror-cab-1-door-white-s89434575/",
+      "image_url": "https://www.ikea.com/us/en/images/products/enhet-mirror-cab-1-door-white__1049536_pe844203_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/enhet-wall-cb-w-2-shelves-white__AA-2288900-2-2.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/enhet-wall-cb-w-2-shelves-white__AA-2180433-1-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 109.98,
+          "url": "https://www.ikea.com/us/en/p/enhet-mirror-cab-1-door-white-s89434575/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "70535169",
+      "title": "HAVBÄCK Wall cabinet with door",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom systems \u003e HAVBÄCK bathroom \u003e HAVBÄCK storage",
+      "best_price": 129,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/havbaeck-wall-cabinet-with-door-white-70535169/",
+      "image_url": "https://www.ikea.com/us/en/images/products/havbaeck-wall-cabinet-with-door-white__1197626_pe903642_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/havbaeck-wall-cabinet-with-door-white__AA-2400665-3-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/havbaeck-wall-cabinet-with-door-white__AA-2097104-2-2.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/havbaeck-wall-cabinet-with-door-white__AA-2134801-1-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 129,
+          "url": "https://www.ikea.com/us/en/p/havbaeck-wall-cabinet-with-door-white-70535169/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/40594669.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: decor",
+    "Source warning: article: article: GraphQL error: PersistedQueryNotFound",
+    "Source warning: lightology: lightology: no category route for query \"medicine cabinet\""
+  ],
+  "sources_run": [
+    "west-elm",
+    "article",
+    "rejuvenation",
+    "shopify-dtc",
+    "ikea",
+    "lighting-new-york",
+    "lightology",
+    "kbauthority"
+  ]
+}

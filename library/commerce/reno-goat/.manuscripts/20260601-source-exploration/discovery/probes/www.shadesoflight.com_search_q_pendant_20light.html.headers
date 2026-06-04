@@ -1,0 +1,17 @@
+HTTP/2 200 
+age: 2
+cache-control: private,no-cache,no-store,max-age=0,must-revalidate
+cache-status: "Netlify Durable"; fwd=bypass, "Netlify Edge"; fwd=miss
+content-type: text/html; charset=utf-8
+date: Tue, 02 Jun 2026 12:24:19 GMT
+link: </_next/static/media/904be59b21bd51cb-s.p.woff2>; rel=preload; as="font"; crossorigin=""; type="font/woff2", </_next/static/media/d8944cadb8b39c6a-s.p.woff2>; rel=preload; as="font"; crossorigin=""; type="font/woff2", </_next/static/media/e4af272ccee01ff0-s.p.woff2>; rel=preload; as="font"; crossorigin=""; type="font/woff2"
+netlify-vary: header=x-nextjs-data|x-next-debug-logging|RSC|Next-Router-State-Tree|Next-Router-Prefetch|Accept-Encoding,cookie=__prerender_bypass|__next_preview_data
+server: Netlify
+set-cookie: lastPath=%2Fsearch; Path=/; Expires=Wed, 03 Jun 2026 12:24:18 GMT; Max-Age=86400
+strict-transport-security: max-age=31536000
+vary: RSC,Next-Router-State-Tree,Next-Router-Prefetch,Accept-Encoding
+x-content-type-options: nosniff
+x-middleware-set-cookie: lastPath=%2Fsearch; Path=/; Expires=Wed, 03 Jun 2026 12:24:18 GMT; Max-Age=86400
+x-nf-request-id: 01KT44NDZTGA849N0N5JDTP43H
+x-powered-by: Next.js
+

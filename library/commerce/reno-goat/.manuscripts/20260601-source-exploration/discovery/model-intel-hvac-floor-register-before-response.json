@@ -1,0 +1,244 @@
+{
+  "query": "floor register",
+  "total": 10,
+  "models": [
+    {
+      "model": "80010222",
+      "title": "VARIERA Plastic bag dispenser",
+      "category": "Kitchen, appliances \u0026 supplies \u003e SEKTION cabinet shelves \u0026 drawers \u003e Kitchen cabinet \u0026 drawer organization \u003e Kitchen trash cans \u0026 bins",
+      "best_price": 4.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/variera-plastic-bag-dispenser-white-80010222/",
+      "image_url": "https://www.ikea.com/us/en/images/products/variera-plastic-bag-dispenser-white__0625768_pe692453_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 4.99,
+          "url": "https://www.ikea.com/us/en/p/variera-plastic-bag-dispenser-white-80010222/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "60564893",
+      "title": "HÖNSNÄT Cable management box",
+      "category": "Home electronics \u003e Cable management \u0026 cord organizers",
+      "best_price": 6.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/hoensnaet-cable-management-box-natural-60564893/",
+      "image_url": "https://www.ikea.com/us/en/images/products/hoensnaet-cable-management-box-natural__1216062_pe912323_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 6.99,
+          "url": "https://www.ikea.com/us/en/p/hoensnaet-cable-management-box-natural-60564893/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "natural"
+      ]
+    },
+    {
+      "model": "70256177",
+      "title": "METOD Ventilation grill",
+      "category": "Kitchen, appliances \u0026 supplies \u003e Kitchen systems \u003e SEKTION kitchen \u003e SEKTION kitchen cabinets \u003e Frames, rails, legs \u0026 toekicks",
+      "best_price": 12,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/metod-ventilation-grill-stainless-steel-70256177/",
+      "image_url": "https://www.ikea.com/us/en/images/products/metod-ventilation-grill-stainless-steel__0625695_pe692431_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/metod-ventilation-grill-stainless-steel__AA-838956-5-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/metod-ventilation-grill-stainless-steel__AA-2562659-1-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 12,
+          "url": "https://www.ikea.com/us/en/p/metod-ventilation-grill-stainless-steel-70256177/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "stainless steel"
+      ]
+    },
+    {
+      "model": "80316067",
+      "title": "SOCKERBIT Box with lid",
+      "category": "Home decor \u0026 accessories \u003e Storage boxes \u0026 organization bins \u003e Plastic storage boxes",
+      "best_price": 19.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/sockerbit-box-with-lid-white-80316067/",
+      "image_url": "https://www.ikea.com/us/en/images/products/sockerbit-box-with-lid-white__0711189_pe728058_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 19.99,
+          "url": "https://www.ikea.com/us/en/p/sockerbit-box-with-lid-white-80316067/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "40501892",
+      "title": "KALLAX Base on legs",
+      "category": "Storage \u0026 organization \u003e Shelving furniture \u003e Storage shelves \u0026 shelving units",
+      "best_price": 30,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/kallax-base-on-legs-white-40501892/",
+      "image_url": "https://www.ikea.com/us/en/images/products/kallax-base-on-legs-white__1028808_pe835543_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/kallax-base-on-legs-white__AA-2282161-2-100.pdf",
+          "source": "ikea"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/manuals/kallax-base-on-legs-white__AA-2180177-2-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 30,
+          "url": "https://www.ikea.com/us/en/p/kallax-base-on-legs-white-40501892/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "50422413",
+      "title": "RÄNNILEN Water trap, 1 bowl",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom sinks",
+      "best_price": 30,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/raennilen-water-trap-1-bowl-50422413/",
+      "image_url": "https://www.ikea.com/us/en/images/products/raennilen-water-trap-1-bowl__0804715_pe769299_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/raennilen-water-trap-1-bowl__AA-2141893-6-100.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 30,
+          "url": "https://www.ikea.com/us/en/p/raennilen-water-trap-1-bowl-50422413/",
+          "evidence": "normalized product search row"
+        }
+      ]
+    },
+    {
+      "model": "REGISTER-DAMPER",
+      "title": "Register Damper",
+      "best_price": 32,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/register-damper/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202621/0005/img240c.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 32,
+          "regular": 32,
+          "url": "https://www.rejuvenation.com/products/register-damper/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Designed to fit behind your register, our durable steel louver allows you to regulate the flow of the air from your floor vents with a simple open and close design—increasing heating and cooling efficiency throughout your home. Details You'll Appreciate Pairs with our cast iron and steel registers—designed to fit snugly between air vent and register Open and close easily with a flathead screwdriver Available in multiple sizes—measure air duct opening rather than old register or grille to determine your size Product Specifications Steel Floor Mount Only"
+      ]
+    },
+    {
+      "model": "20505966",
+      "title": "ENKÖPING Drawer front",
+      "category": "Kitchen, appliances \u0026 supplies \u003e SEKTION cabinet shelves \u0026 drawers \u003e Kitchen doors \u0026 drawer fronts \u003e SEKTION cabinet doors \u0026 drawer fronts \u003e ENKÖPING fronts",
+      "best_price": 33,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/enkoeping-drawer-front-white-wood-effect-20505966/",
+      "image_url": "https://www.ikea.com/us/en/images/products/enkoeping-drawer-front-white-wood-effect__1044274_pe842073_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 33,
+          "url": "https://www.ikea.com/us/en/p/enkoeping-drawer-front-white-wood-effect-20505966/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white wood effect"
+      ]
+    },
+    {
+      "model": "REGISTER-LOUVER",
+      "title": "Register Louver",
+      "best_price": 48,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/register-louver/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202621/0005/img370c.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 48,
+          "regular": 48,
+          "url": "https://www.rejuvenation.com/products/register-louver/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Designed to fit behind your register, our durable steel louver allows you to regulate the flow of the air from your floor vents with a simple open and close design—increasing heating and cooling efficiency throughout your home. Details You'll Appreciate Pairs with our metal registers—designed to fit snugly between air vent and register Product Specifications White Oak Floor Mount Only"
+      ]
+    },
+    {
+      "model": "CLASSIC-SCROLL-REGISTER",
+      "title": "Classic Scroll Register",
+      "best_price": 58,
+      "best_source": "rejuvenation",
+      "product_url": "https://www.rejuvenation.com/products/classic-scroll-register/",
+      "image_url": "https://assets.rjimgs.com/rjimgs/rk/images/dp/wcm/202621/0005/img333c.jpg",
+      "offers": [
+        {
+          "source": "rejuvenation",
+          "price": 58,
+          "regular": 58,
+          "url": "https://www.rejuvenation.com/products/classic-scroll-register/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Inspired by 20th century designs, our cast iron register features a beautiful decorative face that adds an elevated touch to your home’s air vents. Pair yours with a louver to control the flow of air throughout your room. Details You'll Appreciate 20th century-inspired design Product Specifications Cast iron Floor Mount Only Register is for use on floor vents only"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: hardware"
+  ],
+  "sources_run": [
+    "hardware-hut",
+    "rejuvenation",
+    "ikea"
+  ]
+}

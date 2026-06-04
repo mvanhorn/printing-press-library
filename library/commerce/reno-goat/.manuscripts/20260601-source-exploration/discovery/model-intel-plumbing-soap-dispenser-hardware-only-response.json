@@ -1,0 +1,223 @@
+{
+  "query": "soap dispenser",
+  "total": 10,
+  "models": [
+    {
+      "model": "30407814",
+      "title": "RINNIG Dish brush",
+      "category": "Laundry \u0026 cleaning \u003e Dishwashing accessories \u003e Dish cloths, sponges, rags \u0026 more",
+      "best_price": 1.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/rinnig-dish-brush-gray-30407814/",
+      "image_url": "https://www.ikea.com/us/en/images/products/rinnig-dish-brush-gray__0666327_pe713521_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 1.99,
+          "url": "https://www.ikea.com/us/en/p/rinnig-dish-brush-gray-30407814/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "gray"
+      ]
+    },
+    {
+      "model": "00451059",
+      "title": "NYSKÖLJD Dish drying mat",
+      "category": "Laundry \u0026 cleaning \u003e Dishwashing accessories \u003e Dish racks \u0026 drying mats",
+      "best_price": 2.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/nyskoeljd-dish-drying-mat-dark-gray-00451059/",
+      "image_url": "https://www.ikea.com/us/en/images/products/nyskoeljd-dish-drying-mat-dark-gray__0722169_pe733496_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 2.99,
+          "url": "https://www.ikea.com/us/en/p/nyskoeljd-dish-drying-mat-dark-gray-00451059/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "dark gray"
+      ]
+    },
+    {
+      "model": "10490526",
+      "title": "VÄLVÅRDAD Dish-washing brush refills",
+      "category": "Laundry \u0026 cleaning \u003e Dishwashing accessories \u003e Dish cloths, sponges, rags \u0026 more",
+      "best_price": 2.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/vaelvardad-dish-washing-brush-refills-agave-leaf-fiber-10490526/",
+      "image_url": "https://www.ikea.com/us/en/images/products/vaelvardad-dish-washing-brush-refills-agave-leaf-fiber__1015785_pe835929_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 2.99,
+          "url": "https://www.ikea.com/us/en/p/vaelvardad-dish-washing-brush-refills-agave-leaf-fiber-10490526/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "agave leaf fiber"
+      ]
+    },
+    {
+      "model": "80424335",
+      "title": "RINNIG Soap dispenser",
+      "category": "Laundry \u0026 cleaning \u003e Dishwashing accessories \u003e Kitchen dish soap dispensers",
+      "best_price": 2.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/rinnig-soap-dispenser-gray-80424335/",
+      "image_url": "https://www.ikea.com/us/en/images/products/rinnig-soap-dispenser-gray__0686933_pe721912_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 2.99,
+          "url": "https://www.ikea.com/us/en/p/rinnig-soap-dispenser-gray-80424335/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "gray"
+      ]
+    },
+    {
+      "model": "90322303",
+      "title": "TACKAN Soap dispenser",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom accessories \u0026 organizers \u003e Soap dispensers \u0026 soap dishes",
+      "best_price": 2.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/tackan-soap-dispenser-white-90322303/",
+      "image_url": "https://www.ikea.com/us/en/images/products/tackan-soap-dispenser-white__0711735_pe728420_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 2.99,
+          "url": "https://www.ikea.com/us/en/p/tackan-soap-dispenser-white-90322303/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "20595434",
+      "title": "VÄLVÅRDAD Soap dispenser",
+      "category": "Laundry \u0026 cleaning \u003e Dishwashing accessories \u003e Kitchen dish soap dispensers",
+      "best_price": 3.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/vaelvardad-soap-dispenser-brown-20595434/",
+      "image_url": "https://www.ikea.com/us/en/images/products/vaelvardad-soap-dispenser-brown__1406577_pe971029_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 3.99,
+          "url": "https://www.ikea.com/us/en/p/vaelvardad-soap-dispenser-brown-20595434/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "brown"
+      ]
+    },
+    {
+      "model": "60578343",
+      "title": "CITRONHAJ Oil/vinegar bottle",
+      "category": "Kitchenware \u0026 tableware \u003e Food storage \u0026 organizing \u003e Spice jars, shakers \u0026 grinders",
+      "best_price": 3.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/citronhaj-oil-vinegar-bottle-clear-glass-stainless-steel-60578343/",
+      "image_url": "https://www.ikea.com/us/en/images/products/citronhaj-oil-vinegar-bottle-clear-glass-stainless-steel__1196197_pe902819_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 3.99,
+          "url": "https://www.ikea.com/us/en/p/citronhaj-oil-vinegar-bottle-clear-glass-stainless-steel-60578343/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "clear glass/stainless steel"
+      ]
+    },
+    {
+      "model": "70429003",
+      "title": "STORAVAN 3-piece bathroom set",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom accessories \u0026 organizers \u003e Soap dispensers \u0026 soap dishes",
+      "best_price": 4.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/storavan-3-piece-bathroom-set-white-70429003/",
+      "image_url": "https://www.ikea.com/us/en/images/products/storavan-3-piece-bathroom-set-white__0833216_pe777987_s5.jpg",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.ikea.com/us/en/assembly_instructions/storavan-3-piece-bathroom-set-white__AA-2215943-1-2.pdf",
+          "source": "ikea"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 4.99,
+          "url": "https://www.ikea.com/us/en/p/storavan-3-piece-bathroom-set-white-70429003/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "white"
+      ]
+    },
+    {
+      "model": "70618225",
+      "title": "EKOLN Soap dish",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom accessories \u0026 organizers \u003e Soap dispensers \u0026 soap dishes",
+      "best_price": 4.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/ekoln-soap-dish-dark-yellow-70618225/",
+      "image_url": "https://www.ikea.com/us/en/images/products/ekoln-soap-dish-dark-yellow__1481859_pe1000721_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 4.99,
+          "url": "https://www.ikea.com/us/en/p/ekoln-soap-dish-dark-yellow-70618225/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "dark yellow"
+      ]
+    },
+    {
+      "model": "10600964",
+      "title": "HUMLESJÖN Soap dispenser",
+      "category": "Bathroom: furniture, supplies \u0026 more \u003e Bathroom accessories \u0026 organizers \u003e Soap dispensers \u0026 soap dishes",
+      "best_price": 5.99,
+      "best_source": "ikea",
+      "product_url": "https://www.ikea.com/us/en/p/humlesjoen-soap-dispenser-light-green-10600964/",
+      "image_url": "https://www.ikea.com/us/en/images/products/humlesjoen-soap-dispenser-light-green__1470204_pe996827_s5.jpg",
+      "offers": [
+        {
+          "source": "ikea",
+          "price": 5.99,
+          "url": "https://www.ikea.com/us/en/p/humlesjoen-soap-dispenser-light-green-10600964/",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "light green"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: hardware"
+  ],
+  "sources_run": [
+    "hardware-hut",
+    "rejuvenation",
+    "ikea"
+  ]
+}

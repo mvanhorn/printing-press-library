@@ -1,0 +1,99 @@
+{
+  "date": "2026-06-04",
+  "scope": "Refresh remaining bath-showroom priority gaps after QualityBath promotion.",
+  "routes": [
+    {
+      "source": "HomePerfect",
+      "product_gap": "shower valves/controls and bathroom vanities",
+      "url": "https://www.homeperfect.com/catalogsearch/result/?q=shower%20valve",
+      "status": 403,
+      "bytes": 5810,
+      "signals": ["Cf-Mitigated: challenge", "cloudflare"],
+      "outcome": "blocked"
+    },
+    {
+      "source": "HomePerfect",
+      "product_gap": "shower valves/controls and bathroom vanities",
+      "url": "https://www.homeperfect.com/catalogsearch/result/?q=bathroom%20vanity",
+      "status": 403,
+      "bytes": 5819,
+      "signals": ["Cf-Mitigated: challenge", "cloudflare"],
+      "outcome": "blocked"
+    },
+    {
+      "source": "HomePerfect",
+      "product_gap": "shower valves/controls",
+      "url": "https://www.homeperfect.com/rest/default/V1/products?searchCriteria[searchCriteria][requestName]=quick_search_container&searchCriteria[filterGroups][0][filters][0][field]=search_term&searchCriteria[filterGroups][0][filters][0][value]=shower%20valve",
+      "status": 404,
+      "bytes": 648,
+      "signals": ["cloudflare server", "not_found"],
+      "outcome": "no_product_route"
+    },
+    {
+      "source": "HomePerfect",
+      "product_gap": "shower valves/controls and bathroom vanities",
+      "url": "https://www.homeperfect.com/graphql",
+      "status": 404,
+      "bytes": 648,
+      "signals": ["cloudflare server", "not_found"],
+      "outcome": "no_product_route"
+    },
+    {
+      "source": "DecorPlanet",
+      "product_gap": "shower valves/controls and bathroom vanities",
+      "url": "https://www.decorplanet.com/search?q=shower%20valve",
+      "status": 522,
+      "bytes": 15,
+      "signals": ["cloudflare"],
+      "outcome": "blocked"
+    },
+    {
+      "source": "DecorPlanet",
+      "product_gap": "shower valves/controls and bathroom vanities",
+      "url": "https://www.decorplanet.com/search?q=bathroom%20vanity",
+      "status": 522,
+      "bytes": 15,
+      "signals": ["cloudflare"],
+      "outcome": "blocked"
+    },
+    {
+      "source": "DecorPlanet",
+      "product_gap": "bathroom vanities",
+      "url": "https://www.decorplanet.com/bathroom-vanities",
+      "status": 522,
+      "bytes": 15,
+      "signals": ["cloudflare"],
+      "outcome": "blocked"
+    },
+    {
+      "source": "DecorPlanet",
+      "product_gap": "shower systems",
+      "url": "https://www.decorplanet.com/shower-systems.html",
+      "status": 522,
+      "bytes": 15,
+      "signals": ["cloudflare"],
+      "outcome": "blocked"
+    },
+    {
+      "source": "Build.com",
+      "product_gap": "shower valves/controls",
+      "url": "https://www.build.com/shower-valves/c109331",
+      "status": 403,
+      "final_url": "https://www.fergusonhome.com/shower-valves/c109331",
+      "bytes": 403,
+      "signals": ["301 to Ferguson Home", "Access Denied"],
+      "outcome": "redirect_blocked"
+    },
+    {
+      "source": "Build.com",
+      "product_gap": "bathroom vanities",
+      "url": "https://www.build.com/bathroom-vanities/c115005",
+      "status": 403,
+      "final_url": "https://www.fergusonhome.com/bathroom-vanities/c115005",
+      "bytes": 407,
+      "signals": ["301 to Ferguson Home", "Access Denied"],
+      "outcome": "redirect_blocked"
+    }
+  ],
+  "conclusion": "No additional bath-showroom source is promotable under the current plain CLI transport. QualityBath, Vintage Tub, and Signature Hardware remain the active bath-showroom gains; HomePerfect, DecorPlanet, and Build.com need browser/resource extraction or GHST-293 transport work."
+}

@@ -1,0 +1,36 @@
+User-agent: AdsBot-Google
+Allow: /
+
+User-Agent: *
+
+#Account and UGC
+Disallow: /account
+Disallow: /account/projects/
+Allow: /account/create
+Allow: /account/login
+Allow: /account/projects
+Disallow: /favorites/
+Disallow: /profiles/
+#Order and Checkout
+Disallow: /checkout
+Disallow: /order
+Allow: /order/track
+Allow: /order/summary
+Allow: /order/return
+
+#eCommerce
+Disallow: *?*sortBy=
+Disallow: *?*viewtype=
+Disallow: *?*categoryid=
+Disallow: *?r=
+Disallow: *?*&r=
+Disallow: *?s=
+Disallow: *?*&s=
+
+#Analytics
+Disallow: /web-events/
+
+#Sitemaps
+Sitemap: https://www.fergusonhome.com/sitemap_article_index.xml
+Sitemap: https://www.fergusonhome.com/sitemap_category_index.xml
+Sitemap: https://www.fergusonhome.com/sitemap_productfamily_index.xml

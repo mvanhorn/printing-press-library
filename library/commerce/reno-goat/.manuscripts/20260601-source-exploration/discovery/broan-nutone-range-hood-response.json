@@ -1,0 +1,45 @@
+{
+  "query": "range hood",
+  "total_results": 3,
+  "sources_queried": [
+    "broan-nutone"
+  ],
+  "products": [
+    {
+      "id": "772371160446",
+      "source": "broan-nutone",
+      "title": "Broan-NuTone E64M Series 36-Inch Pro-Style Range Hood, 650 Max Blower CFM, Stainless Steel",
+      "brand": "Broan-NuTone",
+      "url": "https://www.broan-nutone.com/en-us/product/rangehoods/e6436ssm",
+      "image_url": "https://www.broan-nutone.com/getmedia/0d6bde5c-89fe-43dc-b248-db2325e36d78/E6430SSM_E6438SSM_1.jpg?width=1800\u0026height=1800\u0026ext=.jpg",
+      "description": "Model: E6436SSM",
+      "price_min": 0,
+      "price_max": 0,
+      "category": "Ventilation \u003e Range Hoods"
+    },
+    {
+      "id": "026715273720",
+      "source": "broan-nutone",
+      "title": "Broan-NuTone 30-Inch Under Cabinet Range Hood, ENERGY STAR, 350 Max Blower CFM, Stainless Steel",
+      "brand": "Broan-NuTone",
+      "url": "https://www.broan-nutone.com/en-us/product/rangehoods/gla2303ss",
+      "image_url": "https://www.broan-nutone.com/getmedia/039b5ff4-080b-4ed2-8a34-bdb7db94f966/GLA2303SS_1.jpg?width=1800\u0026height=1800\u0026ext=.jpg",
+      "description": "Model: GLA2303SS",
+      "price_min": 0,
+      "price_max": 0,
+      "category": "Ventilation \u003e Range Hoods"
+    },
+    {
+      "id": "026715273713",
+      "source": "broan-nutone",
+      "title": "Broan-NuTone 30-Inch Under Cabinet Range Hood, ENERGY STAR, 350 Max Blower CFM, Black Stainless Steel",
+      "brand": "Broan-NuTone",
+      "url": "https://www.broan-nutone.com/en-us/product/rangehoods/gla2303bls",
+      "image_url": "https://www.broan-nutone.com/getmedia/6363714c-a361-4049-8779-889751b6b26b/GLA2303BLS_1.jpg?width=1800\u0026height=1800\u0026ext=.jpg",
+      "description": "Model: GLA2303BLS",
+      "price_min": 0,
+      "price_max": 0,
+      "category": "Ventilation \u003e Range Hoods"
+    }
+  ]
+}

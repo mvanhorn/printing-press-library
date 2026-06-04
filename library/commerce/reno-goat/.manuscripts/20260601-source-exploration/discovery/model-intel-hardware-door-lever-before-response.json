@@ -1,0 +1,327 @@
+{
+  "query": "door lever",
+  "total": 10,
+  "models": [
+    {
+      "model": "WB06X10581",
+      "title": "MICROWAVE DOOR LEVER",
+      "category": "lever",
+      "best_price": 5.4,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geapplianceparts.com/store/parts/spec/WB06X10581",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/407575/948667/3decd3640a40e9fe0406ee3bba7017e21d01c25f__19972.1.jpg",
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 5.4,
+          "regular": 5.4,
+          "url": "https://www.geapplianceparts.com/store/parts/spec/WB06X10581",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WB06X10581.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "benefits: Genuine Part from GE Appliances; Check Your Model Number to Confirm Compatibility; Includes a One-Year Limited Warranty"
+      ]
+    },
+    {
+      "model": "WB06X10587",
+      "title": "MICROWAVE DOOR LEVER SWITCH",
+      "category": "switch",
+      "best_price": 5.4,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geapplianceparts.com/store/parts/spec/WB06X10587",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/347220/948670/aea4cdba16d147560d2b4b5ebfd897799dcec60f__16459.1.jpg",
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 5.4,
+          "regular": 5.4,
+          "url": "https://www.geapplianceparts.com/store/parts/spec/WB06X10587",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WB06X10587.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "benefits: Genuine Part from GE Appliances; Check Your Model Number to Confirm Compatibility; Includes a One-Year Limited Warranty"
+      ]
+    },
+    {
+      "model": "WB06X10501",
+      "title": "MICROWAVE DOOR LATCH",
+      "category": "latch",
+      "best_price": 5.67,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geapplianceparts.com/store/parts/spec/WB06X10501",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/402725/947040/11dd8fad8340f07a7e413e55998ddc8732f38ca4__39766.1.jpg",
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 5.67,
+          "regular": 5.4,
+          "url": "https://www.geapplianceparts.com/store/parts/spec/WB06X10501",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WB06X10501.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "benefits: Genuine Part from GE Appliances; Check Your Model Number to Confirm Compatibility; Includes a One-Year Limited Warranty"
+      ]
+    },
+    {
+      "model": "WB10X27075",
+      "title": "DOOR LEVER",
+      "category": "lever",
+      "best_price": 6.11,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geapplianceparts.com/store/parts/spec/WB10X27075",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/412752/1051282/dc30e899b7f53a538a752320f1a9bca4ccccfffd__49921.1.jpg",
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 6.11,
+          "regular": 5.4,
+          "url": "https://www.geapplianceparts.com/store/parts/spec/WB10X27075",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WB10X27075.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "benefits: Genuine Part from GE Appliances; Check Your Model Number to Confirm Compatibility; Includes a One-Year Limited Warranty"
+      ]
+    },
+    {
+      "model": "WB02X21339",
+      "title": "MICROWAVE DOOR LATCH",
+      "category": "latch",
+      "best_price": 7.68,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geapplianceparts.com/store/parts/spec/WB02X21339",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/324699/1080404/3c87b954dfb6b8c41d42bff28599844f462fc544__88513.1.jpg",
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 7.68,
+          "regular": 6.6,
+          "url": "https://www.geapplianceparts.com/store/parts/spec/WB02X21339",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WB02X21339.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "benefits: Genuine Part from GE Appliances; Check Your Model Number to Confirm Compatibility; Includes a One-Year Limited Warranty"
+      ]
+    },
+    {
+      "model": "WB06X10186",
+      "title": "MICROWAVE SWITCH LEVER",
+      "category": "lever",
+      "best_price": 8.88,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geapplianceparts.com/store/parts/spec/WB06X10186",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/407265/1109327/ad4d79cc689cd2051f25fcdc465ab13c24200d42__00740.1.jpg",
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 8.88,
+          "regular": 6.5,
+          "url": "https://www.geapplianceparts.com/store/parts/spec/WB06X10186",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WB06X10186.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "benefits: Genuine Part from GE Appliances; Check Your Model Number to Confirm Compatibility; Includes a One-Year Limited Warranty"
+      ]
+    },
+    {
+      "model": "WH01X10481",
+      "title": "LEVER DOOR",
+      "category": "door",
+      "best_price": 32.67,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geapplianceparts.com/store/parts/spec/WH01X10481",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/402231/1074630/45719594fd007986f6bd69f82b972870ca0b311c__68834.1.jpg",
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 32.67,
+          "regular": 25.6,
+          "url": "https://www.geapplianceparts.com/store/parts/spec/WH01X10481",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WH01X10481.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "benefits: Genuine Part from GE Appliances; Check Your Model Number to Confirm Compatibility; Includes a One-Year Limited Warranty"
+      ]
+    },
+    {
+      "model": "WB02X23920",
+      "title": "DOOR LEVER",
+      "category": "lever",
+      "product_url": "https://www.geapplianceparts.com/store/parts/spec/WB02X23920",
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WB02X23920.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ]
+    },
+    {
+      "model": "WB06K5063",
+      "title": "M/W DOOR OPENING LEVER",
+      "category": "lever",
+      "product_url": "https://www.geapplianceparts.com/store/parts/spec/WB06K5063",
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WB06K5063.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "benefits: Genuine Part from GE Appliances; Check Your Model Number to Confirm Compatibility; Includes a One-Year Limited Warranty"
+      ]
+    },
+    {
+      "model": "WB06X0404",
+      "title": "LEVER-DOOR",
+      "category": "leverdoor",
+      "product_url": "https://www.geapplianceparts.com/store/parts/spec/WB06X0404",
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WB06X0404.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "benefits: Genuine Part from GE Appliances; Check Your Model Number to Confirm Compatibility; Includes a One-Year Limited Warranty"
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WB06X10581.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WB06X10587.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WB06X10501.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WB10X27075.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WB02X21339.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WB06X10186.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WH01X10481.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WB02X23920.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WB06K5063.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/WB06X0404.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage."
+  ],
+  "sources_run": [
+    "ge-appliances",
+    "bosch"
+  ]
+}

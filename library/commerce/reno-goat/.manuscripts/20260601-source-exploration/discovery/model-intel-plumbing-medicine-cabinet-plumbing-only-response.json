@@ -1,0 +1,233 @@
+{
+  "query": "medicine cabinet",
+  "total": 10,
+  "models": [
+    {
+      "model": "MC-SHELF-60L",
+      "brand": "Fleurco",
+      "title": "Fleurco - Medicine Cabinet Long Shelf Kit For 60 Inch Width",
+      "category": "Furniture Parts",
+      "best_price": 31.2,
+      "best_source": "plumbtile",
+      "product_url": "https://plumbtile.com/products/fleurco-mc-shelf-60l?_pos=1\u0026_psq=medicine+cabinet\u0026_ss=e\u0026_v=1.0",
+      "offers": [
+        {
+          "source": "plumbtile",
+          "price": 31.2,
+          "regular": 39,
+          "url": "https://plumbtile.com/products/fleurco-mc-shelf-60l?_pos=1\u0026_psq=medicine+cabinet\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Manufacturer's Part Number(s): MC-SHELF-60L"
+      ]
+    },
+    {
+      "model": "MC-SHELF-60S",
+      "brand": "Fleurco",
+      "title": "Fleurco - Medicine Cabinet Small Shelf Kit For 60 Inch Width",
+      "category": "Furniture Parts",
+      "best_price": 31.2,
+      "best_source": "plumbtile",
+      "product_url": "https://plumbtile.com/products/fleurco-mc-shelf-60s?_pos=2\u0026_psq=medicine+cabinet\u0026_ss=e\u0026_v=1.0",
+      "offers": [
+        {
+          "source": "plumbtile",
+          "price": 31.2,
+          "regular": 39,
+          "url": "https://plumbtile.com/products/fleurco-mc-shelf-60s?_pos=2\u0026_psq=medicine+cabinet\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Manufacturer's Part Number(s): MC-SHELF-60S"
+      ]
+    },
+    {
+      "model": "KOHLER-55062",
+      "brand": "Kohler",
+      "title": "Kohler - Embark Slim 20X26 Medicine Cabinet",
+      "category": "Mirror Cabinets",
+      "best_price": 193.99,
+      "best_source": "plumbtile",
+      "product_url": "https://plumbtile.com/products/kohler-55062?_pos=5\u0026_psq=medicine+cabinet\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0623/8552/0866/files/aaf08485_rgb.jpg?v=1776470064",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://plumbtile.info/pdf/kohler/K-55062_spec_US-CA_Kohler_en.pdf",
+          "source": "plumbtile"
+        }
+      ],
+      "offers": [
+        {
+          "source": "plumbtile",
+          "price": 193.99,
+          "regular": 258.65,
+          "url": "https://plumbtile.com/products/kohler-55062?_pos=5\u0026_psq=medicine+cabinet\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "Specification FileManufacturer's Part Number(s): 55062-NA\nspec: https://plumbtile.info/pdf/kohler/K-55062_spec_US-CA_Kohler_en.pdf"
+      ]
+    },
+    {
+      "model": "100902071",
+      "title": "Hampton 24 in. Chilled Gray Medicine Cabinet",
+      "category": "Medicine Cabinet",
+      "best_price": 243,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/hampton-24-in.-chilled-gray-medicine-cabinet-100902071.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 243,
+          "regular": 243,
+          "url": "https://www.flooranddecor.com/hampton-24-in.-chilled-gray-medicine-cabinet-100902071.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Hampton 24 in. Chilled Gray Medicine Cabinet is a timeless and versatile choice for any bathroom setting - or any room in your home. With its gray finish and attractive design, it adds a touch of elegance wherever it is placed.\u003c/p\u003e\u003cbr /\u003e\u003cul\u003e\u003cli\u003eEasy to install with the included mounting hardware.\u003c/li\u003e\u003cli\u003eThe mirror mounts .\u003c/li\u003e\u003cli\u003eMeasuring 24 x 30in., this mirror will easily fit into most spaces.\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    },
+    {
+      "model": "100902089",
+      "title": "Kent 24 in. Chilled Gray Mirror Medicine Cabinet",
+      "category": "Medicine Cabinet",
+      "best_price": 243,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/mirrors/kent-24-in.-chilled-gray-mirror-medicine-cabinet-100902089.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 243,
+          "regular": 243,
+          "url": "https://www.flooranddecor.com/mirrors/kent-24-in.-chilled-gray-mirror-medicine-cabinet-100902089.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Kent 24 in. Chilled Gray Mirror Medicine Cabinet is a timeless and versatile choice for any bathroom setting - or any room in your home. With its gray finish and attractive design, it adds a touch of elegance wherever it is placed.\u003c/p\u003e\u003cbr /\u003e\u003cul\u003e\u003cli\u003eEasy to install with the included mounting hardware.\u003c/li\u003e\u003cli\u003eThe mirror mounts .\u003c/li\u003e\u003cli\u003eMeasuring 24 x 30in., this mirror will easily fit into most spaces.\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    },
+    {
+      "model": "100902097",
+      "title": "Hampton 24 in. Navy Blue Mirror Medicine Cabinet",
+      "category": "Medicine Cabinet",
+      "best_price": 243,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/hampton-24-in.-navy-blue-mirror-medicine-cabinet-100902097.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 243,
+          "regular": 243,
+          "url": "https://www.flooranddecor.com/hampton-24-in.-navy-blue-mirror-medicine-cabinet-100902097.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Hampton 24 in. Navy Blue Mirror Medicine Cabinet is a timeless and versatile choice for any bathroom setting - or any room in your home. With its blue finish and attractive design, it adds a touch of elegance wherever it is placed.\u003c/p\u003e\u003cbr /\u003e\u003cul\u003e\u003cli\u003eEasy to install with the included mounting hardware.\u003c/li\u003e\u003cli\u003eThe mirror mounts .\u003c/li\u003e\u003cli\u003eMeasuring 24 x 30in., this mirror will easily fit into most spaces.\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    },
+    {
+      "model": "100902105",
+      "title": "Kent 24 in. Navy Blue Mirror Medicine Cabinet",
+      "category": "Medicine Cabinet",
+      "best_price": 243,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/kent-24-in.-navy-blue-mirror-medicine-cabinet-100902105.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 243,
+          "regular": 243,
+          "url": "https://www.flooranddecor.com/kent-24-in.-navy-blue-mirror-medicine-cabinet-100902105.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Kent 24 in. Navy Blue Mirror Medicine Cabinet is a timeless and versatile choice for any bathroom setting - or any room in your home. With its blue finish and attractive design, it adds a touch of elegance wherever it is placed.\u003c/p\u003e\u003cbr /\u003e\u003cul\u003e\u003cli\u003eEasy to install with the included mounting hardware.\u003c/li\u003e\u003cli\u003eThe mirror mounts .\u003c/li\u003e\u003cli\u003eMeasuring 24 x 30in., this mirror will easily fit into most spaces.\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    },
+    {
+      "model": "100902113",
+      "title": "Hampton 24 in. White Mirror Medicine Cabinet",
+      "category": "Medicine Cabinet",
+      "best_price": 243,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/mirrors/hampton-24-in.-white-mirror-medicine-cabinet-100902113.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 243,
+          "regular": 243,
+          "url": "https://www.flooranddecor.com/mirrors/hampton-24-in.-white-mirror-medicine-cabinet-100902113.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Hampton 24 in. White Mirror Medicine Cabinet is a timeless and versatile choice for any bathroom setting - or any room in your home. With its white finish and attractive design, it adds a touch of elegance wherever it is placed.\u003c/p\u003e\u003cbr /\u003e\u003cul\u003e\u003cli\u003eEasy to install with the included mounting hardware.\u003c/li\u003e\u003cli\u003eThe mirror mounts .\u003c/li\u003e\u003cli\u003eMeasuring 24 x 30in., this mirror will easily fit into most spaces.\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    },
+    {
+      "model": "100902121",
+      "title": "Kent 24 in. White Mirror Medicine Cabinet",
+      "category": "Medicine Cabinet",
+      "best_price": 243,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/storage-and-organization/kent-24-in.-white-mirror-medicine-cabinet-100902121.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 243,
+          "regular": 243,
+          "url": "https://www.flooranddecor.com/storage-and-organization/kent-24-in.-white-mirror-medicine-cabinet-100902121.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Kent 24 in. White Mirror Medicine Cabinet is a timeless and versatile choice for any bathroom setting - or any room in your home. With its white finish and attractive design, it adds a touch of elegance wherever it is placed.\u003c/p\u003e\u003cbr /\u003e\u003cul\u003e\u003cli\u003eEasy to install with the included mounting hardware.\u003c/li\u003e\u003cli\u003eThe mirror mounts .\u003c/li\u003e\u003cli\u003eMeasuring 24 x 30in., this mirror will easily fit into most spaces.\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    },
+    {
+      "model": "100902576",
+      "title": "Landon 24 in. Tobacco Mirror Medicine Cabinet",
+      "category": "Medicine Cabinet",
+      "best_price": 257,
+      "best_source": "floor-and-decor",
+      "product_url": "https://www.flooranddecor.com/storage-and-organization/landon-24-in.-tobacco-mirror-medicine-cabinet-100902576.html",
+      "offers": [
+        {
+          "source": "floor-and-decor",
+          "price": 257,
+          "regular": 257,
+          "url": "https://www.flooranddecor.com/storage-and-organization/landon-24-in.-tobacco-mirror-medicine-cabinet-100902576.html",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "\u003cp\u003eThe Landon 24 in. Tobacco Mirror Medicine Cabinet is a timeless and versatile choice for any bathroom setting - or any room in your home. With its brown finish and attractive design, it adds a touch of elegance wherever it is placed.\u003c/p\u003e\u003cbr /\u003e\u003cul\u003e\u003cli\u003eEasy to install with the included mounting hardware.\u003c/li\u003e\u003cli\u003eThe mirror mounts .\u003c/li\u003e\u003cli\u003eMeasuring 24 x 32in., this mirror will easily fit into most spaces.\u003c/li\u003e\u003c/ul\u003e"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: plumbing",
+    "Source warning: ferguson: ferguson: HTTP 403: \u003cHTML\u003e\u003cHEAD\u003e"
+  ],
+  "sources_run": [
+    "ferguson",
+    "floor-and-decor",
+    "plumbersstock",
+    "faucetdepot",
+    "faucetlist",
+    "plumbtile",
+    "modern-bathroom",
+    "kbauthority"
+  ]
+}

@@ -1,0 +1,346 @@
+{
+  "query": "bath fan",
+  "total": 8,
+  "models": [
+    {
+      "model": "SPARTAN-70",
+      "brand": "Good Housekeeping",
+      "title": "Good Housekeeping Spartan 70 CFM Decorative Bath Fan",
+      "category": "Bathroom Fans",
+      "best_price": 89.99,
+      "best_source": "sylvane",
+      "product_url": "https://www.sylvane.com/products/good-housekeeping-spartan-70-cfm-decorative-bathroom-fan?_pos=2\u0026_psq=bath+fan\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0630/7135/4966/files/good-housekeeping-spartan-70-cfm-decorative-bathroom-fan-black-finials-main.png?v=1753818915",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://www.sylvane.com/cdn/shop/files/installation-guide-good-housekeeping-spartan-70-cfm-decorative-bathroom-fan.pdf?v=6029520604090917193",
+          "source": "sylvane"
+        }
+      ],
+      "offers": [
+        {
+          "source": "sylvane",
+          "price": 89.99,
+          "regular": 89.99,
+          "url": "https://www.sylvane.com/products/good-housekeeping-spartan-70-cfm-decorative-bathroom-fan?_pos=2\u0026_psq=bath+fan\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "The Good Housekeeping Spartan Decorative 70 CFM Bath Fan 81005 features powerful ventilating airflow to remove excess moisture from bathrooms, laundry rooms, and other high-humidity spaces up to 65 square feet. Eliminating excess moisture helps prevent the growth of mold and mildew, which can impede your health and cause structural issues.\n\n\n\nPremium Light Fixture: This decorative bathroom exhaust fan with light has a frosted glass shade and includes one chrome and one matte black finial to customize the design to match the room's finish.\n\n\nSafety Certifications: This Good Housekeeping fan is HVI-certified, cETLus compliant, and ETL-listed, meeting the Home Ventilating Institute and North American performance, electrical, and safety standards for installation above bathtubs and showers when connected to a GFCI circuit.\n\n\nUltra-Quiet Operation: Operates at an ultra-quiet 2.0 sones, similar to the noise from a quiet office space.\n\n\n\nSimple Installation\n\n\nThis residential bath fan includes a permanently lubricated motor and an installation kit with all the necessary hardware for replacing an old fan or for new installations.\n\n\n\nFlush Ceiling Mounting: It can be installed into any ceiling with its flush mounting design and adjustable hanging bars. This unit is not meant for wall installation, and the ceiling must have at least a 12/12 pitch (45 degrees) with the ductwork pointing upward.\n\n\nDucting: This bathroom exhaust fan requires 4-inch ventilation ducting.\n\n\nTwo Wiring Configurations: This 120V 140W exhaust fan and light can be wired to the same or independent switches.\n\n\nLighting: The 12-inch round light shade has a screwless design to easily insert two max 15W A-15 LED or CLF light bulbs (not included).\n\n\nDimensions: Features a 7.23 (L) x 7.39 (W) x 6.45 (H)-inch metal housing."
+      ]
+    },
+    {
+      "model": "BEL7A",
+      "brand": "Broan-NuTone",
+      "title": "Broan-NuTone® Roomside Series Bluetooth® Speaker Bathroom Exhaust Fan w/ LED Light, 70 CFM, ENERGY STAR®",
+      "category": "Ventilation \u003e Bath Fans",
+      "best_price": 109,
+      "best_source": "brave-search:sylvane.com",
+      "product_url": "https://broan-nutone.com/en-us/product/ventilationfans/bel7a",
+      "image_url": "https://broan-nutone.com/getmedia/d6ecd713-f012-4d45-b635-3f7be0a22bfe/BEL7A_1.jpg?width=1800\u0026height=1800\u0026ext=.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://www.broan-nutone.com/getmedia/96c17a33-8b95-47b5-914b-fba0439b3995/Installation_Guide_BEL7A_En_Fr.pdf?ext=.pdf",
+          "source": "brave-search:sylvane.com"
+        },
+        {
+          "kind": "spec",
+          "url": "https://www.broan-nutone.com/getmedia/3e7cd8b0-cf1c-4858-bf90-e3fd8856c210/Spec_Sheet_BEL7A_En_Fr.pdf?ext=.pdf",
+          "source": "brave-search:sylvane.com"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.broan-nutone.com/getmedia/13153fc7-f7e9-4763-87d3-cd95e2738a8f/Broan-NuTone-Roomside-Series-ENERGY-STAR-Sell-Sheet_99851175A.pdf?ext=.pdf",
+          "source": "brave-search:sylvane.com"
+        },
+        {
+          "kind": "spec",
+          "url": "https://www.sylvane.com/cdn/shop/files/spec-sheet-broan-roomside-series-bel7a-bathroom_20exhaust-fan-with-light.pdf?v=14471815351911025154",
+          "source": "brave-search:sylvane.com"
+        },
+        {
+          "kind": "installation",
+          "url": "https://www.sylvane.com/cdn/shop/files/installation-guide-broan-roomside-series-bel7a-bathroom_20exhaust-fan-with-light.pdf?v=2664613070818266968",
+          "source": "brave-search:sylvane.com"
+        },
+        {
+          "kind": "spec",
+          "url": "https://jacksonsystems.com/wp-content/uploads/2024/11/Broan-NuTone-BEL7A-Specification-Sheet.pdf",
+          "source": "brave-search:jacksonsystems.com"
+        },
+        {
+          "kind": "installation",
+          "url": "https://jacksonsystems.com/wp-content/uploads/2024/11/Broan-NuTone-BEL7A-Installation-Guide.pdf",
+          "source": "brave-search:jacksonsystems.com"
+        }
+      ],
+      "offers": [
+        {
+          "source": "brave-search:sylvane.com",
+          "title": "Broan Roomside Series BEL7A Bathroom Exhaust Fan with Light – Sylvane",
+          "price": 119,
+          "url": "https://www.sylvane.com/products/broan-roomside-series-bel7a-bathroom-exhaust-fan-with-light",
+          "evidence": "Brave Search exact-model product result price field"
+        },
+        {
+          "source": "brave-search:jacksonsystems.com",
+          "title": "Broan-NuTone BEL7A Bluetooth Speaker Bathroom Exhaust Fan W/ LED Light, 70CFM",
+          "price": 130,
+          "url": "https://jacksonsystems.com/product/broan-nutone-bel7a-bluetooth-speaker-bathroom-exhaust-fan-w-led-light-70cfm/",
+          "evidence": "Brave Search exact-model product result price field"
+        },
+        {
+          "source": "brave-search:sylvane.com",
+          "title": "Broan Roomside Series BEL7A Bathroom Exhaust Fan with Light | Sylvane",
+          "price": 109,
+          "url": "https://www.sylvane.com/broan-roomside-series-bel7a-bathroom%20exhaust-fan-with-light.html",
+          "evidence": "Brave Search exact-model product result price field"
+        },
+        {
+          "source": "brave-search:mccoys.com",
+          "title": "Roomside Series BEL7A Exhaust Fan, 0.6 A, 120 V,",
+          "price": 131.61,
+          "url": "https://www.mccoys.com/shop/p/8225872-052303-37/broan-roomside-series-bel7a-exhaust-fan-06-a-120-v-70-cfm-air-2-sones-led-lamp-4-in-duct-white",
+          "evidence": "Brave Search exact-model product result price field"
+        },
+        {
+          "source": "brave-search:acehardware.com",
+          "title": "Broan-NuTone Roomside 70 CFM 2 Sones Bathroom Exhaust Fan with Bluetooth Speaker and Light Mfr# BEL7A - Ace Hardware",
+          "price": 119.99,
+          "url": "https://www.acehardware.com/departments/heating-and-cooling/portable-and-exhaust-fans/bathroom-fans/3019556",
+          "evidence": "Brave Search exact-model product result price field"
+        },
+        {
+          "source": "brave-search:fergusonhome.com",
+          "title": "Broan BEL7A Roomside 70 CFM 2 Sone Ceiling Mounted Energy Star Certified Bath Fan with Bluetooth and LED Light | Ferguson Home",
+          "price": 115,
+          "url": "https://www.fergusonhome.com/broan-bel7a/s2030872",
+          "evidence": "Brave Search exact-model product result price field"
+        },
+        {
+          "source": "brave-search:homedepot.com",
+          "title": "Broan-NuTone Roomside Series White 70-CFM Ceiling Roomside Installation Bluetooth Speaker Bathroom Exhaust Fan LED Light Energy Star BEL7A - The Home Depot",
+          "price": 109,
+          "url": "https://www.homedepot.com/p/Broan-NuTone-Roomside-Series-White-70-CFM-Ceiling-Roomside-Installation-Bluetooth-Speaker-Bathroom-Exhaust-Fan-LED-Light-Energy-Star-BEL7A/334729740?MERCH=REC-_-fbr-_-308577341-_-2-_-n/a-_-n/a-_-n/a-_-n/a-_-n/a",
+          "evidence": "Brave Search exact-model product result price field"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "brave-search",
+          "url": "https://search.brave.com/search?q=BEL7A",
+          "status": "ok",
+          "reason": "7 snippet offer(s)"
+        }
+      ],
+      "source_fields": [
+        "model_discovery: broan-nutone"
+      ]
+    },
+    {
+      "model": "BROADWAY-110",
+      "brand": "Good Housekeeping",
+      "title": "Good Housekeeping Broadway 110 CFM Decorative Bath Fan",
+      "category": "Bathroom Fans",
+      "best_price": 129.99,
+      "best_source": "sylvane",
+      "product_url": "https://www.sylvane.com/products/good-housekeeping-broadway-110-cfm-decorative-bathroom-fan?_pos=4\u0026_psq=bath+fan\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0630/7135/4966/files/good-housekeeping-broadway-110-cfm-decorative-bathroom-fan-black-main.png?v=1771961737",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.sylvane.com/cdn/shop/files/owners-manual-good-housekeeping-broadway-110-cfm-decorative-bathroom-fan.pdf?v=5967553784146591564",
+          "source": "sylvane"
+        }
+      ],
+      "offers": [
+        {
+          "source": "sylvane",
+          "price": 129.99,
+          "regular": 129.99,
+          "url": "https://www.sylvane.com/products/good-housekeeping-broadway-110-cfm-decorative-bathroom-fan?_pos=4\u0026_psq=bath+fan\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "The Good Housekeeping Broadway Decorative 2.0 Sone 110 CFM Bath Fan provides powerful and quiet air circulation to remove odors and excess moisture that can cause mold and mildew growth and damage walls, wood, tiles, and paint. This bath fan with light is ideal for large bathrooms, laundry rooms, attic spaces, or other high-humidity spaces up to 149 square feet.\n\n\n\nTool-Free Maintenance: The light fixture features a screwless design, allowing easy access for cleaning and replacing the LED light bulbs.\n\n\nPowerful and Quiet Operation: It can circulate up to 110 CFM to remove excess moisture as quietly as 2.0 sone, a sound level similar to one found in a quiet office.\n\n\n\nMultiple Finishes\n\n\nThis Good Housekeeping fan includes a light with a frosted glass shade, which houses two LED light bulbs. The 15-inch grill housing is available in two color options:\n\n\n\nMatte Black: The round light base features a matte black finish, creating a low-key neutral color to match almost any space's aesthetic. Part Number 91036.\n\n\nBrushed Nickel: The round light base features a brushed nickel light fixture base, which matches nickel-finished faucets and door handles, creating a seamless aesthetic. Part Number 91037.\n\n\n\nSafe and Efficient Performance\n\n\nBacked by Good Housekeeping’s Seal of approval and a lifetime Limited motor warranty, this exhaust fan is guaranteed to provide safe and efficient performance for years to come.\n\n\n\nHIV-Certified: Tested and certified by the Home Ventilating Institute (HVI) to meet industry performance standards.\n\n\ncETLus: Tested and verified to meet North American electrical and safety standards.\n\n\nETL Listed: When professionally installed and connected to a GFCI circuit, this fan can be safely installed above bathtubs or in shower enclosures.\n\n\n\nFlush Ceiling Installation\n\n\nThis exhaust fan includes a permanently lubricated motor, adjustable hanging bars, and a hardware installation kit containing all the hardware needed for replacing an old bathroom exhaust fan or for professional roomside installation.\n\n\n\nDurable Housing: The metal housing unit measures 9.45 x 9.45 x 6.45 inches and has a 4-inch ventilation duct connection.\n\n\nFlush Ceiling Installation: Install this fan flush to almost any ceiling with up to a 12/12 pitch (45 degrees) as long as the ductwork can point upward in any room with at least a seven-foot ceiling height.\n\n\nAdjustable Hanging Bars: These adjustable mounting brackets ensure secure ceiling mounting.\n\n\nRoomside Installation: Allows installation in 9.75 x 9.75-inch ceiling openings without requiring attic access.\n\n\nTwo Hardwire Configurations: This bathroom fan with light can be wired on two independent switches or the same switch."
+      ]
+    },
+    {
+      "model": "SYDNEY-110",
+      "brand": "Good Housekeeping",
+      "title": "Good Housekeeping Sydney 110 CFM Decorative Bath Fan",
+      "category": "Bathroom Fans",
+      "best_price": 129.99,
+      "best_source": "sylvane",
+      "product_url": "https://www.sylvane.com/products/good-housekeeping-sydney-110-cfm-decorative-bathroom-fan?_pos=3\u0026_psq=bath+fan\u0026_ss=e\u0026_v=1.0",
+      "image_url": "https://cdn.shopify.com/s/files/1/0630/7135/4966/files/good-housekeeping-sydney-110-cfm-decorative-bathroom-fan-black-main.png?v=1753818919",
+      "specs": [
+        {
+          "kind": "document",
+          "url": "https://www.sylvane.com/cdn/shop/files/owners-manual-good-housekeeping-sydney-110-cfm-decorative-bathroom-fan.pdf?v=7373668202099778781",
+          "source": "sylvane"
+        }
+      ],
+      "offers": [
+        {
+          "source": "sylvane",
+          "price": 129.99,
+          "regular": 129.99,
+          "url": "https://www.sylvane.com/products/good-housekeeping-sydney-110-cfm-decorative-bathroom-fan?_pos=3\u0026_psq=bath+fan\u0026_ss=e\u0026_v=1.0",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "The Good Housekeeping Sydney Decorative 110 CFM Bath Fan provides high-quality ventilation and lighting for bathrooms up to 150 square feet.\n\nFeaturing a stylized round grille available in Matte Black or Brushed Nickel, this fan adds a modern aesthetic while efficiently removing excess moisture and odors. Operating with an HVI-certified 110 CFM airflow and a 2.0 sone noise level, the Sydney bath fan ensures powerful moisture control and a low noise level. \n\n\nTop Features\n\n\n\n\nStylish Design: A unique round stylized grille gives this fan a more unique and interesting appearance than typical bath fans.\n\n\nIntegrated Lighting: It includes two LED bulbs within a frosted glass shade, providing bright and stylish illumination.\n\n\nFlexible Installation: This bath fan is ceiling-mounted and includes adjustable hanger bars and all necessary hardware for new or roomside installation.\n\n\nSafety Certified: It is ETL listed for installation over showers and bathtubs when wired to a GFCI-protected circuit.\n\n\nSecure and Easy Maintenance: A screwless grille design allows quick cleaning and bulb replacement without needing tools.\n\n\n\nAdditional Features\n\n\n\n\nEnergy Efficient Performance: This model operates at 120V with a maximum wattage of 60W.\n\n\nDurable Build: The metal fan housing ensures longevity and reliable performance in humid environments.\n\n\nInstallation-Friendly: The Sydney Decorative fan has a 4-inch duct connection, which fits standard bathroom ventilation setups."
+      ]
+    },
+    {
+      "model": "QTXEG110",
+      "brand": "Broan",
+      "title": "Broan QTXEG110 Bathroom Exhaust Fan",
+      "category": "Bathroom Fans",
+      "best_price": 139,
+      "best_source": "sylvane",
+      "product_url": "https://www.sylvane.com/products/broan-qtxeg110-bathroom-exhaust-fan?_pos=1\u0026_psq=bath+fan\u0026_ss=e\u0026_v=1.0\u0026variant=42340084613206",
+      "image_url": "https://cdn.shopify.com/s/files/1/0630/7135/4966/files/broan-qtxeg110-bathroom-exhaust-fan-main.png?v=1753818796",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://www.sylvane.com/cdn/shop/files/spec-sheet-broan-qtxeg110-bathroom-exhaust-humidity-sensing-fan.pdf?v=2644202029927812491",
+          "source": "sylvane"
+        },
+        {
+          "kind": "spec",
+          "url": "https://www.sylvane.com/cdn/shop/files/spec-sheet-broan-qtxeg110-bathroom-exhaust-fan.pdf?v=16664095570043519735",
+          "source": "sylvane"
+        },
+        {
+          "kind": "installation",
+          "url": "https://www.sylvane.com/cdn/shop/files/installation-guide-broan-qtxeg110-bathroom-exhaust-humidity-sensing-fan.pdf?v=7035059891649806817",
+          "source": "sylvane"
+        },
+        {
+          "kind": "installation",
+          "url": "https://www.sylvane.com/cdn/shop/files/installation-guide-broan-qtxeg110-bathroom-exhaust-fan.pdf?v=17647777680058747280",
+          "source": "sylvane"
+        }
+      ],
+      "offers": [
+        {
+          "source": "sylvane",
+          "price": 139,
+          "regular": 159,
+          "url": "https://www.sylvane.com/products/broan-qtxeg110-bathroom-exhaust-fan?_pos=1\u0026_psq=bath+fan\u0026_ss=e\u0026_v=1.0\u0026variant=42340084613206",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "source_fields": [
+        "The Broan QTXEG110 Bathroom Exhaust Fan is designed to provide effective and silent ventilation for bathrooms up to 105 square feet.\nOperating at a mere 0.4 sones, this bathroom exhaust fan ensures a peaceful atmosphere while efficiently removing excess moisture to prevent mold and mildew growth. It is Energy Star-rated, emphasizing energy efficiency without compromising performance. This fan is available with or without humidity-sensing capabilities.\nTop Features\n\n\nHigh Airflow Capacity: This fan swiftly eliminates humidity and odors in bathrooms as large as 105 square feet by delivering up to 110 CFM.\n\nHumidity Sensing Technology: Model QTXEG110SX features Sensaire technology that detects rapid increases in moisture and automatically activates the fan to control humidity levels.\n\nEasy Installation: The hanger bar system allows for quick and flexible installation in various construction types.\n\nDurable Construction: This fan's corrosion-resistant galvanized steel housing ensures lasting performance in high-moisture environments.\n\nContinuous Operation: The QTXEG110’s permanently lubricated AC motor is engineered for nonstop use.\n\nSafety Certified: Both QTXEG110 models are UL-listed and safe to use over bathtubs or showers when connected to a GFCI-protected branch circuit.\n\nBroan Overture Compatible: This fan is compatible with Broan’s Overture automated fresh air sensor system, which monitors and controls ventilation systems and tests for air quality."
+      ]
+    },
+    {
+      "model": "AEN80LF1",
+      "brand": "NuTone",
+      "title": "NuTone Flex™ Series 80 CFM Bathroom Exhaust Fan Light Finish Pack Energy Star®",
+      "category": "Ventilation \u003e Bath Fans",
+      "product_url": "https://broan-nutone.com/en-us/product/ventilationfans/aen80lf1",
+      "image_url": "https://broan-nutone.com/getmedia/f76debde-d4d6-4961-b5f1-dd0fdf2c4284/AE80LF1_AE80BLF1_AE50110DCLF_1.jpg?width=1800\u0026height=1800\u0026ext=.jpg",
+      "specs": [
+        {
+          "kind": "spec",
+          "url": "https://www.broan-nutone.com/getmedia/d1737661-d518-47ed-a03a-fc418f1ad1ac/Spec-Sheet-AEN80L.pdf?ext=.pdf",
+          "source": "product-page"
+        },
+        {
+          "kind": "installation",
+          "url": "https://www.broan-nutone.com/getmedia/6d5017ac-f058-4ff3-b68b-9273594b6227/Installation_Guide_Roomside_Flex_Series_Fan_Light_2.pdf?ext=.pdf",
+          "source": "product-page"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "brave-search",
+          "url": "https://search.brave.com/search?q=AEN80LF1",
+          "status": "error",
+          "reason": "HTTP 429: \u003c!doctype html\u003e\n\u003chtml class=\"\" lang=\"en-us\"\u003e\n  \u003chead\u003e\n    \u003cmeta charset=\"utf-8\" /\u003e\n    \u003c!-- Register error handler be..."
+        }
+      ],
+      "source_fields": [
+        "model_discovery: broan-nutone"
+      ]
+    },
+    {
+      "model": "BEL6F",
+      "brand": "Broan-NuTone",
+      "title": "Broan-NuTone® Roomside Series Bathroom Exhaust Fan w/ LED Light, 60 CFM, ENERGY STAR®, Finish Pack",
+      "category": "Ventilation \u003e Bath Fans",
+      "product_url": "https://broan-nutone.com/en-us/product/ventilationfans/bel6f",
+      "image_url": "https://broan-nutone.com/getmedia/b2d1d118-61e5-43f7-ac1e-4036a5cf2544/BEL6F_1.jpg?width=1800\u0026height=1605\u0026ext=.jpg",
+      "probe_status": [
+        {
+          "source": "brave-search",
+          "url": "https://search.brave.com/search?q=BEL6F",
+          "status": "error",
+          "reason": "HTTP 429: \u003c!doctype html\u003e\n\u003chtml class=\"\" lang=\"en-us\"\u003e\n  \u003chead\u003e\n    \u003cmeta charset=\"utf-8\" /\u003e\n    \u003c!-- Register error handler be..."
+        }
+      ],
+      "source_fields": [
+        "model_discovery: broan-nutone"
+      ]
+    },
+    {
+      "model": "BELS8",
+      "brand": "Broan-NuTone",
+      "title": "Broan-NuTone® Roomside Series Humidity Sensing Bathroom Exhaust Fan w/ LED Light, 80 CFM, ENERGY STAR®",
+      "category": "Ventilation \u003e Bath Fans",
+      "product_url": "https://broan-nutone.com/en-us/product/ventilationfans/bels8",
+      "image_url": "https://broan-nutone.com/getmedia/09d96519-054c-4f22-af81-388312b1a5ef/BEL6_BEL8_1.jpg?width=1800\u0026height=1800\u0026ext=.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://www.broan-nutone.com/getmedia/51a4e2ea-0edc-4a6f-ad8f-93a0fdb56ed8/Installation_Guide_BELS8_En_Fr.pdf?ext=.pdf",
+          "source": "product-page"
+        },
+        {
+          "kind": "spec",
+          "url": "https://www.broan-nutone.com/getmedia/101a744c-b37c-4dfa-a6cc-eb6fbc7dce94/Spec_Sheet_BELS8_en_fr.pdf?ext=.pdf",
+          "source": "product-page"
+        },
+        {
+          "kind": "document",
+          "url": "https://www.broan-nutone.com/getmedia/13153fc7-f7e9-4763-87d3-cd95e2738a8f/Broan-NuTone-Roomside-Series-ENERGY-STAR-Sell-Sheet_99851175A.pdf?ext=.pdf",
+          "source": "product-page"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "brave-search",
+          "url": "https://search.brave.com/search?q=BELS8",
+          "status": "error",
+          "reason": "HTTP 429: \u003c!doctype html\u003e\n\u003chtml class=\"\" lang=\"en-us\"\u003e\n  \u003chead\u003e\n    \u003cmeta charset=\"utf-8\" /\u003e\n    \u003c!-- Register error handler be..."
+        }
+      ],
+      "source_fields": [
+        "model_discovery: broan-nutone"
+      ]
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage.",
+    "Category routing used: hvac",
+    "Category search-result model discovery used; search-derived prices are labeled as fallback evidence, not direct retailer API results."
+  ],
+  "sources_run": [
+    "pioneer-mini-split",
+    "sylvane",
+    "iwae",
+    "hardware-hut",
+    "broan-nutone",
+    "brave-search"
+  ]
+}

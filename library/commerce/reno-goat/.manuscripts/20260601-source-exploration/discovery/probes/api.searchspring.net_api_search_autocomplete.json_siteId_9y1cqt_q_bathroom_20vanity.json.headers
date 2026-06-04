@@ -1,0 +1,16 @@
+HTTP/2 200 
+content-type: application/json; charset=UTF-8
+access-control-allow-headers: *
+access-control-allow-methods: POST, GET
+access-control-allow-origin: *
+access-control-max-age: 86400
+date: Tue, 02 Jun 2026 12:24:51 GMT
+searchspring-event-payload: eyJpZCI6eyJ3ZWJzaXRlIjozMTgxfSwic2VhcmNoIjp7ImZpbHRlcnMiOnt9LCJtYXRjaFR5cGUiOiJwcmltYXJ5IiwibWluaW11bU1hdGNoIjoiMTAwJSJ9LCJtZXJjaGFuZGlzaW5nIjp7InBlcnNvbmFsaXplZCI6ZmFsc2UsInJlZGlyZWN0IjoiaHR0cHM6Ly93d3cua2JhdXRob3JpdHkuY29tL2JhdGhyb29tLXZhbml0aWVzIiwic291cmNlcyI6eyJjb250ZW50Ijp7fSwiY3VyYXRlIjp7fSwiY3VzdG9taXplIjp7ImJvb3N0cyI6IjEwNzI4MSJ9LCJpbnRlbGxpc3VnZ2VzdCI6Ijc2ZTgxYzAwODA0ZWJlOTJlYzRmYTIwNjA5NmE0OWY5In19LCJwYWdpbmF0aW9uIjp7InBhZ2UiOjEsInJlc3VsdHNQZXJQYWdlIjo1MiwidG90YWxSZXN1bHRzIjoxMzExNH0sInF1ZXJ5Ijp7InJlcXVlc3RlZCI6ImJhdGhyb29tIHZhbml0eSIsImNvcnJlY3Rpb24iOnt9fSwiYXdhcmVuZXNzIjp7InN1YmplY3QiOiJ2YW5pdHkiLCJtb2RpZmllcnMiOlsiYmF0aHJvb20iXX0sInJlcXVlc3QiOnsidXJsIjp7InF1ZXJ5U3RyaW5nIjoicT1iYXRocm9vbSt2YW5pdHlcdTAwMjZyZWRpcmVjdFJlc3BvbnNlPWZ1bGxcdTAwMjZzaXRlSWQ9OXkxY3F0In19fQ==
+server: nginx/1.25.1
+x-request-id: 7ea498279b9b213de1be066f371edf5c
+via: 1.1 fb5457d63c2bae82c659669b952f7d52.cloudfront.net (CloudFront), 1.1 0eead6b6d592f7fb31a5629652c63870.cloudfront.net (CloudFront)
+x-amz-cf-pop: IAD61-P9
+x-cache: Miss from cloudfront
+x-amz-cf-pop: IAD61-P12
+x-amz-cf-id: 4MrYdIf3XnrHYJ4hxuD2C2Cs-PCwoS1qQwWt8IE7HxBM1BejEpob_A==
+

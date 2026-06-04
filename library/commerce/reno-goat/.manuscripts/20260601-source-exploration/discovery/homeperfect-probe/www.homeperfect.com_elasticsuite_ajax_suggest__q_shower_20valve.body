@@ -1,0 +1,18 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Error 404: Not Found</title>
+    <base href="https&#x3A;&#x2F;&#x2F;www.homeperfect.com&#x2F;errors&#x2F;default&#x2F;" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="robots" content="*"/>
+    <link rel="stylesheet" href="css/styles.css" type="text/css" />
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+    <main class="page-main">
+        
+<h1>404 error: Page not found.</h1>
+    </main>
+</body>
+</html>

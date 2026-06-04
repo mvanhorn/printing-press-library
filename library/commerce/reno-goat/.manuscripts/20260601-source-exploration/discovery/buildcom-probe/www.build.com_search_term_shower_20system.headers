@@ -1,0 +1,42 @@
+HTTP/1.1 301 Moved Permanently
+Content-Type: text/html
+Location: https://www.fergusonhome.com/search?term=shower%20system
+Content-Security-Policy: frame-ancestors 'self' https://*.build.com/ https://*.fergusonhome.com https://*.build-catalogs.com/ https://bcom.my.salesforce.com/ https://bcom.my.salesforce-sites.com/ https://*.visual.force.com/ https://omconsole.com/ https://*.omconsole.com/ https://*.cybersource.com/ https://*.ferguson.com/
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+X-Content-Type-Options: nosniff
+Timing-Allow-Origin: *
+X-Akamai-Transformed: 0 - 0 -
+Expires: Thu, 04 Jun 2026 05:46:29 GMT
+Cache-Control: max-age=0, no-cache, no-store
+Pragma: no-cache
+Date: Thu, 04 Jun 2026 05:46:29 GMT
+Connection: close
+Server-Timing: cdn-cache; desc=MISS
+Server-Timing: edge; dur=59
+Server-Timing: origin; dur=19
+Strict-Transport-Security: max-age=86400
+Akamai-GRN: 0.93c83017.1780551989.1dd504c9
+Set-Cookie: _abck=FA2486E8B536032EBB08EBB1AF00E2D1~-1~YAAQk8gwF9bEi4ueAQAA8DgrkRBIxIqS+8tLLXuKUd/V//4bklEd7DeEXS9kg9xQQ3LTQ7Qu4mwMpgU4GzDb8lsVfJxrqU9omKylfEN2F8TeUJQMB2ZXK8nykuaq8vShDV2UIltB0ED7xLaMySySrzId7RoNk1cuvM2JZJUFxEPyo319iPfHUzn/Ps3qfx69nM6CLOCix99sBDfnr5XkJUPuerFkbXPFFawPC5SgJvn5CS5ZIrN7CjnvaA32rHAByTprEjjM/CY+fWUV0JTYbGgt+9X10bLoGOwOLySMvFZB6aoGN7ZbLQLo8yg75LLDlXJS2/5Y6Qxml+ZZuaBomi2U3bEYxud8BCc8J1g2d/wbnCuE+V0Ph/GoPXp1uyOERJRokoySPw4tFreNFBQWCVHq9qRqAQQC3Aw9vAngaRPNFdrB9YI19HXK5673tiR4rH+Y2zmJeA==~-1~-1~-1~-1~-1; Domain=.build.com; Path=/; Expires=Fri, 04 Jun 2027 05:46:29 GMT; Max-Age=31536000; SameSite=None; Secure
+Set-Cookie: bm_sz=A4894CF0EB43624783A9997AAC41F27F~YAAQk8gwF9fEi4ueAQAA8DgrkQDJLWLyvTYOLkPW7+uEEiHQ9TYOdSgmc95WV0oplhNt/yFTrHJWSV/bjWLgsKB2b34UWxLQobiP4JJLKTLrR0qrE+H7Y2XjwQGKq9Ak1bD5NEnaQmHJ6I6tPrxQ+PLKeQmm+EA2U7Zbc6nRjmZd5V4T3DoUMrjApj/C04MZk8WKuHZdrMknB+uROutHsz7JEDyfA1E4AlHa1E1XPMNnay2OCUeaVQDhYaLbzRop4/Fza6NEcsOs/wLME2WfarBCUy7lTrzrg3SQHtGDhpV+EA/RGUFvTupO84rCYuC6GJ2osjmfwcrLv2gpV2SW9gMsfcuU4JyWSFYilqE=~3487029~3491127; Domain=.build.com; Path=/; Expires=Thu, 04 Jun 2026 09:46:29 GMT; Max-Age=14400; SameSite=None; Secure
+Server-Timing: ak_p; desc="1780551989342_389073043_500499657_7839_12396_11_45_-";dur=1
+
+HTTP/1.1 403 Forbidden
+Mime-Version: 1.0
+Content-Type: text/html
+Content-Length: 385
+X-Reference-Error: 18.90c83017.1780551989.550662e0
+Expires: Thu, 04 Jun 2026 05:46:29 GMT
+Cache-Control: max-age=0, no-cache, no-store
+Pragma: no-cache
+Date: Thu, 04 Jun 2026 05:46:29 GMT
+Connection: close
+Server-Timing: cdn-cache; desc=HIT
+Server-Timing: edge; dur=1
+Strict-Transport-Security: max-age=86400
+Akamai-GRN: 0.90c83017.1780551989.550662e0
+Set-Cookie: bm_ss=ab8e18ef4e; Secure; SameSite=None; Domain=.fergusonhome.com; Path=/; HttpOnly; Max-Age=3600
+Set-Cookie: bm_s=YAAQkMgwF9BPmX6eAQAAfjkrkQX8vldSqGJ1dCVtsHKNXHhy7Zv8hvftatKsA4hihdAsIAut6DgfWgSRPO+E+IM9YM48HRPhPl8mDR5b3TweVHN6FRlm1B/mi1R675mnbOTDegM+GJi5JOa8TmNPIIm1BHo0pXSiopeO9fDrJ62FnridkbBkK3CxxwRAwufN4OZESdJFFed4fKnICKJQKjNQBJ8Wn1f0MW5dnafgKKC6dITpK+Cd6F80EYCt6xaOAP84DFl2/Cs9r0U3Z4Kr0KU+hbowZecAmalfbQklArK12iWwnyPNFK1PX/qF+Xhak+xs7+tltH9AzilauNOo9Kc48pYTD4krgjv7DebCRdkYwvaoDfCj8H3M+/nUqw9mEwb058kP4yFxiXzqGEh5Az5jFDzOHUNPGO/0opVS8jn3pX1uHAt+dIyN5Eupxxk2tqZ41GiDLJ223Me0Er6O0/PJhNAEEzL31hPBmjTVYnmx1nEV8qTD/qX2ykeYtaMM6d/UNPMYfOz/3Tywgee88gvowEY+PyPcCI0EpX7JQJkEcuytEL4Pgy0AjbhXtbL4d2WGnZM=; Domain=.fergusonhome.com; Path=/; Expires=Sun, 05 Jul 2026 05:46:29 GMT; Max-Age=2678400; SameSite=None; Secure; HttpOnly
+Set-Cookie: bm_so=53CB8F92106EE91CF546436DC24AED12FFE83B5C9000BA88FBE47129B810151B~YAAQkMgwF9FPmX6eAQAAfjkrkQf/B3jYN9jMAj9PKELbBKEDXheOV3nm9X+TYSkuUbHD/FZJgwsfFQcFI9qPcz2i+b9q0eN7w+ZQgOgvI6GGNzIrpcMoof8h8pWCfTPLegkHMvsX7B6azyyF5lBwEl+eVpyZGOhXm0zNDFeE9nS1xaVYBUhNCkzgQZIRhVd+/9gLJsFI6/8HN0iTf2s+zdAl8opGunnT2+ZB8g7iRdW5W5fvdLWTYWp++OZrMu4fp0LKMoR1vope0N6KhIkw+Ds+/fL+NLjHptZC2uXFcOblbFOv++wy8Y8w/dylzftT5PYinbQUjgvEqx8rNZ7QJydldO2bmdqNOEqmq/a2O5mTK+darQ8cyKGz0oePG6ox0EYo6v8ZCiQeAcRwDPbiukzTfngh93xB+VIAtNw8hR/OsRWQDXhCum1QIk9EljtY5d/uFlFJ39cyItBukmDnk8HNRZWIaguD; Domain=.fergusonhome.com; Path=/; Expires=Fri, 05 Jun 2026 05:46:29 GMT; Max-Age=86400; SameSite=None; Secure
+Server-Timing: ak_p; desc="1780551989560_389073040_1426481888_16_17849_11_51_-";dur=1
+

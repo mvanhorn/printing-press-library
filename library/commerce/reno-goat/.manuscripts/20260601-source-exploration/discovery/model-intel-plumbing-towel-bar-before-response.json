@@ -1,0 +1,661 @@
+{
+  "query": "towel bar",
+  "total": 10,
+  "models": [
+    {
+      "model": "GDT535PGRBB",
+      "brand": "GE",
+      "title": "GE® ENERGY STAR® Top Control with Plastic Interior Dishwasher with Sanitize Cycle \u0026 Dry Boost",
+      "category": "Built-In",
+      "best_price": 379,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT535PGRBB",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/143854/997627/e376de1f0df38914a45ebb5c2ddbaae0cf3f5feb__91081.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--5E3SRqO---/ov9rsakkxegf0ryooovl.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--_hN5Kp5Z--/fbwy4ueo8eqx6qsgpbfg.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--EszXjA26--/2ee1c206fc195cd1717cedf8b41e2ab95579670c.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--7WJEnN9p--/de2abjl0vpzormtmlvxi.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--HuZyHYLF--/zwjpqmeih0bzy06om5kx.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 379,
+          "regular": 619,
+          "url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT535PGRBB",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT535PGRBB.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 33.375 H x 23.75 W x 24 D\nappearance_color_appearance: Black\nfeatures_style: Built-In Top Control\nfeatures_control_type: Top Controls,Fully Integrated Inlaid Electronic Buttons,4 Touchpads\nfeatures_wifi_connect: Optional (Requires part no. PBX23W00Y1)\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--5E3SRqO---/ov9rsakkxegf0ryooovl.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--_hN5Kp5Z--/fbwy4ueo8eqx6qsgpbfg.pdf\nbenefits: Reliable Performance; Dry Boost™; Steam + Sani; Water Leak Sensor"
+      ]
+    },
+    {
+      "model": "GDT535PGRWW",
+      "brand": "GE",
+      "title": "GE® ENERGY STAR® Top Control with Plastic Interior Dishwasher with Sanitize Cycle \u0026 Dry Boost",
+      "category": "Built-In",
+      "best_price": 379,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT535PGRWW",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/143855/997652/c7a0839c92bb199288edcd898eab623de403a025__27316.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--HuZyHYLF--/zwjpqmeih0bzy06om5kx.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--_hN5Kp5Z--/fbwy4ueo8eqx6qsgpbfg.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--EszXjA26--/2ee1c206fc195cd1717cedf8b41e2ab95579670c.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--7WJEnN9p--/de2abjl0vpzormtmlvxi.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--5E3SRqO---/ov9rsakkxegf0ryooovl.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 379,
+          "regular": 619,
+          "url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT535PGRWW",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT535PGRWW.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 33.375 H x 23.75 W x 24 D\nappearance_color_appearance: White\nfeatures_style: Built-In Top Control\nfeatures_control_type: Top Controls,Fully Integrated Inlaid Electronic Buttons,4 Touchpads\nfeatures_wifi_connect: Optional (Requires part no. PBX23W00Y1)\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--HuZyHYLF--/zwjpqmeih0bzy06om5kx.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--_hN5Kp5Z--/fbwy4ueo8eqx6qsgpbfg.pdf\nbenefits: Reliable Performance; Dry Boost™; Steam + Sani; Water Leak Sensor"
+      ]
+    },
+    {
+      "model": "GDT535PSRSS",
+      "brand": "GE",
+      "title": "GE® ENERGY STAR® Top Control with Plastic Interior Dishwasher with Sanitize Cycle \u0026 Dry Boost",
+      "category": "Built-In",
+      "best_price": 399,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT535PSRSS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/143856/997701/c2d8220def06b0d99835cadedead82fad59ab3a5__96022.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--5E3SRqO---/ov9rsakkxegf0ryooovl.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--_hN5Kp5Z--/fbwy4ueo8eqx6qsgpbfg.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--EszXjA26--/2ee1c206fc195cd1717cedf8b41e2ab95579670c.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--7WJEnN9p--/de2abjl0vpzormtmlvxi.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--HuZyHYLF--/zwjpqmeih0bzy06om5kx.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 399,
+          "regular": 669,
+          "url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT535PSRSS",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT535PSRSS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 33.375 H x 23.75 W x 24 D\nappearance_color_appearance: Stainless Steel\nfeatures_style: Built-In Top Control\nfeatures_control_type: Top Controls,Fully Integrated Inlaid Electronic Buttons,4 Touchpads\nfeatures_wifi_connect: Optional (Requires part no. PBX23W00Y1)\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--5E3SRqO---/ov9rsakkxegf0ryooovl.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--_hN5Kp5Z--/fbwy4ueo8eqx6qsgpbfg.pdf\nbenefits: Reliable Performance; Dry Boost™; Steam + Sani; Water Leak Sensor"
+      ]
+    },
+    {
+      "model": "GDT550PGRBB",
+      "brand": "GE",
+      "title": "GE® ENERGY STAR® Top Control with Plastic Interior Dishwasher with Sanitize Cycle \u0026 Dry Boost",
+      "category": "Built-In",
+      "best_price": 429,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT550PGRBB",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/143861/1014083/c39009375a3af3328d1002e554648391e03a224c__72123.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--O6NKT-9S--/wh5bb8eovwf9ao6mwnre.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--FCD0ZwWi--/j2zw7vdpmqvvrurc3djm.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--EszXjA26--/2ee1c206fc195cd1717cedf8b41e2ab95579670c.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--7WJEnN9p--/de2abjl0vpzormtmlvxi.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 429,
+          "regular": 699,
+          "url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT550PGRBB",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT550PGRBB.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 33.375 H x 23.75 W x 24 D\nappearance_color_appearance: Black\nfeatures_style: Built-In Top Control\nfeatures_control_type: Top Controls,Fully Integrated Inlaid Electronic Buttons,6 Touchpads\nfeatures_wifi_connect: Optional (Requires part no. PBX23W00Y1)\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--O6NKT-9S--/wh5bb8eovwf9ao6mwnre.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--FCD0ZwWi--/j2zw7vdpmqvvrurc3djm.pdf\nbenefits: Dry Boost™; Steam + Sani; AutoSense Wash Cycle; High Wash Performance"
+      ]
+    },
+    {
+      "model": "GDT550PGRWW",
+      "brand": "GE",
+      "title": "GE® ENERGY STAR® Top Control with Plastic Interior Dishwasher with Sanitize Cycle \u0026 Dry Boost",
+      "category": "Built-In",
+      "best_price": 429,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT550PGRWW",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/143862/1014123/c7a0839c92bb199288edcd898eab623de403a025__77537.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--O6NKT-9S--/wh5bb8eovwf9ao6mwnre.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--FCD0ZwWi--/j2zw7vdpmqvvrurc3djm.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--EszXjA26--/2ee1c206fc195cd1717cedf8b41e2ab95579670c.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--7WJEnN9p--/de2abjl0vpzormtmlvxi.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 429,
+          "regular": 699,
+          "url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT550PGRWW",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT550PGRWW.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 33.375 H x 23.75 W x 24 D\nappearance_color_appearance: White\nfeatures_style: Built-In Top Control\nfeatures_control_type: Top Controls,Fully Integrated Inlaid Electronic Buttons,6 Touchpads\nfeatures_wifi_connect: Optional (Requires part no. PBX23W00Y1)\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--O6NKT-9S--/wh5bb8eovwf9ao6mwnre.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--FCD0ZwWi--/j2zw7vdpmqvvrurc3djm.pdf\nbenefits: Dry Boost™; Steam + Sani; AutoSense Wash Cycle; High Wash Performance"
+      ]
+    },
+    {
+      "model": "GDT550PYRFS",
+      "brand": "GE",
+      "title": "GE ENERGY STAR Top Control with Plastic Interior Dishwasher with Sanitize Cycle \u0026 Dry Boost",
+      "category": "Built-In",
+      "best_price": 429,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT550PYRFS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/143863/1014173/f136f0a52b5d658cfc07147c9402f7e078915d52__45116.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--O6NKT-9S--/wh5bb8eovwf9ao6mwnre.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--FCD0ZwWi--/j2zw7vdpmqvvrurc3djm.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--EszXjA26--/2ee1c206fc195cd1717cedf8b41e2ab95579670c.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--7WJEnN9p--/de2abjl0vpzormtmlvxi.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 429,
+          "regular": 749,
+          "url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT550PYRFS",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT550PYRFS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 33.375 H x 23.75 W x 24 D\nappearance_color_appearance: Fingerprint Resistant Stainless\nfeatures_style: Built-In Top Control\nfeatures_control_type: Top Controls,Fully Integrated Inlaid Electronic Buttons,6 Touchpads\nfeatures_wifi_connect: Optional (Requires part no. PBX23W00Y1)\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--O6NKT-9S--/wh5bb8eovwf9ao6mwnre.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--FCD0ZwWi--/j2zw7vdpmqvvrurc3djm.pdf\nbenefits: Dry Boost™; Steam + Sani; AutoSense Wash Cycle; High Wash Performance"
+      ]
+    },
+    {
+      "model": "GDT550PMRES",
+      "brand": "GE",
+      "title": "GE® ENERGY STAR® Top Control with Plastic Interior Dishwasher with Sanitize Cycle \u0026 Dry Boost",
+      "category": "Built-In",
+      "best_price": 439,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT550PMRES",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/143864/1014153/6ba245e030492e745f9be96a4c16109a5f1ba825__61032.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--O6NKT-9S--/wh5bb8eovwf9ao6mwnre.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--FCD0ZwWi--/j2zw7vdpmqvvrurc3djm.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--EszXjA26--/2ee1c206fc195cd1717cedf8b41e2ab95579670c.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--7WJEnN9p--/de2abjl0vpzormtmlvxi.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 439,
+          "regular": 749,
+          "url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT550PMRES",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT550PMRES.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 33.375 H x 23.75 W x 24 D\nappearance_color_appearance: Fingerprint Resistant Slate\nfeatures_style: Built-In Top Control\nfeatures_control_type: Top Controls,Fully Integrated Inlaid Electronic Buttons,6 Touchpads\nfeatures_wifi_connect: Optional (Requires part no. PBX23W00Y1)\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--O6NKT-9S--/wh5bb8eovwf9ao6mwnre.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--FCD0ZwWi--/j2zw7vdpmqvvrurc3djm.pdf\nbenefits: Dry Boost™; Steam + Sani; AutoSense Wash Cycle; High Wash Performance"
+      ]
+    },
+    {
+      "model": "GDT565HSYSS",
+      "brand": "GE",
+      "title": "GE® ENERGY STAR® Top Control Hybrid Tub Dishwasher with Dry Boost \u0026 52 dBA",
+      "category": "Built-In",
+      "best_price": 459,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-Hybrid-Tub-Dishwasher-with-Dry-Boost-52-dBA-GDT565HSYSS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/426212/1048154/f136f0a52b5d658cfc07147c9402f7e078915d52__86046.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--EupsbtW3--/zh17s8964igpfobsewvo.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--FCD0ZwWi--/j2zw7vdpmqvvrurc3djm.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--EszXjA26--/2ee1c206fc195cd1717cedf8b41e2ab95579670c.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--7WJEnN9p--/de2abjl0vpzormtmlvxi.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 459,
+          "regular": 769,
+          "url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-Hybrid-Tub-Dishwasher-with-Dry-Boost-52-dBA-GDT565HSYSS",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT565HSYSS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 33.375 H x 23.75 W x 24 D\nappearance_color_appearance: Stainless Steel\nfeatures_style: Built-In Top Control\nfeatures_control_type: Top Controls,Fully Integrated Inlaid Electronic Buttons,6 Touchpads\nfeatures_wifi_connect: Optional (Requires part no. PBX23W00Y1)\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--EupsbtW3--/zh17s8964igpfobsewvo.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--FCD0ZwWi--/j2zw7vdpmqvvrurc3djm.pdf\nbenefits: Hybrid Tub Dishwasher; Dry Boost™; Steam + Sani; AutoSense Wash Cycle"
+      ]
+    },
+    {
+      "model": "GDT630PYRFS",
+      "brand": "GE",
+      "title": "GE® ENERGY STAR® Top Control with Plastic Interior Dishwasher with Sanitize Cycle \u0026 Dry Boost",
+      "category": "Built-In",
+      "best_price": 479,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT630PYRFS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/273052/1003464/e7ff40fc86e2954b93fc63c6e55a24f71ac9c864__36952.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--uoNAXZpv--/39e2ec179ec299f5352c53da935ff714dcf53572.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--T1oFbEn_--/rfa1l3qkkap6i4wl7fwp.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--FCD0ZwWi--/j2zw7vdpmqvvrurc3djm.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--EszXjA26--/2ee1c206fc195cd1717cedf8b41e2ab95579670c.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--7WJEnN9p--/de2abjl0vpzormtmlvxi.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 479,
+          "regular": 849,
+          "url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-with-Plastic-Interior-Dishwasher-with-Sanitize-Cycle-Dry-Boost-GDT630PYRFS",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT630PYRFS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 33.375 H x 23.75 W x 24 D\nappearance_color_appearance: Fingerprint Resistant Stainless\nfeatures_style: Built-In Top Control\nfeatures_control_type: Top Controls,Cap Touch Controls,8 Touchpads\nfeatures_wifi_connect: Optional (Requires part no. PBX23W00Y1)\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--uoNAXZpv--/39e2ec179ec299f5352c53da935ff714dcf53572.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--T1oFbEn_--/rfa1l3qkkap6i4wl7fwp.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--FCD0ZwWi--/j2zw7vdpmqvvrurc3djm.pdf\nbenefits: 3 Rack Dishwasher; Bottle Jets; Dry Boost™; Wash Zone"
+      ]
+    },
+    {
+      "model": "GDT595HYYFS",
+      "brand": "GE",
+      "title": "GE® ENERGY STAR® Top Control Hybrid Tub Dishwasher with Third Rack, Bottle Jets, Dry Boost \u0026 50 dBA",
+      "category": "Built-In",
+      "best_price": 499,
+      "best_source": "ge-appliances",
+      "product_url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-Hybrid-Tub-Dishwasher-with-Third-Rack-Bottle-Jets-Dry-Boost-50-dBA-GDT595HYYFS",
+      "image_url": "https://cdn11.bigcommerce.com/s-pacto3wrn2/images/stencil/500x659/products/426213/1048185/f136f0a52b5d658cfc07147c9402f7e078915d52__61478.1.jpg",
+      "specs": [
+        {
+          "kind": "installation",
+          "url": "https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "spec",
+          "url": "https://images.salsify.com/image/upload/s--hPsZLB-B--/r4joofvw62my3ddcuir8.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "documents_energy_guide",
+          "url": "https://images.salsify.com/image/upload/s--FCD0ZwWi--/j2zw7vdpmqvvrurc3djm.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--EszXjA26--/2ee1c206fc195cd1717cedf8b41e2ab95579670c.pdf",
+          "source": "ge-appliances"
+        },
+        {
+          "kind": "document",
+          "url": "https://images.salsify.com/image/upload/s--7WJEnN9p--/de2abjl0vpzormtmlvxi.pdf",
+          "source": "ge-appliances"
+        }
+      ],
+      "offers": [
+        {
+          "source": "ge-appliances",
+          "price": 499,
+          "regular": 819,
+          "url": "https://www.geappliances.com/appliance/GE-ENERGY-STAR-Top-Control-Hybrid-Tub-Dishwasher-with-Third-Rack-Bottle-Jets-Dry-Boost-50-dBA-GDT595HYYFS",
+          "evidence": "normalized product search row"
+        }
+      ],
+      "probe_status": [
+        {
+          "source": "ajmadison",
+          "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT595HYYFS.html",
+          "status": "blocked",
+          "reason": "PerimeterX/captcha response"
+        }
+      ],
+      "source_fields": [
+        "productdimensions: 33.375 H x 23.75 W x 24 D\nappearance_color_appearance: Fingerprint Resistant Stainless\nfeatures_style: Built-In Top Control\nfeatures_control_type: Top Controls,Fully Integrated Inlaid Electronic Buttons,6 Touchpads\nfeatures_wifi_connect: Optional (Requires part no. PBX23W00Y1)\ndocuments_installation_instructions: https://images.salsify.com/image/upload/s--PcuHBDdc--/492ab846f22e21cede3855223e99daa9f4a22306.pdf\ndocuments_quick_specs: https://images.salsify.com/image/upload/s--hPsZLB-B--/r4joofvw62my3ddcuir8.pdf\ndocuments_energy_guide: https://images.salsify.com/image/upload/s--FCD0ZwWi--/j2zw7vdpmqvvrurc3djm.pdf\nbenefits: 3 Rack Dishwasher; Bottle Jets; Dry Boost™; Steam + Sani"
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT535PGRBB.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT535PGRWW.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT535PSRSS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT550PGRBB.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT550PGRWW.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT550PYRFS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT550PMRES.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT565HSYSS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT630PYRFS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    },
+    {
+      "source": "ajmadison",
+      "url": "https://www.ajmadison.com/cgi-bin/ajmadison/GDT595HYYFS.html",
+      "status": "blocked",
+      "reason": "PerimeterX/captcha response"
+    }
+  ],
+  "notes": [
+    "Model intelligence is a compound workflow: category search, model extraction, spec-document capture, and model-page probing.",
+    "Blocked model pages are reported as evidence instead of silently dropping retailer coverage."
+  ],
+  "sources_run": [
+    "ge-appliances",
+    "bosch"
+  ]
+}
