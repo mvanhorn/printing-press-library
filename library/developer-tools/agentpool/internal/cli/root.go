@@ -14,9 +14,10 @@ var version = "0.1.0"
 // Execute runs the CLI.
 func Execute() error {
 	rootCmd := &cobra.Command{
-		Use:           "agentpool-pp-cli",
-		Short:         "Printing Press companion for the official AgentPool CLI",
-		SilenceUsage:  true,
+		Use:          "agentpool-pp-cli",
+		Short:        "Printing Press companion for the official AgentPool CLI",
+		SilenceUsage: true,
+		// main.go prints Cobra errors while delegated commands keep their own stderr.
 		SilenceErrors: true,
 		Version:       version,
 	}

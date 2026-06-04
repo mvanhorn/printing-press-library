@@ -71,8 +71,9 @@ func runProgram(program string, args ...string) error {
 }
 
 func hasArg(args []string, needle string) bool {
+	valueForm := needle + "="
 	for _, arg := range args {
-		if arg == needle || strings.HasPrefix(arg, needle+"=") {
+		if arg == needle || strings.HasPrefix(arg, valueForm) {
 			return true
 		}
 	}
