@@ -1,0 +1,16 @@
+{
+  "id": "fixture-readonly-polish",
+  "description": "Post-generation polish converting the plan scaffold into fixture-only/read-only commands with local JSON fixtures, explicit no-live-auth status, and accounting-provider safety notes.",
+  "reason": "Plan-driven generation emitted a valid scaffold; this patch added deterministic fixture command behavior and review/admin safety documentation for the first Printing Press PR candidate.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/status.go",
+    "internal/cli/*_list.go",
+    "internal/cli/reports_*.go",
+    "README.md",
+    "AGENTS.md",
+    "SKILL.md",
+    "testdata/fixtures"
+  ],
+  "safety": "No live OAuth, no token storage, no network calls, no mutation commands."
+}

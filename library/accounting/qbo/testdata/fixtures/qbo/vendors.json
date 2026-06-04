@@ -1,0 +1,14 @@
+{
+  "QueryResponse": {
+    "Vendor": [
+      {
+        "Active": true,
+        "DisplayName": "Office Supply Co",
+        "Id": "20",
+        "PrimaryEmailAddr": {
+          "Address": "billing@supplier.example"
+        }
+      }
+    ]
+  }
+}
