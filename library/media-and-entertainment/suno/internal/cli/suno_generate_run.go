@@ -26,6 +26,16 @@ import (
 
 const sunoGeneratePath = "/api/generate/v2-web/"
 
+// Gate-retry flag names. Shared between registration (generate.go, as inherited
+// persistent flags) and the string-keyed reads in runGenerationFlow, so a
+// rename cannot silently desync the two (the reads are by name, not by a bound
+// variable, because runGenerationFlow is a shared tail that does not own the
+// flag vars).
+const (
+	flagWaitForGate = "wait-for-gate"
+	flagGateTimeout = "gate-timeout"
+)
+
 // captchaRequiredError returns the actionable usage error (exit 2) shown when
 // Suno's adaptive hCaptcha challenge actually fires for a generation. The CLI
 // attempts generation optimistically (no token); this only surfaces when the
@@ -315,8 +325,8 @@ func runGenerationFlow(cmd *cobra.Command, flags *rootFlags, body sunoGenerateBo
 	// Adaptive-gate retry is opt-in via --wait-for-gate (inherited persistent
 	// flag on the generate parent). When off, this is a single submit attempt —
 	// identical to the prior behavior.
-	waitForGate, _ := cmd.Flags().GetBool("wait-for-gate")
-	gateTimeout, _ := cmd.Flags().GetDuration("gate-timeout")
+	waitForGate, _ := cmd.Flags().GetBool(flagWaitForGate)
+	gateTimeout, _ := cmd.Flags().GetDuration(flagGateTimeout)
 	cfg := gateRetryConfig{
 		enabled:        waitForGate,
 		timeout:        gateTimeout,
@@ -325,7 +335,10 @@ func runGenerationFlow(cmd *cobra.Command, flags *rootFlags, body sunoGenerateBo
 		now:            time.Now,
 		sleep:          sleepCtx,
 	}
-	if waitForGate && humanFriendly {
+	// Show retry progress on any non-JSON run (not just --human-friendly): a
+	// --wait-for-gate wait can last many minutes, and a silent process reads as
+	// a hang. Agent/JSON mode stays clean (progress would corrupt stdout JSON).
+	if waitForGate && !flags.asJSON {
 		cfg.onWait = func(attempt int, wait time.Duration) {
 			fmt.Fprintf(cmd.ErrOrStderr(), "gate challenged; waiting %s before retry %d (until --gate-timeout %s)...\n", wait.Round(time.Second), attempt, gateTimeout)
 		}

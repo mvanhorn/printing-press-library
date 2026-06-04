@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/internal/client"
 )
@@ -62,6 +63,16 @@ func classifyGateProbe(err error) string {
 // it created — trashing does not refund the spent credits, it only avoids
 // littering the library.
 func runGateProbe(ctx context.Context, c *client.Client) string {
+	// Respect a configured budget cap: the probe spends credits when the gate
+	// is open, so honor the same cap that submitGeneration enforces rather than
+	// silently breaching it from a diagnostic command.
+	if bs, berr := openExistingStore(ctx); berr == nil && bs != nil {
+		capCredits, period, exceeded, cerr := budgetCapExceeded(ctx, bs)
+		_ = bs.Close()
+		if cerr == nil && exceeded {
+			return fmt.Sprintf("skipped (%s budget cap of %d credits reached; raise it with 'budget set %s <N>' or clear it before probing)", period, capCredits, period)
+		}
+	}
 	mv, _ := resolveModel("", sunoGenerateModels, sunoGenerateModelOrder)
 	body := buildGenerateBody(generateInput{
 		createMode: "inspiration",
@@ -110,5 +121,10 @@ func trashProbeClips(ctx context.Context, c *client.Client, ids []string) {
 	if len(ids) == 0 {
 		return
 	}
-	_, _, _ = c.Post(ctx, "/api/feed/trash", map[string]any{"ids": ids})
+	// Detached short context so cleanup still fires if the probe's request
+	// context was cancelled (Ctrl-C / doctor timeout) right after the create —
+	// otherwise the billable clip would litter the library.
+	cctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 15*time.Second)
+	defer cancel()
+	_, _, _ = c.Post(cctx, "/api/feed/trash", map[string]any{"ids": ids})
 }

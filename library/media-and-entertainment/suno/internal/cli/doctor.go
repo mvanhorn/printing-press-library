@@ -314,6 +314,21 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				}
 				fmt.Fprintf(w, "  %s %s: %s\n", indicator, ck.label, s)
 			}
+			// Generate-gate verdict (only present with --probe-gate). Rendered
+			// with its own indicator: tripped/skipped are WARN (transient or
+			// not-run), auth-failure/unreachable are FAIL, open is OK. Without
+			// this block the verdict would be invisible in human mode.
+			if gv, ok := report["generate_gate"]; ok {
+				s := fmt.Sprintf("%v", gv)
+				indicator := green("OK")
+				switch {
+				case strings.HasPrefix(s, "auth-failure"), strings.HasPrefix(s, "unreachable"):
+					indicator = red("FAIL")
+				case strings.HasPrefix(s, "tripped"), strings.HasPrefix(s, "skipped"), strings.HasPrefix(s, "reachable"):
+					indicator = yellow("WARN")
+				}
+				fmt.Fprintf(w, "  %s %s: %s\n", indicator, "Generate Gate", s)
+			}
 			// Print info keys without status indicator
 			for _, key := range []string{"config_path", "base_url", "auth_source", "version"} {
 				if v, ok := report[key]; ok {

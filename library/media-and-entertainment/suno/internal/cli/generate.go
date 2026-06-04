@@ -26,8 +26,8 @@ func newGenerateCmd(flags *rootFlags) *cobra.Command {
 	// and a retry loop never sustains the gate unattended. Registered as
 	// persistent flags so create/describe/extend/cover/remaster inherit them;
 	// runGenerationFlow reads them via cmd.Flags().
-	cmd.PersistentFlags().Bool("wait-for-gate", false, "On a captcha gate (422 token_validation_failed), back off and retry until the gate reopens or --gate-timeout elapses")
-	cmd.PersistentFlags().Duration("gate-timeout", 30*time.Minute, "Maximum time to keep retrying when --wait-for-gate is set")
+	cmd.PersistentFlags().Bool(flagWaitForGate, false, "On a captcha gate (422 token_validation_failed), back off and retry until the gate reopens or --gate-timeout elapses")
+	cmd.PersistentFlags().Duration(flagGateTimeout, 30*time.Minute, "Maximum time to keep retrying when --wait-for-gate is set")
 
 	// Hand-authored, captcha-aware generation/transform commands.
 	cmd.AddCommand(newSunoGenerateCreateCmd(flags))
