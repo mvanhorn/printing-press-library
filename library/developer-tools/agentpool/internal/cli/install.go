@@ -42,26 +42,33 @@ func newInstallCmd() *cobra.Command {
 				return nil
 			}
 
-			switch manager {
-			case "uv":
-				if upgrade {
-					return runProgram("uv", "tool", "upgrade", "agentpool-cli")
-				}
-				return runProgram("uv", "tool", "install", "agentpool-cli")
-			case "pipx":
-				if upgrade {
-					fmt.Fprintln(os.Stderr, "pipx has no single universal upgrade/install contract here; run: pipx upgrade agentpool-cli")
-					return commandExitError{code: 2}
-				}
-				return runProgram("pipx", "install", "agentpool-cli")
-			default:
+			program, programArgs, ok := installInvocation(manager, upgrade)
+			if !ok {
 				fmt.Fprintf(os.Stderr, "unsupported manager %q; use uv or pipx\n", manager)
 				return commandExitError{code: 2}
 			}
+			return runProgram(program, programArgs...)
 		},
 	}
 	cmd.Flags().BoolVar(&run, "run", false, "Actually run the install command")
 	cmd.Flags().BoolVar(&upgrade, "upgrade", false, "Upgrade instead of install")
 	cmd.Flags().StringVar(&manager, "manager", "uv", "Package manager: uv or pipx")
 	return cmd
+}
+
+func installInvocation(manager string, upgrade bool) (string, []string, bool) {
+	switch manager {
+	case "uv":
+		if upgrade {
+			return "uv", []string{"tool", "upgrade", "agentpool-cli"}, true
+		}
+		return "uv", []string{"tool", "install", "agentpool-cli"}, true
+	case "pipx":
+		if upgrade {
+			return "pipx", []string{"upgrade", "agentpool-cli"}, true
+		}
+		return "pipx", []string{"install", "agentpool-cli"}, true
+	default:
+		return "", nil, false
+	}
 }
