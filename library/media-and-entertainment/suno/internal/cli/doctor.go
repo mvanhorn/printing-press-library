@@ -66,6 +66,7 @@ func looksLikeDoctorInterstitial(body []byte) string {
 
 func newDoctorCmd(flags *rootFlags) *cobra.Command {
 	var failOn string
+	var probeGate bool
 	cmd := &cobra.Command{
 		Use:   "doctor",
 		Short: "Check CLI health",
@@ -221,6 +222,22 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 							report["credentials"] = fmt.Sprintf("error: %s", authErr)
 						}
 					}
+
+					// Step 3 (opt-in): honest generate-gate reachability. The
+					// billing-layer reachability check above cannot see Suno's
+					// adaptive generation gate, so a plain "reachable" is a false
+					// green for generation. This probe issues a real minimal
+					// generation only when --probe-gate is passed, and is skipped
+					// under dry-run / verify (it is a mutating POST).
+					if probeGate && !flags.dryRun && !cliutil.IsVerifyEnv() {
+						if authHeader == "" {
+							report["generate_gate"] = "skipped (no auth configured)"
+						} else if reachErr != nil && !errors.As(reachErr, &reachAPIErr) {
+							report["generate_gate"] = "skipped (API unreachable)"
+						} else {
+							report["generate_gate"] = runGateProbe(cmd.Context(), c)
+						}
+					}
 				}
 			} else if cfg != nil && cfg.BaseURL == "" {
 				report["api"] = "not configured (set base_url in config file)"
@@ -318,6 +335,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&failOn, "fail-on", "", "Exit non-zero when a health level is reached: stale, error. Default is never.")
+	cmd.Flags().BoolVar(&probeGate, "probe-gate", false, "Probe the live generation gate and report open/tripped. WARNING: issues a real generation — free when the gate is tripped, but creates a clip and spends credits when the gate is open (the probe clip is best-effort trashed).")
 	return cmd
 }
 
