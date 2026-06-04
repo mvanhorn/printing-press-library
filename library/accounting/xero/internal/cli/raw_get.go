@@ -13,7 +13,7 @@ func newRawGetCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get",
 		Short: "Read a fixture as a raw Xero endpoint envelope.",
-		Args:  cobra.ArbitraryArgs,
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return printXeroRead("raw", fixture, args[0], tokenFile, tenantID, baseURL)
 		},
