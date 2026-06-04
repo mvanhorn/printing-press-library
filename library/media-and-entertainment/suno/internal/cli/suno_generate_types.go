@@ -68,7 +68,11 @@ type sunoGenerateMetadata struct {
 
 // sunoGenerateBody is the full POST /api/generate/v2-web/ request body. Every
 // field is always serialized; *string / *float64 fields emit JSON null when
-// nil, which the upstream API requires as explicit placeholders.
+// nil, which the upstream API requires as explicit placeholders for the
+// optional reference fields (cover_clip_id, persona_id, continue_*). Title and
+// Tags are the exception: the API requires them to be JSON strings (a null
+// title is rejected before the captcha gate), so they are always non-nil — see
+// alwaysStrPtr.
 type sunoGenerateBody struct {
 	Token                  *string              `json:"token"`
 	GenerationType         string               `json:"generation_type"`
@@ -90,11 +94,24 @@ type sunoGenerateBody struct {
 	TransactionUUID        string               `json:"transaction_uuid"`
 }
 
-// strPtr returns a pointer to s, or nil when s is empty.
+// strPtr returns a pointer to s, or nil when s is empty. Used for the optional
+// reference fields (cover_clip_id, persona_id, continue_clip_id) that the
+// upstream API genuinely wants as JSON null when absent.
 func strPtr(s string) *string {
 	if s == "" {
 		return nil
 	}
+	return &s
+}
+
+// alwaysStrPtr returns a pointer to s even when s is empty, so the field
+// serializes as a JSON string ("") rather than null. title and tags must use
+// this: the upstream API rejects a null title with
+// 422 [{"loc":["body","params","title"],"msg":"Input should be a valid string"}]
+// before the captcha gate is ever evaluated, which broke every inspiration-mode
+// (describe) request that did not pass an explicit --title. The browser sends ""
+// for both fields in inspiration mode.
+func alwaysStrPtr(s string) *string {
 	return &s
 }
 
@@ -163,8 +180,8 @@ func buildGenerateBody(in generateInput) sunoGenerateBody {
 	return sunoGenerateBody{
 		Token:            strPtr(in.token),
 		GenerationType:   "TEXT",
-		Title:            strPtr(in.title),
-		Tags:             strPtr(in.tags),
+		Title:            alwaysStrPtr(in.title),
+		Tags:             alwaysStrPtr(in.tags),
 		NegativeTags:     "",
 		Mv:               in.mv,
 		Prompt:           in.prompt,

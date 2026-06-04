@@ -2,7 +2,11 @@
 
 package cli
 
-import "testing"
+import (
+	"encoding/json"
+	"strings"
+	"testing"
+)
 
 func TestBuildGenerateBody_Custom(t *testing.T) {
 	body := buildGenerateBody(generateInput{
@@ -41,6 +45,75 @@ func TestBuildGenerateBody_Custom(t *testing.T) {
 	}
 	if body.Metadata.ControlSliders != nil {
 		t.Errorf("control_sliders should be nil when no sliders set")
+	}
+}
+
+// TestBuildGenerateBody_InspirationTitleNotNull locks the fix for the
+// inspiration-mode (describe) body bug: an empty title/tags must serialize as
+// JSON "" not null, because the upstream API rejects a null title with
+// 422 params.title before the captcha gate is evaluated.
+func TestBuildGenerateBody_InspirationTitleNotNull(t *testing.T) {
+	body := buildGenerateBody(generateInput{
+		createMode: "inspiration",
+		mv:         "chirp-fenix",
+		prompt:     "a fun upbeat song about a donkey",
+		// no title, no tags — the common describe case
+	})
+	if body.Title == nil {
+		t.Fatalf("title pointer must be non-nil (empty string), got nil -> serializes as null")
+	}
+	if *body.Title != "" {
+		t.Errorf("title = %q, want empty string", *body.Title)
+	}
+	if body.Tags == nil {
+		t.Fatalf("tags pointer must be non-nil (empty string), got nil -> serializes as null")
+	}
+	if *body.Tags != "" {
+		t.Errorf("tags = %q, want empty string", *body.Tags)
+	}
+
+	// Wire-shape assertion: the marshaled JSON must carry "title":"" and
+	// "tags":"", never null.
+	raw, err := json.Marshal(body)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	js := string(raw)
+	if !strings.Contains(js, `"title":""`) {
+		t.Errorf("serialized body must contain \"title\":\"\", got: %s", js)
+	}
+	if !strings.Contains(js, `"tags":""`) {
+		t.Errorf("serialized body must contain \"tags\":\"\", got: %s", js)
+	}
+	if strings.Contains(js, `"title":null`) || strings.Contains(js, `"tags":null`) {
+		t.Errorf("serialized body must not contain null title/tags, got: %s", js)
+	}
+	if !strings.Contains(js, `"create_mode":"inspiration"`) {
+		t.Errorf("serialized body must carry create_mode inspiration, got: %s", js)
+	}
+}
+
+// TestBuildGenerateBody_TitlePreservedAndReferencesNull confirms a real title
+// round-trips and that the optional reference fields still serialize as null
+// (the fix is scoped to title/tags only).
+func TestBuildGenerateBody_TitlePreservedAndReferencesNull(t *testing.T) {
+	body := buildGenerateBody(generateInput{
+		createMode: "custom",
+		mv:         "chirp-fenix",
+		title:      "Night Drive",
+		tags:       "synthwave",
+		prompt:     "neon lights",
+	})
+	if body.Title == nil || *body.Title != "Night Drive" {
+		t.Errorf("title = %v, want Night Drive", body.Title)
+	}
+	raw, _ := json.Marshal(body)
+	js := string(raw)
+	if !strings.Contains(js, `"cover_clip_id":null`) {
+		t.Errorf("cover_clip_id should remain null when absent, got: %s", js)
+	}
+	if !strings.Contains(js, `"persona_id":null`) {
+		t.Errorf("persona_id should remain null when absent, got: %s", js)
 	}
 }
 
