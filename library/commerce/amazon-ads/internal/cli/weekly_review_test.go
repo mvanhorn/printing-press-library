@@ -61,3 +61,23 @@ func TestWeeklyReviewCurrencyFlag(t *testing.T) {
 		t.Fatalf("--currency default = %q, want USD", flag.DefValue)
 	}
 }
+
+func TestWeeklyReviewMutationBatchesDeduplicateEntities(t *testing.T) {
+	t.Parallel()
+	batches := weeklyReviewMutationBatches([]adsanalytics.WeeklyReviewAction{
+		{Type: "lower_bid", Entity: adsanalytics.ReviewEntity{KeywordID: "k1"}, ProposedBid: 1.10},
+		{Type: "raise_bid", Entity: adsanalytics.ReviewEntity{KeywordID: "k1"}, ProposedBid: 1.20},
+		{Type: "adjust_budget", Entity: adsanalytics.ReviewEntity{CampaignID: "c1"}, ProposedBudget: 50},
+		{Type: "adjust_budget", Entity: adsanalytics.ReviewEntity{CampaignID: "c1"}, ProposedBudget: 60},
+		{Type: "create_negative_keyword", Entity: adsanalytics.ReviewEntity{CampaignID: "c1", AdGroupID: "a1", Text: "bad query", MatchType: "negativeExact"}},
+		{Type: "create_negative_keyword", Entity: adsanalytics.ReviewEntity{CampaignID: "c1", AdGroupID: "a1", Text: "bad query", MatchType: "negativeExact"}},
+	})
+	if len(batches) != 3 {
+		t.Fatalf("batches = %+v, want 3", batches)
+	}
+	for _, batch := range batches {
+		if len(batch.Body) != 1 {
+			t.Fatalf("batch %s %s body = %+v, want one deduped row", batch.Method, batch.Path, batch.Body)
+		}
+	}
+}

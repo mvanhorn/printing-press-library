@@ -34,3 +34,41 @@ func TestFeedbackRedactionAndSummaryEntries(t *testing.T) {
 		t.Fatalf("entries = %+v", entries)
 	}
 }
+
+func TestRedactFeedbackContextRecurses(t *testing.T) {
+	t.Parallel()
+	got := redactFeedbackContext(map[string]any{
+		"safe": "campaign Launch Plan used reports/week.csv",
+		"nested": map[string]any{
+			"profile_id": "123",
+			"items": []any{
+				map[string]any{"asin": "B012345678", "note": "brand ExampleCo"},
+				"account Primary",
+			},
+		},
+	})
+	if got["safe"] != "campaign [REDACTED_NAME]" {
+		t.Fatalf("safe text redaction = %#v", got["safe"])
+	}
+	nested, ok := got["nested"].(map[string]any)
+	if !ok {
+		t.Fatalf("nested context = %#v", got["nested"])
+	}
+	if nested["profile_id"] != "[REDACTED]" {
+		t.Fatalf("nested profile_id = %#v", nested["profile_id"])
+	}
+	items, ok := nested["items"].([]any)
+	if !ok || len(items) != 2 {
+		t.Fatalf("nested items = %#v", nested["items"])
+	}
+	first, ok := items[0].(map[string]any)
+	if !ok {
+		t.Fatalf("first item = %#v", items[0])
+	}
+	if first["asin"] != "[REDACTED]" || first["note"] != "brand [REDACTED_NAME]" {
+		t.Fatalf("first item redaction = %#v", first)
+	}
+	if items[1] != "account [REDACTED_NAME]" {
+		t.Fatalf("array string redaction = %#v", items[1])
+	}
+}

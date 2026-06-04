@@ -223,19 +223,35 @@ func weeklyReviewMutationBatches(actions []adsanalytics.WeeklyReviewAction) []we
 	keywords := []map[string]any{}
 	campaigns := []map[string]any{}
 	negativeKeywords := []map[string]any{}
+	seenKeywords := map[string]bool{}
+	seenCampaigns := map[string]bool{}
+	seenNegativeKeywords := map[string]bool{}
 	for _, action := range actions {
 		switch action.Type {
 		case "lower_bid", "raise_bid":
+			if action.Entity.KeywordID == "" || seenKeywords[action.Entity.KeywordID] {
+				continue
+			}
+			seenKeywords[action.Entity.KeywordID] = true
 			keywords = append(keywords, map[string]any{
 				"keywordId": action.Entity.KeywordID,
 				"bid":       action.ProposedBid,
 			})
 		case "adjust_budget":
+			if action.Entity.CampaignID == "" || seenCampaigns[action.Entity.CampaignID] {
+				continue
+			}
+			seenCampaigns[action.Entity.CampaignID] = true
 			campaigns = append(campaigns, map[string]any{
 				"campaignId":  action.Entity.CampaignID,
 				"dailyBudget": action.ProposedBudget,
 			})
 		case "create_negative_keyword":
+			key := strings.Join([]string{action.Entity.CampaignID, action.Entity.AdGroupID, action.Entity.Text, action.Entity.MatchType}, "\x00")
+			if action.Entity.CampaignID == "" || action.Entity.AdGroupID == "" || action.Entity.Text == "" || seenNegativeKeywords[key] {
+				continue
+			}
+			seenNegativeKeywords[key] = true
 			negativeKeywords = append(negativeKeywords, map[string]any{
 				"campaignId":  action.Entity.CampaignID,
 				"adGroupId":   action.Entity.AdGroupID,

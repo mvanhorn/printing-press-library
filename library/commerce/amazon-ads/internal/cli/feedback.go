@@ -225,18 +225,39 @@ maintainer sees it.`,
 func redactFeedbackContext(input map[string]any) map[string]any {
 	out := map[string]any{}
 	for key, value := range input {
-		lower := strings.ToLower(key)
-		if strings.Contains(lower, "asin") || strings.Contains(lower, "campaign") || strings.Contains(lower, "account") || strings.Contains(lower, "profile") || strings.Contains(lower, "filename") || strings.Contains(lower, "file") {
-			out[key] = "[REDACTED]"
-			continue
-		}
-		if s, ok := value.(string); ok {
-			out[key] = redactFeedbackText(s)
-			continue
-		}
-		out[key] = value
+		out[key] = redactFeedbackContextValue(key, value)
 	}
 	return out
+}
+
+func redactFeedbackContextValue(key string, value any) any {
+	if feedbackContextKeySensitive(key) {
+		return "[REDACTED]"
+	}
+	switch v := value.(type) {
+	case string:
+		return redactFeedbackText(v)
+	case map[string]any:
+		return redactFeedbackContext(v)
+	case []any:
+		out := make([]any, 0, len(v))
+		for _, item := range v {
+			out = append(out, redactFeedbackContextValue("", item))
+		}
+		return out
+	default:
+		return value
+	}
+}
+
+func feedbackContextKeySensitive(key string) bool {
+	lower := strings.ToLower(key)
+	return strings.Contains(lower, "asin") ||
+		strings.Contains(lower, "campaign") ||
+		strings.Contains(lower, "account") ||
+		strings.Contains(lower, "profile") ||
+		strings.Contains(lower, "filename") ||
+		strings.Contains(lower, "file")
 }
 
 func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
