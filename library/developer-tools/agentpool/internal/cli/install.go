@@ -6,6 +6,7 @@ package cli
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -20,25 +21,14 @@ func newInstallCmd() *cobra.Command {
 		Short: "Show or run the official AgentPool install and upgrade flow",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !run {
-				if upgrade {
-					fmt.Println("Upgrade preview requested; run with --run --upgrade to execute it.")
-					fmt.Println("")
+				lines, ok := installPreviewLines(manager, upgrade)
+				if !ok {
+					fmt.Fprintf(os.Stderr, "unsupported manager %q; use uv or pipx\n", manager)
+					return commandExitError{code: 2}
 				}
-				fmt.Println("AgentPool is distributed as the Python package `agentpool-cli`.")
-				fmt.Println("")
-				fmt.Println("Install:")
-				fmt.Println("  uv tool install agentpool-cli")
-				fmt.Println("")
-				fmt.Println("Fallback:")
-				fmt.Println("  pipx install agentpool-cli")
-				fmt.Println("")
-				fmt.Println("Upgrade:")
-				fmt.Println("  uv tool upgrade agentpool-cli")
-				fmt.Println("")
-				fmt.Println("Verify:")
-				fmt.Println("  agentpool --version")
-				fmt.Println("")
-				fmt.Println("Run with --run to execute the uv/pipx command from this wrapper.")
+				for _, line := range lines {
+					fmt.Println(line)
+				}
 				return nil
 			}
 
@@ -71,4 +61,48 @@ func installInvocation(manager string, upgrade bool) (string, []string, bool) {
 	default:
 		return "", nil, false
 	}
+}
+
+func installPreviewLines(manager string, upgrade bool) ([]string, bool) {
+	installProgram, installArgs, ok := installInvocation(manager, false)
+	if !ok {
+		return nil, false
+	}
+	upgradeProgram, upgradeArgs, _ := installInvocation(manager, true)
+
+	lines := []string{}
+	if upgrade {
+		lines = append(lines, fmt.Sprintf("Upgrade preview requested; run with --run --upgrade --manager=%s to execute it.", manager), "")
+	}
+	lines = append(lines,
+		"AgentPool is distributed as the Python package `agentpool-cli`.",
+		"",
+		fmt.Sprintf("Install with %s:", manager),
+		fmt.Sprintf("  %s", commandLine(installProgram, installArgs)),
+		"",
+		fmt.Sprintf("Upgrade with %s:", manager),
+		fmt.Sprintf("  %s", commandLine(upgradeProgram, upgradeArgs)),
+		"",
+		"Verify:",
+		"  agentpool --version",
+		"",
+	)
+	if manager == "uv" {
+		fallbackProgram, fallbackArgs, _ := installInvocation("pipx", false)
+		lines = append(lines,
+			"Fallback:",
+			fmt.Sprintf("  %s", commandLine(fallbackProgram, fallbackArgs)),
+			"",
+		)
+	}
+	if upgrade {
+		lines = append(lines, fmt.Sprintf("Run with --run --upgrade --manager=%s to execute the selected command.", manager))
+	} else {
+		lines = append(lines, fmt.Sprintf("Run with --run --manager=%s to execute the selected command.", manager))
+	}
+	return lines, true
+}
+
+func commandLine(program string, args []string) string {
+	return strings.Join(append([]string{program}, args...), " ")
 }

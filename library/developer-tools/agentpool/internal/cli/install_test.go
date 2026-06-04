@@ -4,6 +4,7 @@ package cli
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -26,5 +27,23 @@ func TestInstallInvocationUnsupportedManager(t *testing.T) {
 
 	if ok {
 		t.Fatal("expected unsupported manager")
+	}
+}
+
+func TestInstallPreviewUsesSelectedManager(t *testing.T) {
+	lines, ok := installPreviewLines("pipx", false)
+
+	if !ok {
+		t.Fatal("expected pipx preview to be supported")
+	}
+	joined := strings.Join(lines, "\n")
+	if !strings.Contains(joined, "pipx install agentpool-cli") {
+		t.Fatalf("preview = %q, want pipx install command", joined)
+	}
+	if strings.Contains(joined, "uv tool install agentpool-cli") {
+		t.Fatalf("preview = %q, should not show uv install for pipx manager", joined)
+	}
+	if !strings.Contains(joined, "--run --manager=pipx") {
+		t.Fatalf("preview = %q, want manager-specific run hint", joined)
 	}
 }
