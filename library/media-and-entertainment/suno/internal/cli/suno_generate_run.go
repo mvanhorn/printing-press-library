@@ -54,6 +54,67 @@ func isCaptchaRequired(err error) bool {
 		strings.Contains(msg, "verify your request")
 }
 
+// gateRetryConfig parameterizes retryOnGate. now/sleep are injectable so the
+// backoff logic is unit-testable without real time. enabled mirrors
+// --wait-for-gate; timeout mirrors --gate-timeout.
+type gateRetryConfig struct {
+	enabled        bool
+	timeout        time.Duration
+	initialBackoff time.Duration
+	maxBackoff     time.Duration
+	now            func() time.Time
+	sleep          func(context.Context, time.Duration) error
+	onWait         func(attempt int, wait time.Duration)
+}
+
+// retryOnGate calls submit once; if the result is an adaptive-gate challenge
+// (isCaptchaRequired) AND retry is enabled, it backs off with capped
+// exponential delay and retries until submit succeeds, returns a non-gate
+// error, or the timeout deadline passes. On timeout it returns the last gate
+// error so the caller maps it to captchaRequiredError. Non-gate errors and
+// successes return immediately — retry never fires on a 401, budget cap, etc.
+func retryOnGate(ctx context.Context, cfg gateRetryConfig, submit func() (*sunoGenerateResponse, error)) (*sunoGenerateResponse, error) {
+	resp, err := submit()
+	if err == nil || !cfg.enabled || !isCaptchaRequired(err) {
+		return resp, err
+	}
+	deadline := cfg.now().Add(cfg.timeout)
+	backoff := cfg.initialBackoff
+	for attempt := 1; cfg.now().Before(deadline); attempt++ {
+		wait := backoff
+		if rem := deadline.Sub(cfg.now()); rem < wait {
+			wait = rem
+		}
+		if wait <= 0 {
+			break
+		}
+		if cfg.onWait != nil {
+			cfg.onWait(attempt, wait)
+		}
+		if serr := cfg.sleep(ctx, wait); serr != nil {
+			return nil, serr
+		}
+		resp, err = submit()
+		if err == nil || !isCaptchaRequired(err) {
+			return resp, err
+		}
+		if backoff *= 2; backoff > cfg.maxBackoff {
+			backoff = cfg.maxBackoff
+		}
+	}
+	return resp, err
+}
+
+// sleepCtx sleeps for d or returns early if the context is cancelled.
+func sleepCtx(ctx context.Context, d time.Duration) error {
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-time.After(d):
+		return nil
+	}
+}
+
 // resolveModel maps a CLI model value to its wire key using the supplied
 // table. Returns a usage error listing valid values on an unknown key.
 func resolveModel(value string, table map[string]string, order []string) (string, error) {
@@ -222,7 +283,29 @@ func runGenerationFlow(cmd *cobra.Command, flags *rootFlags, body sunoGenerateBo
 	if err != nil {
 		return err
 	}
-	resp, err := submitGeneration(cmd.Context(), c, flags.configPath, body)
+	ctx := cmd.Context()
+
+	// Adaptive-gate retry is opt-in via --wait-for-gate (inherited persistent
+	// flag on the generate parent). When off, this is a single submit attempt —
+	// identical to the prior behavior.
+	waitForGate, _ := cmd.Flags().GetBool("wait-for-gate")
+	gateTimeout, _ := cmd.Flags().GetDuration("gate-timeout")
+	cfg := gateRetryConfig{
+		enabled:        waitForGate,
+		timeout:        gateTimeout,
+		initialBackoff: 30 * time.Second,
+		maxBackoff:     5 * time.Minute,
+		now:            time.Now,
+		sleep:          sleepCtx,
+	}
+	if waitForGate && humanFriendly {
+		cfg.onWait = func(attempt int, wait time.Duration) {
+			fmt.Fprintf(cmd.ErrOrStderr(), "gate challenged; waiting %s before retry %d (until --gate-timeout %s)...\n", wait.Round(time.Second), attempt, gateTimeout)
+		}
+	}
+	resp, err := retryOnGate(ctx, cfg, func() (*sunoGenerateResponse, error) {
+		return submitGeneration(ctx, c, flags.configPath, body)
+	})
 	if err != nil {
 		if isCaptchaRequired(err) {
 			return captchaRequiredError()
