@@ -1,0 +1,15 @@
+{
+  "Journals": [
+    {
+      "JournalID": "11111111-1111-1111-1111-111111111111",
+      "JournalNumber": 42,
+      "JournalDate": "2026-01-31T00:00:00",
+      "Reference": "Month-end fixture",
+      "SourceType": "ACCREC",
+      "JournalLines": [
+        {"AccountCode": "200", "NetAmount": 100.0},
+        {"AccountCode": "400", "NetAmount": -100.0}
+      ]
+    }
+  ]
+}

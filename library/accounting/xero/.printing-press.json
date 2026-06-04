@@ -1,0 +1,36 @@
+{
+  "api_name": "xero",
+  "cli_name": "xero-pp-cli",
+  "category": "accounting",
+  "description": "Fixture-first, read-only Xero CLI for agents.",
+  "spec_format": "plan",
+  "spec_source": ".manuscripts/xero-fixture-read-20260604/research/plan.md",
+  "spec_checksum": "sha256:d85b2a800f7a6664b6c352008bbbe54c0145a0394fc9be07bbeb94afb0481851",
+  "printing_press_version": "4.20.1",
+  "run_id": "xero-fixture-read-20260604",
+  "printer": "jeffreydebolt",
+  "printer_name": "Jeff DeBolt",
+  "creator": {
+    "handle": "jeffreydebolt",
+    "name": "Jeff DeBolt"
+  },
+  "contributors": [],
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Fixture-only read surface",
+      "command": "xero-pp-cli status",
+      "description": "Reports read-only, no-live-OAuth safety status for agent use."
+    },
+    {
+      "name": "Local JSON fixture reads",
+      "command": "xero-pp-cli accounts list --fixture testdata/fixtures/xero/accounts.json",
+      "description": "Reads deterministic local accounting fixtures without credentials or network access."
+    },
+    {
+      "name": "Report fixture reads",
+      "command": "xero-pp-cli reports trial-balance --fixture testdata/fixtures/xero/trial_balance.json",
+      "description": "Exposes accounting report fixtures as JSON envelopes for agent workflows."
+    }
+  ]
+}

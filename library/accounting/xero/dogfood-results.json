@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "mode": "fixture-only",
+  "commands": [
+    "xero-pp-cli status",
+    "xero-pp-cli accounts list --fixture testdata/fixtures/xero/accounts.json",
+    "xero-pp-cli reports trial-balance --fixture testdata/fixtures/xero/trial_balance.json"
+  ]
+}

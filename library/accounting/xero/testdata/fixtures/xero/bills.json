@@ -1,0 +1,19 @@
+{
+  "Invoices": [
+    {
+      "AmountDue": 340.25,
+      "Contact": {
+        "ContactID": "s-1",
+        "Name": "Office Supply Co"
+      },
+      "CurrencyCode": "USD",
+      "DateString": "2026-05-04",
+      "DueDateString": "2026-05-31",
+      "InvoiceID": "bill-1",
+      "InvoiceNumber": "BILL-200",
+      "Status": "AUTHORISED",
+      "Total": 340.25,
+      "Type": "ACCPAY"
+    }
+  ]
+}

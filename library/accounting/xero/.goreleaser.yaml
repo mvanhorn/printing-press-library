@@ -1,0 +1,8 @@
+version: 2
+project_name: xero-pp-cli
+builds:
+  - id: xero-pp-cli
+    main: ./cmd/xero-pp-cli
+    binary: xero-pp-cli
+    goos: [darwin, linux]
+    goarch: [amd64, arm64]

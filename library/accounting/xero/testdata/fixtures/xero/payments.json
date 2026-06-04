@@ -1,0 +1,19 @@
+{
+  "Payments": [
+    {
+      "Amount": 1000,
+      "CurrencyCode": "USD",
+      "Date": "2026-05-15",
+      "Invoice": {
+        "Contact": {
+          "ContactID": "c-1",
+          "Name": "Acme Customer"
+        }
+      },
+      "PaymentID": "pay-1",
+      "PaymentType": "ACCRECPAYMENT",
+      "Reference": "PMT-300",
+      "Status": "AUTHORISED"
+    }
+  ]
+}

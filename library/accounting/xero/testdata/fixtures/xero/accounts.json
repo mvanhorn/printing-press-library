@@ -1,0 +1,6 @@
+{
+  "Accounts": [
+    {"AccountID": "x1", "Name": "Business Bank", "Type": "BANK", "Status": "ACTIVE"},
+    {"AccountID": "x2", "Name": "Revenue", "Type": "REVENUE", "Status": "ACTIVE"}
+  ]
+}
