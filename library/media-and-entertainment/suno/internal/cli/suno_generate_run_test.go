@@ -3,10 +3,14 @@
 package cli
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"testing"
 	"time"
+
+	"github.com/spf13/cobra"
 )
 
 // captchaErr is an error whose message trips isCaptchaRequired.
@@ -127,5 +131,57 @@ func TestRetryOnGate_ContextCancellationStops(t *testing.T) {
 	}
 	if calls != 1 {
 		t.Errorf("submit called %d times, want 1 (cancelled during first backoff)", calls)
+	}
+}
+
+// TestIsCaptchaRequired_DistinguishesBodyValidation confirms the gate detector
+// fires on token_validation_failed but NOT on a params.title body-validation
+// 422 (the U1 bug shape), so the two never get conflated.
+func TestIsCaptchaRequired_DistinguishesBodyValidation(t *testing.T) {
+	if !isCaptchaRequired(captchaErr) {
+		t.Errorf("token_validation_failed should be detected as captcha gate")
+	}
+	bodyValidation := errors.New(`HTTP 422: [{"loc":["body","params","title"],"msg":"Input should be a valid string"}]`)
+	if isCaptchaRequired(bodyValidation) {
+		t.Errorf("a params.title body-validation 422 must NOT be treated as the captcha gate")
+	}
+	if isCaptchaRequired(errors.New("HTTP 401: Unauthorized")) {
+		t.Errorf("a 401 must NOT be treated as the captcha gate")
+	}
+}
+
+// TestCaptchaGateError_AgentModeEmitsStructuredEnvelope verifies the JSON path
+// writes error_type captcha_required to stdout, the human path does not, and
+// the exit code is 2 in both modes.
+func TestCaptchaGateError_AgentModeEmitsStructuredEnvelope(t *testing.T) {
+	// Agent/JSON mode: structured envelope on stdout.
+	var out bytes.Buffer
+	cmd := &cobra.Command{}
+	cmd.SetOut(&out)
+	err := captchaGateError(cmd, &rootFlags{asJSON: true})
+	if ExitCode(err) != 2 {
+		t.Errorf("exit code = %d, want 2 (usage)", ExitCode(err))
+	}
+	var env map[string]any
+	if jerr := json.Unmarshal(out.Bytes(), &env); jerr != nil {
+		t.Fatalf("agent-mode stdout is not JSON: %v (%q)", jerr, out.String())
+	}
+	if env["error_type"] != "captcha_required" {
+		t.Errorf("error_type = %v, want captcha_required", env["error_type"])
+	}
+	if env["retriable"] != true {
+		t.Errorf("retriable = %v, want true", env["retriable"])
+	}
+
+	// Human mode: no JSON envelope on stdout, still exit code 2.
+	var hout bytes.Buffer
+	hcmd := &cobra.Command{}
+	hcmd.SetOut(&hout)
+	herr := captchaGateError(hcmd, &rootFlags{asJSON: false})
+	if ExitCode(herr) != 2 {
+		t.Errorf("human-mode exit code = %d, want 2", ExitCode(herr))
+	}
+	if hout.Len() != 0 {
+		t.Errorf("human mode must not write a JSON envelope to stdout, got %q", hout.String())
 	}
 }

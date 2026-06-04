@@ -40,6 +40,33 @@ func captchaRequiredError() error {
 			"      This CLI will not launch a browser or solver on your behalf."))
 }
 
+// captchaGateEnvelope is the structured payload emitted to stdout in
+// JSON/agent mode when the adaptive hCaptcha gate fires. Agents branch on
+// error_type "captcha_required" (and retriable) rather than parsing the prose
+// message. Kept as its own function so the shape is unit-testable.
+func captchaGateEnvelope() map[string]any {
+	return map[string]any{
+		"error_type": "captcha_required",
+		"error":      "Suno required an hCaptcha token for this generation",
+		"retriable":  true,
+		"hint":       "retry with --token <hcaptcha-token>, or pass --wait-for-gate to wait out the adaptive cooldown",
+		"code":       2,
+	}
+}
+
+// captchaGateError surfaces the adaptive hCaptcha gate. In JSON/agent mode it
+// writes the captchaGateEnvelope to stdout so consumers can branch on a stable
+// error_type; in human mode it returns only the prose usage error. The exit
+// code is 2 (usage) in both modes, matching captchaRequiredError. Mirrors the
+// writeAPIErrorEnvelope pattern: stdout carries machine output, the returned
+// error drives the exit code (and cobra's stderr prose for humans).
+func captchaGateError(cmd *cobra.Command, flags *rootFlags) error {
+	if flags != nil && flags.asJSON {
+		_ = json.NewEncoder(cmd.OutOrStdout()).Encode(captchaGateEnvelope())
+	}
+	return captchaRequiredError()
+}
+
 // isCaptchaRequired reports whether a generate error is Suno's adaptive
 // hCaptcha challenge (HTTP 422 token_validation_failed / "we couldn't verify
 // your request"). Because the client keeps the Clerk JWT fresh before every
@@ -308,7 +335,7 @@ func runGenerationFlow(cmd *cobra.Command, flags *rootFlags, body sunoGenerateBo
 	})
 	if err != nil {
 		if isCaptchaRequired(err) {
-			return captchaRequiredError()
+			return captchaGateError(cmd, flags)
 		}
 		return classifyAPIError(err, flags)
 	}
