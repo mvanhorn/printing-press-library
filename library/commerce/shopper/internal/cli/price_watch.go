@@ -12,9 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/store"
+	"github.com/spf13/cobra"
 )
 
 type priceAlert struct {
@@ -185,11 +185,13 @@ First run: captures price baseline; no alerts yet (no history to compare).`,
 			}
 
 			alerts := make([]priceAlert, 0)
+			comparableProducts := 0
 			for _, pp := range byProduct {
 				if pp.earliest.ID == pp.latest.ID {
 					// Only one snapshot for this product — no comparison possible
 					continue
 				}
+				comparableProducts++
 				fromCents := pp.earliest.PriceCents
 				toCents := pp.latest.PriceCents
 				if fromCents == 0 {
@@ -223,9 +225,9 @@ First run: captures price baseline; no alerts yet (no history to compare).`,
 				Alerts:      alerts,
 				Snapshotted: len(toSnapshot),
 			}
-			if distinctProducts < 2 {
+			if comparableProducts == 0 {
 				result.Status = "baseline_captured"
-				result.Note = fmt.Sprintf("Price baseline captured for %d products. Run again on a future date to see changes.", len(toSnapshot))
+				result.Note = fmt.Sprintf("Price baseline captured for %d products (no prior-dated snapshots to compare against yet). Run again on a future date to see changes.", distinctProducts)
 			} else if len(alerts) == 0 {
 				result.Status = "no_alerts"
 				result.Note = fmt.Sprintf("No price changes >= %.0f%% detected across %d tracked products since %s.", thresholdPct, distinctProducts, sinceTime.Format("2006-01-02"))

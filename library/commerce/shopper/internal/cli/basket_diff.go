@@ -134,8 +134,12 @@ Currently "last-snapshot" (from) and "current" (to) are the supported values.`,
 
 			// Get the most recent snapshot as "from"
 			latestSnaps, err := store.LatestCartSnapshots(db.DB(), 1)
-			if err != nil || len(latestSnaps) == 0 {
+			if err != nil {
 				return fmt.Errorf("reading latest snapshot: %w", err)
+			}
+			if len(latestSnaps) == 0 {
+				// count > 0 but no rows came back — the local store is inconsistent.
+				return fmt.Errorf("snapshot count was %d but no rows were returned; the local store at %s may be inconsistent — remove it and re-run to rebuild the baseline", count, defaultDBPath("shopper-pp-cli"))
 			}
 			fromSnap := latestSnaps[0]
 
@@ -292,6 +296,13 @@ func diffCartSnapshots(from, to []store.CartSnapshotItem) basketDiffResult {
 				PctChange:  math.Round(pct*100) / 100,
 			})
 		}
+	}
+
+	// Distinct no-op status when nothing changed, so agents can branch on it
+	// the same way they do for no_alerts/no_runouts/no_drift.
+	if len(result.Added) == 0 && len(result.Removed) == 0 &&
+		len(result.QuantityChanged) == 0 && len(result.PriceChanged) == 0 {
+		result.Status = "no_changes"
 	}
 
 	return result
