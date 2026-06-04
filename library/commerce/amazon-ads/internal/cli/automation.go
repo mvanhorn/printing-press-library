@@ -318,12 +318,16 @@ func automationMode(apply, dryRun bool) string {
 }
 
 func attachAutomationAudit(cmd *cobra.Command, out map[string]any, command, reportPath, mode string, plans any, dbPath string) error {
-	payload, err := json.Marshal(map[string]any{
+	payloadBody := map[string]any{
 		"command": command,
 		"mode":    mode,
 		"report":  reportPath,
 		"plans":   plans,
-	})
+	}
+	if out != nil {
+		payloadBody["result"] = out
+	}
+	payload, err := json.Marshal(payloadBody)
 	if err != nil {
 		return fmt.Errorf("marshaling automation audit: %w", err)
 	}

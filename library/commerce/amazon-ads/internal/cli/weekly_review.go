@@ -128,11 +128,17 @@ func newWeeklyReviewCmd(flags *rootFlags) *cobra.Command {
 				applyOut, err := applyWeeklyReviewActions(cmd, flags, plan.Actions, weeklyApplyOptions{
 					MaxChanges: maxChanges,
 				})
-				if err != nil {
+				if applyOut == nil && err != nil {
 					return err
 				}
 				for k, v := range applyOut {
 					out[k] = v
+				}
+				if err != nil {
+					if auditErr := attachAutomationAudit(cmd, out, "weekly-review", strings.Join([]string{campaignReport, searchTermReport, keywordReport}, ","), automationMode(apply, flags.dryRun), plan.Actions, dbPath); auditErr != nil {
+						return auditErr
+					}
+					return err
 				}
 			}
 			if err := attachAutomationAudit(cmd, out, "weekly-review", strings.Join([]string{campaignReport, searchTermReport, keywordReport}, ","), automationMode(apply, flags.dryRun), plan.Actions, dbPath); err != nil {
@@ -201,7 +207,15 @@ func applyWeeklyReviewActions(cmd *cobra.Command, flags *rootFlags, actions []ad
 	for _, batch := range batches {
 		mutated, err := applyAutomationMutation(cmd, flags, c, batch.Method, batch.Path, batch.Body, map[string]any{})
 		if err != nil {
-			return nil, err
+			out["responses"] = responses
+			out["partial_failure"] = len(responses) > 0
+			out["failed_batch"] = map[string]any{
+				"method": batch.Method,
+				"path":   batch.Path,
+				"count":  len(batch.Body),
+			}
+			out["error"] = err.Error()
+			return out, err
 		}
 		responses = append(responses, mutated)
 		if success, _ := mutated["success"].(bool); success {
