@@ -23,6 +23,10 @@ func newExecCmd() *cobra.Command {
 			if args[0] == "--" {
 				args = args[1:]
 			}
+			if len(args) == 0 {
+				fmt.Fprintln(os.Stderr, "usage: agentpool-pp-cli exec -- <agentpool args...>")
+				return commandExitError{code: 2}
+			}
 			return runAgentPool(args...)
 		},
 	}

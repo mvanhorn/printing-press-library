@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "exec-separator-usage-and-license-owner",
+  "applied_at": "2026-06-04",
+  "base_run_id": "20260604T192521Z-agentpool-wrapper",
+  "base_printing_press_version": "4.20.1",
+  "summary": "`exec --` must error as missing pass-through args, and the license owner must match the AgentPool creator metadata.",
+  "reason": "A separator-only exec should not invoke the bare official CLI, and generated distribution metadata must not retain a stale owner from another print.",
+  "files": [
+    "internal/cli/exec.go",
+    "internal/cli/exec_test.go",
+    "LICENSE"
+  ],
+  "validated_outcome": "`go test ./...` verifies the empty and separator-only exec usage errors."
+}
