@@ -1,0 +1,51 @@
+version: 2
+project_name: shopper-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: shopper-pp-cli
+    main: ./cmd/shopper-pp-cli
+    binary: shopper-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: shopper-pp-mcp
+    main: ./cmd/shopper-pp-mcp
+    binary: shopper-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: shopper-pp-cli
+    repository:
+      owner: educrvz
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The first CLI for Shopper — every catalog, cart"
+    install: |
+      bin.install "shopper-pp-cli"
+      bin.install "shopper-pp-mcp"

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "shopper-pp-cli"
+display_name = "Shopper"
+description = "The first CLI for Shopper — every catalog, cart, and delivery surface plus a local price/basket history the web app throws away each cycle."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/shopper-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+SHOPPER_TOKEN = true

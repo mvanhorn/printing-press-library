@@ -1,0 +1,451 @@
+name: shopper
+description: Shopper (shopper.com.br) — Brazilian online supermarket. Recurring smart-grocery baskets, catalog search, cart, deliveries, and subscription management.
+version: 0.1.0
+base_url: https://siteapi.shopper.com.br
+spec_source: sniffed
+http_transport: standard
+auth:
+    type: bearer_token
+    header: Authorization
+    in: header
+    format: "Bearer {token}"
+    env_vars:
+        - SHOPPER_TOKEN
+config:
+    format: toml
+    path: ~/.config/shopper-pp-cli/config.toml
+resources:
+    address:
+        description: Operations on address
+        endpoints:
+            list_address:
+                method: GET
+                path: /address/
+                description: GET /address/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: address
+                pagination: null
+                observed_auth:
+                    - authorization
+    session:
+        description: Session and social-login validation
+        endpoints:
+            list_social:
+                method: GET
+                path: /auth/validation/social
+                description: GET /auth/validation/social
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: social
+                pagination: null
+                observed_auth:
+                    - authorization
+    cart:
+        description: Operations on summary
+        endpoints:
+            add:
+                method: POST
+                path: /cart/add
+                description: Add a product to the cart or increase its quantity
+                params: []
+                body:
+                    - name: id
+                      type: integer
+                      required: true
+                      description: Product ID to add
+                    - name: quantity
+                      type: integer
+                      required: true
+                      description: Quantity to add (increments existing)
+                    - name: engine
+                      type: string
+                      required: false
+                      description: Catalog engine (default SHOPPER)
+                response:
+                    type: object
+                    item: cart
+                pagination: null
+            remove:
+                method: POST
+                path: /cart/remove
+                description: Remove a product from the cart or decrease its quantity
+                params: []
+                body:
+                    - name: id
+                      type: integer
+                      required: true
+                      description: Product ID to remove
+                    - name: quantity
+                      type: integer
+                      required: true
+                      description: Quantity to remove (decrements; full qty removes the line)
+                response:
+                    type: object
+                    item: cart
+                pagination: null
+            list_summary:
+                method: GET
+                path: /cart/summary
+                description: GET /cart/summary
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: summary
+                pagination: null
+                observed_auth:
+                    - authorization
+    catalog:
+        description: Operations on departments
+        endpoints:
+            create_count:
+                method: POST
+                path: /catalog/search/count
+                description: POST /catalog/search/count
+                params:
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body:
+                    - name: brands
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: metadata
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: types
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: count
+                pagination: null
+                observed_auth:
+                    - authorization
+            create_filters:
+                method: POST
+                path: /catalog/search/filters
+                description: POST /catalog/search/filters
+                params:
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body:
+                    - name: brands
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: metadata
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: types
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: filters
+                pagination: null
+                observed_auth:
+                    - authorization
+            create_search:
+                method: POST
+                path: /catalog/search
+                description: POST /catalog/search
+                params:
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: size
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body:
+                    - name: brands
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: metadata
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: types
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: search
+                pagination: null
+                observed_auth:
+                    - authorization
+            get_view:
+                method: GET
+                path: /catalog/banners/{banner_id}/view
+                description: GET /catalog/banners/{banner_id}/view
+                params:
+                    - name: banner_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The banner_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: view
+                pagination: null
+                observed_auth:
+                    - authorization
+            list_banners:
+                method: GET
+                path: /catalog/banners
+                description: GET /catalog/banners
+                params:
+                    - name: imageSize
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: banners
+                pagination: null
+                observed_auth:
+                    - authorization
+            list_departments:
+                method: GET
+                path: /catalog/departments
+                description: GET /catalog/departments
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: departments
+                pagination: null
+                observed_auth:
+                    - authorization
+            list_news:
+                method: GET
+                path: /catalog/products/news
+                description: GET /catalog/products/news
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: news
+                pagination: null
+                observed_auth:
+                    - authorization
+            list_suggest:
+                method: GET
+                path: /catalog/search/suggest
+                description: GET /catalog/search/suggest
+                params:
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: suggest
+                pagination: null
+                observed_auth:
+                    - authorization
+    delivery:
+        description: Operations on summary
+        endpoints:
+            list_calendar:
+                method: GET
+                path: /delivery/v2/calendar
+                description: GET /delivery/v2/calendar
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: calendar
+                pagination: null
+                observed_auth:
+                    - authorization
+            list_summary:
+                method: GET
+                path: /delivery/summary
+                description: GET /delivery/summary
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: summary
+                pagination: null
+                observed_auth:
+                    - authorization
+    features:
+        description: Operations on toggle
+        endpoints:
+            create_select:
+                method: POST
+                path: /features/stores/select
+                description: POST /features/stores/select
+                params: []
+                body:
+                    - name: store_id
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: select
+                pagination: null
+                observed_auth:
+                    - authorization
+            create_start:
+                method: POST
+                path: /features/timer/start
+                description: POST /features/timer/start
+                params: []
+                body:
+                    - name: name
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: start
+                pagination: null
+                observed_auth:
+                    - authorization
+            create_view:
+                method: POST
+                path: /features/toggle/view
+                description: POST /features/toggle/view
+                params: []
+                body:
+                    - name: toggle
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: view
+                pagination: null
+                observed_auth:
+                    - authorization
+            list_stores:
+                method: GET
+                path: /features/stores
+                description: GET /features/stores
+                params:
+                    - name: toggles
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: stores
+                pagination: null
+                observed_auth:
+                    - authorization
+            list_tick:
+                method: GET
+                path: /features/timer/tick
+                description: GET /features/timer/tick
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: tick
+                pagination: null
+                observed_auth:
+                    - authorization
+            list_toggle:
+                method: GET
+                path: /features/toggle
+                description: GET /features/toggle
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: toggle
+                pagination: null
+                observed_auth:
+                    - authorization
+types: {}
