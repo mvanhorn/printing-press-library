@@ -12,7 +12,7 @@ func newStatusCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return printJSON(map[string]any{
 				"provider":           "qbo",
-				"mode":               "fixture-only",
+				"mode":               "fixture-or-live-read-only",
 				"live_oauth":         false,
 				"live_api":           true,
 				"mutations":          false,

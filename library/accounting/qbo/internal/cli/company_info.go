@@ -15,7 +15,7 @@ func newCompanyInfoCmd() *cobra.Command {
 		Short: "Read QBO CompanyInfo from a fixture.",
 		Args:  cobra.ArbitraryArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return printQBORead("company", fixture, "/companyinfo/COMPANYID", tokenFile, companyID, baseURL)
+			return printQBORead("company", fixture, "/companyinfo/"+companyID, tokenFile, companyID, baseURL)
 		},
 	}
 	cmd.Flags().StringVar(&fixture, "fixture", "", "Path to local JSON fixture; live API access is intentionally unavailable")

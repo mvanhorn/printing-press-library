@@ -15,7 +15,7 @@ func newAuthStatusCmd() *cobra.Command {
 		Short: "Show no-live-OAuth credential status.",
 		Args:  cobra.ArbitraryArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return printQBORead("auth-status", fixture, "/companyinfo/COMPANYID", tokenFile, companyID, baseURL)
+			return printQBORead("auth-status", fixture, "/companyinfo/"+companyID, tokenFile, companyID, baseURL)
 		},
 	}
 	cmd.Flags().StringVar(&fixture, "fixture", "", "Path to local JSON fixture; live API access is intentionally unavailable")
