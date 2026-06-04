@@ -11,11 +11,11 @@ func newSkillCmd() *cobra.Command {
 		Short:              "Print official AgentPool agent guidance via `agentpool skills get agentpool`.",
 		DisableFlagParsing: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
-				return runAgentPool("skills", "get", "agentpool")
-			}
-			delegated := append([]string{"skills", "get"}, args...)
-			return runAgentPool(delegated...)
+			return runAgentPool(skillArgs(args)...)
 		},
 	}
+}
+
+func skillArgs(args []string) []string {
+	return append([]string{"skills", "get", "agentpool"}, args...)
 }
