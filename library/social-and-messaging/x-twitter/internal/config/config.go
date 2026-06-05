@@ -39,6 +39,9 @@ func Load(configPath string) (*Config, error) {
 		path = os.Getenv("X_TWITTER_CONFIG")
 	}
 	if path == "" {
+		path = os.Getenv("X_CONFIG")
+	}
+	if path == "" {
 		home, _ := os.UserHomeDir()
 		path = filepath.Join(home, ".config", "x-twitter-pp-cli", "config.toml")
 	}
@@ -97,6 +100,8 @@ func Load(configPath string) (*Config, error) {
 
 	// Base URL override (used by printing-press verify to point at mock/test servers)
 	if v := os.Getenv("X_TWITTER_BASE_URL"); v != "" {
+		cfg.BaseURL = v
+	} else if v := os.Getenv("X_BASE_URL"); v != "" {
 		cfg.BaseURL = v
 	}
 	return cfg, nil
