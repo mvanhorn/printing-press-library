@@ -118,9 +118,6 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			authEnvSet := []string{}
 			authEnvRequiredMissing := []string{}
 			authEnvInfo := []string{}
-			authEnvOptionalNames := []string{}
-			// Validation rejects multi-OR-group specs upstream, so the single optional-satisfied state is sufficient at runtime.
-			authEnvOptionalSatisfied := false
 			if os.Getenv("X_BEARER_TOKEN") != "" {
 				authEnvSet = append(authEnvSet, "X_BEARER_TOKEN")
 			} else if authConfigured {
@@ -140,8 +137,6 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			switch {
 			case len(authEnvRequiredMissing) > 0:
 				report["env_vars"] = "ERROR missing required: " + strings.Join(authEnvRequiredMissing, ", ")
-			case len(authEnvOptionalNames) > 1 && !authEnvOptionalSatisfied:
-				report["env_vars"] = "INFO set one of: " + strings.Join(authEnvOptionalNames, " or ")
 			case len(authEnvInfo) > 0 && authConfigured:
 				report["env_vars"] = "OK " + strings.Join(authEnvInfo, "; ")
 			case len(authEnvInfo) > 0:

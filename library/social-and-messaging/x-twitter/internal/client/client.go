@@ -693,13 +693,83 @@ func (c *Client) authHeader(ctx context.Context) (string, error) {
 		return "", nil
 	}
 	if c.Config.LegacyOAuthExpired(time.Now()) {
-		return "", fmt.Errorf("stored legacy OAuth2 access token expired at %s and cannot be refreshed by this release; run x-twitter-pp-cli auth set-token <token> or export X_BEARER_TOKEN / X_OAUTH2_USER_TOKEN", c.Config.TokenExpiry.Format(time.RFC3339))
+		if c.Config.RefreshToken == "" {
+			return "", fmt.Errorf("stored legacy OAuth2 access token expired at %s and no refresh token is available; run x-twitter-pp-cli auth set-token <token> or export X_BEARER_TOKEN / X_OAUTH2_USER_TOKEN", c.Config.TokenExpiry.Format(time.RFC3339))
+		}
+		if err := c.refreshAccessToken(ctx); err != nil {
+			return "", err
+		}
 	}
 	authHeader := c.Config.AuthHeader()
 	if authHeaderLooksLikePlaceholderCredential(authHeader) {
 		return "", authPlaceholderCredentialError(c.Config)
 	}
 	return authHeader, nil
+}
+
+func (c *Client) refreshAccessToken(ctx context.Context) error {
+	if c.Config == nil || c.Config.RefreshToken == "" {
+		return nil
+	}
+
+	tokenURL := strings.TrimRight(c.BaseURL, "/") + "/2/oauth2/token"
+	params := url.Values{
+		"grant_type":    {"refresh_token"},
+		"refresh_token": {c.Config.RefreshToken},
+		"client_id":     {c.Config.ClientID},
+	}
+	if c.Config.ClientSecret != "" {
+		params.Set("client_secret", c.Config.ClientSecret)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, tokenURL, strings.NewReader(params.Encode()))
+	if err != nil {
+		return fmt.Errorf("creating refresh request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Accept", "application/json")
+
+	hc := c.HTTPClient
+	if hc == nil {
+		hc = http.DefaultClient
+	}
+	resp, err := hc.Do(req)
+	if err != nil {
+		return fmt.Errorf("refreshing access token: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("refreshing access token: HTTP %d: %s", resp.StatusCode, truncateBody(body))
+	}
+
+	var tokenResp struct {
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+		ExpiresIn    int    `json:"expires_in"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
+		return fmt.Errorf("parsing refresh response: %w", err)
+	}
+	if tokenResp.AccessToken == "" {
+		return fmt.Errorf("refreshing access token: no access token in response")
+	}
+
+	refreshToken := c.Config.RefreshToken
+	if tokenResp.RefreshToken != "" {
+		refreshToken = tokenResp.RefreshToken
+	}
+
+	expiry := time.Time{}
+	if tokenResp.ExpiresIn > 0 {
+		expiry = time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second)
+	}
+
+	if err := c.Config.SaveTokens(c.Config.ClientID, c.Config.ClientSecret, tokenResp.AccessToken, refreshToken, expiry); err != nil {
+		return fmt.Errorf("saving refreshed token: %w", err)
+	}
+	return nil
 }
 
 func authHeaderLooksLikePlaceholderCredential(header string) bool {

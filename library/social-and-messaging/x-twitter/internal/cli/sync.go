@@ -171,8 +171,13 @@ Resource scoping:
 							_ = db.SaveSyncState(resource, "", 0)
 						}
 					}
-				} else if humanFriendly {
-					fmt.Fprintln(os.Stderr, "warning: --latest-only ignored because --since is set; --since takes precedence")
+				} else {
+					msg := "--latest-only ignored because --since is set; --since takes precedence"
+					if humanFriendly {
+						fmt.Fprintln(os.Stderr, "warning: "+msg)
+					} else {
+						fmt.Fprintf(syncEventWriter, `{"event":"sync_warning","reason":"latest_only_ignored","message":"%s"}`+"\n", msg)
+					}
 				}
 			}
 			// effectiveLatestOnly drives the max_pages_cap_hit suppression
@@ -1485,7 +1490,7 @@ func dependentResourceDefs() []dependentResourceDef {
 		{Name: "blocking", ParentTable: "users", ParentIDParam: "id", PathTemplate: "/2/users/{id}/blocking", KeyField: "", PathParams: []dependentPathParamDef{
 			{Param: "id", Field: "id"},
 		}},
-		{Name: "bookmarks", ParentTable: "users", ParentIDParam: "id", PathTemplate: "/2/users/{id}/bookmarks/folders", KeyField: "", PathParams: []dependentPathParamDef{
+		{Name: "bookmark_folders", ParentTable: "users", ParentIDParam: "id", PathTemplate: "/2/users/{id}/bookmarks/folders", KeyField: "", PathParams: []dependentPathParamDef{
 			{Param: "id", Field: "id"},
 		}},
 		{Name: "bookmarks", ParentTable: "users", ParentIDParam: "id", PathTemplate: "/2/users/{id}/bookmarks", KeyField: "", PathParams: []dependentPathParamDef{
@@ -1880,6 +1885,7 @@ var resourceIDFieldOverrides = map[string]string{
 	"activity-subscriptions":            "subscription_id",
 	"affiliates":                        "id",
 	"blocking":                          "id",
+	"bookmark_folders":                  "id",
 	"bookmarks":                         "id",
 	"chat":                              "id",
 	"compliance":                        "id",

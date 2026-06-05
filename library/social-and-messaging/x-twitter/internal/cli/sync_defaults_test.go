@@ -17,3 +17,29 @@ func TestSyncMaxPagesDefaultRetainsSafetyCap(t *testing.T) {
 		t.Fatalf("--max-pages default = %q, want %q", got, want)
 	}
 }
+
+func TestDependentResourceNamesAreUnique(t *testing.T) {
+	t.Parallel()
+
+	seen := map[string]string{}
+	for _, dep := range dependentResourceDefs() {
+		if prev, ok := seen[dep.Name]; ok {
+			t.Fatalf("dependent resource %q declared twice: %s and %s", dep.Name, prev, dep.PathTemplate)
+		}
+		seen[dep.Name] = dep.PathTemplate
+	}
+}
+
+func TestBookmarkFoldersDependentUsesDistinctResourceName(t *testing.T) {
+	t.Parallel()
+
+	for _, dep := range dependentResourceDefs() {
+		if dep.PathTemplate == "/2/users/{id}/bookmarks/folders" {
+			if dep.Name != "bookmark_folders" {
+				t.Fatalf("bookmark folders resource name = %q, want bookmark_folders", dep.Name)
+			}
+			return
+		}
+	}
+	t.Fatal("bookmark folders dependent resource is missing")
+}

@@ -5,9 +5,17 @@ package client
 
 import (
 	"bytes"
+	"context"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 	"unicode/utf8"
+
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/config"
 )
 
 func TestTruncateBody(t *testing.T) {
@@ -68,5 +76,47 @@ func TestTruncateBody_UTF8RuneAtBoundary(t *testing.T) {
 	// Partial rune must be dropped, not replaced: 4094 valid bytes + "...".
 	if want := 4094 + 3; len(got) != want {
 		t.Fatalf("len = %d, want %d (partial rune should be dropped, not replaced)", len(got), want)
+	}
+}
+
+func TestAuthHeaderRefreshesExpiredLegacyOAuthToken(t *testing.T) {
+	t.Parallel()
+
+	var gotBody string
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/2/oauth2/token" {
+			t.Fatalf("refresh path = %q, want /2/oauth2/token", r.URL.Path)
+		}
+		if r.Method != http.MethodPost {
+			t.Fatalf("refresh method = %s, want POST", r.Method)
+		}
+		body, _ := io.ReadAll(r.Body)
+		gotBody = string(body)
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"access_token":"refreshed-access-value","refresh_token":"refreshed-refresh-value","expires_in":3600}`))
+	}))
+	defer ts.Close()
+
+	cfg := &config.Config{
+		Path:         filepath.Join(t.TempDir(), "config.toml"),
+		AccessToken:  "old-access",
+		RefreshToken: "old-refresh",
+		TokenExpiry:  time.Now().Add(-time.Hour),
+		ClientID:     "client-id",
+	}
+	c := &Client{BaseURL: ts.URL, HTTPClient: ts.Client(), Config: cfg}
+
+	got, err := c.authHeader(context.Background())
+	if err != nil {
+		t.Fatalf("authHeader returned error: %v", err)
+	}
+	if got != "Bearer refreshed-access-value" {
+		t.Fatalf("authHeader = %q, want Bearer refreshed-access-value", got)
+	}
+	if !strings.Contains(gotBody, "grant_type=refresh_token") || !strings.Contains(gotBody, "refresh_token=old-refresh") || !strings.Contains(gotBody, "client_id=client-id") {
+		t.Fatalf("refresh body missing expected form values: %q", gotBody)
+	}
+	if cfg.AccessToken != "refreshed-access-value" || cfg.RefreshToken != "refreshed-refresh-value" {
+		t.Fatalf("config tokens = %q/%q, want refreshed-access-value/refreshed-refresh-value", cfg.AccessToken, cfg.RefreshToken)
 	}
 }
