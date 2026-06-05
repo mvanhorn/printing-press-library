@@ -124,53 +124,7 @@ func newNovelThreadShowCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("reading conversation rows: %w", err)
 			}
 
-			// Depth is the reply-chain length within the synced set; a parent
-			// outside the store (not synced) terminates the chain at the
-			// shallowest known ancestor rather than failing.
-			depthCache := make(map[string]int)
-			var depthOf func(id string, seen map[string]bool) int
-			depthOf = func(id string, seen map[string]bool) int {
-				if d, ok := depthCache[id]; ok {
-					return d
-				}
-				if seen[id] {
-					return 0 // cycle guard
-				}
-				seen[id] = true
-				t := byID[id]
-				parent := t.repliedToParent()
-				d := 0
-				if parent != "" {
-					if _, ok := byID[parent]; ok {
-						d = depthOf(parent, seen) + 1
-					}
-				}
-				depthCache[id] = d
-				return d
-			}
-
-			thread := make([]threadPost, 0, len(byID))
-			for id, t := range byID {
-				thread = append(thread, threadPost{
-					ID:             t.ID,
-					AuthorID:       t.AuthorID,
-					Text:           t.Text,
-					CreatedAt:      t.CreatedAt,
-					ConversationID: t.ConversationID,
-					InReplyTo:      t.repliedToParent(),
-					Depth:          depthOf(id, map[string]bool{}),
-				})
-			}
-
-			// Chronological reading order; created_at is RFC3339 so a string
-			// sort is correct. Posts missing created_at sort first (roots
-			// usually carry it), with id as a stable tiebreaker.
-			sort.SliceStable(thread, func(i, j int) bool {
-				if thread[i].CreatedAt != thread[j].CreatedAt {
-					return thread[i].CreatedAt < thread[j].CreatedAt
-				}
-				return thread[i].ID < thread[j].ID
-			})
+			thread := reconstructThread(byID)
 
 			out, err := json.Marshal(thread)
 			if err != nil {
@@ -182,4 +136,56 @@ func newNovelThreadShowCmd(flags *rootFlags) *cobra.Command {
 
 	cmd.Flags().StringVar(&dbPath, "db", "", "Path to the local database (defaults to the standard cache location)")
 	return cmd
+}
+
+// reconstructThread builds the ordered, depth-tagged thread from the synced
+// posts indexed by id. Depth is the reply-chain length within the synced set; a
+// parent outside the set terminates the chain at the shallowest known ancestor
+// rather than failing, and a cycle guard prevents infinite recursion on a
+// malformed replied_to edge. Output is chronological (created_at is RFC3339, so
+// a string sort is correct; posts missing it sort first), with id as a stable
+// tiebreaker. Kept package-level so the reconstruction logic is unit-testable
+// without a live store.
+func reconstructThread(byID map[string]syncedTweet) []threadPost {
+	depthCache := make(map[string]int)
+	var depthOf func(id string, seen map[string]bool) int
+	depthOf = func(id string, seen map[string]bool) int {
+		if d, ok := depthCache[id]; ok {
+			return d
+		}
+		if seen[id] {
+			return 0 // cycle guard
+		}
+		seen[id] = true
+		parent := byID[id].repliedToParent()
+		d := 0
+		if parent != "" {
+			if _, ok := byID[parent]; ok {
+				d = depthOf(parent, seen) + 1
+			}
+		}
+		depthCache[id] = d
+		return d
+	}
+
+	thread := make([]threadPost, 0, len(byID))
+	for id, t := range byID {
+		thread = append(thread, threadPost{
+			ID:             t.ID,
+			AuthorID:       t.AuthorID,
+			Text:           t.Text,
+			CreatedAt:      t.CreatedAt,
+			ConversationID: t.ConversationID,
+			InReplyTo:      t.repliedToParent(),
+			Depth:          depthOf(id, map[string]bool{}),
+		})
+	}
+
+	sort.SliceStable(thread, func(i, j int) bool {
+		if thread[i].CreatedAt != thread[j].CreatedAt {
+			return thread[i].CreatedAt < thread[j].CreatedAt
+		}
+		return thread[i].ID < thread[j].ID
+	})
+	return thread
 }

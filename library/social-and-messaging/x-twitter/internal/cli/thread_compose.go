@@ -87,6 +87,7 @@ func SplitForThread(md string, limit int) ([]string, error) {
 	}
 	count := 1
 	var parts []string
+	converged := false
 	// Iterate to a fixed point: more parts → wider numbering → smaller budget.
 	for i := 0; i < 6; i++ {
 		suffixLen := utf8.RuneCountInString(fmt.Sprintf(" (%d/%d)", count, count))
@@ -96,9 +97,23 @@ func SplitForThread(md string, limit int) ([]string, error) {
 		}
 		parts = packAtoms(atoms, budget)
 		if len(parts) == count {
+			converged = true
 			break
 		}
 		count = len(parts)
+	}
+	if !converged {
+		// Pathological atom sizes kept the loop oscillating. The parts above
+		// were packed against a stale count, so the (i/N) suffix could be wider
+		// than budgeted and push a tweet over the limit. Re-pack once with the
+		// budget sized for the actual final count; numbering is then guaranteed
+		// to fit even if the split is slightly suboptimal.
+		suffixLen := utf8.RuneCountInString(fmt.Sprintf(" (%d/%d)", len(parts), len(parts)))
+		budget := limit - suffixLen
+		if budget < 50 {
+			return nil, fmt.Errorf("limit %d too small with thread numbering", limit)
+		}
+		parts = packAtoms(atoms, budget)
 	}
 	return parts, nil
 }
