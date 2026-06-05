@@ -25,6 +25,15 @@ func colorEnabled() bool {
 	if noColor {
 		return false
 	}
+	if !humanFriendly {
+		return false
+	}
+	if os.Getenv("NO_COLOR") != "" {
+		return false
+	}
+	if os.Getenv("TERM") == "dumb" {
+		return false
+	}
 	return isTerminal(os.Stdout)
 }
 
@@ -39,31 +48,31 @@ func isTerminal(w io.Writer) bool {
 }
 
 func bold(s string) string {
-	if colorEnabled() {
-		return "\x1b[1m" + s + "\x1b[0m"
+	if !colorEnabled() {
+		return s
 	}
-	return s
+	return "\033[1m" + s + "\033[0m"
 }
 
 func green(s string) string {
-	if colorEnabled() {
-		return "\x1b[32m" + s + "\x1b[0m"
+	if !colorEnabled() {
+		return s
 	}
-	return s
+	return "\033[32m" + s + "\033[0m"
 }
 
 func red(s string) string {
-	if colorEnabled() {
-		return "\x1b[31m" + s + "\x1b[0m"
+	if !colorEnabled() {
+		return s
 	}
-	return s
+	return "\033[31m" + s + "\033[0m"
 }
 
 func yellow(s string) string {
-	if colorEnabled() {
-		return "\x1b[33m" + s + "\x1b[0m"
+	if !colorEnabled() {
+		return s
 	}
-	return s
+	return "\033[33m" + s + "\033[0m"
 }
 
 // dryRunOK reports whether the command should short-circuit without doing any
