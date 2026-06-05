@@ -89,11 +89,6 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Show authentication status",
 		Example: "  x-twitter-pp-cli auth status",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			token := strings.TrimSpace(args[0])
-			if token == "" {
-				return usageErr(fmt.Errorf("token must not be empty"))
-			}
-
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
@@ -209,11 +204,6 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Clear stored credentials",
 		Example: "  x-twitter-pp-cli auth logout",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			token := strings.TrimSpace(args[0])
-			if token == "" {
-				return usageErr(fmt.Errorf("token must not be empty"))
-			}
-
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)

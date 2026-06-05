@@ -84,3 +84,22 @@ func TestAuthSetTokenRejectsEmptyToken(t *testing.T) {
 		t.Fatal("set-token with empty token succeeded, want error")
 	}
 }
+
+func TestAuthStatusDoesNotRequireTokenArg(t *testing.T) {
+	cmd := newAuthStatusCmd(&rootFlags{configPath: filepath.Join(t.TempDir(), "config.toml")})
+	cmd.SetOut(&bytes.Buffer{})
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs(nil)
+
+	_ = cmd.Execute() // may report no credentials, but must not panic on args[0]
+}
+
+func TestAuthLogoutDoesNotRequireTokenArg(t *testing.T) {
+	cmd := newAuthLogoutCmd(&rootFlags{configPath: filepath.Join(t.TempDir(), "config.toml")})
+	cmd.SetOut(&bytes.Buffer{})
+	cmd.SetArgs(nil)
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("logout returned error: %v", err)
+	}
+}
