@@ -105,17 +105,24 @@ func newReconcileCmd(flags *rootFlags) *cobra.Command {
 						c.Balance = balance.Float64
 					}
 
-					// Date filter if target date is set
+					// Date filter if target date is set.
+					// Records with an empty or unparseable date are excluded when
+					// --date is active; an undated transaction must not be treated
+					// as a date-match candidate (would produce false positives).
 					if !targetDate.IsZero() {
+						if c.Date == "" {
+							continue // no date recorded → cannot satisfy date filter
+						}
 						txnTime, err := time.Parse("2006-01-02", c.Date)
 						if err != nil {
 							txnTime, err = time.Parse(time.RFC3339, c.Date)
 						}
-						if err == nil {
-							diffDays := math.Abs(txnTime.Sub(targetDate).Hours() / 24)
-							if diffDays > float64(daysFlag) {
-								continue
-							}
+						if err != nil {
+							continue // unparseable date → exclude from date-bounded results
+						}
+						diffDays := math.Abs(txnTime.Sub(targetDate).Hours() / 24)
+						if diffDays > float64(daysFlag) {
+							continue
 						}
 					}
 
