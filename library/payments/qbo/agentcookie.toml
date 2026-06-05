@@ -1,0 +1,18 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "qbo-pp-cli"
+display_name = "QuickBooks Online"
+description = "Interact with QuickBooks Online directly. Query ledger items, sync transactions locally, and run advanced reconciliation triage."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/qbo-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+QBO_CLIENT_ID = true
+QBO_CLIENT_SECRET = true
+QBO_REALM_ID = true

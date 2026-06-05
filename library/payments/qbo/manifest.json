@@ -1,0 +1,55 @@
+{
+  "manifest_version": "0.3",
+  "name": "qbo-pp-mcp",
+  "display_name": "QuickBooks Online",
+  "version": "4.20.1",
+  "description": "Interact with QuickBooks Online directly. Query ledger items, sync transactions locally, and run advanced reconciliation triage.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/qbo-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/qbo-pp-mcp",
+      "args": [],
+      "env": {
+        "QBO_CLIENT_ID": "${user_config.qbo_client_id}",
+        "QBO_CLIENT_SECRET": "${user_config.qbo_client_secret}",
+        "QBO_REALM_ID": "${user_config.qbo_realm_id}"
+      }
+    }
+  },
+  "user_config": {
+    "qbo_client_id": {
+      "type": "string",
+      "title": "QBO_CLIENT_ID",
+      "description": "Sets QBO_CLIENT_ID for the QuickBooks Online MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "qbo_client_secret": {
+      "type": "string",
+      "title": "QBO_CLIENT_SECRET",
+      "description": "Sets QBO_CLIENT_SECRET for the QuickBooks Online MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "qbo_realm_id": {
+      "type": "string",
+      "title": "QBO_REALM_ID",
+      "description": "Sets QBO_REALM_ID for the QuickBooks Online MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

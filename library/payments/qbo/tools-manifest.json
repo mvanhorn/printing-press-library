@@ -1,0 +1,320 @@
+{
+  "api_name": "qbo",
+  "base_url": "https://sandbox-quickbooks.api.intuit.com",
+  "description": "QuickBooks Online CLI — sync full ledger, query SQLite locally, run duplicate expenses audit, and manage accounting from the terminal.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {QBO_CLIENT_ID}",
+    "env_vars": [
+      "QBO_CLIENT_ID",
+      "QBO_CLIENT_SECRET",
+      "QBO_REALM_ID"
+    ],
+    "env_var_specs": [
+      {
+        "name": "QBO_CLIENT_ID",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "QBO_CLIENT_SECRET",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "QBO_REALM_ID",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "accounts_create",
+      "description": "Create or update an account. Required: account. Returns the new AccountResponse.",
+      "method": "POST",
+      "path": "/account",
+      "params": [
+        {
+          "name": "account",
+          "type": "object",
+          "location": "body",
+          "description": "Account payload",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_get",
+      "description": "Get an account by ID. Required: id. Returns the AccountResponse.",
+      "method": "GET",
+      "path": "/account/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Account ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bills_create",
+      "description": "Create or update a bill. Required: bill. Returns the new BillResponse.",
+      "method": "POST",
+      "path": "/bill",
+      "params": [
+        {
+          "name": "bill",
+          "type": "object",
+          "location": "body",
+          "description": "Bill payload",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bills_get",
+      "description": "Get a bill by ID. Required: id. Returns the BillResponse.",
+      "method": "GET",
+      "path": "/bill/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Bill ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cdc_sync",
+      "description": "Query changed entities since a timestamp. Required: entities, changedSince. Returns the CDCResponse.",
+      "method": "GET",
+      "path": "/cdc",
+      "params": [
+        {
+          "name": "entities",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of entities to check",
+          "required": true
+        },
+        {
+          "name": "changedSince",
+          "type": "string",
+          "location": "query",
+          "description": "Timestamp in ISO-8601 format",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_create",
+      "description": "Create or update a customer. Required: customer. Returns the new CustomerResponse.",
+      "method": "POST",
+      "path": "/customer",
+      "params": [
+        {
+          "name": "customer",
+          "type": "object",
+          "location": "body",
+          "description": "Customer payload",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_get",
+      "description": "Get a customer by ID. Required: id. Returns the CustomerResponse.",
+      "method": "GET",
+      "path": "/customer/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Customer ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invoices_create",
+      "description": "Create or update an invoice. Required: invoice. Returns the new InvoiceResponse.",
+      "method": "POST",
+      "path": "/invoice",
+      "params": [
+        {
+          "name": "invoice",
+          "type": "object",
+          "location": "body",
+          "description": "Invoice payload",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invoices_get",
+      "description": "Get an invoice by ID. Required: id. Returns the InvoiceResponse.",
+      "method": "GET",
+      "path": "/invoice/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Invoice ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "journal_entries_create",
+      "description": "Create or update a journal entry. Required: journalentry. Returns the new JournalEntryResponse.",
+      "method": "POST",
+      "path": "/journalentry",
+      "params": [
+        {
+          "name": "journalentry",
+          "type": "object",
+          "location": "body",
+          "description": "Journal Entry payload",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "journal_entries_get",
+      "description": "Get a journal entry by ID. Required: id. Returns the JournalEntryResponse.",
+      "method": "GET",
+      "path": "/journalentry/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Journal Entry ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payments_create",
+      "description": "Create or update a payment. Required: payment. Returns the new PaymentResponse.",
+      "method": "POST",
+      "path": "/payment",
+      "params": [
+        {
+          "name": "payment",
+          "type": "object",
+          "location": "body",
+          "description": "Payment payload",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payments_get",
+      "description": "Get a payment by ID. Required: id. Returns the PaymentResponse.",
+      "method": "GET",
+      "path": "/payment/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Payment ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "purchases_create",
+      "description": "Create or update a purchase. Required: purchase. Returns the new PurchaseResponse.",
+      "method": "POST",
+      "path": "/purchase",
+      "params": [
+        {
+          "name": "purchase",
+          "type": "object",
+          "location": "body",
+          "description": "Purchase payload",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "purchases_get",
+      "description": "Get a purchase by ID. Required: id. Returns the PurchaseResponse.",
+      "method": "GET",
+      "path": "/purchase/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Purchase ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "query_execute",
+      "description": "Run raw QuickBooks SQL query. Required: query. Returns the QueryResponse.",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "The QBO SQL query string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vendors_create",
+      "description": "Create or update a vendor. Required: vendor. Returns the new VendorResponse.",
+      "method": "POST",
+      "path": "/vendor",
+      "params": [
+        {
+          "name": "vendor",
+          "type": "object",
+          "location": "body",
+          "description": "Vendor payload",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vendors_get",
+      "description": "Get a vendor by ID. Required: id. Returns the VendorResponse.",
+      "method": "GET",
+      "path": "/vendor/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Vendor ID",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

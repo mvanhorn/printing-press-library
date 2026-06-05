@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "qbo-client-decomposition",
+  "applied_at": "2026-06-04",
+  "base_run_id": "20260604-195055",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Decomposed client.go into cache, placeholder, and utility components.",
+  "reason": "Keep the client package modular and maintainable by extracting caching, placeholder checking, and redact masking out of the main client.go.",
+  "files": ["internal/client/client.go", "internal/client/cache.go", "internal/client/placeholder.go", "internal/client/utils.go"]
+}
