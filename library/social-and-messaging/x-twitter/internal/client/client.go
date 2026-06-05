@@ -26,6 +26,7 @@ import (
 )
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"
+const xOAuthTokenURL = "https://api.x.com/2/oauth2/token"
 
 var ErrPlaceholderCredential = errors.New("auth placeholder credential")
 
@@ -712,7 +713,7 @@ func (c *Client) refreshAccessToken(ctx context.Context) error {
 		return nil
 	}
 
-	tokenURL := strings.TrimRight(c.BaseURL, "/") + "/2/oauth2/token"
+	tokenURL := xOAuthTokenURL
 	params := url.Values{
 		"grant_type":    {"refresh_token"},
 		"refresh_token": {c.Config.RefreshToken},

@@ -65,3 +65,12 @@ func TestAuthSetTokenClearsLegacyExpiry(t *testing.T) {
 		t.Fatalf("newly saved token is still treated as expired legacy OAuth")
 	}
 }
+
+func TestActiveAuthEnvVarMatchesAuthHeaderPriority(t *testing.T) {
+	t.Setenv("X_BEARER_TOKEN", "bearer")
+	t.Setenv("X_OAUTH2_USER_TOKEN", "user")
+
+	if got, want := activeAuthEnvVar(), "X_OAUTH2_USER_TOKEN"; got != want {
+		t.Fatalf("active auth env var = %q, want %q", got, want)
+	}
+}

@@ -183,11 +183,11 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 }
 
 func activeAuthEnvVar() string {
-	if os.Getenv("X_BEARER_TOKEN") != "" {
-		return "X_BEARER_TOKEN"
-	}
 	if os.Getenv("X_OAUTH2_USER_TOKEN") != "" {
 		return "X_OAUTH2_USER_TOKEN"
+	}
+	if os.Getenv("X_BEARER_TOKEN") != "" {
+		return "X_BEARER_TOKEN"
 	}
 	return ""
 }

@@ -8,7 +8,6 @@ import (
 	"context"
 	"io"
 	"net/http"
-	"net/http/httptest"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -17,6 +16,12 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/config"
 )
+
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req)
+}
 
 func TestTruncateBody(t *testing.T) {
 	t.Parallel()
@@ -83,19 +88,21 @@ func TestAuthHeaderRefreshesExpiredLegacyOAuthToken(t *testing.T) {
 	t.Parallel()
 
 	var gotBody string
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/2/oauth2/token" {
-			t.Fatalf("refresh path = %q, want /2/oauth2/token", r.URL.Path)
+	transport := roundTripFunc(func(r *http.Request) (*http.Response, error) {
+		if got, want := r.URL.String(), xOAuthTokenURL; got != want {
+			t.Fatalf("refresh URL = %q, want %q", got, want)
 		}
 		if r.Method != http.MethodPost {
 			t.Fatalf("refresh method = %s, want POST", r.Method)
 		}
 		body, _ := io.ReadAll(r.Body)
 		gotBody = string(body)
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"access_token":"refreshed-access-value","refresh_token":"refreshed-refresh-value","expires_in":3600}`))
-	}))
-	defer ts.Close()
+		return &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     http.Header{"Content-Type": []string{"application/json"}},
+			Body:       io.NopCloser(strings.NewReader(`{"access_token":"refreshed-access-value","refresh_token":"refreshed-refresh-value","expires_in":3600}`)),
+		}, nil
+	})
 
 	cfg := &config.Config{
 		Path:         filepath.Join(t.TempDir(), "config.toml"),
@@ -104,7 +111,7 @@ func TestAuthHeaderRefreshesExpiredLegacyOAuthToken(t *testing.T) {
 		TokenExpiry:  time.Now().Add(-time.Hour),
 		ClientID:     "client-id",
 	}
-	c := &Client{BaseURL: ts.URL, HTTPClient: ts.Client(), Config: cfg}
+	c := &Client{BaseURL: "https://example.invalid", HTTPClient: &http.Client{Transport: transport}, Config: cfg}
 
 	got, err := c.authHeader(context.Background())
 	if err != nil {
