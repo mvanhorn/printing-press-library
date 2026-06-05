@@ -735,11 +735,7 @@ func (c *Client) refreshAccessToken(ctx context.Context) error {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Accept", "application/json")
 
-	hc := c.HTTPClient
-	if hc == nil {
-		hc = http.DefaultClient
-	}
-	resp, err := hc.Do(req)
+	resp, err := refreshHTTPClient(c.HTTPClient).Do(req)
 	if err != nil {
 		return fmt.Errorf("refreshing access token: %w", err)
 	}
@@ -776,6 +772,21 @@ func (c *Client) refreshAccessToken(ctx context.Context) error {
 		return fmt.Errorf("saving refreshed token: %w", err)
 	}
 	return nil
+}
+
+// refreshHTTPClient returns a shallow clone for OAuth token refresh requests.
+// The main client may install a CheckRedirect hook that calls authHeader() to
+// decide whether to preserve Authorization across redirects. refreshAccessToken
+// is called while authMu is held, so re-entering authHeader from CheckRedirect
+// would deadlock. OAuth refresh requests do not carry the API Authorization
+// header, so the default redirect policy is sufficient here.
+func refreshHTTPClient(hc *http.Client) *http.Client {
+	if hc == nil {
+		return http.DefaultClient
+	}
+	clone := *hc
+	clone.CheckRedirect = nil
+	return &clone
 }
 
 func authHeaderLooksLikePlaceholderCredential(header string) bool {

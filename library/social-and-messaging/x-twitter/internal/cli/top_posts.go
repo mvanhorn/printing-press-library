@@ -99,6 +99,9 @@ func newTopPostsCmd(flags *rootFlags) *cobra.Command {
 			username := ""
 			ctx := cmd.Context()
 			if userID == "" {
+				if c.Config != nil && c.Config.XBearerToken != "" && c.Config.XOauth2UserToken == "" && c.Config.AccessToken == "" && c.Config.AuthHeaderVal == "" {
+					return fmt.Errorf("top-posts without --user-id requires a user-context token because /2/users/me does not accept app-only bearer tokens; pass --user-id for bearer-token reads or export X_OAUTH2_USER_TOKEN")
+				}
 				meData, merr := c.Get(ctx, "/2/users/me", nil)
 				if merr != nil {
 					return classifyAPIError(merr, flags)

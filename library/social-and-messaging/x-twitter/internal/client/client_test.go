@@ -181,3 +181,28 @@ func TestAuthHeaderRefreshesExpiredLegacyOAuthTokenOnceConcurrently(t *testing.T
 		t.Fatalf("refresh calls = %d, want 1", calls)
 	}
 }
+
+func TestRefreshHTTPClientDropsRedirectHook(t *testing.T) {
+	transport := http.DefaultTransport
+	original := &http.Client{
+		Transport: transport,
+		Timeout:   5 * time.Second,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return nil
+		},
+	}
+
+	got := refreshHTTPClient(original)
+	if got == original {
+		t.Fatal("refreshHTTPClient returned the original client, want shallow clone")
+	}
+	if got.CheckRedirect != nil {
+		t.Fatal("refreshHTTPClient retained CheckRedirect hook, would allow authHeader re-entry during refresh")
+	}
+	if got.Transport != transport || got.Timeout != original.Timeout {
+		t.Fatal("refreshHTTPClient did not preserve transport/timeout")
+	}
+	if original.CheckRedirect == nil {
+		t.Fatal("refreshHTTPClient mutated original client")
+	}
+}
