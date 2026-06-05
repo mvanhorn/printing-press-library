@@ -4,8 +4,13 @@
 package mcp
 
 import (
+	"context"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"testing"
+
+	mcplib "github.com/mark3labs/mcp-go/mcp"
 )
 
 // TestCodeOrchWriteBody_MarshalsToJSONObject pins the write-body contract.
@@ -93,5 +98,44 @@ func TestCodeOrchArrayBody_SendsTopLevelArray(t *testing.T) {
 	degraded, _ := json.Marshal(codeOrchArrayBody(map[string]any{"oops": 1}))
 	if len(degraded) == 0 || degraded[0] != '{' {
 		t.Fatalf("expected safe-degrade to the params object; got: %s", degraded)
+	}
+}
+
+func TestCodeOrchExecuteEscapesPathParameters(t *testing.T) {
+	var gotEscapedPath string
+	var gotRawQuery string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotEscapedPath = r.URL.EscapedPath()
+		gotRawQuery = r.URL.RawQuery
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	}))
+	defer server.Close()
+
+	t.Setenv("TWELVELABS_BASE_URL", server.URL)
+	t.Setenv("TWELVELABS_X_API_KEY", "test-key")
+
+	req := mcplib.CallToolRequest{
+		Params: mcplib.CallToolParams{
+			Arguments: map[string]any{
+				"endpoint_id": "assets.retrieve",
+				"params": map[string]any{
+					"asset_id": "asset/1?x=2#frag%",
+				},
+			},
+		},
+	}
+	result, err := handleCodeOrchExecute(context.Background(), req)
+	if err != nil {
+		t.Fatalf("handleCodeOrchExecute returned error: %v", err)
+	}
+	if result == nil || result.IsError {
+		t.Fatalf("handleCodeOrchExecute result = %#v, want non-error", result)
+	}
+	wantPath := "/assets/asset%2F1%3Fx=2%23frag%25"
+	if gotEscapedPath != wantPath {
+		t.Fatalf("request escaped path = %q, want %q", gotEscapedPath, wantPath)
+	}
+	if gotRawQuery != "" {
+		t.Fatalf("raw query = %q, want empty; path param must not inject query params", gotRawQuery)
 	}
 }
