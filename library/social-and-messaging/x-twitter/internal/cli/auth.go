@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
@@ -88,6 +89,11 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Show authentication status",
 		Example: "  x-twitter-pp-cli auth status",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			token := strings.TrimSpace(args[0])
+			if token == "" {
+				return usageErr(fmt.Errorf("token must not be empty"))
+			}
+
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
@@ -139,6 +145,11 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 		Example: "  x-twitter-pp-cli auth set-token YOUR_TOKEN_HERE",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			token := strings.TrimSpace(args[0])
+			if token == "" {
+				return usageErr(fmt.Errorf("token must not be empty"))
+			}
+
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
@@ -151,7 +162,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 			// log line): a masked-tail variant could leak token bytes through
 			// scripted dogfood that captures stderr.
 			cfg.AuthHeaderVal = ""
-			if err := cfg.SaveBearerToken(args[0]); err != nil {
+			if err := cfg.SaveBearerToken(token); err != nil {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 
@@ -198,6 +209,11 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Clear stored credentials",
 		Example: "  x-twitter-pp-cli auth logout",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			token := strings.TrimSpace(args[0])
+			if token == "" {
+				return usageErr(fmt.Errorf("token must not be empty"))
+			}
+
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)

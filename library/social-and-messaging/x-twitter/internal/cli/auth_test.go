@@ -74,3 +74,13 @@ func TestActiveAuthEnvVarMatchesAuthHeaderPriority(t *testing.T) {
 		t.Fatalf("active auth env var = %q, want %q", got, want)
 	}
 }
+
+func TestAuthSetTokenRejectsEmptyToken(t *testing.T) {
+	cmd := newAuthSetTokenCmd(&rootFlags{configPath: filepath.Join(t.TempDir(), "config.toml")})
+	cmd.SetOut(&bytes.Buffer{})
+	cmd.SetArgs([]string{""})
+
+	if err := cmd.Execute(); err == nil {
+		t.Fatal("set-token with empty token succeeded, want error")
+	}
+}
