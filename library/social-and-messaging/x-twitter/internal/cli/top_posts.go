@@ -97,8 +97,9 @@ func newTopPostsCmd(flags *rootFlags) *cobra.Command {
 			// Resolve the target user and a username for building post URLs.
 			userID := strings.TrimSpace(flagUserID)
 			username := ""
+			ctx := cmd.Context()
 			if userID == "" {
-				meData, merr := c.Get(context.Background(), "/2/users/me", nil)
+				meData, merr := c.Get(ctx, "/2/users/me", nil)
 				if merr != nil {
 					return classifyAPIError(merr, flags)
 				}
@@ -113,12 +114,12 @@ func newTopPostsCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				// Look up the username so post URLs are canonical; tolerate a
 				// lookup failure by falling back to the id-based URL form.
-				if uData, uerr := c.Get(context.Background(), "/2/users/"+userID, nil); uerr == nil {
+				if uData, uerr := c.Get(ctx, "/2/users/"+userID, nil); uerr == nil {
 					_, username, _ = decodeUserEnvelope(uData)
 				}
 			}
 
-			items, err := fetchUserPosts(c, flags, userID, flagMaxFetch, flagExclude)
+			items, err := fetchUserPosts(ctx, c, flags, userID, flagMaxFetch, flagExclude)
 			if err != nil {
 				return err
 			}
@@ -345,7 +346,7 @@ func decodeTweetsPage(data json.RawMessage) (items []tweetItem, nextToken string
 
 // fetchUserPosts pages the user timeline until it has gathered maxFetch posts or
 // the timeline is exhausted, reusing the CLI's existing client + error plumbing.
-func fetchUserPosts(c *client.Client, flags *rootFlags, userID string, maxFetch int, exclude string) ([]tweetItem, error) {
+func fetchUserPosts(ctx context.Context, c *client.Client, flags *rootFlags, userID string, maxFetch int, exclude string) ([]tweetItem, error) {
 	path := "/2/users/" + userID + "/tweets"
 	collected := make([]tweetItem, 0, maxFetch)
 	nextToken := ""
@@ -367,7 +368,7 @@ func fetchUserPosts(c *client.Client, flags *rootFlags, userID string, maxFetch 
 		if nextToken != "" {
 			params["pagination_token"] = nextToken
 		}
-		data, err := c.Get(context.Background(), path, params)
+		data, err := c.Get(ctx, path, params)
 		if err != nil {
 			return nil, classifyAPIError(err, flags)
 		}
