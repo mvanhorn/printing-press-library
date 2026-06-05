@@ -1,10 +1,11 @@
 /**
- * Platform- and shell-aware instructions for putting the Go install directory on
- * PATH. `go install` writes to $(go env GOPATH)/bin (default ~/go/bin), which Go
- * never adds to PATH itself — so a freshly installed CLI is unusable by name until
- * the user wires up PATH. This builds the exact, copy-pasteable fix for the
- * detected (platform, shell) rather than a single Unix-flavored hint that is wrong
- * on Windows and imprecise on fish.
+ * Platform- and shell-aware instructions for adding a binary directory to PATH.
+ * Used when a freshly installed CLI binary is not yet discoverable by name — either
+ * because it was written to the default user bin directory (`~/.local/bin` on
+ * macOS/Linux, `%LOCALAPPDATA%\\Programs\\PrintingPress\\bin` on Windows) or to Go's
+ * `$(go env GOPATH)/bin`. Builds the exact, copy-pasteable fix for the detected
+ * (platform, shell) rather than a single Unix-flavored hint that is wrong on
+ * Windows and imprecise on fish.
  *
  * Pure and dependency-free so the full (platform × shell) matrix is unit-testable.
  */
