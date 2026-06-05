@@ -572,7 +572,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		c.limiter.Wait()
 		var bodyReader io.Reader
 		if bodyBytes != nil {
-			bodyReader = strings.NewReader(string(bodyBytes))
+			bodyReader = bytes.NewReader(bodyBytes)
 		}
 
 		req, err := http.NewRequestWithContext(ctx, method, targetURL, bodyReader)

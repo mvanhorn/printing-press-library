@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -562,20 +563,29 @@ func extractStringSlice(data json.RawMessage, key string) []string {
 	return out
 }
 
+const maxJSONSearchDepth = 20
+
 func findKey(value any, key string) (any, bool) {
+	return findKeyDepth(value, key, 0)
+}
+
+func findKeyDepth(value any, key string, depth int) (any, bool) {
+	if depth > maxJSONSearchDepth {
+		return nil, false
+	}
 	switch v := value.(type) {
 	case map[string]any:
 		if found, ok := v[key]; ok {
 			return found, true
 		}
 		for _, child := range v {
-			if found, ok := findKey(child, key); ok {
+			if found, ok := findKeyDepth(child, key, depth+1); ok {
 				return found, true
 			}
 		}
 	case []any:
 		for _, child := range v {
-			if found, ok := findKey(child, key); ok {
+			if found, ok := findKeyDepth(child, key, depth+1); ok {
 				return found, true
 			}
 		}
@@ -855,5 +865,5 @@ func formatSeconds(v float64) string {
 }
 
 func urlPathEscape(value string) string {
-	return strings.ReplaceAll(value, "/", "%2F")
+	return url.PathEscape(value)
 }

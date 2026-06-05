@@ -133,3 +133,29 @@ func TestVideoBriefCombinesAPIResponses(t *testing.T) {
 		t.Fatalf("recommended cuts = %#v", got.RecommendedCuts)
 	}
 }
+
+func TestFindKeyBoundsNestedTraversal(t *testing.T) {
+	withinLimit := map[string]any{"target": "found"}
+	for i := 0; i < maxJSONSearchDepth; i++ {
+		withinLimit = map[string]any{"child": withinLimit}
+	}
+	if got, ok := findKey(withinLimit, "target"); !ok || got != "found" {
+		t.Fatalf("findKey within limit = %v, %v; want found, true", got, ok)
+	}
+
+	beyondLimit := map[string]any{"target": "found"}
+	for i := 0; i <= maxJSONSearchDepth; i++ {
+		beyondLimit = map[string]any{"child": beyondLimit}
+	}
+	if got, ok := findKey(beyondLimit, "target"); ok || got != nil {
+		t.Fatalf("findKey beyond limit = %v, %v; want nil, false", got, ok)
+	}
+}
+
+func TestURLPathEscapeEscapesFullPathSegment(t *testing.T) {
+	got := urlPathEscape("task/1?x#frag%")
+	want := "task%2F1%3Fx%23frag%25"
+	if got != want {
+		t.Fatalf("urlPathEscape = %q, want %q", got, want)
+	}
+}
