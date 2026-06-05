@@ -4,27 +4,40 @@
   "description": "X API v2 available endpoints",
   "mcp_ready": "full",
   "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
   "auth": {
     "type": "bearer_token",
     "header": "Authorization",
     "env_vars": [
+      "X_BEARER_TOKEN",
       "X_OAUTH2_USER_TOKEN"
     ],
     "env_var_specs": [
       {
-        "name": "X_OAUTH2_USER_TOKEN",
+        "name": "X_BEARER_TOKEN",
         "kind": "per_call",
         "required": true,
         "sensitive": true,
-        "inferred": true
+        "description": "App-only Bearer token for public reads (tweet/user lookup, recent search, lists, spaces). Required minimum - nothing works without it. Get one at https://console.x.com/ (app, then Keys and Tokens, then Bearer Token)."
+      },
+      {
+        "name": "X_OAUTH2_USER_TOKEN",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true,
+        "description": "Optional OAuth2 user-context token. Unlocks v2 writes (post, like, repost, bookmark, follow, DM) and personal reads (me, mentions, home timeline, bookmarks). Sent as Authorization Bearer; obtain via auth login (OAuth2 + PKCE)."
       }
-    ]
+    ],
+    "key_url": "https://console.x.com/"
   },
   "required_headers": [],
   "tools": [
     {
       "name": "account-activity_create-subscription",
-      "description": "Creates an Account Activity subscription for the user and the given webhook. Required: webhook_id. Returns the new SubscriptionsCreateResponse.",
+      "description": "Creates an Account Activity subscription for the user and the given webhook. Required: webhook_id. Returns array of Problem.",
       "method": "POST",
       "path": "/2/account_activity/webhooks/{webhook_id}/subscriptions/all",
       "params": [
@@ -39,7 +52,7 @@
     },
     {
       "name": "account-activity_delete-subscription",
-      "description": "Deletes an Account Activity subscription for the given webhook and user ID. Required: webhook_id, user_id. Returns the SubscriptionsDeleteResponse. Destructive.",
+      "description": "Deletes an Account Activity subscription for the given webhook and user ID. Required: webhook_id, user_id. Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/account_activity/webhooks/{webhook_id}/subscriptions/{user_id}/all",
       "params": [
@@ -61,14 +74,14 @@
     },
     {
       "name": "account-activity_get-subscription-count",
-      "description": "Retrieves a count of currently active Account Activity subscriptions. Returns the SubscriptionsCountGetResponse.",
+      "description": "Retrieves a count of currently active Account Activity subscriptions. Returns array of Problem.",
       "method": "GET",
       "path": "/2/account_activity/subscriptions/count",
       "params": []
     },
     {
       "name": "account-activity_get-subscriptions",
-      "description": "Retrieves a list of all active subscriptions for a given webhook. Required: webhook_id. Returns the SubscriptionsListGetResponse.",
+      "description": "Retrieves a list of all active subscriptions for a given webhook. Required: webhook_id. Returns array of Problem.",
       "method": "GET",
       "path": "/2/account_activity/webhooks/{webhook_id}/subscriptions/all/list",
       "params": [
@@ -83,7 +96,7 @@
     },
     {
       "name": "account-activity_validate-subscription",
-      "description": "Checks a user’s Account Activity subscription for a given webhook. Required: webhook_id. Returns the SubscriptionsGetResponse.",
+      "description": "Checks a user’s Account Activity subscription for a given webhook. Required: webhook_id. Returns array of Problem.",
       "method": "GET",
       "path": "/2/account_activity/webhooks/{webhook_id}/subscriptions/all",
       "params": [
@@ -98,7 +111,7 @@
     },
     {
       "name": "activity_create-subscription",
-      "description": "Creates a subscription for an X activity event. Required: event_type, filter. Optional: tag, webhook_id. Returns the new ActivitySubscriptionCreateResponse.",
+      "description": "Creates a subscription for an X activity event. Required: event_type, filter. Optional: tag, webhook_id. Returns array of Problem.",
       "method": "POST",
       "path": "/2/activity/subscriptions",
       "params": [
@@ -110,11 +123,25 @@
           "required": true
         },
         {
-          "name": "filter",
-          "type": "object",
+          "name": "filter-direction",
+          "wire_name": "filter.direction",
+          "type": "string",
           "location": "body",
-          "description": "An XAA subscription filter.",
-          "required": true
+          "description": "Optional direction filter for directional events."
+        },
+        {
+          "name": "filter-keyword",
+          "wire_name": "filter.keyword",
+          "type": "string",
+          "location": "body",
+          "description": "A keyword to filter on."
+        },
+        {
+          "name": "filter-user-id",
+          "wire_name": "filter.user_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of this User. This is returned as a string in order to avoid complications with languages and tools that cannot handle large integers."
         },
         {
           "name": "tag",
@@ -132,7 +159,7 @@
     },
     {
       "name": "activity_delete-subscription",
-      "description": "Deletes a subscription for an X activity event. Required: subscription_id. Returns the ActivitySubscriptionDeleteResponse. Destructive.",
+      "description": "Deletes a subscription for an X activity event. Required: subscription_id. Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/activity/subscriptions/{subscription_id}",
       "params": [
@@ -147,7 +174,7 @@
     },
     {
       "name": "activity_delete-subscriptions-by-ids",
-      "description": "Deletes multiple subscriptions for X activity events by their IDs. Required: ids. Returns the ActivitySubscriptionDeleteResponse. Destructive.",
+      "description": "Deletes multiple subscriptions for X activity events by their IDs. Required: ids. Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/activity/subscriptions",
       "params": [
@@ -162,7 +189,7 @@
     },
     {
       "name": "activity_get-subscriptions",
-      "description": "Get a list of active subscriptions for XAA. Optional: max_results, pagination_token. Returns array of ActivitySubscription.",
+      "description": "Get a list of active subscriptions for XAA. Optional: max_results (default: 1000), pagination_token. Returns array of ActivitySubscription.",
       "method": "GET",
       "path": "/2/activity/subscriptions",
       "params": [
@@ -170,39 +197,13 @@
           "name": "max_results",
           "type": "int",
           "location": "query",
-          "description": "The maximum number of results to return per page."
+          "description": "The maximum number of results to return per page. Defaults to 1000 when unspecified; use pagination_token (from response meta.next_token) to fetch additional pages."
         },
         {
           "name": "pagination_token",
           "type": "string",
           "location": "query",
           "description": "This parameter is used to get the next 'page' of results."
-        }
-      ]
-    },
-    {
-      "name": "activity_stream",
-      "description": "Stream of X Activities. Optional: backfill_minutes, start_time, end_time. Returns the ActivityStreamingResponse.",
-      "method": "GET",
-      "path": "/2/activity/stream",
-      "params": [
-        {
-          "name": "backfill_minutes",
-          "type": "int",
-          "location": "query",
-          "description": "The number of minutes of backfill requested."
-        },
-        {
-          "name": "start_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the Post labels will be provided."
-        },
-        {
-          "name": "end_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp from which the Post labels will be provided."
         }
       ]
     },
@@ -235,7 +236,7 @@
     },
     {
       "name": "chat_add-group-members",
-      "description": "Adds one or more members to an existing encrypted Chat group conversation, rotating the conversation key. Required: id, user_ids. Optional: action_signatures, conversation_key_version, conversation_participant_keys (plus 2 more). Returns the new ChatAddGroupMembersResponse.",
+      "description": "Adds one or more members to an existing encrypted Chat group conversation, rotating the conversation key. Required: id, user_ids. Optional: action_signatures, conversation_key_version, conversation_participant_keys (plus 2 more). Returns array of string.",
       "method": "POST",
       "path": "/2/chat/conversations/{id}/members",
       "params": [
@@ -278,7 +279,7 @@
         },
         {
           "name": "user_ids",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "List of user IDs to add to the group conversation.",
           "required": true
@@ -287,7 +288,7 @@
     },
     {
       "name": "chat_create-conversation",
-      "description": "Creates a new encrypted Chat group conversation on behalf of the authenticated user. Required: conversation_id, conversation_key_version, conversation_participant_keys, group_members. Optional: action_signatures, base64_encoded_key_rotation, group_admins (plus 4 more). Returns the new ChatCreateConversationResponse.",
+      "description": "Creates a new encrypted Chat group conversation on behalf of the authenticated user. Required: conversation_id, conversation_key_version, conversation_participant_keys, group_members. Optional: action_signatures, base64_encoded_key_rotation, group_admins (plus 4 more). Returns array of Problem.",
       "method": "POST",
       "path": "/2/chat/conversations/group",
       "params": [
@@ -326,7 +327,7 @@
         },
         {
           "name": "group_admins",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "User IDs of group admins. Defaults to the creator if omitted."
         },
@@ -344,7 +345,7 @@
         },
         {
           "name": "group_members",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "User IDs of group members to include in the conversation.",
           "required": true
@@ -365,9 +366,42 @@
     },
     {
       "name": "chat_get-conversation",
-      "description": "Retrieves messages and key change events for a specific Chat conversation with pagination support. For 1:1 conversations, provide the recipient's user ID; the server constructs the canonical conversation ID from the authenticated user and recipient. Required: id. Optional: max_results (default: 10), pagination_token, chat_message_event.fields. Returns array of ChatMessageEvent.",
+      "description": "Returns metadata for a Chat conversation including type, muted status, and group details. Use chat_conversation.fields to select which fields are returned. Use expansions to hydrate member, admin, or participant user objects. Use user.fields to control which profile fields are returned for expanded users. Required: id. Optional: chat_conversation.fields, expansions, user.fields.",
       "method": "GET",
       "path": "/2/chat/conversations/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The conversation ID. For 1:1 conversations, use the recipient user ID or dash-separated canonical ID. For group conversations, use the group ID (prefixed with 'g').",
+          "required": true
+        },
+        {
+          "name": "chat_conversation.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of ChatConversation fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        }
+      ]
+    },
+    {
+      "name": "chat_get-conversation-events",
+      "description": "Retrieves messages and key change events for a specific Chat conversation with pagination support. For 1:1 conversations, provide the recipient's user ID; the server constructs the canonical conversation ID from the authenticated user and recipient. Required: id. Optional: max_results (default: 10), pagination_token, chat_message_event.fields. Returns array of ChatMessageEvent.",
+      "method": "GET",
+      "path": "/2/chat/conversations/{id}/events",
       "params": [
         {
           "name": "id",
@@ -436,7 +470,7 @@
     },
     {
       "name": "chat_initialize-conversation-keys",
-      "description": "Initializes encryption keys for a Chat conversation. This is the first step before sending messages in a new 1:1 conversation. For 1:1 conversations, provide the recipient's user ID as the conversation_id. The server constructs the canonical conversation ID from the authenticated user and recipient. The request body must contain the conversation key version and participant keys (the conversation key encrypted for each participant using their public key). **Workflow (1:1 conversation):** 1. Generate a conversation key using the SDK 2. Encrypt the key for both participants using their public keys 3. Call this endpoint to register the keys 4. Send messages using `POST /chat/conversations/{id}/messages` **Authentication:** - Requires OAuth 1.0a User Context or OAuth 2.0 User Context - Required scopes: `tweet.read`, `users.read`, `dm.write`. Required: id, conversation_key_version, conversation_participant_keys. Optional: action_signatures, base64_encoded_key_rotation. Returns the new ChatInitializeConversationKeysResponse.",
+      "description": "Initializes encryption keys for a Chat conversation. This is the first step before sending messages in a new 1:1 conversation. For 1:1 conversations, provide the recipient's user ID as the conversation_id. The server constructs the canonical conversation ID from the authenticated user and recipient. The request body must contain the conversation key version and participant keys (the conversation key encrypted for each participant using their public key). **Workflow (1:1 conversation):** 1. Generate a conversation key using the SDK 2. Encrypt the key for both participants using their public keys 3. Call this endpoint to register the keys 4. Send messages using `POST /chat/conversations/{id}/messages` **Authentication:** - Requires OAuth 1.0a User Context or OAuth 2.0 User Context - Required scopes: `tweet.read`, `users.read`, `dm.write`. Required: id, conversation_key_version, conversation_participant_keys. Optional: action_signatures, base64_encoded_key_rotation. Returns array of Problem.",
       "method": "POST",
       "path": "/2/chat/conversations/{id}/keys",
       "params": [
@@ -484,7 +518,7 @@
     },
     {
       "name": "chat_mark-conversation-read",
-      "description": "Marks a specific Chat conversation as read on behalf of the authenticated user. For 1:1 conversations, provide the recipient's user ID; the server constructs the canonical conversation ID from the authenticated user and recipient. Required: id, seen_until_sequence_id. Returns the new ChatMarkConversationReadResponse.",
+      "description": "Marks a specific Chat conversation as read on behalf of the authenticated user. For 1:1 conversations, provide the recipient's user ID; the server constructs the canonical conversation ID from the authenticated user and recipient. Required: id, seen_until_sequence_id. Returns array of Problem.",
       "method": "POST",
       "path": "/2/chat/conversations/{id}/read",
       "params": [
@@ -524,11 +558,17 @@
           "description": "The media hash key returned from the upload initialize step.",
           "required": true
         }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/octet-stream"
+        }
       ]
     },
     {
       "name": "chat_media-upload-append",
-      "description": "Appends media data to an XChat upload session. Required: id. Returns the new MediaUploadAppendResponse.",
+      "description": "Appends media data to an XChat upload session. Required: id. Returns array of Problem.",
       "method": "POST",
       "path": "/2/chat/media/upload/{id}/append",
       "params": [
@@ -608,7 +648,7 @@
     },
     {
       "name": "chat_send-message",
-      "description": "Sends an encrypted message to a specific Chat conversation. For 1:1 conversations, provide the recipient's user ID; the server constructs the canonical conversation ID from the authenticated user and recipient. Required: id, encoded_message_create_event, message_id. Optional: conversation_token, encoded_message_event_signature. Returns the new ChatSendMessageResponse.",
+      "description": "Sends an encrypted message to a specific Chat conversation. For 1:1 conversations, provide the recipient's user ID; the server constructs the canonical conversation ID from the authenticated user and recipient. Required: id, encoded_message_create_event, message_id. Optional: conversation_token, encoded_message_event_signature. Returns array of Problem.",
       "method": "POST",
       "path": "/2/chat/conversations/{id}/messages",
       "params": [
@@ -649,7 +689,7 @@
     },
     {
       "name": "chat_send-typing-indicator",
-      "description": "Sends a typing indicator to a specific Chat conversation on behalf of the authenticated user. For 1:1 conversations, provide the recipient's user ID; the server constructs the canonical conversation ID from the authenticated user and recipient. Required: id. Returns the new ChatSendTypingIndicatorResponse.",
+      "description": "Sends a typing indicator to a specific Chat conversation on behalf of the authenticated user. For 1:1 conversations, provide the recipient's user ID; the server constructs the canonical conversation ID from the authenticated user and recipient. Required: id. Returns array of Problem.",
       "method": "POST",
       "path": "/2/chat/conversations/{id}/typing",
       "params": [
@@ -664,7 +704,7 @@
     },
     {
       "name": "communities_get-by-id",
-      "description": "Retrieves details of a specific Community by its ID. Required: id. Optional: community.fields. Returns the Get2CommunitiesIdResponse.",
+      "description": "Retrieves details of a specific Community by its ID. Required: id. Optional: community.fields. Returns array of Problem.",
       "method": "GET",
       "path": "/2/communities/{id}",
       "params": [
@@ -724,7 +764,7 @@
     },
     {
       "name": "compliance_create-jobs",
-      "description": "Creates a new Compliance Job for the specified job type. Required: type. Optional: name, resumable. Returns the new CreateComplianceJobResponse.",
+      "description": "Creates a new Compliance Job for the specified job type. Required: type. Optional: name, resumable. Returns array of Problem.",
       "method": "POST",
       "path": "/2/compliance/jobs",
       "params": [
@@ -778,7 +818,7 @@
     },
     {
       "name": "compliance_get-jobs-by-id",
-      "description": "Retrieves details of a specific Compliance Job by its ID. Required: id. Optional: compliance_job.fields. Returns the Get2ComplianceJobsIdResponse.",
+      "description": "Retrieves details of a specific Compliance Job by its ID. Required: id. Optional: compliance_job.fields. Returns array of Problem.",
       "method": "GET",
       "path": "/2/compliance/jobs/{id}",
       "params": [
@@ -799,14 +839,14 @@
     },
     {
       "name": "connections_delete-all",
-      "description": "Terminates all active streaming connections for the authenticated application. Returns the KillAllConnectionsResponse. Destructive.",
+      "description": "Terminates all active streaming connections for the authenticated application. Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/connections/all",
       "params": []
     },
     {
       "name": "connections_delete-by-endpoint",
-      "description": "Terminates all streaming connections for a specific endpoint ID for the authenticated application. Required: endpoint_id (default: filtered_stream). Returns the KillConnectionsByEndpointResponse. Destructive.",
+      "description": "Terminates all streaming connections for a specific endpoint ID for the authenticated application. Required: endpoint_id (default: filtered_stream). Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/connections/{endpoint_id}",
       "params": [
@@ -814,19 +854,20 @@
           "name": "endpoint_id",
           "type": "string",
           "location": "path",
-          "description": "The endpoint ID to terminate connections for."
+          "description": "The endpoint ID to terminate connections for.",
+          "required": true
         }
       ]
     },
     {
       "name": "connections_delete-by-uuids",
-      "description": "Terminates multiple streaming connections by their UUIDs for the authenticated application. Required: uuids. Returns the KillConnectionsByUuidsResponse. Destructive.",
+      "description": "Terminates multiple streaming connections by their UUIDs for the authenticated application. Required: uuids. Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/connections",
       "params": [
         {
           "name": "uuids",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "Array of connection UUIDs to terminate",
           "required": true
@@ -873,7 +914,7 @@
     },
     {
       "name": "dm-conversations_create-direct-messages-by-participant-id",
-      "description": "Sends a new direct message to a specific participant by their ID. Required: participant_id. Returns the new CreateDmEventResponse.",
+      "description": "Sends a new direct message to a specific participant by their ID. Required: participant_id. Returns array of Problem.",
       "method": "POST",
       "path": "/2/dm_conversations/with/{participant_id}/messages",
       "params": [
@@ -888,7 +929,7 @@
     },
     {
       "name": "dm-conversations_create-direct-messages-conversation",
-      "description": "Initiates a new direct message conversation with specified participants. Required: conversation_type, message, participant_ids. Returns the new CreateDmEventResponse.",
+      "description": "Initiates a new direct message conversation with specified participants. Required: conversation_type, message, participant_ids. Returns array of Problem.",
       "method": "POST",
       "path": "/2/dm_conversations",
       "params": [
@@ -908,7 +949,7 @@
         },
         {
           "name": "participant_ids",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "Participants for the DM Conversation.",
           "required": true
@@ -1005,6 +1046,12 @@
           "description": "The resource identifier of the media file, including file extension (e.g. 'hVJQTwig.jpg').",
           "required": true
         }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/octet-stream"
+        }
       ]
     },
     {
@@ -1072,7 +1119,7 @@
     },
     {
       "name": "dm-conversations_messages_create-direct-by-conversation-id",
-      "description": "Sends a new direct message to a specific conversation by its ID. Required: dm_conversation_id. Returns the new CreateDmEventResponse.",
+      "description": "Sends a new direct message to a specific conversation by its ID. Required: dm_conversation_id. Returns array of Problem.",
       "method": "POST",
       "path": "/2/dm_conversations/{dm_conversation_id}/messages",
       "params": [
@@ -1087,7 +1134,7 @@
     },
     {
       "name": "dm-events_delete-direct-messages-events",
-      "description": "Deletes a specific direct message event by its ID, if owned by the authenticated user. Required: event_id. Returns the DeleteDmResponse. Destructive.",
+      "description": "Deletes a specific direct message event by its ID, if owned by the authenticated user. Required: event_id. Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/dm_events/{event_id}",
       "params": [
@@ -1158,7 +1205,7 @@
     },
     {
       "name": "dm-events_get-direct-messages-events-by-id",
-      "description": "Retrieves details of a specific direct message event by its ID. Required: event_id. Optional: dm_event.fields, expansions, media.fields (plus 2 more). Returns the Get2DmEventsEventIdResponse.",
+      "description": "Retrieves details of a specific direct message event by its ID. Required: event_id. Optional: dm_event.fields, expansions, media.fields (plus 2 more). Returns array of Problem.",
       "method": "GET",
       "path": "/2/dm_events/{event_id}",
       "params": [
@@ -1203,7 +1250,7 @@
     },
     {
       "name": "evaluate-note_evaluate-community-notes",
-      "description": "Endpoint to evaluate a community note. Required: note_text, post_id. Returns the new EvaluateNoteResponse.",
+      "description": "Endpoint to evaluate a community note. Required: note_text, post_id. Returns array of Problem.",
       "method": "POST",
       "path": "/2/evaluate_note",
       "params": [
@@ -1308,160 +1355,8 @@
       ]
     },
     {
-      "name": "likes_stream-compliance",
-      "description": "Streams all compliance data related to Likes for Users. Optional: backfill_minutes, start_time, end_time.",
-      "method": "GET",
-      "path": "/2/likes/compliance/stream",
-      "params": [
-        {
-          "name": "backfill_minutes",
-          "type": "int",
-          "location": "query",
-          "description": "The number of minutes of backfill requested."
-        },
-        {
-          "name": "start_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the Likes Compliance events will be provided."
-        },
-        {
-          "name": "end_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp from which the Likes Compliance events will be provided."
-        }
-      ]
-    },
-    {
-      "name": "likes_stream-firehose",
-      "description": "Streams all public Likes in real-time. Required: partition. Optional: backfill_minutes, start_time, end_time (plus 5 more). Returns the StreamingLikeResponseV2.",
-      "method": "GET",
-      "path": "/2/likes/firehose/stream",
-      "params": [
-        {
-          "name": "backfill_minutes",
-          "type": "int",
-          "location": "query",
-          "description": "The number of minutes of backfill requested."
-        },
-        {
-          "name": "partition",
-          "type": "int",
-          "location": "query",
-          "description": "The partition number.",
-          "required": true
-        },
-        {
-          "name": "start_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp to which the Likes will be provided."
-        },
-        {
-          "name": "end_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided."
-        },
-        {
-          "name": "like_with_tweet_author.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of LikeWithTweetAuthor fields to display."
-        },
-        {
-          "name": "expansions",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of fields to expand."
-        },
-        {
-          "name": "media.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Media fields to display."
-        },
-        {
-          "name": "user.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of User fields to display."
-        },
-        {
-          "name": "tweet.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Tweet fields to display."
-        }
-      ]
-    },
-    {
-      "name": "likes_stream-sample10",
-      "description": "Streams a 10% sample of public Likes in real-time. Required: partition. Optional: backfill_minutes, start_time, end_time (plus 5 more). Returns the StreamingLikeResponseV2.",
-      "method": "GET",
-      "path": "/2/likes/sample10/stream",
-      "params": [
-        {
-          "name": "backfill_minutes",
-          "type": "int",
-          "location": "query",
-          "description": "The number of minutes of backfill requested."
-        },
-        {
-          "name": "partition",
-          "type": "int",
-          "location": "query",
-          "description": "The partition number.",
-          "required": true
-        },
-        {
-          "name": "start_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp to which the Likes will be provided."
-        },
-        {
-          "name": "end_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided."
-        },
-        {
-          "name": "like_with_tweet_author.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of LikeWithTweetAuthor fields to display."
-        },
-        {
-          "name": "expansions",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of fields to expand."
-        },
-        {
-          "name": "media.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Media fields to display."
-        },
-        {
-          "name": "user.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of User fields to display."
-        },
-        {
-          "name": "tweet.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Tweet fields to display."
-        }
-      ]
-    },
-    {
       "name": "lists_create",
-      "description": "Creates a new List for the authenticated user. Required: name. Optional: description, private (default: false). Returns the new ListCreateResponse.",
+      "description": "Creates a new List for the authenticated user. Required: name. Optional: description, private (default: false). Returns array of Problem.",
       "method": "POST",
       "path": "/2/lists",
       "params": [
@@ -1488,7 +1383,7 @@
     },
     {
       "name": "lists_delete",
-      "description": "Deletes a specific List owned by the authenticated user by its ID. Required: id. Returns the ListDeleteResponse. Destructive.",
+      "description": "Deletes a specific List owned by the authenticated user by its ID. Required: id. Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/lists/{id}",
       "params": [
@@ -1503,7 +1398,7 @@
     },
     {
       "name": "lists_get-by-id",
-      "description": "Retrieves details of a specific List by its ID. Required: id. Optional: list.fields, expansions, user.fields. Returns the Get2ListsIdResponse.",
+      "description": "Retrieves details of a specific List by its ID. Required: id. Optional: list.fields, expansions, user.fields. Returns array of Problem.",
       "method": "GET",
       "path": "/2/lists/{id}",
       "params": [
@@ -1536,7 +1431,7 @@
     },
     {
       "name": "lists_update",
-      "description": "Updates the details of a specific List owned by the authenticated user by its ID. Required: id. Optional: description, name, private. Returns the updated ListUpdateResponse.",
+      "description": "Updates the details of a specific List owned by the authenticated user by its ID. Required: id. Optional: description, name, private. Returns array of Problem.",
       "method": "PUT",
       "path": "/2/lists/{id}",
       "params": [
@@ -1614,7 +1509,7 @@
     },
     {
       "name": "lists_members_add-lists",
-      "description": "Adds a User to a specific List by its ID. Required: id, user_id. Returns the new ListMutateResponse.",
+      "description": "Adds a User to a specific List by its ID. Required: id, user_id. Returns array of Problem.",
       "method": "POST",
       "path": "/2/lists/{id}/members",
       "params": [
@@ -1681,7 +1576,7 @@
     },
     {
       "name": "lists_members_remove-lists-by-user-id",
-      "description": "Removes a User from a specific List by its ID and the User’s ID. Required: id, user_id. Returns the ListMutateResponse. Destructive.",
+      "description": "Removes a User from a specific List by its ID and the User’s ID. Required: id, user_id. Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/lists/{id}/members/{user_id}",
       "params": [
@@ -1766,7 +1661,7 @@
     },
     {
       "name": "media_append-upload",
-      "description": "Appends data to a Media upload request. Required: id. Returns the new MediaUploadAppendResponse.",
+      "description": "Appends data to a Media upload request. Required: id. Returns array of Problem.",
       "method": "POST",
       "path": "/2/media/upload/{id}/append",
       "params": [
@@ -1781,7 +1676,7 @@
     },
     {
       "name": "media_create-metadata",
-      "description": "Creates metadata for a Media file. Required: id. Optional: metadata. Returns the new MetadataCreateResponse.",
+      "description": "Creates metadata for a Media file. Required: id. Optional: metadata. Returns array of Problem.",
       "method": "POST",
       "path": "/2/media/metadata",
       "params": [
@@ -1793,16 +1688,131 @@
           "required": true
         },
         {
-          "name": "metadata",
-          "type": "object",
+          "name": "metadata-allow-download-status-allow-download",
+          "wire_name": "metadata.allow_download_status.allow_download",
+          "type": "bool",
           "location": "body",
-          "description": "Metadata"
+          "description": "Allow download"
+        },
+        {
+          "name": "metadata-alt-text-text",
+          "wire_name": "metadata.alt_text.text",
+          "type": "string",
+          "location": "body",
+          "description": "Description of media ( <= 1000 characters )",
+          "required": true
+        },
+        {
+          "name": "metadata-audience-policy-creator-subscriptions",
+          "wire_name": "metadata.audience_policy.creator_subscriptions",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Creator subscriptions"
+        },
+        {
+          "name": "metadata-audience-policy-x-subscriptions",
+          "wire_name": "metadata.audience_policy.x_subscriptions",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "X subscriptions"
+        },
+        {
+          "name": "metadata-content-expiration-timestamp-sec",
+          "wire_name": "metadata.content_expiration.timestamp_sec",
+          "type": "float",
+          "location": "body",
+          "description": "Expiration time for content as a Unix timestamp in seconds",
+          "required": true
+        },
+        {
+          "name": "metadata-domain-restrictions-whitelist",
+          "wire_name": "metadata.domain_restrictions.whitelist",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "List of whitelisted domains",
+          "required": true
+        },
+        {
+          "name": "metadata-found-media-origin-id",
+          "wire_name": "metadata.found_media_origin.id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique Identifier of media within provider ( <= 24 characters ))",
+          "required": true
+        },
+        {
+          "name": "metadata-found-media-origin-provider",
+          "wire_name": "metadata.found_media_origin.provider",
+          "type": "string",
+          "location": "body",
+          "description": "The media provider (e.g., 'giphy') that sourced the media ( <= 8 Characters )",
+          "required": true
+        },
+        {
+          "name": "metadata-geo-restrictions",
+          "wire_name": "metadata.geo_restrictions",
+          "type": "string",
+          "location": "body",
+          "description": "Geo restrictions"
+        },
+        {
+          "name": "metadata-management-info-managed",
+          "wire_name": "metadata.management_info.managed",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates if the media is managed by Media Studio",
+          "required": true
+        },
+        {
+          "name": "metadata-sensitive-media-warning-adult-content",
+          "wire_name": "metadata.sensitive_media_warning.adult_content",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates if the content contains adult material"
+        },
+        {
+          "name": "metadata-sensitive-media-warning-graphic-violence",
+          "wire_name": "metadata.sensitive_media_warning.graphic_violence",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates if the content depicts graphic violence"
+        },
+        {
+          "name": "metadata-sensitive-media-warning-other",
+          "wire_name": "metadata.sensitive_media_warning.other",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates if the content has other sensitive characteristics"
+        },
+        {
+          "name": "metadata-shared-info-shared",
+          "wire_name": "metadata.shared_info.shared",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates if the media is shared in direct messages",
+          "required": true
+        },
+        {
+          "name": "metadata-sticker-info-stickers",
+          "wire_name": "metadata.sticker_info.stickers",
+          "type": "array",
+          "location": "body",
+          "description": "Stickers list must not be empty and should not exceed 25",
+          "required": true
+        },
+        {
+          "name": "metadata-upload-source-upload-source",
+          "wire_name": "metadata.upload_source.upload_source",
+          "type": "string",
+          "location": "body",
+          "description": "Records the source (e.g., app, device) from which the media was uploaded",
+          "required": true
         }
       ]
     },
     {
       "name": "media_create-subtitles",
-      "description": "Creates subtitles for a specific Media file. Optional: id, media_category, subtitles. Returns the new SubtitlesCreateResponse.",
+      "description": "Creates subtitles for a specific Media file. Optional: id, media_category, subtitles. Returns array of Problem.",
       "method": "POST",
       "path": "/2/media/subtitles",
       "params": [
@@ -1819,16 +1829,31 @@
           "description": "The media category of uploaded media to which subtitles should be added/deleted"
         },
         {
-          "name": "subtitles",
-          "type": "object",
+          "name": "subtitles-display-name",
+          "wire_name": "subtitles.display_name",
+          "type": "string",
           "location": "body",
-          "description": "Subtitles"
+          "description": "Language name in a human readable form"
+        },
+        {
+          "name": "subtitles-id",
+          "wire_name": "subtitles.id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of this Media."
+        },
+        {
+          "name": "subtitles-language-code",
+          "wire_name": "subtitles.language_code",
+          "type": "string",
+          "location": "body",
+          "description": "The language code should be a BCP47 code (e.g. 'EN', 'SP')"
         }
       ]
     },
     {
       "name": "media_delete-subtitles",
-      "description": "Deletes subtitles for a specific Media file. Optional: id, language_code, media_category. Returns the SubtitlesDeleteResponse. Destructive.",
+      "description": "Deletes subtitles for a specific Media file. Optional: id, language_code, media_category. Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/media/subtitles",
       "params": [
@@ -1854,7 +1879,7 @@
     },
     {
       "name": "media_finalize-upload",
-      "description": "Finalizes a Media upload request. Required: id. Returns the new MediaUploadResponse.",
+      "description": "Finalizes a Media upload request. Required: id. Returns array of Problem.",
       "method": "POST",
       "path": "/2/media/upload/{id}/finalize",
       "params": [
@@ -1911,7 +1936,7 @@
     },
     {
       "name": "media_get-by-key",
-      "description": "Retrieves details of a specific Media file by its media key. Required: media_key. Optional: media.fields. Returns the Get2MediaMediaKeyResponse.",
+      "description": "Retrieves details of a specific Media file by its media key. Required: media_key. Optional: media.fields. Returns array of Problem.",
       "method": "GET",
       "path": "/2/media/{media_key}",
       "params": [
@@ -1953,7 +1978,7 @@
     },
     {
       "name": "media_get-upload-status",
-      "description": "Retrieves the status of a Media upload by its ID. Required: media_id. Optional: command. Returns the MediaUploadResponse.",
+      "description": "Retrieves the status of a Media upload by its ID. Required: media_id. Optional: command. Returns array of Problem.",
       "method": "GET",
       "path": "/2/media/upload",
       "params": [
@@ -1974,13 +1999,13 @@
     },
     {
       "name": "media_initialize-upload",
-      "description": "Initializes a media upload. Optional: additional_owners, media_category, media_type (plus 2 more). Returns the new MediaUploadResponse.",
+      "description": "Initializes a media upload. Optional: additional_owners, media_category, media_type (plus 2 more). Returns array of Problem.",
       "method": "POST",
       "path": "/2/media/upload/initialize",
       "params": [
         {
           "name": "additional_owners",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "Additional owners"
         },
@@ -2012,13 +2037,13 @@
     },
     {
       "name": "media_upload",
-      "description": "Uploads a media file for use in posts or other content. Required: media, media_category. Optional: additional_owners, media_type, shared (default: false). Returns the new MediaUploadResponse.",
+      "description": "Uploads a media file for use in posts or other content. Required: media, media_category. Optional: additional_owners, media_type, shared (default: false). Returns array of Problem.",
       "method": "POST",
       "path": "/2/media/upload",
       "params": [
         {
           "name": "additional_owners",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "Additional owners"
         },
@@ -2052,7 +2077,7 @@
     },
     {
       "name": "news_get",
-      "description": "Retrieves news story by its ID. Required: id. Optional: news.fields. Returns the Get2NewsIdResponse.",
+      "description": "Retrieves news story by its ID. Required: id. Optional: news.fields. Returns array of Problem.",
       "method": "GET",
       "path": "/2/news/{id}",
       "params": [
@@ -2106,15 +2131,47 @@
     },
     {
       "name": "notes_create-community",
-      "description": "Creates a community note endpoint for LLM use case. Required: info, post_id, test_mode. Returns the new CreateNoteResponse.",
+      "description": "Creates a community note endpoint for LLM use case. Required: info, post_id, test_mode. Returns array of Problem.",
       "method": "POST",
       "path": "/2/notes",
       "params": [
         {
-          "name": "info",
-          "type": "object",
+          "name": "info-classification",
+          "wire_name": "info.classification",
+          "type": "string",
           "location": "body",
-          "description": "A X Community Note is a note on a Post.",
+          "description": "Community Note classification type.",
+          "required": true
+        },
+        {
+          "name": "info-is-media-note",
+          "wire_name": "info.is_media_note",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the note is a media note."
+        },
+        {
+          "name": "info-misleading-tags",
+          "wire_name": "info.misleading_tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Misleading tags",
+          "required": true
+        },
+        {
+          "name": "info-text",
+          "wire_name": "info.text",
+          "type": "string",
+          "location": "body",
+          "description": "The text summary in the Community Note.",
+          "required": true
+        },
+        {
+          "name": "info-trustworthy-sources",
+          "wire_name": "info.trustworthy_sources",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the note provided trustworthy links.",
           "required": true
         },
         {
@@ -2135,7 +2192,7 @@
     },
     {
       "name": "notes_delete-community",
-      "description": "Deletes a community note. Required: id. Returns the DeleteNoteResponse. Destructive.",
+      "description": "Deletes a community note. Required: id. Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/notes/{id}",
       "params": [
@@ -2298,7 +2355,7 @@
     },
     {
       "name": "spaces_get-by-id",
-      "description": "Retrieves details of a specific space by its ID. Required: id. Optional: space.fields, expansions, user.fields (plus 1 more). Returns the Get2SpacesIdResponse.",
+      "description": "Retrieves details of a specific space by its ID. Required: id. Optional: space.fields, expansions, user.fields (plus 1 more). Returns array of Problem.",
       "method": "GET",
       "path": "/2/spaces/{id}",
       "params": [
@@ -2556,7 +2613,7 @@
     },
     {
       "name": "tweets_create-posts",
-      "description": "Creates a new Post for the authenticated user, or edits an existing Post when edit_options are provided. Supports paid partnership disclosure via the paid_partnership field. Optional: card_uri, community_id, direct_message_deep_link (plus 13 more). Returns the new TweetCreateResponse.",
+      "description": "Creates a new Post for the authenticated user, or edits an existing Post when edit_options are provided. Supports paid partnership disclosure via the paid_partnership field. Optional: card_uri, community_id, direct_message_deep_link (plus 13 more). Returns array of Problem.",
       "method": "POST",
       "path": "/2/tweets",
       "params": [
@@ -2579,10 +2636,12 @@
           "description": "Link to take the conversation from the public timeline to a private Direct Message."
         },
         {
-          "name": "edit_options",
-          "type": "object",
+          "name": "edit-options-previous-post-id",
+          "wire_name": "edit_options.previous_post_id",
+          "type": "string",
           "location": "body",
-          "description": "Options for editing an existing Post. When provided, this request will edit the specified Post instead of creating a new one."
+          "description": "Unique identifier of this Tweet. This is returned as a string in order to avoid complications with languages and tools that cannot handle large integers.",
+          "required": true
         },
         {
           "name": "for_super_followers_only",
@@ -2591,10 +2650,11 @@
           "description": "Exclusive Tweet for super followers."
         },
         {
-          "name": "geo",
-          "type": "object",
+          "name": "geo-place-id",
+          "wire_name": "geo.place_id",
+          "type": "string",
           "location": "body",
-          "description": "Place ID being attached to the Tweet for geo location."
+          "description": "Place id"
         },
         {
           "name": "made_with_ai",
@@ -2603,10 +2663,47 @@
           "description": "Whether this Post contains AI-generated media. When true, the Post will be labeled accordingly."
         },
         {
-          "name": "media",
-          "type": "object",
+          "name": "media-description",
+          "wire_name": "media.description",
+          "type": "string",
           "location": "body",
-          "description": "Media information being attached to created Tweet. This is mutually exclusive from Quote Tweet Id, Poll, and Card URI."
+          "description": "Description for the media. Rendered on the Post card for video and Amplify content."
+        },
+        {
+          "name": "media-embeddable",
+          "wire_name": "media.embeddable",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, the media's asset URLs do not expire and external syndicated playback is allowed."
+        },
+        {
+          "name": "media-media-ids",
+          "wire_name": "media.media_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of Media Ids to be attached to a created Tweet.",
+          "required": true
+        },
+        {
+          "name": "media-preview-media-id",
+          "wire_name": "media.preview_media_id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of this Media."
+        },
+        {
+          "name": "media-tagged-user-ids",
+          "wire_name": "media.tagged_user_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of User Ids to be tagged in the media for created Tweet."
+        },
+        {
+          "name": "media-title",
+          "wire_name": "media.title",
+          "type": "string",
+          "location": "body",
+          "description": "Title for the media. Rendered on the Post card for video and Amplify content."
         },
         {
           "name": "nullcast",
@@ -2621,10 +2718,27 @@
           "description": "Whether this Post is a paid partnership. When true, the Post will be labeled as a paid promotion."
         },
         {
-          "name": "poll",
-          "type": "object",
+          "name": "poll-duration-minutes",
+          "wire_name": "poll.duration_minutes",
+          "type": "int",
           "location": "body",
-          "description": "Poll options for a Tweet with a poll. This is mutually exclusive from Media, Quote Tweet Id, and Card URI."
+          "description": "Duration of the poll in minutes.",
+          "required": true
+        },
+        {
+          "name": "poll-options",
+          "wire_name": "poll.options",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Options",
+          "required": true
+        },
+        {
+          "name": "poll-reply-settings",
+          "wire_name": "poll.reply_settings",
+          "type": "string",
+          "location": "body",
+          "description": "Settings to indicate who can reply to the Tweet."
         },
         {
           "name": "quote_tweet_id",
@@ -2633,10 +2747,26 @@
           "description": "Unique identifier of this Tweet. This is returned as a string in order to avoid complications with languages and tools that cannot handle large integers."
         },
         {
-          "name": "reply",
-          "type": "object",
+          "name": "reply-auto-populate-reply-metadata",
+          "wire_name": "reply.auto_populate_reply_metadata",
+          "type": "bool",
           "location": "body",
-          "description": "Tweet information of the Tweet being replied to."
+          "description": "If set to true, reply metadata will be automatically populated."
+        },
+        {
+          "name": "reply-exclude-reply-user-ids",
+          "wire_name": "reply.exclude_reply_user_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of User Ids to be excluded from the reply Tweet."
+        },
+        {
+          "name": "reply-in-reply-to-tweet-id",
+          "wire_name": "reply.in_reply_to_tweet_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of this Tweet. This is returned as a string in order to avoid complications with languages and tools that cannot handle large integers.",
+          "required": true
         },
         {
           "name": "reply_settings",
@@ -2660,7 +2790,7 @@
     },
     {
       "name": "tweets_create-webhooks-stream-link",
-      "description": "Creates a link to deliver FilteredStream events to the given webhook. Required: webhook_id. Optional: tweet.fields, expansions, media.fields (plus 3 more). Returns the new WebhookLinksCreateResponse.",
+      "description": "Creates a link to deliver FilteredStream events to the given webhook. Required: webhook_id. Optional: tweet.fields, expansions, media.fields (plus 3 more). Returns array of Problem.",
       "method": "POST",
       "path": "/2/tweets/search/webhooks/{webhook_id}",
       "params": [
@@ -2711,7 +2841,7 @@
     },
     {
       "name": "tweets_delete-posts",
-      "description": "Deletes a specific Post by its ID, if owned by the authenticated user. Required: id. Returns the TweetDeleteResponse. Destructive.",
+      "description": "Deletes a specific Post by its ID, if owned by the authenticated user. Required: id. Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/tweets/{id}",
       "params": [
@@ -2726,7 +2856,7 @@
     },
     {
       "name": "tweets_delete-webhooks-stream-link",
-      "description": "Deletes a link from FilteredStream events to the given webhook. Required: webhook_id. Returns the WebhookLinksDeleteResponse. Destructive.",
+      "description": "Deletes a link from FilteredStream events to the given webhook. Required: webhook_id. Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/tweets/search/webhooks/{webhook_id}",
       "params": [
@@ -2783,7 +2913,7 @@
     },
     {
       "name": "tweets_get-posts-by-id",
-      "description": "Retrieves details of a specific Post by its ID. Required: id. Optional: tweet.fields, expansions, media.fields (plus 3 more). Returns the Get2TweetsIdResponse.",
+      "description": "Retrieves details of a specific Post by its ID. Required: id. Optional: tweet.fields, expansions, media.fields (plus 3 more). Returns array of Problem.",
       "method": "GET",
       "path": "/2/tweets/{id}",
       "params": [
@@ -2884,29 +3014,29 @@
       ]
     },
     {
-      "name": "tweets_get-posts-counts-recent",
-      "description": "Retrieves the count of Posts from the last 7 days matching a search query. Required: query. Optional: start_time, end_time, since_id (plus 5 more). Returns array of SearchCount.",
+      "name": "tweets_get-posts-counts-all",
+      "description": "Retrieves the count of Posts matching a search query from the full archive. Required: query. Optional: start_time, end_time, since_id (plus 5 more). Returns array of SearchCount.",
       "method": "GET",
-      "path": "/2/tweets/counts/recent",
+      "path": "/2/tweets/counts/all",
       "params": [
         {
           "name": "query",
           "type": "string",
           "location": "query",
-          "description": "One query/rule/filter for matching Posts. Refer to https://t.co/rulelength to identify the max query length.",
+          "description": "One query/rule/filter for matching Posts.",
           "required": true
         },
         {
           "name": "start_time",
           "type": "string",
           "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The oldest UTC timestamp (from most recent 7 days) from which the Posts will be provided. Timestamp is in second granularity and is inclusive (i.e. 12:00:01 includes the first second of the minute)."
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The oldest UTC timestamp from which the Posts will be provided...."
         },
         {
           "name": "end_time",
           "type": "string",
           "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The newest, most recent UTC timestamp to which the Posts will be provided. Timestamp is in second granularity and is exclusive (i.e. 12:00:01 excludes the first second of the minute)."
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The newest, most recent UTC timestamp to which the Posts will be..."
         },
         {
           "name": "since_id",
@@ -2947,36 +3077,139 @@
       ]
     },
     {
-      "name": "tweets_get-webhooks-stream-links",
-      "description": "Get a list of webhook links associated with a filtered stream ruleset. Returns the WebhookLinksGetResponse.",
+      "name": "tweets_get-posts-counts-recent",
+      "description": "Retrieves the count of Posts from the last 7 days matching a search query. Required: query. Optional: start_time, end_time, since_id (plus 5 more). Returns array of SearchCount.",
       "method": "GET",
-      "path": "/2/tweets/search/webhooks",
-      "params": []
-    },
-    {
-      "name": "tweets_search-posts-recent",
-      "description": "Retrieves Posts from the last 7 days matching a search query. Required: query. Optional: start_time, end_time, since_id (plus 11 more). Returns array of Tweet.",
-      "method": "GET",
-      "path": "/2/tweets/search/recent",
+      "path": "/2/tweets/counts/recent",
       "params": [
         {
           "name": "query",
           "type": "string",
           "location": "query",
-          "description": "One query/rule/filter for matching Posts. Refer to https://t.co/rulelength to identify the max query length.",
+          "description": "One query/rule/filter for matching Posts.",
           "required": true
         },
         {
           "name": "start_time",
           "type": "string",
           "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The oldest UTC timestamp from which the Posts will be provided. Timestamp is in second granularity and is inclusive (i.e. 12:00:01 includes the first second of the minute)."
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The oldest UTC timestamp (from most recent 7 days) from which the Posts will be provided. Timestamp is in second granularity and is inclusive (i.e. 12:00:01 includes the first second of the minute)."
         },
         {
           "name": "end_time",
           "type": "string",
           "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The newest, most recent UTC timestamp to which the Posts will be provided. Timestamp is in second granularity and is exclusive (i.e. 12:00:01 excludes the first second of the minute)."
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The newest, most recent UTC timestamp to which the Posts will be..."
+        },
+        {
+          "name": "since_id",
+          "type": "string",
+          "location": "query",
+          "description": "Returns results with a Post ID greater than (that is, more recent than) the specified ID."
+        },
+        {
+          "name": "until_id",
+          "type": "string",
+          "location": "query",
+          "description": "Returns results with a Post ID less than (that is, older than) the specified ID."
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "granularity",
+          "type": "string",
+          "location": "query",
+          "description": "The granularity for the search counts results."
+        },
+        {
+          "name": "search_count.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of SearchCount fields to display."
+        }
+      ]
+    },
+    {
+      "name": "tweets_get-rule-counts",
+      "description": "Retrieves the count of rules in the active rule set for the filtered stream. Optional: rules_count.fields. Returns array of Problem.",
+      "method": "GET",
+      "path": "/2/tweets/search/stream/rules/counts",
+      "params": [
+        {
+          "name": "rules_count.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of RulesCount fields to display."
+        }
+      ]
+    },
+    {
+      "name": "tweets_get-rules",
+      "description": "Retrieves the active rule set or a subset of rules for the filtered stream. Optional: ids, max_results (default: 1000), pagination_token. Returns array of Rule.",
+      "method": "GET",
+      "path": "/2/tweets/search/stream/rules",
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "query",
+          "description": "A comma-separated list of Rule IDs."
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This value is populated by passing the 'next_token' returned in a request to paginate through results."
+        }
+      ]
+    },
+    {
+      "name": "tweets_get-webhooks-stream-links",
+      "description": "Get a list of webhook links associated with a filtered stream ruleset. Returns array of Problem.",
+      "method": "GET",
+      "path": "/2/tweets/search/webhooks",
+      "params": []
+    },
+    {
+      "name": "tweets_search-posts-all",
+      "description": "Retrieves Posts from the full archive matching a search query. Required: query. Optional: start_time, end_time, since_id (plus 11 more). Returns array of Tweet.",
+      "method": "GET",
+      "path": "/2/tweets/search/all",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "One query/rule/filter for matching Posts.",
+          "required": true
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The oldest UTC timestamp from which the Posts will be provided...."
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The newest, most recent UTC timestamp to which the Posts will be..."
         },
         {
           "name": "since_id",
@@ -3053,94 +3286,65 @@
       ]
     },
     {
-      "name": "tweets_stream-labels-compliance",
-      "description": "Streams all labeling events applied to Posts. Optional: backfill_minutes, start_time, end_time.",
+      "name": "tweets_search-posts-recent",
+      "description": "Retrieves Posts from the last 7 days matching a search query. Required: query. Optional: start_time, end_time, since_id (plus 11 more). Returns array of Tweet.",
       "method": "GET",
-      "path": "/2/tweets/label/stream",
+      "path": "/2/tweets/search/recent",
       "params": [
         {
-          "name": "backfill_minutes",
-          "type": "int",
-          "location": "query",
-          "description": "The number of minutes of backfill requested."
-        },
-        {
-          "name": "start_time",
+          "name": "query",
           "type": "string",
           "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the Post labels will be provided."
-        },
-        {
-          "name": "end_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp from which the Post labels will be provided."
-        }
-      ]
-    },
-    {
-      "name": "tweets_stream-posts-compliance",
-      "description": "Streams all compliance data related to Posts. Required: partition. Optional: backfill_minutes, start_time, end_time.",
-      "method": "GET",
-      "path": "/2/tweets/compliance/stream",
-      "params": [
-        {
-          "name": "backfill_minutes",
-          "type": "int",
-          "location": "query",
-          "description": "The number of minutes of backfill requested."
-        },
-        {
-          "name": "partition",
-          "type": "int",
-          "location": "query",
-          "description": "The partition number.",
+          "description": "One query/rule/filter for matching Posts.",
           "required": true
         },
         {
           "name": "start_time",
           "type": "string",
           "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the Post Compliance events will be provided."
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The oldest UTC timestamp from which the Posts will be provided...."
         },
         {
           "name": "end_time",
           "type": "string",
           "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Post Compliance events will be provided."
-        }
-      ]
-    },
-    {
-      "name": "tweets_stream-posts-firehose",
-      "description": "Streams all public Posts in real-time. Required: partition. Optional: backfill_minutes, start_time, end_time (plus 6 more). Returns the StreamingTweetResponse.",
-      "method": "GET",
-      "path": "/2/tweets/firehose/stream",
-      "params": [
-        {
-          "name": "backfill_minutes",
-          "type": "int",
-          "location": "query",
-          "description": "The number of minutes of backfill requested."
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The newest, most recent UTC timestamp to which the Posts will be..."
         },
         {
-          "name": "partition",
-          "type": "int",
-          "location": "query",
-          "description": "The partition number.",
-          "required": true
-        },
-        {
-          "name": "start_time",
+          "name": "since_id",
           "type": "string",
           "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp to which the Posts will be provided."
+          "description": "Returns results with a Post ID greater than (that is, more recent than) the specified ID."
         },
         {
-          "name": "end_time",
+          "name": "until_id",
           "type": "string",
           "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided."
+          "description": "Returns results with a Post ID less than (that is, older than) the specified ID."
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of search results to be returned by a request."
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "This order in which to return results."
         },
         {
           "name": "tweet.fields",
@@ -3181,397 +3385,22 @@
       ]
     },
     {
-      "name": "tweets_stream-posts-firehose-en",
-      "description": "Streams all public English-language Posts in real-time. Required: partition. Optional: backfill_minutes, start_time, end_time (plus 6 more). Returns the StreamingTweetResponse.",
-      "method": "GET",
-      "path": "/2/tweets/firehose/stream/lang/en",
+      "name": "tweets_update-rules",
+      "description": "Adds or deletes rules from the active rule set for the filtered stream. Optional: dry_run, delete_all. Returns array of Rule.",
+      "method": "POST",
+      "path": "/2/tweets/search/stream/rules",
       "params": [
         {
-          "name": "backfill_minutes",
-          "type": "int",
+          "name": "dry_run",
+          "type": "bool",
           "location": "query",
-          "description": "The number of minutes of backfill requested."
+          "description": "Dry Run can be used with both the add and delete action, with the expected result given, but without actually taking any action in the system (meaning the end state will always be as it was when the request was submitted). This is particularly useful to validate rule changes."
         },
         {
-          "name": "partition",
-          "type": "int",
+          "name": "delete_all",
+          "type": "bool",
           "location": "query",
-          "description": "The partition number.",
-          "required": true
-        },
-        {
-          "name": "start_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp to which the Posts will be provided."
-        },
-        {
-          "name": "end_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided."
-        },
-        {
-          "name": "tweet.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Tweet fields to display."
-        },
-        {
-          "name": "expansions",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of fields to expand."
-        },
-        {
-          "name": "media.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Media fields to display."
-        },
-        {
-          "name": "poll.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Poll fields to display."
-        },
-        {
-          "name": "user.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of User fields to display."
-        },
-        {
-          "name": "place.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Place fields to display."
-        }
-      ]
-    },
-    {
-      "name": "tweets_stream-posts-firehose-ja",
-      "description": "Streams all public Japanese-language Posts in real-time. Required: partition. Optional: backfill_minutes, start_time, end_time (plus 6 more). Returns the StreamingTweetResponse.",
-      "method": "GET",
-      "path": "/2/tweets/firehose/stream/lang/ja",
-      "params": [
-        {
-          "name": "backfill_minutes",
-          "type": "int",
-          "location": "query",
-          "description": "The number of minutes of backfill requested."
-        },
-        {
-          "name": "partition",
-          "type": "int",
-          "location": "query",
-          "description": "The partition number.",
-          "required": true
-        },
-        {
-          "name": "start_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp to which the Posts will be provided."
-        },
-        {
-          "name": "end_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided."
-        },
-        {
-          "name": "tweet.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Tweet fields to display."
-        },
-        {
-          "name": "expansions",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of fields to expand."
-        },
-        {
-          "name": "media.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Media fields to display."
-        },
-        {
-          "name": "poll.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Poll fields to display."
-        },
-        {
-          "name": "user.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of User fields to display."
-        },
-        {
-          "name": "place.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Place fields to display."
-        }
-      ]
-    },
-    {
-      "name": "tweets_stream-posts-firehose-ko",
-      "description": "Streams all public Korean-language Posts in real-time. Required: partition. Optional: backfill_minutes, start_time, end_time (plus 6 more). Returns the StreamingTweetResponse.",
-      "method": "GET",
-      "path": "/2/tweets/firehose/stream/lang/ko",
-      "params": [
-        {
-          "name": "backfill_minutes",
-          "type": "int",
-          "location": "query",
-          "description": "The number of minutes of backfill requested."
-        },
-        {
-          "name": "partition",
-          "type": "int",
-          "location": "query",
-          "description": "The partition number.",
-          "required": true
-        },
-        {
-          "name": "start_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp to which the Posts will be provided."
-        },
-        {
-          "name": "end_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided."
-        },
-        {
-          "name": "tweet.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Tweet fields to display."
-        },
-        {
-          "name": "expansions",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of fields to expand."
-        },
-        {
-          "name": "media.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Media fields to display."
-        },
-        {
-          "name": "poll.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Poll fields to display."
-        },
-        {
-          "name": "user.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of User fields to display."
-        },
-        {
-          "name": "place.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Place fields to display."
-        }
-      ]
-    },
-    {
-      "name": "tweets_stream-posts-firehose-pt",
-      "description": "Streams all public Portuguese-language Posts in real-time. Required: partition. Optional: backfill_minutes, start_time, end_time (plus 6 more). Returns the StreamingTweetResponse.",
-      "method": "GET",
-      "path": "/2/tweets/firehose/stream/lang/pt",
-      "params": [
-        {
-          "name": "backfill_minutes",
-          "type": "int",
-          "location": "query",
-          "description": "The number of minutes of backfill requested."
-        },
-        {
-          "name": "partition",
-          "type": "int",
-          "location": "query",
-          "description": "The partition number.",
-          "required": true
-        },
-        {
-          "name": "start_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp to which the Posts will be provided."
-        },
-        {
-          "name": "end_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided."
-        },
-        {
-          "name": "tweet.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Tweet fields to display."
-        },
-        {
-          "name": "expansions",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of fields to expand."
-        },
-        {
-          "name": "media.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Media fields to display."
-        },
-        {
-          "name": "poll.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Poll fields to display."
-        },
-        {
-          "name": "user.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of User fields to display."
-        },
-        {
-          "name": "place.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Place fields to display."
-        }
-      ]
-    },
-    {
-      "name": "tweets_stream-posts-sample",
-      "description": "Streams a 1% sample of public Posts in real-time. Optional: backfill_minutes, tweet.fields, expansions (plus 4 more). Returns the StreamingTweetResponse.",
-      "method": "GET",
-      "path": "/2/tweets/sample/stream",
-      "params": [
-        {
-          "name": "backfill_minutes",
-          "type": "int",
-          "location": "query",
-          "description": "The number of minutes of backfill requested."
-        },
-        {
-          "name": "tweet.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Tweet fields to display."
-        },
-        {
-          "name": "expansions",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of fields to expand."
-        },
-        {
-          "name": "media.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Media fields to display."
-        },
-        {
-          "name": "poll.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Poll fields to display."
-        },
-        {
-          "name": "user.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of User fields to display."
-        },
-        {
-          "name": "place.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Place fields to display."
-        }
-      ]
-    },
-    {
-      "name": "tweets_stream-posts-sample10",
-      "description": "Streams a 10% sample of public Posts in real-time. Required: partition. Optional: backfill_minutes, start_time, end_time (plus 6 more). Returns the Get2TweetsSample10StreamResponse.",
-      "method": "GET",
-      "path": "/2/tweets/sample10/stream",
-      "params": [
-        {
-          "name": "backfill_minutes",
-          "type": "int",
-          "location": "query",
-          "description": "The number of minutes of backfill requested."
-        },
-        {
-          "name": "partition",
-          "type": "int",
-          "location": "query",
-          "description": "The partition number.",
-          "required": true
-        },
-        {
-          "name": "start_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp to which the Posts will be provided."
-        },
-        {
-          "name": "end_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided."
-        },
-        {
-          "name": "tweet.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Tweet fields to display."
-        },
-        {
-          "name": "expansions",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of fields to expand."
-        },
-        {
-          "name": "media.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Media fields to display."
-        },
-        {
-          "name": "poll.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Poll fields to display."
-        },
-        {
-          "name": "user.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of User fields to display."
-        },
-        {
-          "name": "place.fields",
-          "type": "array",
-          "location": "query",
-          "description": "A comma separated list of Place fields to display."
+          "description": "Delete All can be used to delete all of the rules associated this client app, it should be specified with no other parameters. Once deleted, rules cannot be recovered."
         }
       ]
     },
@@ -3821,7 +3650,7 @@
     },
     {
       "name": "usage_get",
-      "description": "Retrieves usage statistics for Posts over a specified number of days. Optional: days (default: 7), usage.fields. Returns the Get2UsageTweetsResponse.",
+      "description": "Retrieves usage statistics for Posts over a specified number of days. Optional: days (default: 7), usage.fields. Returns array of Problem.",
       "method": "GET",
       "path": "/2/usage/tweets",
       "params": [
@@ -3841,7 +3670,7 @@
     },
     {
       "name": "users_get-by-id",
-      "description": "Retrieves details of a specific User by their ID. Required: id. Optional: user.fields, expansions, tweet.fields. Returns the Get2UsersIdResponse.",
+      "description": "Retrieves details of a specific User by their ID. Required: id. Optional: user.fields, expansions, tweet.fields. Returns array of Problem.",
       "method": "GET",
       "path": "/2/users/{id}",
       "params": [
@@ -3907,7 +3736,7 @@
     },
     {
       "name": "users_get-by-username",
-      "description": "Retrieves details of a specific User by their username. Required: username. Optional: user.fields, expansions, tweet.fields. Returns the Get2UsersByUsernameUsernameResponse.",
+      "description": "Retrieves details of a specific User by their username. Required: username. Optional: user.fields, expansions, tweet.fields. Returns array of Problem.",
       "method": "GET",
       "path": "/2/users/by/username/{username}",
       "params": [
@@ -3973,7 +3802,7 @@
     },
     {
       "name": "users_get-me",
-      "description": "Retrieves details of the authenticated user. Optional: user.fields, expansions, tweet.fields. Returns the Get2UsersMeResponse.",
+      "description": "Retrieves details of the authenticated user. Optional: user.fields, expansions, tweet.fields. Returns array of Problem.",
       "method": "GET",
       "path": "/2/users/me",
       "params": [
@@ -4134,39 +3963,6 @@
       ]
     },
     {
-      "name": "users_stream-compliance",
-      "description": "Streams all compliance data related to Users. Required: partition. Optional: backfill_minutes, start_time, end_time.",
-      "method": "GET",
-      "path": "/2/users/compliance/stream",
-      "params": [
-        {
-          "name": "backfill_minutes",
-          "type": "int",
-          "location": "query",
-          "description": "The number of minutes of backfill requested."
-        },
-        {
-          "name": "partition",
-          "type": "int",
-          "location": "query",
-          "description": "The partition number.",
-          "required": true
-        },
-        {
-          "name": "start_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the User Compliance events will be provided."
-        },
-        {
-          "name": "end_time",
-          "type": "string",
-          "location": "query",
-          "description": "YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp from which the User Compliance events will be provided."
-        }
-      ]
-    },
-    {
       "name": "users_affiliates_get-users",
       "description": "Retrieves a list of Users who are affiliated with a specific organization User by their ID. Required: id. Optional: max_results, pagination_token, user.fields (plus 2 more). Returns array of User.",
       "method": "GET",
@@ -4258,7 +4054,7 @@
     },
     {
       "name": "users_bookmarks_create-users",
-      "description": "Adds a post to the authenticated user’s bookmarks. Required: id, tweet_id. Returns the new BookmarkMutationResponse.",
+      "description": "Adds a post to the authenticated user’s bookmarks. Required: id, tweet_id. Returns array of Problem.",
       "method": "POST",
       "path": "/2/users/{id}/bookmarks",
       "params": [
@@ -4280,7 +4076,7 @@
     },
     {
       "name": "users_bookmarks_delete-users",
-      "description": "Removes a Post from the authenticated user’s Bookmarks by its ID. Required: id, tweet_id. Returns the BookmarkMutationResponse. Destructive.",
+      "description": "Removes a Post from the authenticated user’s Bookmarks by its ID. Required: id, tweet_id. Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/users/{id}/bookmarks/{tweet_id}",
       "params": [
@@ -4414,7 +4210,7 @@
     },
     {
       "name": "users_dm_block-users",
-      "description": "Blocks direct messages to or from a specific User by their ID for the authenticated user. Required: id. Returns the new UsersDmblockCreateResponse.",
+      "description": "Blocks direct messages to or from a specific User by their ID for the authenticated user. Required: id. Returns array of Problem.",
       "method": "POST",
       "path": "/2/users/{id}/dm/block",
       "params": [
@@ -4429,7 +4225,7 @@
     },
     {
       "name": "users_dm_unblock-users",
-      "description": "Unblocks direct messages to or from a specific User by their ID for the authenticated user. Required: id. Returns the new UsersDmunBlockCreateResponse.",
+      "description": "Unblocks direct messages to or from a specific User by their ID for the authenticated user. Required: id. Returns array of Problem.",
       "method": "POST",
       "path": "/2/users/{id}/dm/unblock",
       "params": [
@@ -4444,7 +4240,7 @@
     },
     {
       "name": "users_followed-lists_follow-list",
-      "description": "Causes the authenticated user to follow a specific List by its ID. Required: id, list_id. Returns the new ListFollowedResponse.",
+      "description": "Causes the authenticated user to follow a specific List by its ID. Required: id, list_id. Returns array of Problem.",
       "method": "POST",
       "path": "/2/users/{id}/followed_lists",
       "params": [
@@ -4511,7 +4307,7 @@
     },
     {
       "name": "users_followed-lists_unfollow-list",
-      "description": "Causes the authenticated user to unfollow a specific List by its ID. Required: id, list_id. Returns the ListFollowedResponse. Destructive.",
+      "description": "Causes the authenticated user to unfollow a specific List by its ID. Required: id, list_id. Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/users/{id}/followed_lists/{list_id}",
       "params": [
@@ -4578,7 +4374,7 @@
     },
     {
       "name": "users_following_follow-user",
-      "description": "Causes the authenticated user to follow a specific user by their ID. Required: id, target_user_id. Returns the new UsersFollowingCreateResponse.",
+      "description": "Causes the authenticated user to follow a specific user by their ID. Required: id, target_user_id. Returns array of Problem.",
       "method": "POST",
       "path": "/2/users/{id}/following",
       "params": [
@@ -4645,7 +4441,7 @@
     },
     {
       "name": "users_following_unfollow-user",
-      "description": "Causes the authenticated user to unfollow a specific user by their ID. Required: source_user_id, target_user_id. Returns the UsersFollowingDeleteResponse. Destructive.",
+      "description": "Causes the authenticated user to unfollow a specific user by their ID. Required: source_user_id, target_user_id. Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/users/{source_user_id}/following/{target_user_id}",
       "params": [
@@ -4730,7 +4526,7 @@
     },
     {
       "name": "users_likes_post",
-      "description": "Causes the authenticated user to Like a specific Post by its ID. Required: id, tweet_id. Returns the new UsersLikesCreateResponse.",
+      "description": "Causes the authenticated user to Like a specific Post by its ID. Required: id, tweet_id. Returns array of Problem.",
       "method": "POST",
       "path": "/2/users/{id}/likes",
       "params": [
@@ -4752,7 +4548,7 @@
     },
     {
       "name": "users_likes_unlike-post",
-      "description": "Causes the authenticated user to Unlike a specific Post by its ID. Required: id, tweet_id. Returns the UsersLikesDeleteResponse. Destructive.",
+      "description": "Causes the authenticated user to Unlike a specific Post by its ID. Required: id, tweet_id. Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/users/{id}/likes/{tweet_id}",
       "params": [
@@ -4951,7 +4747,7 @@
     },
     {
       "name": "users_muting_mute-user",
-      "description": "Causes the authenticated user to mute a specific User by their ID. Required: id, target_user_id. Returns the new MuteUserMutationResponse.",
+      "description": "Causes the authenticated user to mute a specific User by their ID. Required: id, target_user_id. Returns array of Problem.",
       "method": "POST",
       "path": "/2/users/{id}/muting",
       "params": [
@@ -4973,7 +4769,7 @@
     },
     {
       "name": "users_muting_unmute-user",
-      "description": "Causes the authenticated user to unmute a specific user by their ID. Required: source_user_id, target_user_id. Returns the MuteUserMutationResponse. Destructive.",
+      "description": "Causes the authenticated user to unmute a specific user by their ID. Required: source_user_id, target_user_id. Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/users/{source_user_id}/muting/{target_user_id}",
       "params": [
@@ -5073,7 +4869,7 @@
     },
     {
       "name": "users_pinned-lists_pin-list",
-      "description": "Causes the authenticated user to pin a specific List by its ID. Required: id, list_id. Returns the new ListPinnedResponse.",
+      "description": "Causes the authenticated user to pin a specific List by its ID. Required: id, list_id. Returns array of Problem.",
       "method": "POST",
       "path": "/2/users/{id}/pinned_lists",
       "params": [
@@ -5095,7 +4891,7 @@
     },
     {
       "name": "users_pinned-lists_unpin-list",
-      "description": "Causes the authenticated user to unpin a specific List by its ID. Required: id, list_id. Returns the ListUnpinResponse. Destructive.",
+      "description": "Causes the authenticated user to unpin a specific List by its ID. Required: id, list_id. Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/users/{id}/pinned_lists/{list_id}",
       "params": [
@@ -5117,7 +4913,7 @@
     },
     {
       "name": "users_public-keys_add-user",
-      "description": "Registers a user's public key for X Chat encryption. Required: id, public_key, version. Optional: generate_version. Returns the new ChatAddPublicKeyResponse.",
+      "description": "Registers a user's public key for X Chat encryption. Required: id, public_key, version. Optional: generate_version. Returns array of Problem.",
       "method": "POST",
       "path": "/2/users/{id}/public_keys",
       "params": [
@@ -5135,11 +4931,46 @@
           "description": "When true, the server generates a new version."
         },
         {
-          "name": "public_key",
-          "type": "object",
+          "name": "public-key-identity-public-key-signature",
+          "wire_name": "public_key.identity_public_key_signature",
+          "type": "string",
           "location": "body",
-          "description": "Public key registration payload.",
-          "required": true
+          "description": "Signature over the identity public key."
+        },
+        {
+          "name": "public-key-public-key",
+          "wire_name": "public_key.public_key",
+          "type": "string",
+          "location": "body",
+          "description": "Identity public key (base64 encoded)."
+        },
+        {
+          "name": "public-key-public-key-fingerprint",
+          "wire_name": "public_key.public_key_fingerprint",
+          "type": "string",
+          "location": "body",
+          "description": "Fingerprint of the identity public key."
+        },
+        {
+          "name": "public-key-registration-method",
+          "wire_name": "public_key.registration_method",
+          "type": "string",
+          "location": "body",
+          "description": "Registration method for the public key."
+        },
+        {
+          "name": "public-key-signing-public-key",
+          "wire_name": "public_key.signing_public_key",
+          "type": "string",
+          "location": "body",
+          "description": "Signing public key (base64 encoded)."
+        },
+        {
+          "name": "public-key-signing-public-key-signature",
+          "wire_name": "public_key.signing_public_key_signature",
+          "type": "string",
+          "location": "body",
+          "description": "Signature over the signing public key."
         },
         {
           "name": "version",
@@ -5173,7 +5004,7 @@
     },
     {
       "name": "users_retweets_repost-post",
-      "description": "Causes the authenticated user to repost a specific Post by its ID. Required: id, tweet_id. Returns the new UsersRetweetsCreateResponse.",
+      "description": "Causes the authenticated user to repost a specific Post by its ID. Required: id, tweet_id. Returns array of Problem.",
       "method": "POST",
       "path": "/2/users/{id}/retweets",
       "params": [
@@ -5195,7 +5026,7 @@
     },
     {
       "name": "users_retweets_unrepost-post",
-      "description": "Causes the authenticated user to unrepost a specific Post by its ID. Required: id, source_tweet_id. Returns the UsersRetweetsDeleteResponse. Destructive.",
+      "description": "Causes the authenticated user to unrepost a specific Post by its ID. Required: id, source_tweet_id. Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/users/{id}/retweets/{source_tweet_id}",
       "params": [
@@ -5447,7 +5278,7 @@
     },
     {
       "name": "webhooks_delete",
-      "description": "Deletes an existing webhook configuration. Required: webhook_id. Returns the WebhookConfigDeleteResponse. Destructive.",
+      "description": "Deletes an existing webhook configuration. Required: webhook_id. Returns array of Problem. Destructive.",
       "method": "DELETE",
       "path": "/2/webhooks/{webhook_id}",
       "params": [
@@ -5476,7 +5307,7 @@
     },
     {
       "name": "webhooks_validate",
-      "description": "Triggers a CRC check for a given webhook. Required: webhook_id. Returns the updated WebhookConfigPutResponse.",
+      "description": "Triggers a CRC check for a given webhook. Required: webhook_id. Returns array of Problem.",
       "method": "PUT",
       "path": "/2/webhooks/{webhook_id}",
       "params": [

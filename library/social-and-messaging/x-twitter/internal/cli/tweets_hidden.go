@@ -9,8 +9,10 @@ import (
 
 func newTweetsHiddenCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "hidden",
-		Short: "Manage hidden",
+		Use:         "hidden",
+		Short:       "Update hidden for tweets",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newTweetsHiddenHidePostsReplyCmd(flags))

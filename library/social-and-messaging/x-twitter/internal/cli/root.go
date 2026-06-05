@@ -5,7 +5,6 @@ package cli
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -33,14 +32,20 @@ type rootFlags struct {
 	ignoreMissing bool
 	yes           bool
 	agent         bool
-	selectFields  string
-	configPath    string
-	profileName   string
-	deliverSpec   string
-	timeout       time.Duration
-	rateLimit     float64
-	dataSource    string
-	freshnessMeta any
+	// allowPartialFailure downgrades a detected response-body partial-failure
+	// (e.g. Google Ads `partialFailureError`) from a non-zero exit to a
+	// stderr warning. Default false so silent partial successes surface as
+	// failures by default.
+	allowPartialFailure bool
+	selectFields        string
+	configPath          string
+	profileName         string
+	deliverSpec         string
+	timeout             time.Duration
+	rateLimit           float64
+	maxAge              time.Duration
+	dataSource          string
+	freshnessMeta       any
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
@@ -67,7 +72,14 @@ func Execute() error {
 		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
 			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
 			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
+				// Cobra already printed `Error: unknown flag: --foob` before
+				// returning; the wrap below attaches the hint to err.Error()
+				// for downstream consumers and exit-code classification, but
+				// would never reach stderr now that main.go no longer prints
+				// err. Emit the hint explicitly so the suggestion still
+				// shows up under Cobra's error line.
+				fmt.Fprintf(os.Stderr, "hint: did you mean --%s?\n", suggestion)
+				err = fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
 			}
 		}
 	}
@@ -77,17 +89,73 @@ func Execute() error {
 			return derr
 		}
 	}
+	if err != nil && isCobraUsageError(err) {
+		// Cobra/pflag pre-RunE errors (unknown flag, unknown command,
+		// missing required, etc.) never flow through usageErr() because
+		// they originate inside rootCmd.Execute() before any user RunE
+		// runs. Without this wrap, ExitCode() falls through to the
+		// default and emits 1 — clobbering the conventional code-2 for
+		// usage errors that the helpers.go contract already promises.
+		return usageErr(err)
+	}
 	return err
+}
+
+// isCobraUsageError reports whether err matches one of Cobra/pflag's
+// pre-RunE usage-error shapes. Detection is by message prefix to match
+// the same approach the unknown-flag hint path uses above; neither
+// Cobra nor pflag exports typed sentinels for these.
+//
+// Patterns are anchored to the literal punctuation Cobra and pflag
+// emit so an application's own RunE error that happens to contain the
+// substring "required flag" or "invalid argument" doesn't get
+// misclassified as a usage error.
+//
+// Patterns covered (Cobra v1.x + pflag v1.x as of 2026-05):
+//   - "unknown flag: --foo"                            (pflag)
+//   - "unknown shorthand flag: 'x' in -x"              (pflag)
+//   - "unknown command \"foo\" for ..."                (Cobra)
+//   - "required flag \"foo\" not set"                  (Cobra, single missing)
+//   - "required flag(s) \"foo\" not set"               (Cobra, multiple missing)
+//   - "flag needs an argument: --foo"                  (pflag, missing value)
+//   - "invalid argument \"x\" for \"--y\" flag: ..."   (pflag, parse failure)
+//
+// Cobra emits the singular form ("required flag") when exactly one
+// MarkFlagRequired flag is missing, and the plural form ("required
+// flag(s)") only when multiple are missing on the same command. Both
+// shapes must be anchored to avoid matching app-level errors that
+// happen to mention "required flag" as prose; the trailing space + quote
+// (`required flag "`) is the literal punctuation cobra emits.
+//
+// Returns false for nil err.
+func isCobraUsageError(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := err.Error()
+	return strings.HasPrefix(msg, "unknown flag") ||
+		strings.HasPrefix(msg, "unknown shorthand flag") ||
+		strings.HasPrefix(msg, "unknown command") ||
+		strings.HasPrefix(msg, `required flag "`) ||
+		strings.HasPrefix(msg, `required flag(s) "`) ||
+		strings.HasPrefix(msg, "flag needs an argument:") ||
+		strings.HasPrefix(msg, `invalid argument "`)
 }
 
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "x-twitter-pp-cli",
-		Short: "Manage x resources via the x API",
-		Long: `Manage x resources via the x API.
+		Short: `X Twitter CLI — The only X CLI with an offline, searchable local mirror — full-text search and analytics over your archived posts without re-…`,
+		Long: `X Twitter CLI — The only X CLI with an offline, searchable local mirror — full-text search and analytics over your archived posts without re-…
 
-Add --agent to any command for JSON output + non-interactive mode.
-Run 'x-twitter-pp-cli doctor' to verify auth and connectivity.`,
+Highlights (not in the official API docs):
+  • thread show   Rebuild a full conversation thread from your locally synced posts — ordered and depth-tagged — without re-spending API read credits.
+  • thread compose   Split a markdown file into a numbered, 280-char-packed self-reply thread; prints by default and only posts with --post.
+  • articles-publish-md   Parse a markdown file with YAML frontmatter into the Draft.js content_state JSON X's Articles editor accepts; previews by default; --draft saves a draft, --post publishes publicly.
+
+Agent mode: add --agent to any command for JSON output + non-interactive mode.
+Health check: run 'x-twitter-pp-cli doctor' to verify auth and connectivity.
+See README.md or the bundled SKILL.md for recipes.`,
 		SilenceUsage: true,
 		Version:      version,
 	}
@@ -99,7 +167,7 @@ Run 'x-twitter-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.PersistentFlags().BoolVar(&flags.plain, "plain", false, "Output as plain tab-separated text")
 	rootCmd.PersistentFlags().BoolVar(&flags.quiet, "quiet", false, "Bare output, one value per line")
 	rootCmd.PersistentFlags().StringVar(&flags.configPath, "config", "", "Config file path")
-	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 30*time.Second, "Request timeout")
+	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 60*time.Second, "Request timeout")
 	rootCmd.PersistentFlags().BoolVar(&flags.dryRun, "dry-run", false, "Show request without sending")
 	rootCmd.PersistentFlags().BoolVar(&flags.noCache, "no-cache", false, "Bypass response cache")
 	rootCmd.PersistentFlags().BoolVar(&flags.noInput, "no-input", false, "Disable all interactive prompts (for CI/agents)")
@@ -110,10 +178,12 @@ Run 'x-twitter-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.PersistentFlags().BoolVar(&noColor, "no-color", false, "Disable colored output")
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
+	rootCmd.PersistentFlags().BoolVar(&flags.allowPartialFailure, "allow-partial-failure", false, "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
+	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'x-twitter-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
-	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 2, "Max requests per second (0 to disable, default 2 for sniffed APIs)")
+	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		if flags.deliverSpec != "" {
@@ -170,7 +240,6 @@ Run 'x-twitter-pp-cli doctor' to verify auth and connectivity.`,
 	}
 	rootCmd.AddCommand(newAccountActivityCmd(flags))
 	rootCmd.AddCommand(newActivityCmd(flags))
-	rootCmd.AddCommand(newArticlesCmd(flags))
 	rootCmd.AddCommand(newChatCmd(flags))
 	rootCmd.AddCommand(newCommunitiesCmd(flags))
 	rootCmd.AddCommand(newComplianceCmd(flags))
@@ -178,7 +247,6 @@ Run 'x-twitter-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newDmConversationsCmd(flags))
 	rootCmd.AddCommand(newDmEventsCmd(flags))
 	rootCmd.AddCommand(newInsightsCmd(flags))
-	rootCmd.AddCommand(newLikesCmd(flags))
 	rootCmd.AddCommand(newListsCmd(flags))
 	rootCmd.AddCommand(newMediaCmd(flags))
 	rootCmd.AddCommand(newNewsCmd(flags))
@@ -200,15 +268,21 @@ Run 'x-twitter-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newTailCmd(flags))
 	rootCmd.AddCommand(newAnalyticsCmd(flags))
 	rootCmd.AddCommand(newWorkflowCmd(flags))
+	rootCmd.AddCommand(newArticlesCmd(flags))
+	rootCmd.AddCommand(newNovelArticlesPublishMdCmd(flags))
+	rootCmd.AddCommand(newNovelThreadCmd(flags))
+	// Novel: attach `bookmarks find` to the generated `users bookmarks` parent.
+	// Walking the built tree keeps the generated parent file untouched, so a
+	// reprint regenerates the endpoint mirrors and re-applies this line cleanly.
+	if bm, _, err := rootCmd.Find([]string{"users", "bookmarks"}); err == nil && bm.Name() == "bookmarks" {
+		bm.AddCommand(newNovelBookmarksFindCmd(flags))
+	}
 	rootCmd.AddCommand(newAPICmd(flags))
 	rootCmd.AddCommand(newEvaluateNotePromotedCmd(flags))
 	rootCmd.AddCommand(newOpenapiJsonPromotedCmd(flags))
 	rootCmd.AddCommand(newTrendsPromotedCmd(flags))
 	rootCmd.AddCommand(newUsagePromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
-	// Hand-written compound commands (not generated from spec).
-	rootCmd.AddCommand(newThreadCmd(flags))
-	rootCmd.AddCommand(newArticlesPublishMdCmd(flags))
 
 	return rootCmd
 }
@@ -233,9 +307,7 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 }
 
 func (f *rootFlags) printJSON(w *cobra.Command, v any) error {
-	enc := json.NewEncoder(w.OutOrStdout())
-	enc.SetIndent("", "  ")
-	return enc.Encode(v)
+	return printJSONFiltered(w.OutOrStdout(), v, f)
 }
 
 func (f *rootFlags) printTable(w *cobra.Command, headers []string, rows [][]string) error {
@@ -269,7 +341,7 @@ func newVersionCliCmd() *cobra.Command {
 		Use:   "version",
 		Short: "Print version",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("x-twitter-pp-cli %s\n", version)
+			fmt.Printf("%s %s\n", cmd.Root().Name(), version)
 		},
 	}
 }

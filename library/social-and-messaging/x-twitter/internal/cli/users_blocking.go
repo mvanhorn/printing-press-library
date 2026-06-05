@@ -9,8 +9,10 @@ import (
 
 func newUsersBlockingCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "blocking",
-		Short: "Manage blocking",
+		Use:         "blocking",
+		Short:       "Get blocking for users",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersBlockingGetUsersCmd(flags))

@@ -20,9 +20,15 @@ func newInsightsGetInsights28HrCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "get-insights28-hr",
 		Short:       "Retrieves engagement metrics for specified Posts over the last 28 hours.",
-		Example:     "  x-twitter-pp-cli insights get-insights28-hr --tweet-ids example-value --granularity example-value --requested-metrics example-value",
+		Example:     "  x-twitter-pp-cli insights get-insights28-hr --tweet-ids example-value --granularity Daily --requested-metrics example-value",
 		Annotations: map[string]string{"pp:endpoint": "insights.get-insights28-hr", "pp:method": "GET", "pp:path": "/2/insights/28hr", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("tweet-ids") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "tweet-ids")
 			}
@@ -42,7 +48,7 @@ func newInsightsGetInsights28HrCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validGranularity {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "granularity", flagGranularity, allowedGranularity)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagGranularity, "granularity", allowedGranularity)
 				}
 			}
 			c, err := flags.newClient()
@@ -64,20 +70,26 @@ func newInsightsGetInsights28HrCmd(flags *rootFlags) *cobra.Command {
 			if flagEngagementFields != "" {
 				params["engagement.fields"] = fmt.Sprintf("%v", flagEngagementFields)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "insights", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "insights", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)

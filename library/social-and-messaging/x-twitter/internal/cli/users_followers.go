@@ -9,8 +9,10 @@ import (
 
 func newUsersFollowersCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "followers",
-		Short: "Manage followers",
+		Use:         "followers",
+		Short:       "Get followers for users",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersFollowersGetUsersCmd(flags))

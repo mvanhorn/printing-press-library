@@ -9,8 +9,10 @@ import (
 
 func newUsersFollowedListsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "followed-lists",
-		Short: "Manage followed lists",
+		Use:         "followed-lists",
+		Short:       "Get, create, and delete followed lists for users",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersFollowedListsFollowListCmd(flags))

@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -16,16 +17,25 @@ func newTweetsCreatePostsCmd(flags *rootFlags) *cobra.Command {
 	var bodyCardUri string
 	var bodyCommunityId string
 	var bodyDirectMessageDeepLink string
-	var bodyEditOptions string
+	var bodyEditOptionsPreviousPostId string
 	var bodyForSuperFollowersOnly bool
-	var bodyGeo string
+	var bodyGeoPlaceId string
 	var bodyMadeWithAi bool
-	var bodyMedia string
+	var bodyMediaDescription string
+	var bodyMediaEmbeddable bool
+	var bodyMediaMediaIds string
+	var bodyMediaPreviewMediaId string
+	var bodyMediaTaggedUserIds string
+	var bodyMediaTitle string
 	var bodyNullcast bool
 	var bodyPaidPartnership bool
-	var bodyPoll string
+	var bodyPollDurationMinutes int
+	var bodyPollOptions string
+	var bodyPollReplySettings string
 	var bodyQuoteTweetId string
-	var bodyReply string
+	var bodyReplyAutoPopulateReplyMetadata bool
+	var bodyReplyExcludeReplyUserIds string
+	var bodyReplyInReplyToTweetId string
 	var bodyReplySettings string
 	var bodyShareWithFollowers bool
 	var bodyText string
@@ -34,11 +44,32 @@ func newTweetsCreatePostsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "create-posts",
 		Aliases:     []string{"create"},
-		Short:       "Creates a new Post for the authenticated user, or edits an existing Post when edit_options are provided. Supports...",
+		Short:       "Creates a new Post for the authenticated user, or edits an existing Post when edit_options are provided.",
 		Example:     "  x-twitter-pp-cli tweets create-posts",
 		Annotations: map[string]string{"pp:endpoint": "tweets.create-posts", "pp:method": "POST", "pp:path": "/2/tweets"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !stdinBody {
+				if !cmd.Flags().Changed("edit-options-previous-post-id") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "edit-options-previous-post-id")
+				}
+				if !cmd.Flags().Changed("media-media-ids") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "media-media-ids")
+				}
+				if !cmd.Flags().Changed("poll-duration-minutes") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "poll-duration-minutes")
+				}
+				if !cmd.Flags().Changed("poll-options") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "poll-options")
+				}
+				if !cmd.Flags().Changed("reply-in-reply-to-tweet-id") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "reply-in-reply-to-tweet-id")
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -46,6 +77,7 @@ func newTweetsCreatePostsCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/2/tweets"
+			params := map[string]string{}
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
@@ -68,69 +100,133 @@ func newTweetsCreatePostsCmd(flags *rootFlags) *cobra.Command {
 				if bodyDirectMessageDeepLink != "" {
 					body["direct_message_deep_link"] = bodyDirectMessageDeepLink
 				}
-				if bodyEditOptions != "" {
-					var parsedEditOptions any
-					if err := json.Unmarshal([]byte(bodyEditOptions), &parsedEditOptions); err != nil {
-						return fmt.Errorf("parsing --edit-options JSON: %w", err)
+				{
+					nestedEditOptions := map[string]any{}
+					if bodyEditOptionsPreviousPostId != "" {
+						nestedEditOptions["previous_post_id"] = bodyEditOptionsPreviousPostId
 					}
-					body["edit_options"] = parsedEditOptions
+					if len(nestedEditOptions) > 0 {
+						body["edit_options"] = nestedEditOptions
+					}
 				}
-				if bodyForSuperFollowersOnly != false {
+				if cmd.Flags().Changed("for-super-followers-only") {
 					body["for_super_followers_only"] = bodyForSuperFollowersOnly
 				}
-				if bodyGeo != "" {
-					var parsedGeo any
-					if err := json.Unmarshal([]byte(bodyGeo), &parsedGeo); err != nil {
-						return fmt.Errorf("parsing --geo JSON: %w", err)
+				{
+					nestedGeo := map[string]any{}
+					if bodyGeoPlaceId != "" {
+						nestedGeo["place_id"] = bodyGeoPlaceId
 					}
-					body["geo"] = parsedGeo
+					if len(nestedGeo) > 0 {
+						body["geo"] = nestedGeo
+					}
 				}
-				if bodyMadeWithAi != false {
+				if cmd.Flags().Changed("made-with-ai") {
 					body["made_with_ai"] = bodyMadeWithAi
 				}
-				if bodyMedia != "" {
-					var parsedMedia any
-					if err := json.Unmarshal([]byte(bodyMedia), &parsedMedia); err != nil {
-						return fmt.Errorf("parsing --media JSON: %w", err)
+				{
+					nestedMedia := map[string]any{}
+					{
+						nestedMediaCallToActions := map[string]any{}
+						if len(nestedMediaCallToActions) > 0 {
+							nestedMedia["call_to_actions"] = nestedMediaCallToActions
+						}
 					}
-					body["media"] = parsedMedia
+					if bodyMediaDescription != "" {
+						nestedMedia["description"] = bodyMediaDescription
+					}
+					if cmd.Flags().Changed("media-embeddable") {
+						nestedMedia["embeddable"] = bodyMediaEmbeddable
+					}
+					if bodyMediaMediaIds != "" {
+						nestedMedia["media_ids"] = cliutil.SplitCSV(bodyMediaMediaIds)
+					}
+					if bodyMediaPreviewMediaId != "" {
+						nestedMedia["preview_media_id"] = bodyMediaPreviewMediaId
+					}
+					if bodyMediaTaggedUserIds != "" {
+						nestedMedia["tagged_user_ids"] = cliutil.SplitCSV(bodyMediaTaggedUserIds)
+					}
+					if bodyMediaTitle != "" {
+						nestedMedia["title"] = bodyMediaTitle
+					}
+					if len(nestedMedia) > 0 {
+						body["media"] = nestedMedia
+					}
 				}
-				if bodyNullcast != false {
+				if cmd.Flags().Changed("nullcast") {
 					body["nullcast"] = bodyNullcast
 				}
-				if bodyPaidPartnership != false {
+				if cmd.Flags().Changed("paid-partnership") {
 					body["paid_partnership"] = bodyPaidPartnership
 				}
-				if bodyPoll != "" {
-					var parsedPoll any
-					if err := json.Unmarshal([]byte(bodyPoll), &parsedPoll); err != nil {
-						return fmt.Errorf("parsing --poll JSON: %w", err)
+				{
+					nestedPoll := map[string]any{}
+					if bodyPollDurationMinutes != 0 {
+						nestedPoll["duration_minutes"] = bodyPollDurationMinutes
 					}
-					body["poll"] = parsedPoll
+					if bodyPollOptions != "" {
+						nestedPoll["options"] = cliutil.SplitCSV(bodyPollOptions)
+					}
+					if bodyPollReplySettings != "" {
+						nestedPoll["reply_settings"] = bodyPollReplySettings
+					}
+					if len(nestedPoll) > 0 {
+						body["poll"] = nestedPoll
+					}
 				}
 				if bodyQuoteTweetId != "" {
 					body["quote_tweet_id"] = bodyQuoteTweetId
 				}
-				if bodyReply != "" {
-					var parsedReply any
-					if err := json.Unmarshal([]byte(bodyReply), &parsedReply); err != nil {
-						return fmt.Errorf("parsing --reply JSON: %w", err)
+				{
+					nestedReply := map[string]any{}
+					if cmd.Flags().Changed("reply-auto-populate-reply-metadata") {
+						nestedReply["auto_populate_reply_metadata"] = bodyReplyAutoPopulateReplyMetadata
 					}
-					body["reply"] = parsedReply
+					if bodyReplyExcludeReplyUserIds != "" {
+						nestedReply["exclude_reply_user_ids"] = cliutil.SplitCSV(bodyReplyExcludeReplyUserIds)
+					}
+					if bodyReplyInReplyToTweetId != "" {
+						nestedReply["in_reply_to_tweet_id"] = bodyReplyInReplyToTweetId
+					}
+					if len(nestedReply) > 0 {
+						body["reply"] = nestedReply
+					}
 				}
 				if bodyReplySettings != "" {
 					body["reply_settings"] = bodyReplySettings
 				}
-				if bodyShareWithFollowers != false {
+				if cmd.Flags().Changed("share-with-followers") {
 					body["share_with_followers"] = bodyShareWithFollowers
 				}
 				if bodyText != "" {
 					body["text"] = bodyText
 				}
 			}
-			data, statusCode, err := c.Post(path, body)
+			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
+			}
+			// Inspect the mutate response body for a partial-failure-shaped
+			// field (e.g. Google Ads `partialFailureError`). Several Google
+			// APIs return 200 OK with a partial-failure field when some
+			// operations in the batch failed; ignoring it silently swallows
+			// real failures. Detection runs before output-mode selection so
+			// the exit code is consistent regardless of how stdout is
+			// rendered. --dry-run short-circuits because no real request
+			// was sent.
+			var partialFailure *partialFailureReport
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
+				partialFailure = detectPartialFailure(data)
+				if partialFailure != nil {
+					fmt.Fprintf(os.Stderr, "warning: partial failure detected in %s response: %s\n", "tweets", partialFailure.Message)
+					if len(partialFailure.ResourceNames) > 0 {
+						fmt.Fprintf(os.Stderr, "         succeeded: %d operation(s)\n", len(partialFailure.ResourceNames))
+					}
+				}
+			}
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
+				writeMutationResponseToStore(cmd.Context(), "tweets", data, "errors")
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -139,6 +235,9 @@ func newTweetsCreatePostsCmd(flags *rootFlags) *cobra.Command {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
 					} else {
+						if partialFailure != nil && !flags.allowPartialFailure {
+							return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "tweets", partialFailure.Message))
+						}
 						return nil
 					}
 				} else {
@@ -149,14 +248,52 @@ func newTweetsCreatePostsCmd(flags *rootFlags) *cobra.Command {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
 						} else {
+							if partialFailure != nil && !flags.allowPartialFailure {
+								return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "tweets", partialFailure.Message))
+							}
 							return nil
 						}
 					}
 				}
 			}
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				if flags.quiet {
+					if partialFailure != nil && !flags.allowPartialFailure {
+						return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "tweets", partialFailure.Message))
+					}
 					return nil
+				}
+				envelope := map[string]any{
+					"action":   "post",
+					"resource": "tweets",
+					"path":     path,
+					"status":   statusCode,
+					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
+				}
+				if partialFailure != nil {
+					envelope["partial_failure"] = partialFailure
+				}
+				if flags.dryRun {
+					envelope["dry_run"] = true
+					envelope["status"] = 0
+					envelope["success"] = false
+				}
+				// Verify-mode synthetic envelope detection runs against RAW data
+				// (before --compact/--select filtering) so the sentinel field is
+				// guaranteed to be visible even if the operator passes a filter
+				// flag that would otherwise strip it. Surfaces a top-level
+				// verify_noop signal + flips success to false. Mirrors the dry_run
+				// shape above.
+				if len(data) > 0 {
+					var rawParsed any
+					if err := json.Unmarshal(data, &rawParsed); err == nil {
+						if m, ok := rawParsed.(map[string]any); ok {
+							if v, ok := m["__pp_verify_synthetic__"].(bool); ok && v {
+								envelope["verify_noop"] = true
+								envelope["success"] = false
+							}
+						}
+					}
 				}
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
@@ -168,18 +305,6 @@ func newTweetsCreatePostsCmd(flags *rootFlags) *cobra.Command {
 				} else if flags.compact {
 					filtered = compactFields(filtered)
 				}
-				envelope := map[string]any{
-					"action":   "post",
-					"resource": "tweets",
-					"path":     path,
-					"status":   statusCode,
-					"success":  statusCode >= 200 && statusCode < 300,
-				}
-				if flags.dryRun {
-					envelope["dry_run"] = true
-					envelope["status"] = 0
-					envelope["success"] = false
-				}
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
@@ -190,28 +315,56 @@ func newTweetsCreatePostsCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				return printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true)
+				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+					return perr
+				}
+				if partialFailure != nil && !flags.allowPartialFailure {
+					return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "tweets", partialFailure.Message))
+				}
+				return nil
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			// Fall-through for mutate paths that did not hit the table or
+			// asJSON branches: --quiet, --csv, --plain, and default terminal
+			// raw output. printOutputWithFlags renders the body, then the
+			// typed partial-failure exit fires unless --allow-partial-failure
+			// downgrades it. Without this guard a partial failure would exit
+			// 0 for these output modes — the exact silent-swallow regression
+			// the surrounding patch is preventing for asJSON / piped output.
+			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
+				return perr
+			}
+			if partialFailure != nil && !flags.allowPartialFailure {
+				return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "tweets", partialFailure.Message))
+			}
+			return nil
 		},
 	}
 	cmd.Flags().StringVar(&bodyCardUri, "card-uri", "", "Card Uri Parameter. This is mutually exclusive from Quote Tweet Id, Poll, Media, and Direct Message Deep Link.")
 	cmd.Flags().StringVar(&bodyCommunityId, "community-id", "", "The unique identifier of this Community.")
 	cmd.Flags().StringVar(&bodyDirectMessageDeepLink, "direct-message-deep-link", "", "Link to take the conversation from the public timeline to a private Direct Message.")
-	cmd.Flags().StringVar(&bodyEditOptions, "edit-options", "", "Options for editing an existing Post. When provided, this request will edit the specified Post instead of creating a...")
+	cmd.Flags().StringVar(&bodyEditOptionsPreviousPostId, "edit-options-previous-post-id", "", "Unique identifier of this Tweet.")
 	cmd.Flags().BoolVar(&bodyForSuperFollowersOnly, "for-super-followers-only", false, "Exclusive Tweet for super followers.")
-	cmd.Flags().StringVar(&bodyGeo, "geo", "", "Place ID being attached to the Tweet for geo location.")
+	cmd.Flags().StringVar(&bodyGeoPlaceId, "geo-place-id", "", "Place id")
 	cmd.Flags().BoolVar(&bodyMadeWithAi, "made-with-ai", false, "Whether this Post contains AI-generated media. When true, the Post will be labeled accordingly.")
-	cmd.Flags().StringVar(&bodyMedia, "media", "", "Media information being attached to created Tweet. This is mutually exclusive from Quote Tweet Id, Poll, and Card URI.")
+	cmd.Flags().StringVar(&bodyMediaDescription, "media-description", "", "Description for the media. Rendered on the Post card for video and Amplify content.")
+	cmd.Flags().BoolVar(&bodyMediaEmbeddable, "media-embeddable", false, "When true, the media's asset URLs do not expire and external syndicated playback is allowed.")
+	cmd.Flags().StringVar(&bodyMediaMediaIds, "media-media-ids", "", "A list of Media Ids to be attached to a created Tweet.")
+	cmd.Flags().StringVar(&bodyMediaPreviewMediaId, "media-preview-media-id", "", "The unique identifier of this Media.")
+	cmd.Flags().StringVar(&bodyMediaTaggedUserIds, "media-tagged-user-ids", "", "A list of User Ids to be tagged in the media for created Tweet.")
+	cmd.Flags().StringVar(&bodyMediaTitle, "media-title", "", "Title for the media. Rendered on the Post card for video and Amplify content.")
 	cmd.Flags().BoolVar(&bodyNullcast, "nullcast", false, "Nullcasted (promoted-only) Posts do not appear in the public timeline and are not served to followers.")
 	cmd.Flags().BoolVar(&bodyPaidPartnership, "paid-partnership", false, "Whether this Post is a paid partnership. When true, the Post will be labeled as a paid promotion.")
-	cmd.Flags().StringVar(&bodyPoll, "poll", "", "Poll options for a Tweet with a poll. This is mutually exclusive from Media, Quote Tweet Id, and Card URI.")
-	cmd.Flags().StringVar(&bodyQuoteTweetId, "quote-tweet-id", "", "Unique identifier of this Tweet. This is returned as a string in order to avoid complications with languages and...")
-	cmd.Flags().StringVar(&bodyReply, "reply", "", "Tweet information of the Tweet being replied to.")
+	cmd.Flags().IntVar(&bodyPollDurationMinutes, "poll-duration-minutes", 0, "Duration of the poll in minutes.")
+	cmd.Flags().StringVar(&bodyPollOptions, "poll-options", "", "Options")
+	cmd.Flags().StringVar(&bodyPollReplySettings, "poll-reply-settings", "", "Settings to indicate who can reply to the Tweet.")
+	cmd.Flags().StringVar(&bodyQuoteTweetId, "quote-tweet-id", "", "Unique identifier of this Tweet.")
+	cmd.Flags().BoolVar(&bodyReplyAutoPopulateReplyMetadata, "reply-auto-populate-reply-metadata", false, "If set to true, reply metadata will be automatically populated.")
+	cmd.Flags().StringVar(&bodyReplyExcludeReplyUserIds, "reply-exclude-reply-user-ids", "", "A list of User Ids to be excluded from the reply Tweet.")
+	cmd.Flags().StringVar(&bodyReplyInReplyToTweetId, "reply-in-reply-to-tweet-id", "", "Unique identifier of this Tweet.")
 	cmd.Flags().StringVar(&bodyReplySettings, "reply-settings", "", "Settings to indicate who can reply to the Tweet.")
 	cmd.Flags().BoolVar(&bodyShareWithFollowers, "share-with-followers", false, "Share community post with followers too.")
 	cmd.Flags().StringVar(&bodyText, "text", "", "The content of the Tweet.")
-	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin (use this for deeply nested fields not exposed as flags)")
 
 	return cmd
 }

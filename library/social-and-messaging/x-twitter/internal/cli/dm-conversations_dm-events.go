@@ -9,8 +9,10 @@ import (
 
 func newDmConversationsDmEventsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "dm-events",
-		Short: "Manage dm events",
+		Use:         "dm-events",
+		Short:       "Get dm events for dm conversations",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newDmConversationsDmEventsGetDirectMessagesEventsByConversationIdCmd(flags))

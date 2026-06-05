@@ -42,10 +42,10 @@ checksum:
 brews:
   - name: x-twitter-pp-cli
     repository:
-      owner: cathryn-lavery
+      owner: tmchow
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Combined CLI for multiple API services"
+    description: "The only X CLI with an offline"
     install: |
       bin.install "x-twitter-pp-cli"
       bin.install "x-twitter-pp-mcp"

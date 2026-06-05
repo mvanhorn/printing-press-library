@@ -9,8 +9,11 @@ import (
 
 func newUsersCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "users",
-		Short: "Endpoints related to retrieving, managing relationships of Users",
+		Use:         "users",
+		Short:       "Endpoints related to retrieving, managing relationships of Users",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersGetByIdCmd(flags))
@@ -22,7 +25,6 @@ func newUsersCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newUsersGetRepostsOfMeCmd(flags))
 	cmd.AddCommand(newUsersGetTrendsPersonalizedTrendsCmd(flags))
 	cmd.AddCommand(newUsersSearchCmd(flags))
-	cmd.AddCommand(newUsersStreamComplianceCmd(flags))
 	cmd.AddCommand(newUsersAffiliatesCmd(flags))
 	cmd.AddCommand(newUsersBlockingCmd(flags))
 	cmd.AddCommand(newUsersBookmarksCmd(flags))

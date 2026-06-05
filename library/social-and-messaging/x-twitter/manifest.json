@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "x-twitter-pp-mcp",
   "display_name": "X (Twitter)",
-  "version": "4.1.0",
-  "description": "X v2 API mirror with first-class Articles support — tweets, users, lists, spaces, bookmarks, likes via the official OpenAPI; long-form Articles authoring via browser-sniffed editor endpoints (GraphQL with rotating operation hashes).",
+  "version": "4.20.1",
+  "description": "The only X CLI with an offline, searchable local mirror — full-text search and SQL over your archived posts without re-spending per-read API credits — plus a full-surface MCP server and honest tier/reachability diagnostics.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -15,17 +15,24 @@
       "command": "${__dirname}/bin/x-twitter-pp-mcp",
       "args": [],
       "env": {
+        "X_BEARER_TOKEN": "${user_config.x_bearer_token}",
         "X_OAUTH2_USER_TOKEN": "${user_config.x_oauth2_user_token}"
       }
     }
   },
   "user_config": {
+    "x_bearer_token": {
+      "type": "string",
+      "title": "X_BEARER_TOKEN",
+      "description": "App-only Bearer token for public reads (tweet/user lookup, recent search, lists, spaces). Required minimum - nothing works without it. Get one at https://console.x.com/ (app, then Keys and Tokens, then Bearer Token).",
+      "sensitive": true,
+      "required": true
+    },
     "x_oauth2_user_token": {
       "type": "string",
       "title": "X_OAUTH2_USER_TOKEN",
-      "description": "Sets X_OAUTH2_USER_TOKEN for the X (Twitter) MCP server.",
-      "sensitive": true,
-      "required": true
+      "description": "Optional. Optional OAuth2 user-context token. Unlocks v2 writes (post, like, repost, bookmark, follow, DM) and personal reads (me, mentions, home timeline, bookmarks). Sent as Authorization Bearer; obtain via auth login (OAuth2 + PKCE).",
+      "sensitive": true
     }
   },
   "compatibility": {
@@ -35,5 +42,13 @@
       "linux",
       "win32"
     ]
-  }
+  },
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "owner": "cathryn-lavery",
+  "owner_name": null,
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery"
 }

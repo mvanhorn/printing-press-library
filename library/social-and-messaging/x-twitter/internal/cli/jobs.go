@@ -144,7 +144,10 @@ func WaitForJob(ctx context.Context, c *client.Client, statusPath string, jobID 
 			return nil, err
 		}
 
-		resp, err := c.Get(path, nil)
+		// GetNoCache: the cache is keyed by (path, params), so a cached
+		// non-terminal status would lock the poll on the initial response
+		// for the cache TTL.
+		resp, err := c.GetNoCache(ctx, path, nil)
 		if err == nil {
 			var body map[string]any
 			if uerr := json.Unmarshal(resp, &body); uerr == nil {
@@ -218,6 +221,8 @@ func newJobsCmd(flags *rootFlags) *cobra.Command {
 
 Submit an async endpoint with --wait to block until completion; submit
 without --wait to get the job ID back immediately and track it later.`,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newJobsListCmd(flags))
 	cmd.AddCommand(newJobsGetCmd(flags))
@@ -231,6 +236,7 @@ func newJobsListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "list",
 		Short:       "List recent async jobs",
+		Example:     "  x-twitter-pp-cli jobs list\n  x-twitter-pp-cli jobs list --all --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			rows, err := readJobRows()
@@ -269,6 +275,7 @@ func newJobsGetCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:         "get <job-id>",
 		Short:       "Show the latest state row for a job",
+		Example:     "  x-twitter-pp-cli jobs get 1750000000000000000 --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -298,8 +305,9 @@ func newJobsGetCmd(flags *rootFlags) *cobra.Command {
 func newJobsPruneCmd(flags *rootFlags) *cobra.Command {
 	var olderThan time.Duration
 	cmd := &cobra.Command{
-		Use:   "prune",
-		Short: "Remove job rows older than --older-than",
+		Use:     "prune",
+		Short:   "Remove job rows older than --older-than",
+		Example: "  x-twitter-pp-cli jobs prune --older-than 168h",
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			rows, err := readJobRows()
 			if err != nil {

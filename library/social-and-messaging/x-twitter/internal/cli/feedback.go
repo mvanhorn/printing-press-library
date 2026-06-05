@@ -35,7 +35,7 @@ func feedbackFilePath() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("resolving home dir: %w", err)
 	}
-	dir := filepath.Join(home, ".x-twitter-pp-cli")
+	dir := filepath.Join(home, ".local", "share", "x-twitter-pp-cli")
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", fmt.Errorf("creating state dir: %w", err)
 	}
@@ -46,15 +46,15 @@ func feedbackFilePath() (string, error) {
 // is available. Surfaced via agent-context so introspecting agents know
 // whether their feedback will ship upstream.
 func FeedbackEndpointConfigured() bool {
-	return os.Getenv("X_FEEDBACK_ENDPOINT") != ""
+	return os.Getenv("X_TWITTER_FEEDBACK_ENDPOINT") != ""
 }
 
 func feedbackEndpoint() string {
-	return os.Getenv("X_FEEDBACK_ENDPOINT")
+	return os.Getenv("X_TWITTER_FEEDBACK_ENDPOINT")
 }
 
 func feedbackAutoSend() bool {
-	v := strings.ToLower(strings.TrimSpace(os.Getenv("X_FEEDBACK_AUTO_SEND")))
+	v := strings.ToLower(strings.TrimSpace(os.Getenv("X_TWITTER_FEEDBACK_AUTO_SEND")))
 	return v == "1" || v == "true" || v == "yes"
 }
 
@@ -100,9 +100,9 @@ func newFeedbackCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "feedback [text]",
 		Short: "Record feedback about this CLI (local by default; upstream opt-in)",
-		Long: `Feedback is captured locally first at ~/.x-twitter-pp-cli/feedback.jsonl.
-When ` + "`X_FEEDBACK_ENDPOINT`" + ` is set and either --send is
-passed or ` + "`X_FEEDBACK_AUTO_SEND=true`" + `, the entry is
+		Long: `Feedback is captured locally first at ~/.local/share/x-twitter-pp-cli/feedback.jsonl.
+When ` + "`X_TWITTER_FEEDBACK_ENDPOINT`" + ` is set and either --send is
+passed or ` + "`X_TWITTER_FEEDBACK_AUTO_SEND=true`" + `, the entry is
 POSTed as JSON after the local write.
 
 Write what surprised you or tripped you up, not a bug report. The

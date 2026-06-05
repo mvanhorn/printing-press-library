@@ -9,8 +9,10 @@ import (
 
 func newUsersLikesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "likes",
-		Short: "Manage likes",
+		Use:         "likes",
+		Short:       "Create and delete likes for users",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersLikesPostCmd(flags))

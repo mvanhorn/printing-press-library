@@ -1,6 +1,6 @@
 ---
 name: pp-x-twitter
-description: "Printing Press CLI for X. Combined CLI for multiple API services"
+description: "The only X CLI with an offline Trigger phrases: `search X for`, `archive tweets about`, `show me the X thread for`, `monitor my X mentions`, `post a thread to X`, `use x-twitter`, `run x-twitter-pp-cli`."
 author: "Cathryn Lavery"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -29,7 +29,7 @@ This skill drives the `x-twitter-pp-cli` binary. **You must verify the CLI is in
 2. Verify: `x-twitter-pp-cli --version`
 3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/cmd/x-twitter-pp-cli@latest
@@ -37,9 +37,52 @@ go install github.com/mvanhorn/printing-press-library/library/social-and-messagi
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-## HTTP Transport
+Mirrors the official X v2 API and adds what no other X tool has: a local SQLite store you can sync once and query many times with FTS5 search and group-by analytics, agent-native --json/--select output, and an MCP server that exposes the whole surface to AI agents through token-efficient orchestration plus named multi-step intents. Reconstruct conversation threads offline with `thread show`, compose self-reply threads from markdown with `thread compose`, author long-form X Articles from markdown with `articles-publish-md`, and rescue your bookmark graveyard with `users bookmarks find` — keyword and author search over your synced bookmarks, which X itself gives you no way to search.
 
-This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It does not require a resident browser process for normal API calls.
+## When to Use This CLI
+
+Reach for this CLI when a task involves reading, searching, or archiving X (Twitter) data and you want the results queryable offline rather than re-fetched each time — building a searchable corpus of posts, reconstructing a conversation thread, snapshotting a user's recent posts with engagement, or monitoring mentions incrementally. It is also the right choice when an AI agent needs an X surface with read-only/destructive safety hints and named multi-step intents rather than a pile of raw endpoint calls. Prefer it over raw API calls whenever the same data will be queried more than once, since the local store avoids re-spending per-read credits.
+
+## Unique Capabilities
+
+These capabilities aren't available in any other tool for this API.
+
+### Local state that compounds
+- **`thread show`** — Rebuild a full conversation thread from your locally synced posts — ordered and depth-tagged — without re-spending API read credits.
+
+  _When an agent needs the shape of a discussion (who replied to whom, in order), reach for this instead of paginating the search API and re-assembling the tree by hand._
+
+  ```bash
+  x-twitter-pp-cli thread show 1750000000000000000 --agent
+  ```
+- **`users bookmarks find`** — Search your synced bookmarks by keyword and/or author, offline. X has no bookmark search and its API exposes no bookmark timestamp, so bookmarks pile up unread; this rebuilds the missing retrieval layer from the local store. Read-only and free to re-run once synced — the X read credit is spent once at sync time, not per query.
+
+  _The "I bookmarked something about this and can't find it" rescue. Sync bookmarks once, then let an agent retrieve and act on them (summarize, draft a thread, cluster) — the offline store is the agent's working set, not a per-query API spend._
+
+  ```bash
+  # one-time populate (personal read — needs X_OAUTH2_USER_TOKEN); add author field + users for --from
+  x-twitter-pp-cli sync --resources bookmarks --param tweet.fields=author_id,created_at
+  x-twitter-pp-cli sync --resources users
+
+  x-twitter-pp-cli users bookmarks find "rust async" --agent
+  x-twitter-pp-cli users bookmarks find "llm" --from @karpathy --limit 20 --agent
+  ```
+
+### Authoring workflows
+- **`thread compose`** — Split a markdown file into a numbered, 280-char-packed self-reply thread; prints by default and only posts with --post.
+
+  _Compose a thread from a document deterministically; the dry-run default lets an agent preview the exact tweets before any write._
+
+  ```bash
+  x-twitter-pp-cli thread compose ./update.md
+  ```
+- **`articles-publish-md`** — Parse a markdown file with YAML frontmatter into the Draft.js content_state JSON X's Articles editor accepts; previews by default; --draft saves a draft, --post publishes publicly.
+
+  _The only programmatic way to author a long-form X Article from a document; preview and --draft keep it private until you explicitly --post._
+
+  ```bash
+  x-twitter-pp-cli articles-publish-md ./post.md
+  ```
 
 ## Command Reference
 
@@ -57,35 +100,24 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 - `x-twitter-pp-cli activity delete-subscription` — Deletes a subscription for an X activity event
 - `x-twitter-pp-cli activity delete-subscriptions-by-ids` — Deletes multiple subscriptions for X activity events by their IDs
 - `x-twitter-pp-cli activity get-subscriptions` — Get a list of active subscriptions for XAA
-- `x-twitter-pp-cli activity stream` — Stream of X Activities
 - `x-twitter-pp-cli activity update-subscription` — Updates a subscription for an X activity event
-
-**articles** — X Articles (long-form posts) authoring + media upload
-
-- `x-twitter-pp-cli articles create_draft` — POST /i/api/graphql/g1l5N8BxGewYuCy5USe_bQ/ArticleEntityDraftCreate
-- `x-twitter-pp-cli articles delete` — POST /i/api/graphql/e4lWqB6m2TA8Fn_j9L9xEA/ArticleEntityDelete
-- `x-twitter-pp-cli articles list` — GET /i/api/graphql/N1zzFzRPspT-sP9Q42n_bg/ArticleEntitiesSlice
-- `x-twitter-pp-cli articles publish` — POST /i/api/graphql/m4SHicYMoWO_qkLvjhDk7Q/ArticleEntityPublish
-- `x-twitter-pp-cli articles update_content` — POST /i/api/graphql/M7N2FrPrlOmu-YrVIBxFnQ/ArticleEntityUpdateContent
-- `x-twitter-pp-cli articles update_cover_media` — POST /i/api/graphql/Es8InPh7mEkK9PxclxFAVQ/ArticleEntityUpdateCoverMedia
-- `x-twitter-pp-cli articles update_title` — POST /i/api/graphql/x75E2ABzm8_mGTg1bz8hcA/ArticleEntityUpdateTitle
-- `x-twitter-pp-cli articles upload_media` — POST /i/media/upload.json
 
 **chat** — Manage chat
 
 - `x-twitter-pp-cli chat add-group-members` — Adds one or more members to an existing encrypted Chat group conversation, rotating the conversation key.
 - `x-twitter-pp-cli chat create-conversation` — Creates a new encrypted Chat group conversation on behalf of the authenticated user.
-- `x-twitter-pp-cli chat get-conversation` — Retrieves messages and key change events for a specific Chat conversation with pagination support. For 1:1...
+- `x-twitter-pp-cli chat get-conversation` — Returns metadata for a Chat conversation including type, muted status, and group details. Use chat_conversation.
+- `x-twitter-pp-cli chat get-conversation-events` — Retrieves messages and key change events for a specific Chat conversation with pagination support.
 - `x-twitter-pp-cli chat get-conversations` — Retrieves a list of Chat conversations for the authenticated user's inbox.
-- `x-twitter-pp-cli chat initialize-conversation-keys` — Initializes encryption keys for a Chat conversation. This is the first step before sending messages in a new 1:1...
-- `x-twitter-pp-cli chat initialize-group` — Initializes a new XChat group conversation and returns a unique conversation ID. This endpoint is the first step in...
-- `x-twitter-pp-cli chat mark-conversation-read` — Marks a specific Chat conversation as read on behalf of the authenticated user. For 1:1 conversations, provide the...
-- `x-twitter-pp-cli chat media-download` — Downloads encrypted media bytes from an XChat conversation. The response body contains raw binary bytes. For 1:1...
+- `x-twitter-pp-cli chat initialize-conversation-keys` — Initializes encryption keys for a Chat conversation.
+- `x-twitter-pp-cli chat initialize-group` — Initializes a new XChat group conversation and returns a unique conversation ID.
+- `x-twitter-pp-cli chat mark-conversation-read` — Marks a specific Chat conversation as read on behalf of the authenticated user.
+- `x-twitter-pp-cli chat media-download` — Downloads encrypted media bytes from an XChat conversation. The response body contains raw binary bytes.
 - `x-twitter-pp-cli chat media-upload-append` — Appends media data to an XChat upload session.
 - `x-twitter-pp-cli chat media-upload-finalize` — Finalizes an XChat media upload session.
 - `x-twitter-pp-cli chat media-upload-initialize` — Initializes an XChat media upload session.
-- `x-twitter-pp-cli chat send-message` — Sends an encrypted message to a specific Chat conversation. For 1:1 conversations, provide the recipient's user ID;...
-- `x-twitter-pp-cli chat send-typing-indicator` — Sends a typing indicator to a specific Chat conversation on behalf of the authenticated user. For 1:1 conversations,...
+- `x-twitter-pp-cli chat send-message` — Sends an encrypted message to a specific Chat conversation.
+- `x-twitter-pp-cli chat send-typing-indicator` — Sends a typing indicator to a specific Chat conversation on behalf of the authenticated user.
 
 **communities** — Manage communities
 
@@ -110,7 +142,7 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 - `x-twitter-pp-cli dm-conversations create-direct-messages-by-participant-id` — Sends a new direct message to a specific participant by their ID.
 - `x-twitter-pp-cli dm-conversations create-direct-messages-conversation` — Initiates a new direct message conversation with specified participants.
 - `x-twitter-pp-cli dm-conversations get-direct-messages-events-by-participant-id` — Retrieves direct message events for a specific conversation.
-- `x-twitter-pp-cli dm-conversations media-download` — Downloads media attached to a legacy Direct Message. The requesting user must be a participant in the conversation...
+- `x-twitter-pp-cli dm-conversations media-download` — Downloads media attached to a legacy Direct Message.
 
 **dm-events** — Manage dm events
 
@@ -129,9 +161,6 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 
 **likes** — Manage likes
 
-- `x-twitter-pp-cli likes stream-compliance` — Streams all compliance data related to Likes for Users.
-- `x-twitter-pp-cli likes stream-firehose` — Streams all public Likes in real-time.
-- `x-twitter-pp-cli likes stream-sample10` — Streams a 10% sample of public Likes in real-time.
 
 **lists** — Endpoints related to retrieving, managing Lists
 
@@ -168,7 +197,7 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 
 **openapi-json** — Manage openapi json
 
-- `x-twitter-pp-cli openapi-json` — Retrieves the full OpenAPI Specification in JSON format. (See...
+- `x-twitter-pp-cli openapi-json` — Retrieves the full OpenAPI Specification in JSON format. (See https://github.
 
 **spaces** — Endpoints related to retrieving, managing Spaces
 
@@ -183,25 +212,21 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 
 **tweets** — Endpoints related to retrieving, searching, and modifying Tweets
 
-- `x-twitter-pp-cli tweets create-posts` — Creates a new Post for the authenticated user, or edits an existing Post when edit_options are provided. Supports...
+- `x-twitter-pp-cli tweets create-posts` — Creates a new Post for the authenticated user, or edits an existing Post when edit_options are provided.
 - `x-twitter-pp-cli tweets create-webhooks-stream-link` — Creates a link to deliver FilteredStream events to the given webhook.
 - `x-twitter-pp-cli tweets delete-posts` — Deletes a specific Post by its ID, if owned by the authenticated user.
 - `x-twitter-pp-cli tweets delete-webhooks-stream-link` — Deletes a link from FilteredStream events to the given webhook.
 - `x-twitter-pp-cli tweets get-posts-analytics` — Retrieves analytics data for specified Posts within a defined time range.
 - `x-twitter-pp-cli tweets get-posts-by-id` — Retrieves details of a specific Post by its ID.
 - `x-twitter-pp-cli tweets get-posts-by-ids` — Retrieves details of multiple Posts by their IDs.
+- `x-twitter-pp-cli tweets get-posts-counts-all` — Retrieves the count of Posts matching a search query from the full archive.
 - `x-twitter-pp-cli tweets get-posts-counts-recent` — Retrieves the count of Posts from the last 7 days matching a search query.
+- `x-twitter-pp-cli tweets get-rule-counts` — Retrieves the count of rules in the active rule set for the filtered stream.
+- `x-twitter-pp-cli tweets get-rules` — Retrieves the active rule set or a subset of rules for the filtered stream.
 - `x-twitter-pp-cli tweets get-webhooks-stream-links` — Get a list of webhook links associated with a filtered stream ruleset.
+- `x-twitter-pp-cli tweets search-posts-all` — Retrieves Posts from the full archive matching a search query.
 - `x-twitter-pp-cli tweets search-posts-recent` — Retrieves Posts from the last 7 days matching a search query.
-- `x-twitter-pp-cli tweets stream-labels-compliance` — Streams all labeling events applied to Posts.
-- `x-twitter-pp-cli tweets stream-posts-compliance` — Streams all compliance data related to Posts.
-- `x-twitter-pp-cli tweets stream-posts-firehose` — Streams all public Posts in real-time.
-- `x-twitter-pp-cli tweets stream-posts-firehose-en` — Streams all public English-language Posts in real-time.
-- `x-twitter-pp-cli tweets stream-posts-firehose-ja` — Streams all public Japanese-language Posts in real-time.
-- `x-twitter-pp-cli tweets stream-posts-firehose-ko` — Streams all public Korean-language Posts in real-time.
-- `x-twitter-pp-cli tweets stream-posts-firehose-pt` — Streams all public Portuguese-language Posts in real-time.
-- `x-twitter-pp-cli tweets stream-posts-sample` — Streams a 1% sample of public Posts in real-time.
-- `x-twitter-pp-cli tweets stream-posts-sample10` — Streams a 10% sample of public Posts in real-time.
+- `x-twitter-pp-cli tweets update-rules` — Adds or deletes rules from the active rule set for the filtered stream.
 
 **usage** — Manage usage
 
@@ -218,12 +243,11 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 - `x-twitter-pp-cli users get-reposts-of-me` — Retrieves a list of Posts that repost content from the authenticated user.
 - `x-twitter-pp-cli users get-trends-personalized-trends` — Retrieves personalized trending topics for the authenticated user.
 - `x-twitter-pp-cli users search` — Retrieves a list of Users matching a search query.
-- `x-twitter-pp-cli users stream-compliance` — Streams all compliance data related to Users.
 
 **webhooks** — Manage webhooks
 
 - `x-twitter-pp-cli webhooks create` — Creates a new webhook configuration.
-- `x-twitter-pp-cli webhooks create-replay-job` — Creates a replay job to retrieve events from up to the past 24 hours for all events delivered or attempted to be...
+- `x-twitter-pp-cli webhooks create-replay-job` — Creates a replay job to retrieve events from up to the past 24 hours for all events delivered or attempted to be
 - `x-twitter-pp-cli webhooks delete` — Deletes an existing webhook configuration.
 - `x-twitter-pp-cli webhooks get` — Get a list of webhook configs associated with a client app.
 - `x-twitter-pp-cli webhooks validate` — Triggers a CRC check for a given webhook.
@@ -239,15 +263,43 @@ x-twitter-pp-cli which "<capability in your own words>"
 
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
-## Auth Setup
+## Recipes
 
-Store your access token:
+### Archive a topic, then query it offline
 
 ```bash
-x-twitter-pp-cli auth set-token YOUR_TOKEN_HERE
+x-twitter-pp-cli sync --resources tweets --since 24h && x-twitter-pp-cli search "ai agents" --type tweets --limit 50
 ```
 
-Or set `X_OAUTH2_USER_TOKEN` as an environment variable.
+Sync once into SQLite, then run as many offline FTS queries as you want without further API reads.
+
+### Agent-friendly field projection on a large response
+
+```bash
+x-twitter-pp-cli search "openai" --type tweets --agent --select id,text,author_id,public_metrics.like_count
+```
+
+Posts carry large nested payloads; --agent + --select trims the response to just the fields an agent needs, keeping context cheap.
+
+### Reconstruct a conversation thread offline
+
+```bash
+x-twitter-pp-cli thread show 1750000000000000000 --agent
+```
+
+Walks the synced posts joined on conversation_id and referenced_tweets into an ordered, depth-tagged tree — no API call.
+
+### Compose a self-reply thread from a document (dry-run by default)
+
+```bash
+x-twitter-pp-cli thread compose ./release-notes.md
+```
+
+Splits the markdown into a numbered 280-char-packed self-reply thread and prints it; add --post to actually publish.
+
+## Auth Setup
+
+X auth is layered; the configured credential decides what works, and the CLI prefers X_OAUTH2_USER_TOKEN when set (reads + writes) over X_BEARER_TOKEN (reads only). Run doctor to see what is configured and what it unlocks. Credentials: X_BEARER_TOKEN (app-only Bearer) for public reads (tweet/user lookup, recent search, lists, spaces); X_OAUTH2_USER_TOKEN (OAuth 2.0 user-context) for v2 writes (post, like, repost, bookmark, follow, DM) and personal reads (me, mentions, home timeline, bookmarks); logged-in x.com browser cookies for X Articles (articles-publish-md, articles ...), captured via 'auth login --chrome' (X Articles has no v2 API). Setup in the X developer console (console.x.com) - a person can do this or an agent with console access can automate it; none of it is manual-only: (1) attach the app to a Project (any environment, incl. Development) - this unlocks v2 API access, standalone-app tokens are rejected; (2) set app permissions to Read and write (needed for posting); (3) copy the app Bearer Token into X_BEARER_TOKEN for reads; (4) enable OAuth 2.0 (Native/public app, callback URL, scopes tweet.read tweet.write users.read offline.access), complete the authorization-code + PKCE flow, set the resulting opaque user token in X_OAUTH2_USER_TOKEN for writes; (5) run 'auth login --chrome' to capture x.com cookies for Articles (needs pycookiecheat or press-auth; manual DevTools fallback). A Development project does not limit the account - capability is set by app permissions and the account API tier. As of Feb 2026 X bills reads/writes per-use and restricts programmatic replies/quotes/@mentions; self-reply threads (thread compose) still work.
 
 Run `x-twitter-pp-cli doctor` to verify setup.
 
@@ -259,7 +311,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
 
   ```bash
-  x-twitter-pp-cli articles list --agent --select id,name,status
+  x-twitter-pp-cli communities search --query example-value --agent --select id,name,status
   ```
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
@@ -277,7 +329,7 @@ Commands that read from the local store or the API wrap output in a provenance e
 }
 ```
 
-Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal — piped/agent consumers get pure JSON on stdout.
+Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal AND no machine-format flag (`--json`, `--csv`, `--compact`, `--quiet`, `--plain`, `--select`) is set — piped/agent consumers and explicit-format runs get pure JSON on stdout.
 
 ## Agent Feedback
 
@@ -289,7 +341,7 @@ x-twitter-pp-cli feedback --stdin < notes.txt
 x-twitter-pp-cli feedback list --json --limit 10
 ```
 
-Entries are stored locally at `~/.x-twitter-pp-cli/feedback.jsonl`. They are never POSTed unless `X_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `X_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+Entries are stored locally at `~/.local/share/x-twitter-pp-cli/feedback.jsonl`. They are never POSTed unless `X_TWITTER_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `X_TWITTER_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
 Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
 
@@ -311,7 +363,7 @@ A profile is a saved set of flag values, reused across invocations. Use it when 
 
 ```
 x-twitter-pp-cli profile save briefing --json
-x-twitter-pp-cli --profile briefing articles list
+x-twitter-pp-cli --profile briefing communities search --query example-value
 x-twitter-pp-cli profile list --json
 x-twitter-pp-cli profile show briefing
 x-twitter-pp-cli profile delete briefing --yes
@@ -373,122 +425,3 @@ Parse `$ARGUMENTS`:
    x-twitter-pp-cli <command> [subcommand] [args] --agent
    ```
 4. If ambiguous, drill into subcommand help: `x-twitter-pp-cli <command> --help`.
-
----
-
-## Hand-written notes (survive regen with `printing-press regen-merge`)
-
-### Auth model — two sources
-
-The X surface is split across two auth sources. The CLI selects per-host automatically.
-
-**Source A — OAuth 2.0 PKCE.** Used for `api.x.com` v2 endpoints (tweets, users, lists, spaces, bookmarks, likes, etc.). Standard CLI flow:
-
-```bash
-x-twitter-pp-cli auth login        # opens browser, captures token
-export X_OAUTH2_USER_TOKEN=<token>   # or set in config
-x-twitter-pp-cli doctor            # verifies
-```
-
-**Source B — Browser session cookies.** Used for `x.com` Articles GraphQL endpoints and `upload.x.com` media upload. X's Articles editor is browser-only; OAuth 2.0 does NOT authenticate it. One-time capture:
-
-1. In Chrome, open DevTools on `x.com` while logged in.
-2. **Application → Cookies → x.com** → copy `auth_token` and `ct0` values.
-3. **Network** → reload → click any `/i/api/graphql/...` request → **Request Headers** → copy the `Authorization: Bearer ...` value (this is the web app's hardcoded bearer, NOT a user OAuth token).
-4. Write to `~/.config/x-twitter-pp-cli/cookies.json`:
-
-   ```json
-   {
-     "auth_token": "<paste>",
-     "ct0":        "<paste>",
-     "web_bearer": "<paste, without the 'Bearer ' prefix>",
-     "captured_at": "2026-05-08T22:00:00Z"
-   }
-   ```
-5. `chmod 600 ~/.config/x-twitter-pp-cli/cookies.json`.
-
-When X invalidates the session (logout, security events, ~weeks of inactivity), `articles *` commands return 401 — repeat the capture.
-
-> Note: Chrome's "Save all as HAR with content" SILENTLY redacts cookies and the Authorization header. Do not try to extract them from a HAR — they will be missing. Use the DevTools Application/Network tabs above.
-
-### Articles GraphQL operation hashes — runtime config
-
-X Articles uses GraphQL with rotating operation hashes in the URL path (e.g. `/i/api/graphql/M7N2FrPrlOmu-YrVIBxFnQ/ArticleEntityUpdateContent`). The hash rotates when X redeploys their web app.
-
-Hashes are loaded at runtime from `~/.config/x-twitter-pp-cli/article-ops.json`. A default capture from generation time (2026-05-08) is built into the binary as fallback. When `articles *` commands return 404 with "no such operation," refresh:
-
-1. Re-sniff the Articles editor with the printing-press tool, OR
-2. Capture a HAR via DevTools Network (any Articles operation), then:
-
-   ```bash
-   python3 -c "
-   import json, re
-   from sys import argv
-   with open(argv[1]) as f: h = json.load(f)
-   ops = {}
-   for e in h['log']['entries']:
-       g = re.search(r'/i/api/graphql/([A-Za-z0-9_-]+)/(Article[A-Za-z0-9_]+)', e['request']['url'])
-       if g: ops[g.group(2)] = g.group(1)
-   import os, datetime
-   path = os.path.expanduser('~/.config/x-twitter-pp-cli/article-ops.json')
-   with open(path, 'w') as f: json.dump({'operations': ops, 'captured_at': datetime.datetime.now().isoformat()}, f, indent=2)
-   print(f'wrote {len(ops)} ops to {path}')
-   " /path/to/your.har
-   ```
-
-### Hand-written compound commands
-
-These are NOT auto-generated; they wrap multiple endpoints into single agent-friendly calls.
-
-**`x-twitter-pp-cli thread compose <markdown-file>` [--post]**
-
-Splits a markdown document into a numbered tweet thread (≤280 chars per tweet, atom-aware: paragraphs, list items, code fences are atoms; never splits inside a code fence). The "(N/M)" suffix length is reserved BEFORE packing so final tweets stay within the limit. Default behavior is dry-run (preview); `--post` is gated and not yet wired.
-
-```bash
-x-twitter-pp-cli thread compose draft.md         # dry-run preview
-x-twitter-pp-cli thread compose draft.md --post  # (not yet wired — preview only)
-```
-
-**`x-twitter-pp-cli articles-publish-md <markdown-file>` [--post]**
-
-Parses YAML frontmatter (`title`, `cover`, `tags`, `summary`) and converts the markdown body to Draft.js `content_state` JSON — the format the X Articles editor server-side expects.
-
-Supported in v1: cover image from frontmatter (`cover: ./cover.png`), body image lines (`![alt](./body.png)`), paragraph, header-one (`#`), header-two (`##`), unordered-list-item (`-`/`*`), ordered-list-item (`1.`), blockquote (`>`), fenced code blocks, inline `**bold**` and `*italic*`.
-
-```bash
-# Markdown with frontmatter
-cat > draft.md <<EOF
----
-title: My Article
-cover: ./cover.png
-tags: [test]
----
-
-# Header
-
-A paragraph with **bold** text.
-
-![Screenshot alt text](./body.png)
-
-- bullet one
-- bullet two
-
-```bash
-x-twitter-pp-cli articles-publish-md draft.md --post
-```
-EOF
-
-x-twitter-pp-cli articles-publish-md draft.md   # dry-run; prints constructed content_state JSON
-x-twitter-pp-cli articles-publish-md draft.md --post  # create, update, set cover, and publish the article
-```
-
-With `--post`, the command creates a draft, updates the title, uploads body images and binds them into the Draft.js `entity_map`, updates the content, uploads and assigns a cover image when `cover` is set, and publishes it as a public X Article using Source B cookie auth and the article-ops.json hash config. The wrapper requires a frontmatter `title`.
-
-**`x-twitter-pp-cli articles set-cover <article-id> <image-file>`**
-
-Uploads a local image through X's browser media-upload flow and assigns the returned media ID as the Article cover.
-
-### Known limitations of v1
-
-- `thread compose --post` is gated as a dry-run only. Real thread posting is the next engineering step.
-- OAuth live acceptance is blocked until the registered callback setup is available.

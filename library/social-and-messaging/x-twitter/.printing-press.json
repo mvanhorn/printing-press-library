@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-09T03:28:04.627089Z",
-  "printing_press_version": "4.1.0",
+  "generated_at": "2026-06-04T07:18:42.636118Z",
+  "printing_press_version": "4.20.1",
   "api_name": "x-twitter",
   "display_name": "X (Twitter)",
   "cli_name": "x-twitter-pp-cli",
@@ -9,34 +9,68 @@
     "handle": "cathrynlavery",
     "name": "Cathryn Lavery"
   },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
   "owner": "cathryn-lavery",
   "printer": "cathrynlavery",
   "printer_name": "Cathryn Lavery",
-  "spec_path": "/Users/cathrynlavery/printing-press/specs/x/x-official.yaml",
+  "spec_path": "x-enriched-openapi.json",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:a6f867fdce4284870ae273e6e2410e2acefd087b61b7e10529b8aaf0fdc7f7bc",
-  "run_id": "20260509T044522Z-5d5c1624",
-  "catalog_entry": "x-twitter",
+  "spec_checksum": "sha256:0dfd4f3560f7cdf014e5d2e8a34cfb669f8a7141aad29b9a8df594b85c26baf8",
+  "run_id": "20260603-230951",
   "category": "social-and-messaging",
-  "description": "X v2 API mirror with first-class Articles support — tweets, users, lists, spaces, bookmarks, likes via the official OpenAPI; long-form Articles authoring via browser-sniffed editor endpoints (GraphQL with rotating operation hashes).",
+  "description": "The only X CLI with an offline, searchable local mirror — full-text search and analytics over your archived posts without re-spending per-read API credits — plus a full-surface MCP server and honest tier/reachability diagnostics.",
   "mcp_binary": "x-twitter-pp-mcp",
-  "mcp_tool_count": 156,
+  "mcp_tool_count": 163,
   "mcp_ready": "full",
-  "api_version": "2.162",
+  "api_version": "2.165",
   "auth_type": "bearer_token",
   "auth_env_vars": [
+    "X_BEARER_TOKEN",
     "X_OAUTH2_USER_TOKEN"
   ],
+  "auth_env_var_specs": [
+    {
+      "name": "X_BEARER_TOKEN",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true,
+      "description": "App-only Bearer token for public reads (tweet/user lookup, recent search, lists, spaces). Required minimum - nothing works without it. Get one at https://console.x.com/ (app, then Keys and Tokens, then Bearer Token)."
+    },
+    {
+      "name": "X_OAUTH2_USER_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true,
+      "description": "Optional OAuth2 user-context token. Unlocks v2 writes (post, like, repost, bookmark, follow, DM) and personal reads (me, mentions, home timeline, bookmarks). Sent as Authorization Bearer; obtain via auth login (OAuth2 + PKCE)."
+    }
+  ],
+  "auth_key_url": "https://console.x.com/",
   "novel_features": [
+    {
+      "name": "Offline thread reconstruction",
+      "command": "thread show",
+      "description": "Rebuild a full conversation thread from your locally synced posts — ordered and depth-tagged — without re-spending API read credits."
+    },
     {
       "name": "Markdown to tweet thread",
       "command": "thread compose",
-      "description": "Split a markdown file into a numbered tweet thread. Atom-aware splitter honors paragraphs, list items, and code fences. Numbering suffix is reserved before packing so final tweet length stays within 280 chars."
+      "description": "Split a markdown file into a numbered, 280-char-packed self-reply thread; prints by default and only posts with --post."
     },
     {
       "name": "Markdown to X Article",
       "command": "articles-publish-md",
-      "description": "Parse a markdown file with YAML frontmatter (title, cover, tags) and convert the body to Draft.js content_state JSON — the format X's Articles editor accepts server-side via ArticleEntityUpdateContent. Supports cover images, body images, paragraphs, H1/H2, ordered/unordered lists, blockquote, fenced code blocks, bold, and italic."
+      "description": "Parse a markdown file with YAML frontmatter into the Draft.js content_state JSON X's Articles editor accepts; previews by default; --draft saves a draft, --post publishes publicly."
+    },
+    {
+      "name": "Offline bookmark search",
+      "command": "users bookmarks find",
+      "description": "Search your synced bookmarks by keyword and/or author, offline — X has no bookmark search and its API exposes no bookmark timestamp, so the local store rebuilds the missing retrieval layer without re-spending read credits."
     }
-  ]
+  ],
+  "owner_name": null
 }

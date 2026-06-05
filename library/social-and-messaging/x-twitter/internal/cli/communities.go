@@ -9,8 +9,11 @@ import (
 
 func newCommunitiesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "communities",
-		Short: "Manage communities",
+		Use:         "communities",
+		Short:       "Get and search communities",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newCommunitiesGetByIdCmd(flags))
