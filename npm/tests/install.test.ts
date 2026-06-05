@@ -215,8 +215,11 @@ test("install command reports skill install failure without hiding binary", asyn
     goInstall: async () => ok(),
     goInstallDir: async () => goBinDir("/Users/example/go/bin"),
     commandOnPath: async () => "/Users/example/go/bin/espn-pp-cli",
+    mkdir: async () => {},
     installSkill: async () => fail("network down"),
     stderr: (message) => stderr.push(message),
+    home: "/Users/example",
+    env: {},
   });
 
   assert.equal(await command(["espn"]), 1);
@@ -233,9 +236,12 @@ test("install command emits JSON when requested", async () => {
     goInstall: async () => ok(),
     goInstallDir: async () => goBinDir("/Users/example/go/bin"),
     commandOnPath: async () => "/Users/example/go/bin/espn-pp-cli",
+    mkdir: async () => {},
     installSkill: async () => ok(),
     stdout: (message) => stdout.push(message),
     stderr: () => {},
+    home: "/Users/example",
+    env: {},
   });
 
   assert.equal(await command(["espn", "--json"]), 0);
@@ -275,12 +281,15 @@ test("install command installs multiple CLIs in one call", async () => {
     },
     goInstallDir: async () => goBinDir("/Users/example/go/bin"),
     commandOnPath: async (binary) => `/Users/example/go/bin/${binary}`,
+    mkdir: async () => {},
     installSkill: async (skillName) => {
       skills.push(skillName);
       return ok();
     },
     stdout: (message) => stdout.push(message),
     stderr: () => {},
+    home: "/Users/example",
+    env: {},
   });
 
   assert.equal(await command(["espn", "linear"]), 0);
@@ -311,9 +320,12 @@ test("install command expands the starter-pack bundle", async () => {
     },
     goInstallDir: async () => goBinDir("/Users/example/go/bin"),
     commandOnPath: async (binary) => `/Users/example/go/bin/${binary}`,
+    mkdir: async () => {},
     installSkill: async () => ok(),
     stdout: (message) => stdout.push(message),
     stderr: () => {},
+    home: "/Users/example",
+    env: {},
   });
 
   assert.equal(await command(["starter-pack"]), 0);
@@ -337,9 +349,12 @@ test("install command continues after a partial multi-name failure", async () =>
     goInstall: async () => ok(),
     goInstallDir: async () => goBinDir("/Users/example/go/bin"),
     commandOnPath: async (binary) => `/Users/example/go/bin/${binary}`,
+    mkdir: async () => {},
     installSkill: async () => ok(),
     stdout: (message) => stdout.push(message),
     stderr: () => {},
+    home: "/Users/example",
+    env: {},
   });
 
   assert.equal(await command(["espn", "made-up-name"]), 1);
