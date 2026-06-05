@@ -5,7 +5,9 @@ package cli
 
 import (
 	"context"
+	"crypto/rand"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/payments/qbo/internal/config"
@@ -14,6 +16,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 	"time"
 
@@ -134,7 +137,11 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 }
 
 func startOAuthFlow(cfg *config.Config, redirectURI string, out io.Writer) error {
-	state := fmt.Sprintf("%d", time.Now().UnixNano())
+	b := make([]byte, 16)
+	if _, err := rand.Read(b); err != nil {
+		return fmt.Errorf("generating CSRF state: %w", err)
+	}
+	state := hex.EncodeToString(b)
 
 	authURL, err := url.Parse("https://appcenter.intuit.com/connect/oauth2")
 	if err != nil {
@@ -219,9 +226,8 @@ func startOAuthFlow(cfg *config.Config, redirectURI string, out io.Writer) error
 	fmt.Fprintf(out, "Opening browser to authorize QuickBooks CLI...\n")
 	fmt.Fprintf(out, "URL: %s\n", authURL.String())
 
-	// Launch browser on Mac
-	cmd := exec.Command("open", authURL.String())
-	if err := cmd.Start(); err != nil {
+	// Launch browser cross-platform
+	if err := openURL(authURL.String()); err != nil {
 		fmt.Fprintf(out, "Failed to launch browser automatically: %v\n", err)
 		fmt.Fprintf(out, "Please copy and paste the URL above manually.\n")
 	}
@@ -423,4 +429,19 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
+}
+
+func openURL(urlStr string) error {
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "darwin":
+		cmd = exec.Command("open", urlStr)
+	case "linux":
+		cmd = exec.Command("xdg-open", urlStr)
+	case "windows":
+		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", urlStr)
+	default:
+		return fmt.Errorf("unsupported platform: %s", runtime.GOOS)
+	}
+	return cmd.Start()
 }

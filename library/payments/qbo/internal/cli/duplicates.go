@@ -59,9 +59,15 @@ func newDuplicatesCmd(flags *rootFlags) *cobra.Command {
 			for rows.Next() {
 				var d duplicateGroup
 				d.Type = "Purchase"
-				if err := rows.Scan(&d.VendorName, &d.Amount, &d.Item1ID, &d.Item1Date, &d.Item1RefNum, &d.Item2ID, &d.Item2Date, &d.Item2RefNum); err == nil {
-					duplicates = append(duplicates, d)
+				if err := rows.Scan(&d.VendorName, &d.Amount, &d.Item1ID, &d.Item1Date, &d.Item1RefNum, &d.Item2ID, &d.Item2Date, &d.Item2RefNum); err != nil {
+					rows.Close()
+					return fmt.Errorf("scanning purchase duplicate row: %w", err)
 				}
+				duplicates = append(duplicates, d)
+			}
+			if err := rows.Err(); err != nil {
+				rows.Close()
+				return fmt.Errorf("iterating purchase duplicate rows: %w", err)
 			}
 			rows.Close()
 
@@ -86,9 +92,15 @@ func newDuplicatesCmd(flags *rootFlags) *cobra.Command {
 			for rows.Next() {
 				var d duplicateGroup
 				d.Type = "Bill"
-				if err := rows.Scan(&d.VendorName, &d.Amount, &d.Item1ID, &d.Item1Date, &d.Item1RefNum, &d.Item2ID, &d.Item2Date, &d.Item2RefNum); err == nil {
-					duplicates = append(duplicates, d)
+				if err := rows.Scan(&d.VendorName, &d.Amount, &d.Item1ID, &d.Item1Date, &d.Item1RefNum, &d.Item2ID, &d.Item2Date, &d.Item2RefNum); err != nil {
+					rows.Close()
+					return fmt.Errorf("scanning bill duplicate row: %w", err)
 				}
+				duplicates = append(duplicates, d)
+			}
+			if err := rows.Err(); err != nil {
+				rows.Close()
+				return fmt.Errorf("iterating bill duplicate rows: %w", err)
 			}
 			rows.Close()
 

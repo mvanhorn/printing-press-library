@@ -122,37 +122,6 @@ func (c *Config) AuthHeader() string {
 		}
 		return applyAuthFormat("Bearer {token}", map[string]string{"access_token": c.AccessToken, "token": c.AccessToken})
 	}
-	// Env-var token wins over file-stored AccessToken (env > config convention).
-	if c.ClientID != "" {
-		if c.AuthSource == "" {
-			c.AuthSource = "env:QBO_CLIENT_ID"
-		}
-		return applyAuthFormat("Bearer {token}", map[string]string{
-			"client_id":     c.ClientID,
-			"QBO_CLIENT_ID": c.ClientID,
-			"token":         c.ClientID,
-		})
-	}
-	if c.ClientSecret != "" {
-		if c.AuthSource == "" {
-			c.AuthSource = "env:QBO_CLIENT_SECRET"
-		}
-		return applyAuthFormat("Bearer {token}", map[string]string{
-			"client_secret":     c.ClientSecret,
-			"QBO_CLIENT_SECRET": c.ClientSecret,
-			"token":             c.ClientSecret,
-		})
-	}
-	if c.QboRealmId != "" {
-		if c.AuthSource == "" {
-			c.AuthSource = "env:QBO_REALM_ID"
-		}
-		return applyAuthFormat("Bearer {token}", map[string]string{
-			"realm_id":     c.QboRealmId,
-			"QBO_REALM_ID": c.QboRealmId,
-			"token":        c.QboRealmId,
-		})
-	}
 	return ""
 }
 
