@@ -89,8 +89,7 @@ func (c *Client) storeToken(t *Token) {
 		return
 	}
 	_ = os.MkdirAll(c.tokenDir, 0o700)
-	// #nosec G117 -- intentionally persisting the OAuth token to the local
-	// token cache; the file is written 0600 inside a 0700 dir below.
+	// Token cache is written 0600 inside a 0700 dir; no gosec suppression needed.
 	data, _ := json.Marshal(t)
 	_ = os.WriteFile(p, data, 0o600)
 }
@@ -124,7 +123,7 @@ func (c *Client) MintToken(ctx context.Context) (*Token, error) {
 	req.Header.Set("X-SIGNATURE", sig)
 	req.Header.Set("X-CLIENT-KEY", c.cfg.ClientKey)
 
-	raw, status, err := c.send(req)
+	raw, status, err := c.doRequest(req)
 	if err != nil {
 		return nil, err
 	}
@@ -225,6 +224,27 @@ func (c *Client) prepareWithToken(method, path string, body []byte, externalID, 
 // Do signs and sends a SNAP transaction request. path includes the /v1.0
 // prefix. Returns the raw response body. In DryRun mode it prints the would-be
 // request and returns the signing metadata instead of calling the API.
+// doRequest sends one prepared request through the adaptive limiter (no retry,
+// no re-signing). Used by the single-shot token mint.
+func (c *Client) doRequest(req *http.Request) (json.RawMessage, int, error) {
+	c.limiter.Wait()
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return nil, 0, fmt.Errorf("snap request %s %s: %w", req.Method, displayPath(req.URL), err)
+	}
+	data, rerr := io.ReadAll(io.LimitReader(resp.Body, 4<<20))
+	_ = resp.Body.Close()
+	if rerr != nil {
+		return nil, resp.StatusCode, fmt.Errorf("reading snap response: %w", rerr)
+	}
+	if resp.StatusCode == http.StatusTooManyRequests {
+		c.limiter.OnRateLimit()
+		return nil, resp.StatusCode, &cliutil.RateLimitError{URL: displayPath(req.URL), RetryAfter: cliutil.RetryAfter(resp), Body: string(data)}
+	}
+	c.limiter.OnSuccess()
+	return data, resp.StatusCode, nil
+}
+
 func (c *Client) Do(ctx context.Context, method, path string, body []byte, externalID string) (json.RawMessage, int, error) {
 	if missing := c.cfg.MissingCredentials(); len(missing) > 0 {
 		return nil, 0, fmt.Errorf("%w: set %s", ErrMissingCredentials, strings.Join(missing, ", "))
@@ -234,35 +254,23 @@ func (c *Client) Do(ctx context.Context, method, path string, body []byte, exter
 		out, _ := json.MarshalIndent(map[string]any{"dry_run": true, "would_send": sr}, "", "  ")
 		return out, 0, nil
 	}
-	sr, err := c.Prepare(ctx, method, path, body, externalID)
-	if err != nil {
-		return nil, 0, err
-	}
-	req, err := http.NewRequestWithContext(ctx, sr.Method, sr.URL, bytes.NewReader(MinifyJSON(body)))
-	if err != nil {
-		return nil, 0, err
-	}
-	for k, v := range sr.Headers {
-		req.Header.Set(k, v)
-	}
-	raw, status, err := c.send(req)
-	if err != nil {
-		return nil, status, err
-	}
-	return raw, status, nil
-}
-
-// send executes one HTTP request through the adaptive limiter with 429 retries.
-func (c *Client) send(req *http.Request) (json.RawMessage, int, error) {
-	var bodyCopy []byte
-	if req.Body != nil {
-		b, _ := io.ReadAll(req.Body)
-		bodyCopy = b
-	}
+	// Re-sign on every attempt so a 429 retry never replays a stale
+	// X-TIMESTAMP/X-SIGNATURE: each attempt mints a fresh signature (and a
+	// fresh X-EXTERNAL-ID when caller-unset), keeping the request inside the
+	// SNAP timestamp tolerance regardless of cumulative backoff.
+	minified := MinifyJSON(body)
 	for attempt := 0; attempt < 4; attempt++ {
 		c.limiter.Wait()
-		if bodyCopy != nil {
-			req.Body = io.NopCloser(bytes.NewReader(bodyCopy))
+		sr, err := c.Prepare(ctx, method, path, body, externalID)
+		if err != nil {
+			return nil, 0, err
+		}
+		req, err := http.NewRequestWithContext(ctx, sr.Method, sr.URL, bytes.NewReader(minified))
+		if err != nil {
+			return nil, 0, err
+		}
+		for k, v := range sr.Headers {
+			req.Header.Set(k, v)
 		}
 		resp, err := c.http.Do(req)
 		if err != nil {
@@ -284,7 +292,7 @@ func (c *Client) send(req *http.Request) (json.RawMessage, int, error) {
 		c.limiter.OnSuccess()
 		return data, resp.StatusCode, nil
 	}
-	return nil, 0, &cliutil.RateLimitError{URL: req.URL.Path}
+	return nil, 0, &cliutil.RateLimitError{URL: path}
 }
 
 func displayPath(u *url.URL) string {

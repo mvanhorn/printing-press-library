@@ -5,6 +5,7 @@ package cli
 import (
 	"database/sql"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -92,7 +93,9 @@ func classifyReconcile(orders []localOrder, payments []localPayment, window stri
 		if len(matches) > 0 {
 			res.MatchedCount++
 			for _, p := range matches {
-				if o.Amount != p.Amount {
+				// IDR amounts parse from strings; compare with a sub-cent epsilon
+				// rather than exact float equality to avoid representation artifacts.
+				if math.Abs(o.Amount-p.Amount) > 0.005 {
 					res.AmountMismatches = append(res.AmountMismatches, amountMismatch{
 						OrderID:       o.ID,
 						PaymentID:     p.ID,
@@ -232,11 +235,15 @@ func parseLooseTime(s string) (time.Time, bool) {
 
 // openLocalStore opens the local SQLite store read-only at dbPath (or the
 // default path) for the read-only novel commands.
-func openLocalStore(cmd *cobra.Command, dbPath string) (*store.Store, error) {
+func openLocalStore(dbPath string) (*store.Store, error) {
 	if dbPath == "" {
 		dbPath = defaultDBPath("durianpay-pp-cli")
 	}
-	db, err := store.OpenWithContext(cmd.Context(), dbPath)
+	// Read-only open: reconcile/refund-audit/stuck never write. This returns a
+	// clean error when the DB doesn't exist yet (instead of silently creating
+	// an empty one) and never contends with a concurrent sync for the migration
+	// write lock.
+	db, err := store.OpenReadOnly(dbPath)
 	if err != nil {
 		return nil, fmt.Errorf("opening local database: %w\nRun 'durianpay-pp-cli sync' first.", err)
 	}
@@ -283,7 +290,7 @@ Reads only the local store (sync orders,payments first). Offline.`,
 				fmt.Fprintln(cmd.ErrOrStderr(), "dry-run: would query local store (orders, payments)")
 				return nil
 			}
-			db, err := openLocalStore(cmd, dbPath)
+			db, err := openLocalStore(dbPath)
 			if err != nil {
 				return err
 			}

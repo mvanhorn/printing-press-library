@@ -146,7 +146,7 @@ commands recorded them. Reads only the local store. Offline.`,
 				fmt.Fprintln(cmd.ErrOrStderr(), "dry-run: would query local store (disbursements)")
 				return nil
 			}
-			db, err := openLocalStore(cmd, dbPath)
+			db, err := openLocalStore(dbPath)
 			if err != nil {
 				return err
 			}

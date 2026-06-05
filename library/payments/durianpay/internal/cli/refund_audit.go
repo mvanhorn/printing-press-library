@@ -190,7 +190,7 @@ Reads only the local store (sync refunds,payments first). Offline.`,
 				fmt.Fprintln(cmd.ErrOrStderr(), "dry-run: would query local store (refunds, payments)")
 				return nil
 			}
-			db, err := openLocalStore(cmd, dbPath)
+			db, err := openLocalStore(dbPath)
 			if err != nil {
 				return err
 			}
