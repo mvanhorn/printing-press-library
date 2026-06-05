@@ -103,3 +103,26 @@ func TestAuthLogoutDoesNotRequireTokenArg(t *testing.T) {
 		t.Fatalf("logout returned error: %v", err)
 	}
 }
+
+func TestAuthSetupSeparatesBearerStorageFromUserTokenEnv(t *testing.T) {
+	var out bytes.Buffer
+	cmd := newAuthSetupCmd(&rootFlags{})
+	cmd.SetOut(&out)
+	cmd.SetArgs(nil)
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("setup returned error: %v", err)
+	}
+	got := out.String()
+	setTokenIdx := strings.Index(got, "auth set-token <bearer-token>")
+	userTokenIdx := strings.Index(got, "X_OAUTH2_USER_TOKEN")
+	if setTokenIdx == -1 {
+		t.Fatalf("setup output missing bearer-specific set-token instruction: %q", got)
+	}
+	if userTokenIdx == -1 {
+		t.Fatalf("setup output missing optional user token env instruction: %q", got)
+	}
+	if setTokenIdx > userTokenIdx {
+		t.Fatalf("setup output should present bearer set-token before optional user-context token guidance: %q", got)
+	}
+}

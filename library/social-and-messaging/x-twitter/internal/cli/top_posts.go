@@ -126,9 +126,14 @@ func newTopPostsCmd(flags *rootFlags) *cobra.Command {
 
 			// Gracefully handle impression ranking on tiers that omit the field.
 			effectiveMetric := metric
-			if metric == "impressions" && !impressionsAvailable(items) {
-				fmt.Fprintln(cmd.ErrOrStderr(), "note: impression_count is unavailable on this access tier; ranking by engagement instead.")
-				effectiveMetric = "engagement"
+			if metric == "impressions" {
+				missingImpressions := missingImpressionsCount(items)
+				if missingImpressions == len(items) {
+					fmt.Fprintln(cmd.ErrOrStderr(), "note: impression_count is unavailable on this access tier; ranking by engagement instead.")
+					effectiveMetric = "engagement"
+				} else if missingImpressions > 0 {
+					fmt.Fprintf(cmd.ErrOrStderr(), "note: impression_count is missing on %d of %d posts; missing values rank as 0 impressions.\n", missingImpressions, len(items))
+				}
 			}
 
 			posts := rankTopPosts(items, username, effectiveMetric, flagLimit)
@@ -220,12 +225,18 @@ func metricScore(pm publicMetrics, metric string) (int, bool) {
 // impressionsAvailable reports whether any item carried impression_count, which
 // distinguishes a tier that omits the field from posts with genuine zeroes.
 func impressionsAvailable(items []tweetItem) bool {
+	return missingImpressionsCount(items) < len(items)
+}
+
+// missingImpressionsCount reports how many fetched posts omitted impression_count.
+func missingImpressionsCount(items []tweetItem) int {
+	missing := 0
 	for _, it := range items {
-		if it.PublicMetrics.ImpressionCount != nil {
-			return true
+		if it.PublicMetrics.ImpressionCount == nil {
+			missing++
 		}
 	}
-	return false
+	return missing
 }
 
 // rankTopPosts sorts items by the chosen metric (descending), breaking ties by
