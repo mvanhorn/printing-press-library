@@ -97,6 +97,43 @@ Exit codes & warnings:
 				resources = defaultSyncResources()
 			}
 
+			// Scrape-resync rewire: this CLI has no paginated REST collection
+			// to mirror, so "sync" re-scrapes what the store already knows and
+			// persists fresh price snapshots (via the F1 path in
+			// computeCheapest). Partition the requested resources:
+			//   - "scrape" (the default)  -> re-scrape known watchlist + listings
+			//   - "airbnb_wishlist"       -> auth-gated GraphQL wishlist sync
+			//   - anything else           -> legacy API-mirror syncResource path
+			// The legacy path is preserved for any explicitly-named resource so
+			// the generic engine and auto-refresh hook keep working unchanged.
+			var apiResources []string
+			doScrape := false
+			doWishlist := false
+			for _, r := range resources {
+				switch r {
+				case scrapeSyncResource:
+					doScrape = true
+				case "airbnb_wishlist":
+					doWishlist = true
+				default:
+					apiResources = append(apiResources, r)
+				}
+			}
+			if doScrape {
+				if _, serr := runScrapeSync(cmd.Context(), db); serr != nil {
+					return serr
+				}
+			}
+			if doWishlist {
+				if werr := runWishlistAuthSync(cmd.Context(), db); werr != nil {
+					return werr
+				}
+			}
+			if len(apiResources) == 0 {
+				return nil
+			}
+			resources = apiResources
+
 			// --full: clear all sync cursors before starting
 			if full {
 				for _, resource := range resources {
@@ -790,9 +827,15 @@ func parseSinceDuration(s string) (time.Time, error) {
 	}
 }
 
+// defaultSyncResources is the default set synced when --resources is omitted.
+// For this scraper CLI the default re-scrapes what the store already knows
+// (watchlist entries + previously-scraped listings) and persists fresh price
+// snapshots — there is no public collection endpoint to page. The auth-gated
+// Airbnb wishlist sync is NOT in the default set (it needs imported cookies);
+// request it explicitly with `sync --resources airbnb_wishlist`.
 func defaultSyncResources() []string {
 	return []string{
-		"airbnb_wishlist",
+		scrapeSyncResource,
 	}
 }
 

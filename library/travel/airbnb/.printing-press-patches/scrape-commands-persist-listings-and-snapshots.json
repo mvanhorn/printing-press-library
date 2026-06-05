@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "scrape-commands-persist-listings-and-snapshots",
+  "applied_at": "2026-06-05",
+  "base_run_id": "2026-05-03T06:03:12.15145Z",
+  "base_printing_press_version": "3.6.1",
+  "summary": "Every scrape command persists into the local store, best-effort: airbnb_listing search/get, cheapest, compare, plan, and watch check write the scraped listing (and extracted host) via UpsertAirbnbListing/UpsertHostRecord, and write a dated price_snapshots row via InsertPriceSnapshot whenever a real positive price was scraped. Persistence is a side-effect that must never alter the live scrape result or surface an error: store-open failures, missing-id cards, and write errors are swallowed/stderr-warned.",
+  "reason": "The scrape commands call source/airbnb directly and print typed results; nothing they fetched was being persisted, so the store-backed readers (host portfolio, wishlist diff) and InsertPriceSnapshot/UpsertHostRecord stayed orphaned with zero callers. Airbnb's SSR returns search cards that sometimes lack a stable id (UpsertAirbnbListing rejects empty-id with 'missing id for airbnb_listing'), and frequently returns no bookable total for given dates (airbnbTotals -> 0). Persistence is therefore guarded: skip listings with empty id, and write a price snapshot ONLY when total > 0 so an unavailable price never becomes a phantom $0 row polluting price history. A regen must keep persistence best-effort and keep the price>0 snapshot guard.",
+  "files": [
+    "internal/cli/persist.go",
+    "internal/cli/rental_logic.go",
+    "internal/cli/airbnb_listing_search.go",
+    "internal/cli/airbnb_listing_get.go",
+    "internal/cli/cheapest.go",
+    "internal/cli/compare.go",
+    "internal/cli/plan.go",
+    "internal/cli/persist_test.go"
+  ],
+  "validated_outcome": "go build/vet/test green. Unit tests assert a listing row lands and an empty-id card is skipped without error; a positive total writes one snapshot while zero/negative totals and empty ids write none. Live smoke: one airbnb_listing search --rate-limit 0.3 into an isolated store populated the resources + airbnb_listing tables.",
+  "upstream_issue": ""
+}

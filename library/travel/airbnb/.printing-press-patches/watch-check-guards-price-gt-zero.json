@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "watch-check-guards-price-gt-zero",
+  "applied_at": "2026-06-05",
+  "base_run_id": "2026-05-03T06:03:12.15145Z",
+  "base_printing_press_version": "3.6.1",
+  "summary": "watch check treats a non-positive scraped price as 'no price data', never a drop: such items are recorded with hit=false, surfaced in a top-level no_price[] bucket (reason no_price_data), and NEVER trigger the exit-7 drop sentinel. Exit 7 fires only when a real positive price is at or below a positive max-price threshold. The decision lives in the pure helper classifyWatchPrice(price, maxPrice) -> (hasPrice, hit).",
+  "reason": "firstPlatformTotals returns 0 both for a genuinely-free listing and for one whose SSR price was unavailable for the dates, and cannot distinguish them. The old condition `price <= item.MaxPrice` was always true for price==0 against any positive threshold, so an unavailable price produced a false hit and a spurious exit 7 (the watch drop sentinel) on every cron run. Exit 7 is dual-purpose (genuine HTTP 429 AND the watch drop-hit success signal), so the guard must live in watch check where the watchlist intent is known; it must preserve real exit-7 drops while never firing on no-price. The output envelope is a top-level object ({\"hits\":[...],\"no_price\":[...]}) because --agent/--compact drops non-allowlisted fields from bare arrays.",
+  "files": [
+    "internal/cli/watch.go",
+    "internal/cli/watch_test.go"
+  ],
+  "validated_outcome": "go build/vet/test green. classifyWatchPrice table test: price 0 or negative => hasPrice=false, hit=false for any threshold (no exit 7); positive price hits only at/under a positive threshold. Live smoke confirmed watch check on a real listing returned an envelope with hits + no_price and exit 0 (no false exit 7).",
+  "upstream_issue": ""
+}
