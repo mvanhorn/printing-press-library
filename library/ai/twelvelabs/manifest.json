@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "twelvelabs-pp-mcp",
+  "display_name": "Twelvelabs Video Understanding",
+  "version": "4.21.0",
+  "description": "Use the TwelveLabs Video Understanding API to extract information from your videos and make it available to your",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/twelvelabs-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/twelvelabs-pp-mcp",
+      "args": [],
+      "env": {
+        "TWELVELABS_X_API_KEY": "${user_config.twelvelabs_x_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "twelvelabs_x_api_key": {
+      "type": "string",
+      "title": "TWELVELABS_X_API_KEY",
+      "description": "Sets TWELVELABS_X_API_KEY for the Twelvelabs Video Understanding MCP server. Get a credential from https://playground.twelvelabs.io/dashboard/api-keys.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
