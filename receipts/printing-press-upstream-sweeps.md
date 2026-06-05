@@ -12,5 +12,12 @@
   - `77cfbda69` — `chore(skills): regenerate per-app skills [skip ci]` — skipped; generated `cli-skills/` mirror.
   - `38981b46a` — `chore(registry): regenerate from library/ [skip ci]` — skipped; generated `registry.json`, regenerated post-merge by repo automation.
 - **Ported commits:** `69a420206` cherry-picked as `7528fc2d1` onto `upstream-sweep/20260605-walkingpad-docs`.
-- **Validation planned:** `verify_skill.py --dir library/devices/walkingpad/`, `go test ./...`, `go build ./...`, `go vet ./...` from `library/devices/walkingpad/`, plus final diff/status checks.
+- **Validation run:**
+  - `python3 .github/scripts/verify-skill/verify_skill.py --dir library/devices/walkingpad/` — PASS
+  - `cd library/devices/walkingpad && go test ./...` — PASS
+  - `cd library/devices/walkingpad && go build ./...` — PASS
+  - `cd library/devices/walkingpad && go vet ./...` — PASS
+  - `cd library/devices/walkingpad && $HOME/go/bin/govulncheck ./...` — PASS (`No vulnerabilities found.`)
+  - `git diff --check origin/main...HEAD` — PASS
+- **PR:** `https://github.com/cathrynlavery/printing-press-library/pull/13`
 - **Policy confirmation:** no public push; branch/PR target private fork only.
