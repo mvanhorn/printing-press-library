@@ -357,6 +357,15 @@ stuff.
 		t.Errorf("expected order Install → Install for Hermes → Install for OpenClaw → Authentication; got positions %d/%d/%d/%d:\n%s",
 			installIdx, hermesIdx, openclawIdx, authIdx, got)
 	}
+	if !strings.Contains(got, "npx -y @mvanhorn/printing-press-library install x --cli-only") {
+		t.Errorf("Hermes section should install the CLI binary before the focused skill:\n%s", got)
+	}
+	if !strings.Contains(got, "Restart the Hermes session or gateway if the newly installed skill is not visible immediately.") {
+		t.Errorf("Hermes section should include the restart hint:\n%s", got)
+	}
+	if strings.Contains(got, "--cli-only --bin-dir") || strings.Contains(got, "--agent openclaw --bin-dir") {
+		t.Errorf("install sections should rely on installer default bin dirs, not hardcoded --bin-dir:\n%s", got)
+	}
 }
 
 func TestPatchReadmeHermesOpenClaw_MovesFromBottomToAfterInstall(t *testing.T) {

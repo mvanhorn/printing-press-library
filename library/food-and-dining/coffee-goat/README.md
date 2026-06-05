@@ -56,6 +56,14 @@ Download a pre-built binary for your platform from the [latest release](https://
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes
 
+Install the CLI binary first. The installer writes binaries to a per-user managed bin directory by default: `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows.
+
+```bash
+npx -y @mvanhorn/printing-press-library install coffee-goat --cli-only
+```
+
+Then install the focused Hermes skill.
+
 From the Hermes CLI:
 
 ```bash
@@ -64,9 +72,11 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-coffee-goat 
 
 Inside a Hermes chat session:
 
-```text
+```bash
 /skills install mvanhorn/printing-press-library/cli-skills/pp-coffee-goat --force
 ```
+
+Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
 
 ## Install for OpenClaw
 
