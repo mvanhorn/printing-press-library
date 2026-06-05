@@ -55,6 +55,12 @@ func TestAuthSetTokenClearsLegacyExpiry(t *testing.T) {
 	if !cfg.TokenExpiry.IsZero() {
 		t.Fatalf("token expiry = %s, want zero", cfg.TokenExpiry)
 	}
+	if cfg.XBearerToken != "saved-token" {
+		t.Fatalf("bearer token = %q, want saved-token", cfg.XBearerToken)
+	}
+	if cfg.AccessToken != "" {
+		t.Fatalf("legacy access token = %q, want empty", cfg.AccessToken)
+	}
 	if cfg.LegacyOAuthExpired(time.Now()) {
 		t.Fatalf("newly saved token is still treated as expired legacy OAuth")
 	}

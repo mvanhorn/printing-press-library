@@ -286,6 +286,8 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					indicator = yellow("INFO")
 				case strings.HasPrefix(s, "ERROR"):
 					indicator = red("FAIL")
+				case strings.Contains(s, "expired"):
+					indicator = red("FAIL")
 				case strings.HasPrefix(s, "optional"):
 					// Optional-auth CLI with no key set — informational, not a failure.
 					indicator = yellow("INFO")

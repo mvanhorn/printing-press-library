@@ -26,3 +26,12 @@ func TestDoctorCredentialProbeUsesMeForUserContextAuth(t *testing.T) {
 		t.Fatalf("probe path = %q, want %q", got, want)
 	}
 }
+
+func TestDoctorUsesAppOnlyBearerForSavedBearerToken(t *testing.T) {
+	t.Parallel()
+
+	cfg := &config.Config{XBearerToken: "saved-bearer"}
+	if !doctorUsesAppOnlyBearer(cfg) {
+		t.Fatal("saved bearer token should be treated as app-only bearer auth")
+	}
+}
