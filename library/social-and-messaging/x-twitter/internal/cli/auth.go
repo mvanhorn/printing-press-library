@@ -155,17 +155,41 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 
-			// JSON envelope: {saved, config_path}.
+			envOverride := activeAuthEnvVar()
+			note := ""
+			if envOverride != "" {
+				note = envOverride + " env var is set and overrides the saved token"
+			}
+
+			// JSON envelope: {saved, config_path, note?}.
 			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+				out := map[string]any{
 					"saved":       true,
 					"config_path": cfg.Path,
-				}, flags)
+				}
+				if note != "" {
+					out["note"] = note
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+			}
+			if note != "" {
+				fmt.Fprintf(cmd.OutOrStdout(), "Token saved to %s. Note: %s.\n", cfg.Path, note)
+				return nil
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Token saved to %s\n", cfg.Path)
 			return nil
 		},
 	}
+}
+
+func activeAuthEnvVar() string {
+	if os.Getenv("X_BEARER_TOKEN") != "" {
+		return "X_BEARER_TOKEN"
+	}
+	if os.Getenv("X_OAUTH2_USER_TOKEN") != "" {
+		return "X_OAUTH2_USER_TOKEN"
+	}
+	return ""
 }
 
 func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
@@ -185,13 +209,7 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 
 			// Identify which (if any) auth env var is still exported so the
 			// JSON envelope and the human prose can both surface it.
-			envStillSet := ""
-			if envStillSet == "" && os.Getenv("X_BEARER_TOKEN") != "" {
-				envStillSet = "X_BEARER_TOKEN"
-			}
-			if envStillSet == "" && os.Getenv("X_OAUTH2_USER_TOKEN") != "" {
-				envStillSet = "X_OAUTH2_USER_TOKEN"
-			}
+			envStillSet := activeAuthEnvVar()
 
 			// JSON envelope: {cleared: true, note?: "<env_var> env var is still set"}.
 			if flags.asJSON {
