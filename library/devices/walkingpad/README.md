@@ -37,7 +37,7 @@ npx -y @mvanhorn/printing-press-library install walkingpad --agent claude-code -
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/devices/walkingpad/cmd/walkingpad-pp-cli@latest
@@ -48,21 +48,6 @@ This installs the CLI only — no skill.
 ### Pre-built binary
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/walkingpad-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
-
-> **Note:** the pre-built binaries and `go install` produce the **replay-backed build** (`CGO_ENABLED=0`, no BLE stack). The history, analytics, profile, `status`, `capabilities`, and `doctor` commands all work with that build. To control a real belt you must build from source with the live backend — see below.
-
-## Live device control (BLE)
-
-By default this CLI is replay-backed and never opens a connection. To control a real device:
-
-- **Build with the BLE backend:** `go build -tags ble_live ./...` (CGO/CoreBluetooth on macOS; pure-Go D-Bus on Linux; WinRT on Windows). The default build links no BLE stack, so `scan` and any `--live` operation are no-ops without this tag.
-- **Pass `--live`** to actuate, with optional `--address` (skip auto-discovery) and `--timeout`. Physical-effect and configuration-risk commands also require `--confirm-physical-effect` (or `--dry-run` to preview the write first).
-- **`walkingpad-pp-cli doctor`** reports whether the live backend is compiled in, the device's service UUIDs, the protocol's operating quirks and proven workflows, and — with `--live` — whether the device is reachable. **`walkingpad-pp-cli scan --live`** lists nearby devices by service UUID.
-- Your terminal needs OS Bluetooth permission, and **most BLE devices accept only one client at a time** — close the official WalkingPad app first or the laptop connection will fail.
-
-**Safety classes.** Each command that touches the belt carries a safety class. `physical-effect` commands (`run`, `stop`, `start`, `wake`, `set-speed`) move the belt; `configuration-risk` commands (`set-mode`, every `prefs` write) change persistent device settings. Both require `--confirm-physical-effect` to actuate, and both refuse to run under verification. Inspect the full callable/withheld surface with `walkingpad-pp-cli capabilities --json`.
-
-**Why `run`, not `start`.** A one-shot `start` write does **not** keep the belt going — the firmware needs a sustained connection with the right handshake, mode switch, and pacing. `run` holds that connection for the whole walk (start → hold at speed → record → stop). Use `run` to actually walk; `start`/`wake`/`set-speed` are low-level single writes for advanced use.
 
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes
@@ -81,13 +66,26 @@ Inside a Hermes chat session:
 
 ## Install for OpenClaw
 
-Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
+Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
 
 ```bash
-npx -y @mvanhorn/printing-press-library install walkingpad --agent openclaw --bin-dir ~/.local/bin
+npx -y @mvanhorn/printing-press-library install walkingpad --agent openclaw
 ```
 
 Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
+
+## Live device control (BLE)
+
+By default this CLI is replay-backed and never opens a connection. To control a real device:
+
+- **Build with the BLE backend:** `go build -tags ble_live ./...` (CGO/CoreBluetooth on macOS; pure-Go D-Bus on Linux; WinRT on Windows). The default build links no BLE stack, so `scan` and any `--live` operation are no-ops without this tag.
+- **Pass `--live`** to actuate, with optional `--address` (skip auto-discovery) and `--timeout`. Physical-effect and configuration-risk commands also require `--confirm-physical-effect` (or `--dry-run` to preview the write first).
+- **`walkingpad-pp-cli doctor`** reports whether the live backend is compiled in, the device's service UUIDs, the protocol's operating quirks and proven workflows, and — with `--live` — whether the device is reachable. **`walkingpad-pp-cli scan --live`** lists nearby devices by service UUID.
+- Your terminal needs OS Bluetooth permission, and **most BLE devices accept only one client at a time** — close the official WalkingPad app first or the laptop connection will fail.
+
+**Safety classes.** Each command that touches the belt carries a safety class. `physical-effect` commands (`run`, `stop`, `start`, `wake`, `set-speed`) move the belt; `configuration-risk` commands (`set-mode`, every `prefs` write) change persistent device settings. Both require `--confirm-physical-effect` to actuate, and both refuse to run under verification. Inspect the full callable/withheld surface with `walkingpad-pp-cli capabilities --json`.
+
+**Why `run`, not `start`.** A one-shot `start` write does **not** keep the belt going — the firmware needs a sustained connection with the right handshake, mode switch, and pacing. `run` holds that connection for the whole walk (start → hold at speed → record → stop). Use `run` to actually walk; `start`/`wake`/`set-speed` are low-level single writes for advanced use.
 
 ## MCP server
 

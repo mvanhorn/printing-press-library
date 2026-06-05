@@ -37,7 +37,7 @@ npx -y @mvanhorn/printing-press-library install x-twitter --agent claude-code --
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/cmd/x-twitter-pp-cli@latest
@@ -60,15 +60,16 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-x-twitter --
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-x-twitter --force
 ```
 
 ## Install for OpenClaw
-Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
+
+Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
 
 ```bash
-npx -y @mvanhorn/printing-press-library install x-twitter --agent openclaw --bin-dir ~/.local/bin
+npx -y @mvanhorn/printing-press-library install x-twitter --agent openclaw
 ```
 
 Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
@@ -163,7 +164,6 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ## Recipes
-
 
 ### Archive a topic, then query it offline
 
@@ -457,7 +457,6 @@ Manage webhooks
 - **`x-twitter-pp-cli webhooks delete`** - Deletes an existing webhook configuration.
 - **`x-twitter-pp-cli webhooks get`** - Get a list of webhook configs associated with a client app.
 - **`x-twitter-pp-cli webhooks validate`** - Triggers a CRC check for a given webhook.
-
 
 ## Output Formats
 

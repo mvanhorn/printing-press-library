@@ -4,6 +4,7 @@ import { pathFixInstructions, type PathFixContext } from "../src/pathfix.js";
 
 const MAC_HOME = "/Users/amosclaw";
 const MAC_BIN = `${MAC_HOME}/go/bin`;
+const MAC_LOCAL_BIN = `${MAC_HOME}/.local/bin`;
 const WIN_BIN = "C:\\Users\\you\\go\\bin";
 
 function ctx(overrides: Partial<PathFixContext>): PathFixContext {
@@ -16,6 +17,12 @@ test("macOS zsh recommends ~/.zshrc with the portable $HOME form", () => {
   assert.match(out, /~\/\.zshrc/);
   assert.match(out, /export PATH="\$HOME\/go\/bin:\$PATH"/);
   assert.match(out, /source ~\/\.zshrc/);
+});
+
+test("macOS zsh recommends portable $HOME form for the default user bin dir", () => {
+  const out = pathFixInstructions(ctx({ shell: "/bin/zsh", binDir: MAC_LOCAL_BIN }));
+  assert.match(out, /export PATH="\$HOME\/\.local\/bin:\$PATH"/);
+  assert.doesNotMatch(out, new RegExp(MAC_HOME.replaceAll("/", "\\/")));
 });
 
 test("macOS bash recommends ~/.bash_profile, not ~/.bashrc", () => {
@@ -33,8 +40,8 @@ test("Linux bash recommends ~/.bashrc", () => {
 });
 
 test("fish uses fish_add_path, never bash export syntax", () => {
-  const out = pathFixInstructions(ctx({ shell: "/opt/homebrew/bin/fish" }));
-  assert.match(out, /fish_add_path \$HOME\/go\/bin/);
+  const out = pathFixInstructions(ctx({ shell: "/opt/homebrew/bin/fish", binDir: MAC_LOCAL_BIN }));
+  assert.match(out, /fish_add_path \$HOME\/\.local\/bin/);
   assert.doesNotMatch(out, /export PATH/);
 });
 

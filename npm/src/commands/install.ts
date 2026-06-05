@@ -39,7 +39,7 @@ interface InstallDeps {
   platform: NodeJS.Platform;
   /** Login shell (Unix) or Git Bash marker (Windows); drives the per-shell PATH fix. */
   shell?: string;
-  /** Home directory, used to prefer the portable `$HOME/go/bin` form in PATH instructions. */
+  /** Home directory, used to resolve the default per-user binary directory and PATH instructions. */
   home?: string;
   /** Environment inherited by subprocesses; injectable for targeted install tests. */
   env: NodeJS.ProcessEnv;
@@ -167,18 +167,20 @@ async function installOne(
       `github.com/mvanhorn/printing-press-library/${entry.path}`;
     const modulePath = `${moduleRoot}/cmd/${binary}`;
 
-    if (options.binDir) {
+    const effectiveBinDir = options.binDir ?? defaultUserBinDir(deps.platform, deps.home, deps.env);
+    if (effectiveBinDir) {
       try {
-        await deps.mkdir(options.binDir);
+        await deps.mkdir(effectiveBinDir);
       } catch (error) {
+        const label = options.binDir ? `--bin-dir ${effectiveBinDir}` : `default bin directory ${effectiveBinDir}`;
         deps.stderr(
-          `Failed to create --bin-dir ${options.binDir}: ${error instanceof Error ? error.message : String(error)}`,
+          `Failed to create ${label}: ${error instanceof Error ? error.message : String(error)}`,
         );
         return { ok: false, name: entry.name, error: "bin dir create failed" };
       }
     }
 
-    const installEnv = options.binDir ? { ...deps.env, GOBIN: options.binDir } : undefined;
+    const installEnv = effectiveBinDir ? { ...deps.env, GOBIN: effectiveBinDir } : undefined;
     const install = await deps.goInstall(modulePath, "latest", installEnv);
     if (install.code !== 0) {
       deps.stderr(`go install failed for ${modulePath}`);
@@ -188,7 +190,7 @@ async function installOne(
       return { ok: false, name: entry.name, error: "go install failed" };
     }
 
-    const installed = await resolveInstalledPath(binary, deps, options.binDir);
+    const installed = await resolveInstalledPath(binary, deps, effectiveBinDir);
     const installedPath = installed?.binaryPath ?? null;
     const pathBinaryPath = await deps.commandOnPath(binary);
 
@@ -245,7 +247,7 @@ async function installOne(
     }
     if (summary.pathWarning === "not_on_path") {
       deps.stdout(
-        "  warning: binary is not on PATH; run it by full path or add the Go install directory to PATH (see stderr for platform-specific instructions)",
+        "  warning: binary is not on PATH; run it by full path or add the install directory to PATH (see stderr for platform-specific instructions)",
       );
     }
     if (summary.skill) {
@@ -416,6 +418,28 @@ async function resolveInstalledPath(
   return { binDir: info.binDir, binaryPath: `${info.binDir}${sep}${binary}${suffix}` };
 }
 
+function defaultUserBinDir(
+  platform: NodeJS.Platform,
+  home: string | undefined,
+  env: NodeJS.ProcessEnv,
+): string | undefined {
+  if (platform === "win32") {
+    const localAppData = env.LOCALAPPDATA ?? env.LocalAppData;
+    if (localAppData) {
+      return `${stripTrailingSeparators(localAppData)}\\Programs\\PrintingPress\\bin`;
+    }
+    if (home) {
+      return `${stripTrailingSeparators(home)}\\AppData\\Local\\Programs\\PrintingPress\\bin`;
+    }
+    return undefined;
+  }
+
+  if (home) {
+    return `${stripTrailingSeparators(home)}/.local/bin`;
+  }
+  return undefined;
+}
+
 function normalizeBinDir(input: string, home?: string): string {
   const expanded = expandHome(input, home);
   const cleaned = stripTrailingSeparators(expanded);
@@ -468,7 +492,7 @@ async function sameInstalledBinary(a: string, b: string, deps: InstallDeps): Pro
 function shadowMessage(binary: string, installedPath: string, shadowedBy: string): string {
   return (
     `WARNING: installed ${binary} at ${installedPath}, but ${shadowedBy} appears earlier in PATH and will shadow it. ` +
-    `Move or remove the old binary, or reorder PATH so the Go install directory comes first.`
+    `Move or remove the old binary, or reorder PATH so the install directory comes first.`
   );
 }
 

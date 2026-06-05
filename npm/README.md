@@ -112,11 +112,11 @@ npx -y @mvanhorn/printing-press-library install espn --skill-only
 # Constrain skill installation to a specific agent (repeatable)
 npx -y @mvanhorn/printing-press-library install espn --agent claude-code
 
-# Install the Go binary into a runtime-visible user bin directory
-npx -y @mvanhorn/printing-press-library install espn --bin-dir ~/.local/bin
+# Override the default binary directory when you need a specific install target
+npx -y @mvanhorn/printing-press-library install espn --bin-dir /path/to/bin
 
-# OpenClaw: target OpenClaw skills and put the binary somewhere gateway PATHs commonly include
-npx -y @mvanhorn/printing-press-library install espn --agent openclaw --bin-dir ~/.local/bin
+# OpenClaw: target OpenClaw skills; the installer defaults to a per-user binary directory
+npx -y @mvanhorn/printing-press-library install espn --agent openclaw
 
 # Machine-readable output
 npx -y @mvanhorn/printing-press-library install espn --json
@@ -141,25 +141,21 @@ More bundles will be added over time. To suggest one, open an issue at the [prin
 
 - Node.js 20+
 - Go 1.26.3 or newer (for `go install`)
-- The Go install directory on your `PATH` so installed CLIs are runnable by name — `$(go env GOPATH)/bin` (usually `$HOME/go/bin`) on macOS/Linux, or `%USERPROFILE%\go\bin` on Windows. Go does not add this to `PATH` for you. If it's missing, `install` still installs the focused skill, then prints the exact, copy-pasteable line to add for your platform and shell (zsh/bash/fish, PowerShell, cmd, or Git Bash).
+- The installer writes CLI binaries to a per-user binary directory by default: `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows. That directory must be on the runtime `PATH` for installed CLIs to be runnable by name. If it is missing, `install` still installs the focused skill, then prints the exact, copy-pasteable line to add for your platform and shell (zsh/bash/fish, PowerShell, cmd, or Git Bash).
 
-Use `--bin-dir <dir>` when you want `go install` to write somewhere specific. The installer creates the directory first, sets `GOBIN=<dir>` for the install, and reports the resulting binary path:
-
-```bash
-npx -y @mvanhorn/printing-press-library install espn --bin-dir ~/.local/bin
-```
-
-Agent and gateway environments often run with a frozen or sanitized `PATH`. Updating `.zshrc`, `.bashrc`, or the Windows user environment may not affect an already-running agent process until you restart that session or gateway. For OpenClaw and similar gateway deployments, prefer installing directly into a user bin directory already exposed to the gateway:
+Use `--bin-dir <dir>` only when you want to override the default user bin directory. The installer creates the directory first, sets `GOBIN=<dir>` for the install, and reports the resulting binary path:
 
 ```bash
-npx -y @mvanhorn/printing-press-library install <slug> --agent openclaw --bin-dir ~/.local/bin
+npx -y @mvanhorn/printing-press-library install espn --bin-dir /path/to/bin
 ```
 
-If you installed before `--bin-dir` or cannot reinstall yet, a symlink from the Go-installed binary into that directory is also a reasonable bridge:
+Agent and gateway environments often run with a frozen or sanitized `PATH`. Updating `.zshrc`, `.bashrc`, or the Windows user environment may not affect an already-running agent process until you restart that session or gateway. For OpenClaw and similar gateway deployments, install normally and verify the gateway process can resolve the CLI:
 
 ```bash
-ln -sf "$(go env GOPATH)/bin/<tool>" "$HOME/.local/bin/<tool>"
+npx -y @mvanhorn/printing-press-library install <slug> --agent openclaw
 ```
+
+If you installed with an older release that wrote to `$GOPATH/bin`, reinstall with the current installer. A symlink into `$HOME/.local/bin` can be a temporary bridge on Unix-like systems, but it should no longer be the default fix.
 
 ## Migration from @mvanhorn/printing-press
 

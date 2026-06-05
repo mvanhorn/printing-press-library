@@ -17,22 +17,20 @@ metadata:
 
 This skill drives the `walkingpad-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer into a user bin directory:
+1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
    ```bash
-   npx -y @mvanhorn/printing-press-library install walkingpad --cli-only --bin-dir ~/.local/bin
+   npx -y @mvanhorn/printing-press-library install walkingpad --cli-only
    ```
 2. Verify: `walkingpad-pp-cli --version`
-3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
+3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/devices/walkingpad/cmd/walkingpad-pp-cli@latest
 ```
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-**Replay vs live build.** The installed binary is the **replay-backed build** (no BLE stack). History, analytics, profile, `status`, `capabilities`, and `doctor` all work with it. Controlling a real belt (`run`, `stop`, `monitor`, `record`, `scan`, `--live`) requires building from source with the live backend: `go build -tags ble_live ./...`.
 
 ## When to Use This CLI
 
