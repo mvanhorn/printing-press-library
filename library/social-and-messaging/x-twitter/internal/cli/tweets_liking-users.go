@@ -9,8 +9,10 @@ import (
 
 func newTweetsLikingUsersCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "liking-users",
-		Short: "Manage liking users",
+		Use:         "liking-users",
+		Short:       "Get liking users for tweets",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newTweetsLikingUsersGetPostsCmd(flags))

@@ -1,5 +1,5 @@
 {
-  "dir": "library/social-and-messaging/x-twitter",
+  "dir": "\u003ccli-dir\u003e/x-twitter-pp-cli",
   "workflows": null,
   "verdict": "workflow-pass",
   "issues": [

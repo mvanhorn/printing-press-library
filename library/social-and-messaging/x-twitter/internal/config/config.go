@@ -14,16 +14,18 @@ import (
 )
 
 type Config struct {
-	BaseURL          string    `toml:"base_url"`
-	AuthHeaderVal    string    `toml:"auth_header"`
-	AuthSource       string    `toml:"-"`
-	AccessToken      string    `toml:"access_token"`
-	RefreshToken     string    `toml:"refresh_token"`
-	TokenExpiry      time.Time `toml:"token_expiry"`
-	ClientID         string    `toml:"client_id"`
-	ClientSecret     string    `toml:"client_secret"`
-	Path             string    `toml:"-"`
-	XOauth2UserToken string    `toml:"oauth2_user_token"`
+	BaseURL          string            `toml:"base_url"`
+	AuthHeaderVal    string            `toml:"auth_header"`
+	Headers          map[string]string `toml:"headers,omitempty"`
+	AuthSource       string            `toml:"-"`
+	AccessToken      string            `toml:"access_token"`
+	RefreshToken     string            `toml:"refresh_token"`
+	TokenExpiry      time.Time         `toml:"token_expiry"`
+	ClientID         string            `toml:"client_id"`
+	ClientSecret     string            `toml:"client_secret"`
+	Path             string            `toml:"-"`
+	XBearerToken     string            `toml:"bearer_token"`
+	XOauth2UserToken string            `toml:"oauth2_user_token"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -34,7 +36,7 @@ func Load(configPath string) (*Config, error) {
 	// Resolve config path
 	path := configPath
 	if path == "" {
-		path = os.Getenv("X_CONFIG")
+		path = os.Getenv("X_TWITTER_CONFIG")
 	}
 	if path == "" {
 		home, _ := os.UserHomeDir()
@@ -51,6 +53,10 @@ func Load(configPath string) (*Config, error) {
 	}
 
 	// Env var overrides
+	if v := os.Getenv("X_BEARER_TOKEN"); v != "" {
+		cfg.XBearerToken = v
+		cfg.AuthSource = "env:X_BEARER_TOKEN"
+	}
 	if v := os.Getenv("X_OAUTH2_USER_TOKEN"); v != "" {
 		cfg.XOauth2UserToken = v
 		cfg.AuthSource = "env:X_OAUTH2_USER_TOKEN"
@@ -67,12 +73,30 @@ func Load(configPath string) (*Config, error) {
 	if cfg.AuthSource == "" && (cfg.AuthHeaderVal != "" || cfg.AccessToken != "") {
 		cfg.AuthSource = "config"
 	}
+	if cfg.AuthSource == "" && cfg.XBearerToken != "" {
+		cfg.AuthSource = "config"
+	}
 	if cfg.AuthSource == "" && cfg.XOauth2UserToken != "" {
 		cfg.AuthSource = "config"
 	}
 
+	// Soft agentcookie integration: if the agentcookie daemon manages this
+	// CLI's secrets, it writes a marker file alongside the config file. When
+	// the marker is present AND credentials came from the config (not from a
+	// direct env var override that wins above), upgrade AuthSource to
+	// "agentcookie" so doctor / auth-status can surface the bus state. When
+	// the marker is absent, behavior is identical to pre-agentcookie: no
+	// import, no network, no error. agentcookie itself is never imported
+	// here — the contract is purely on-disk.
+	if cfg.AuthSource == "config" {
+		marker := filepath.Join(filepath.Dir(cfg.Path), ".agentcookie-managed")
+		if _, err := os.Stat(marker); err == nil {
+			cfg.AuthSource = "agentcookie"
+		}
+	}
+
 	// Base URL override (used by printing-press verify to point at mock/test servers)
-	if v := os.Getenv("X_BASE_URL"); v != "" {
+	if v := os.Getenv("X_TWITTER_BASE_URL"); v != "" {
 		cfg.BaseURL = v
 	}
 	return cfg, nil
@@ -83,12 +107,26 @@ func (c *Config) AuthHeader() string {
 		return c.AuthHeaderVal
 	}
 	// Env-var token wins over file-stored AccessToken (env > config convention).
+	// Prefer the OAuth2 user-context token when present: it covers both reads
+	// AND v2 writes (post/like/follow/etc.) plus personal reads, whereas the
+	// app-only bearer is read-only. Checking it first means writes "just work"
+	// when a user has set both X_BEARER_TOKEN (reads) and X_OAUTH2_USER_TOKEN.
 	if c.XOauth2UserToken != "" {
-		c.AuthSource = "env:X_OAUTH2_USER_TOKEN"
+		if c.AuthSource == "" {
+			c.AuthSource = "env:X_OAUTH2_USER_TOKEN"
+		}
 		return "Bearer " + c.XOauth2UserToken
 	}
+	if c.XBearerToken != "" {
+		if c.AuthSource == "" {
+			c.AuthSource = "env:X_BEARER_TOKEN"
+		}
+		return "Bearer " + c.XBearerToken
+	}
 	if c.AccessToken != "" {
-		c.AuthSource = "oauth2"
+		if c.AuthSource == "" || strings.HasPrefix(c.AuthSource, "env:") {
+			c.AuthSource = "oauth2"
+		}
 		return "Bearer " + c.AccessToken
 	}
 	return ""
@@ -117,9 +155,20 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 }
 
 func (c *Config) ClearTokens() error {
+	// AuthHeader() falls back to the env-var-derived fields when AuthHeaderVal
+	// and AccessToken are empty, so dropping the working credential requires
+	// zeroing every emitted credential field, not just the OAuth trio.
+	// ClientID/ClientSecret persist to disk via SaveTokens for the oauth2
+	// and oauth2-cc flows, so logout must wipe them too; otherwise
+	// `auth login` can re-mint a new access token unattended.
+	c.AuthHeaderVal = ""
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.ClientID = ""
+	c.ClientSecret = ""
+	c.XBearerToken = ""
+	c.XOauth2UserToken = ""
 	return c.save()
 }
 

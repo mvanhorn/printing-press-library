@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/store"
 	"github.com/spf13/cobra"
@@ -82,15 +83,28 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				report["config"] = "ok"
 				report["config_path"] = cfg.Path
 				report["base_url"] = cfg.BaseURL
+				// agentcookie integration is soft: if the agentcookie daemon manages
+				// this CLI's config, it writes a marker file alongside the config and
+				// AuthSource is upgraded to "agentcookie" in config.Load. Surface the
+				// state explicitly so users can tell whether the bus is wired up.
+				if cfg.AuthSource == "agentcookie" {
+					report["agentcookie"] = "detected (managing credentials)"
+				} else {
+					report["agentcookie"] = "not detected (optional)"
+				}
 			}
 
 			// Check auth
+			authConfigured := false
 			if cfg != nil {
 				header := cfg.AuthHeader()
 				if header == "" {
 					report["auth"] = "not configured"
-					report["auth_hint"] = "export X_OAUTH2_USER_TOKEN=<your-key>"
+					report["auth_hint"] = "export X_BEARER_TOKEN=<your-key>"
+					report["auth_key_url"] = "https://console.x.com/"
+					report["auth_instructions"] = "Bearer Token (required) is on your app Keys and Tokens page at console.x.com. Optional X_OAUTH2_USER_TOKEN unlocks v2 writes and personal reads. X Articles authoring uses browser cookies captured via auth login --chrome."
 				} else {
+					authConfigured = true
 					report["auth"] = "configured"
 					report["auth_source"] = cfg.AuthSource
 				}
@@ -103,20 +117,39 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			authEnvOptionalNames := []string{}
 			// Validation rejects multi-OR-group specs upstream, so the single optional-satisfied state is sufficient at runtime.
 			authEnvOptionalSatisfied := false
-			if os.Getenv("X_OAUTH2_USER_TOKEN") != "" {
+			if os.Getenv("X_BEARER_TOKEN") != "" {
+				authEnvSet = append(authEnvSet, "X_BEARER_TOKEN")
+			} else if authConfigured {
+				authSource, _ := report["auth_source"].(string)
+				if authSource == "" {
+					authSource = "config"
+				}
+				authEnvInfo = append(authEnvInfo, "credentials available from "+authSource)
+			} else {
+				authEnvRequiredMissing = append(authEnvRequiredMissing, "X_BEARER_TOKEN")
+			}
+			if strings.Contains("Optional OAuth2 user-context token. Unlocks v2 writes (post, like, repost, bookmark, follow, DM) and personal reads (me, mentions, home timeline, bookmarks). Sent as Authorization Bearer; obtain via auth login (OAuth2 + PKCE).", " OR ") {
+				authEnvOptionalNames = append(authEnvOptionalNames, "X_OAUTH2_USER_TOKEN")
+				if os.Getenv("X_OAUTH2_USER_TOKEN") != "" {
+					authEnvSet = append(authEnvSet, "X_OAUTH2_USER_TOKEN")
+					authEnvOptionalSatisfied = true
+				}
+			} else if os.Getenv("X_OAUTH2_USER_TOKEN") != "" {
 				authEnvSet = append(authEnvSet, "X_OAUTH2_USER_TOKEN")
 			} else {
-				authEnvRequiredMissing = append(authEnvRequiredMissing, "X_OAUTH2_USER_TOKEN")
+				authEnvInfo = append(authEnvInfo, "X_OAUTH2_USER_TOKEN optional")
 			}
 			switch {
 			case len(authEnvRequiredMissing) > 0:
 				report["env_vars"] = "ERROR missing required: " + strings.Join(authEnvRequiredMissing, ", ")
 			case len(authEnvOptionalNames) > 1 && !authEnvOptionalSatisfied:
 				report["env_vars"] = "INFO set one of: " + strings.Join(authEnvOptionalNames, " or ")
+			case len(authEnvInfo) > 0 && authConfigured:
+				report["env_vars"] = "OK " + strings.Join(authEnvInfo, "; ")
 			case len(authEnvInfo) > 0:
 				report["env_vars"] = "INFO " + strings.Join(authEnvInfo, "; ")
 			default:
-				report["env_vars"] = fmt.Sprintf("OK %d/%d available", len(authEnvSet), 1)
+				report["env_vars"] = fmt.Sprintf("OK %d/%d available", len(authEnvSet), 2)
 			}
 
 			// Check API connectivity and validate credentials.
@@ -135,7 +168,11 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					report["api"] = fmt.Sprintf("client init error: %s", clientErr)
 				} else {
 					// Step 1: Basic reachability via the configured transport.
-					reachBody, reachErr := c.Get("/", nil)
+					healthPath := "/2/users/me"
+					if !strings.HasPrefix(healthPath, "/") {
+						healthPath = "/" + healthPath
+					}
+					reachBody, reachErr := c.Get(cmd.Context(), healthPath, nil)
 					var reachAPIErr *client.APIError
 					switch {
 					case reachErr == nil:
@@ -172,26 +209,30 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					} else if reachErr != nil && !errors.As(reachErr, &reachAPIErr) {
 						report["credentials"] = "skipped (API unreachable)"
 					} else {
-						verifyPath := "/"
+						// Shared auth-header setup for both probe variants below.
+						// Kept hoisted out of the per-probe branches because the
+						// per-API auth-placement, RequiredHeaders, and User-Agent
+						// fallback logic is independent of which verb the probe
+						// dials.
 						authParams := map[string]string{}
 						authHeaders := map[string]string{}
 						authHeaders["Authorization"] = authHeader
-						_, authErr := c.GetWithHeaders(verifyPath, authParams, authHeaders)
+						authHeaders["User-Agent"] = "x-twitter-pp-cli"
+						verifyPath := "/2/users/me"
+						if !strings.HasPrefix(verifyPath, "/") {
+							verifyPath = "/" + verifyPath
+						}
+						_, authErr := c.GetWithHeaders(cmd.Context(), verifyPath, authParams, authHeaders)
 						var authAPIErr *client.APIError
 						switch {
 						case authErr == nil:
 							report["credentials"] = "valid"
 						case errors.As(authErr, &authAPIErr):
 							switch {
-							case authAPIErr.StatusCode == 401 || authAPIErr.StatusCode == 403:
-								// The probe hit the bare base URL because no auth.verify_path
-								// is configured in the spec. Many APIs return 401/403 from a
-								// bare versioned root regardless of token validity (the path
-								// isn't routed but the gateway still demands credentials).
-								// Don't claim invalid without certainty — set verify_path to
-								// a known-good authenticated GET (e.g. /me, /v1/account, /user)
-								// for a definitive verdict.
-								report["credentials"] = fmt.Sprintf("inconclusive (HTTP %d from base URL — set auth.verify_path in spec for a definitive probe)", authAPIErr.StatusCode)
+							case authAPIErr.StatusCode == 401:
+								report["credentials"] = fmt.Sprintf("invalid (HTTP %d) — check your credentials", authAPIErr.StatusCode)
+							case authAPIErr.StatusCode == 403:
+								report["credentials"] = fmt.Sprintf("scope-limited (HTTP %d) — credentials are valid but lack permission for this endpoint. Check your dashboard's API key scope.", authAPIErr.StatusCode)
 							default:
 								// Non-auth HTTP error (404, 500, etc.) — don't blame credentials
 								report["credentials"] = fmt.Sprintf("ok (HTTP %d from %s, but auth was accepted)", authAPIErr.StatusCode, verifyPath)
@@ -210,6 +251,21 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// whether to trust the cached data before issuing queries.
 			report["cache"] = collectCacheReport(cmd.Context(), "")
 
+			// Verify mode state. Surfaced so an operator who unintentionally
+			// inherits PRINTING_PRESS_VERIFY=1 (parent shell, CI runner, container
+			// image) detects the foot-gun without inspecting a response body.
+			// Pairs with the synthetic envelope's verify_noop / reason literals
+			// as a second diagnosis anchor.
+			if cliutil.IsVerifyEnv() {
+				if cliutil.IsVerifyLiveHTTPEnv() {
+					report["verify_mode"] = "INFO ACTIVE — live HTTP opt-in (mutating verbs dial out)"
+				} else {
+					report["verify_mode"] = "INFO ACTIVE — mutating HTTP verbs short-circuit (PRINTING_PRESS_VERIFY=1; no network calls for DELETE/POST/PUT/PATCH)"
+				}
+			} else {
+				report["verify_mode"] = "normal operation"
+			}
+
 			report["version"] = version
 
 			if flags.asJSON {
@@ -225,6 +281,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				{"config", "Config"},
 				{"auth", "Auth"},
 				{"env_vars", "Env Vars"},
+				{"verify_mode", "Verify Mode"},
 				{"api", "API"},
 				{"credentials", "Credentials"},
 			}
@@ -243,12 +300,13 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				case strings.HasPrefix(s, "optional"):
 					// Optional-auth CLI with no key set — informational, not a failure.
 					indicator = yellow("INFO")
-				case strings.HasPrefix(s, "inconclusive"):
-					// The credential probe could not produce a definitive verdict
-					// (typically because the bare base URL returns 401/403 even for
-					// valid tokens). Surface as WARN, not FAIL — the user's actual
-					// commands will reveal a real auth failure if one exists.
+				case strings.Contains(s, "scope-limited"):
 					indicator = yellow("WARN")
+				case strings.Contains(s, "not verified"):
+					// "present, not verified" — credentials are loaded but no
+					// probe ran. Informational, not a warning; a clean config
+					// shouldn't render yellow WARN in CI dashboards.
+					indicator = yellow("INFO")
 				case strings.Contains(s, "error") || strings.Contains(s, "not configured") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing"):
 					indicator = red("FAIL")
 				case s == "not required":
@@ -268,6 +326,12 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// Print auth setup hints (indented under Auth line)
 			if hint, ok := report["auth_hint"]; ok {
 				fmt.Fprintf(w, "  hint: %v\n", hint)
+			}
+			if keyURL, ok := report["auth_key_url"]; ok {
+				fmt.Fprintf(w, "  Get a key at: %v\n", keyURL)
+			}
+			if instructions, ok := report["auth_instructions"]; ok {
+				fmt.Fprintf(w, "  %v\n", instructions)
 			}
 			// Cache section: render after the primary health block so it
 			// sits next to version info, mirroring the JSON report layout.

@@ -11,47 +11,45 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newTweetsStreamLabelsComplianceCmd(flags *rootFlags) *cobra.Command {
-	var flagBackfillMinutes int
-	var flagStartTime string
-	var flagEndTime string
+func newTweetsGetRuleCountsCmd(flags *rootFlags) *cobra.Command {
+	var flagRulesCountFields string
 
 	cmd := &cobra.Command{
-		Use:         "stream-labels-compliance",
-		Short:       "Streams all labeling events applied to Posts.",
-		Example:     "  x-twitter-pp-cli tweets stream-labels-compliance",
-		Annotations: map[string]string{"pp:endpoint": "tweets.stream-labels-compliance", "pp:method": "GET", "pp:path": "/2/tweets/label/stream", "mcp:read-only": "true"},
+		Use:         "get-rule-counts",
+		Short:       "Retrieves the count of rules in the active rule set for the filtered stream.",
+		Example:     "  x-twitter-pp-cli tweets get-rule-counts",
+		Annotations: map[string]string{"pp:endpoint": "tweets.get-rule-counts", "pp:method": "GET", "pp:path": "/2/tweets/search/stream/rules/counts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/2/tweets/label/stream"
+			path := "/2/tweets/search/stream/rules/counts"
 			params := map[string]string{}
-			if flagBackfillMinutes != 0 {
-				params["backfill_minutes"] = fmt.Sprintf("%v", flagBackfillMinutes)
+			if flagRulesCountFields != "" {
+				params["rules_count.fields"] = fmt.Sprintf("%v", flagRulesCountFields)
 			}
-			if flagStartTime != "" {
-				params["start_time"] = fmt.Sprintf("%v", flagStartTime)
-			}
-			if flagEndTime != "" {
-				params["end_time"] = fmt.Sprintf("%v", flagEndTime)
-			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "tweets", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "tweets", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -80,9 +78,7 @@ func newTweetsStreamLabelsComplianceCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().IntVar(&flagBackfillMinutes, "backfill-minutes", 0, "The number of minutes of backfill requested.")
-	cmd.Flags().StringVar(&flagStartTime, "start-time", "", "YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the Post labels will be provided.")
-	cmd.Flags().StringVar(&flagEndTime, "end-time", "", "YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp from which the Post labels will be provided.")
+	cmd.Flags().StringVar(&flagRulesCountFields, "rules-count-fields", "", "A comma separated list of RulesCount fields to display.")
 
 	return cmd
 }

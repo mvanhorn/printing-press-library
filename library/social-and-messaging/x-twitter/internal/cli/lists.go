@@ -9,8 +9,11 @@ import (
 
 func newListsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "lists",
-		Short: "Endpoints related to retrieving, managing Lists",
+		Use:         "lists",
+		Short:       "Endpoints related to retrieving, managing Lists",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newListsCreateCmd(flags))

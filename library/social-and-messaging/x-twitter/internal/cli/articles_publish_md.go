@@ -11,6 +11,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"math/rand"
@@ -66,15 +67,24 @@ type draftEntityValue struct {
 	Mutability string         `json:"mutability"`
 }
 
-func newArticlesPublishMdCmd(flags *rootFlags) *cobra.Command {
+func newNovelArticlesPublishMdCmd(flags *rootFlags) *cobra.Command {
 	var post bool
+	var draft bool
 	cmd := &cobra.Command{
 		Use:     "articles-publish-md <markdown-file>",
-		Short:   "Convert a markdown file to an X Article (dry-run by default)",
-		Long:    "Parses frontmatter (title, cover, tags) and body, converts body to Draft.js content_state JSON, and prints the payload. Pass --post to create and publish the article.",
+		Short:   "Convert a markdown file to an X Article (preview by default; --draft or --post to write)",
+		Long:    "Parses frontmatter (title, cover, tags) and body, converts the body to the Draft.js content_state JSON X's Articles editor accepts. Previews the payload by default (no API call); pass --draft to save a draft (not published) or --post to create and publish the article publicly.",
 		Example: "  x-twitter-pp-cli articles-publish-md draft.md",
-		Args:    cobra.ExactArgs(1),
+		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Dry-run probes call with no file arg: short-circuit before the
+			// required-arg check so verify can exercise the command cleanly.
+			if dryRunOK(flags) {
+				return nil
+			}
+			if len(args) == 0 {
+				return cmd.Help()
+			}
 			data, err := os.ReadFile(args[0])
 			if err != nil {
 				return fmt.Errorf("read %s: %w", args[0], err)
@@ -91,38 +101,49 @@ func newArticlesPublishMdCmd(flags *rootFlags) *cobra.Command {
 				"summary":       parsed.Frontmatter.Summary,
 				"content_state": cs,
 			}
-			if !post || flags.dryRun {
-				fmt.Fprintln(cmd.OutOrStdout(), "── Article payload (dry-run) ──")
+			if (!post && !draft) || flags.dryRun {
 				enc := json.NewEncoder(cmd.OutOrStdout())
-				enc.SetIndent("", "  ")
+				// Machine output (--json/--agent): emit the bare payload so an
+				// agent can json.load it. Banner + trailing prose are human-only.
+				if !flags.asJSON {
+					fmt.Fprintln(cmd.OutOrStdout(), "── Article payload (preview) ──")
+					enc.SetIndent("", "  ")
+				}
 				if err := enc.Encode(payload); err != nil {
 					return err
 				}
 			}
-			if !post {
-				fmt.Fprintln(cmd.OutOrStdout(), "(DRY-RUN - pass --post to actually publish)")
+			if !post && !draft {
+				if !flags.asJSON {
+					fmt.Fprintln(cmd.OutOrStdout(), "(preview only — pass --draft to save a draft, or --post to publish)")
+				}
 				return nil
 			}
 			if flags.dryRun {
-				fmt.Fprintln(cmd.OutOrStdout(), "(DRY-RUN - --dry-run set, skipping publish)")
+				fmt.Fprintln(cmd.OutOrStdout(), "(--dry-run set, skipping article write)")
 				return nil
 			}
 			if os.Getenv("PRINTING_PRESS_VERIFY") == "1" {
-				fmt.Fprintln(cmd.OutOrStdout(), "verify-env: skipping article publish")
+				fmt.Fprintln(cmd.OutOrStdout(), "verify-env: skipping article write")
 				return nil
 			}
-			result, err := publishMarkdownArticle(flags, parsed.Frontmatter.Title, parsed.Frontmatter.Cover, cs)
+			result, err := publishMarkdownArticle(cmd.Context(), flags, parsed.Frontmatter.Title, parsed.Frontmatter.Cover, cs, post)
 			if err != nil {
 				return err
 			}
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				return json.NewEncoder(cmd.OutOrStdout()).Encode(result)
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "published article %s\n%s\n", result.ArticleID, result.URL)
+			verb := "created draft"
+			if post {
+				verb = "published"
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "%s article %s\n%s\n", verb, result.ArticleID, result.URL)
 			return nil
 		},
 	}
-	cmd.Flags().BoolVar(&post, "post", false, "Actually create and publish the article (default: dry-run)")
+	cmd.Flags().BoolVar(&draft, "draft", false, "Create the article as a draft without publishing")
+	cmd.Flags().BoolVar(&post, "post", false, "Create and publish the article publicly (default: preview only)")
 	return cmd
 }
 
@@ -134,7 +155,7 @@ type publishedArticleResult struct {
 }
 
 // PATCH: Wire the X-specific Articles create/update/publish GraphQL sequence.
-func publishMarkdownArticle(flags *rootFlags, title string, coverPath string, contentState draftContentState) (*publishedArticleResult, error) {
+func publishMarkdownArticle(ctx context.Context, flags *rootFlags, title string, coverPath string, contentState draftContentState, publish bool) (*publishedArticleResult, error) {
 	if strings.TrimSpace(title) == "" {
 		return nil, fmt.Errorf("frontmatter title is required when --post is set")
 	}
@@ -152,7 +173,7 @@ func publishMarkdownArticle(flags *rootFlags, title string, coverPath string, co
 		"features": features,
 		"queryId":  "g1l5N8BxGewYuCy5USe_bQ",
 	}
-	createData, _, err := c.Post(client.ArticleOpURL("ArticleEntityDraftCreate"), createBody)
+	createData, _, err := c.Post(ctx, client.ArticleOpURL("ArticleEntityDraftCreate"), createBody)
 	if err != nil {
 		return nil, classifyAPIError(err, flags)
 	}
@@ -166,12 +187,14 @@ func publishMarkdownArticle(flags *rootFlags, title string, coverPath string, co
 		"features":  features,
 		"queryId":   "x75E2ABzm8_mGTg1bz8hcA",
 	}
-	if _, _, err := c.Post(client.ArticleOpURL("ArticleEntityUpdateTitle"), updateTitleBody); err != nil {
+	if _, _, err := c.Post(ctx, client.ArticleOpURL("ArticleEntityUpdateTitle"), updateTitleBody); err != nil {
 		return nil, classifyAPIError(err, flags)
 	}
 
 	// PATCH: Bind local markdown image placeholders to uploaded X Article MEDIA entities.
-	if err := bindArticleMediaEntities(&contentState, c.UploadArticleImage); err != nil {
+	if err := bindArticleMediaEntities(&contentState, func(p string) (string, error) {
+		return c.UploadArticleImage(ctx, p)
+	}); err != nil {
 		return nil, classifyAPIError(err, flags)
 	}
 
@@ -183,13 +206,13 @@ func publishMarkdownArticle(flags *rootFlags, title string, coverPath string, co
 		"features": features,
 		"queryId":  "M7N2FrPrlOmu-YrVIBxFnQ",
 	}
-	if _, _, err := c.Post(client.ArticleOpURL("ArticleEntityUpdateContent"), updateContentBody); err != nil {
+	if _, _, err := c.Post(ctx, client.ArticleOpURL("ArticleEntityUpdateContent"), updateContentBody); err != nil {
 		return nil, classifyAPIError(err, flags)
 	}
 
 	var coverMediaID string
 	if strings.TrimSpace(coverPath) != "" {
-		coverMediaID, err = c.UploadArticleImage(coverPath)
+		coverMediaID, err = c.UploadArticleImage(ctx, coverPath)
 		if err != nil {
 			return nil, classifyAPIError(err, flags)
 		}
@@ -204,9 +227,20 @@ func publishMarkdownArticle(flags *rootFlags, title string, coverPath string, co
 			"features": features,
 			"queryId":  "Es8InPh7mEkK9PxclxFAVQ",
 		}
-		if _, _, err := c.Post(client.ArticleOpURL("ArticleEntityUpdateCoverMedia"), updateCoverBody); err != nil {
+		if _, _, err := c.Post(ctx, client.ArticleOpURL("ArticleEntityUpdateCoverMedia"), updateCoverBody); err != nil {
 			return nil, classifyAPIError(err, flags)
 		}
+	}
+
+	if !publish {
+		// Draft-only: stop before ArticleEntityPublish. The draft is created
+		// and fully populated (title, content, cover) but never made public.
+		return &publishedArticleResult{
+			ArticleID:    articleID,
+			URL:          "https://x.com/compose/article/edit/" + articleID,
+			Title:        title,
+			CoverMediaID: coverMediaID,
+		}, nil
 	}
 
 	publishBody := map[string]any{
@@ -214,7 +248,7 @@ func publishMarkdownArticle(flags *rootFlags, title string, coverPath string, co
 		"features":  features,
 		"queryId":   "m4SHicYMoWO_qkLvjhDk7Q",
 	}
-	publishData, _, err := c.Post(client.ArticleOpURL("ArticleEntityPublish"), publishBody)
+	publishData, _, err := c.Post(ctx, client.ArticleOpURL("ArticleEntityPublish"), publishBody)
 	if err != nil {
 		return nil, classifyAPIError(err, flags)
 	}
@@ -242,9 +276,20 @@ func articleGraphQLFeatures() map[string]any {
 }
 
 func articleContentStateRequest(cs draftContentState) map[string]any {
+	// X's ArticleEntityUpdateContent rejects null blocks/entity_map ("cannot be
+	// null"). A plain-text article has no entities, so cs.EntityMap is a nil
+	// slice that JSON-encodes as null — force empty arrays instead.
+	blocks := cs.Blocks
+	if blocks == nil {
+		blocks = []draftBlock{}
+	}
+	entityMap := cs.EntityMap
+	if entityMap == nil {
+		entityMap = []draftEntity{}
+	}
 	return map[string]any{
-		"blocks":     cs.Blocks,
-		"entity_map": cs.EntityMap,
+		"blocks":     blocks,
+		"entity_map": entityMap,
 	}
 }
 

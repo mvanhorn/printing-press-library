@@ -2,6 +2,7 @@ package client
 
 import (
 	"bytes"
+	"context"
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
@@ -15,7 +16,7 @@ import (
 	"strconv"
 )
 
-func (c *Client) UploadArticleImage(path string) (string, error) {
+func (c *Client) UploadArticleImage(ctx context.Context, path string) (string, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return "", fmt.Errorf("read image: %w", err)
@@ -24,20 +25,20 @@ func (c *Client) UploadArticleImage(path string) (string, error) {
 	if mediaType != "image/png" && mediaType != "image/jpeg" && mediaType != "image/gif" && mediaType != "image/webp" {
 		return "", fmt.Errorf("unsupported image type %q", mediaType)
 	}
-	mediaID, err := c.initArticleMediaUpload(len(data), mediaType)
+	mediaID, err := c.initArticleMediaUpload(ctx, len(data), mediaType)
 	if err != nil {
 		return "", err
 	}
-	if err := c.appendArticleMediaUpload(mediaID, filepath.Base(path), data); err != nil {
+	if err := c.appendArticleMediaUpload(ctx, mediaID, filepath.Base(path), data); err != nil {
 		return "", err
 	}
-	if err := c.finalizeArticleMediaUpload(mediaID, data); err != nil {
+	if err := c.finalizeArticleMediaUpload(ctx, mediaID, data); err != nil {
 		return "", err
 	}
 	return mediaID, nil
 }
 
-func (c *Client) initArticleMediaUpload(totalBytes int, mediaType string) (string, error) {
+func (c *Client) initArticleMediaUpload(ctx context.Context, totalBytes int, mediaType string) (string, error) {
 	u, err := mediaUploadURL(map[string]string{
 		"command":        "INIT",
 		"total_bytes":    strconv.Itoa(totalBytes),
@@ -47,7 +48,7 @@ func (c *Client) initArticleMediaUpload(totalBytes int, mediaType string) (strin
 	if err != nil {
 		return "", err
 	}
-	data, _, err := c.postRaw(u, nil, "")
+	data, _, err := c.postRaw(ctx, u, nil, "")
 	if err != nil {
 		return "", err
 	}
@@ -71,7 +72,7 @@ func (c *Client) initArticleMediaUpload(totalBytes int, mediaType string) (strin
 	}
 }
 
-func (c *Client) appendArticleMediaUpload(mediaID, filename string, data []byte) error {
+func (c *Client) appendArticleMediaUpload(ctx context.Context, mediaID, filename string, data []byte) error {
 	sum := md5.Sum(data)
 	u, err := mediaUploadURL(map[string]string{
 		"command":          "APPENDMULTI",
@@ -95,11 +96,11 @@ func (c *Client) appendArticleMediaUpload(mediaID, filename string, data []byte)
 	if err := writer.Close(); err != nil {
 		return fmt.Errorf("close multipart body: %w", err)
 	}
-	_, _, err = c.postRaw(u, &body, writer.FormDataContentType())
+	_, _, err = c.postRaw(ctx, u, &body, writer.FormDataContentType())
 	return err
 }
 
-func (c *Client) finalizeArticleMediaUpload(mediaID string, data []byte) error {
+func (c *Client) finalizeArticleMediaUpload(ctx context.Context, mediaID string, data []byte) error {
 	sum := md5.Sum(data)
 	u, err := mediaUploadURL(map[string]string{
 		"command":      "FINALIZE",
@@ -109,7 +110,7 @@ func (c *Client) finalizeArticleMediaUpload(mediaID string, data []byte) error {
 	if err != nil {
 		return err
 	}
-	_, _, err = c.postRaw(u, nil, "")
+	_, _, err = c.postRaw(ctx, u, nil, "")
 	return err
 }
 
@@ -126,8 +127,8 @@ func mediaUploadURL(params map[string]string) (string, error) {
 	return u.String(), nil
 }
 
-func (c *Client) postRaw(targetURL string, body io.Reader, contentType string) (json.RawMessage, int, error) {
-	req, err := http.NewRequest(http.MethodPost, targetURL, body)
+func (c *Client) postRaw(ctx context.Context, targetURL string, body io.Reader, contentType string) (json.RawMessage, int, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, targetURL, body)
 	if err != nil {
 		return nil, 0, fmt.Errorf("creating request: %w", err)
 	}

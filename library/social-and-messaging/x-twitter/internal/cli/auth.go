@@ -4,225 +4,165 @@
 package cli
 
 import (
-	"context"
-	"crypto/rand"
-	"encoding/hex"
-	"encoding/json"
 	"fmt"
-	"net"
-	"net/http"
-	"net/url"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/config"
+	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
 	"runtime"
-	"strings"
-	"time"
-
-	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/config"
-	"github.com/spf13/cobra"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "auth",
-		Short: "Manage authentication for X (Twitter)",
+		Short: "Manage authentication for X",
+		RunE:  parentNoSubcommandRunE(flags),
 	}
 
-	cmd.AddCommand(newAuthLoginCmd(flags))
+	cmd.AddCommand(newXAuthLoginCmd(flags))
+	cmd.AddCommand(newAuthSetupCmd(flags))
 	cmd.AddCommand(newAuthStatusCmd(flags))
+	cmd.AddCommand(newAuthSetTokenCmd(flags))
 	cmd.AddCommand(newAuthLogoutCmd(flags))
 
 	return cmd
 }
 
-func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
-	var clientID string
-	var clientSecret string
-	var port int
-
+// newAuthSetupCmd prints concrete steps for getting a credential. Side-effect
+// rule: print by default, --launch opt-in to open the URL, short-circuit when
+// the verifier is running this in a sandboxed subprocess.
+func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
+	var launch bool
 	cmd := &cobra.Command{
-		Use:   "login",
-		Short: "Authenticate via OAuth2",
+		Use:     "setup",
+		Short:   "Print steps for obtaining a credential (use --launch to open the URL)",
+		Example: "  x-twitter-pp-cli auth setup\n  x-twitter-pp-cli auth setup --launch",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if clientID == "" {
-				return fmt.Errorf("--client-id is required")
+			w := cmd.OutOrStdout()
+			fmt.Fprintln(w, "Get a key at: https://console.x.com/")
+			fmt.Fprintln(w, "  Bearer Token (required) is on your app Keys and Tokens page at console.x.com. Optional X_OAUTH2_USER_TOKEN unlocks v2 writes and personal reads. X Articles authoring uses browser cookies captured via auth login --chrome.")
+			fmt.Fprintln(w, "")
+			fmt.Fprintln(w, "Then set:")
+			fmt.Fprintln(w, "  export X_BEARER_TOKEN=\"<your-token>\"")
+			fmt.Fprintln(w, "  export X_OAUTH2_USER_TOKEN=\"<your-token>\"")
+			fmt.Fprintln(w, "  x-twitter-pp-cli auth set-token <token>")
+			if !launch {
+				return nil
 			}
-
-			cfg, err := config.Load(flags.configPath)
-			if err != nil {
-				return err
+			launchURL := "https://console.x.com/"
+			if cliutil.IsVerifyEnv() {
+				fmt.Fprintf(w, "would launch: %s\n", launchURL)
+				return nil
 			}
-
-			stateBytes := make([]byte, 16)
-			if _, err := rand.Read(stateBytes); err != nil {
-				return fmt.Errorf("generating state: %w", err)
+			if err := openSetupURL(launchURL); err != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "could not open browser automatically: %v\nopen this URL manually: %s\n", err, launchURL)
 			}
-			state := hex.EncodeToString(stateBytes)
-
-			listener, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
-			if err != nil {
-				return fmt.Errorf("starting callback server: %w", err)
-			}
-			defer listener.Close()
-
-			redirectURI := fmt.Sprintf("http://localhost:%d/callback", listener.Addr().(*net.TCPAddr).Port)
-
-			authURL := "https://api.x.com/2/oauth2/authorize"
-			params := url.Values{
-				"client_id":     {clientID},
-				"redirect_uri":  {redirectURI},
-				"response_type": {"code"},
-				"state":         {state},
-				"access_type":   {"offline"},
-				"prompt":        {"consent"},
-			}
-			scopes := []string{"block.read", "bookmark.read", "bookmark.write", "dm.read", "dm.write", "follows.read", "follows.write", "like.read", "like.write", "list.read", "list.write", "media.write", "mute.read", "mute.write", "offline.access", "space.read", "timeline.read", "tweet.moderate.write", "tweet.read", "tweet.write", "users.read"}
-			if len(scopes) > 0 {
-				params.Set("scope", strings.Join(scopes, " "))
-			}
-
-			fullURL := authURL + "?" + params.Encode()
-			fmt.Fprintf(os.Stderr, "Opening browser for authentication...\n")
-			fmt.Fprintf(os.Stderr, "If the browser doesn't open, visit:\n%s\n\n", fullURL)
-			openBrowser(fullURL)
-
-			codeCh := make(chan string, 1)
-			errCh := make(chan error, 1)
-
-			mux := http.NewServeMux()
-			mux.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
-				if r.URL.Query().Get("state") != state {
-					errCh <- fmt.Errorf("state mismatch")
-					http.Error(w, "State mismatch", http.StatusBadRequest)
-					return
-				}
-				if errMsg := r.URL.Query().Get("error"); errMsg != "" {
-					errCh <- fmt.Errorf("auth error: %s", errMsg)
-					http.Error(w, errMsg, http.StatusBadRequest)
-					return
-				}
-				code := r.URL.Query().Get("code")
-				if code == "" {
-					errCh <- fmt.Errorf("no code in callback")
-					http.Error(w, "No code", http.StatusBadRequest)
-					return
-				}
-				w.Header().Set("Content-Type", "text/html")
-				fmt.Fprint(w, "<html><body><h2>Authentication successful!</h2><p>You can close this tab.</p></body></html>")
-				codeCh <- code
-			})
-
-			server := &http.Server{Handler: mux}
-			go server.Serve(listener)
-
-			var code string
-			select {
-			case code = <-codeCh:
-			case err := <-errCh:
-				return err
-			case <-time.After(2 * time.Minute):
-				return fmt.Errorf("authentication timed out after 2 minutes")
-			}
-
-			server.Shutdown(context.Background())
-
-			tokenURL := "https://api.x.com/2/oauth2/token"
-			tokenParams := url.Values{
-				"grant_type":   {"authorization_code"},
-				"code":         {code},
-				"redirect_uri": {redirectURI},
-				"client_id":    {clientID},
-			}
-			if clientSecret != "" {
-				tokenParams.Set("client_secret", clientSecret)
-			}
-
-			resp, err := http.PostForm(tokenURL, tokenParams)
-			if err != nil {
-				return fmt.Errorf("exchanging code for token: %w", err)
-			}
-			defer resp.Body.Close()
-
-			if resp.StatusCode >= 400 {
-				var body map[string]any
-				if err := json.NewDecoder(resp.Body).Decode(&body); err == nil {
-					return fmt.Errorf("exchanging code for token: HTTP %d: %v", resp.StatusCode, body)
-				}
-				return fmt.Errorf("exchanging code for token: HTTP %d", resp.StatusCode)
-			}
-
-			var tokenResp struct {
-				AccessToken  string `json:"access_token"`
-				RefreshToken string `json:"refresh_token"`
-				ExpiresIn    int    `json:"expires_in"`
-				TokenType    string `json:"token_type"`
-			}
-			if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
-				return fmt.Errorf("parsing token response: %w", err)
-			}
-			if tokenResp.AccessToken == "" {
-				return fmt.Errorf("no access token in response")
-			}
-
-			expiry := time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second)
-			if err := cfg.SaveTokens(clientID, clientSecret, tokenResp.AccessToken, tokenResp.RefreshToken, expiry); err != nil {
-				return fmt.Errorf("saving tokens: %w", err)
-			}
-
-			fmt.Fprintf(os.Stderr, "%s Authentication successful! Token expires at %s\n", green("OK"), expiry.Format(time.RFC3339))
 			return nil
 		},
 	}
-
-	cmd.Flags().StringVar(&clientID, "client-id", os.Getenv("X_CLIENT_ID"), "OAuth2 client ID")
-	cmd.Flags().StringVar(&clientSecret, "client-secret", os.Getenv("X_CLIENT_SECRET"), "OAuth2 client secret")
-	cmd.Flags().IntVar(&port, "port", 8085, "Local callback server port")
-
+	cmd.Flags().BoolVar(&launch, "launch", false, "Open the setup URL in your default browser")
 	return cmd
+}
+
+// openSetupURL opens url in the OS default browser. Per the side-effect rule,
+// the caller short-circuits with cliutil.IsVerifyEnv() before this is reached.
+func openSetupURL(url string) error {
+	var c *exec.Cmd
+	switch runtime.GOOS {
+	case "darwin":
+		c = exec.Command("open", url)
+	case "linux":
+		c = exec.Command("xdg-open", url)
+	case "windows":
+		c = exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
+	default:
+		return fmt.Errorf("unsupported OS: %s", runtime.GOOS)
+	}
+	return c.Start()
 }
 
 func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "status",
-		Short: "Show authentication status",
+		Use:     "status",
+		Short:   "Show authentication status",
+		Example: "  x-twitter-pp-cli auth status",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
-				return err
+				return configErr(err)
 			}
 
 			w := cmd.OutOrStdout()
-			authed := cfg.AccessToken != ""
-			// JSON envelope: {authenticated, source, config}.
+			header := cfg.AuthHeader()
+			authed := header != ""
+			// JSON envelope: {authenticated, verified, source, config}. When not
+			// authenticated, write the envelope first then return authErr
+			// so exit code carries the auth-failure signal.
 			if flags.asJSON {
 				out := map[string]any{
 					"authenticated": authed,
+					"verified":      false,
 					"source":        cfg.AuthSource,
 					"config":        cfg.Path,
 				}
-				return printJSONFiltered(w, out, flags)
-			}
-
-			if !authed {
-				fmt.Fprintf(w, "  %s Not authenticated. Run 'auth login' to authenticate.\n", red("FAIL"))
+				if printErr := printJSONFiltered(w, out, flags); printErr != nil {
+					return printErr
+				}
+				if !authed {
+					return authErr(fmt.Errorf("no credentials configured"))
+				}
 				return nil
 			}
-
-			if cfg.TokenExpiry.IsZero() {
-				fmt.Fprintf(w, "  %s Authenticated (no expiry info)\n", green("OK"))
-			} else if time.Now().Before(cfg.TokenExpiry) {
-				fmt.Fprintf(w, "  %s Authenticated (expires %s)\n", green("OK"), cfg.TokenExpiry.Format(time.RFC3339))
-			} else {
-				if cfg.RefreshToken != "" {
-					fmt.Fprintf(w, "  %s Token expired (will auto-refresh on next request)\n", yellow("WARN"))
-				} else {
-					fmt.Fprintf(w, "  %s Token expired. Run 'auth login' to re-authenticate.\n", red("FAIL"))
-				}
+			if !authed {
+				fmt.Fprintln(w, red("Not authenticated"))
+				fmt.Fprintln(w, "")
+				fmt.Fprintln(w, "Set your token:")
+				fmt.Fprintln(w, "  export X_BEARER_TOKEN=\"your-token-here\" # App-only Bearer token for public reads (tweet/user lookup, recent search, lists, spaces). Required minimum - nothing works without it. Get one at https://console.x.com/ (app, then Keys and Tokens, then Bearer Token).")
+				fmt.Fprintln(w, "  export X_OAUTH2_USER_TOKEN=\"your-token-here\" # Optional OAuth2 user-context token. Unlocks v2 writes (post, like, repost, bookmark, follow, DM) and personal reads (me, mentions, home timeline, bookmarks). Sent as Authorization Bearer; obtain via auth login (OAuth2 + PKCE).")
+				fmt.Fprintf(w, "  x-twitter-pp-cli auth set-token <token>\n")
+				return authErr(fmt.Errorf("no credentials configured"))
 			}
 
-			if cfg.AuthSource != "" {
-				fmt.Fprintf(w, "  source: %s\n", cfg.AuthSource)
+			fmt.Fprintln(w, green("Credentials present (not verified)"))
+			fmt.Fprintf(w, "  Source: %s\n", cfg.AuthSource)
+			fmt.Fprintf(w, "  Config: %s\n", cfg.Path)
+			return nil
+		},
+	}
+}
+
+func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
+	return &cobra.Command{
+		Use:     "set-token <token>",
+		Short:   "Save an API token to the config file",
+		Example: "  x-twitter-pp-cli auth set-token YOUR_TOKEN_HERE",
+		Args:    cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := config.Load(flags.configPath)
+			if err != nil {
+				return configErr(err)
 			}
+
+			// Clear any legacy auth_header so AuthHeader() falls through to
+			// the newly-saved credential. Without this, a pre-existing
+			// auth_header value (common after regenerate) shadows the saved
+			// token and set-token silently has no effect. Silent clear (no
+			// log line): a masked-tail variant could leak token bytes through
+			// scripted dogfood that captures stderr.
+			cfg.AuthHeaderVal = ""
+			if err := cfg.SaveTokens("", "", args[0], "", cfg.TokenExpiry); err != nil {
+				return configErr(fmt.Errorf("saving token: %w", err))
+			}
+
+			// JSON envelope: {saved, config_path}.
+			if flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"saved":       true,
+					"config_path": cfg.Path,
+				}, flags)
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "Token saved to %s\n", cfg.Path)
 			return nil
 		},
 	}
@@ -230,41 +170,44 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "logout",
-		Short: "Remove stored authentication tokens",
+		Use:     "logout",
+		Short:   "Clear stored credentials",
+		Example: "  x-twitter-pp-cli auth logout",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
-				return err
+				return configErr(err)
 			}
+
 			if err := cfg.ClearTokens(); err != nil {
-				return fmt.Errorf("clearing tokens: %w", err)
+				return configErr(fmt.Errorf("clearing tokens: %w", err))
 			}
-			// JSON envelope: {cleared: true}. The OAuth flavor does not
-			// surface a "note" key because env-var creds aren't part of
-			// this auth flow's contract.
+
+			// Identify which (if any) auth env var is still exported so the
+			// JSON envelope and the human prose can both surface it.
+			envStillSet := ""
+			if envStillSet == "" && os.Getenv("X_BEARER_TOKEN") != "" {
+				envStillSet = "X_BEARER_TOKEN"
+			}
+			if envStillSet == "" && os.Getenv("X_OAUTH2_USER_TOKEN") != "" {
+				envStillSet = "X_OAUTH2_USER_TOKEN"
+			}
+
+			// JSON envelope: {cleared: true, note?: "<env_var> env var is still set"}.
 			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-					"cleared": true,
-				}, flags)
+				out := map[string]any{"cleared": true}
+				if envStillSet != "" {
+					out["note"] = envStillSet + " env var is still set"
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}
-			fmt.Fprintf(os.Stderr, "Logged out. Tokens removed.\n")
+
+			if envStillSet != "" {
+				fmt.Fprintf(cmd.OutOrStdout(), "Config cleared. Note: %s env var is still set.\n", envStillSet)
+				return nil
+			}
+			fmt.Fprintln(cmd.OutOrStdout(), "Logged out. Credentials cleared.")
 			return nil
 		},
 	}
-}
-
-func openBrowser(url string) {
-	var cmd *exec.Cmd
-	switch runtime.GOOS {
-	case "darwin":
-		cmd = exec.Command("open", url)
-	case "linux":
-		cmd = exec.Command("xdg-open", url)
-	case "windows":
-		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
-	default:
-		return
-	}
-	cmd.Start()
 }

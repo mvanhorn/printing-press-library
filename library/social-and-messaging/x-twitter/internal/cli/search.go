@@ -117,7 +117,7 @@ In local mode: searches locally synced data only.`,
 				if err != nil {
 					return err
 				}
-				data, getErr := c.Get("/2/news/search", map[string]string{
+				data, getErr := c.Get(cmd.Context(), "/2/news/search", map[string]string{
 					"query": query,
 				})
 				if getErr == nil {
@@ -145,16 +145,85 @@ In local mode: searches locally synced data only.`,
 			}
 			defer db.Close()
 
+			maybeEmitSyncHints(cmd, db, resourceType, flags.maxAge)
+
 			var results []json.RawMessage
 			switch resourceType {
+			case "activity":
+				results, err = db.SearchActivity(query, limit)
+			case "communities":
+				results, err = db.SearchCommunities(query, limit)
+			case "compliance":
+				results, err = db.SearchCompliance(query, limit)
+			case "dm-events":
+				results, err = db.SearchDmEvents(query, limit)
 			case "news":
 				results, err = db.SearchNews(query, limit)
+			case "tweets":
+				results, err = db.SearchTweets(query, limit)
 			case "users":
 				results, err = db.SearchUsers(query, limit)
 			case "":
-				// Search all FTS-enabled tables individually to avoid duplicates.
+				// Search every FTS-enabled source — typed per-resource tables
+				// AND the generic resources_fts — and dedup by raw JSON so a
+				// row indexed in multiple FTS sources appears once. Without
+				// the generic-search call, rows that landed in resources_fts
+				// but not in any typed FTS table (e.g., a resource whose sync
+				// populated only the generic index) silently return zero.
 				seen := make(map[string]bool)
 				_ = seen // prevent unused error when no FTS tables exist
+				{
+					partial, searchErr := db.SearchActivity(query, limit)
+					if searchErr != nil {
+						return fmt.Errorf("search activity failed: %w", searchErr)
+					}
+					for _, r := range partial {
+						key := string(r)
+						if !seen[key] {
+							seen[key] = true
+							results = append(results, r)
+						}
+					}
+				}
+				{
+					partial, searchErr := db.SearchCommunities(query, limit)
+					if searchErr != nil {
+						return fmt.Errorf("search communities failed: %w", searchErr)
+					}
+					for _, r := range partial {
+						key := string(r)
+						if !seen[key] {
+							seen[key] = true
+							results = append(results, r)
+						}
+					}
+				}
+				{
+					partial, searchErr := db.SearchCompliance(query, limit)
+					if searchErr != nil {
+						return fmt.Errorf("search compliance failed: %w", searchErr)
+					}
+					for _, r := range partial {
+						key := string(r)
+						if !seen[key] {
+							seen[key] = true
+							results = append(results, r)
+						}
+					}
+				}
+				{
+					partial, searchErr := db.SearchDmEvents(query, limit)
+					if searchErr != nil {
+						return fmt.Errorf("search dm_events failed: %w", searchErr)
+					}
+					for _, r := range partial {
+						key := string(r)
+						if !seen[key] {
+							seen[key] = true
+							results = append(results, r)
+						}
+					}
+				}
 				{
 					partial, searchErr := db.SearchNews(query, limit)
 					if searchErr != nil {
@@ -169,9 +238,35 @@ In local mode: searches locally synced data only.`,
 					}
 				}
 				{
+					partial, searchErr := db.SearchTweets(query, limit)
+					if searchErr != nil {
+						return fmt.Errorf("search tweets failed: %w", searchErr)
+					}
+					for _, r := range partial {
+						key := string(r)
+						if !seen[key] {
+							seen[key] = true
+							results = append(results, r)
+						}
+					}
+				}
+				{
 					partial, searchErr := db.SearchUsers(query, limit)
 					if searchErr != nil {
 						return fmt.Errorf("search users failed: %w", searchErr)
+					}
+					for _, r := range partial {
+						key := string(r)
+						if !seen[key] {
+							seen[key] = true
+							results = append(results, r)
+						}
+					}
+				}
+				{
+					partial, searchErr := db.Search(query, limit)
+					if searchErr != nil {
+						return fmt.Errorf("search resources_fts failed: %w", searchErr)
 					}
 					for _, r := range partial {
 						key := string(r)

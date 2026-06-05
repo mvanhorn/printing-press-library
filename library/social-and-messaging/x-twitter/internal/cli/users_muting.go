@@ -9,8 +9,10 @@ import (
 
 func newUsersMutingCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "muting",
-		Short: "Manage muting",
+		Use:         "muting",
+		Short:       "Get, create, and delete muting for users",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersMutingGetUsersCmd(flags))

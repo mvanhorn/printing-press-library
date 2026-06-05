@@ -9,8 +9,10 @@ import (
 
 func newSpacesTweetsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "tweets",
-		Short: "Endpoints related to retrieving, searching, and modifying Tweets",
+		Use:         "tweets",
+		Short:       "Endpoints related to retrieving, searching, and modifying Tweets",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newSpacesTweetsGetSpacesPostsCmd(flags))

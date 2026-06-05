@@ -36,10 +36,87 @@ func TestSchemaVersion_StampedOnFreshDB(t *testing.T) {
 	}
 }
 
+// TestOpenAppliesPragmas pins the connection-string contract: the store
+// must open in WAL journal mode with a non-zero busy_timeout so a read
+// concurrent with a write waits on the lock instead of failing immediately
+// with SQLITE_BUSY. It fails the instant the DSN regresses to the mattn-
+// style _journal_mode=WAL form, which modernc.org/sqlite silently drops —
+// see the OpenReadOnly comment for the driver-syntax detail.
+func TestOpenAppliesPragmas(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	requirePragma(t, s.DB(), "journal_mode", "wal")
+	requirePragma(t, s.DB(), "busy_timeout", "5000")
+
+	// The read-only handle (MCP sql/search, analytics) must see the same WAL
+	// file mode and carry the busy_timeout so it waits on a concurrent writer
+	// rather than erroring.
+	ro, err := OpenReadOnly(dbPath)
+	if err != nil {
+		t.Fatalf("open read-only: %v", err)
+	}
+	defer ro.Close()
+
+	requirePragma(t, ro.DB(), "journal_mode", "wal")
+	requirePragma(t, ro.DB(), "busy_timeout", "5000")
+}
+
+// requirePragma fails the test unless `PRAGMA <name>` reports want. It reads
+// the value as text so one helper covers both string pragmas (journal_mode)
+// and integer pragmas (busy_timeout).
+func requirePragma(t *testing.T, db *sql.DB, name, want string) {
+	t.Helper()
+	var got string
+	if err := db.QueryRow("PRAGMA " + name).Scan(&got); err != nil {
+		t.Fatalf("read pragma %s: %v", name, err)
+	}
+	if got != want {
+		t.Fatalf("PRAGMA %s = %q, want %q", name, got, want)
+	}
+}
+
+// TestOpenReadOnly_DeleteModeDBDoesNotWrite guards the read-only DSN against
+// mutating the database. journal_mode is a file-level property set by the
+// read-write open, not the connection — issuing PRAGMA journal_mode=WAL on a
+// read-only handle to a DB still in the default delete journal mode (a pre-WAL
+// database from an older binary, read before its first read-write open) fails
+// with "attempt to write a readonly database". OpenReadOnly must read such a
+// DB without error, so its DSN carries no journal_mode pragma.
+func TestOpenReadOnly_DeleteModeDBDoesNotWrite(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	// Create a delete-journal-mode DB directly (no WAL conversion), mirroring
+	// a database written by a binary that predated the WAL DSN.
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE resources (id TEXT)`); err != nil {
+		t.Fatalf("seed table: %v", err)
+	}
+	raw.Close()
+
+	ro, err := OpenReadOnly(dbPath)
+	if err != nil {
+		t.Fatalf("open read-only: %v", err)
+	}
+	defer ro.Close()
+
+	var n int
+	if err := ro.DB().QueryRow(`SELECT count(*) FROM resources`).Scan(&n); err != nil {
+		t.Fatalf("read-only query on delete-mode DB: %v", err)
+	}
+}
+
 // TestSchemaVersion_StampExistingZeroDB verifies the stamp-and-continue
 // rule for existing deployed databases. A DB that predates the gate has
 // user_version = 0; opening it with this binary should stamp the version
-// to 1 without touching any data.
+// to StoreSchemaVersion without touching any data.
 func TestSchemaVersion_StampExistingZeroDB(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 
@@ -133,7 +210,7 @@ func TestMigrate_ConcurrentFreshDB(t *testing.T) {
 // to construct contention scenarios in the migration tests.
 func holdWriteLock(t *testing.T, dbPath string) (cleanup func()) {
 	t.Helper()
-	holder, err := sql.Open("sqlite", dbPath+"?_journal_mode=WAL&_busy_timeout=5000")
+	holder, err := sql.Open("sqlite", dbPath+"?_pragma=journal_mode(WAL)&_pragma=busy_timeout(5000)")
 	if err != nil {
 		t.Fatalf("open holder: %v", err)
 	}
@@ -254,6 +331,337 @@ func TestSchemaVersion_ReopenIsIdempotent(t *testing.T) {
 	}
 }
 
+func TestResources_CompositeKeyPreservesOverlappingIDs(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open db: %v", err)
+	}
+	defer s.Close()
+
+	if err := s.Upsert("biz", "shared", []byte(`{"kind":"biz","name":"Pinky restaurant"}`)); err != nil {
+		t.Fatalf("upsert biz: %v", err)
+	}
+	if err := s.Upsert("bookmark", "shared", []byte(`{"kind":"bookmark","note":"anniversary"}`)); err != nil {
+		t.Fatalf("upsert bookmark: %v", err)
+	}
+
+	biz, err := s.Get("biz", "shared")
+	if err != nil {
+		t.Fatalf("get biz: %v", err)
+	}
+	if string(biz) != `{"kind":"biz","name":"Pinky restaurant"}` {
+		t.Fatalf("biz payload = %s", biz)
+	}
+
+	bookmark, err := s.Get("bookmark", "shared")
+	if err != nil {
+		t.Fatalf("get bookmark: %v", err)
+	}
+	if string(bookmark) != `{"kind":"bookmark","note":"anniversary"}` {
+		t.Fatalf("bookmark payload = %s", bookmark)
+	}
+
+	var count int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resources WHERE id = 'shared'`).Scan(&count); err != nil {
+		t.Fatalf("count overlapping rows: %v", err)
+	}
+	if count != 2 {
+		t.Fatalf("overlapping row count = %d, want 2", count)
+	}
+
+	matches, err := s.Search("restaurant", 10)
+	if err != nil {
+		t.Fatalf("search restaurant: %v", err)
+	}
+	if len(matches) != 1 || string(matches[0]) != `{"kind":"biz","name":"Pinky restaurant"}` {
+		t.Fatalf("restaurant search = %q, want only biz payload", matches)
+	}
+}
+
+// Callers detect missing rows via errors.Is(err, sql.ErrNoRows); present
+// rows return the JSON payload with a nil error.
+func TestGet_MissingRowReturnsErrNoRows(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	data, err := s.Get("missing_type", "missing_id")
+	if !errors.Is(err, sql.ErrNoRows) {
+		t.Fatalf("Get missing row err = %v, want sql.ErrNoRows", err)
+	}
+	if data != nil {
+		t.Fatalf("Get missing row data = %s, want nil", data)
+	}
+
+	if err := s.Upsert("present_type", "present_id", []byte(`{"ok":true}`)); err != nil {
+		t.Fatalf("upsert: %v", err)
+	}
+	got, err := s.Get("present_type", "present_id")
+	if err != nil {
+		t.Fatalf("Get present row: %v", err)
+	}
+	if string(got) != `{"ok":true}` {
+		t.Fatalf("Get present row data = %s, want {\"ok\":true}", got)
+	}
+}
+
+func TestMigrate_ResourcesCompositeKeyUpgrade(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE resources (
+		id TEXT PRIMARY KEY,
+		resource_type TEXT NOT NULL,
+		data JSON NOT NULL,
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create v1 resources: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE VIRTUAL TABLE resources_fts USING fts5(
+		id, resource_type, content, tokenize='porter unicode61'
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create v1 resources_fts: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources (id, resource_type, data) VALUES ('shared', 'biz', '{"kind":"biz","name":"legacy restaurant"}')`); err != nil {
+		raw.Close()
+		t.Fatalf("insert v1 resource: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (1, 'shared', 'biz', '{"kind":"biz","name":"legacy restaurant"}')`); err != nil {
+		raw.Close()
+		t.Fatalf("insert v1 fts row: %v", err)
+	}
+	if _, err := raw.Exec(`PRAGMA user_version = 1`); err != nil {
+		raw.Close()
+		t.Fatalf("stamp v1: %v", err)
+	}
+	raw.Close()
+
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open upgraded db: %v", err)
+	}
+	defer s.Close()
+
+	v, err := s.SchemaVersion()
+	if err != nil {
+		t.Fatalf("read schema version: %v", err)
+	}
+	if v != StoreSchemaVersion {
+		t.Fatalf("upgraded version = %d, want %d", v, StoreSchemaVersion)
+	}
+
+	rows, err := s.DB().Query(`PRAGMA table_info(resources)`)
+	if err != nil {
+		t.Fatalf("table_info resources: %v", err)
+	}
+	defer rows.Close()
+
+	pk := map[string]int{}
+	for rows.Next() {
+		var cid int
+		var name, typ string
+		var notnull, pkOrder int
+		var dflt sql.NullString
+		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pkOrder); err != nil {
+			t.Fatalf("scan table_info: %v", err)
+		}
+		pk[name] = pkOrder
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("table_info rows: %v", err)
+	}
+	if pk["resource_type"] != 1 || pk["id"] != 2 {
+		t.Fatalf("resources primary key order = resource_type:%d id:%d, want resource_type:1 id:2", pk["resource_type"], pk["id"])
+	}
+
+	if err := s.Upsert("bookmark", "shared", []byte(`{"kind":"bookmark","note":"after upgrade"}`)); err != nil {
+		t.Fatalf("upsert overlapping resource after upgrade: %v", err)
+	}
+
+	biz, err := s.Get("biz", "shared")
+	if err != nil {
+		t.Fatalf("get migrated biz: %v", err)
+	}
+	if string(biz) != `{"kind":"biz","name":"legacy restaurant"}` {
+		t.Fatalf("migrated biz payload = %s", biz)
+	}
+
+	bookmark, err := s.Get("bookmark", "shared")
+	if err != nil {
+		t.Fatalf("get upgraded bookmark: %v", err)
+	}
+	if string(bookmark) != `{"kind":"bookmark","note":"after upgrade"}` {
+		t.Fatalf("upgraded bookmark payload = %s", bookmark)
+	}
+
+	matches, err := s.Search("legacy", 10)
+	if err != nil {
+		t.Fatalf("search migrated fts: %v", err)
+	}
+	if len(matches) != 1 || string(matches[0]) != `{"kind":"biz","name":"legacy restaurant"}` {
+		t.Fatalf("legacy search = %q, want migrated biz payload", matches)
+	}
+}
+
+func TestMigrate_V2ResourcesFTSRowIDUpgrade(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE resources (
+		id TEXT NOT NULL,
+		resource_type TEXT NOT NULL,
+		data JSON NOT NULL,
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (resource_type, id)
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create v2 resources: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE VIRTUAL TABLE resources_fts USING fts5(
+		id, resource_type, content, tokenize='porter unicode61'
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create stale resources_fts: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources (id, resource_type, data) VALUES ('shared', 'biz', '{"kind":"biz","name":"legacy restaurant"}')`); err != nil {
+		raw.Close()
+		t.Fatalf("seed v2 resource: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (1, 'shared', 'biz', '{"kind":"biz","name":"legacy restaurant"}')`); err != nil {
+		raw.Close()
+		t.Fatalf("seed stale resources_fts row: %v", err)
+	}
+	if _, err := raw.Exec(`PRAGMA user_version = 2`); err != nil {
+		raw.Close()
+		t.Fatalf("stamp v2: %v", err)
+	}
+	raw.Close()
+
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open upgraded db: %v", err)
+	}
+	defer s.Close()
+
+	v, err := s.SchemaVersion()
+	if err != nil {
+		t.Fatalf("read schema version: %v", err)
+	}
+	if v != StoreSchemaVersion {
+		t.Fatalf("upgraded version = %d, want %d", v, StoreSchemaVersion)
+	}
+
+	var count int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resources_fts WHERE id = 'shared' AND resource_type = 'biz'`).Scan(&count); err != nil {
+		t.Fatalf("count rebuilt resources_fts rows: %v", err)
+	}
+	if count != 1 {
+		t.Fatalf("resources_fts row count = %d, want 1", count)
+	}
+
+	var rowid int64
+	if err := s.DB().QueryRow(`SELECT rowid FROM resources_fts WHERE id = 'shared' AND resource_type = 'biz'`).Scan(&rowid); err != nil {
+		t.Fatalf("read rebuilt resources_fts rowid: %v", err)
+	}
+	if want := ftsRowID("biz", "shared"); rowid != want {
+		t.Fatalf("resources_fts rowid = %d, want %d", rowid, want)
+	}
+
+	data, err := s.Get("biz", "shared")
+	if err != nil {
+		t.Fatalf("get preserved v2 resource after rowid migration: %v", err)
+	}
+	if string(data) != `{"kind":"biz","name":"legacy restaurant"}` {
+		t.Fatalf("preserved v2 resource payload = %s, want original", data)
+	}
+
+	if err := s.Upsert("biz", "shared", []byte(`{"kind":"biz","name":"legacy cafe"}`)); err != nil {
+		t.Fatalf("upsert after rowid migration: %v", err)
+	}
+	matches, err := s.Search("legacy", 10)
+	if err != nil {
+		t.Fatalf("search rebuilt fts: %v", err)
+	}
+	if len(matches) != 1 || string(matches[0]) != `{"kind":"biz","name":"legacy cafe"}` {
+		t.Fatalf("legacy search = %q, want exactly one updated payload", matches)
+	}
+}
+
+func TestMigrate_V3ResourcesFTSNoRebuild(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE resources (
+		id TEXT NOT NULL,
+		resource_type TEXT NOT NULL,
+		data JSON NOT NULL,
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (resource_type, id)
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create v3 resources: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE VIRTUAL TABLE resources_fts USING fts5(
+		id, resource_type, content, tokenize='porter unicode61'
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create v3 resources_fts: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources (id, resource_type, data) VALUES ('shared', 'biz', '{"kind":"biz","name":"canonical resource"}')`); err != nil {
+		raw.Close()
+		t.Fatalf("seed v3 resource: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (?, 'shared', 'biz', '{"kind":"biz","name":"sentinel fts"}')`, ftsRowID("biz", "shared")); err != nil {
+		raw.Close()
+		t.Fatalf("seed v3 resources_fts row: %v", err)
+	}
+	if _, err := raw.Exec(`PRAGMA user_version = 3`); err != nil {
+		raw.Close()
+		t.Fatalf("stamp v3: %v", err)
+	}
+	raw.Close()
+
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open v3 db: %v", err)
+	}
+	defer s.Close()
+
+	v, err := s.SchemaVersion()
+	if err != nil {
+		t.Fatalf("read schema version: %v", err)
+	}
+	if v != StoreSchemaVersion {
+		t.Fatalf("schema version = %d, want %d", v, StoreSchemaVersion)
+	}
+
+	var content string
+	if err := s.DB().QueryRow(`SELECT content FROM resources_fts WHERE id = 'shared' AND resource_type = 'biz'`).Scan(&content); err != nil {
+		t.Fatalf("read resources_fts content: %v", err)
+	}
+	if content != `{"kind":"biz","name":"sentinel fts"}` {
+		t.Fatalf("resources_fts content = %s, want sentinel row preserved", content)
+	}
+}
+
 // TestOpenReadOnly_RejectsWrites pins the contract: direct and CTE-wrapped
 // writes against the main DB fail under mode=ro. Deliberately does not
 // assert VACUUM INTO and ATTACH DATABASE — modernc.org/sqlite allows both
@@ -309,11 +717,11 @@ func TestOpenReadOnly_RejectsWrites(t *testing.T) {
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_Activity verifies that opening a
+// TestMigrate_AddsColumnsOnUpgrade_AccountActivity verifies that opening a
 // database created by an older binary succeeds and adds newly generated
 // columns before CREATE INDEX runs against the pre-existing table. Regression
 // coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_Activity(t *testing.T) {
+func TestMigrate_AddsColumnsOnUpgrade_AccountActivity(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 
 	// Pre-create the DB with the older table shape: id, data, synced_at and
@@ -322,7 +730,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Activity(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE activity (
+	if _, err := raw.Exec(`CREATE TABLE "account_activity" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -341,7 +749,72 @@ func TestMigrate_AddsColumnsOnUpgrade_Activity(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(activity)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("account_activity")`)
+	if err != nil {
+		t.Fatalf("table_info: %v", err)
+	}
+	defer rows.Close()
+
+	hasColumn := make(map[string]bool)
+	for rows.Next() {
+		var cid int
+		var name, typ string
+		var notnull, pk int
+		var dflt sql.NullString
+		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+			t.Fatalf("scan: %v", err)
+		}
+		hasColumn[name] = true
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("rows: %v", err)
+	}
+
+	for _, want := range []string{
+		"detail",
+		"status",
+		"title",
+		"type",
+	} {
+		if !hasColumn[want] {
+			t.Fatalf("%s column missing from account_activity after migrate", want)
+		}
+	}
+}
+
+// TestMigrate_AddsColumnsOnUpgrade_Activity verifies that opening a
+// database created by an older binary succeeds and adds newly generated
+// columns before CREATE INDEX runs against the pre-existing table. Regression
+// coverage for parent_id upgrades and indexed generated columns.
+func TestMigrate_AddsColumnsOnUpgrade_Activity(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	// Pre-create the DB with the older table shape: id, data, synced_at and
+	// none of the newer generated columns. user_version stays 0 (pre-gate).
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE "activity" (
+		id TEXT PRIMARY KEY,
+		data JSON NOT NULL,
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create old table: %v", err)
+	}
+	raw.Close()
+
+	// Opening with the new binary must run CREATE INDEX statements without
+	// erroring on missing generated columns.
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open upgraded db: %v", err)
+	}
+	defer s.Close()
+
+	// The migration must have added every generated column.
+	rows, err := s.DB().Query(`PRAGMA table_info("activity")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -369,6 +842,10 @@ func TestMigrate_AddsColumnsOnUpgrade_Activity(t *testing.T) {
 		"tag",
 		"updated_at",
 		"webhook_id",
+		"detail",
+		"status",
+		"title",
+		"type",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from activity after migrate", want)
@@ -389,7 +866,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Chat(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE chat (
+	if _, err := raw.Exec(`CREATE TABLE "chat" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -408,7 +885,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Chat(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(chat)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("chat")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -430,14 +907,6 @@ func TestMigrate_AddsColumnsOnUpgrade_Chat(t *testing.T) {
 	}
 
 	for _, want := range []string{
-		"conversation_id",
-		"conversation_token",
-		"created_at_msec",
-		"encoded_event",
-		"is_trusted",
-		"previous_sequence_id",
-		"sender_id",
-		"sequence_id",
 		"created_at",
 		"group_avatar_url",
 		"group_name",
@@ -447,6 +916,14 @@ func TestMigrate_AddsColumnsOnUpgrade_Chat(t *testing.T) {
 		"screen_capture_detection_enabled",
 		"type",
 		"updated_at",
+		"conversation_id",
+		"conversation_token",
+		"created_at_msec",
+		"encoded_event",
+		"is_trusted",
+		"previous_sequence_id",
+		"sender_id",
+		"sequence_id",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from chat after migrate", want)
@@ -467,7 +944,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Communities(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE communities (
+	if _, err := raw.Exec(`CREATE TABLE "communities" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -486,7 +963,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Communities(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(communities)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("communities")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -508,6 +985,10 @@ func TestMigrate_AddsColumnsOnUpgrade_Communities(t *testing.T) {
 	}
 
 	for _, want := range []string{
+		"detail",
+		"status",
+		"title",
+		"type",
 		"created_at",
 		"name",
 	} {
@@ -530,7 +1011,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Compliance(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE compliance (
+	if _, err := raw.Exec(`CREATE TABLE "compliance" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -549,7 +1030,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Compliance(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(compliance)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("compliance")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -579,6 +1060,8 @@ func TestMigrate_AddsColumnsOnUpgrade_Compliance(t *testing.T) {
 		"type",
 		"upload_expires_at",
 		"upload_url",
+		"detail",
+		"title",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from compliance after migrate", want)
@@ -599,7 +1082,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Connections(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE connections (
+	if _, err := raw.Exec(`CREATE TABLE "connections" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -618,7 +1101,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Connections(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(connections)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("connections")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -665,7 +1148,7 @@ func TestMigrate_AddsColumnsOnUpgrade_DmConversations(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE dm_conversations (
+	if _, err := raw.Exec(`CREATE TABLE "dm_conversations" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -684,7 +1167,7 @@ func TestMigrate_AddsColumnsOnUpgrade_DmConversations(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(dm_conversations)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("dm_conversations")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -731,7 +1214,7 @@ func TestMigrate_AddsColumnsOnUpgrade_DmConversationsDmEvents(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE dm_conversations_dm_events (
+	if _, err := raw.Exec(`CREATE TABLE "dm_conversations_dm_events" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -750,7 +1233,7 @@ func TestMigrate_AddsColumnsOnUpgrade_DmConversationsDmEvents(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(dm_conversations_dm_events)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("dm_conversations_dm_events")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -793,7 +1276,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Messages(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE messages (
+	if _, err := raw.Exec(`CREATE TABLE "messages" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -812,7 +1295,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Messages(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(messages)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("messages")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -855,7 +1338,7 @@ func TestMigrate_AddsColumnsOnUpgrade_DmEvents(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE dm_events (
+	if _, err := raw.Exec(`CREATE TABLE "dm_events" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -874,7 +1357,7 @@ func TestMigrate_AddsColumnsOnUpgrade_DmEvents(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(dm_events)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("dm_events")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -901,6 +1384,10 @@ func TestMigrate_AddsColumnsOnUpgrade_DmEvents(t *testing.T) {
 		"event_type",
 		"sender_id",
 		"text",
+		"detail",
+		"status",
+		"title",
+		"type",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from dm_events after migrate", want)
@@ -908,11 +1395,11 @@ func TestMigrate_AddsColumnsOnUpgrade_DmEvents(t *testing.T) {
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_ListsFollowers verifies that opening a
+// TestMigrate_AddsColumnsOnUpgrade_EvaluateNote verifies that opening a
 // database created by an older binary succeeds and adds newly generated
 // columns before CREATE INDEX runs against the pre-existing table. Regression
 // coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_ListsFollowers(t *testing.T) {
+func TestMigrate_AddsColumnsOnUpgrade_EvaluateNote(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 
 	// Pre-create the DB with the older table shape: id, data, synced_at and
@@ -921,7 +1408,7 @@ func TestMigrate_AddsColumnsOnUpgrade_ListsFollowers(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE lists_followers (
+	if _, err := raw.Exec(`CREATE TABLE "evaluate_note" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -940,7 +1427,202 @@ func TestMigrate_AddsColumnsOnUpgrade_ListsFollowers(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(lists_followers)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("evaluate_note")`)
+	if err != nil {
+		t.Fatalf("table_info: %v", err)
+	}
+	defer rows.Close()
+
+	hasColumn := make(map[string]bool)
+	for rows.Next() {
+		var cid int
+		var name, typ string
+		var notnull, pk int
+		var dflt sql.NullString
+		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+			t.Fatalf("scan: %v", err)
+		}
+		hasColumn[name] = true
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("rows: %v", err)
+	}
+
+	for _, want := range []string{
+		"detail",
+		"status",
+		"title",
+		"type",
+	} {
+		if !hasColumn[want] {
+			t.Fatalf("%s column missing from evaluate_note after migrate", want)
+		}
+	}
+}
+
+// TestMigrate_AddsColumnsOnUpgrade_Likes verifies that opening a
+// database created by an older binary succeeds and adds newly generated
+// columns before CREATE INDEX runs against the pre-existing table. Regression
+// coverage for parent_id upgrades and indexed generated columns.
+func TestMigrate_AddsColumnsOnUpgrade_Likes(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	// Pre-create the DB with the older table shape: id, data, synced_at and
+	// none of the newer generated columns. user_version stays 0 (pre-gate).
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE "likes" (
+		id TEXT PRIMARY KEY,
+		data JSON NOT NULL,
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create old table: %v", err)
+	}
+	raw.Close()
+
+	// Opening with the new binary must run CREATE INDEX statements without
+	// erroring on missing generated columns.
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open upgraded db: %v", err)
+	}
+	defer s.Close()
+
+	// The migration must have added every generated column.
+	rows, err := s.DB().Query(`PRAGMA table_info("likes")`)
+	if err != nil {
+		t.Fatalf("table_info: %v", err)
+	}
+	defer rows.Close()
+
+	hasColumn := make(map[string]bool)
+	for rows.Next() {
+		var cid int
+		var name, typ string
+		var notnull, pk int
+		var dflt sql.NullString
+		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+			t.Fatalf("scan: %v", err)
+		}
+		hasColumn[name] = true
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("rows: %v", err)
+	}
+
+	for _, want := range []string{
+		"detail",
+		"status",
+		"title",
+		"type",
+	} {
+		if !hasColumn[want] {
+			t.Fatalf("%s column missing from likes after migrate", want)
+		}
+	}
+}
+
+// TestMigrate_AddsColumnsOnUpgrade_Lists verifies that opening a
+// database created by an older binary succeeds and adds newly generated
+// columns before CREATE INDEX runs against the pre-existing table. Regression
+// coverage for parent_id upgrades and indexed generated columns.
+func TestMigrate_AddsColumnsOnUpgrade_Lists(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	// Pre-create the DB with the older table shape: id, data, synced_at and
+	// none of the newer generated columns. user_version stays 0 (pre-gate).
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE "lists" (
+		id TEXT PRIMARY KEY,
+		data JSON NOT NULL,
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create old table: %v", err)
+	}
+	raw.Close()
+
+	// Opening with the new binary must run CREATE INDEX statements without
+	// erroring on missing generated columns.
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open upgraded db: %v", err)
+	}
+	defer s.Close()
+
+	// The migration must have added every generated column.
+	rows, err := s.DB().Query(`PRAGMA table_info("lists")`)
+	if err != nil {
+		t.Fatalf("table_info: %v", err)
+	}
+	defer rows.Close()
+
+	hasColumn := make(map[string]bool)
+	for rows.Next() {
+		var cid int
+		var name, typ string
+		var notnull, pk int
+		var dflt sql.NullString
+		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+			t.Fatalf("scan: %v", err)
+		}
+		hasColumn[name] = true
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("rows: %v", err)
+	}
+
+	for _, want := range []string{
+		"detail",
+		"status",
+		"title",
+		"type",
+	} {
+		if !hasColumn[want] {
+			t.Fatalf("%s column missing from lists after migrate", want)
+		}
+	}
+}
+
+// TestMigrate_AddsColumnsOnUpgrade_ListsFollowers verifies that opening a
+// database created by an older binary succeeds and adds newly generated
+// columns before CREATE INDEX runs against the pre-existing table. Regression
+// coverage for parent_id upgrades and indexed generated columns.
+func TestMigrate_AddsColumnsOnUpgrade_ListsFollowers(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	// Pre-create the DB with the older table shape: id, data, synced_at and
+	// none of the newer generated columns. user_version stays 0 (pre-gate).
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE "lists_followers" (
+		id TEXT PRIMARY KEY,
+		data JSON NOT NULL,
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create old table: %v", err)
+	}
+	raw.Close()
+
+	// Opening with the new binary must run CREATE INDEX statements without
+	// erroring on missing generated columns.
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open upgraded db: %v", err)
+	}
+	defer s.Close()
+
+	// The migration must have added every generated column.
+	rows, err := s.DB().Query(`PRAGMA table_info("lists_followers")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -983,7 +1665,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Members(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE members (
+	if _, err := raw.Exec(`CREATE TABLE "members" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1002,7 +1684,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Members(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(members)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("members")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1045,7 +1727,7 @@ func TestMigrate_AddsColumnsOnUpgrade_ListsTweets(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE lists_tweets (
+	if _, err := raw.Exec(`CREATE TABLE "lists_tweets" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1064,7 +1746,7 @@ func TestMigrate_AddsColumnsOnUpgrade_ListsTweets(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(lists_tweets)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("lists_tweets")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1107,7 +1789,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Media(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE media (
+	if _, err := raw.Exec(`CREATE TABLE "media" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1126,7 +1808,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Media(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(media)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("media")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1149,8 +1831,11 @@ func TestMigrate_AddsColumnsOnUpgrade_Media(t *testing.T) {
 
 	for _, want := range []string{
 		"media_key",
-		"height",
+		"detail",
+		"status",
+		"title",
 		"type",
+		"height",
 		"width",
 	} {
 		if !hasColumn[want] {
@@ -1172,7 +1857,7 @@ func TestMigrate_AddsColumnsOnUpgrade_News(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE news (
+	if _, err := raw.Exec(`CREATE TABLE "news" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1191,7 +1876,7 @@ func TestMigrate_AddsColumnsOnUpgrade_News(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(news)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("news")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1213,6 +1898,10 @@ func TestMigrate_AddsColumnsOnUpgrade_News(t *testing.T) {
 	}
 
 	for _, want := range []string{
+		"detail",
+		"status",
+		"title",
+		"type",
 		"category",
 		"disclaimer",
 		"hook",
@@ -1240,7 +1929,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Notes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE notes (
+	if _, err := raw.Exec(`CREATE TABLE "notes" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1259,7 +1948,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Notes(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(notes)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("notes")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1289,6 +1978,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Notes(t *testing.T) {
 		"created_at",
 		"in_reply_to_user_id",
 		"lang",
+		"paid_partnership",
 		"possibly_sensitive",
 		"reply_settings",
 		"source",
@@ -1314,7 +2004,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Spaces(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE spaces (
+	if _, err := raw.Exec(`CREATE TABLE "spaces" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1333,7 +2023,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Spaces(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(spaces)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("spaces")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1367,6 +2057,9 @@ func TestMigrate_AddsColumnsOnUpgrade_Spaces(t *testing.T) {
 		"subscriber_count",
 		"title",
 		"updated_at",
+		"detail",
+		"status",
+		"type",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from spaces after migrate", want)
@@ -1387,7 +2080,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Buyers(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE buyers (
+	if _, err := raw.Exec(`CREATE TABLE "buyers" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1406,7 +2099,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Buyers(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(buyers)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("buyers")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1449,7 +2142,7 @@ func TestMigrate_AddsColumnsOnUpgrade_SpacesTweets(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE spaces_tweets (
+	if _, err := raw.Exec(`CREATE TABLE "spaces_tweets" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1468,7 +2161,7 @@ func TestMigrate_AddsColumnsOnUpgrade_SpacesTweets(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(spaces_tweets)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("spaces_tweets")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1511,7 +2204,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Tweets(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE tweets (
+	if _, err := raw.Exec(`CREATE TABLE "tweets" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1530,7 +2223,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Tweets(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(tweets)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("tweets")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1552,12 +2245,17 @@ func TestMigrate_AddsColumnsOnUpgrade_Tweets(t *testing.T) {
 	}
 
 	for _, want := range []string{
+		"detail",
+		"status",
+		"title",
+		"type",
 		"author_id",
 		"community_id",
 		"conversation_id",
 		"created_at",
 		"in_reply_to_user_id",
 		"lang",
+		"paid_partnership",
 		"possibly_sensitive",
 		"reply_settings",
 		"source",
@@ -1566,6 +2264,8 @@ func TestMigrate_AddsColumnsOnUpgrade_Tweets(t *testing.T) {
 		"end",
 		"start",
 		"tweet_count",
+		"tag",
+		"value",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from tweets after migrate", want)
@@ -1586,7 +2286,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Hidden(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE hidden (
+	if _, err := raw.Exec(`CREATE TABLE "hidden" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1605,7 +2305,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Hidden(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(hidden)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("hidden")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1648,7 +2348,7 @@ func TestMigrate_AddsColumnsOnUpgrade_LikingUsers(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE liking_users (
+	if _, err := raw.Exec(`CREATE TABLE "liking_users" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1667,7 +2367,7 @@ func TestMigrate_AddsColumnsOnUpgrade_LikingUsers(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(liking_users)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("liking_users")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1711,7 +2411,7 @@ func TestMigrate_AddsColumnsOnUpgrade_QuoteTweets(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE quote_tweets (
+	if _, err := raw.Exec(`CREATE TABLE "quote_tweets" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1730,7 +2430,7 @@ func TestMigrate_AddsColumnsOnUpgrade_QuoteTweets(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(quote_tweets)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("quote_tweets")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1774,7 +2474,7 @@ func TestMigrate_AddsColumnsOnUpgrade_RetweetedBy(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE retweeted_by (
+	if _, err := raw.Exec(`CREATE TABLE "retweeted_by" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1793,7 +2493,7 @@ func TestMigrate_AddsColumnsOnUpgrade_RetweetedBy(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(retweeted_by)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("retweeted_by")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1837,7 +2537,7 @@ func TestMigrate_AddsColumnsOnUpgrade_TweetsRetweets(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE tweets_retweets (
+	if _, err := raw.Exec(`CREATE TABLE "tweets_retweets" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1856,7 +2556,7 @@ func TestMigrate_AddsColumnsOnUpgrade_TweetsRetweets(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(tweets_retweets)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("tweets_retweets")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1887,11 +2587,11 @@ func TestMigrate_AddsColumnsOnUpgrade_TweetsRetweets(t *testing.T) {
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_Users verifies that opening a
+// TestMigrate_AddsColumnsOnUpgrade_Usage verifies that opening a
 // database created by an older binary succeeds and adds newly generated
 // columns before CREATE INDEX runs against the pre-existing table. Regression
 // coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_Users(t *testing.T) {
+func TestMigrate_AddsColumnsOnUpgrade_Usage(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 
 	// Pre-create the DB with the older table shape: id, data, synced_at and
@@ -1900,7 +2600,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Users(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE users (
+	if _, err := raw.Exec(`CREATE TABLE "usage" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1919,7 +2619,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Users(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(users)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("usage")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1941,6 +2641,75 @@ func TestMigrate_AddsColumnsOnUpgrade_Users(t *testing.T) {
 	}
 
 	for _, want := range []string{
+		"detail",
+		"status",
+		"title",
+		"type",
+	} {
+		if !hasColumn[want] {
+			t.Fatalf("%s column missing from usage after migrate", want)
+		}
+	}
+}
+
+// TestMigrate_AddsColumnsOnUpgrade_Users verifies that opening a
+// database created by an older binary succeeds and adds newly generated
+// columns before CREATE INDEX runs against the pre-existing table. Regression
+// coverage for parent_id upgrades and indexed generated columns.
+func TestMigrate_AddsColumnsOnUpgrade_Users(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	// Pre-create the DB with the older table shape: id, data, synced_at and
+	// none of the newer generated columns. user_version stays 0 (pre-gate).
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE "users" (
+		id TEXT PRIMARY KEY,
+		data JSON NOT NULL,
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create old table: %v", err)
+	}
+	raw.Close()
+
+	// Opening with the new binary must run CREATE INDEX statements without
+	// erroring on missing generated columns.
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open upgraded db: %v", err)
+	}
+	defer s.Close()
+
+	// The migration must have added every generated column.
+	rows, err := s.DB().Query(`PRAGMA table_info("users")`)
+	if err != nil {
+		t.Fatalf("table_info: %v", err)
+	}
+	defer rows.Close()
+
+	hasColumn := make(map[string]bool)
+	for rows.Next() {
+		var cid int
+		var name, typ string
+		var notnull, pk int
+		var dflt sql.NullString
+		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+			t.Fatalf("scan: %v", err)
+		}
+		hasColumn[name] = true
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("rows: %v", err)
+	}
+
+	for _, want := range []string{
+		"detail",
+		"status",
+		"title",
+		"type",
 		"created_at",
 		"description",
 		"location",
@@ -1961,6 +2730,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Users(t *testing.T) {
 		"conversation_id",
 		"in_reply_to_user_id",
 		"lang",
+		"paid_partnership",
 		"possibly_sensitive",
 		"reply_settings",
 		"source",
@@ -1989,7 +2759,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Affiliates(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE affiliates (
+	if _, err := raw.Exec(`CREATE TABLE "affiliates" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -2008,7 +2778,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Affiliates(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(affiliates)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("affiliates")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -2052,7 +2822,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Blocking(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE blocking (
+	if _, err := raw.Exec(`CREATE TABLE "blocking" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -2071,7 +2841,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Blocking(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(blocking)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("blocking")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -2115,7 +2885,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Bookmarks(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE bookmarks (
+	if _, err := raw.Exec(`CREATE TABLE "bookmarks" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -2134,7 +2904,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Bookmarks(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(bookmarks)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("bookmarks")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -2178,7 +2948,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Dm(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE dm (
+	if _, err := raw.Exec(`CREATE TABLE "dm" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -2197,7 +2967,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Dm(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(dm)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("dm")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -2240,7 +3010,7 @@ func TestMigrate_AddsColumnsOnUpgrade_FollowedLists(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE followed_lists (
+	if _, err := raw.Exec(`CREATE TABLE "followed_lists" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -2259,7 +3029,7 @@ func TestMigrate_AddsColumnsOnUpgrade_FollowedLists(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(followed_lists)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("followed_lists")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -2303,7 +3073,7 @@ func TestMigrate_AddsColumnsOnUpgrade_UsersFollowers(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE users_followers (
+	if _, err := raw.Exec(`CREATE TABLE "users_followers" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -2322,7 +3092,7 @@ func TestMigrate_AddsColumnsOnUpgrade_UsersFollowers(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(users_followers)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("users_followers")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -2366,7 +3136,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Following(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE following (
+	if _, err := raw.Exec(`CREATE TABLE "following" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -2385,7 +3155,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Following(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(following)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("following")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -2429,7 +3199,7 @@ func TestMigrate_AddsColumnsOnUpgrade_LikedTweets(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE liked_tweets (
+	if _, err := raw.Exec(`CREATE TABLE "liked_tweets" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -2448,7 +3218,7 @@ func TestMigrate_AddsColumnsOnUpgrade_LikedTweets(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(liked_tweets)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("liked_tweets")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -2492,7 +3262,7 @@ func TestMigrate_AddsColumnsOnUpgrade_UsersLikes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE users_likes (
+	if _, err := raw.Exec(`CREATE TABLE "users_likes" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -2511,7 +3281,7 @@ func TestMigrate_AddsColumnsOnUpgrade_UsersLikes(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(users_likes)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("users_likes")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -2554,7 +3324,7 @@ func TestMigrate_AddsColumnsOnUpgrade_ListMemberships(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE list_memberships (
+	if _, err := raw.Exec(`CREATE TABLE "list_memberships" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -2573,7 +3343,7 @@ func TestMigrate_AddsColumnsOnUpgrade_ListMemberships(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(list_memberships)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("list_memberships")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -2617,7 +3387,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Mentions(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE mentions (
+	if _, err := raw.Exec(`CREATE TABLE "mentions" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -2636,7 +3406,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Mentions(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(mentions)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("mentions")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -2680,7 +3450,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Muting(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE muting (
+	if _, err := raw.Exec(`CREATE TABLE "muting" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -2699,7 +3469,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Muting(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(muting)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("muting")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -2743,7 +3513,7 @@ func TestMigrate_AddsColumnsOnUpgrade_OwnedLists(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE owned_lists (
+	if _, err := raw.Exec(`CREATE TABLE "owned_lists" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -2762,7 +3532,7 @@ func TestMigrate_AddsColumnsOnUpgrade_OwnedLists(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(owned_lists)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("owned_lists")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -2806,7 +3576,7 @@ func TestMigrate_AddsColumnsOnUpgrade_PinnedLists(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE pinned_lists (
+	if _, err := raw.Exec(`CREATE TABLE "pinned_lists" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -2825,7 +3595,7 @@ func TestMigrate_AddsColumnsOnUpgrade_PinnedLists(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(pinned_lists)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("pinned_lists")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -2868,7 +3638,7 @@ func TestMigrate_AddsColumnsOnUpgrade_PublicKeys(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE public_keys (
+	if _, err := raw.Exec(`CREATE TABLE "public_keys" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -2887,7 +3657,7 @@ func TestMigrate_AddsColumnsOnUpgrade_PublicKeys(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(public_keys)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("public_keys")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -2930,7 +3700,7 @@ func TestMigrate_AddsColumnsOnUpgrade_UsersRetweets(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE users_retweets (
+	if _, err := raw.Exec(`CREATE TABLE "users_retweets" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -2949,7 +3719,7 @@ func TestMigrate_AddsColumnsOnUpgrade_UsersRetweets(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(users_retweets)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("users_retweets")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -2992,7 +3762,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Timelines(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE timelines (
+	if _, err := raw.Exec(`CREATE TABLE "timelines" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -3011,7 +3781,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Timelines(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(timelines)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("timelines")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -3055,7 +3825,7 @@ func TestMigrate_AddsColumnsOnUpgrade_UsersTweets(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE users_tweets (
+	if _, err := raw.Exec(`CREATE TABLE "users_tweets" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -3074,7 +3844,7 @@ func TestMigrate_AddsColumnsOnUpgrade_UsersTweets(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(users_tweets)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("users_tweets")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -3118,7 +3888,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Webhooks(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE webhooks (
+	if _, err := raw.Exec(`CREATE TABLE "webhooks" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -3137,7 +3907,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Webhooks(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(webhooks)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("webhooks")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -3182,7 +3952,7 @@ func TestMigrate_AddsColumnsOnUpgrade_SyncState(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE sync_state (
+	if _, err := raw.Exec(`CREATE TABLE "sync_state" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -3201,7 +3971,7 @@ func TestMigrate_AddsColumnsOnUpgrade_SyncState(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(sync_state)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("sync_state")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}

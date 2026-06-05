@@ -9,8 +9,10 @@ import (
 
 func newSpacesBuyersCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "buyers",
-		Short: "Manage buyers",
+		Use:         "buyers",
+		Short:       "Get buyers for spaces",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newSpacesBuyersGetSpacesCmd(flags))

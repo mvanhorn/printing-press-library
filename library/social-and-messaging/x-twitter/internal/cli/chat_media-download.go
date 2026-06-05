@@ -15,7 +15,7 @@ func newChatMediaDownloadCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "media-download <id> <media_hash_key>",
-		Short:       "Downloads encrypted media bytes from an XChat conversation. The response body contains raw binary bytes. For 1:1...",
+		Short:       "Downloads encrypted media bytes from an XChat conversation. The response body contains raw binary bytes.",
 		Example:     "  x-twitter-pp-cli chat media-download 550e8400-e29b-41d4-a716-446655440000 your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "chat.media-download", "pp:method": "GET", "pp:path": "/2/chat/media/{id}/{media_hash_key}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -33,47 +33,26 @@ func newChatMediaDownloadCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("media_hash_key is required\nUsage: %s <%s>", cmd.CommandPath(), "media_hash_key"))
 			}
 			path = replacePathParam(path, "media_hash_key", args[1])
+			headerOverrides := map[string]string{
+				"Accept":                           "application/octet-stream",
+				"X-Printing-Press-Binary-Response": "true",
+			}
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "chat", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "chat", false, path, params, headerOverrides, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
-				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
-				printProvenance(cmd, len(countItems), prov)
+			_ = json.Valid
+			_ = os.Stderr
+			_ = prov
+			if flags.quiet {
+				return nil
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags.
-			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
-				filtered := data
-				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
-				} else if flags.compact {
-					filtered = compactFields(filtered)
-				}
-				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
-				if wrapErr != nil {
-					return wrapErr
-				}
-				return printOutput(cmd.OutOrStdout(), wrapped, true)
+			if flags.asJSON || flags.csv || flags.compact || flags.plain || flags.selectFields != "" {
+				return fmt.Errorf("binary response cannot be rendered as structured output; redirect stdout or use --deliver file:<path>")
 			}
-			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
-			if wantsHumanTable(cmd.OutOrStdout(), flags) {
-				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
-					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
-						return err
-					}
-					if len(items) >= 25 {
-						fmt.Fprintf(os.Stderr, "\nShowing %d results. To narrow: add --limit, --json --select, or filter flags.\n", len(items))
-					}
-					return nil
-				}
-			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			_, err = cmd.OutOrStdout().Write(data)
+			return err
 		},
 	}
 

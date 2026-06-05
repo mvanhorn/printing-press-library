@@ -9,8 +9,10 @@ import (
 
 func newUsersPublicKeysCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "public-keys",
-		Short: "Manage public keys",
+		Use:         "public-keys",
+		Short:       "Get and add public keys for users",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersPublicKeysAddUserCmd(flags))

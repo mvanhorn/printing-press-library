@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"sort"
@@ -97,7 +98,7 @@ func newTopPostsCmd(flags *rootFlags) *cobra.Command {
 			userID := strings.TrimSpace(flagUserID)
 			username := ""
 			if userID == "" {
-				meData, merr := c.Get("/2/users/me", nil)
+				meData, merr := c.Get(context.Background(), "/2/users/me", nil)
 				if merr != nil {
 					return classifyAPIError(merr, flags)
 				}
@@ -112,7 +113,7 @@ func newTopPostsCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				// Look up the username so post URLs are canonical; tolerate a
 				// lookup failure by falling back to the id-based URL form.
-				if uData, uerr := c.Get("/2/users/"+userID, nil); uerr == nil {
+				if uData, uerr := c.Get(context.Background(), "/2/users/"+userID, nil); uerr == nil {
 					_, username, _ = decodeUserEnvelope(uData)
 				}
 			}
@@ -366,7 +367,7 @@ func fetchUserPosts(c *client.Client, flags *rootFlags, userID string, maxFetch 
 		if nextToken != "" {
 			params["pagination_token"] = nextToken
 		}
-		data, err := c.Get(path, params)
+		data, err := c.Get(context.Background(), path, params)
 		if err != nil {
 			return nil, classifyAPIError(err, flags)
 		}
