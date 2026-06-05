@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "twelvelabs-pp-cli"
+display_name = "Twelvelabs Video Understanding"
+description = "Use the TwelveLabs Video Understanding API to extract information from your videos and make it available to your"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/twelvelabs-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+TWELVELABS_X_API_KEY = true
