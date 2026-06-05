@@ -132,6 +132,20 @@ func (c *Config) AuthHeader() string {
 	return ""
 }
 
+// LegacyOAuthExpired reports whether the config only has a persisted OAuth2
+// access token whose expiry has passed. The current auth flow no longer
+// refreshes PKCE tokens, so surfacing this state prevents silent 401s for users
+// migrating from older x-twitter releases.
+func (c *Config) LegacyOAuthExpired(now time.Time) bool {
+	if c == nil || c.AccessToken == "" || c.TokenExpiry.IsZero() {
+		return false
+	}
+	if c.XOauth2UserToken != "" || c.XBearerToken != "" || c.AuthHeaderVal != "" {
+		return false
+	}
+	return !c.TokenExpiry.After(now)
+}
+
 func applyAuthFormat(format string, replacements map[string]string) string {
 	if format == "" {
 		return ""

@@ -692,6 +692,9 @@ func (c *Client) authHeader(ctx context.Context) (string, error) {
 	if c.Config == nil {
 		return "", nil
 	}
+	if c.Config.LegacyOAuthExpired(time.Now()) {
+		return "", fmt.Errorf("stored legacy OAuth2 access token expired at %s and cannot be refreshed by this release; run x-twitter-pp-cli auth set-token <token> or export X_BEARER_TOKEN / X_OAUTH2_USER_TOKEN", c.Config.TokenExpiry.Format(time.RFC3339))
+	}
 	authHeader := c.Config.AuthHeader()
 	if authHeaderLooksLikePlaceholderCredential(authHeader) {
 		return "", authPlaceholderCredentialError(c.Config)

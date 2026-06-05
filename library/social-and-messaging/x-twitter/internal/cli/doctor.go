@@ -107,6 +107,10 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					authConfigured = true
 					report["auth"] = "configured"
 					report["auth_source"] = cfg.AuthSource
+					if cfg.LegacyOAuthExpired(time.Now()) {
+						report["auth"] = "expired legacy OAuth2 token"
+						report["auth_hint"] = "run x-twitter-pp-cli auth set-token <token> or export X_BEARER_TOKEN / X_OAUTH2_USER_TOKEN"
+					}
 				}
 			}
 
@@ -128,13 +132,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				authEnvRequiredMissing = append(authEnvRequiredMissing, "X_BEARER_TOKEN")
 			}
-			if strings.Contains("Optional OAuth2 user-context token. Unlocks v2 writes (post, like, repost, bookmark, follow, DM) and personal reads (me, mentions, home timeline, bookmarks). Sent as Authorization Bearer; obtain via auth login (OAuth2 + PKCE).", " OR ") {
-				authEnvOptionalNames = append(authEnvOptionalNames, "X_OAUTH2_USER_TOKEN")
-				if os.Getenv("X_OAUTH2_USER_TOKEN") != "" {
-					authEnvSet = append(authEnvSet, "X_OAUTH2_USER_TOKEN")
-					authEnvOptionalSatisfied = true
-				}
-			} else if os.Getenv("X_OAUTH2_USER_TOKEN") != "" {
+			if os.Getenv("X_OAUTH2_USER_TOKEN") != "" {
 				authEnvSet = append(authEnvSet, "X_OAUTH2_USER_TOKEN")
 			} else {
 				authEnvInfo = append(authEnvInfo, "X_OAUTH2_USER_TOKEN optional")
