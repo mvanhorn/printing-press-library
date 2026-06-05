@@ -22,6 +22,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -38,6 +39,7 @@ type Client struct {
 	NoCache    bool
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
+	authMu     sync.Mutex
 }
 
 // RequestBaseURL returns the base URL used for requests.
@@ -690,6 +692,9 @@ func (c *Client) ConfiguredTimeout() time.Duration {
 }
 
 func (c *Client) authHeader(ctx context.Context) (string, error) {
+	c.authMu.Lock()
+	defer c.authMu.Unlock()
+
 	if c.Config == nil {
 		return "", nil
 	}
