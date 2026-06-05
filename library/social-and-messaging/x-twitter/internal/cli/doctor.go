@@ -161,10 +161,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					report["api"] = fmt.Sprintf("client init error: %s", clientErr)
 				} else {
 					// Step 1: Basic reachability via the configured transport.
-					healthPath := "/2/users/me"
-					if !strings.HasPrefix(healthPath, "/") {
-						healthPath = "/" + healthPath
-					}
+					healthPath := "/"
 					reachBody, reachErr := c.Get(cmd.Context(), healthPath, nil)
 					var reachAPIErr *client.APIError
 					switch {
@@ -211,10 +208,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 						authHeaders := map[string]string{}
 						authHeaders["Authorization"] = authHeader
 						authHeaders["User-Agent"] = "x-twitter-pp-cli"
-						verifyPath := "/2/users/me"
-						if !strings.HasPrefix(verifyPath, "/") {
-							verifyPath = "/" + verifyPath
-						}
+						verifyPath := doctorCredentialProbePath(cfg)
 						_, authErr := c.GetWithHeaders(cmd.Context(), verifyPath, authParams, authHeaders)
 						var authAPIErr *client.APIError
 						switch {
@@ -224,6 +218,8 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 							switch {
 							case authAPIErr.StatusCode == 401:
 								report["credentials"] = fmt.Sprintf("invalid (HTTP %d) — check your credentials", authAPIErr.StatusCode)
+							case authAPIErr.StatusCode == 403 && doctorUsesAppOnlyBearer(cfg):
+								report["credentials"] = fmt.Sprintf("valid app-only bearer (HTTP %d from %s) — user-context endpoints require X_OAUTH2_USER_TOKEN", authAPIErr.StatusCode, verifyPath)
 							case authAPIErr.StatusCode == 403:
 								report["credentials"] = fmt.Sprintf("scope-limited (HTTP %d) — credentials are valid but lack permission for this endpoint. Check your dashboard's API key scope.", authAPIErr.StatusCode)
 							default:
@@ -479,6 +475,17 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 		report["hint"] = "Some resources are older than stale_after; run 'x-twitter-pp-cli sync' to refresh."
 	}
 	return report
+}
+
+func doctorUsesAppOnlyBearer(cfg *config.Config) bool {
+	return cfg != nil && cfg.XBearerToken != "" && cfg.XOauth2UserToken == "" && cfg.AccessToken == "" && cfg.AuthHeaderVal == ""
+}
+
+func doctorCredentialProbePath(cfg *config.Config) string {
+	if doctorUsesAppOnlyBearer(cfg) {
+		return "/2/users/by/username/XDevelopers"
+	}
+	return "/2/users/me"
 }
 
 func renderCacheReport(w io.Writer, rep map[string]any) {

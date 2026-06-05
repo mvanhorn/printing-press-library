@@ -5,9 +5,13 @@ package cli
 
 import (
 	"bytes"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/config"
 )
 
 func TestAuthSetTokenWarnsWhenEnvCredentialOverridesSavedToken(t *testing.T) {
@@ -27,5 +31,31 @@ func TestAuthSetTokenWarnsWhenEnvCredentialOverridesSavedToken(t *testing.T) {
 	}
 	if !strings.Contains(got, "X_BEARER_TOKEN env var is set and overrides the saved token") {
 		t.Fatalf("output missing env override warning: %q", got)
+	}
+}
+
+func TestAuthSetTokenClearsLegacyExpiry(t *testing.T) {
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	oldExpiry := time.Now().Add(-time.Hour).UTC().Format(time.RFC3339)
+	if err := os.WriteFile(configPath, []byte("access_token = \"old-token\"\nrefresh_token = \"old-refresh\"\ntoken_expiry = "+oldExpiry+"\n"), 0o600); err != nil {
+		t.Fatalf("writing config: %v", err)
+	}
+
+	cmd := newAuthSetTokenCmd(&rootFlags{configPath: configPath})
+	cmd.SetOut(&bytes.Buffer{})
+	cmd.SetArgs([]string{"saved-token"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("set-token returned error: %v", err)
+	}
+
+	cfg, err := config.Load(configPath)
+	if err != nil {
+		t.Fatalf("loading config: %v", err)
+	}
+	if !cfg.TokenExpiry.IsZero() {
+		t.Fatalf("token expiry = %s, want zero", cfg.TokenExpiry)
+	}
+	if cfg.LegacyOAuthExpired(time.Now()) {
+		t.Fatalf("newly saved token is still treated as expired legacy OAuth")
 	}
 }
