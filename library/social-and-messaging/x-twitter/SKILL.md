@@ -352,7 +352,7 @@ Read-only commands that compose existing reads into a higher-value answer — no
 ```bash
 # Rank recent posts for the authenticated user by engagement.
 x-twitter-pp-cli top-posts --limit 10
-x-twitter-pp-cli top-posts --metric likes --since 2026-01-01
+x-twitter-pp-cli top-posts --metric likes --limit 20
 x-twitter-pp-cli top-posts --exclude replies,retweets   # original posts only
 x-twitter-pp-cli top-posts --user-id 2244994945 --json  # rank another user
 ```
