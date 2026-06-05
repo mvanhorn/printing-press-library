@@ -11,6 +11,7 @@ metadata:
       bins:
         - outlook-email-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/productivity/outlook-email/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

@@ -1,0 +1,10 @@
+EVALUATE
+ROW(
+  "Unique Users",
+  CALCULATE(
+    [Total Unique Users],
+    Client[Client Code] = "LFT",
+    'Date'[Date] >= DATE(2026, 5, 1),
+    'Date'[Date] < DATE(2026, 6, 1)
+  )
+)

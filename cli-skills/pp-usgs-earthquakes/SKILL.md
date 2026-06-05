@@ -15,6 +15,7 @@ metadata:
         bins: [usgs-earthquakes-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/other/usgs-earthquakes/cmd/usgs-earthquakes-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/other/usgs-earthquakes/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

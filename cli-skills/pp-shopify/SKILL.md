@@ -15,6 +15,7 @@ metadata:
         bins: [shopify-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/commerce/shopify/cmd/shopify-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/commerce/shopify/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

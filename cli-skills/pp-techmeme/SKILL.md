@@ -15,6 +15,7 @@ metadata:
         bins: [techmeme-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/productivity/techmeme/cmd/techmeme-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/productivity/techmeme/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

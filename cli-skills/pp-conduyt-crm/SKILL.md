@@ -11,6 +11,7 @@ metadata:
       bins:
         - conduyt-crm-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/sales-and-crm/conduyt-crm/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

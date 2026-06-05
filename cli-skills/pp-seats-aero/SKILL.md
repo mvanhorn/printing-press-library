@@ -15,6 +15,7 @@ metadata:
         bins: [seats-aero-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/travel/seats-aero/cmd/seats-aero-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/travel/seats-aero/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

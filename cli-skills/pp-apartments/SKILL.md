@@ -7,6 +7,7 @@ argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata: '{"openclaw":{"requires":{"bins":["apartments-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/other/apartments/cmd/apartments-pp-cli@latest","bins":["apartments-pp-cli"],"label":"Install via go install"}]}}'
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/other/apartments/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

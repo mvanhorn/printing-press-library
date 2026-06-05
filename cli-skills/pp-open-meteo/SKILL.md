@@ -15,6 +15,7 @@ metadata:
         bins: [open-meteo-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/other/open-meteo/cmd/open-meteo-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/other/open-meteo/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

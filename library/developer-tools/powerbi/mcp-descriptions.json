@@ -1,0 +1,9 @@
+{
+  "descriptions": {
+    "apps_get": "Get a single Power BI app (a published bundle of dashboards and reports) by its ID. Required: appId (the app's GUID, obtained from apps_list). Returns the app's id, name, description, lastUpdate, workspaceId, and the count of dashboards and reports it contains.",
+    "apps_list": "List the Power BI apps installed for the authenticated user. Apps are published bundles of dashboards and reports curated by workspace owners. Returns an array of {id, name, description, publishedBy, lastUpdate, workspaceId}. Use this to discover app IDs before calling apps_get, apps_list_dashboards, or apps_list_reports.",
+    "dashboards_list_my": "List the dashboards in My workspace (the personal workspace of the authenticated user). Dashboards are pinned tile collections. Returns an array of {id, displayName, embedUrl, isReadOnly, webUrl}. For dashboards in a shared workspace, use dashboards_list_in_group with the workspace ID instead.",
+    "datasets_list_my": "List the datasets (semantic models) in My workspace (the personal workspace of the authenticated user). Datasets are what you query with DAX via the dax run command. Returns an array of {id, name, configuredBy, createdDate, isRefreshable, isEffectiveIdentityRequired}. For datasets in a shared workspace, use datasets_list_in_group with the workspace ID instead.",
+    "reports_list_my": "List the Power BI reports and paginated reports in My workspace (the personal workspace of the authenticated user). Returns an array of {id, name, datasetId, embedUrl, reportType, webUrl}. For reports in a shared workspace, use reports_list_in_group with the workspace ID instead."
+  }
+}

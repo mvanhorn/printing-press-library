@@ -15,6 +15,7 @@ metadata:
         bins: [coingecko-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/payments/coingecko/cmd/coingecko-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/payments/coingecko/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

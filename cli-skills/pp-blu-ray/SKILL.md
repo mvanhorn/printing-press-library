@@ -15,6 +15,7 @@ metadata:
         bins: [blu-ray-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/media-and-entertainment/blu-ray/cmd/blu-ray-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/media-and-entertainment/blu-ray/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

@@ -1,0 +1,509 @@
+{
+  "api_name": "powerbi",
+  "base_url": "https://api.powerbi.com/v1.0/myorg",
+  "description": "Pull data from the Microsoft Power BI REST API for analysis in Claude. Read-only CLI for executing DAX queries, exporting reports, and browsing workspaces.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "POWERBI_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "POWERBI_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "apps_get",
+      "description": "Get a single Power BI app (a published bundle of dashboards and reports) by its ID. Required: appId (the app's GUID, obtained from apps_list). Returns the app's id, name, description, lastUpdate, workspaceId, and the count of dashboards and reports it contains.",
+      "method": "GET",
+      "path": "/apps/{appId}",
+      "params": [
+        {
+          "name": "appId",
+          "type": "string",
+          "location": "path",
+          "description": "The app ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apps_list",
+      "description": "List the Power BI apps installed for the authenticated user. Apps are published bundles of dashboards and reports curated by workspace owners. Returns an array of {id, name, description, publishedBy, lastUpdate, workspaceId}. Use this to discover app IDs before calling apps_get, apps_list_dashboards, or apps_list_reports.",
+      "method": "GET",
+      "path": "/apps",
+      "params": []
+    },
+    {
+      "name": "apps_list_dashboards",
+      "description": "List the dashboards in an app. Required: appId.",
+      "method": "GET",
+      "path": "/apps/{appId}/dashboards",
+      "params": [
+        {
+          "name": "appId",
+          "type": "string",
+          "location": "path",
+          "description": "The app ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apps_list_reports",
+      "description": "List the reports in an app. Required: appId.",
+      "method": "GET",
+      "path": "/apps/{appId}/reports",
+      "params": [
+        {
+          "name": "appId",
+          "type": "string",
+          "location": "path",
+          "description": "The app ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dashboards_get_tiles_in_group",
+      "description": "List the tiles pinned to a dashboard. Required: groupId, dashboardId.",
+      "method": "GET",
+      "path": "/groups/{groupId}/dashboards/{dashboardId}/tiles",
+      "params": [
+        {
+          "name": "groupId",
+          "type": "string",
+          "location": "path",
+          "description": "The workspace ID.",
+          "required": true
+        },
+        {
+          "name": "dashboardId",
+          "type": "string",
+          "location": "path",
+          "description": "The dashboard ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dashboards_list_in_group",
+      "description": "List dashboards in a specific workspace. Required: groupId.",
+      "method": "GET",
+      "path": "/groups/{groupId}/dashboards",
+      "params": [
+        {
+          "name": "groupId",
+          "type": "string",
+          "location": "path",
+          "description": "The workspace ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dashboards_list_my",
+      "description": "List the dashboards in My workspace (the personal workspace of the authenticated user). Dashboards are pinned tile collections. Returns an array of {id, displayName, embedUrl, isReadOnly, webUrl}. For dashboards in a shared workspace, use dashboards_list_in_group with the workspace ID instead.",
+      "method": "GET",
+      "path": "/dashboards",
+      "params": []
+    },
+    {
+      "name": "dataflows_get_definition_in_group",
+      "description": "Get the dataflow definition (model.json with entities, M queries). Required: groupId, dataflowId.",
+      "method": "GET",
+      "path": "/groups/{groupId}/dataflows/{dataflowId}",
+      "params": [
+        {
+          "name": "groupId",
+          "type": "string",
+          "location": "path",
+          "description": "The workspace ID.",
+          "required": true
+        },
+        {
+          "name": "dataflowId",
+          "type": "string",
+          "location": "path",
+          "description": "The dataflow ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dataflows_list_in_group",
+      "description": "List dataflows in a specific workspace. Required: groupId.",
+      "method": "GET",
+      "path": "/groups/{groupId}/dataflows",
+      "params": [
+        {
+          "name": "groupId",
+          "type": "string",
+          "location": "path",
+          "description": "The workspace ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dataflows_transactions_in_group",
+      "description": "Get the transaction (refresh) history of a dataflow. Required: groupId, dataflowId.",
+      "method": "GET",
+      "path": "/groups/{groupId}/dataflows/{dataflowId}/transactions",
+      "params": [
+        {
+          "name": "groupId",
+          "type": "string",
+          "location": "path",
+          "description": "The workspace ID.",
+          "required": true
+        },
+        {
+          "name": "dataflowId",
+          "type": "string",
+          "location": "path",
+          "description": "The dataflow ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "datasets_get_in_group",
+      "description": "Get a single dataset from a specific workspace. Required: groupId, datasetId.",
+      "method": "GET",
+      "path": "/groups/{groupId}/datasets/{datasetId}",
+      "params": [
+        {
+          "name": "groupId",
+          "type": "string",
+          "location": "path",
+          "description": "The workspace ID.",
+          "required": true
+        },
+        {
+          "name": "datasetId",
+          "type": "string",
+          "location": "path",
+          "description": "The dataset ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "datasets_get_my",
+      "description": "Get a single dataset from My workspace. Required: datasetId.",
+      "method": "GET",
+      "path": "/datasets/{datasetId}",
+      "params": [
+        {
+          "name": "datasetId",
+          "type": "string",
+          "location": "path",
+          "description": "The dataset ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "datasets_list_datasources_in_group",
+      "description": "List the datasources backing a dataset in a specific workspace. Required: groupId, datasetId.",
+      "method": "GET",
+      "path": "/groups/{groupId}/datasets/{datasetId}/datasources",
+      "params": [
+        {
+          "name": "groupId",
+          "type": "string",
+          "location": "path",
+          "description": "The workspace ID.",
+          "required": true
+        },
+        {
+          "name": "datasetId",
+          "type": "string",
+          "location": "path",
+          "description": "The dataset ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "datasets_list_datasources_my",
+      "description": "List the datasources backing a dataset (My workspace). Required: datasetId.",
+      "method": "GET",
+      "path": "/datasets/{datasetId}/datasources",
+      "params": [
+        {
+          "name": "datasetId",
+          "type": "string",
+          "location": "path",
+          "description": "The dataset ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "datasets_list_in_group",
+      "description": "List datasets in a specific workspace. Required: groupId.",
+      "method": "GET",
+      "path": "/groups/{groupId}/datasets",
+      "params": [
+        {
+          "name": "groupId",
+          "type": "string",
+          "location": "path",
+          "description": "The workspace ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "datasets_list_my",
+      "description": "List the datasets (semantic models) in My workspace (the personal workspace of the authenticated user). Datasets are what you query with DAX via the dax run command. Returns an array of {id, name, configuredBy, createdDate, isRefreshable, isEffectiveIdentityRequired}. For datasets in a shared workspace, use datasets_list_in_group with the workspace ID instead.",
+      "method": "GET",
+      "path": "/datasets",
+      "params": []
+    },
+    {
+      "name": "datasets_parameters_in_group",
+      "description": "Get the parameters of a dataset in a specific workspace. Required: groupId, datasetId.",
+      "method": "GET",
+      "path": "/groups/{groupId}/datasets/{datasetId}/parameters",
+      "params": [
+        {
+          "name": "groupId",
+          "type": "string",
+          "location": "path",
+          "description": "The workspace ID.",
+          "required": true
+        },
+        {
+          "name": "datasetId",
+          "type": "string",
+          "location": "path",
+          "description": "The dataset ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "datasets_parameters_my",
+      "description": "Get the parameters of a dataset (My workspace). Required: datasetId.",
+      "method": "GET",
+      "path": "/datasets/{datasetId}/parameters",
+      "params": [
+        {
+          "name": "datasetId",
+          "type": "string",
+          "location": "path",
+          "description": "The dataset ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "datasets_refresh_history_in_group",
+      "description": "Get the recent refresh history of a dataset in a specific workspace. Required: groupId, datasetId. Optional: top.",
+      "method": "GET",
+      "path": "/groups/{groupId}/datasets/{datasetId}/refreshes",
+      "params": [
+        {
+          "name": "groupId",
+          "type": "string",
+          "location": "path",
+          "description": "The workspace ID.",
+          "required": true
+        },
+        {
+          "name": "datasetId",
+          "type": "string",
+          "location": "path",
+          "description": "The dataset ID.",
+          "required": true
+        },
+        {
+          "name": "top",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of refresh records to return."
+        }
+      ]
+    },
+    {
+      "name": "datasets_refresh_history_my",
+      "description": "Get the recent refresh history of a dataset (My workspace). Required: datasetId. Optional: top.",
+      "method": "GET",
+      "path": "/datasets/{datasetId}/refreshes",
+      "params": [
+        {
+          "name": "datasetId",
+          "type": "string",
+          "location": "path",
+          "description": "The dataset ID.",
+          "required": true
+        },
+        {
+          "name": "top",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of refresh records to return."
+        }
+      ]
+    },
+    {
+      "name": "groups_get",
+      "description": "Get a single workspace by ID. Required: groupId.",
+      "method": "GET",
+      "path": "/groups/{groupId}",
+      "params": [
+        {
+          "name": "groupId",
+          "type": "string",
+          "location": "path",
+          "description": "The workspace (group) ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups_list",
+      "description": "List all workspaces (groups) the authenticated identity can access. Optional: top, filter.",
+      "method": "GET",
+      "path": "/groups",
+      "params": [
+        {
+          "name": "top",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "OData filter expression, e.g. name eq 'Sales'."
+        }
+      ]
+    },
+    {
+      "name": "reports_export_status_in_group",
+      "description": "Get the status of an export-to-file job. Required: groupId, reportId, exportId.",
+      "method": "GET",
+      "path": "/groups/{groupId}/reports/{reportId}/exports/{exportId}",
+      "params": [
+        {
+          "name": "groupId",
+          "type": "string",
+          "location": "path",
+          "description": "The workspace ID.",
+          "required": true
+        },
+        {
+          "name": "reportId",
+          "type": "string",
+          "location": "path",
+          "description": "The report ID.",
+          "required": true
+        },
+        {
+          "name": "exportId",
+          "type": "string",
+          "location": "path",
+          "description": "The export job ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_get_in_group",
+      "description": "Get a report from a specific workspace. Required: groupId, reportId.",
+      "method": "GET",
+      "path": "/groups/{groupId}/reports/{reportId}",
+      "params": [
+        {
+          "name": "groupId",
+          "type": "string",
+          "location": "path",
+          "description": "The workspace ID.",
+          "required": true
+        },
+        {
+          "name": "reportId",
+          "type": "string",
+          "location": "path",
+          "description": "The report ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_get_my",
+      "description": "Get a report from My workspace. Required: reportId.",
+      "method": "GET",
+      "path": "/reports/{reportId}",
+      "params": [
+        {
+          "name": "reportId",
+          "type": "string",
+          "location": "path",
+          "description": "The report ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_get_pages_in_group",
+      "description": "Get the pages of a Power BI report. Required: groupId, reportId.",
+      "method": "GET",
+      "path": "/groups/{groupId}/reports/{reportId}/pages",
+      "params": [
+        {
+          "name": "groupId",
+          "type": "string",
+          "location": "path",
+          "description": "The workspace ID.",
+          "required": true
+        },
+        {
+          "name": "reportId",
+          "type": "string",
+          "location": "path",
+          "description": "The report ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_list_in_group",
+      "description": "List reports in a specific workspace. Required: groupId.",
+      "method": "GET",
+      "path": "/groups/{groupId}/reports",
+      "params": [
+        {
+          "name": "groupId",
+          "type": "string",
+          "location": "path",
+          "description": "The workspace ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_list_my",
+      "description": "List the Power BI reports and paginated reports in My workspace (the personal workspace of the authenticated user). Returns an array of {id, name, datasetId, embedUrl, reportType, webUrl}. For reports in a shared workspace, use reports_list_in_group with the workspace ID instead.",
+      "method": "GET",
+      "path": "/reports",
+      "params": []
+    }
+  ]
+}

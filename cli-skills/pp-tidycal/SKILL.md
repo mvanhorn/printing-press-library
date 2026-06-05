@@ -15,6 +15,7 @@ metadata:
         bins: [tidycal-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/productivity/tidycal/cmd/tidycal-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/productivity/tidycal/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

@@ -15,6 +15,7 @@ metadata:
         bins: [recipe-goat-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/food-and-dining/recipe-goat/cmd/recipe-goat-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/food-and-dining/recipe-goat/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

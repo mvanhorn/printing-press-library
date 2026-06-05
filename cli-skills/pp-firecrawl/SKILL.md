@@ -15,6 +15,7 @@ metadata:
         bins: [firecrawl-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/developer-tools/firecrawl/cmd/firecrawl-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/developer-tools/firecrawl/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

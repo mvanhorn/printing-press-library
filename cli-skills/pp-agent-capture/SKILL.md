@@ -15,6 +15,7 @@ metadata:
         bins: [agent-capture-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/developer-tools/agent-capture/cmd/agent-capture-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/developer-tools/agent-capture/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

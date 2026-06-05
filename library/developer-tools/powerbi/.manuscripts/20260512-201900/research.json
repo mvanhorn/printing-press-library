@@ -1,0 +1,286 @@
+{
+  "api_name": "powerbi",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "powerbi-cli",
+      "url": "https://github.com/powerbi-cli/powerbi-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 39,
+      "last_updated": "",
+      "command_count": 100,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "powerbi-modeling-mcp",
+      "url": "https://github.com/microsoft/powerbi-modeling-mcp",
+      "language": "C#",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "powerbi-mcp",
+      "url": "https://github.com/sulaiman013/powerbi-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pbi-cli",
+      "url": "https://github.com/MinaSaad1/pbi-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 27,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pbi-tools",
+      "url": "https://github.com/pbi-tools/pbi-tools",
+      "language": "C#",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-12T20:22:28Z",
+  "novel_features": [
+    {
+      "name": "One-shot report export",
+      "command": "report-export",
+      "description": "Export a Power BI or paginated report to PDF/PPTX/PNG/XLSX/CSV/DOCX with a single command — POST, poll, and download handled internally.",
+      "rationale": "Every competitor exposes the three async steps (POST ExportTo, GET status, GET file) separately. Users hand-roll the poll loop.",
+      "example": "powerbi-pp-cli report-export 37ae3f5d-665b-4c6b-affe-37ebd176d9e5 --group 804c5edc-6653-4149-8d08-a11279824b7a --format PDF --output report.pdf --wait",
+      "why_it_matters": "Use when an agent needs a Power BI report as a file (for OCR, attachment, or visual analysis). One call instead of three plus a poll loop.",
+      "group": "Workflow shortcuts"
+    },
+    {
+      "name": "Saved DAX query catalog",
+      "command": "dax",
+      "description": "Save named DAX queries to a local catalog and re-run them by name. Parameterize with --var key=value.",
+      "rationale": "Requires a local SQLite store that no competing CLI maintains. pbicli accepts inline DAX only — no query library, no parameters, no reuse.",
+      "example": "powerbi-pp-cli dax save monthly-revenue 'EVALUATE SUMMARIZECOLUMNS(Dates[Month], \"Revenue\", [Total Revenue])' \u0026\u0026 powerbi-pp-cli dax run monthly-revenue --group W --dataset D --csv",
+      "why_it_matters": "Use when iterating on DAX with an agent — save once, refine, re-run by name instead of re-pasting the query each turn.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Refresh failure dashboard",
+      "command": "refreshes failures",
+      "description": "Surface every dataset whose most recent refresh failed in the last N days, with error messages.",
+      "rationale": "Requires the local catalog of datasets plus a per-dataset refresh-history fetch — no single Power BI endpoint returns this; admin APIs aggregate but require admin scope.",
+      "example": "powerbi-pp-cli refreshes failures --days 7 --json",
+      "why_it_matters": "Use for the 'what broke since yesterday' question. Joins local catalog + live refresh history; admin scope not required.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "DAX from file with CSV out",
+      "command": "dax run",
+      "description": "Read a DAX query from a file and emit CSV — pipe-friendly for downstream tooling.",
+      "rationale": "pbicli execute outputs JSON only. Users hand-roll jq pipelines to flatten.",
+      "example": "powerbi-pp-cli dax run --file query.dax --group W --dataset D --csv \u003e out.csv",
+      "why_it_matters": "Use when a DAX query is long enough that shell quoting is painful, or when downstream tooling wants tabular input.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Auth doctor with tenant settings explainer",
+      "command": "auth doctor",
+      "description": "Decode the AAD token, show tenant/app/scopes/expiry, probe /groups, and explain which Power BI tenant setting is blocking you if the probe fails.",
+      "rationale": "Power BI has 5 common auth failure modes (token expired, wrong scope, tenant setting disabled, SP not in workspace, RLS blocking). This command names which one is biting.",
+      "example": "powerbi-pp-cli auth doctor",
+      "why_it_matters": "Use when 'it returned 401/403' but you don't know why. Generic doctor commands probe network; this one decodes the JWT and explains the failure class.",
+      "group": "Auth \u0026 diagnostics"
+    },
+    {
+      "name": "Dataset schema introspection",
+      "command": "datasets describe",
+      "description": "Best-effort tables/columns/measures listing for a dataset. Tries INFO.TABLES() DAX (Premium), falls back to dataset metadata.",
+      "rationale": "Microsoft's Remote MCP knows the model schema internally but doesn't expose it programmatically. pbicli has no equivalent.",
+      "example": "powerbi-pp-cli datasets describe DATASET_ID --group W",
+      "why_it_matters": "Use before writing a DAX query to know table and column names. Reduces 'EVALUATE [guessed table name]' trial-and-error.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Device-code + service-principal login built in",
+      "command": "auth login",
+      "description": "Interactive device-code flow by default (no Azure CLI needed); service-principal client_credentials flow when --client-secret is passed. Token cached and refreshed.",
+      "rationale": "pbicli depends on `az` being installed for token acquisition. We do both AAD flows natively so anyone with a Microsoft account can use the CLI without external tooling.",
+      "example": "powerbi-pp-cli auth login                    # device code, opens browser\npowerbi-pp-cli auth login --tenant T --client-id C --client-secret S    # service principal",
+      "why_it_matters": "Use the no-arg form for personal use; pass --client-secret in CI or headless agents. Tokens cached at ~/.config/powerbi-pp-cli/token.json with refresh-on-expiry.",
+      "group": "Auth \u0026 diagnostics"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "One-shot report export",
+      "command": "report-export",
+      "description": "Export a Power BI or paginated report to PDF/PPTX/PNG/XLSX/CSV/DOCX with a single command — POST, poll, and download handled internally.",
+      "rationale": "Every competitor exposes the three async steps (POST ExportTo, GET status, GET file) separately. Users hand-roll the poll loop.",
+      "example": "powerbi-pp-cli report-export 37ae3f5d-665b-4c6b-affe-37ebd176d9e5 --group 804c5edc-6653-4149-8d08-a11279824b7a --format PDF --output report.pdf --wait",
+      "why_it_matters": "Use when an agent needs a Power BI report as a file (for OCR, attachment, or visual analysis). One call instead of three plus a poll loop.",
+      "group": "Workflow shortcuts"
+    },
+    {
+      "name": "Saved DAX query catalog",
+      "command": "dax",
+      "description": "Save named DAX queries to a local catalog and re-run them by name. Parameterize with --var key=value.",
+      "rationale": "Requires a local SQLite store that no competing CLI maintains. pbicli accepts inline DAX only — no query library, no parameters, no reuse.",
+      "example": "powerbi-pp-cli dax save monthly-revenue 'EVALUATE SUMMARIZECOLUMNS(Dates[Month], \"Revenue\", [Total Revenue])' \u0026\u0026 powerbi-pp-cli dax run monthly-revenue --group W --dataset D --csv",
+      "why_it_matters": "Use when iterating on DAX with an agent — save once, refine, re-run by name instead of re-pasting the query each turn.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Refresh failure dashboard",
+      "command": "refreshes failures",
+      "description": "Surface every dataset whose most recent refresh failed in the last N days, with error messages.",
+      "rationale": "Requires the local catalog of datasets plus a per-dataset refresh-history fetch — no single Power BI endpoint returns this; admin APIs aggregate but require admin scope.",
+      "example": "powerbi-pp-cli refreshes failures --days 7 --json",
+      "why_it_matters": "Use for the 'what broke since yesterday' question. Joins local catalog + live refresh history; admin scope not required.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "DAX from file with CSV out",
+      "command": "dax run",
+      "description": "Read a DAX query from a file and emit CSV — pipe-friendly for downstream tooling.",
+      "rationale": "pbicli execute outputs JSON only. Users hand-roll jq pipelines to flatten.",
+      "example": "powerbi-pp-cli dax run --file query.dax --group W --dataset D --csv \u003e out.csv",
+      "why_it_matters": "Use when a DAX query is long enough that shell quoting is painful, or when downstream tooling wants tabular input.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Auth doctor with tenant settings explainer",
+      "command": "auth doctor",
+      "description": "Decode the AAD token, show tenant/app/scopes/expiry, probe /groups, and explain which Power BI tenant setting is blocking you if the probe fails.",
+      "rationale": "Power BI has 5 common auth failure modes (token expired, wrong scope, tenant setting disabled, SP not in workspace, RLS blocking). This command names which one is biting.",
+      "example": "powerbi-pp-cli auth doctor",
+      "why_it_matters": "Use when 'it returned 401/403' but you don't know why. Generic doctor commands probe network; this one decodes the JWT and explains the failure class.",
+      "group": "Auth \u0026 diagnostics"
+    },
+    {
+      "name": "Dataset schema introspection",
+      "command": "datasets describe",
+      "description": "Best-effort tables/columns/measures listing for a dataset. Tries INFO.TABLES() DAX (Premium), falls back to dataset metadata.",
+      "rationale": "Microsoft's Remote MCP knows the model schema internally but doesn't expose it programmatically. pbicli has no equivalent.",
+      "example": "powerbi-pp-cli datasets describe DATASET_ID --group W",
+      "why_it_matters": "Use before writing a DAX query to know table and column names. Reduces 'EVALUATE [guessed table name]' trial-and-error.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Device-code + service-principal login built in",
+      "command": "auth login",
+      "description": "Interactive device-code flow by default (no Azure CLI needed); service-principal client_credentials flow when --client-secret is passed. Token cached and refreshed.",
+      "rationale": "pbicli depends on `az` being installed for token acquisition. We do both AAD flows natively so anyone with a Microsoft account can use the CLI without external tooling.",
+      "example": "powerbi-pp-cli auth login                    # device code, opens browser\npowerbi-pp-cli auth login --tenant T --client-id C --client-secret S    # service principal",
+      "why_it_matters": "Use the no-arg form for personal use; pass --client-secret in CI or headless agents. Tokens cached at ~/.config/powerbi-pp-cli/token.json with refresh-on-expiry.",
+      "group": "Auth \u0026 diagnostics"
+    }
+  ],
+  "narrative": {
+    "display_name": "Power BI",
+    "headline": "Pull data from the Microsoft Power BI REST API for analysis in Claude — every read-only feature pbicli has, plus saved DAX queries, one-shot report export, and a local SQLite catalog no Power BI tool has.",
+    "value_prop": "Read-only Power BI CLI optimized for AI agents. Execute DAX queries with --csv and --select, export reports to PDF in a single command, browse workspaces/datasets/reports offline via the local catalog, and surface refresh failures across your tenant without admin scope.",
+    "auth_narrative": "Power BI auth is OAuth2 against Azure AD. Two paths: (1) bring your own bearer token via the POWERBI_TOKEN env var (get one with `az account get-access-token --resource https://analysis.windows.net/powerbi/api`), or (2) `powerbi-pp-cli auth login --tenant T --client-id C --client-secret S` to exchange a service principal for a token (cached locally, refreshed when expired). The `auth doctor` command decodes your token and explains which of the five common failure modes is biting if requests are being denied.",
+    "quickstart": [
+      {
+        "command": "powerbi-pp-cli auth login",
+        "comment": "Sign in to Power BI via device-code flow. Opens a browser tab to verify; persists a bearer token to ~/.config/powerbi-pp-cli/config.toml."
+      },
+      {
+        "command": "powerbi-pp-cli groups list --json --select value.id,value.name",
+        "comment": "List workspaces, narrowing to id+name so the agent context stays small"
+      },
+      {
+        "command": "powerbi-pp-cli datasets list-in-group --group-id 804c5edc-6653-4149-8d08-a11279824b7a --json",
+        "comment": "List datasets in a specific workspace (this is the example workspace ID from your URL)"
+      },
+      {
+        "command": "powerbi-pp-cli datasets describe DATASET_ID --group 804c5edc-6653-4149-8d08-a11279824b7a",
+        "comment": "See the tables/columns of a dataset so you know what to query"
+      },
+      {
+        "command": "powerbi-pp-cli dax run --query 'EVALUATE TOPN(100, Sales)' --group 804c5edc-6653-4149-8d08-a11279824b7a --dataset DATASET_ID --csv",
+        "comment": "Run a DAX query against the dataset and emit CSV"
+      },
+      {
+        "command": "powerbi-pp-cli report-export 37ae3f5d-665b-4c6b-affe-37ebd176d9e5 --group 804c5edc-6653-4149-8d08-a11279824b7a --format PDF --output report.pdf --wait",
+        "comment": "Export the report from the URL you provided to PDF in one command"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "All requests return 403 Forbidden",
+        "fix": "Run `powerbi-pp-cli auth doctor`. Most often: the AAD app is not added to the workspace as a member, or the tenant setting 'Allow service principals to use Power BI APIs' is off."
+      },
+      {
+        "symptom": "DAX query returns 'More than 100,000 rows in a query result'",
+        "fix": "Wrap the EVALUATE in TOPN or add a date filter. The 100K row / 1M value / 15MB hard caps are server-side per the executeQueries API contract."
+      },
+      {
+        "symptom": "DAX query returns 429 Too Many Requests",
+        "fix": "120 queries-per-minute-per-user limit applies regardless of dataset. Back off and retry after the Retry-After window."
+      },
+      {
+        "symptom": "Bearer token expired (401 after a working session)",
+        "fix": "Re-run `powerbi-pp-cli auth login` if using service-principal mode, or refresh `POWERBI_TOKEN` from `az account get-access-token` (tokens last ~1 hour)."
+      },
+      {
+        "symptom": "Service principal getting 401 on a dataset that works for users",
+        "fix": "Service principals are not supported on datasets with RLS enabled or SSO/live-connect to on-prem Azure Analysis Services. Use a delegated-user token for those."
+      }
+    ],
+    "when_to_use": "Use when an agent needs to pull data out of Power BI for analysis in Claude — running DAX queries against semantic models, exporting report pages as PDFs, or browsing the workspace/dataset/report hierarchy to find the right resource ID. Read-only — no model authoring, no admin operations, no embed-token issuance. Pair with a Power BI workspace where you've added either a service principal or your AAD user as a member.",
+    "recipes": [
+      {
+        "title": "Pull a slice of report data as CSV for spreadsheet analysis",
+        "command": "powerbi-pp-cli dax run --query 'EVALUATE TOPN(1000, FactSales)' --group W --dataset D --csv \u003e sales.csv",
+        "explanation": "DAX EVALUATE returns rows; --csv flattens the executeQueries JSON into columns suitable for spreadsheets or pandas."
+      },
+      {
+        "title": "Find a workspace by fuzzy name across hundreds",
+        "command": "powerbi-pp-cli search finance",
+        "explanation": "After a separate sync, search runs offline FTS so finding the right workspace ID takes one command instead of paginated list calls."
+      },
+      {
+        "title": "Narrow a deeply-nested response to the fields the agent actually needs",
+        "command": "powerbi-pp-cli reports list-in-group --group-id W --json --select value.id,value.name,value.webUrl",
+        "explanation": "Power BI list responses return ~20 fields per row including embedUrl, createdBy, modifiedBy. --select with dotted paths drops the rest — typical 5x reduction in agent context bytes."
+      },
+      {
+        "title": "Export a specific report page as PDF",
+        "command": "powerbi-pp-cli report-export REPORT_ID --group W --format PDF --output report.pdf --wait",
+        "explanation": "POST then poll then download in one command. --wait blocks until the export succeeds; pass --wait=false to get the export ID and poll later."
+      },
+      {
+        "title": "Find datasets that failed to refresh this week",
+        "command": "powerbi-pp-cli refreshes failures --days 7 --json",
+        "explanation": "Iterates every accessible workspace and dataset, pulls each one's most recent refresh history record, returns only the failing ones with error messages."
+      }
+    ],
+    "trigger_phrases": [
+      "pull data from power bi",
+      "query a power bi dataset",
+      "run a dax query",
+      "export a power bi report",
+      "check power bi refresh status",
+      "list power bi workspaces",
+      "use powerbi-pp-cli"
+    ]
+  }
+}

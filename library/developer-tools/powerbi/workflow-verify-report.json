@@ -1,0 +1,8 @@
+{
+  "dir": "C:/Users/kberger/printing-press/library/powerbi",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

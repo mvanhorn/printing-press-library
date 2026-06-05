@@ -15,6 +15,7 @@ metadata:
         bins: [mercury-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/payments/mercury/cmd/mercury-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/payments/mercury/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

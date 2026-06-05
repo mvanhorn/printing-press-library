@@ -1,0 +1,349 @@
+name: powerbi
+description: "Pull data from the Microsoft Power BI REST API for analysis in Claude. Read-only CLI for executing DAX queries, exporting reports, and browsing workspaces."
+version: "0.1.0"
+base_url: "https://api.powerbi.com/v1.0/myorg"
+health_check_path: "/groups"
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  in: header
+  env_vars:
+    - POWERBI_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/powerbi-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+  orchestration: code
+  endpoint_tools: hidden
+
+resources:
+  groups:
+    description: "Workspaces (called 'groups' in the REST API). Containers for datasets, reports, dashboards, and dataflows."
+    endpoints:
+      list:
+        method: GET
+        path: "/groups"
+        description: "List all workspaces (groups) the authenticated identity can access."
+        params:
+          - name: top
+            type: int
+            description: "Maximum number of results to return."
+          - name: filter
+            type: string
+            description: "OData filter expression, e.g. name eq 'Sales'."
+      get:
+        method: GET
+        path: "/groups/{groupId}"
+        description: "Get a single workspace by ID."
+        params:
+          - name: groupId
+            type: string
+            required: true
+            positional: true
+            description: "The workspace (group) ID."
+
+  datasets:
+    description: "Datasets (semantic models). The thing you query with DAX."
+    endpoints:
+      list_my:
+        method: GET
+        path: "/datasets"
+        description: "List datasets in My workspace."
+      list_in_group:
+        method: GET
+        path: "/groups/{groupId}/datasets"
+        description: "List datasets in a specific workspace."
+        params:
+          - name: groupId
+            type: string
+            required: true
+            description: "The workspace ID."
+      get_my:
+        method: GET
+        path: "/datasets/{datasetId}"
+        description: "Get a single dataset from My workspace."
+        params:
+          - name: datasetId
+            type: string
+            required: true
+            positional: true
+            description: "The dataset ID."
+      get_in_group:
+        method: GET
+        path: "/groups/{groupId}/datasets/{datasetId}"
+        description: "Get a single dataset from a specific workspace."
+        params:
+          - name: groupId
+            type: string
+            required: true
+            description: "The workspace ID."
+          - name: datasetId
+            type: string
+            required: true
+            positional: true
+            description: "The dataset ID."
+      list_datasources_my:
+        method: GET
+        path: "/datasets/{datasetId}/datasources"
+        description: "List the datasources backing a dataset (My workspace)."
+        params:
+          - name: datasetId
+            type: string
+            required: true
+            positional: true
+            description: "The dataset ID."
+      list_datasources_in_group:
+        method: GET
+        path: "/groups/{groupId}/datasets/{datasetId}/datasources"
+        description: "List the datasources backing a dataset in a specific workspace."
+        params:
+          - name: groupId
+            type: string
+            required: true
+            description: "The workspace ID."
+          - name: datasetId
+            type: string
+            required: true
+            positional: true
+            description: "The dataset ID."
+      refresh_history_my:
+        method: GET
+        path: "/datasets/{datasetId}/refreshes"
+        description: "Get the recent refresh history of a dataset (My workspace)."
+        params:
+          - name: datasetId
+            type: string
+            required: true
+            positional: true
+            description: "The dataset ID."
+          - name: top
+            type: int
+            description: "Maximum number of refresh records to return."
+      refresh_history_in_group:
+        method: GET
+        path: "/groups/{groupId}/datasets/{datasetId}/refreshes"
+        description: "Get the recent refresh history of a dataset in a specific workspace."
+        params:
+          - name: groupId
+            type: string
+            required: true
+            description: "The workspace ID."
+          - name: datasetId
+            type: string
+            required: true
+            positional: true
+            description: "The dataset ID."
+          - name: top
+            type: int
+            description: "Maximum number of refresh records to return."
+      parameters_my:
+        method: GET
+        path: "/datasets/{datasetId}/parameters"
+        description: "Get the parameters of a dataset (My workspace)."
+        params:
+          - name: datasetId
+            type: string
+            required: true
+            positional: true
+            description: "The dataset ID."
+      parameters_in_group:
+        method: GET
+        path: "/groups/{groupId}/datasets/{datasetId}/parameters"
+        description: "Get the parameters of a dataset in a specific workspace."
+        params:
+          - name: groupId
+            type: string
+            required: true
+            description: "The workspace ID."
+          - name: datasetId
+            type: string
+            required: true
+            positional: true
+            description: "The dataset ID."
+
+  reports:
+    description: "Power BI reports and paginated reports."
+    endpoints:
+      list_my:
+        method: GET
+        path: "/reports"
+        description: "List reports in My workspace."
+      list_in_group:
+        method: GET
+        path: "/groups/{groupId}/reports"
+        description: "List reports in a specific workspace."
+        params:
+          - name: groupId
+            type: string
+            required: true
+            description: "The workspace ID."
+      get_my:
+        method: GET
+        path: "/reports/{reportId}"
+        description: "Get a report from My workspace."
+        params:
+          - name: reportId
+            type: string
+            required: true
+            positional: true
+            description: "The report ID."
+      get_in_group:
+        method: GET
+        path: "/groups/{groupId}/reports/{reportId}"
+        description: "Get a report from a specific workspace."
+        params:
+          - name: groupId
+            type: string
+            required: true
+            description: "The workspace ID."
+          - name: reportId
+            type: string
+            required: true
+            positional: true
+            description: "The report ID."
+      get_pages_in_group:
+        method: GET
+        path: "/groups/{groupId}/reports/{reportId}/pages"
+        description: "Get the pages of a Power BI report."
+        params:
+          - name: groupId
+            type: string
+            required: true
+            description: "The workspace ID."
+          - name: reportId
+            type: string
+            required: true
+            positional: true
+            description: "The report ID."
+      export_status_in_group:
+        method: GET
+        path: "/groups/{groupId}/reports/{reportId}/exports/{exportId}"
+        description: "Get the status of an export-to-file job."
+        params:
+          - name: groupId
+            type: string
+            required: true
+            description: "The workspace ID."
+          - name: reportId
+            type: string
+            required: true
+            description: "The report ID."
+          - name: exportId
+            type: string
+            required: true
+            positional: true
+            description: "The export job ID."
+
+  dashboards:
+    description: "Pinned tile collections."
+    endpoints:
+      list_my:
+        method: GET
+        path: "/dashboards"
+        description: "List dashboards in My workspace."
+      list_in_group:
+        method: GET
+        path: "/groups/{groupId}/dashboards"
+        description: "List dashboards in a specific workspace."
+        params:
+          - name: groupId
+            type: string
+            required: true
+            description: "The workspace ID."
+      get_tiles_in_group:
+        method: GET
+        path: "/groups/{groupId}/dashboards/{dashboardId}/tiles"
+        description: "List the tiles pinned to a dashboard."
+        params:
+          - name: groupId
+            type: string
+            required: true
+            description: "The workspace ID."
+          - name: dashboardId
+            type: string
+            required: true
+            positional: true
+            description: "The dashboard ID."
+
+  dataflows:
+    description: "Power Query workflows that produce datasets."
+    endpoints:
+      list_in_group:
+        method: GET
+        path: "/groups/{groupId}/dataflows"
+        description: "List dataflows in a specific workspace."
+        params:
+          - name: groupId
+            type: string
+            required: true
+            description: "The workspace ID."
+      transactions_in_group:
+        method: GET
+        path: "/groups/{groupId}/dataflows/{dataflowId}/transactions"
+        description: "Get the transaction (refresh) history of a dataflow."
+        params:
+          - name: groupId
+            type: string
+            required: true
+            description: "The workspace ID."
+          - name: dataflowId
+            type: string
+            required: true
+            positional: true
+            description: "The dataflow ID."
+      get_definition_in_group:
+        method: GET
+        path: "/groups/{groupId}/dataflows/{dataflowId}"
+        description: "Get the dataflow definition (model.json with entities, M queries)."
+        params:
+          - name: groupId
+            type: string
+            required: true
+            description: "The workspace ID."
+          - name: dataflowId
+            type: string
+            required: true
+            positional: true
+            description: "The dataflow ID."
+
+  apps:
+    description: "Published bundles of dashboards and reports."
+    endpoints:
+      list:
+        method: GET
+        path: "/apps"
+        description: "List the apps the user has installed."
+      get:
+        method: GET
+        path: "/apps/{appId}"
+        description: "Get an app by ID."
+        params:
+          - name: appId
+            type: string
+            required: true
+            positional: true
+            description: "The app ID."
+      list_reports:
+        method: GET
+        path: "/apps/{appId}/reports"
+        description: "List the reports in an app."
+        params:
+          - name: appId
+            type: string
+            required: true
+            positional: true
+            description: "The app ID."
+      list_dashboards:
+        method: GET
+        path: "/apps/{appId}/dashboards"
+        description: "List the dashboards in an app."
+        params:
+          - name: appId
+            type: string
+            required: true
+            positional: true
+            description: "The app ID."

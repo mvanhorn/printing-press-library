@@ -1,0 +1,8 @@
+EVALUATE
+SUMMARIZECOLUMNS(
+  'Date'[Date],
+  FILTER(ALL(Client[Client Code]), Client[Client Code] = "LFT"),
+  FILTER(ALL('Date'[Date]), 'Date'[Date] >= DATE(2026, 5, 1) && 'Date'[Date] < DATE(2026, 6, 1)),
+  "Unique Users", [Total Unique Users]
+)
+ORDER BY 'Date'[Date]

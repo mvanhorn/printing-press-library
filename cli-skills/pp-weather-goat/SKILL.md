@@ -15,6 +15,7 @@ metadata:
         bins: [weather-goat-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/other/weather-goat/cmd/weather-goat-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/other/weather-goat/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

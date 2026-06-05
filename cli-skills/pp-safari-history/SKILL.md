@@ -2,6 +2,7 @@
 name: pp-safari-history
 description: Query local Safari browsing history with zero network access: search, visit checks, domain/activity reports, timelines, graphs, dwell estimates, and profile summaries. Trigger phrases: "what have I been browsing", "search my safari history", "what was that page I saw", "what sites do I visit most", "my browsing time report", "my browsing profile", "what was I researching last week", "use safari-history", "run safari-history-pp-cli".
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/productivity/safari-history/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

@@ -15,6 +15,7 @@ metadata:
         bins: [trigger-dev-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/developer-tools/trigger-dev/cmd/trigger-dev-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/developer-tools/trigger-dev/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

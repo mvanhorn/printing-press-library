@@ -15,6 +15,7 @@ metadata:
         bins: [vestaboard-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/devices/vestaboard/cmd/vestaboard-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/devices/vestaboard/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

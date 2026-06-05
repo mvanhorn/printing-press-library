@@ -11,6 +11,7 @@ metadata:
       bins:
         - rappi-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/food-and-dining/rappi/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

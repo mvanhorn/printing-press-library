@@ -15,6 +15,7 @@ metadata:
         bins: [restaurant365-odata-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/cmd/restaurant365-odata-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/commerce/restaurant365-odata/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

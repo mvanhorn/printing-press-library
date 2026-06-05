@@ -15,6 +15,7 @@ metadata:
         bins: [harris-teeter-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/commerce/harris-teeter/cmd/harris-teeter-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/commerce/harris-teeter/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

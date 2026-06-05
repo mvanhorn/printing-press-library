@@ -15,6 +15,7 @@ metadata:
         bins: [hotel-tonight-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/travel/hotel-tonight/cmd/hotel-tonight-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/travel/hotel-tonight/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

@@ -1,0 +1,14 @@
+EVALUATE
+ROW(
+  "Via Client",
+    CALCULATE([Total Unique Users],
+      Client[Client Code] = "LFT",
+      'Date'[Date] >= DATE(2026,5,1), 'Date'[Date] < DATE(2026,6,1)),
+  "Via Client Users",
+    CALCULATE([Total Unique Users],
+      'Client Users'[Client Code] = "LFT",
+      'Date'[Date] >= DATE(2026,5,1), 'Date'[Date] < DATE(2026,6,1)),
+  "All clients May",
+    CALCULATE([Total Unique Users],
+      'Date'[Date] >= DATE(2026,5,1), 'Date'[Date] < DATE(2026,6,1))
+)

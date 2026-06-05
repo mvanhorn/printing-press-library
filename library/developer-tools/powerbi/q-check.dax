@@ -1,0 +1,1 @@
+EVALUATE FILTER(VALUES(Client[Client Code]), Client[Client Code] = "LFT")

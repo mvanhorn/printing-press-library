@@ -11,6 +11,7 @@ metadata:
       bins:
         - table-reservation-goat-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/food-and-dining/table-reservation-goat/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

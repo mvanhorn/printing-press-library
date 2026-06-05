@@ -15,6 +15,7 @@ metadata:
         bins: [zoho-expense-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/productivity/zoho-expense/cmd/zoho-expense-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/productivity/zoho-expense/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

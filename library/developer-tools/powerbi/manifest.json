@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "powerbi-pp-mcp",
+  "display_name": "Power BI",
+  "version": "4.2.2",
+  "description": "Power BI API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/powerbi-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/powerbi-pp-mcp",
+      "args": [],
+      "env": {
+        "POWERBI_TOKEN": "${user_config.powerbi_token}"
+      }
+    }
+  },
+  "user_config": {
+    "powerbi_token": {
+      "type": "string",
+      "title": "POWERBI_TOKEN",
+      "description": "Sets POWERBI_TOKEN for the Power BI MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

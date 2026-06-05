@@ -1,0 +1,59 @@
+{
+  "api_name": "powerbi",
+  "auth_env_vars": [
+    "POWERBI_TOKEN"
+  ],
+  "auth_type": "bearer_token",
+  "category": "developer-tools",
+  "cli_name": "powerbi-pp-cli",
+  "display_name": "Power BI",
+  "generated_at": "2026-05-13T01:43:11.7350562Z",
+  "mcp_binary": "powerbi-pp-mcp",
+  "mcp_ready": "full",
+  "mcp_tool_count": 28,
+  "novel_features": [
+    {
+      "name": "One-shot report export",
+      "command": "report-export",
+      "description": "Export a Power BI or paginated report to PDF/PPTX/PNG/XLSX/CSV/DOCX with a single command — POST, poll, and download handled internally."
+    },
+    {
+      "name": "Saved DAX query catalog",
+      "command": "dax",
+      "description": "Save named DAX queries to a local catalog and re-run them by name. Parameterize with --var key=value."
+    },
+    {
+      "name": "Refresh failure dashboard",
+      "command": "refreshes failures",
+      "description": "Surface every dataset whose most recent refresh failed in the last N days, with error messages."
+    },
+    {
+      "name": "DAX from file with CSV out",
+      "command": "dax run",
+      "description": "Read a DAX query from a file and emit CSV — pipe-friendly for downstream tooling."
+    },
+    {
+      "name": "Auth doctor with tenant settings explainer",
+      "command": "auth doctor",
+      "description": "Decode the AAD token, show tenant/app/scopes/expiry, probe /groups, and explain which Power BI tenant setting is blocking you if the probe fails."
+    },
+    {
+      "name": "Dataset schema introspection",
+      "command": "datasets describe",
+      "description": "Best-effort tables/columns/measures listing for a dataset. Tries INFO.TABLES() DAX (Premium), falls back to dataset metadata."
+    },
+    {
+      "name": "Device-code + service-principal login built in",
+      "command": "auth login",
+      "description": "Interactive device-code flow by default (no Azure CLI needed); service-principal client_credentials flow when --client-secret is passed. Token cached and refreshed."
+    }
+  ],
+  "printer": "kberger",
+  "printer_name": "Kberger",
+  "printing_press_version": "4.2.2",
+  "run_id": "20260512-201900",
+  "schema_version": 1,
+  "spec_checksum": "sha256:539bcb08117f3796b6259e9d6ed7ce669de26f8b8eb9b9f2a3658f0b4948bd60",
+  "spec_format": "yaml",
+  "spec_path": "manuscripts/powerbi/20260512-201900/research/powerbi-spec.yaml"
+}

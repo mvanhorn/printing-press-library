@@ -15,6 +15,7 @@ metadata:
         bins: [breezedoc-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/productivity/breezedoc/cmd/breezedoc-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/productivity/breezedoc/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

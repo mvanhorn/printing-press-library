@@ -15,6 +15,7 @@ metadata:
         bins: [scrape-creators-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/cmd/scrape-creators-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/developer-tools/scrape-creators/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

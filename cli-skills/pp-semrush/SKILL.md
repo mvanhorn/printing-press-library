@@ -15,6 +15,7 @@ metadata:
         bins: [semrush-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/marketing/semrush/cmd/semrush-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/marketing/semrush/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

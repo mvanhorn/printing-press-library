@@ -11,6 +11,7 @@ metadata:
       bins:
         - bento-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/marketing/bento/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

@@ -15,6 +15,7 @@ metadata:
         bins: [docker-hub-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/developer-tools/docker-hub/cmd/docker-hub-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/developer-tools/docker-hub/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are
