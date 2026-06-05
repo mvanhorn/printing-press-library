@@ -1,0 +1,51 @@
+version: 2
+project_name: durianpay-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: durianpay-pp-cli
+    main: ./cmd/durianpay-pp-cli
+    binary: durianpay-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/payments/durianpay/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: durianpay-pp-mcp
+    main: ./cmd/durianpay-pp-mcp
+    binary: durianpay-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: durianpay-pp-cli
+    repository:
+      owner: ardihanan
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Durianpay API in one terminal — legacy and SNAP — with the dual-signature scheme handled for you and a local"
+    install: |
+      bin.install "durianpay-pp-cli"
+      bin.install "durianpay-pp-mcp"

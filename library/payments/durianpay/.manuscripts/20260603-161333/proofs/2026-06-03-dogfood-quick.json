@@ -1,0 +1,259 @@
+{
+  "dir": "/Users/ardi/printing-press/.runstate/claude-work-stuff-6884d388/runs/20260603-161333/working/durianpay-pp-cli",
+  "binary": "/Users/ardi/printing-press/.runstate/claude-work-stuff-6884d388/runs/20260603-161333/working/durianpay-pp-cli/durianpay-pp-cli",
+  "level": "quick",
+  "verdict": "PASS",
+  "matrix_size": 15,
+  "passed": 15,
+  "failed": 0,
+  "skipped": 11,
+  "commands": [
+    "analytics",
+    "api",
+    "customers",
+    "disbursements approve disbursement",
+    "doctor",
+    "env"
+  ],
+  "tests": [
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  durianpay-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  durianpay-pp-cli analytics --type messages\n\n  # Group by a field\n  durianpay-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  durianpay-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         Database path\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'durianpay-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\nhint: local store has not been synced yet. Run 'durianpay-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\nhint: local store has not been synced yet. Run 'durianpay-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  durianpay-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  durianpay-pp-cli api\n\n  # Show methods for a specific interface\n  durianpay-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'durianpay-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'durianpay-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "customers",
+      "kind": "help",
+      "args": [
+        "customers",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Patch id\n\nUsage:\n  durianpay-pp-cli customers [flags]\n\nExamples:\n  durianpay-pp-cli customers --id 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --customer-ref-id string   A unique reference ID from the merchant to identify the customer\n      --email string             The customer's email address. Should of the format redacted@example.com\n      --given-name string        The customer's name\n  -h, --help                     help for customers\n      --id string                Durianpay's Customer ID. Returned during payment/virtual account creation. (default \"123\")\n      --mobile string            The customer's mobile number.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'durianpay-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "customers",
+      "kind": "happy_path",
+      "args": [
+        "customers",
+        "--id",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nPATCH https://api-sandbox.durianpay.id/v1/customers/550e8400-e29b-41d4-a716-446655440000\n  Body:\n{}\n  Authorization: ****Og==\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "customers",
+      "kind": "json_fidelity",
+      "args": [
+        "customers",
+        "--id",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nPATCH https://api-sandbox.durianpay.id/v1/customers/550e8400-e29b-41d4-a716-446655440000\n  Body:\n{}\n  Authorization: ****Og==\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "customers",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "customers",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "disbursements approve disbursement",
+      "kind": "help",
+      "args": [
+        "disbursements",
+        "approve",
+        "disbursement",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Approves a submitted disbursement batch (legacy). Use ignore_invalid=true query to approve while skipping invalid items.\n\nUsage:\n  durianpay-pp-cli disbursements approve disbursement \u003cid\u003e [flags]\n\nAliases:\n  disbursement, create\n\nExamples:\n  durianpay-pp-cli disbursements approve disbursement 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help             help for disbursement\n      --ignore-invalid   Approve while ignoring invalid items\n      --stdin            Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'durianpay-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "disbursements approve disbursement",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"id\""
+    },
+    {
+      "command": "disbursements approve disbursement",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"id\""
+    },
+    {
+      "command": "disbursements approve disbursement",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "disbursements approve disbursement",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"id\""
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  durianpay-pp-cli doctor [flags]\n\nExamples:\n  durianpay-pp-cli doctor\n  durianpay-pp-cli doctor --json\n  durianpay-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'durianpay-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK DURIANPAY_API_PASSWORD optional\n  OK Verify Mode: normal operation\n  OK API: reachable (HTTP 404 at /)\n  INFO Credentials: present, not verified. Run any read command to confirm the token works end-to-end.\n  config_path: /tmp/claude-501/printing-press-subprocess-520426412/.config/durianpay-pp-cli/config.toml\n  base_url: https://api-sandbox.durianpay.id/v1\n  auth_source: env:DURIANPAY_API_KEY\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /tmp/claude-501/printing-press-subprocess-520426412/.local/share/durianpay-pp-cli/data.db\n    schema_version: 3\n    db_bytes: 204800\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'durianpay-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"agentcookie\": \"not detected (optional)\",\n  \"api\": \"reachable (HTTP 404 at /)\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:DURIANPAY_API_KEY\",\n  \"base_url\": \"https://api-sandbox.durianpay.id/v1\",\n  \"cache\": {\n    \"db_bytes\": 204800,\n    \"db_path\": \"/tmp/claude-501/printing-press-subprocess-520426412/.local/share/durianpay-pp-cli/data.db\",\n    \"hint\": \"sync_state is empty; run 'durianpay-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 3,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/tmp/claude-501/printing-press-subprocess-520426412/.config/durianpay-pp-cli/config.toml\",\n  \"credentials\": \"present, not verified. Run any read command to confirm the token works end-to-end.\",\n  \"env_vars\": \"OK DURIANPAY_API_PASSWORD optional\",\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "env",
+      "kind": "help",
+      "args": [
+        "env",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shows or switches the environment this CLI talks to. Switching rewrites\nbase_url in the config file. Credentials are NOT switched for you — sandbox\nand live use completely separate API keys (dp_test_ vs dp_live_) and separate\nSNAP keypairs, so the command reports which env vars you still need to flip.\nA DURIANPAY_BASE_URL env var always overrides the config file.\n\nUsage:\n  durianpay-pp-cli env [sandbox|live|show] [flags]\n\nExamples:\n  durianpay-pp-cli env show\n  durianpay-pp-cli env sandbox\n  durianpay-pp-cli env live --json\n\nFlags:\n  -h, --help   help for env\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'durianpay-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "env",
+      "kind": "happy_path",
+      "args": [
+        "env",
+        "show"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"base_url\": \"https://api-sandbox.durianpay.id/v1\",\n  \"base_url_source\": \"env:DURIANPAY_BASE_URL\",\n  \"config_path\": \"/tmp/claude-501/printing-press-subprocess-520426412/.config/durianpay-pp-cli/config.toml\",\n  \"environment\": \"sandbox\"\n}\n"
+    },
+    {
+      "command": "env",
+      "kind": "json_fidelity",
+      "args": [
+        "env",
+        "show",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"base_url\": \"https://api-sandbox.durianpay.id/v1\",\n  \"base_url_source\": \"env:DURIANPAY_BASE_URL\",\n  \"config_path\": \"/tmp/claude-501/printing-press-subprocess-520426412/.config/durianpay-pp-cli/config.toml\",\n  \"environment\": \"sandbox\"\n}\n"
+    },
+    {
+      "command": "env",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-05T06:40:24.334232Z"
+}

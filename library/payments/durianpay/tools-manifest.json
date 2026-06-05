@@ -1,0 +1,952 @@
+{
+  "api_name": "durianpay",
+  "base_url": "https://api.durianpay.id/v1",
+  "description": "Durianpay legacy (orders/payments) API. Authentication: HTTP Basic — your Durianpay API key as the username with a blank password (Authorization: Basic base64(api_key + ':')). Set DURIANPAY_API_KEY.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "Basic {DURIANPAY_API_KEY}:{DURIANPAY_API_PASSWORD}",
+    "env_vars": [
+      "DURIANPAY_API_KEY",
+      "DURIANPAY_API_PASSWORD"
+    ],
+    "env_var_specs": [
+      {
+        "name": "DURIANPAY_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "description": "Durianpay API key from Dashboard \u003e Settings \u003e API Keys (sandbox keys start dp_test_, live dp_live_). Sent as the Basic-auth username."
+      },
+      {
+        "name": "DURIANPAY_API_PASSWORD",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true,
+        "description": "Basic-auth password — leave unset; Durianpay uses a blank password."
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "customers_patch-id",
+      "description": "Patch id. Required: id (default: 123). Optional: customer_ref_id, email, given_name (plus 1 more). Partial update.",
+      "method": "PATCH",
+      "path": "/customers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Durianpay's Customer ID. Returned during payment/virtual account creation.",
+          "required": true
+        },
+        {
+          "name": "customer_ref_id",
+          "type": "string",
+          "location": "body",
+          "description": "A unique reference ID from the merchant to identify the customer"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The customer's email address. Should of the format jane.doe@gmail.com and should not contain any invalid special characters (¢,£,§,©,etc)"
+        },
+        {
+          "name": "given_name",
+          "type": "string",
+          "location": "body",
+          "description": "The customer's name"
+        },
+        {
+          "name": "mobile",
+          "type": "string",
+          "location": "body",
+          "description": "The customer's mobile number. Please ensure that the number follows Indonesia's phone number format : +62xxxxxxxxxx or 08xxxxxxxxxx."
+        }
+      ]
+    },
+    {
+      "name": "disbursements_fetch-by-id",
+      "description": "Retrieves a disbursement batch status and details (legacy). Returns completion signature when status is completed. Required: id.",
+      "method": "GET",
+      "path": "/disbursements/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Disbursement ID (dis_xxx)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "disbursements_submit",
+      "description": "Submits a disbursement batch (legacy). Supports idempotency via X-Idempotency-Key header. Query force_disburse=true bypasses approval; skip_validation=false validates recipient accounts. Required: items, name. Optional: force_disburse (default: false), skip_validation (default: false), description.",
+      "method": "POST",
+      "path": "/disbursements/submit",
+      "params": [
+        {
+          "name": "force_disburse",
+          "type": "bool",
+          "location": "query",
+          "description": "Disburse immediately without dashboard approval"
+        },
+        {
+          "name": "skip_validation",
+          "type": "bool",
+          "location": "query",
+          "description": "Skip recipient bank-account validation"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Batch description"
+        },
+        {
+          "name": "items",
+          "type": "array",
+          "location": "body",
+          "description": "Disbursement items",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Batch name. Example: 'Payroll June'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "disbursements_approve_disbursement",
+      "description": "Approves a submitted disbursement batch (legacy). Use ignore_invalid=true query to approve while skipping invalid items. Required: id. Optional: ignore_invalid.",
+      "method": "POST",
+      "path": "/disbursements/{id}/approve",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Disbursement ID (dis_xxx)",
+          "required": true
+        },
+        {
+          "name": "ignore_invalid",
+          "type": "bool",
+          "location": "query",
+          "description": "Approve while ignoring invalid items"
+        }
+      ]
+    },
+    {
+      "name": "merchants_fetch-sub-account-fees",
+      "description": "The following endpoint retrieves fees of a single subaccount. Required: id (default: mer_123). Returns the MerchantsFetchSubAccountFeesResponse.",
+      "method": "GET",
+      "path": "/merchants/subaccount/fee/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the subaccount, which can be taken from the response of Register...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "merchants_fetch-sub-account-fees-1",
+      "description": "The following endpoint retrieves balance of a single subaccount. Required: id (default: mer_1234). Optional: as_of (default: 2022-03-29T10:00:00.000+07:00). Returns the MerchantsFetchSubAccountFees1Response.",
+      "method": "GET",
+      "path": "/merchants/subaccount/balance/{id}",
+      "params": [
+        {
+          "name": "as_of",
+          "type": "string",
+          "location": "query",
+          "description": "The specific date for which you wish to retrieve the closing balance. Defaults to current time if not specified. Please ensure that the value is in RFC3339 format. Example: '2022-03-29T10:00:00.000+07:00'"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the subaccount, which can be taken from the response of Register...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "merchants_fetch-subaccount",
+      "description": "This following endpoint retrieves the details of all created subaccounts. Optional: skip, limit. Returns the MerchantsFetchSubaccountResponse.",
+      "method": "GET",
+      "path": "/merchants/subaccount",
+      "params": [
+        {
+          "name": "skip",
+          "type": "int",
+          "location": "query",
+          "description": "The number of subaccount to be skipped. The default value is 0. This can be used for pagination. in combination with count"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of subaccount to be fetch. This can be used for pagination. in combination with the skip parameter"
+        }
+      ]
+    },
+    {
+      "name": "merchants_register-sub-account",
+      "description": "The following endpoint registers a sub account under your master account. Required: email (default: organization_001@masterorg.biz), name (default: Awesome Sub Organization 001). Optional: ref_id (default: mer_123), subaccount_ownership (default: owned). Returns the new MerchantsRegisterSubAccountResponse.",
+      "method": "POST",
+      "path": "/merchants/subaccount",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email of the sub account",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the sub account",
+          "required": true
+        },
+        {
+          "name": "ref_id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of Subaccount from the merchant"
+        },
+        {
+          "name": "subaccount_ownership",
+          "type": "string",
+          "location": "body",
+          "description": "Type of the subaccount, value can be either 'managed' or 'owned'"
+        }
+      ]
+    },
+    {
+      "name": "merchants_update-sub-account-api",
+      "description": "The following endpoint updates subaccount's informations. Required: id (default: mer_123456). Optional: is_enabled, name, ref_id.",
+      "method": "PUT",
+      "path": "/merchants/subaccount/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the subaccount, which can be taken from the response of Register...",
+          "required": true
+        },
+        {
+          "name": "is_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable/Disable the respective subaccount"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the sub account"
+        },
+        {
+          "name": "ref_id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of Subaccount from the merchant"
+        }
+      ]
+    },
+    {
+      "name": "merchants_update-sub-account-fees",
+      "description": "This following endpoint allows master accounts to manage fees for subaccounts. Required: disbursement_fees, id (default: mer_x6EzWyIeVX3831). Optional: payment_fees. Returns the new MerchantsUpdateSubAccountFeesResponse.",
+      "method": "POST",
+      "path": "/merchants/subaccount/fee",
+      "params": [
+        {
+          "name": "disbursement-fees-fee",
+          "wire_name": "disbursement_fees.fee",
+          "type": "string",
+          "location": "body",
+          "description": "Amount of respective fee type",
+          "required": true
+        },
+        {
+          "name": "disbursement-fees-type",
+          "wire_name": "disbursement_fees.type",
+          "type": "string",
+          "location": "body",
+          "description": "Fee type, possible values: flat, percentage",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the subaccount, which can be taken from the response of Register...",
+          "required": true
+        },
+        {
+          "name": "payment_fees",
+          "type": "array",
+          "location": "body",
+          "description": "Details on which payment method will be assigned with the fee, including the fee configuration. Either fixed_fee or percentage_fee is mandatory; you must provide one of them, but providing both is not required, If both fee presents, The fee is calculated by accumulating percentage fee (applied to the total amount before the fee) to the fixed fee."
+        }
+      ]
+    },
+    {
+      "name": "orders_create",
+      "description": "The following endpoint creates an Order. Required: amount (default: 1000), currency (default: IDR), customer. Optional: admin_fee_method (default: excluded), description, expiry_date (default: 2026-09-29T10:00:00.000Z) (plus 5 more). Returns the new OrdersCreateResponse.",
+      "method": "POST",
+      "path": "/orders",
+      "params": [
+        {
+          "name": "admin_fee_method",
+          "type": "string",
+          "location": "body",
+          "description": "Used to specify if the transactional charges are to be included and paid by the merchant or customer. Possible Values: 'included' - Transaction Fee is paid by merchant 'excluded' - Transaction Fee is paid by customer"
+        },
+        {
+          "name": "amount",
+          "type": "string",
+          "location": "body",
+          "description": "The amount for which the Order was created. Example: '10000' or '10000.23' for amount with decimal value",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "The currency associated with the Order's amount. Example: 'IDR'",
+          "required": true
+        },
+        {
+          "name": "customer-address-address-line",
+          "wire_name": "customer.address.address_line",
+          "type": "string",
+          "location": "body",
+          "description": "Address line"
+        },
+        {
+          "name": "customer-address-city",
+          "wire_name": "customer.address.city",
+          "type": "string",
+          "location": "body",
+          "description": "City"
+        },
+        {
+          "name": "customer-address-label",
+          "wire_name": "customer.address.label",
+          "type": "string",
+          "location": "body",
+          "description": "Label"
+        },
+        {
+          "name": "customer-address-landmark",
+          "wire_name": "customer.address.landmark",
+          "type": "string",
+          "location": "body",
+          "description": "Landmark"
+        },
+        {
+          "name": "customer-address-postal-code",
+          "wire_name": "customer.address.postal_code",
+          "type": "string",
+          "location": "body",
+          "description": "Postal code"
+        },
+        {
+          "name": "customer-address-receiver-name",
+          "wire_name": "customer.address.receiver_name",
+          "type": "string",
+          "location": "body",
+          "description": "Receiver name"
+        },
+        {
+          "name": "customer-address-region",
+          "wire_name": "customer.address.region",
+          "type": "string",
+          "location": "body",
+          "description": "Region"
+        },
+        {
+          "name": "customer-customer-ref-id",
+          "wire_name": "customer.customer_ref_id",
+          "type": "string",
+          "location": "body",
+          "description": "A unique reference ID from the merchant to identify the customer"
+        },
+        {
+          "name": "customer-email",
+          "wire_name": "customer.email",
+          "type": "string",
+          "location": "body",
+          "description": "The customer's email address. Should of the format jane.doe@gmail.com and should not contain any invalid special characters (¢,£,§,©,etc)"
+        },
+        {
+          "name": "customer-given-name",
+          "wire_name": "customer.given_name",
+          "type": "string",
+          "location": "body",
+          "description": "The customer's given name"
+        },
+        {
+          "name": "customer-id",
+          "wire_name": "customer.id",
+          "type": "string",
+          "location": "body",
+          "description": "The customer ID from Durianpay"
+        },
+        {
+          "name": "customer-middle-name",
+          "wire_name": "customer.middle_name",
+          "type": "string",
+          "location": "body",
+          "description": "The customer's middle name"
+        },
+        {
+          "name": "customer-mobile",
+          "wire_name": "customer.mobile",
+          "type": "string",
+          "location": "body",
+          "description": "The customer's mobile number. Please ensure that the number follows Indonesia's phone number format : +62xxxxxxxxxx or 08xxxxxxxxxx."
+        },
+        {
+          "name": "customer-sur-name",
+          "wire_name": "customer.sur_name",
+          "type": "string",
+          "location": "body",
+          "description": "The customer's surname"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "String to store description of the order. Example: 'This order is delicate. Handle with Care!'"
+        },
+        {
+          "name": "expiry_date",
+          "type": "string",
+          "location": "body",
+          "description": "The time stamp at which the order will expire. Please ensure that the value is in RFC3339 format and the timezone is in GMT+7. Example: '2022-03-29T10:00:00.000Z'"
+        },
+        {
+          "name": "is_payment_link",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether Payment Link is to be generated. Example: true or false"
+        },
+        {
+          "name": "items",
+          "type": "array",
+          "location": "body",
+          "description": "Array of objects with each object including name, brand, category, sku, price, qty, total_price. mandatory to use BNPL and LINKAJA payment method"
+        },
+        {
+          "name": "metadata",
+          "type": "string",
+          "location": "body",
+          "description": "Key-Value pair that can be used to store additional information about the entity."
+        },
+        {
+          "name": "order_ref_id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of Order from the merchant. Example: 'INV/1/2021'"
+        },
+        {
+          "name": "payment_option",
+          "type": "string",
+          "location": "body",
+          "description": "The type of payment option with which order was created. Possible values: 'full_payment' or 'installment'"
+        }
+      ]
+    },
+    {
+      "name": "orders_fetch",
+      "description": "The following endpoint retrieves the details of all Orders created. Optional: from, to, skip (plus 1 more). Returns array of OrdersFetchItem.",
+      "method": "GET",
+      "path": "/orders",
+      "params": [
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Timestamp (in YYYY-MM-DD format) from when the Orders should be fetched"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Timestamp (in YYYY-MM-DD format) up till when Orders are to be fetched"
+        },
+        {
+          "name": "skip",
+          "type": "int",
+          "location": "query",
+          "description": "The number of orders to be skipped. The default value is 0. This can be used for pagination, in combination with count"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of orders to be fetched. Default value is 25. This can be used for pagination, in combination with the skip parameter"
+        }
+      ]
+    },
+    {
+      "name": "orders_fetch-by-id",
+      "description": "The following endpoint retrieves the details of a single Order. Required: id (default: ord_A1B1C1D1234). Optional: expand (default: customer).",
+      "method": "GET",
+      "path": "/orders/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the Order to be retrieved",
+          "required": true
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Used to retrieve additional information about the Order. Supported values are: customer, payments. Example: /orders/ord_A1B1C1D1234?expand=customer\u0026expand=payments"
+        }
+      ]
+    },
+    {
+      "name": "payments_charge",
+      "description": "Charges a payment against an order. The `type` field selects the payment method: VA (virtual account), EWALLET, QRIS, CARD, BNPL, ONLINE_BANKING, RETAIL_STORE. The `request` object shape varies per type; see docs.durianpay.id/reference for per-method bodies. Required: type (default: BNPL), request.",
+      "method": "POST",
+      "path": "/payments/charge",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "request",
+          "type": "object",
+          "location": "query",
+          "description": "The payload object for BNPL payment charge",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payments_create-virtual-account",
+      "description": "The following endpoint creates a new virtual account. Required: bank_code (default: PERMATA), customer, name (default: Dpay Jane Doe). Optional: account_suffix (default: 123456), amount (default: 20000), auto_disable_after_payment (default: false) (plus 4 more). Returns the new PaymentsCreateVirtualAccountResponse.",
+      "method": "POST",
+      "path": "/payments/va",
+      "params": [
+        {
+          "name": "account_suffix",
+          "type": "string",
+          "location": "body",
+          "description": "Account suffix for the Virtual Account. If not provided, a random suffix will be automatically generated for the virtual account number."
+        },
+        {
+          "name": "amount",
+          "type": "string",
+          "location": "body",
+          "description": "Specify amount to be paid to va when is_closed=true. Example: '12000.12'"
+        },
+        {
+          "name": "auto_disable_after_payment",
+          "type": "bool",
+          "location": "body",
+          "description": "Disable a reusable VA temporarily after a payment. Patch API can be used to enable it again after changing some parameters. Example: true or false"
+        },
+        {
+          "name": "bank_code",
+          "type": "string",
+          "location": "body",
+          "description": "The bank code for the Virtual Account. Supported Bank Codes: 'BRI', 'BCA', 'MANDIRI', 'PERMATA', 'CIMB', 'BNI', 'NOBU'",
+          "required": true
+        },
+        {
+          "name": "customer-customer-ref-id",
+          "wire_name": "customer.customer_ref_id",
+          "type": "string",
+          "location": "body",
+          "description": "A unique reference ID from the merchant to identify the customer"
+        },
+        {
+          "name": "customer-email",
+          "wire_name": "customer.email",
+          "type": "string",
+          "location": "body",
+          "description": "Customer's email address in a valid email format (e.g., jane.doe@gmail.com) without invalid special characters (¢, £, §, ©, etc.)"
+        },
+        {
+          "name": "customer-given-name",
+          "wire_name": "customer.given_name",
+          "type": "string",
+          "location": "body",
+          "description": "Customer's name"
+        },
+        {
+          "name": "customer-id",
+          "wire_name": "customer.id",
+          "type": "string",
+          "location": "body",
+          "description": "Durianpay's customer ID"
+        },
+        {
+          "name": "customer-mobile",
+          "wire_name": "customer.mobile",
+          "type": "string",
+          "location": "body",
+          "description": "Customer's mobile number in Indonesia's phone number format (+62xxxxxxxxxx or 08xxxxxxxxxx), with a length of 8 to 14 digits."
+        },
+        {
+          "name": "expiry_minutes",
+          "type": "int",
+          "location": "body",
+          "description": "Number of minutes left till expiry from now. maximum: 15768000 minutes"
+        },
+        {
+          "name": "is_closed",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether account can accept open(any amount) or closed(specific amount). Example: true or false"
+        },
+        {
+          "name": "is_reusable",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether multiple payments can be used for a particular VA. Example: true or false"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the virtual account which will appear in ATM/Banking app. Example: 'John's Virtual Account'",
+          "required": true
+        },
+        {
+          "name": "va_ref_id",
+          "type": "string",
+          "location": "body",
+          "description": "A reference ID which the merchant wants to use for a specific VA. Example: 'VA_XYZ_1234'"
+        }
+      ]
+    },
+    {
+      "name": "payments_fetch-api",
+      "description": "The following endpoint retrieves the details of all Payments created. Optional: from, to, skip (plus 1 more).",
+      "method": "GET",
+      "path": "/payments",
+      "params": [
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Timestamp (in YYYY-MM-DD format) from when the Orders should be fetched"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Timestamp (in YYYY-MM-DD format) up till when Orders are to be fetched"
+        },
+        {
+          "name": "skip",
+          "type": "int",
+          "location": "query",
+          "description": "The number of payments to be skipped. The default value is 0. This can be used for pagination, in combination with count"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of payments to be fetched. Default value is 25. This can be used for pagination, in combination with the skip parameter"
+        }
+      ]
+    },
+    {
+      "name": "payments_fetch-by-id",
+      "description": "The following endpoint retrieves the details of a single payment. Required: id (default: pay_12345678). Optional: expand (default: order). Returns the PaymentsFetchByIdResponse.",
+      "method": "GET",
+      "path": "/payments/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the Payment to be retrieved",
+          "required": true
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Used to retrieve additional information about the Order. Supported values are: customer, payments. Example: /orders/ord_A1B1C1D1234?expand=customer\u0026expand=payments"
+        }
+      ]
+    },
+    {
+      "name": "payments_fetch-virtual-account",
+      "description": "The following endpoint retrieves the details of all Virtual Accounts created. Optional: from (default: 2024-09-01), to (default: 2024-09-09), skip (default: 0) (plus 1 more). Returns the PaymentsFetchVirtualAccountResponse.",
+      "method": "GET",
+      "path": "/payments/va",
+      "params": [
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Timestamp (in Unix format) from when the virtual accounts should be fetched"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Timestamp (in Unix format) up till when virtual accounts are to be fetched"
+        },
+        {
+          "name": "skip",
+          "type": "int",
+          "location": "query",
+          "description": "The number of virtual accounts to be skipped. The default value is 0. This can be used for pagination, in combination with count"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of virtual accounts to be skipped. The default value is 0. This can be used for pagination, in combination with count"
+        }
+      ]
+    },
+    {
+      "name": "payments_fetch-virtual-account-by-id",
+      "description": "The following endpoint retrieves the details of a single Virtual Account. Required: id (default: va_12345). Returns the PaymentsFetchVirtualAccountByIdResponse.",
+      "method": "GET",
+      "path": "/payments/va/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the Virtual Account to be retrieved",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payments_virtual-accounts-patch-by-id",
+      "description": "The following endpoint is used to override Expiry Time of a single Virtual Account. Required: id (default: va_1234). Optional: amount (default: 10000), expiry_minutes (default: 0), is_disabled (default: false) (plus 3 more). Returns the updated PaymentsVirtualAccountsPatchByIdResponse.",
+      "method": "PATCH",
+      "path": "/payments/va/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the Virtual Account to be retrieved",
+          "required": true
+        },
+        {
+          "name": "amount",
+          "type": "int",
+          "location": "body",
+          "description": "Modify maximum amount which can be paid to a closed VA. Example: 10000"
+        },
+        {
+          "name": "expiry_minutes",
+          "type": "int",
+          "location": "body",
+          "description": "Number of minutes left till expiry from now. Set to 0 to expire VA Example: 10000"
+        },
+        {
+          "name": "is_disabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Modify enabling/disabling payments to a VA while still reserving it. Example: true"
+        },
+        {
+          "name": "max_amount",
+          "type": "int",
+          "location": "body",
+          "description": "Modify maximum amount which can be paid to an open VA. Example: 10000"
+        },
+        {
+          "name": "min_amount",
+          "type": "int",
+          "location": "body",
+          "description": "Modify minimum amount which can be paid to an open VA. Example: 10000"
+        },
+        {
+          "name": "va_ref_id",
+          "type": "string",
+          "location": "body",
+          "description": "Modify a reference ID which the merchant wants to use for a specific VA. Example: 'VA_XYZ_1234'"
+        }
+      ]
+    },
+    {
+      "name": "payments_cancel_payment-api",
+      "description": "The following endpoint cancels a single Payment. Required: id (default: pay_123456). Returns the updated CancelPaymentApiResponse.",
+      "method": "PUT",
+      "path": "/payments/{id}/cancel",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the Payment to be cancelled",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payments_status_check-payment",
+      "description": "The following endpoint checks the status of a single Payment. Required: id (default: pay_123456). Returns the StatusCheckPaymentResponse.",
+      "method": "GET",
+      "path": "/payments/{id}/status",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the Payment to be retrieved",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payments_verify_payments",
+      "description": "The following endpoint verifies the signature of payment callback. Required: id (default: pay_123456), verification_signature. Returns the new VerifyPaymentsResponse.",
+      "method": "POST",
+      "path": "/payments/{id}/verify",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the Payment to be verified",
+          "required": true
+        },
+        {
+          "name": "verification_signature",
+          "type": "string",
+          "location": "body",
+          "description": "Signature which has been provided to you while you successfully made a charge. Would have recived directly as a response to payments/charge API call OR as a payload on payment.completed webhook response",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "refunds_create",
+      "description": "The following endpoint creates an Refund. Required: amount (default: 10000), payment_id (default: pay_IsL5nOCW4M2790), ref_id (default: abc). Optional: notes (default: rejected product). Returns the new RefundsCreateResponse.",
+      "method": "POST",
+      "path": "/refunds",
+      "params": [
+        {
+          "name": "amount",
+          "type": "string",
+          "location": "body",
+          "description": "The refund amount requested. Example: '10000' or '10000.23' for amount with decimal value",
+          "required": true
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "The refund note. Example: 'rejected product'"
+        },
+        {
+          "name": "payment_id",
+          "type": "string",
+          "location": "body",
+          "description": "Durianpay payment id used to create refund. Example: 'pay_ttqs62k99s'",
+          "required": true
+        },
+        {
+          "name": "ref_id",
+          "type": "string",
+          "location": "body",
+          "description": "Merchant refund reference id. Example: 'ref_reference_123'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "refunds_fetch",
+      "description": "The following endpoint retrieves list of all Refunds created. Optional: from (default: 20204-09-01), to (default: 2024-09-10), skip (default: 0) (plus 1 more). Returns the RefundsFetchResponse.",
+      "method": "GET",
+      "path": "/refunds",
+      "params": [
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Timestamp (in YYYY-MM-DD format) from when the refunds should be fetched"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Timestamp (in YYYY-MM-DD format) up till when refunds are to be fetched"
+        },
+        {
+          "name": "skip",
+          "type": "int",
+          "location": "query",
+          "description": "The number of refunds to be skipped. The default value is 0. This can be used for pagination, in combination with count"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of refunds to be fetched. Default value is 25. This can be used for pagination, in combination with the skip parameter"
+        }
+      ]
+    },
+    {
+      "name": "refunds_fetch-by-id",
+      "description": "The following endpoint retrieves the details of a single refund. Required: id (default: rfn_Ct2uKVFwts5080). Returns the RefundsFetchByIdResponse.",
+      "method": "GET",
+      "path": "/refunds/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the Refund to be retrieved",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "refunds_get-by-payment-id",
+      "description": "Refund Fetch by Payment ID. Required: id (default: pay_abcdefg1234). Returns array of RefundsGetByPaymentIdItem.",
+      "method": "GET",
+      "path": "/refunds/payment/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The payment ID which being refunded",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

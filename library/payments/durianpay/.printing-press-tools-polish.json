@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-06-05T06:50:49.578099Z",
+  "cli_dir": "\u003ccli-dir\u003e/durianpay-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 330,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; 'Print version' is accurate and brief, agents understand it without elaboration"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-06-05T06:44:08.901001Z"
+  }
+}

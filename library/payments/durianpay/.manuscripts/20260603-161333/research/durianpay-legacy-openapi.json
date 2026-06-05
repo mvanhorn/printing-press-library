@@ -1,0 +1,4481 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "Durianpay Legacy API",
+  "version": "1.0",
+  "description": "Durianpay legacy (orders/payments) API. Authentication: HTTP Basic \u2014 your Durianpay API key as the username with a blank password (Authorization: Basic base64(api_key + ':')). Set DURIANPAY_API_KEY."
+ },
+ "servers": [
+  {
+   "url": "https://api.durianpay.id/v1"
+  }
+ ],
+ "components": {
+  "securitySchemes": {
+   "basicAuth": {
+    "type": "http",
+    "scheme": "basic",
+    "description": "HTTP Basic: Durianpay API key as username, blank password (Authorization: Basic base64(api_key + ':'))",
+    "x-auth-env-vars": [
+     "DURIANPAY_API_KEY",
+     "DURIANPAY_API_PASSWORD"
+    ],
+    "x-auth-vars": [
+     {
+      "name": "DURIANPAY_API_KEY",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true,
+      "description": "Durianpay API key from Dashboard > Settings > API Keys (sandbox keys start dp_test_, live dp_live_). Sent as the Basic-auth username."
+     },
+     {
+      "name": "DURIANPAY_API_PASSWORD",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true,
+      "description": "Basic-auth password \u2014 leave unset; Durianpay uses a blank password."
+     }
+    ]
+   }
+  }
+ },
+ "security": [
+  {
+   "basicAuth": []
+  }
+ ],
+ "paths": {
+  "/payments/{id}/cancel": {
+   "put": {
+    "summary": "Cancel Payment API",
+    "description": "The following endpoint cancels a single Payment",
+    "operationId": "cancel-payment-api",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "description": "Unique identifier of the Payment to be cancelled",
+      "schema": {
+       "type": "string",
+       "default": "pay_123456"
+      },
+      "required": true
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"data\": {\n        \"id\": \"pay_ohXLNm2fPw6868\",\n        \"status\": \"cancelled\",\n        \"order_id\": \"ord_Dg0Dz9wwKP1602\",\n        \"created_at\": \"2020-11-19T22:09:48Z\",\n        \"updated_at\": \"2020-11-26T20:02:24.561169Z\"\n    }\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "data": {
+           "type": "object",
+           "properties": {
+            "id": {
+             "type": "string",
+             "example": "pay_ohXLNm2fPw6868"
+            },
+            "status": {
+             "type": "string",
+             "example": "cancelled"
+            },
+            "order_id": {
+             "type": "string",
+             "example": "ord_Dg0Dz9wwKP1602"
+            },
+            "created_at": {
+             "type": "string",
+             "example": "2020-11-19T22:09:48Z"
+            },
+            "updated_at": {
+             "type": "string",
+             "example": "2020-11-26T20:02:24.561169Z"
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "400",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid payment id\",\n    \"error_code\": \"DPAY_INVALID_PAYMENT_ID\",\n    \"request_id\": \"not-set\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid payment id"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_INVALID_PAYMENT_ID"
+          },
+          "request_id": {
+           "type": "string",
+           "example": "not-set"
+          }
+         }
+        }
+       }
+      }
+     },
+     "401": {
+      "description": "401",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid Authorization header in request\",\n    \"error_code\": \"DPAY_UNAUTHORIZED_ACCESS\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid Authorization header in request"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_UNAUTHORIZED_ACCESS"
+          }
+         }
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "500",
+      "content": {
+       "text/plain": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"error cancelling payment\",\n    \"error_code\": \"DPAY_INTERNAL_ERROR\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "error cancelling payment"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_INTERNAL_ERROR"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false
+   }
+  },
+  "/payments/{id}/status": {
+   "get": {
+    "summary": "Check Payment Status",
+    "description": "The following endpoint checks the status of a single Payment",
+    "operationId": "check-payment-status",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "description": "Unique identifier of the Payment to be retrieved",
+      "schema": {
+       "type": "string",
+       "default": "pay_123456"
+      },
+      "required": true
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"data\": {\n        \"status\": \"completed\",\n        \"is_completed\": true,\n        \"signature\": \"9e892f199d026d06a56669e658a56f264610431d24e8b4d07f7bd46f6d5062d2\"\n    }\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "data": {
+           "type": "object",
+           "properties": {
+            "status": {
+             "type": "string",
+             "example": "completed"
+            },
+            "is_completed": {
+             "type": "boolean",
+             "example": true,
+             "default": true
+            },
+            "signature": {
+             "type": "string",
+             "example": "9e892f199d026d06a56669e658a56f264610431d24e8b4d07f7bd46f6d5062d2"
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "401": {
+      "description": "401",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid Authorization header in request\",\n    \"error_code\": \"DPAY_UNAUTHORIZED_ACCESS\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid Authorization header in request"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_UNAUTHORIZED_ACCESS"
+          }
+         }
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "500",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"error getting payment status\",\n    \"error_code\": \"DPAY_INTERNAL_ERROR\"\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "error getting payment status"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_INTERNAL_ERROR"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false
+   }
+  },
+  "/orders": {
+   "post": {
+    "summary": "Create Order API",
+    "description": "The following endpoint creates an Order",
+    "operationId": "create-order",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "required": [
+         "amount",
+         "currency",
+         "customer"
+        ],
+        "properties": {
+         "amount": {
+          "type": "string",
+          "description": "The amount for which the Order was created. Example: \"10000\" or \"10000.23\" for amount with decimal value",
+          "default": "1000"
+         },
+         "currency": {
+          "type": "string",
+          "description": "The currency associated with the Order's amount. Example: \"IDR\"",
+          "default": "IDR"
+         },
+         "customer": {
+          "type": "object",
+          "description": "The customer fields including id, email, mobile, first_name, given_name, address json object, customer_ref_id. One of id, mobile, email is mandatory field whereas others are optional.  address is mandatory to use BNPL payment method.",
+          "properties": {
+           "id": {
+            "type": "string",
+            "description": "The customer ID from Durianpay"
+           },
+           "email": {
+            "type": "string",
+            "description": "The customer's email address. Should of the format redacted@example.com and should not contain any invalid special characters (\u00a2,\u00a3,\u00a7,\u00a9,etc)",
+            "default": "testing@testing.com"
+           },
+           "mobile": {
+            "type": "string",
+            "description": "The customer's mobile number. Please ensure that the number follows Indonesia's phone number format : +62xxxxxxxxxx or 08xxxxxxxxxx."
+           },
+           "customer_ref_id": {
+            "type": "string",
+            "description": "A unique reference ID from the merchant to identify the customer",
+            "default": "test_123"
+           },
+           "given_name": {
+            "type": "string",
+            "description": "The customer's given name"
+           },
+           "middle_name": {
+            "type": "string",
+            "description": "The customer's middle name"
+           },
+           "sur_name": {
+            "type": "string",
+            "description": "The customer's surname"
+           },
+           "address": {
+            "type": "object",
+            "description": "The address fields includes receiver_name, receiver_phone, label, address_line, city, region, postal_code, landmark",
+            "properties": {
+             "receiver_name": {
+              "type": "string"
+             },
+             "label": {
+              "type": "string"
+             },
+             "address_line": {
+              "type": "string"
+             },
+             "city": {
+              "type": "string"
+             },
+             "region": {
+              "type": "string"
+             },
+             "postal_code": {
+              "type": "string"
+             },
+             "landmark": {
+              "type": "string"
+             }
+            }
+           }
+          }
+         },
+         "payment_option": {
+          "type": "string",
+          "description": "The type of payment option with which order was created. Possible values: \"full_payment\" or \"installment\"",
+          "default": "full_payment"
+         },
+         "order_ref_id": {
+          "type": "string",
+          "description": "The unique identifier of Order from the merchant. Example: \"INV/1/2021\"",
+          "default": "INV/1/2021"
+         },
+         "items": {
+          "type": "array",
+          "description": "Array of objects with each object including name, brand, category, sku, price, qty, total_price. mandatory to use BNPL and LINKAJA payment method",
+          "items": {
+           "properties": {
+            "name": {
+             "type": "string",
+             "description": "The item's name"
+            },
+            "qty": {
+             "type": "integer",
+             "description": "The quantity of the item"
+            },
+            "price": {
+             "type": "string",
+             "description": "The price for a single item"
+            },
+            "logo": {
+             "type": "string",
+             "description": "The URL for the logo of the item"
+            },
+            "brand": {
+             "type": "string",
+             "description": "The brand of the item"
+            },
+            "category": {
+             "type": "string",
+             "description": "The category of the item"
+            },
+            "sku": {
+             "type": "string",
+             "description": "The SKU (Stock Keeping Unit) of the item"
+            },
+            "total_price": {
+             "type": "string",
+             "description": "The total price of the item"
+            },
+            "metadata": {
+             "type": "string",
+             "description": "The metadata of the item"
+            }
+           },
+           "required": [
+            "name",
+            "qty",
+            "price"
+           ],
+           "type": "object"
+          }
+         },
+         "description": {
+          "type": "string",
+          "description": "String to store description of the order. Example: \"This order is delicate. Handle with Care!\"",
+          "default": "This order is delicate handle with care"
+         },
+         "admin_fee_method": {
+          "type": "string",
+          "description": "Used to specify if the transactional charges are to be included and paid by the merchant or customer. Possible Values:  \"included\" - Transaction Fee is paid by merchant \"excluded\" - Transaction Fee is paid by customer",
+          "default": "excluded"
+         },
+         "metadata": {
+          "type": "string",
+          "description": "Key-Value pair that can be used to store additional information about the entity."
+         },
+         "expiry_date": {
+          "type": "string",
+          "description": "The time stamp at which the order will expire. Please ensure that the value is in RFC3339 format and the timezone is in GMT+7. Example: \"2022-03-29T10:00:00.000Z\"",
+          "default": "2026-09-29T10:00:00.000Z"
+         },
+         "is_payment_link": {
+          "type": "boolean",
+          "description": "Whether Payment Link is to be generated. Example: true or false",
+          "default": ""
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"data\": {\n        \"id\": \"ord_0dIWbuDJQ84078\",\n        \"customer_id\": \"cus_ViPeX4iBYp2233\",\n        \"order_ref_id\": \"order_ref_001\",\n        \"order_ds_ref_id\": \"\",\n        \"amount\": \"10001.00\",\n        \"payment_option\": \"full_payment\",\n        \"currency\": \"IDR\",\n        \"status\": \"started\",\n        \"created_at\": \"2021-04-01T14:39:37.860426Z\",\n        \"updated_at\": \"2021-04-01T14:39:37.860426Z\",\n        \"expiry_date\": \"2022-03-29T10:00:00Z\",\n        \"metadata\": {\n            \"my-meta-key\": \"my-meta-value\",\n            \"SettlementGroup\": \"BranchName\"\n        },\n        \"items\": [\n            {\n                \"name\": \"LED Television\",\n                \"qty\": 1,\n                \"price\": \"10001.00\",\n                \"logo\": \"https://merchant.com/tv_image.jpg\"\n            }\n        ],\n        \"access_token\": \"adsyoi12sdASd123ASX@qqsda231\",\n        \"expire_time\": \"2022-09-15T13:40:17.064478772Z\",\n        \"is_live\": true,\n        \"fees\": null,\n        \"shipping_fee\": \"\",\n        \"admin_fee_method\": \"included\"\n    }\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "data": {
+           "type": "object",
+           "properties": {
+            "id": {
+             "type": "string",
+             "example": "ord_0dIWbuDJQ84078"
+            },
+            "customer_id": {
+             "type": "string",
+             "example": "cus_ViPeX4iBYp2233"
+            },
+            "order_ref_id": {
+             "type": "string",
+             "example": "order_ref_001"
+            },
+            "order_ds_ref_id": {
+             "type": "string",
+             "example": ""
+            },
+            "amount": {
+             "type": "string",
+             "example": "10001.00"
+            },
+            "payment_option": {
+             "type": "string",
+             "example": "full_payment"
+            },
+            "currency": {
+             "type": "string",
+             "example": "IDR"
+            },
+            "status": {
+             "type": "string",
+             "example": "started"
+            },
+            "created_at": {
+             "type": "string",
+             "example": "2021-04-01T14:39:37.860426Z"
+            },
+            "updated_at": {
+             "type": "string",
+             "example": "2021-04-01T14:39:37.860426Z"
+            },
+            "expiry_date": {
+             "type": "string",
+             "example": "2022-03-29T10:00:00Z"
+            },
+            "metadata": {
+             "type": "object",
+             "properties": {
+              "my-meta-key": {
+               "type": "string",
+               "example": "my-meta-value"
+              },
+              "SettlementGroup": {
+               "type": "string",
+               "example": "BranchName"
+              }
+             }
+            },
+            "items": {
+             "type": "array",
+             "items": {
+              "type": "object",
+              "properties": {
+               "name": {
+                "type": "string",
+                "example": "LED Television"
+               },
+               "qty": {
+                "type": "integer",
+                "example": 1,
+                "default": 0
+               },
+               "price": {
+                "type": "string",
+                "example": "10001.00"
+               },
+               "logo": {
+                "type": "string",
+                "example": "https://merchant.com/tv_image.jpg"
+               }
+              }
+             }
+            },
+            "access_token": {
+             "type": "string",
+             "example": "adsyoi12sdASd123ASX@qqsda231"
+            },
+            "expire_time": {
+             "type": "string",
+             "example": "2022-09-15T13:40:17.064478772Z"
+            },
+            "is_live": {
+             "type": "boolean",
+             "example": true,
+             "default": true
+            },
+            "fees": {},
+            "shipping_fee": {
+             "type": "string",
+             "example": ""
+            },
+            "admin_fee_method": {
+             "type": "string",
+             "example": "included"
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "400",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"data\": {\n    \"error\": \"required fields missing\",\n    \"error_code\": \"DPAY_INVALID_REQUEST\",\n    \"request_id\": \"not-set\",\n    \"errors\": [\n        {\n            \"field\": \"amount=\"amount invalid\"\n\",\n            \"message\": \"Please provide valid order data\"\n        }\n    ]\n}\n"
+         }
+        }
+       }
+      }
+     },
+     "401": {
+      "description": "401",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid Authorization header in request\",\n    \"error_code\": \"DPAY_UNAUTHORIZED_ACCESS\",\n    \"request_id\": \"not-set\"\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid Authorization header in request"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_UNAUTHORIZED_ACCESS"
+          },
+          "request_id": {
+           "type": "string",
+           "example": "not-set"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false,
+    "parameters": []
+   },
+   "get": {
+    "summary": "Order Fetch API",
+    "description": "The following endpoint retrieves the details of all Orders created",
+    "operationId": "fetch-order",
+    "parameters": [
+     {
+      "name": "from",
+      "in": "query",
+      "description": "Timestamp (in YYYY-MM-DD format) from when the Orders should be fetched",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "to",
+      "in": "query",
+      "description": "Timestamp (in YYYY-MM-DD format) up till when Orders are to be fetched",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "skip",
+      "in": "query",
+      "description": "The number of orders to be skipped. The default value is 0. This can be used for pagination, in combination with count",
+      "schema": {
+       "type": "integer",
+       "format": "int32"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "description": "Number of orders to be fetched. Default value is 25. This can be used for pagination, in combination with the skip parameter",
+      "schema": {
+       "type": "integer",
+       "format": "int32"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n  \"orders\": [{\n    \"id\": \"ord_A31sd3AwAgItmmXdp\",\n    \"customer_id\": \"cus_p46hhyWq988496\",\n    \"amount\": \"20000\",\n    \"payment_option\": \"full_payment\",\n    \"currency\": \"IDR\",\n    \"status\": \"started\",\n    \"order_ref_id\": \"order2314\",\n    \"order_ds_ref_id\": \"\",\n    \"created_at\": 1582628071,\n    \"updated_at\": 1582899071,\n    \"expiry_date_\": 1592628071,\n    \"is_live\": true,\n    \"given_name\": \"John\",\n    \"sur_name\": \"Doe\",\n    \"email\": \"jude_casper@koss.info\",\n    \"mobile\": \"+6285722173217\",\n    \"payment_id\": \"pay_KEQQaXqazp2892\",\n    \"payment_details_type\": \"bnpl_details\",\n    \"payment_method_id\": \"ZZZZZZ\",\n    \"payment_status\": \"completed\",\n    \"payment_date\": \"2025-01-01T01:11:11.111111Z\",\n    \"description\": \"this order is fetched\",\n    \"payment_link_url\": \"zzzzzz\",\n    \"is_notification_enabled\": false,\n    \"email_subject\": \"This is email subject\",\n    \"email_content\": \"This is email body\"\n  }, {\n    \"id\": \"ord_A54sd3AwAgItmmXdp\",\n    \"customer_id\": \"cus_p96hhyWq988496\",\n    \"amount\": \"20000\",\n    \"payment_option\": \"full_payment\",\n    \"currency\": \"IDR\",\n    \"status\": \"started\",\n    \"order_ref_id\": \"order2314\",\n    \"order_ds_ref_id\": \"\",\n    \"created_at\": 1582628072,\n    \"updated_at\": 1582899072,\n    \"expiry_date_\": 1592628072,\n    \"is_live\": true,\n    \"given_name\": \"Jane\",\n    \"sur_name\": \"Doe\",\n    \"email\": \"redacted@example.com\",\n    \"mobile\": \"+6285722223217\",\n    \"payment_id\": \"pay_loQQaXqazp2892\",\n    \"payment_details_type\": \"bnpl_details\",\n    \"payment_method_id\": \"ZZZZZZ\",\n    \"payment_status\": \"completed\",\n    \"payment_date\": \"2025-01-01T01:11:11.111111Z\",\n    \"description\": \"this order is fetched\",\n    \"payment_link_url\": \"zzzzzz\",\n    \"is_notification_enabled\": false,\n    \"email_subject\": \"This is email subject\",\n    \"email_content\": \"This is email body\"\n  }],\n  \"count\": 2\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "orders": {
+           "type": "array",
+           "items": {
+            "type": "object",
+            "properties": {
+             "id": {
+              "type": "string",
+              "example": "ord_A31sd3AwAgItmmXdp"
+             },
+             "customer_id": {
+              "type": "string",
+              "example": "cus_p46hhyWq988496"
+             },
+             "amount": {
+              "type": "string",
+              "example": "20000"
+             },
+             "payment_option": {
+              "type": "string",
+              "example": "full_payment"
+             },
+             "currency": {
+              "type": "string",
+              "example": "IDR"
+             },
+             "status": {
+              "type": "string",
+              "example": "started"
+             },
+             "order_ref_id": {
+              "type": "string",
+              "example": "order2314"
+             },
+             "order_ds_ref_id": {
+              "type": "string",
+              "example": ""
+             },
+             "created_at": {
+              "type": "integer",
+              "example": 1582628071,
+              "default": 0
+             },
+             "updated_at": {
+              "type": "integer",
+              "example": 1582899071,
+              "default": 0
+             },
+             "expiry_date_": {
+              "type": "integer",
+              "example": 1592628071,
+              "default": 0
+             },
+             "is_live": {
+              "type": "boolean",
+              "example": true,
+              "default": true
+             },
+             "given_name": {
+              "type": "string",
+              "example": "John"
+             },
+             "sur_name": {
+              "type": "string",
+              "example": "Doe"
+             },
+             "email": {
+              "type": "string",
+              "example": "jude_casper@koss.info"
+             },
+             "mobile": {
+              "type": "string",
+              "example": "+6285722173217"
+             },
+             "payment_id": {
+              "type": "string",
+              "example": "pay_KEQQaXqazp2892"
+             },
+             "payment_details_type": {
+              "type": "string",
+              "example": "bnpl_details"
+             },
+             "payment_method_id": {
+              "type": "string",
+              "example": "ZZZZZZ"
+             },
+             "payment_status": {
+              "type": "string",
+              "example": "completed"
+             },
+             "payment_date": {
+              "type": "string",
+              "example": "2025-01-01T01:11:11.111111Z"
+             },
+             "description": {
+              "type": "string",
+              "example": "this order is fetched"
+             },
+             "payment_link_url": {
+              "type": "string",
+              "example": "zzzzzz"
+             },
+             "is_notification_enabled": {
+              "type": "boolean",
+              "example": false,
+              "default": true
+             },
+             "email_subject": {
+              "type": "string",
+              "example": "This is email subject"
+             },
+             "email_content": {
+              "type": "string",
+              "example": "This is email body"
+             }
+            }
+           }
+          },
+          "count": {
+           "type": "integer",
+           "example": 2,
+           "default": 0
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "400",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid skip and limit parameter\",\n    \"error_code\": \"DPAY_INVALID_REQUEST\",\n    \"request_id\": \"dp_1lRGmHZClt3882\"\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid skip and limit parameter"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_INVALID_REQUEST"
+          },
+          "request_id": {
+           "type": "string",
+           "example": "dp_1lRGmHZClt3882"
+          }
+         }
+        }
+       }
+      }
+     },
+     "401": {
+      "description": "401",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid Authorization header in request\",\n    \"error_code\": \"DPAY_UNAUTHORIZED_ACCESS\"\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid Authorization header in request"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_UNAUTHORIZED_ACCESS"
+          }
+         }
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "500",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"error getting orders\",\n    \"error_code\": \"DPAY_INTERNAL_ERROR\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "error getting orders"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_INTERNAL_ERROR"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false
+   }
+  },
+  "/refunds": {
+   "post": {
+    "summary": "Create Refund",
+    "description": "The following endpoint creates an Refund.",
+    "operationId": "create-refund",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "required": [
+         "ref_id",
+         "payment_id",
+         "amount"
+        ],
+        "properties": {
+         "ref_id": {
+          "type": "string",
+          "description": "Merchant refund reference id. Example: \"ref_reference_123\"",
+          "default": "abc"
+         },
+         "payment_id": {
+          "type": "string",
+          "description": "Durianpay payment id used to create refund. Example: \"pay_ttqs62k99s\"",
+          "default": "pay_IsL5nOCW4M2790"
+         },
+         "amount": {
+          "type": "string",
+          "description": "The refund amount requested. Example: \"10000\" or \"10000.23\" for amount with decimal value",
+          "default": "10000"
+         },
+         "notes": {
+          "type": "string",
+          "description": "The refund note. Example: \"rejected product\"",
+          "default": "rejected product"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n  \"data\": {\n    \"id\": \"rfn_qfrsL0tlnT0308\",\n    \"ref_id\": \"reference_1\",\n    \"amount\": \"20000.00\",\n    \"refund_type\": \"partial\",\n    \"status\": \"approved\",\n    \"created_at\": \"2021-07-20T10:43:42.201587Z\",\n    \"updated_at\": \"2021-07-20T10:43:42.401256Z\",\n    \"approved_at\": \"2021-07-20T10:43:42.401256Z\",\n    \"source\": \"api\",\n    \"customer_name\": \"joe\",\n    \"customer_email\": \"jade@sfs.com\",\n    \"customer_phone\": \"\"\n  }\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "data": {
+           "type": "object",
+           "properties": {
+            "id": {
+             "type": "string",
+             "example": "rfn_qfrsL0tlnT0308"
+            },
+            "ref_id": {
+             "type": "string",
+             "example": "reference_1"
+            },
+            "amount": {
+             "type": "string",
+             "example": "20000.00"
+            },
+            "refund_type": {
+             "type": "string",
+             "example": "partial"
+            },
+            "status": {
+             "type": "string",
+             "example": "approved"
+            },
+            "created_at": {
+             "type": "string",
+             "example": "2021-07-20T10:43:42.201587Z"
+            },
+            "updated_at": {
+             "type": "string",
+             "example": "2021-07-20T10:43:42.401256Z"
+            },
+            "approved_at": {
+             "type": "string",
+             "example": "2021-07-20T10:43:42.401256Z"
+            },
+            "source": {
+             "type": "string",
+             "example": "api"
+            },
+            "customer_name": {
+             "type": "string",
+             "example": "joe"
+            },
+            "customer_email": {
+             "type": "string",
+             "example": "jade@sfs.com"
+            },
+            "customer_phone": {
+             "type": "string",
+             "example": ""
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "400",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"error reading request body\",\n    \"error_code\": \"DPAY_INTERNAL_ERROR\",\n}\n"
+         }
+        }
+       }
+      }
+     },
+     "401": {
+      "description": "401",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid Authorization header in request\",\n    \"error_code\": \"DPAY_UNAUTHORIZED_ACCESS\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid Authorization header in request"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_UNAUTHORIZED_ACCESS"
+          }
+         }
+        }
+       }
+      }
+     },
+     "403": {
+      "description": "403",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"refund amount exceed\",\n    \"error_code\": \"DPAY_REFUND_AMOUNT_EXCEEDED\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "refund amount exceed"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_REFUND_AMOUNT_EXCEEDED"
+          }
+         }
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "500",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"error creating refund\",\n    \"error_code\": \"DPAY_INTERNAL_ERROR\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "error creating refund"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_INTERNAL_ERROR"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false,
+    "parameters": []
+   },
+   "get": {
+    "summary": "Refund Fetch",
+    "description": "The following endpoint retrieves list of all Refunds created",
+    "operationId": "refund-fetch",
+    "parameters": [
+     {
+      "name": "from",
+      "in": "query",
+      "description": "Timestamp (in YYYY-MM-DD format) from when the refunds should be fetched",
+      "schema": {
+       "type": "string",
+       "default": "20204-09-01"
+      }
+     },
+     {
+      "name": "to",
+      "in": "query",
+      "description": "Timestamp (in YYYY-MM-DD format) up till when refunds are to be fetched",
+      "schema": {
+       "type": "string",
+       "default": "2024-09-10"
+      }
+     },
+     {
+      "name": "skip",
+      "in": "query",
+      "description": "The number of refunds to be skipped. The default value is 0. This can be used for pagination, in combination with count",
+      "schema": {
+       "type": "integer",
+       "format": "int32",
+       "default": 0
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "description": "Number of refunds to be fetched. Default value is 25. This can be used for pagination, in combination with the skip parameter",
+      "schema": {
+       "type": "integer",
+       "format": "int32",
+       "default": 1
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n  \"data\": {\n    \"refund\": [\n      {\n        \"id\": \"rfn_lCs4X0M9gB0135\",\n        \"merchant_id\": \"mer_MsCtIPhqRc8045\",\n        \"status\": \"approved\",\n        \"disbursement_id\": null,\n        \"total_amount\": \"10000.00\",\n        \"created_at\": \"2021-06-29T15:43:49.998179Z\",\n        \"updated_at\": \"2021-06-29T15:43:54.634024Z\",\n        \"approved_at\": \"2021-06-29T15:43:54.634024Z\",\n        \"payment_id\": \"pay_jkQXIs4Zhw7801\",\n        \"refund_ref_id\": null,\n        \"is_live\": false,\n        \"type\": \"instant\",\n        \"order_id\": \"\",\n        \"customer_id\": \"cus_0lyb30V7O16812\",\n        \"refund_partial\": \"partial\",\n        \"refund_notes\": \"\",\n        \"payment_paid_amount\": \"\",\n        \"payment_details_type\": \"\",\n        \"payment_method_id\": \"\",\n        \"customer_name\": \"Ar\",\n        \"customer_email\": \"arifiseng@gmail.com\",\n        \"customer_phone\": \"8572281712\",\n        \"destination\": null,\n        \"ewallet_name\": null,\n        \"account_name\": null,\n        \"account_number\": null,\n        \"created_by\": 50,\n        \"created_by_name\": \"Arif Bud\",\n        \"updated_by\": 50,\n        \"updated_by_name\": \"Arif Bud\",\n        \"history\": null,\n        \"source\": \"\",\n        \"allow_retrigger\": false\n      },\n      {\n        \"id\": \"rfn_10rCPdp09a3775\",\n        \"merchant_id\": \"mer_MsCtIPhqRc8045\",\n        \"status\": \"approved\",\n        \"disbursement_id\": null,\n        \"total_amount\": \"10000.00\",\n        \"created_at\": \"2021-06-29T14:47:41.204717Z\",\n        \"updated_at\": \"2021-06-29T14:47:46.704391Z\",\n        \"approved_at\": \"2021-06-29T14:47:46.704391Z\",\n        \"payment_id\": \"pay_jkQXIs4Zhw7801\",\n        \"refund_ref_id\": null,\n        \"is_live\": false,\n        \"type\": \"instant\",\n        \"order_id\": \"\",\n        \"customer_id\": \"cus_0lyb30V7O16812\",\n        \"refund_partial\": \"partial\",\n        \"refund_notes\": \"\",\n        \"payment_paid_amount\": \"\",\n        \"payment_details_type\": \"\",\n        \"payment_method_id\": \"\",\n        \"customer_name\": \"Ar\",\n        \"customer_email\": \"arifiseng@gmail.com\",\n        \"customer_phone\": \"8572281712\",\n        \"destination\": null,\n        \"ewallet_name\": null,\n        \"account_name\": null,\n        \"account_number\": null,\n        \"created_by\": 50,\n        \"created_by_name\": \"Arif Bud\",\n        \"updated_by\": 50,\n        \"updated_by_name\": \"Arif Bud\",\n        \"history\": null,\n        \"source\": \"\",\n        \"allow_retrigger\": false\n      }\n    ],\n    \"total_data\": 2\n  }\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "data": {
+           "type": "object",
+           "properties": {
+            "refund": {
+             "type": "array",
+             "items": {
+              "type": "object",
+              "properties": {
+               "id": {
+                "type": "string",
+                "example": "rfn_lCs4X0M9gB0135"
+               },
+               "merchant_id": {
+                "type": "string",
+                "example": "mer_MsCtIPhqRc8045"
+               },
+               "status": {
+                "type": "string",
+                "example": "approved"
+               },
+               "disbursement_id": {},
+               "total_amount": {
+                "type": "string",
+                "example": "10000.00"
+               },
+               "created_at": {
+                "type": "string",
+                "example": "2021-06-29T15:43:49.998179Z"
+               },
+               "updated_at": {
+                "type": "string",
+                "example": "2021-06-29T15:43:54.634024Z"
+               },
+               "approved_at": {
+                "type": "string",
+                "example": "2021-06-29T15:43:54.634024Z"
+               },
+               "payment_id": {
+                "type": "string",
+                "example": "pay_jkQXIs4Zhw7801"
+               },
+               "refund_ref_id": {},
+               "is_live": {
+                "type": "boolean",
+                "example": false,
+                "default": true
+               },
+               "type": {
+                "type": "string",
+                "example": "instant"
+               },
+               "order_id": {
+                "type": "string",
+                "example": ""
+               },
+               "customer_id": {
+                "type": "string",
+                "example": "cus_0lyb30V7O16812"
+               },
+               "refund_partial": {
+                "type": "string",
+                "example": "partial"
+               },
+               "refund_notes": {
+                "type": "string",
+                "example": ""
+               },
+               "payment_paid_amount": {
+                "type": "string",
+                "example": ""
+               },
+               "payment_details_type": {
+                "type": "string",
+                "example": ""
+               },
+               "payment_method_id": {
+                "type": "string",
+                "example": ""
+               },
+               "customer_name": {
+                "type": "string",
+                "example": "Ar"
+               },
+               "customer_email": {
+                "type": "string",
+                "example": "arifiseng@gmail.com"
+               },
+               "customer_phone": {
+                "type": "string",
+                "example": "8572281712"
+               },
+               "destination": {},
+               "ewallet_name": {},
+               "account_name": {},
+               "account_number": {},
+               "created_by": {
+                "type": "integer",
+                "example": 50,
+                "default": 0
+               },
+               "created_by_name": {
+                "type": "string",
+                "example": "Arif Bud"
+               },
+               "updated_by": {
+                "type": "integer",
+                "example": 50,
+                "default": 0
+               },
+               "updated_by_name": {
+                "type": "string",
+                "example": "Arif Bud"
+               },
+               "history": {},
+               "source": {
+                "type": "string",
+                "example": ""
+               },
+               "allow_retrigger": {
+                "type": "boolean",
+                "example": false,
+                "default": true
+               }
+              }
+             }
+            },
+            "total_data": {
+             "type": "integer",
+             "example": 2,
+             "default": 0
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "400",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid skip and limit parameter\",\n    \"error_code\": \"DPAY_INVALID_REQUEST\",\n    \"request_id\": \"dp_Ue6hHUM6TB1425\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid skip and limit parameter"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_INVALID_REQUEST"
+          },
+          "request_id": {
+           "type": "string",
+           "example": "dp_Ue6hHUM6TB1425"
+          }
+         }
+        }
+       }
+      }
+     },
+     "401": {
+      "description": "401",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid Authorization header in request\",\n    \"error_code\": \"DPAY_UNAUTHORIZED_ACCESS\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid Authorization header in request"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_UNAUTHORIZED_ACCESS"
+          }
+         }
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "500",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"internal server error\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "internal server error"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false
+   }
+  },
+  "/payments/va": {
+   "post": {
+    "summary": "Create Virtual Account",
+    "description": "The following endpoint creates a new virtual account",
+    "operationId": "create-virtual-account",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "required": [
+         "bank_code",
+         "name",
+         "customer"
+        ],
+        "properties": {
+         "bank_code": {
+          "type": "string",
+          "description": "The bank code for the Virtual Account. Supported Bank Codes: \"BRI\", \"BCA\", \"MANDIRI\", \"PERMATA\", \"CIMB\", \"BNI\", \"NOBU\"",
+          "default": "PERMATA"
+         },
+         "name": {
+          "type": "string",
+          "description": "The name of the virtual account which will appear in ATM/Banking app. Example: \"John's Virtual Account\"",
+          "default": "Dpay Jane Doe"
+         },
+         "is_closed": {
+          "type": "boolean",
+          "description": "Whether account can accept open(any amount) or closed(specific amount). Example: true or false",
+          "default": true
+         },
+         "amount": {
+          "type": "string",
+          "description": "Specify amount to be paid to va when is_closed=true. Example: \"12000.12\"",
+          "default": "20000"
+         },
+         "customer": {
+          "type": "object",
+          "description": "Object containing fields (id, email, mobile, given_name). One of (id, mobile, email) is mandatory field and given_name is mandatory.",
+          "properties": {
+           "id": {
+            "type": "string",
+            "description": "Durianpay's customer ID"
+           },
+           "given_name": {
+            "type": "string",
+            "description": "Customer's name",
+            "default": "Jane Doe"
+           },
+           "mobile": {
+            "type": "string",
+            "description": "Customer's mobile number in Indonesia's phone number format (+62xxxxxxxxxx or 08xxxxxxxxxx), with a length of 8 to 14 digits.",
+            "default": "+628121343222"
+           },
+           "email": {
+            "type": "string",
+            "description": "Customer's email address in a valid email format (e.g., redacted@example.com) without invalid special characters (\u00a2, \u00a3, \u00a7, \u00a9, etc.)",
+            "default": "product@durianpay.id"
+           },
+           "customer_ref_id": {
+            "type": "string",
+            "description": "A unique reference ID from the merchant to identify the customer",
+            "default": "test_123"
+           }
+          }
+         },
+         "expiry_minutes": {
+          "type": "integer",
+          "description": "Number of minutes left till expiry from now. maximum: 15768000 minutes",
+          "default": 100,
+          "format": "int32"
+         },
+         "account_suffix": {
+          "type": "string",
+          "description": "Account suffix for the Virtual Account. If not provided, a random suffix will be automatically generated for the virtual account number.",
+          "default": "123456"
+         },
+         "is_reusable": {
+          "type": "boolean",
+          "description": "Whether multiple payments can be used for a particular VA. Example: true or false",
+          "default": false
+         },
+         "va_ref_id": {
+          "type": "string",
+          "description": "A reference ID which the merchant wants to use for a specific VA. Example: \"VA_XYZ_1234\"",
+          "default": "VA_123"
+         },
+         "auto_disable_after_payment": {
+          "type": "boolean",
+          "description": "Disable a reusable VA temporarily after a payment. Patch API can be used to enable it again after changing some parameters. Example: true or false",
+          "default": false
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n  \"data\": {\n    \"customer_id\": \"cus_abcdefghijklm\",\n    \"virtual_account\": {\n      \"id\": \"va_abcdefghjklmn\",\n      \"bank_code\": \"PERMATA\",\n      \"account_number\": \"1234006781234569\",\n      \"name\": \"Dpay Jane Doe\",\n      \"is_closed\": true,\n      \"amount\": 20000,\n      \"currency\": \"IDR\",\n      \"customer_id\": \"cus_abcdefghijklm\",\n      \"is_sandbox\": false,\n      \"created_at\": \"2025-03-05T02:39:09.738801Z\",\n      \"expiry_at\": \"2025-03-05T12:39:09.744Z\",\n      \"metadata\": {},\n      \"is_disabled\": false,\n      \"is_paid\": false,\n      \"is_reusable\": false,\n      \"min_amount\": null,\n      \"max_amount\": null,\n      \"va_ref_id\": \"VA_123\",\n      \"auto_disable_after_payment\": false\n    }\n  }\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "data": {
+           "type": "object",
+           "properties": {
+            "customer_id": {
+             "type": "string",
+             "example": "cus_abcdefghijklm"
+            },
+            "virtual_account": {
+             "type": "object",
+             "properties": {
+              "id": {
+               "type": "string",
+               "example": "va_abcdefghjklmn"
+              },
+              "bank_code": {
+               "type": "string",
+               "example": "PERMATA"
+              },
+              "account_number": {
+               "type": "string",
+               "example": "1234006781234569"
+              },
+              "name": {
+               "type": "string",
+               "example": "Dpay Jane Doe"
+              },
+              "is_closed": {
+               "type": "boolean",
+               "example": true,
+               "default": true
+              },
+              "amount": {
+               "type": "integer",
+               "example": 20000,
+               "default": 0
+              },
+              "currency": {
+               "type": "string",
+               "example": "IDR"
+              },
+              "customer_id": {
+               "type": "string",
+               "example": "cus_abcdefghijklm"
+              },
+              "is_sandbox": {
+               "type": "boolean",
+               "example": false,
+               "default": true
+              },
+              "created_at": {
+               "type": "string",
+               "example": "2025-03-05T02:39:09.738801Z"
+              },
+              "expiry_at": {
+               "type": "string",
+               "example": "2025-03-05T12:39:09.744Z"
+              },
+              "metadata": {
+               "type": "object",
+               "properties": {}
+              },
+              "is_disabled": {
+               "type": "boolean",
+               "example": false,
+               "default": true
+              },
+              "is_paid": {
+               "type": "boolean",
+               "example": false,
+               "default": true
+              },
+              "is_reusable": {
+               "type": "boolean",
+               "example": false,
+               "default": true
+              },
+              "min_amount": {},
+              "max_amount": {},
+              "va_ref_id": {
+               "type": "string",
+               "example": "VA_123"
+              },
+              "auto_disable_after_payment": {
+               "type": "boolean",
+               "example": false,
+               "default": true
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "401": {
+      "description": "401",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid Authorization header in request\",\n    \"error_code\": \"DPAY_UNAUTHORIZED_ACCESS\"\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid Authorization header in request"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_UNAUTHORIZED_ACCESS"
+          }
+         }
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "500",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"pq: VA Already Created\",\n    \"error_code\": \"DPAY_INTERNAL_ERROR\",\n    \"request_id\": \"dp_QMPB7IO53p6517\"\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "pq: VA Already Created"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_INTERNAL_ERROR"
+          },
+          "request_id": {
+           "type": "string",
+           "example": "dp_QMPB7IO53p6517"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false,
+    "parameters": []
+   },
+   "get": {
+    "summary": "Fetch Virtual Account",
+    "description": "The following endpoint retrieves the details of all Virtual Accounts created",
+    "operationId": "fetch-virtual-account",
+    "parameters": [
+     {
+      "name": "from",
+      "in": "query",
+      "description": "Timestamp (in Unix format) from when the virtual accounts should be fetched",
+      "schema": {
+       "type": "string",
+       "default": "2024-09-01"
+      }
+     },
+     {
+      "name": "to",
+      "in": "query",
+      "description": "Timestamp (in Unix format) up till when virtual accounts are to be fetched",
+      "schema": {
+       "type": "string",
+       "default": "2024-09-09"
+      }
+     },
+     {
+      "name": "skip",
+      "in": "query",
+      "description": "The number of virtual accounts to be skipped. The default value is 0. This can be used for pagination, in combination with count",
+      "schema": {
+       "type": "integer",
+       "format": "int32",
+       "default": 0
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "description": "The number of virtual accounts to be skipped. The default value is 0. This can be used for pagination, in combination with count",
+      "schema": {
+       "type": "integer",
+       "format": "int32",
+       "default": 10
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"data\": {\n        \"virtual_accounts\": [\n            {\n                \"id\": \"va_sample_QOIFczRMfG3448\",\n                \"bank_code\": \"PERMATA\",\n                \"account_number\": \"88565004123456\",\n                \"name\": \"Ardi Hanan Durian\",\n                \"is_closed\": true,\n                \"amount\": 12333,\n                \"currency\": \"IDR\",\n                \"customer_id\": \"cus_CtZ8r2GOvq7341\",\n                \"is_sandbox\": true,\n                \"created_at\": \"2022-06-28T10:55:24.578679Z\",\n                \"expiry_at\": \"2022-07-08T05:25:24.580583Z\",\n                \"metadata\": {},\n                \"is_disabled\": false,\n                \"is_paid\": false,\n                \"is_reusable\": true,\n                \"min_amount\": null,\n                \"max_amount\": null,\n                \"va_ref_id\": \"1234\",\n                \"auto_disable_after_payment\": true\n            },\n            {\n                \"id\": \"va_sample_pWM5k3BUI63935\",\n                \"bank_code\": \"PERMATA\",\n                \"account_number\": \"8856500453252122\",\n                \"name\": \"Ardi Hanan Durian\",\n                \"is_closed\": true,\n                \"amount\": 12333,\n                \"currency\": \"IDR\",\n                \"customer_id\": \"cus_CtZ8r2GOvq7341\",\n                \"is_sandbox\": true,\n                \"created_at\": \"2022-06-28T10:38:54.350418Z\",\n                \"expiry_at\": \"2022-07-08T05:08:54.353053Z\",\n                \"metadata\": {},\n                \"is_disabled\": false,\n                \"is_paid\": false,\n                \"is_reusable\": true,\n                \"min_amount\": null,\n                \"max_amount\": null,\n                \"va_ref_id\": \"1234\",\n                \"auto_disable_after_payment\": true\n            }\n        ],\n        \"total\": 10\n    }\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "data": {
+           "type": "object",
+           "properties": {
+            "virtual_accounts": {
+             "type": "array",
+             "items": {
+              "type": "object",
+              "properties": {
+               "id": {
+                "type": "string",
+                "example": "va_sample_QOIFczRMfG3448"
+               },
+               "bank_code": {
+                "type": "string",
+                "example": "PERMATA"
+               },
+               "account_number": {
+                "type": "string",
+                "example": "88565004123456"
+               },
+               "name": {
+                "type": "string",
+                "example": "Ardi Hanan Durian"
+               },
+               "is_closed": {
+                "type": "boolean",
+                "example": true,
+                "default": true
+               },
+               "amount": {
+                "type": "integer",
+                "example": 12333,
+                "default": 0
+               },
+               "currency": {
+                "type": "string",
+                "example": "IDR"
+               },
+               "customer_id": {
+                "type": "string",
+                "example": "cus_CtZ8r2GOvq7341"
+               },
+               "is_sandbox": {
+                "type": "boolean",
+                "example": true,
+                "default": true
+               },
+               "created_at": {
+                "type": "string",
+                "example": "2022-06-28T10:55:24.578679Z"
+               },
+               "expiry_at": {
+                "type": "string",
+                "example": "2022-07-08T05:25:24.580583Z"
+               },
+               "metadata": {
+                "type": "object",
+                "properties": {}
+               },
+               "is_disabled": {
+                "type": "boolean",
+                "example": false,
+                "default": true
+               },
+               "is_paid": {
+                "type": "boolean",
+                "example": false,
+                "default": true
+               },
+               "is_reusable": {
+                "type": "boolean",
+                "example": true,
+                "default": true
+               },
+               "min_amount": {},
+               "max_amount": {},
+               "va_ref_id": {
+                "type": "string",
+                "example": "1234"
+               },
+               "auto_disable_after_payment": {
+                "type": "boolean",
+                "example": true,
+                "default": true
+               }
+              }
+             }
+            },
+            "total": {
+             "type": "integer",
+             "example": 10,
+             "default": 0
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "400",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid skip and limit parameter\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid skip and limit parameter"
+          }
+         }
+        }
+       }
+      }
+     },
+     "401": {
+      "description": "401",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid Authorization header in request\",\n    \"error_code\": \"DPAY_UNAUTHORIZED_ACCESS\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid Authorization header in request"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_UNAUTHORIZED_ACCESS"
+          }
+         }
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "500",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"failed to connect to database\",\n    \"error_code\": \"DPAY_INTERNAL_ERROR\",\n    \"request_id\": \"dp_d3HX9S5W0r4989\"\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "failed to connect to database"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_INTERNAL_ERROR"
+          },
+          "request_id": {
+           "type": "string",
+           "example": "dp_d3HX9S5W0r4989"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false
+   }
+  },
+  "/orders/{id}": {
+   "get": {
+    "summary": "Order Fetch by ID API",
+    "description": "The following endpoint retrieves the details of a single Order",
+    "operationId": "fetch-order-by-id",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "description": "Unique identifier of the Order to be retrieved",
+      "schema": {
+       "type": "string",
+       "default": "ord_A1B1C1D1234"
+      },
+      "required": true
+     },
+     {
+      "name": "expand",
+      "in": "query",
+      "description": "Used to retrieve additional information about the Order. Supported values are: customer, payments. Example: /orders/ord_A1B1C1D1234?expand=customer&expand=payments",
+      "schema": {
+       "type": "string",
+       "default": "customer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"id\": \"ord_A31sd3AwAgItmmXdp\",\n    \"customer_id\": \"cus_A31sd3AGtsItmmXdp\",\n    \"amount\": \"20000\",\n    \"payment_option\": \"full_payment\",\n    \"currency\": \"IDR\",\n    \"status\": \"started\",\n    \"is_live\": true,\n    \"order_ref_id\": \"order2314\",\n    \"order_ds_ref_id\": \"\",\n    \"created_at\": 1582628071,\n    \"updated_at\": 1582888071,\n    \"description\": \"Testing\",\n    \"is_live\": true,\n    \"items\": null,\n    \"shipping_fee\": \"100\"\n    \"payment_option\": \"full_payment\",\n    \"payment_link_url\": \"\",\n    \"is_notification_enabled\": false,\n    \"email_subject\": \"\",\n    \"admin_fee_method\": \"included\",\n    \"fees\": \"1001\",\n    \"email_content\": \"\",\n    \"metadata\": []\n}\n"
+         }
+        }
+       }
+      }
+     },
+     "401": {
+      "description": "401",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid Authorization header in request\",\n    \"error_code\": \"DPAY_UNAUTHORIZED_ACCESS\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid Authorization header in request"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_UNAUTHORIZED_ACCESS"
+          }
+         }
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "404",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"order does not exists\",\n    \"error_code\": \"DPAY_ORDER_NOT_FOUND\",\n}"
+         }
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "500",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"error getting orders\",\n    \"error_code\": \"DPAY_INTERNAL_ERROR\"\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "error getting orders"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_INTERNAL_ERROR"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false
+   }
+  },
+  "/payments/{id}": {
+   "get": {
+    "summary": "Payment Fetch by ID",
+    "description": "The following endpoint retrieves the details of a single payment",
+    "operationId": "fetch-payment-by-id",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "description": "Unique identifier of the Payment to be retrieved",
+      "schema": {
+       "type": "string",
+       "default": "pay_12345678"
+      },
+      "required": true
+     },
+     {
+      "name": "expand",
+      "in": "query",
+      "description": "Used to retrieve additional information about the Order. Supported values are: customer, payments. Example: /orders/ord_A1B1C1D1234?expand=customer&expand=payments",
+      "schema": {
+       "type": "string",
+       "default": "order"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"id\": \"pay_76n67eK9Fq4137\",\n    \"amount\": \"20000\",\n    \"currency\": \"IDR\",\n    \"status\": \"completed\",\n    \"order_id\": \"ord_B14sdfwAdmmSDF24a\",\n    \"payment_ref_id\": \"txn2314\",\n    \"created_at\": 1582628071,\n    \"is_live\": true,\n    \"expiration_date\": \"2021-09-21T05:11:09.574136Z\",\n    \"payment_details_type\": \"ewallet_details\",\n    \"method_id\": \"OVO\",\n    \"created_at\": \"2021-09-20T05:11:09.574138Z\",\n    \"updated_at\": \"2021-09-20T05:11:15.161768Z\",\n    \"metadata\": {},\n    \"retry_count\": 0,\n    \"discount\": \"\",\n    \"paid_amount\": \"\",\n    \"provider_id\": \"\",\n    \"total_fee\": \"\",\n    \"promo_id\": \"\",\n    \"shipping_fee\": \"\",\n    \"ds_error_metadata\": null,\n    \"CustomerID\": \"cus_iT1g1t74655079\",\n    \"CustomerName\": \"test\",\n    \"CustomerEmail\": \"\",\n    \"OrderRefID\": \"\",\n    \"Currency\": \"IDR\",\n    \"failure_reason\": {}\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "id": {
+           "type": "string",
+           "example": "pay_76n67eK9Fq4137"
+          },
+          "amount": {
+           "type": "string",
+           "example": "20000"
+          },
+          "currency": {
+           "type": "string",
+           "example": "IDR"
+          },
+          "status": {
+           "type": "string",
+           "example": "completed"
+          },
+          "order_id": {
+           "type": "string",
+           "example": "ord_B14sdfwAdmmSDF24a"
+          },
+          "payment_ref_id": {
+           "type": "string",
+           "example": "txn2314"
+          },
+          "created_at": {
+           "type": "string",
+           "example": "2021-09-20T05:11:09.574138Z"
+          },
+          "is_live": {
+           "type": "boolean",
+           "example": true,
+           "default": true
+          },
+          "expiration_date": {
+           "type": "string",
+           "example": "2021-09-21T05:11:09.574136Z"
+          },
+          "payment_details_type": {
+           "type": "string",
+           "example": "ewallet_details"
+          },
+          "method_id": {
+           "type": "string",
+           "example": "OVO"
+          },
+          "updated_at": {
+           "type": "string",
+           "example": "2021-09-20T05:11:15.161768Z"
+          },
+          "metadata": {
+           "type": "object",
+           "properties": {}
+          },
+          "retry_count": {
+           "type": "integer",
+           "example": 0,
+           "default": 0
+          },
+          "discount": {
+           "type": "string",
+           "example": ""
+          },
+          "paid_amount": {
+           "type": "string",
+           "example": ""
+          },
+          "provider_id": {
+           "type": "string",
+           "example": ""
+          },
+          "total_fee": {
+           "type": "string",
+           "example": ""
+          },
+          "promo_id": {
+           "type": "string",
+           "example": ""
+          },
+          "shipping_fee": {
+           "type": "string",
+           "example": ""
+          },
+          "ds_error_metadata": {},
+          "CustomerID": {
+           "type": "string",
+           "example": "cus_iT1g1t74655079"
+          },
+          "CustomerName": {
+           "type": "string",
+           "example": "test"
+          },
+          "CustomerEmail": {
+           "type": "string",
+           "example": ""
+          },
+          "OrderRefID": {
+           "type": "string",
+           "example": ""
+          },
+          "Currency": {
+           "type": "string",
+           "example": "IDR"
+          },
+          "failure_reason": {
+           "type": "object",
+           "properties": {}
+          }
+         }
+        }
+       }
+      }
+     },
+     "401": {
+      "description": "401",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid Authorization header in request\",\n    \"error_code\": \"DPAY_UNAUTHORIZED_ACCESS\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid Authorization header in request"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_UNAUTHORIZED_ACCESS"
+          }
+         }
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "500",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"error getting payment\",\n    \"error_code\": \"DPAY_INTERNAL_ERROR\"\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "error getting payment"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_INTERNAL_ERROR"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false
+   }
+  },
+  "/merchants/subaccount/fee/{id}": {
+   "get": {
+    "summary": "Fetch Sub-Account Fees",
+    "description": "The following endpoint retrieves fees of a single subaccount",
+    "operationId": "fetch-sub-account-fees",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "description": "Unique identifier of the subaccount, which can be taken from the response of Register subaccount API or Fetch Subaccount API",
+      "schema": {
+       "type": "string",
+       "default": "mer_123"
+      },
+      "required": true
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"data\": {\n        \"subaccounts\": [\n            {\n                \"id\": \"mer_6VFgScbAcL7612\",\n                \"name\": \"Demo Sub Mercahnt\",\n                \"is_enabled\": true,\n                \"subaccount_ref_id\": \"reference_demo_001\"\n            },\n            {\n                \"id\": \"mer_x6EzWyIeVX3831\",\n                \"name\": \"Subaccount - Nobel\",\n                \"is_enabled\": false,\n                \"subaccount_ref_id\": \"Nobel - Subaccount\"\n            }\n        ],\n        \"total_count\": 2\n    }\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "data": {
+           "type": "object",
+           "properties": {
+            "subaccounts": {
+             "type": "array",
+             "items": {
+              "type": "object",
+              "properties": {
+               "id": {
+                "type": "string",
+                "example": "mer_6VFgScbAcL7612"
+               },
+               "name": {
+                "type": "string",
+                "example": "Demo Sub Mercahnt"
+               },
+               "is_enabled": {
+                "type": "boolean",
+                "example": true,
+                "default": true
+               },
+               "subaccount_ref_id": {
+                "type": "string",
+                "example": "reference_demo_001"
+               }
+              }
+             }
+            },
+            "total_count": {
+             "type": "integer",
+             "example": 2,
+             "default": 0
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "400",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid skip and limit parameter\"\"\n    }"
+         }
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "500",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"internal server error\"\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "internal server error"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false
+   }
+  },
+  "/merchants/subaccount/balance/{id}": {
+   "get": {
+    "summary": "Fetch Subaccount Balance API",
+    "description": "The following endpoint retrieves balance of a single subaccount",
+    "operationId": "fetch-sub-account-fees-1",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "as_of",
+      "schema": {
+       "type": "string",
+       "default": "2022-03-29T10:00:00.000+07:00"
+      },
+      "required": false,
+      "description": "The specific date for which you wish to retrieve the closing balance. Defaults to current time if not specified.\n\nPlease ensure that the value is in RFC3339 format. Example: \"2022-03-29T10:00:00.000+07:00\""
+     },
+     {
+      "in": "path",
+      "name": "id",
+      "schema": {
+       "type": "string",
+       "default": "mer_1234"
+      },
+      "required": true,
+      "description": "Unique identifier of the subaccount, which can be taken from the response of Register subaccount API or Fetch Subaccount API"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": {
+           "message": "Sub-account balance retrieved successfully",
+           "data": {
+            "id": "mer_987654321",
+            "account_name": "Sub-Account Alpha",
+            "currency": "IDR",
+            "balance": 15250000,
+            "as_of": "2026-01-22T10:00:00Z"
+           }
+          }
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "data": {
+           "type": "object",
+           "properties": {
+            "subaccounts": {
+             "type": "array",
+             "items": {
+              "type": "object",
+              "properties": {
+               "id": {
+                "type": "string",
+                "example": "mer_6VFgScbAcL7612"
+               },
+               "name": {
+                "type": "string",
+                "example": "Demo Sub Mercahnt"
+               },
+               "is_enabled": {
+                "type": "boolean",
+                "example": true,
+                "default": true
+               },
+               "subaccount_ref_id": {
+                "type": "string",
+                "example": "reference_demo_001"
+               }
+              }
+             }
+            },
+            "total_count": {
+             "type": "integer",
+             "example": 2,
+             "default": 0
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "400",
+      "content": {
+       "application/json": {}
+      }
+     },
+     "500": {
+      "description": "500",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "internal server error"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "x-readme": {}
+   }
+  },
+  "/merchants/subaccount": {
+   "get": {
+    "summary": "Fetch Sub-Account",
+    "description": "This following endpoint retrieves the details of all created subaccounts",
+    "operationId": "fetch-subaccount",
+    "parameters": [
+     {
+      "name": "skip",
+      "in": "query",
+      "description": "The number of subaccount to be skipped. The default value is 0. This can be used for pagination. in combination with count",
+      "schema": {
+       "type": "integer",
+       "format": "int32"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "description": "Number of subaccount to be fetch. This can be used for pagination. in combination with the skip parameter",
+      "schema": {
+       "type": "integer",
+       "format": "int32"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"data\": {\n        \"subaccounts\": [\n            {\n                \"id\": \"mer_6VFgScbAcL7612\",\n                \"name\": \"Demo Sub Mercahnt\",\n                \"is_enabled\": true,\n                \"subaccount_ref_id\": \"reference_demo_001\"\n            },\n            {\n                \"id\": \"mer_x6EzWyIeVX3831\",\n                \"name\": \"Subaccount - Nobel\",\n                \"is_enabled\": false,\n                \"subaccount_ref_id\": \"Nobel - Subaccount\"\n            }\n        ],\n        \"total_count\": 2\n    }\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "data": {
+           "type": "object",
+           "properties": {
+            "subaccounts": {
+             "type": "array",
+             "items": {
+              "type": "object",
+              "properties": {
+               "id": {
+                "type": "string",
+                "example": "mer_6VFgScbAcL7612"
+               },
+               "name": {
+                "type": "string",
+                "example": "Demo Sub Mercahnt"
+               },
+               "is_enabled": {
+                "type": "boolean",
+                "example": true,
+                "default": true
+               },
+               "subaccount_ref_id": {
+                "type": "string",
+                "example": "reference_demo_001"
+               }
+              }
+             }
+            },
+            "total_count": {
+             "type": "integer",
+             "example": 2,
+             "default": 0
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "400",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid skip and limit parameter\"\"\n    }\n"
+         }
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "500",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"internal server error\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "internal server error"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false
+   },
+   "post": {
+    "summary": "Register Sub-Account",
+    "description": "The following endpoint registers a sub account under your master account.",
+    "operationId": "register-sub-account",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "required": [
+         "name",
+         "email"
+        ],
+        "properties": {
+         "name": {
+          "type": "string",
+          "description": "Name of the sub account",
+          "default": "Awesome Sub Organization 001"
+         },
+         "email": {
+          "type": "string",
+          "description": "Email of the sub account",
+          "default": "organization_001@masterorg.biz"
+         },
+         "ref_id": {
+          "type": "string",
+          "description": "The unique identifier of Subaccount from the merchant",
+          "default": "mer_123"
+         },
+         "subaccount_ownership": {
+          "type": "string",
+          "default": "owned",
+          "description": "Type of the subaccount, value can be either \"managed\" or \"owned\""
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n  \"data\": {\n      \"id\": \"mer_abc123def456\",\n      \"name\": \"Awesome Sub Organization 001\",\n      \"email\": \"organization_001@masterorg.biz\",\n      \"ref_id\": \"organization_001\"\n  }\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "data": {
+           "type": "object",
+           "properties": {
+            "id": {
+             "type": "string",
+             "example": "mer_abc123def456"
+            },
+            "name": {
+             "type": "string",
+             "example": "Awesome Sub Organization 001"
+            },
+            "email": {
+             "type": "string",
+             "example": "organization_001@masterorg.biz"
+            },
+            "ref_id": {
+             "type": "string",
+             "example": "organization_001"
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "400",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"cannot validate request body for registering sub account\",\n    \"error_code\": \"DPAY_INVALID_REQUEST\",\n    \"errors\": [\n        {\n            \"field\": \"name\",\n            \"message\": \"can't be blank\"\n        }\n    ]\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "cannot validate request body for registering sub account"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_INVALID_REQUEST"
+          },
+          "errors": {
+           "type": "array",
+           "items": {
+            "type": "object",
+            "properties": {
+             "field": {
+              "type": "string",
+              "example": "name"
+             },
+             "message": {
+              "type": "string",
+              "example": "can't be blank"
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "401": {
+      "description": "401",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid credentials\",\n    \"error_code\": \"merchant is not registered as a master merchant\",\n    \"request_id\": \"dp_pqHhskeQZf1990\"\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid credentials"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "merchant is not registered as a master merchant"
+          },
+          "request_id": {
+           "type": "string",
+           "example": "dp_pqHhskeQZf1990"
+          }
+         }
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "500",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"internal server error\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "internal server error"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false,
+    "parameters": []
+   }
+  },
+  "/payments/va/{id}": {
+   "get": {
+    "summary": "Fetch Virtual Account by ID",
+    "description": "The following endpoint retrieves the details of a single Virtual Account",
+    "operationId": "fetch-virtual-account-by-id",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "description": "Unique identifier of the Virtual Account to be retrieved",
+      "schema": {
+       "type": "string",
+       "default": "va_12345"
+      },
+      "required": true
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"data\": {\n        \"virtual_account\": {\n            \"id\": \"va_sample_6YBBiGRAPa0943\",\n            \"bank_code\": \"PERMATA\",\n            \"account_number\": \"8856500451311212\",\n            \"name\": \"Ardi Hanan Durian\",\n            \"is_closed\": false,\n            \"amount\": 0,\n            \"currency\": \"IDR\",\n            \"customer_id\": \"cus_akA2FwrR5B2217\",\n            \"is_sandbox\": true,\n            \"created_at\": \"2022-06-27T02:42:28.753671Z\",\n            \"expiry_at\": \"2022-06-27T13:54:27.333786Z\",\n            \"metadata\": {},\n            \"is_disabled\": false,\n            \"is_paid\": false,\n            \"is_reusable\": true,\n            \"min_amount\": 50000,\n            \"max_amount\": null,\n            \"va_ref_id\": \"\",\n            \"auto_disable_after_payment\": false\n        },\n        \"virtual_account_status\": \"VirtualAccountExpired\",\n        \"customer\": {\n            \"id\": \"cus_akA2FwrR5B2217\",\n            \"customer_ref_id\": \"\",\n            \"given_name\": \"\",\n            \"middle_name\": \"\",\n            \"sur_name\": \"\",\n            \"email\": \"p.ardi.h@gmail.com\",\n            \"mobile\": \"+628978678578\"\n        },\n        \"payments\": [\n            {\n                \"id\": \"pay_D3yQ1WWSu12492\",\n                \"order_id\": \"ord_5mVIixYOlL6710\",\n                \"payment_ref_id\": \"1234\",\n                \"settlement_id\": \"\",\n                \"payment_ds_ref_id\": \"62340733-c1ce-4fd3-9090-ab89a6\",\n                \"amount\": \"10000.00\",\n                \"status\": \"completed\",\n                \"is_live\": true,\n                \"expiration_date\": \"2022-12-08T09:28:33.756474Z\",\n                \"payment_details_type\": \"va_details\",\n                \"method_id\": \"BNI\",\n                \"created_at\": \"2022-12-08T09:28:33.756474Z\",\n                \"updated_at\": \"2022-12-08T09:28:33.756474Z\",\n                \"metadata\": null,\n                \"retry_count\": 0,\n                \"discount\": \"\",\n                \"paid_amount\": \"10000.00\",\n                \"provider_id\": \"MCPAYMENT\",\n                \"total_fee\": \"\",\n                \"promo_id\": \"\",\n                \"shipping_fee\": \"\",\n                \"ds_error_metadata\": null,\n                \"failure_reason\": {},\n                \"settlement_status\": \"\"\n            }\n        ],\n        \"total_payment\": 1,\n        \"total_page\": 1,\n        \"current_page\": 1\n    }\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "data": {
+           "type": "object",
+           "properties": {
+            "virtual_account": {
+             "type": "object",
+             "properties": {
+              "id": {
+               "type": "string",
+               "example": "va_sample_6YBBiGRAPa0943"
+              },
+              "bank_code": {
+               "type": "string",
+               "example": "PERMATA"
+              },
+              "account_number": {
+               "type": "string",
+               "example": "8856500451311212"
+              },
+              "name": {
+               "type": "string",
+               "example": "Ardi Hanan Durian"
+              },
+              "is_closed": {
+               "type": "boolean",
+               "example": false,
+               "default": true
+              },
+              "amount": {
+               "type": "integer",
+               "example": 0,
+               "default": 0
+              },
+              "currency": {
+               "type": "string",
+               "example": "IDR"
+              },
+              "customer_id": {
+               "type": "string",
+               "example": "cus_akA2FwrR5B2217"
+              },
+              "is_sandbox": {
+               "type": "boolean",
+               "example": true,
+               "default": true
+              },
+              "created_at": {
+               "type": "string",
+               "example": "2022-06-27T02:42:28.753671Z"
+              },
+              "expiry_at": {
+               "type": "string",
+               "example": "2022-06-27T13:54:27.333786Z"
+              },
+              "metadata": {
+               "type": "object",
+               "properties": {}
+              },
+              "is_disabled": {
+               "type": "boolean",
+               "example": false,
+               "default": true
+              },
+              "is_paid": {
+               "type": "boolean",
+               "example": false,
+               "default": true
+              },
+              "is_reusable": {
+               "type": "boolean",
+               "example": true,
+               "default": true
+              },
+              "min_amount": {
+               "type": "integer",
+               "example": 50000,
+               "default": 0
+              },
+              "max_amount": {},
+              "va_ref_id": {
+               "type": "string",
+               "example": ""
+              },
+              "auto_disable_after_payment": {
+               "type": "boolean",
+               "example": false,
+               "default": true
+              }
+             }
+            },
+            "virtual_account_status": {
+             "type": "string",
+             "example": "VirtualAccountExpired"
+            },
+            "customer": {
+             "type": "object",
+             "properties": {
+              "id": {
+               "type": "string",
+               "example": "cus_akA2FwrR5B2217"
+              },
+              "customer_ref_id": {
+               "type": "string",
+               "example": ""
+              },
+              "given_name": {
+               "type": "string",
+               "example": ""
+              },
+              "middle_name": {
+               "type": "string",
+               "example": ""
+              },
+              "sur_name": {
+               "type": "string",
+               "example": ""
+              },
+              "email": {
+               "type": "string",
+               "example": "p.ardi.h@gmail.com"
+              },
+              "mobile": {
+               "type": "string",
+               "example": "+628978678578"
+              }
+             }
+            },
+            "payments": {
+             "type": "array",
+             "items": {
+              "type": "object",
+              "properties": {
+               "id": {
+                "type": "string",
+                "example": "pay_D3yQ1WWSu12492"
+               },
+               "order_id": {
+                "type": "string",
+                "example": "ord_5mVIixYOlL6710"
+               },
+               "payment_ref_id": {
+                "type": "string",
+                "example": "1234"
+               },
+               "settlement_id": {
+                "type": "string",
+                "example": ""
+               },
+               "payment_ds_ref_id": {
+                "type": "string",
+                "example": "62340733-c1ce-4fd3-9090-ab89a6"
+               },
+               "amount": {
+                "type": "string",
+                "example": "10000.00"
+               },
+               "status": {
+                "type": "string",
+                "example": "completed"
+               },
+               "is_live": {
+                "type": "boolean",
+                "example": true,
+                "default": true
+               },
+               "expiration_date": {
+                "type": "string",
+                "example": "2022-12-08T09:28:33.756474Z"
+               },
+               "payment_details_type": {
+                "type": "string",
+                "example": "va_details"
+               },
+               "method_id": {
+                "type": "string",
+                "example": "BNI"
+               },
+               "created_at": {
+                "type": "string",
+                "example": "2022-12-08T09:28:33.756474Z"
+               },
+               "updated_at": {
+                "type": "string",
+                "example": "2022-12-08T09:28:33.756474Z"
+               },
+               "metadata": {},
+               "retry_count": {
+                "type": "integer",
+                "example": 0,
+                "default": 0
+               },
+               "discount": {
+                "type": "string",
+                "example": ""
+               },
+               "paid_amount": {
+                "type": "string",
+                "example": "10000.00"
+               },
+               "provider_id": {
+                "type": "string",
+                "example": "MCPAYMENT"
+               },
+               "total_fee": {
+                "type": "string",
+                "example": ""
+               },
+               "promo_id": {
+                "type": "string",
+                "example": ""
+               },
+               "shipping_fee": {
+                "type": "string",
+                "example": ""
+               },
+               "ds_error_metadata": {},
+               "failure_reason": {
+                "type": "object",
+                "properties": {}
+               },
+               "settlement_status": {
+                "type": "string",
+                "example": ""
+               }
+              }
+             }
+            },
+            "total_payment": {
+             "type": "integer",
+             "example": 1,
+             "default": 0
+            },
+            "total_page": {
+             "type": "integer",
+             "example": 1,
+             "default": 0
+            },
+            "current_page": {
+             "type": "integer",
+             "example": 1,
+             "default": 0
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "401": {
+      "description": "401",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid Authorization header in request\",\n    \"error_code\": \"DPAY_UNAUTHORIZED_ACCESS\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid Authorization header in request"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_UNAUTHORIZED_ACCESS"
+          }
+         }
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "404",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"sql: no rows in result set\",\n    \"error_code\": \"DPAY_VA_NOT_FOUND\",\n    \"request_id\": \"dp_d3HX9S5W0r4989\"\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "sql: no rows in result set"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_VA_NOT_FOUND"
+          },
+          "request_id": {
+           "type": "string",
+           "example": "dp_d3HX9S5W0r4989"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false
+   },
+   "patch": {
+    "summary": "Patch Virtual Accounts By ID",
+    "description": "The following endpoint is used to override Expiry Time of a single Virtual Account.",
+    "operationId": "virtual-accounts-patch-by-id",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "description": "Unique identifier of the Virtual Account to be retrieved",
+      "schema": {
+       "type": "string",
+       "default": "va_1234"
+      },
+      "required": true
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "expiry_minutes": {
+          "type": "integer",
+          "description": "Number of minutes left till expiry from now. Set to 0 to expire VA Example: 10000",
+          "default": 0,
+          "format": "int32"
+         },
+         "min_amount": {
+          "type": "integer",
+          "description": "Modify minimum amount which can be paid to an open VA. Example: 10000",
+          "default": 10000,
+          "format": "int32"
+         },
+         "max_amount": {
+          "type": "integer",
+          "description": "Modify maximum amount which can be paid to an open VA. Example: 10000",
+          "default": 100000,
+          "format": "int32"
+         },
+         "amount": {
+          "type": "integer",
+          "description": "Modify maximum amount which can be paid to a closed VA. Example: 10000",
+          "default": 10000,
+          "format": "int32"
+         },
+         "is_disabled": {
+          "type": "boolean",
+          "description": "Modify enabling/disabling payments to a VA while still reserving it. Example: true",
+          "default": false
+         },
+         "va_ref_id": {
+          "type": "string",
+          "description": "Modify a reference ID which the merchant wants to use for a specific VA. Example: \"VA_XYZ_1234\"",
+          "default": "va_123"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"data\": {\n        \"virtual_account\": {\n            \"id\": \"va_sample_EwCm3LrPqE5184\",\n            \"bank_code\": \"PERMATA\",\n            \"account_number\": \"88565004532522\",\n            \"name\": \"Ardi Hanan Durian\",\n            \"is_closed\": true,\n            \"amount\": 123456,\n            \"currency\": \"IDR\",\n            \"customer_id\": \"cus_akA2FwrR5B2217\",\n            \"is_sandbox\": true,\n            \"created_at\": \"2022-06-27T02:52:30.236901Z\",\n            \"expiry_at\": \"2022-06-29T05:40:59.795448Z\",\n            \"metadata\": {},\n            \"is_disabled\": true,\n            \"is_paid\": false,\n            \"is_reusable\": true,\n            \"min_amount\": 50000,\n            \"max_amount\": null,\n            \"va_ref_id\": \"1234412\",\n            \"auto_disable_after_payment\": false\n        },\n        \"virtual_account_status\": \"VirtualAccountSuccess\",\n        \"customer\": {\n            \"id\": \"cus_akA2FwrR5B2217\",\n            \"customer_ref_id\": \"\",\n            \"given_name\": \"\",\n            \"middle_name\": \"\",\n            \"sur_name\": \"\",\n            \"email\": \"p.ardi.h@gmail.com\",\n            \"mobile\": \"+628978678578\"\n        }\n    }\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "data": {
+           "type": "object",
+           "properties": {
+            "virtual_account": {
+             "type": "object",
+             "properties": {
+              "id": {
+               "type": "string",
+               "example": "va_sample_EwCm3LrPqE5184"
+              },
+              "bank_code": {
+               "type": "string",
+               "example": "PERMATA"
+              },
+              "account_number": {
+               "type": "string",
+               "example": "88565004532522"
+              },
+              "name": {
+               "type": "string",
+               "example": "Ardi Hanan Durian"
+              },
+              "is_closed": {
+               "type": "boolean",
+               "example": true,
+               "default": true
+              },
+              "amount": {
+               "type": "integer",
+               "example": 123456,
+               "default": 0
+              },
+              "currency": {
+               "type": "string",
+               "example": "IDR"
+              },
+              "customer_id": {
+               "type": "string",
+               "example": "cus_akA2FwrR5B2217"
+              },
+              "is_sandbox": {
+               "type": "boolean",
+               "example": true,
+               "default": true
+              },
+              "created_at": {
+               "type": "string",
+               "example": "2022-06-27T02:52:30.236901Z"
+              },
+              "expiry_at": {
+               "type": "string",
+               "example": "2022-06-29T05:40:59.795448Z"
+              },
+              "metadata": {
+               "type": "object",
+               "properties": {}
+              },
+              "is_disabled": {
+               "type": "boolean",
+               "example": true,
+               "default": true
+              },
+              "is_paid": {
+               "type": "boolean",
+               "example": false,
+               "default": true
+              },
+              "is_reusable": {
+               "type": "boolean",
+               "example": true,
+               "default": true
+              },
+              "min_amount": {
+               "type": "integer",
+               "example": 50000,
+               "default": 0
+              },
+              "max_amount": {},
+              "va_ref_id": {
+               "type": "string",
+               "example": "1234412"
+              },
+              "auto_disable_after_payment": {
+               "type": "boolean",
+               "example": false,
+               "default": true
+              }
+             }
+            },
+            "virtual_account_status": {
+             "type": "string",
+             "example": "VirtualAccountSuccess"
+            },
+            "customer": {
+             "type": "object",
+             "properties": {
+              "id": {
+               "type": "string",
+               "example": "cus_akA2FwrR5B2217"
+              },
+              "customer_ref_id": {
+               "type": "string",
+               "example": ""
+              },
+              "given_name": {
+               "type": "string",
+               "example": ""
+              },
+              "middle_name": {
+               "type": "string",
+               "example": ""
+              },
+              "sur_name": {
+               "type": "string",
+               "example": ""
+              },
+              "email": {
+               "type": "string",
+               "example": "p.ardi.h@gmail.com"
+              },
+              "mobile": {
+               "type": "string",
+               "example": "+628978678578"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "400",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error_code\": \"DPAY_INVALID_REQUEST\",\n    \"request_id\": \"dp_Dzc8hMzkQU4826\",\n    \"errors\": [\n        {\n            \"field\": \"expiry_minutes\",\n            \"message\": \"can't be less than 0\"\n        }\n    ]\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_INVALID_REQUEST"
+          },
+          "request_id": {
+           "type": "string",
+           "example": "dp_Dzc8hMzkQU4826"
+          },
+          "errors": {
+           "type": "array",
+           "items": {
+            "type": "object",
+            "properties": {
+             "field": {
+              "type": "string",
+              "example": "expiry_minutes"
+             },
+             "message": {
+              "type": "string",
+              "example": "can't be less than 0"
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "401": {
+      "description": "401",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid Authorization header in request\",\n    \"error_code\": \"DPAY_UNAUTHORIZED_ACCESS\"\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid Authorization header in request"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_UNAUTHORIZED_ACCESS"
+          }
+         }
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "404",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"sql: no rows in result set\",\n    \"error_code\": \"DPAY_VA_NOT_FOUND\",\n    \"request_id\": \"dp_d3HX9S5W0r4989\"\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "sql: no rows in result set"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_VA_NOT_FOUND"
+          },
+          "request_id": {
+           "type": "string",
+           "example": "dp_d3HX9S5W0r4989"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false
+   }
+  },
+  "/refunds/payment/{id}": {
+   "get": {
+    "summary": "Refund Fetch by Payment ID",
+    "description": "",
+    "operationId": "get-refund-by-payment-id",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "description": "The payment ID which being refunded",
+      "schema": {
+       "type": "string",
+       "default": "pay_abcdefg1234"
+      },
+      "required": true
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"data\": [\n        {\n            \"id\": \"rfn_abcdefg1234\",\n            \"ref_id\": \"rfn_ref_00\",\n            \"amount\": \"10000.00\",\n            \"refund_type\": \"\",\n            \"status\": \"done\",\n            \"created_at\": \"2024-11-12T06:49:21.501177Z\",\n            \"updated_at\": \"2024-11-12T06:49:21.501178Z\",\n            \"approved_at\": null,\n            \"source\": \"dashboard\",\n            \"customer_id\": \"cus_abcdefg1231232\",\n            \"customer_name\": \"\",\n            \"customer_email\": \"\",\n            \"customer_phone\": \"\",\n            \"failure_reason\": \"\"\n        }\n    ]\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "data": {
+           "type": "array",
+           "items": {
+            "type": "object",
+            "properties": {
+             "id": {
+              "type": "string",
+              "example": "rfn_abcdefg1234"
+             },
+             "ref_id": {
+              "type": "string",
+              "example": "rfn_ref_00"
+             },
+             "amount": {
+              "type": "string",
+              "example": "10000.00"
+             },
+             "refund_type": {
+              "type": "string",
+              "example": ""
+             },
+             "status": {
+              "type": "string",
+              "example": "done"
+             },
+             "created_at": {
+              "type": "string",
+              "example": "2024-11-12T06:49:21.501177Z"
+             },
+             "updated_at": {
+              "type": "string",
+              "example": "2024-11-12T06:49:21.501178Z"
+             },
+             "approved_at": {},
+             "source": {
+              "type": "string",
+              "example": "dashboard"
+             },
+             "customer_id": {
+              "type": "string",
+              "example": "cus_abcdefg1231232"
+             },
+             "customer_name": {
+              "type": "string",
+              "example": ""
+             },
+             "customer_email": {
+              "type": "string",
+              "example": ""
+             },
+             "customer_phone": {
+              "type": "string",
+              "example": ""
+             },
+             "failure_reason": {
+              "type": "string",
+              "example": ""
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "400",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {}
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false
+   }
+  },
+  "/payments/charge": {
+   "post": {
+    "summary": "Charge Payment API (all methods)",
+    "description": "Charges a payment against an order. The `type` field selects the payment method: VA (virtual account), EWALLET, QRIS, CARD, BNPL, ONLINE_BANKING, RETAIL_STORE. The `request` object shape varies per type; see docs.durianpay.id/reference for per-method bodies.",
+    "operationId": "payment-charge",
+    "parameters": [
+     {
+      "name": "type",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "default": "BNPL"
+      }
+     },
+     {
+      "name": "request",
+      "in": "query",
+      "description": "The payload object for BNPL payment charge",
+      "required": true,
+      "schema": {
+       "properties": {
+        "order_id": {
+         "type": "string",
+         "description": "The id returned from create order api"
+        },
+        "payment_method_unique_id": {
+         "type": "string",
+         "description": "BNPL types. Available BNPL type: \"INDODANA\"",
+         "default": "INDODANA"
+        },
+        "amount": {
+         "type": "string",
+         "description": "Payment amount"
+        }
+       },
+       "required": [
+        "order_id",
+        "payment_method_unique_id",
+        "amount"
+       ],
+       "type": "object"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n  \"type\": \"BNPL\",\n  \"response\": {\n    \"payment_id\": \"pay_s2sSBlDSWv4167\",\n    \"order_id\": \"ord_ZSHipeBgUd4740\",\n    \"payment_ref_id\": \"pay_ref_123\",\n    \"redirect_url\": \"https://redirect-url.com/\"\n    \"paid_amount\": \"80001.00\",\n    \"metadata\":{},\n  }\n }"
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "400",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {}
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false
+   }
+  },
+  "/payments": {
+   "get": {
+    "summary": "Payment Fetch API",
+    "description": "The following endpoint retrieves the details of all Payments created",
+    "operationId": "payment-fetch-api",
+    "parameters": [
+     {
+      "name": "from",
+      "in": "query",
+      "description": "Timestamp (in YYYY-MM-DD format) from when the Orders should be fetched",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "to",
+      "in": "query",
+      "description": "Timestamp (in YYYY-MM-DD format) up till when Orders are to be fetched",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "skip",
+      "in": "query",
+      "description": "The number of payments to be skipped. The default value is 0. This can be used for pagination, in combination with count",
+      "schema": {
+       "type": "integer",
+       "format": "int32"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "description": "Number of payments to be fetched. Default value is 25. This can be used for pagination, in combination with the skip parameter",
+      "schema": {
+       "type": "integer",
+       "format": "int32"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n  payments: [{\n    \"id\": \"pay_A31sd3AwAgItmmXdp\",\n    \"amount\": \"20000\",\n    \"currency\": \"IDR\",\n    \"status\": \"completed\",\n    \"order_id\": \"ord_B14sdfwAdmmSDF24a\",\n    \"payment_ref_id\": \"txn2314\",\n    \"created_at\": 1582628071,\n    \"is_live\": true,\n    \"expiration_date\": \"2021-09-21T05:11:09.574136Z\",\n    \"payment_details_type\": \"ewallet_details\",\n    \"method_id\": \"OVO\",\n    \"created_at\": \"2021-09-20T05:11:09.574138Z\",\n    \"updated_at\": \"2021-09-20T05:11:15.161768Z\",\n    \"metadata\": {},\n    \"retry_count\": 0,\n    \"discount\": \"\",\n    \"paid_amount\": \"\",\n    \"provider_id\": \"\",\n    \"total_fee\": \"\",\n    \"promo_id\": \"\",\n    \"shipping_fee\": \"\",\n    \"ds_error_metadata\": null,\n    \"CustomerID\": \"cus_iT1g1t74655079\",\n    \"CustomerName\": \"test\",\n    \"CustomerEmail\": \"\",\n    \"OrderRefID\": \"\",\n    \"Currency\": \"IDR\",\n    \"failure_reason\": {}\n  }],\n  total: 1\n}\n"
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "400",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid skip and limit parameter\"\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid skip and limit parameter"
+          }
+         }
+        }
+       }
+      }
+     },
+     "401": {
+      "description": "401",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid Authorization header in request\",\n    \"error_code\": \"DPAY_UNAUTHORIZED_ACCESS\"\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid Authorization header in request"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_UNAUTHORIZED_ACCESS"
+          }
+         }
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "500",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n  \"error\": \"error getting payments\",\n  \"error_code\": \"DPAY_INTERNAL_ERROR\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "error getting payments"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_INTERNAL_ERROR"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false
+   }
+  },
+  "/refunds/{id}": {
+   "get": {
+    "summary": "Refund Fetch by ID",
+    "description": "The following endpoint retrieves the details of a single refund",
+    "operationId": "refund-fetch-by-id",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "description": "Unique identifier of the Refund to be retrieved",
+      "schema": {
+       "type": "string",
+       "default": "rfn_Ct2uKVFwts5080"
+      },
+      "required": true
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n  \"data\": {\n    \"id\": \"rfn_lCs4X0M9gB0135\",\n    \"ref_id\": null,\n    \"amount\": \"10000.00\",\n    \"refund_type\": \"partial\",\n    \"status\": \"approved\",\n    \"created_at\": \"2021-06-29T15:43:49.998179Z\",\n    \"updated_at\": \"2021-06-29T15:43:54.634024Z\",\n    \"approved_at\": \"2021-06-29T15:43:54.634024Z\",\n    \"source\": \"api\",\n    \"customer_id\": \"cus_0lyb30V7O16812\",\n    \"customer_name\": \"John Doe\",\n    \"customer_email\": \"john@doe.com\",\n    \"customer_phone\": \"0812778161\"\n  }\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "data": {
+           "type": "object",
+           "properties": {
+            "id": {
+             "type": "string",
+             "example": "rfn_lCs4X0M9gB0135"
+            },
+            "ref_id": {},
+            "amount": {
+             "type": "string",
+             "example": "10000.00"
+            },
+            "refund_type": {
+             "type": "string",
+             "example": "partial"
+            },
+            "status": {
+             "type": "string",
+             "example": "approved"
+            },
+            "created_at": {
+             "type": "string",
+             "example": "2021-06-29T15:43:49.998179Z"
+            },
+            "updated_at": {
+             "type": "string",
+             "example": "2021-06-29T15:43:54.634024Z"
+            },
+            "approved_at": {
+             "type": "string",
+             "example": "2021-06-29T15:43:54.634024Z"
+            },
+            "source": {
+             "type": "string",
+             "example": "api"
+            },
+            "customer_id": {
+             "type": "string",
+             "example": "cus_0lyb30V7O16812"
+            },
+            "customer_name": {
+             "type": "string",
+             "example": "John Doe"
+            },
+            "customer_email": {
+             "type": "string",
+             "example": "john@doe.com"
+            },
+            "customer_phone": {
+             "type": "string",
+             "example": "0812778161"
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "400",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid Authorization header in request\",\n    \"error_code\": \"DPAY_UNAUTHORIZED_ACCESS\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid Authorization header in request"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_UNAUTHORIZED_ACCESS"
+          }
+         }
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "500",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"error getting refund\",\n    \"error_code\": \"DPAY_INTERNAL_ERROR\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "error getting refund"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_INTERNAL_ERROR"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false
+   }
+  },
+  "/customers/{id}": {
+   "patch": {
+    "description": "",
+    "responses": {
+     "200": {
+      "description": "",
+      "content": {
+       "application/json": {
+        "examples": {
+         "OK": {
+          "summary": "OK",
+          "value": {
+           "data": {
+            "id": "cus_DXAasdasd34312",
+            "customer_ref_id": "",
+            "given_name": "Jane Doe",
+            "middle_name": "",
+            "sur_name": "",
+            "email": "redacted@example.com",
+            "mobile": "+6281213420555",
+            "address_info": {
+             "id": 0,
+             "receiver_name": "",
+             "receiver_phone": "",
+             "label": "",
+             "address_line_1": "",
+             "address_line_2": "",
+             "city": "",
+             "region": "",
+             "country": "",
+             "postal_code": "",
+             "landmark": "",
+             "customer_id": "",
+             "is_default": false,
+             "created_at": "0001-01-01T00:00:00Z",
+             "updated_at": "0001-01-01T00:00:00Z"
+            },
+            "created_at": "2026-04-16T14:07:02.995706Z",
+            "updated_at": "2026-04-17T11:20:16.150864Z",
+            "metadata": {},
+            "is_live": true,
+            "ip_address": "",
+            "merchant_id": ""
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "parameters": [
+     {
+      "in": "query",
+      "name": "id",
+      "schema": {
+       "type": "string",
+       "default": "123"
+      },
+      "description": "Durianpay's Customer ID. Returned during payment/virtual account creation. ",
+      "required": true
+     }
+    ],
+    "operationId": "patch_customers-id",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "given_name": {
+          "type": "string",
+          "description": "The customer's name"
+         },
+         "email": {
+          "type": "string",
+          "description": "The customer's email address. Should of the format redacted@example.com and should not contain any invalid special characters (\u00a2,\u00a3,\u00a7,\u00a9,etc)"
+         },
+         "mobile": {
+          "type": "string",
+          "description": "The customer's mobile number. Please ensure that the number follows Indonesia's phone number format : +62xxxxxxxxxx or 08xxxxxxxxxx."
+         },
+         "customer_ref_id": {
+          "type": "string",
+          "description": "A unique reference ID from the merchant to identify the customer\n"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/merchants/subaccount/{id}": {
+   "put": {
+    "summary": "Update Sub-Account",
+    "description": "The following endpoint updates subaccount's informations",
+    "operationId": "update-sub-account-api",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "description": "Unique identifier of the subaccount, which can be taken from the response of Register subaccount API or Fetch Subaccount API",
+      "schema": {
+       "type": "string",
+       "default": "mer_123456"
+      },
+      "required": true
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "name": {
+          "type": "string",
+          "description": "Name of the sub account"
+         },
+         "ref_id": {
+          "type": "string",
+          "description": "The unique identifier of Subaccount from the merchant"
+         },
+         "is_enabled": {
+          "type": "boolean",
+          "description": "Enable/Disable the respective subaccount"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n  \"data\": {\n      \"id\": \"sub_123\",\n      \"name\": \"Awesome Sub Organization 001\",\n      \"email\": \"organization_001@masterorg.biz\",\n      \"is_enabled\": true,\n      \"ref_id\": \"organization_001\",\n  }\n}"
+         }
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "500",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"internal server error\"\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "internal server error"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false
+   }
+  },
+  "/merchants/subaccount/fee": {
+   "post": {
+    "summary": "Update Sub-Account Fees",
+    "description": "This following endpoint allows master accounts to manage fees for subaccounts",
+    "operationId": "update-sub-account-fees",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "required": [
+         "id",
+         "disbursement_fees"
+        ],
+        "properties": {
+         "id": {
+          "type": "string",
+          "description": "Unique identifier of the subaccount, which can be taken from the response of Register subaccount API or Fetch Subaccount API",
+          "default": "mer_x6EzWyIeVX3831"
+         },
+         "payment_fees": {
+          "type": "array",
+          "description": "Details on which payment method will be assigned with the fee, including the fee configuration. Either fixed_fee or percentage_fee is mandatory; you must provide one of them, but providing both is not required, If both fee presents, The fee is calculated by accumulating percentage fee (applied to the total amount before the fee) to the fixed fee.",
+          "items": {
+           "properties": {
+            "payment_method_id": {
+             "type": "string",
+             "description": "Payment method which will be updated with the new fee. Possible values: BCA, BNI For the complete list of the supported payment methods and its payment_method_id (code) please refer here: Supported Payment Method",
+             "default": "BCA"
+            },
+            "fixed_fee": {
+             "type": "string",
+             "description": "Amount of the fixed fee. Example: \"1000\"",
+             "default": "1000"
+            },
+            "percentage_fee": {
+             "type": "string",
+             "description": "Amount of the percentage fee. Example: \"10\"",
+             "default": "10"
+            }
+           },
+           "required": [
+            "payment_method_id"
+           ],
+           "type": "object"
+          }
+         },
+         "disbursement_fees": {
+          "type": "object",
+          "description": "Details on the configuration of disbursement fees.",
+          "required": [
+           "type",
+           "fee"
+          ],
+          "properties": {
+           "type": {
+            "type": "string",
+            "description": "Fee type, possible values: flat, percentage",
+            "default": "flat"
+           },
+           "fee": {
+            "type": "string",
+            "description": "Amount of respective fee type",
+            "default": "25"
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": {
+           "message": "Merchant Fee has been updated successfully",
+           "data": {
+            "id": "mer_x6EzWyIeVX3831",
+            "payment_fees": [
+             {
+              "payment_method_id": "GOPAY",
+              "fixed_fee": "500",
+              "percentage_fee": "3"
+             },
+             {
+              "payment_method_id": "DANA",
+              "fixed_fee": "1000",
+              "percentage_fee": "3"
+             }
+            ],
+            "disbursement_fees": {
+             "type": "flat",
+             "fee": "25"
+            }
+           }
+          }
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "message": {
+           "type": "string",
+           "example": "Merchant Fee has been updated successfully"
+          },
+          "data": {
+           "type": "object",
+           "properties": {
+            "id": {
+             "type": "string",
+             "example": "mer_x6EzWyIeVX3831"
+            },
+            "payment_fees": {
+             "type": "array",
+             "items": {
+              "type": "object",
+              "properties": {
+               "payment_method_id": {
+                "type": "string",
+                "example": "GOPAY"
+               },
+               "fixed_fee": {
+                "type": "string",
+                "example": "500"
+               },
+               "percentage_fee": {
+                "type": "string",
+                "example": "3"
+               }
+              }
+             }
+            },
+            "disbursement_fees": {
+             "type": "object",
+             "properties": {
+              "type": {
+               "type": "string",
+               "example": "percentage"
+              },
+              "fee": {
+               "type": "string",
+               "example": "30"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "400",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Invalid payment method ID": {
+          "value": "{\n    \"data\": {\n    \"error\": \"error found in row 0, cannot setup payment method GRPAY\",\n    \"error_code\": \"DPAY_MERCHANT_SETTINGS_ERROR\"\n}\n"
+         }
+        }
+       },
+       "text/plain": {
+        "examples": {
+         "Invalid Disbursement Fee Type": {
+          "value": "{\n    \"error\": \"invalid disbursement fee type\",\n    \"error_code\": \"DPAY_MERCHANT_SETTINGS_ERROR\"\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid disbursement fee type"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_MERCHANT_SETTINGS_ERROR"
+          }
+         }
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "500",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"internal server error\"\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "internal server error"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false,
+    "parameters": []
+   }
+  },
+  "/payments/{id}/verify": {
+   "post": {
+    "summary": "Verify Payments",
+    "description": "The following endpoint verifies the signature of payment callback",
+    "operationId": "verify-payments",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "description": "Unique identifier of the Payment to be verified",
+      "schema": {
+       "type": "string",
+       "default": "pay_123456"
+      },
+      "required": true
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "required": [
+         "verification_signature"
+        ],
+        "properties": {
+         "verification_signature": {
+          "type": "string",
+          "description": "Signature which has been provided to you while you successfully made a charge. Would have recived directly as a response to payments/charge API call OR as a payload on payment.completed webhook response",
+          "default": "adf9a1a37af514c91225f6680e2df723fefebb7638519bcc7e7c9de02f2a3ab2"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "200",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n  \"data\": true // or false depending on verification\n}"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "data": {
+           "type": "boolean",
+           "example": true,
+           "default": true
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "400",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"error reading request body\",\n    \"error_code\": \"DPAY_INTERNAL_ERROR\",\n}"
+         }
+        }
+       }
+      }
+     },
+     "401": {
+      "description": "401",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"invalid Authorization header in request\",\n    \"error_code\": \"DPAY_UNAUTHORIZED_ACCESS\"\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "invalid Authorization header in request"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_UNAUTHORIZED_ACCESS"
+          }
+         }
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "500",
+      "content": {
+       "application/json": {
+        "examples": {
+         "Result": {
+          "value": "{\n    \"error\": \"error verifying payment\",\n    \"error_code\": \"DPAY_INTERNAL_ERROR\"\n}\n"
+         }
+        },
+        "schema": {
+         "type": "object",
+         "properties": {
+          "error": {
+           "type": "string",
+           "example": "error verifying payment"
+          },
+          "error_code": {
+           "type": "string",
+           "example": "DPAY_INTERNAL_ERROR"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "deprecated": false
+   }
+  },
+  "/disbursements/submit": {
+   "post": {
+    "summary": "Submit Disbursement",
+    "operationId": "disbursement-submit",
+    "description": "Submits a disbursement batch (legacy). Supports idempotency via X-Idempotency-Key header. Query force_disburse=true bypasses approval; skip_validation=false validates recipient accounts.",
+    "parameters": [
+     {
+      "name": "force_disburse",
+      "in": "query",
+      "schema": {
+       "type": "boolean",
+       "default": false
+      },
+      "description": "Disburse immediately without dashboard approval"
+     },
+     {
+      "name": "skip_validation",
+      "in": "query",
+      "schema": {
+       "type": "boolean",
+       "default": false
+      },
+      "description": "Skip recipient bank-account validation"
+     },
+     {
+      "name": "X-Idempotency-Key",
+      "in": "header",
+      "schema": {
+       "type": "string"
+      },
+      "description": "Unique key to prevent double pay-outs"
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "required": [
+         "name",
+         "items"
+        ],
+        "properties": {
+         "name": {
+          "type": "string",
+          "description": "Batch name. Example: 'Payroll June'"
+         },
+         "description": {
+          "type": "string",
+          "description": "Batch description"
+         },
+         "items": {
+          "type": "array",
+          "description": "Disbursement items",
+          "items": {
+           "type": "object",
+           "properties": {
+            "account_owner_name": {
+             "type": "string",
+             "description": "Recipient account holder name"
+            },
+            "bank_code": {
+             "type": "string",
+             "description": "Recipient bank code. Example: 'bca'"
+            },
+            "amount": {
+             "type": "string",
+             "description": "Amount in IDR. Example: '15000.00'"
+            },
+            "account_number": {
+             "type": "string",
+             "description": "Recipient account number"
+            },
+            "email_recipient": {
+             "type": "string",
+             "description": "Recipient email for notification"
+            },
+            "phone_number": {
+             "type": "string",
+             "description": "Recipient phone for notification"
+            },
+            "notes": {
+             "type": "string",
+             "description": "Transfer notes"
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Disbursement submitted"
+     }
+    }
+   }
+  },
+  "/disbursements/{id}/approve": {
+   "post": {
+    "summary": "Approve Disbursement",
+    "operationId": "disbursement-approve",
+    "description": "Approves a submitted disbursement batch (legacy). Use ignore_invalid=true query to approve while skipping invalid items.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Disbursement ID (dis_xxx)"
+     },
+     {
+      "name": "ignore_invalid",
+      "in": "query",
+      "schema": {
+       "type": "boolean"
+      },
+      "description": "Approve while ignoring invalid items"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Disbursement approved"
+     }
+    }
+   }
+  },
+  "/disbursements/{id}": {
+   "get": {
+    "summary": "Fetch Disbursement by ID",
+    "operationId": "disbursement-fetch-by-id",
+    "description": "Retrieves a disbursement batch status and details (legacy). Returns completion signature when status is completed.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Disbursement ID (dis_xxx)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Disbursement details"
+     }
+    }
+   }
+  }
+ }
+}

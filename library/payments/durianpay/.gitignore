@@ -1,0 +1,5 @@
+# Local key material / test artifacts (never publish)
+keys/
+*.pem
+*.db
+snap-token.json

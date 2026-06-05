@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-05T06:52:32.44348Z",
+  "printing_press_version": "4.20.1",
+  "api_name": "durianpay",
+  "cli_name": "durianpay-pp-cli",
+  "spec_path": "durianpay-legacy-openapi.json",
+  "run_id": "20260603-161333",
+  "novel_features": [
+    {
+      "name": "SNAP Signature Debugger",
+      "command": "snap sign",
+      "description": "Build and inspect both SNAP signatures locally — see the exact string-to-sign, body hash, and headers so a 403 is diagnosed in seconds instead of bisected by hand."
+    },
+    {
+      "name": "SNAP Token Lifecycle \u0026 Keygen",
+      "command": "snap token",
+      "description": "Check cached B2B token freshness against the 900-second TTL, and generate the RSA-2048 keypair SNAP onboarding requires with 'snap keygen'."
+    },
+    {
+      "name": "Smart Payment Routing",
+      "command": "pay",
+      "description": "Charge a payment with the right API surface chosen automatically — SNAP where the method supports it, legacy otherwise, with --surface to override."
+    },
+    {
+      "name": "Smart Payout Routing",
+      "command": "payout",
+      "description": "Send a disbursement via SNAP transfer-interbank or e-wallet topup with account inquiry first, falling back to legacy batch submit when asked."
+    },
+    {
+      "name": "SNAP Response-Code Explainer",
+      "command": "explain",
+      "description": "Decode any SNAP response code offline — meaning, originating service, HTTP status, and the likely fix."
+    },
+    {
+      "name": "Sandbox Simulation Helper",
+      "command": "sandbox simulate",
+      "description": "Print the exact sandbox magic values (even/odd account numbers, magic amounts) that force a success, pending, or failure outcome."
+    },
+    {
+      "name": "Order/Payment Reconciliation",
+      "command": "reconcile",
+      "description": "Join synced orders against payments locally to flag charged-but-unsettled orders, payments with no order, and amount mismatches."
+    },
+    {
+      "name": "Refund Audit",
+      "command": "refund-audit",
+      "description": "Flag refunds that exceed their source payment, target unsettled payments, or duplicate an earlier refund."
+    },
+    {
+      "name": "Stuck-Disbursement Detector",
+      "command": "stuck",
+      "description": "List disbursements still pending past a chosen age, bucketed against Durianpay's 2/5/10/90/210-minute webhook retry ladder."
+    },
+    {
+      "name": "Completion-Signature Verifier",
+      "command": "disbursements verify-completion",
+      "description": "Recompute the HMAC-SHA256(disbursement_id|amount) completion signature locally and compare it to the webhook's value."
+    }
+  ]
+}

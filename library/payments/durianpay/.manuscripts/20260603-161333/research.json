@@ -1,0 +1,345 @@
+{
+  "api_name": "durianpay",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "abmid/dpay-sdk-go",
+      "url": "https://github.com/abmid/dpay-sdk-go",
+      "language": "Go",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ayatmaulana/durianpay-go-sdk",
+      "url": "https://github.com/ayatmaulana/durianpay-go-sdk",
+      "language": "Go",
+      "install_method": "",
+      "stars": 4,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "durianpay/dpay-php",
+      "url": "https://github.com/durianpay/dpay-php",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "stripe/stripe-cli",
+      "url": "https://github.com/stripe/stripe-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Midtrans/SNAP-BI-Signature-Demo",
+      "url": "https://github.com/Midtrans/SNAP-BI-Signature-Demo",
+      "language": "Java",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-03T09:40:00Z",
+  "novel_features": [
+    {
+      "name": "SNAP Signature Debugger",
+      "command": "snap sign",
+      "description": "Build and inspect both SNAP signatures locally — see the exact string-to-sign, body hash, and headers so a 403 is diagnosed in seconds instead of bisected by hand.",
+      "rationale": "Constructs the full RSA-SHA256 + HMAC-SHA512 signing pipeline locally; today this exists only inside Postman pre-request scripts.",
+      "example": "durianpay-pp-cli snap sign --method POST --path /v1.0/transfer-interbank --body @req.json --debug --agent",
+      "why_it_matters": "Reach for this whenever a SNAP call returns 401/403 — it shows every signing intermediate without touching the API.",
+      "group": "SNAP made painless"
+    },
+    {
+      "name": "SNAP Token Lifecycle \u0026 Keygen",
+      "command": "snap token",
+      "description": "Check cached B2B token freshness against the 900-second TTL, and generate the RSA-2048 keypair SNAP onboarding requires with 'snap keygen'.",
+      "rationale": "Folds the openssl-dictated-over-a-call onboarding step and token babysitting into the CLI's credential store.",
+      "example": "durianpay-pp-cli snap token --status --agent",
+      "why_it_matters": "Use during SNAP onboarding or whenever token expiry is a suspected 401 cause.",
+      "group": "SNAP made painless"
+    },
+    {
+      "name": "Smart Payment Routing",
+      "command": "pay",
+      "description": "Charge a payment with the right API surface chosen automatically — SNAP where the method supports it, legacy otherwise, with --surface to override.",
+      "rationale": "Requires both the legacy Basic client and the hand-built SNAP signing client in one binary plus a method-to-surface policy table.",
+      "example": "durianpay-pp-cli pay --method qris --amount 50000 --dry-run",
+      "why_it_matters": "Pick this over raw charge/snap commands when you want company-policy-correct surface selection per payment method.",
+      "group": "One CLI, two API generations"
+    },
+    {
+      "name": "Smart Payout Routing",
+      "command": "payout",
+      "description": "Send a disbursement via SNAP transfer-interbank or e-wallet topup with account inquiry first, falling back to legacy batch submit when asked.",
+      "rationale": "Routes across both API surfaces and sequences inquiry-then-transfer, which no single endpoint provides.",
+      "example": "durianpay-pp-cli payout --bank 014 --account 12345678 --amount 100000.00 --dry-run",
+      "why_it_matters": "Use for one-off pay-outs from the terminal; use 'disbursements' commands for legacy batch flows.",
+      "group": "One CLI, two API generations"
+    },
+    {
+      "name": "SNAP Response-Code Explainer",
+      "command": "explain",
+      "description": "Decode any SNAP response code offline — meaning, originating service, HTTP status, and the likely fix.",
+      "rationale": "Seeds the 48-row SNAP response-code catalog from the docs into local SQLite; no doc-tab hunting.",
+      "example": "durianpay-pp-cli explain 4001801 --agent",
+      "why_it_matters": "First stop when a SNAP call returns a non-2xx responseCode.",
+      "group": "Offline reference that compounds"
+    },
+    {
+      "name": "Sandbox Simulation Helper",
+      "command": "sandbox simulate",
+      "description": "Print the exact sandbox magic values (even/odd account numbers, magic amounts) that force a success, pending, or failure outcome.",
+      "rationale": "The simulation rules live scattered across two docs pages; the CLI seeds them as a queryable table.",
+      "example": "durianpay-pp-cli sandbox simulate --scenario invalid-account --method bank-transfer",
+      "why_it_matters": "Use when writing integration tests against the sandbox to force specific outcomes deterministically.",
+      "group": "Offline reference that compounds"
+    },
+    {
+      "name": "Order/Payment Reconciliation",
+      "command": "reconcile",
+      "description": "Join synced orders against payments locally to flag charged-but-unsettled orders, payments with no order, and amount mismatches.",
+      "rationale": "Cross-entity SQLite join over synced data; no Durianpay endpoint answers this in one call.",
+      "example": "durianpay-pp-cli reconcile --since 7d --agent",
+      "why_it_matters": "Run at period close instead of exporting two CSVs and VLOOKUPing them.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Refund Audit",
+      "command": "refund-audit",
+      "description": "Flag refunds that exceed their source payment, target unsettled payments, or duplicate an earlier refund.",
+      "rationale": "Joins refunds against payments in the local store — a query shape the API cannot express.",
+      "example": "durianpay-pp-cli refund-audit --since 30d --agent",
+      "why_it_matters": "Use during reconciliation to catch refund anomalies before finance does.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stuck-Disbursement Detector",
+      "command": "stuck",
+      "description": "List disbursements still pending past a chosen age, bucketed against Durianpay's 2/5/10/90/210-minute webhook retry ladder.",
+      "rationale": "Time-windowed query over synced disbursements with the retry ladder seeded as context.",
+      "example": "durianpay-pp-cli stuck --older-than 90m --agent",
+      "why_it_matters": "Use as the disbursement-ops health check — anything bucketed past the final retry needs manual chase.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Completion-Signature Verifier",
+      "command": "disbursements verify-completion",
+      "description": "Recompute the HMAC-SHA256(disbursement_id|amount) completion signature locally and compare it to the webhook's value.",
+      "rationale": "The scheme is documented only inside an integration guide; the CLI makes it a one-liner.",
+      "example": "durianpay-pp-cli disbursements verify-completion --id dis_abc123 --amount 50000.00 --key dp_test_demo --signature 936658ef04244256212e98d13c1059dc606f777fcbfac7fdbdb7bb65f86bd196",
+      "why_it_matters": "Use when validating a disbursement-completion callback before marking a payout settled.",
+      "group": "SNAP made painless"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "SNAP Signature Debugger",
+      "command": "snap sign",
+      "description": "Build and inspect both SNAP signatures locally — see the exact string-to-sign, body hash, and headers so a 403 is diagnosed in seconds instead of bisected by hand.",
+      "rationale": "Constructs the full RSA-SHA256 + HMAC-SHA512 signing pipeline locally; today this exists only inside Postman pre-request scripts.",
+      "example": "durianpay-pp-cli snap sign --method POST --path /v1.0/transfer-interbank --body @req.json --debug --agent",
+      "why_it_matters": "Reach for this whenever a SNAP call returns 401/403 — it shows every signing intermediate without touching the API.",
+      "group": "SNAP made painless"
+    },
+    {
+      "name": "SNAP Token Lifecycle \u0026 Keygen",
+      "command": "snap token",
+      "description": "Check cached B2B token freshness against the 900-second TTL, and generate the RSA-2048 keypair SNAP onboarding requires with 'snap keygen'.",
+      "rationale": "Folds the openssl-dictated-over-a-call onboarding step and token babysitting into the CLI's credential store.",
+      "example": "durianpay-pp-cli snap token --status --agent",
+      "why_it_matters": "Use during SNAP onboarding or whenever token expiry is a suspected 401 cause.",
+      "group": "SNAP made painless"
+    },
+    {
+      "name": "Smart Payment Routing",
+      "command": "pay",
+      "description": "Charge a payment with the right API surface chosen automatically — SNAP where the method supports it, legacy otherwise, with --surface to override.",
+      "rationale": "Requires both the legacy Basic client and the hand-built SNAP signing client in one binary plus a method-to-surface policy table.",
+      "example": "durianpay-pp-cli pay --method qris --amount 50000 --dry-run",
+      "why_it_matters": "Pick this over raw charge/snap commands when you want company-policy-correct surface selection per payment method.",
+      "group": "One CLI, two API generations"
+    },
+    {
+      "name": "Smart Payout Routing",
+      "command": "payout",
+      "description": "Send a disbursement via SNAP transfer-interbank or e-wallet topup with account inquiry first, falling back to legacy batch submit when asked.",
+      "rationale": "Routes across both API surfaces and sequences inquiry-then-transfer, which no single endpoint provides.",
+      "example": "durianpay-pp-cli payout --bank 014 --account 12345678 --amount 100000.00 --dry-run",
+      "why_it_matters": "Use for one-off pay-outs from the terminal; use 'disbursements' commands for legacy batch flows.",
+      "group": "One CLI, two API generations"
+    },
+    {
+      "name": "SNAP Response-Code Explainer",
+      "command": "explain",
+      "description": "Decode any SNAP response code offline — meaning, originating service, HTTP status, and the likely fix.",
+      "rationale": "Seeds the 48-row SNAP response-code catalog from the docs into local SQLite; no doc-tab hunting.",
+      "example": "durianpay-pp-cli explain 4001801 --agent",
+      "why_it_matters": "First stop when a SNAP call returns a non-2xx responseCode.",
+      "group": "Offline reference that compounds"
+    },
+    {
+      "name": "Sandbox Simulation Helper",
+      "command": "sandbox simulate",
+      "description": "Print the exact sandbox magic values (even/odd account numbers, magic amounts) that force a success, pending, or failure outcome.",
+      "rationale": "The simulation rules live scattered across two docs pages; the CLI seeds them as a queryable table.",
+      "example": "durianpay-pp-cli sandbox simulate --scenario invalid-account --method bank-transfer",
+      "why_it_matters": "Use when writing integration tests against the sandbox to force specific outcomes deterministically.",
+      "group": "Offline reference that compounds"
+    },
+    {
+      "name": "Order/Payment Reconciliation",
+      "command": "reconcile",
+      "description": "Join synced orders against payments locally to flag charged-but-unsettled orders, payments with no order, and amount mismatches.",
+      "rationale": "Cross-entity SQLite join over synced data; no Durianpay endpoint answers this in one call.",
+      "example": "durianpay-pp-cli reconcile --since 7d --agent",
+      "why_it_matters": "Run at period close instead of exporting two CSVs and VLOOKUPing them.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Refund Audit",
+      "command": "refund-audit",
+      "description": "Flag refunds that exceed their source payment, target unsettled payments, or duplicate an earlier refund.",
+      "rationale": "Joins refunds against payments in the local store — a query shape the API cannot express.",
+      "example": "durianpay-pp-cli refund-audit --since 30d --agent",
+      "why_it_matters": "Use during reconciliation to catch refund anomalies before finance does.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stuck-Disbursement Detector",
+      "command": "stuck",
+      "description": "List disbursements still pending past a chosen age, bucketed against Durianpay's 2/5/10/90/210-minute webhook retry ladder.",
+      "rationale": "Time-windowed query over synced disbursements with the retry ladder seeded as context.",
+      "example": "durianpay-pp-cli stuck --older-than 90m --agent",
+      "why_it_matters": "Use as the disbursement-ops health check — anything bucketed past the final retry needs manual chase.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Completion-Signature Verifier",
+      "command": "disbursements verify-completion",
+      "description": "Recompute the HMAC-SHA256(disbursement_id|amount) completion signature locally and compare it to the webhook's value.",
+      "rationale": "The scheme is documented only inside an integration guide; the CLI makes it a one-liner.",
+      "example": "durianpay-pp-cli disbursements verify-completion --id dis_abc123 --amount 50000.00 --key dp_test_demo --signature 936658ef04244256212e98d13c1059dc606f777fcbfac7fdbdb7bb65f86bd196",
+      "why_it_matters": "Use when validating a disbursement-completion callback before marking a payout settled.",
+      "group": "SNAP made painless"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "DURIANPAY_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Durianpay",
+    "headline": "Every Durianpay API in one terminal — legacy and SNAP — with the dual-signature scheme handled for you and a local SQLite store no SDK has.",
+    "value_prop": "Durianpay has no CLI, no MCP server, and no maintained SDK; SNAP signing exists only inside Postman pre-request scripts. This CLI wraps both API generations, mints and caches B2B tokens, signs every SNAP request (RSA-SHA256 + HMAC-SHA512) transparently, and routes payments to the right surface per method. Synced orders, payments, refunds, and disbursements land in SQLite for reconciliation joins the API can't express.",
+    "auth_narrative": "Two credential sets. Legacy: set DURIANPAY_API_KEY (sandbox keys start dp_test_, live dp_live_) — sent as HTTP Basic with the key as username. SNAP additionally needs DURIANPAY_SNAP_CLIENT_KEY, DURIANPAY_SNAP_CLIENT_SECRET, DURIANPAY_SNAP_PRIVATE_KEY (path to your RSA-2048 private key PEM), DURIANPAY_SNAP_CHANNEL_ID, and optionally DURIANPAY_SNAP_PARTNER_ID (defaults to the client key); generate the keypair with 'snap keygen' and upload the public key in Dashboard \u003e Settings \u003e API Keys. Sandbox and live credentials are completely separate — switch with 'durianpay-pp-cli env sandbox' / 'env live'.",
+    "quickstart": [
+      {
+        "command": "durianpay-pp-cli doctor --dry-run",
+        "comment": "Verify config, credentials, and API reachability before anything else"
+      },
+      {
+        "command": "durianpay-pp-cli explain 2001800",
+        "comment": "Decode a SNAP response code offline — works with zero credentials"
+      },
+      {
+        "command": "durianpay-pp-cli orders list --limit 5 --json",
+        "comment": "First authenticated call: list recent orders (legacy surface)"
+      },
+      {
+        "command": "durianpay-pp-cli sync --resources orders,payments --since 7d",
+        "comment": "Pull recent activity into the local SQLite store"
+      },
+      {
+        "command": "durianpay-pp-cli reconcile --since 7d --agent",
+        "comment": "Join orders against payments locally to surface settlement gaps"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 DPAY_UNAUTHORIZED_ACCESS on legacy calls",
+        "fix": "Check DURIANPAY_API_KEY is set and matches the environment — sandbox keys (dp_test_) fail against live; run 'doctor' to see which env is active"
+      },
+      {
+        "symptom": "403 or invalid-signature on SNAP calls",
+        "fix": "Run 'snap sign --method POST --path \u003cpath\u003e --body @req.json --debug' to inspect the string-to-sign and both signatures; commonest causes are an unminified body hash, expired B2B token (900s TTL), or the public key not uploaded to the dashboard"
+      },
+      {
+        "symptom": "SNAP token requests rejected",
+        "fix": "Confirm DURIANPAY_SNAP_PRIVATE_KEY points at the RSA private key whose public half is uploaded in Dashboard \u003e Settings \u003e API Keys for the SAME environment"
+      },
+      {
+        "symptom": "Duplicate X-EXTERNAL-ID error on SNAP transactions",
+        "fix": "X-EXTERNAL-ID must be unique per calendar day; the CLI auto-generates one — pass --external-id only when you intend an idempotent retry of the same logical request"
+      },
+      {
+        "symptom": "reconcile/stuck/refund-audit return no rows",
+        "fix": "These read the local store — run 'sync --resources orders,payments,refunds,disbursements --since 30d' first"
+      }
+    ],
+    "when_to_use": "Use this CLI for Durianpay payment and disbursement operations from the terminal or from AI agents: charging payments, sending pay-outs, checking statuses, minting SNAP tokens, debugging SNAP signatures, simulating sandbox outcomes, and running reconciliation joins over synced local data. It is the right choice whenever a task names Durianpay, SNAP signatures for Durianpay, or Indonesian payment/disbursement ops against api.durianpay.id.",
+    "anti_triggers": [
+      "Do not use this CLI for other Indonesian gateways (Xendit, Midtrans, Doku) — the SNAP signing here is wired to Durianpay's endpoints and credential model",
+      "Do not use it to build checkout UIs — that's the Durianpay web/mobile SDKs' job; this CLI is server-side API operations only",
+      "Do not use it for Durianpay dashboard administration (user management, settlement schedule changes) — those have no public API",
+      "Do not point it at production with --env live for testing — sandbox credentials and 'sandbox simulate' exist for that"
+    ],
+    "recipes": [
+      {
+        "title": "Debug a SNAP 403 in one command",
+        "command": "durianpay-pp-cli snap sign --method POST --path /v1.0/balance-inquiry --body @req.json --debug",
+        "explanation": "Prints the minified body, its SHA-256 hex, the full string-to-sign, and the resulting X-SIGNATURE so you can see exactly which input diverges."
+      },
+      {
+        "title": "Send a payout with account verification",
+        "command": "durianpay-pp-cli payout --bank 014 --account 1234567890 --amount 250000.00 --name \"Budi Santoso\"",
+        "explanation": "Runs SNAP account inquiry first, then transfer-interbank, with the B2B token minted/cached automatically."
+      },
+      {
+        "title": "Period-close reconciliation",
+        "command": "durianpay-pp-cli sync --resources orders,payments --since 30d \u0026\u0026 durianpay-pp-cli reconcile --since 30d --agent",
+        "explanation": "Syncs a month of activity then joins orders against payments locally, flagging unsettled and mismatched rows."
+      },
+      {
+        "title": "Narrow a deep payment object for an agent",
+        "command": "durianpay-pp-cli payments list --limit 20 --agent --select data.id,data.status,data.amount,data.payment_details_type",
+        "explanation": "Payment objects are verbose; --select with dotted paths keeps agent context small."
+      },
+      {
+        "title": "Force a sandbox failure case",
+        "command": "durianpay-pp-cli sandbox simulate --scenario invalid-account --method bank-transfer",
+        "explanation": "Prints the odd-numbered account value that makes the sandbox reject the transfer, ready to paste into a test."
+      }
+    ],
+    "trigger_phrases": [
+      "charge a payment with durianpay",
+      "send a durianpay payout",
+      "debug my SNAP signature",
+      "check durianpay payment status",
+      "reconcile durianpay orders and payments",
+      "use durianpay",
+      "run durianpay"
+    ]
+  }
+}

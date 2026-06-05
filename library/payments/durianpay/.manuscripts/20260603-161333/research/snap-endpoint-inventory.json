@@ -1,0 +1,1571 @@
+[
+ {
+  "page": "access-token-b2b-1",
+  "server": "https://api.durianpay.id/v1.0",
+  "method": "POST",
+  "path": "/access-token/b2b",
+  "summary": "Generate Access Token (B2B) API",
+  "operationId": "access-token-b2b",
+  "headers": [
+   "Content-Type",
+   "X-TIMESTAMP",
+   "X-SIGNATURE",
+   "X-CLIENT-KEY"
+  ],
+  "body_schema": {
+   "type": "object",
+   "required": [
+    "grantType"
+   ],
+   "properties": {
+    "grantType": {
+     "type": "string",
+     "description": "Value: AUTHORIZATION_CODE"
+    }
+   }
+  },
+  "responses": [
+   "200",
+   "401",
+   "500",
+   "504"
+  ]
+ },
+ {
+  "page": "access-token-b2b",
+  "server": "https://api.durianpay.id/v1.0",
+  "method": "POST",
+  "path": "/access-token/b2b",
+  "summary": "Generate Access Token (B2B) API",
+  "operationId": "access-token-b2b",
+  "headers": [
+   "Content-Type",
+   "X-TIMESTAMP",
+   "X-SIGNATURE",
+   "X-CLIENT-KEY"
+  ],
+  "body_schema": {
+   "type": "object",
+   "required": [
+    "grantType"
+   ],
+   "properties": {
+    "grantType": {
+     "type": "string",
+     "description": "Value: AUTHORIZATION_CODE"
+    }
+   }
+  },
+  "responses": [
+   "200",
+   "401",
+   "500",
+   "504"
+  ]
+ },
+ {
+  "page": "balance-inquiry-api",
+  "server": "https://api.durianpay.id/v1.0",
+  "method": "POST",
+  "path": "/balance-inquiry",
+  "summary": "Balance Inquiry API",
+  "operationId": "balance-inquiry-api",
+  "headers": [
+   "Content-Type",
+   "X-TIMESTAMP",
+   "Authorization",
+   "X-SIGNATURE",
+   "X-PARTNER-ID",
+   "X-EXTERNAL-ID",
+   "CHANNEL-ID"
+  ],
+  "body_schema": {
+   "type": "object",
+   "required": [
+    "accountNo"
+   ],
+   "properties": {
+    "accountNo": {
+     "type": "string",
+     "description": "Merchant's balance accountNo (merchant_id)"
+    },
+    "additionalInfo": {
+     "type": "object",
+     "description": "The field for additional information. JSON object with keys: deviceId and channel. example: {\"deviceId\": \"1234567\", \"channel\": \"mobilephone\"}",
+     "properties": {
+      "deviceId": {
+       "type": "string",
+       "description": "device id of the request source"
+      },
+      "channel": {
+       "type": "string",
+       "description": "channel of the request source"
+      }
+     }
+    }
+   }
+  },
+  "responses": [
+   "200",
+   "400",
+   "401",
+   "409",
+   "500",
+   "504"
+  ]
+ },
+ {
+  "page": "bank-account-inquiry-api",
+  "server": "https://api.durianpay.id/v1.0",
+  "method": "POST",
+  "path": "/account-inquiry-external",
+  "summary": "Bank Account Inquiry API",
+  "operationId": "bank-account-inquiry-api",
+  "headers": [
+   "Content-Type",
+   "X-TIMESTAMP",
+   "Authorization",
+   "X-SIGNATURE",
+   "X-PARTNER-ID",
+   "X-EXTERNAL-ID",
+   "CHANNEL-ID"
+  ],
+  "body_schema": {
+   "type": "object",
+   "required": [
+    "beneficiaryAccountNo",
+    "beneficiaryBankCode"
+   ],
+   "properties": {
+    "beneficiaryAccountNo": {
+     "type": "string",
+     "description": "The account number of the recipient."
+    },
+    "beneficiaryBankCode": {
+     "type": "string",
+     "description": "The bank code of the account."
+    },
+    "additionalInfo": {
+     "type": "object",
+     "description": "The field for additional information. JSON object with keys: deviceId and channel. example: {\"deviceId\": \"1234567\", \"channel\": \"mobilephone\"}",
+     "properties": {
+      "deviceId": {
+       "type": "string",
+       "description": "device id of the request source"
+      },
+      "channel": {
+       "type": "string",
+       "description": "channel of the request source"
+      }
+     }
+    }
+   }
+  },
+  "responses": [
+   "200",
+   "202",
+   "400",
+   "401",
+   "409",
+   "500",
+   "504"
+  ]
+ },
+ {
+  "page": "bank-transfer-api",
+  "server": "https://api.durianpay.id/v1.0",
+  "method": "POST",
+  "path": "/transfer-interbank",
+  "summary": "Bank Transfer API",
+  "operationId": "bank-transfer-api",
+  "headers": [
+   "Content-Type",
+   "X-TIMESTAMP",
+   "Authorization",
+   "X-SIGNATURE",
+   "X-PARTNER-ID",
+   "X-EXTERNAL-ID",
+   "CHANNEL-ID"
+  ],
+  "body_schema": {
+   "type": "object",
+   "required": [
+    "partnerReferenceNo",
+    "amount",
+    "beneficiaryAccountName",
+    "beneficiaryAccountNo",
+    "beneficiaryBankCode",
+    "sourceAccountNo",
+    "transactionDate"
+   ],
+   "properties": {
+    "partnerReferenceNo": {
+     "type": "string",
+     "description": "Unique transaction identifier on merchant system which assigned to each transaction"
+    },
+    "amount": {
+     "type": "object",
+     "description": "JSON object with keys: value and currency. Example: {\"value\": \"20000.00\", \"currency\": \"IDR\"}",
+     "required": [
+      "value",
+      "currency"
+     ],
+     "properties": {
+      "value": {
+       "type": "string",
+       "description": "String representing value of the transaction : \"20000.00\"."
+      },
+      "currency": {
+       "type": "string",
+       "description": "Currency of the transaction: \"IDR\""
+      }
+     }
+    },
+    "beneficiaryAccountName": {
+     "type": "string",
+     "description": "The name of the recipient account."
+    },
+    "beneficiaryAccountNo": {
+     "type": "string",
+     "description": "The account number of the recipient."
+    },
+    "beneficiaryBankCode": {
+     "type": "string",
+     "description": "The bank code of the account, you get the list from fetch bank list API"
+    },
+    "beneficiaryAddress": {
+     "type": "string",
+     "description": "Address of transfer destination"
+    },
+    "beneficiaryBankName": {
+     "type": "string",
+     "description": "Name of the bank destination. example: Bank BRI"
+    },
+    "beneficiaryEmail": {
+     "type": "string",
+     "description": "Email address of the destination"
+    },
+    "currency": {
+     "type": "string",
+     "description": "Currency of the transaction i.e. IDR"
+    },
+    "customerReference": {
+     "type": "string",
+     "description": "Reference Number / No Referral / Transaction ID"
+    },
+    "sourceAccountNo": {
+     "type": "string",
+     "description": "Identifier of source account. its value is the same as merchant id"
+    },
+    "transactionDate": {
+     "type": "string",
+     "description": "Transaction date in ISO8601 format. Example: 2019-07-03T12:08:56-07:00"
+    },
+    "originatorInfos": {
+     "type": "array",
+     "description": "To be filled if there is a request from the sender or if the consent from sender has been granted. This is subject to Article 8 paragraph 5 of Law No. 3 of 2011 concerning Fund Transfers. Also check for other provisions, such as the PPATK regulation.",
+     "items": {
+      "properties": {
+       "originatorCustomerName": {
+        "type": "string",
+        "description": "Legal name of the entity on whose behalf the disbursement is made."
+       },
+       "originatorCustomerNo": {
+        "type": "string",
+        "description": "Legal name of the entity on whose behalf the disbursement is made."
+       },
+       "originatorBankCode": {
+        "type": "string",
+        "description": "Bank Indonesia-recognized bank code (e.g., '014' for BCA) OR  SWIFT codes (e.g., \"CENAIDJA\" for BCA)"
+       }
+      },
+      "required": [
+       "originatorCustomerName"
+      ],
+      "type": "object"
+     }
+    },
+    "additionalInfo": {
+     "type": "object",
+     "description": "The field for additional information. JSON object with keys: senderInformation, deviceId and channel. example: {\"deviceId\": \"1234567\", \"channel\": \"mobilephone\"}",
+     "properties": {
+      "deviceId": {
+       "type": "string",
+       "description": "device id of the request source"
+      },
+      "channel": {
+       "type": "string",
+       "description": "channel of the request source"
+      },
+      "originatorAdditionalInfos": {
+       "type": "object",
+       "description": "Part of additionalInfo object. The details of disbursement originator.",
+       "properties": {
+        "originatorIdentityType": {
+         "type": "string",
+         "description": "Type of originator identity. Valid values: 'company_id' (Company Identification Number / NIB), 'national_id' (National Identity Card number), 'passport' (Passport Number). Mandatory if 'originatorBankCode' or 'originatorCustomerNo' is empty."
+        },
+        "originatorIdentityNo": {
+         "type": "string",
+         "description": "Identity Number of the chosen identity type. 'company_id' and 'national_id' should contain numeric characters (e.g., '1234567890'). 'passport' should contain alphanumeric characters (e.g., 'ABC1234DEF'). Mandatory if 'originatorBankCode' or 'originatorCustomerNo' is empty."
+        },
+        "originatorCountry": {
+         "type": "string",
+         "description": "The country of the sender. Two-letter country code as per ISO-3166 alpha-2 standard. Refer to ISO-3166 alpha-2 country codes (https://www.iso.org/obp/ui/#search/code/). Mandatory if 'originatorBankCode' or 'originatorCustomerNo' is empty."
+        },
+        "originatorJob": {
+         "type": "string",
+         "description": "The job of the sender. Valid values: 'company', 'entrepreneur', 'private_employee', 'government_employee', 'foundation_employee' (non-profit employees), 'housewife', 'others' (uncategorized jobs)."
+        },
+        "originatorPlaceOfBirth": {
+         "type": "string",
+         "description": "The place of birth of the originator."
+        },
+        "originatorDateOfBirth": {
+         "type": "string",
+         "description": "The date of birth of the originator in YYYY-MM-DD format."
+        },
+        "originatorAddress": {
+         "type": "string",
+         "description": "The address of the originator."
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "responses": [
+   "200",
+   "202",
+   "400",
+   "401",
+   "409",
+   "500",
+   "504"
+  ]
+ },
+ {
+  "page": "bank-transfer-status-inquiry-api",
+  "server": "https://api.durianpay.id/v1.0",
+  "method": "POST",
+  "path": "/transfer/status",
+  "summary": "Bank Transfer Status Inquiry API",
+  "operationId": "bank-transfer-inquiry-status-api",
+  "headers": [
+   "Content-Type",
+   "X-TIMESTAMP",
+   "Authorization",
+   "X-SIGNATURE",
+   "X-PARTNER-ID",
+   "X-EXTERNAL-ID",
+   "CHANNEL-ID"
+  ],
+  "body_schema": {
+   "type": "object",
+   "required": [
+    "serviceCode",
+    "originalReferenceNo",
+    "originalPartnerReferenceNo"
+   ],
+   "properties": {
+    "originalPartnerReferenceNo": {
+     "type": "string",
+     "description": "The reference ID/number the merchant sends in the Bank Transfer API request\nNote: This field is required if originalReferenceNo is left empty"
+    },
+    "originalReferenceNo": {
+     "type": "string",
+     "description": "Original referenceNo durianpay returned when submitting interbank transfer request (value should be dis_item_xxx)\nNote: This field is required if originalPartnerReferenceNo is left empty"
+    },
+    "serviceCode": {
+     "type": "string",
+     "description": "Transaction type of the original transaction request. Value: 18 for bank transfer"
+    },
+    "additionalInfo": {
+     "type": "object",
+     "description": "The field for additional information. JSON object with keys: deviceId and channel. example: {\"deviceId\": \"1234567\", \"channel\": \"mobilephone\"}",
+     "properties": {
+      "deviceId": {
+       "type": "string",
+       "description": "device id of the request source"
+      },
+      "channel": {
+       "type": "string",
+       "description": "channel of the request source"
+      }
+     }
+    }
+   }
+  },
+  "responses": [
+   "200",
+   "400",
+   "401",
+   "404",
+   "409",
+   "500",
+   "504"
+  ]
+ },
+ {
+  "page": "cancel-ewallet-payment",
+  "server": "https://api.durianpay.id/v1.0",
+  "method": "POST",
+  "path": "/debit/cancel",
+  "summary": "Cancel eWallet Payment",
+  "operationId": "cancel-ewallet-payment",
+  "headers": [
+   "Content-Type",
+   "X-TIMESTAMP",
+   "Authorization",
+   "X-SIGNATURE",
+   "X-PARTNER-ID",
+   "X-EXTERNAL-ID",
+   "CHANNEL-ID"
+  ],
+  "body_schema": {
+   "type": "object",
+   "properties": {
+    "partnerReferenceNo": {
+     "type": "string",
+     "description": "Merchant internal payment reference ID."
+    },
+    "originalReferenceNo": {
+     "type": "string",
+     "description": "Durianpay internal payment reference ID."
+    },
+    "reason": {
+     "type": "string",
+     "description": "Reason of cancellation."
+    }
+   },
+   "required": [
+    "partnerReferenceNo",
+    "originalReferenceNo"
+   ],
+   "x-examples": {
+    "Example 1": {
+     "partnerReferenceNo": "payment_ref_id",
+     "originalReferenceNo": "pay_WCRPdO1Vhb4690",
+     "reason": ""
+    }
+   }
+  },
+  "responses": [
+   "200",
+   "202",
+   "400",
+   "403",
+   "404",
+   "500"
+  ]
+ },
+ {
+  "page": "cancel-qris",
+  "server": "https://api.durianpay.id/v1.0",
+  "method": "POST",
+  "path": "/qr/qr-mpm-cancel",
+  "summary": "Cancel QRIS",
+  "operationId": "cancel-qris",
+  "headers": [
+   "Content-Type",
+   "X-TIMESTAMP",
+   "Authorization",
+   "X-SIGNATURE",
+   "X-PARTNER-ID",
+   "X-EXTERNAL-ID",
+   "CHANNEL-ID"
+  ],
+  "body_schema": {
+   "type": "object",
+   "properties": {
+    "merchantId": {
+     "type": "string",
+     "description": "Merchant unique reference ID."
+    },
+    "originalReferenceNo": {
+     "type": "string",
+     "description": "Durianpay internal payment reference ID."
+    },
+    "reason": {
+     "type": "string",
+     "description": "Reason of cancellation."
+    }
+   },
+   "required": [
+    "merchantId",
+    "originalReferenceNo",
+    "reason"
+   ],
+   "x-examples": {
+    "Example 1": {
+     "partnerReferenceNo": "payment_ref_id",
+     "originalReferenceNo": "pay_WCRPdO1Vhb4690",
+     "reason": ""
+    }
+   }
+  },
+  "responses": [
+   "200",
+   "202",
+   "400",
+   "403",
+   "404",
+   "500"
+  ]
+ },
+ {
+  "page": "create-ewallet-payment",
+  "server": "https://api.durianpay.id/v1.0",
+  "method": "POST",
+  "path": "/debit/payment-host-to-host",
+  "summary": "Create eWallet Payment API",
+  "operationId": "create-ewallet-payment",
+  "headers": [
+   "Content-Type",
+   "X-TIMESTAMP",
+   "Authorization",
+   "X-SIGNATURE",
+   "X-PARTNER-ID",
+   "X-EXTERNAL-ID",
+   "CHANNEL-ID"
+  ],
+  "body_schema": {
+   "type": "object",
+   "properties": {
+    "partnerReferenceNo": {
+     "type": "string",
+     "description": "Transaction reference from merchant\u2019s system. Must be unique."
+    },
+    "amount": {
+     "type": "object",
+     "properties": {
+      "value": {
+       "type": "string",
+       "description": "Transaction amount with 2 decimal places."
+      },
+      "currency": {
+       "type": "string",
+       "description": "Currency in ISO 4217 format. Only \u201cIDR\u201d value is accepted."
+      }
+     },
+     "required": [
+      "value",
+      "currency"
+     ]
+    },
+    "additionalInfo": {
+     "type": "object",
+     "properties": {
+      "expiryDate": {
+       "type": "string",
+       "description": "Expiry time in ISO 8601: YYYY-MM-DDThh:mm:ss+07:00. It is set to default if not provided."
+      },
+      "customerInfo": {
+       "type": "object",
+       "properties": {
+        "customer_ref_id": {
+         "type": "string",
+         "description": "Merchant\u2019s customer reference."
+        },
+        "given_name": {
+         "type": "string",
+         "description": "Customer name."
+        },
+        "email": {
+         "type": "string",
+         "description": "Customer email address."
+        },
+        "mobile": {
+         "type": "string",
+         "description": "Customer phone number."
+        }
+       },
+       "description": "The customerInfo fields including customer_ref_id, given_name, email, mobile. Either mobile or email is a mandatory field whereas others are optional"
+      },
+      "phoneNumber": {
+       "type": "string",
+       "description": "Phone number attached to eWallet. Mandatory for OVO."
+      },
+      "channelCode": {
+       "type": "string",
+       "description": "eWallet channel of choice. Supported channels: \"GOPAY\", \"SHOPEEPAY\", \"DANA\", \"OVO\", \"LINKAJA\"."
+      }
+     },
+     "required": [
+      "phoneNumber",
+      "channelCode"
+     ]
+    }
+   },
+   "required": [
+    "partnerReferenceNo",
+    "amount",
+    "additionalInfo"
+   ],
+   "x-examples": {
+    "Example 1": {
+     "partnerReferenceNo": "payment_ref_id",
+     "amount": {
+      "value": "10000.00",
+      "currency": "IDR"
+     },
+     "additionalInfo": {
+      "expiryDate": "2009-07-03T12:08:56+07:00",
+      "customerInfo": {
+       "customer_ref_id": "cust_001",
+       "given_name": "Jane Doe",
+       "email": "redacted@example.com",
+       "mobile": "85722173217"
+      },
+      "phoneNumber": "085103885747",
+      "channelCode": "SHOPEEPAY"
+     }
+    }
+   }
+  },
+  "responses": [
+   "200",
+   "400",
+   "500"
+  ]
+ },
+ {
+  "page": "ewallet-account-inquiry-api",
+  "server": "https://api.durianpay.id/v1.0",
+  "method": "POST",
+  "path": "/emoney/account-inquiry",
+  "summary": "E-Wallet Account Inquiry API",
+  "operationId": "ewallet-account-inquiry-api",
+  "headers": [
+   "Content-Type",
+   "X-TIMESTAMP",
+   "Authorization",
+   "X-SIGNATURE",
+   "X-PARTNER-ID",
+   "X-EXTERNAL-ID",
+   "CHANNEL-ID"
+  ],
+  "body_schema": {
+   "type": "object",
+   "required": [
+    "customerNumber",
+    "amount",
+    "partnerReferenceNo",
+    "additionalInfo"
+   ],
+   "properties": {
+    "customerNumber": {
+     "type": "string",
+     "description": "The account number of the recipient. *Supported format: (628...) OR (08...)"
+    },
+    "amount": {
+     "type": "object",
+     "description": "JSON object with keys: value and currency. Example: {\"value\": \"20000.00\", \"currency\": \"IDR\"}. You can specify the value as 1, if you don't want to validate amount during validation",
+     "required": [
+      "value",
+      "currency"
+     ],
+     "properties": {
+      "value": {
+       "type": "string",
+       "description": "String representing value of the transaction : \"20000.00\"."
+      },
+      "currency": {
+       "type": "string",
+       "description": "Currency of the transaction: \"IDR\""
+      }
+     }
+    },
+    "partnerReferenceNo": {
+     "type": "string",
+     "description": "Unique transaction identifier on merchant system which assigned to each transaction"
+    },
+    "additionalInfo": {
+     "type": "object",
+     "description": "JSON object with keys: platformCode (bank code of the e-wallet), deviceId, and channel. example: {\"platformCode\": \"gopay\", \"deviceId\": \"1234567\", \"channel\": \"mobilephone\"}",
+     "required": [
+      "platformCode"
+     ],
+     "properties": {
+      "platformCode": {
+       "type": "string",
+       "description": "The bank code of the account. E-wallet Name- Platform Code  Pair: Dana - dana, Gopay - gopay ,Shopeepay - shopeepay, LinkAja - linkaja, OVO - ovo"
+      },
+      "deviceId": {
+       "type": "string",
+       "description": "device id of the request source"
+      },
+      "channel": {
+       "type": "string",
+       "description": "channel of the request source"
+      }
+     }
+    }
+   }
+  },
+  "responses": [
+   "200",
+   "202",
+   "400",
+   "401",
+   "409",
+   "500",
+   "504"
+  ]
+ },
+ {
+  "page": "ewallet-transfer-api",
+  "server": "https://api.durianpay.id/v1.0",
+  "method": "POST",
+  "path": "/emoney/topup",
+  "summary": "E-Wallet Transfer API",
+  "operationId": "ewallet-transfer-api",
+  "headers": [
+   "Content-Type",
+   "X-TIMESTAMP",
+   "Authorization",
+   "X-SIGNATURE",
+   "X-PARTNER-ID",
+   "X-EXTERNAL-ID",
+   "CHANNEL-ID"
+  ],
+  "body_schema": {
+   "type": "object",
+   "required": [
+    "partnerReferenceNo",
+    "customerNumber",
+    "amount",
+    "additionalInfo"
+   ],
+   "properties": {
+    "partnerReferenceNo": {
+     "type": "string",
+     "description": "Unique transaction identifier on merchant system which assigned to each transaction"
+    },
+    "customerName": {
+     "type": "string",
+     "description": "The name of the recipient."
+    },
+    "customerNumber": {
+     "type": "string",
+     "description": "The account number of the recipient. *Supported format: (628...) OR (08...)"
+    },
+    "amount": {
+     "type": "object",
+     "description": "JSON object with keys: value and currency. Example: {\"value\": \"20000.00\", \"currency\": \"IDR\"}",
+     "required": [
+      "value",
+      "currency"
+     ],
+     "properties": {
+      "value": {
+       "type": "string",
+       "description": "String representing value of the transaction : \"20000.00\"."
+      },
+      "currency": {
+       "type": "string",
+       "description": "Currency of the transaction: \"IDR\""
+      }
+     }
+    },
+    "transactionDate": {
+     "type": "string",
+     "description": "Transaction date in ISO8601 format. Example: 2019-07-03T12:08:56-07:00"
+    },
+    "additionalInfo": {
+     "type": "object",
+     "description": "JSON object with keys: platformCode (bank code of the e-wallet), deviceId, channel and senderInformation. example: {\"platformCode\": \"gopay\", \"deviceId\": \"1234567\", \"channel\": \"mobilephone\"}",
+     "required": [
+      "platformCode"
+     ],
+     "properties": {
+      "platformCode": {
+       "type": "string",
+       "description": "The bank code of the account. E-wallet Name- Platform Code  Pair: Dana - dana, Gopay - gopay ,Shopeepay - shopeepay, LinkAja - linkaja, OVO - ovo"
+      },
+      "deviceId": {
+       "type": "string",
+       "description": "device id of the request source"
+      },
+      "channel": {
+       "type": "string",
+       "description": "channel of the request source"
+      },
+      "senderInformation": {
+       "type": "object",
+       "description": "Part of items object. The details of disbursement sender. This field is optional but it will be mandatory in case of disbursement on behalf of another party.",
+       "required": [
+        "name",
+        "country"
+       ],
+       "properties": {
+        "name": {
+         "type": "string",
+         "description": "The name of the sender  For a name to be accepted, following rules should be adhered Name should have minimum length 2 and maximum length 50 Should start with alphabet Should not contain any character other than alphabets, spaces and the special charcacters , . ' -"
+        },
+        "country": {
+         "type": "string",
+         "description": "The country of the sender. Two letter country code as per ISO-3166 alpha-2 standard  Refer here for ISO-3166 alpha-2 country codes. ISO-3166 alpha-2 country code"
+        },
+        "senderAccount": {
+         "type": "object",
+         "description": "Part of senderInformation object. The details of sender account",
+         "required": [
+          "bankIdentifier",
+          "accountNumber"
+         ],
+         "properties": {
+          "bankIdentifier": {
+           "type": "string",
+           "description": "Valid ATM Code or Swift Code for sender bank  Valid ATM codes and Swift codes can be fetched using the Fetch banks API"
+          },
+          "accountNumber": {
+           "type": "string",
+           "description": "Account Number of sender"
+          }
+         }
+        },
+        "senderIdentity": {
+         "type": "object",
+         "description": "Part of senderInformation object. The details of sender idenity",
+         "required": [
+          "identityType"
+         ],
+         "properties": {
+          "identityType": {
+           "type": "string",
+           "description": "Type of sender identity  Valid values are company_id -> to provide Company Identification Number / NIB (Nomor Induk Berusaha) national_id -> to provide National Identity Card number passport -> to provide Passport Number"
+          },
+          "identityNumber": {
+           "type": "string",
+           "description": "Identity Number of chosen identity type  Valid values for company_id and national_id are strings with numeric characters. Example \"1234567890\"  Valid values for passport are strings with alphanumeric characters. Example \"ABC1234DEF\""
+          }
+         }
+        },
+        "job": {
+         "type": "string",
+         "description": "The job of the sender  Valid job types are company entrepreneur private_employee government_employee foundation_employee -> People who work at foundation / non profit organization as an employee housewife others -> For job that's not categorized in the option above"
+        },
+        "dateOfBirth": {
+         "type": "string",
+         "description": "The date of birth of the sender in YYYY-MM-DD format"
+        },
+        "placeOfBirth": {
+         "type": "string",
+         "description": "The place of birth of the sender"
+        },
+        "address": {
+         "type": "string",
+         "description": "The address of the sender"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "responses": [
+   "200",
+   "202",
+   "400",
+   "401",
+   "409",
+   "500",
+   "504"
+  ]
+ },
+ {
+  "page": "ewallet-transfer-status-inquiry-api",
+  "server": "https://api.durianpay.id/v1.0",
+  "method": "POST",
+  "path": "/emoney/topup-status",
+  "summary": "E-Wallet Transfer Status Inquiry API",
+  "operationId": "ewallet-transfer-inquiry-status-api",
+  "headers": [
+   "Content-Type",
+   "X-TIMESTAMP",
+   "Authorization",
+   "X-SIGNATURE",
+   "X-PARTNER-ID",
+   "X-EXTERNAL-ID",
+   "CHANNEL-ID"
+  ],
+  "body_schema": {
+   "type": "object",
+   "required": [
+    "originalReferenceNo",
+    "serviceCode",
+    "originalPartnerReferenceNo"
+   ],
+   "properties": {
+    "originalPartnerReferenceNo": {
+     "type": "string",
+     "description": "The reference ID/number the merchant sends in the E-Wallet Transfer API request.\nNote: This field is required if originalReferenceNo is left empty"
+    },
+    "originalReferenceNo": {
+     "type": "string",
+     "description": "Original referenceNo durianpay returned when submitting interbank transfer request (value should be dis_item_xxx) \nNote: This field is required if originalPartnerReferenceNo is left empty"
+    },
+    "serviceCode": {
+     "type": "string",
+     "description": "Transaction type of the original transaction request. Value: 38 for e-wallet transfer"
+    },
+    "additionalInfo": {
+     "type": "object",
+     "description": "JSON object with keys: deviceId and channel. example: {\"deviceId\": \"1234567\", \"channel\": \"mobilephone\"}",
+     "properties": {
+      "deviceId": {
+       "type": "string",
+       "description": "device id of the request source"
+      },
+      "channel": {
+       "type": "string",
+       "description": "channel of the request source"
+      }
+     }
+    }
+   }
+  },
+  "responses": [
+   "200",
+   "400",
+   "401",
+   "404",
+   "409",
+   "500",
+   "504"
+  ]
+ },
+ {
+  "page": "generate-qris",
+  "server": "https://api.durianpay.id/v1.0",
+  "method": "POST",
+  "path": "/qr/qr-mpm-generate",
+  "summary": "Generate QRIS",
+  "operationId": "generate-qris",
+  "headers": [
+   "Content-Type",
+   "X-TIMESTAMP",
+   "Authorization",
+   "X-SIGNATURE",
+   "X-PARTNER-ID",
+   "X-EXTERNAL-ID",
+   "CHANNEL-ID"
+  ],
+  "body_schema": {
+   "type": "object",
+   "properties": {
+    "partnerReferenceNo": {
+     "type": "string",
+     "description": "Transaction reference from merchant\u2019s system. Must be unique."
+    },
+    "amount": {
+     "type": "object",
+     "properties": {
+      "value": {
+       "type": "string",
+       "description": "Transaction amount with 2 decimal places."
+      },
+      "currency": {
+       "type": "string",
+       "description": "Currency in ISO 4217 format. Only \u201cIDR\u201d value is accepted."
+      }
+     },
+     "required": [
+      "value",
+      "currency"
+     ]
+    },
+    "additionalInfo": {
+     "type": "object",
+     "properties": {
+      "expiryDate": {
+       "type": "string",
+       "description": "Expiry time in ISO 8601: YYYY-MM-DDThh:mm:ss+07:00. Required if the VA is reusable. Defaults to 1 day if not provided."
+      },
+      "customerInfo": {
+       "type": "object",
+       "properties": {
+        "customer_ref_id": {
+         "type": "string",
+         "description": "Merchant\u2019s customer reference."
+        },
+        "given_name": {
+         "type": "string",
+         "description": "Customer name."
+        },
+        "email": {
+         "type": "string",
+         "description": "Customer email address."
+        },
+        "mobile": {
+         "type": "string",
+         "description": "Customer phone number."
+        }
+       },
+       "description": "The customerInfo fields including customer_ref_id, given_name, email, mobile. Either mobile or email is a mandatory field whereas others are optional"
+      }
+     }
+    }
+   },
+   "required": [
+    "partnerReferenceNo",
+    "amount",
+    "additionalInfo"
+   ],
+   "x-examples": {
+    "Example 1": {
+     "partnerReferenceNo": "payment_ref_id",
+     "amount": {
+      "value": "10000.00",
+      "currency": "IDR"
+     },
+     "additionalInfo": {
+      "expiryDate": "2009-07-03T12:08:56+07:00",
+      "customerInfo": {
+       "customer_ref_id": "cust_001",
+       "given_name": "Jane Doe",
+       "email": "redacted@example.com",
+       "mobile": "85722173217"
+      },
+      "phoneNumber": "085103885747",
+      "channelCode": "SHOPEEPAY"
+     }
+    }
+   }
+  },
+  "responses": [
+   "200",
+   "400",
+   "500"
+  ]
+ },
+ {
+  "page": "inquiry-ewallet-status",
+  "server": "https://api.durianpay.id/v1.0",
+  "method": "POST",
+  "path": "/debit/status",
+  "summary": "Inquiry eWallet Payment Status",
+  "operationId": "inquiry-ewallet-status",
+  "headers": [
+   "Content-Type",
+   "X-TIMESTAMP",
+   "Authorization",
+   "X-SIGNATURE",
+   "X-PARTNER-ID",
+   "X-EXTERNAL-ID",
+   "CHANNEL-ID"
+  ],
+  "body_schema": {
+   "type": "object",
+   "properties": {
+    "originalReferenceNo": {
+     "type": "string",
+     "description": "Durianpay internal payment reference ID. Please pass the same ID returned in payment API."
+    },
+    "serviceCode": {
+     "type": "string",
+     "description": "eWallet service code. Must be 54."
+    }
+   },
+   "required": [
+    "originalReferenceNo",
+    "serviceCode"
+   ],
+   "x-examples": {
+    "Example 1": {
+     "originalReferenceNo": "pay_WCRPdO1Vhb4690",
+     "serviceCode": "54"
+    }
+   }
+  },
+  "responses": [
+   "200",
+   "400",
+   "404",
+   "500"
+  ]
+ },
+ {
+  "page": "inquiry-qris",
+  "server": "https://api.durianpay.id/v1.0",
+  "method": "POST",
+  "path": "/qr/qr-mpm-query",
+  "summary": "Query QRIS",
+  "operationId": "inquiry-qris",
+  "headers": [
+   "Content-Type",
+   "X-TIMESTAMP",
+   "Authorization",
+   "X-SIGNATURE",
+   "X-PARTNER-ID",
+   "X-EXTERNAL-ID",
+   "CHANNEL-ID"
+  ],
+  "body_schema": {
+   "type": "object",
+   "properties": {
+    "originalReferenceNo": {
+     "type": "string",
+     "description": "Durianpay internal payment reference ID. Please pass the same ID returned in generate API."
+    },
+    "serviceCode": {
+     "type": "string",
+     "description": "QRIS service code. Must be 47."
+    }
+   },
+   "required": [
+    "originalReferenceNo",
+    "serviceCode"
+   ],
+   "x-examples": {
+    "Example 1": {
+     "originalReferenceNo": "pay_WCRPdO1Vhb4690",
+     "serviceCode": "54"
+    }
+   }
+  },
+  "responses": [
+   "200",
+   "400",
+   "404",
+   "500"
+  ]
+ },
+ {
+  "page": "inquiry-virtual-account-1",
+  "server": "https://api.durianpay.id/v1.0",
+  "method": "POST",
+  "path": "/transfer-va/inquiry-va",
+  "summary": "Inquiry Virtual Account API",
+  "operationId": "inquiry-virtual-account",
+  "headers": [
+   "Content-Type",
+   "X-TIMESTAMP",
+   "Authorization",
+   "X-SIGNATURE",
+   "X-PARTNER-ID",
+   "X-EXTERNAL-ID",
+   "CHANNEL-ID"
+  ],
+  "body_schema": {
+   "type": "object",
+   "properties": {
+    "partnerServiceId": {
+     "type": "string",
+     "description": "Virtual Account prefix. Please pass the same one as returned in the Create VA API."
+    },
+    "customerNo": {
+     "type": "string",
+     "description": "Virtual Account suffix. Please pass the same one as returned in the Create VA API."
+    },
+    "virtualAccountNo": {
+     "type": "string",
+     "description": "Full Virtual Account number. Please pass the same one as returned in the Create VA API."
+    },
+    "trxId": {
+     "type": "string",
+     "description": "Transaction reference from merchant\u2019s system. "
+    }
+   },
+   "required": [
+    "partnerServiceId",
+    "customerNo",
+    "virtualAccountNo",
+    "trxId"
+   ],
+   "x-examples": {
+    "Example 1": {
+     "partnerServiceId": "88008800",
+     "customerNo": "REDACTED-NUMBER",
+     "virtualAccountNo": "880088009876543210",
+     "trxId": "merchant_trx_0001"
+    }
+   }
+  },
+  "responses": [
+   "200",
+   "400",
+   "404",
+   "500"
+  ]
+ },
+ {
+  "page": "refund-ewallet-payment-1",
+  "server": "https://api.durianpay.id/v1.0",
+  "method": "POST",
+  "path": "/qr/qr-mpm-refund",
+  "summary": "Refund QRIS Payment",
+  "operationId": "refund-ewallet-payment",
+  "headers": [
+   "Content-Type",
+   "X-TIMESTAMP",
+   "Authorization",
+   "X-SIGNATURE",
+   "X-PARTNER-ID",
+   "X-EXTERNAL-ID",
+   "CHANNEL-ID"
+  ],
+  "body_schema": {
+   "type": "object",
+   "properties": {
+    "originalPartnerReferenceNo": {
+     "type": "string",
+     "description": "Merchant\u2019s unique transaction reference."
+    },
+    "originalReferenceNo": {
+     "type": "string",
+     "description": "Durianpay's unique transaction reference."
+    },
+    "partnerRefundNo": {
+     "type": "string",
+     "description": "Merchant\u2019s unique refund reference."
+    },
+    "refundAmount": {
+     "type": "object",
+     "properties": {
+      "value": {
+       "type": "string",
+       "description": "Refund amount, decimal with 2 digits (e.g., \u201c10000.00\u201d)."
+      },
+      "currency": {
+       "type": "string",
+       "description": "Currency, must be \u201cIDR\u201d."
+      }
+     },
+     "required": [
+      "value",
+      "currency"
+     ]
+    }
+   },
+   "required": [
+    "originalPartnerReferenceNo",
+    "originalReferenceNo",
+    "partnerRefundNo",
+    "refundAmount"
+   ],
+   "x-examples": {
+    "Example 1": {
+     "originalPartnerReferenceNo": "pay_ref_id",
+     "originalReferenceNo": "pay_WCRPdO1Vhb4690",
+     "partnerRefundNo": "ref_0000001",
+     "refundAmount": {
+      "value": "10000.00",
+      "currency": "IDR"
+     }
+    }
+   }
+  },
+  "responses": [
+   "200",
+   "202",
+   "400",
+   "403",
+   "404",
+   "500"
+  ]
+ },
+ {
+  "page": "refund-ewallet-payment",
+  "server": "https://api.durianpay.id/v1.0",
+  "method": "POST",
+  "path": "/debit/refund",
+  "summary": "Refund eWallet Payment",
+  "operationId": "refund-ewallet-payment",
+  "headers": [
+   "Content-Type",
+   "X-TIMESTAMP",
+   "Authorization",
+   "X-SIGNATURE",
+   "X-PARTNER-ID",
+   "X-EXTERNAL-ID",
+   "CHANNEL-ID"
+  ],
+  "body_schema": {
+   "type": "object",
+   "properties": {
+    "originalPartnerReferenceNo": {
+     "type": "string",
+     "description": "Merchant\u2019s unique transaction reference."
+    },
+    "originalReferenceNo": {
+     "type": "string",
+     "description": "Durianpay's unique transaction reference."
+    },
+    "partnerRefundNo": {
+     "type": "string",
+     "description": "Merchant\u2019s unique refund reference."
+    },
+    "refundAmount": {
+     "type": "object",
+     "properties": {
+      "value": {
+       "type": "string",
+       "description": "Refund amount, decimal with 2 digits (e.g., \u201c10000.00\u201d)."
+      },
+      "currency": {
+       "type": "string",
+       "description": "Currency, must be \u201cIDR\u201d."
+      }
+     },
+     "required": [
+      "value",
+      "currency"
+     ]
+    }
+   },
+   "required": [
+    "originalPartnerReferenceNo",
+    "originalReferenceNo",
+    "partnerRefundNo",
+    "refundAmount"
+   ],
+   "x-examples": {
+    "Example 1": {
+     "originalPartnerReferenceNo": "pay_ref_id",
+     "originalReferenceNo": "pay_WCRPdO1Vhb4690",
+     "partnerRefundNo": "ref_0000001",
+     "refundAmount": {
+      "value": "10000.00",
+      "currency": "IDR"
+     }
+    }
+   }
+  },
+  "responses": [
+   "200",
+   "202",
+   "400",
+   "403",
+   "404",
+   "500"
+  ]
+ },
+ {
+  "page": "snap-create-virtual-account",
+  "server": "https://api.durianpay.id/v1.0",
+  "method": "POST",
+  "path": "/transfer-va/create-va",
+  "summary": "Create Virtual Account",
+  "operationId": "post_transfer-va-create-va",
+  "headers": [
+   "Content-Type",
+   "X-TIMESTAMP",
+   "Authorization",
+   "X-SIGNATURE",
+   "X-PARTNER-ID",
+   "X-EXTERNAL-ID",
+   "CHANNEL-ID"
+  ],
+  "body_schema": {
+   "type": "object",
+   "properties": {
+    "virtualAccountName": {
+     "type": "string",
+     "description": "Mandatory Display name for the virtual account which will appear in ATM/Banking app.",
+     "default": "Durianpay Test Nobel"
+    },
+    "customerNo": {
+     "type": "string",
+     "description": "Account suffix for the virtual account. If not provided, a random suffix will be automatically generated for the virtual account number. ",
+     "default": "12345678"
+    },
+    "virtualAccountTrxType": {
+     "type": "string",
+     "description": "\"C\" = Closed Amount -> only accepts payments that exactly match the predefined amount  \n\"O\" = Open Amount -> accepts payments of any amount",
+     "default": "O"
+    },
+    "trxId": {
+     "type": "string",
+     "description": "Transaction reference from merchant\u2019s system. Must be unique."
+    },
+    "expiredDate": {
+     "type": "string",
+     "description": "Expiry time in ISO 8601: YYYY-MM-DDThh:mm:ss+07:00. Required if the VA is reusable. "
+    },
+    "totalAmount": {
+     "type": "object",
+     "properties": {
+      "currency": {
+       "type": "string",
+       "description": "Currency in ISO 4217 format. Only \u201cIDR\u201d value is accepted."
+      },
+      "value": {
+       "type": "string",
+       "description": "Transaction amount with 2 decimal places."
+      }
+     },
+     "description": "Conditional. Required if virtualAccountTrxType is set to \"C\" (Closed Amount Virtual Account).",
+     "required": [
+      "value",
+      "currency"
+     ]
+    },
+    "additionalInfo": {
+     "type": "object",
+     "properties": {
+      "bankCode": {
+       "type": "string",
+       "description": "The bank code for the Virtual Account. Supported Bank Codes: \"BRI\", \"BCA\", \"MANDIRI\", \"PERMATA\", \"CIMB\", \"BNI\u201d, \"NOBU\u201d",
+       "default": "NOBU"
+      },
+      "isReusable": {
+       "type": "boolean",
+       "description": "true = VA can be paid multiple times until expiry time                                   | \nfalse = VA can only be paid once. \n\nDefaults to false",
+       "default": "false"
+      },
+      "customerInfo": {
+       "type": "object",
+       "properties": {
+        "customer_ref_id": {
+         "type": "string",
+         "description": "Merchant\u2019s customer reference"
+        },
+        "given_name": {
+         "type": "string",
+         "description": "Customer name. Mandatory for crypto merchants as the parameter for payor name validation.",
+         "default": "Demetrius Noberu"
+        },
+        "email": {
+         "type": "string",
+         "description": "Customer's email address in a valid email format (e.g., redacted@example.com) without invalid special characters (\u00a2, \u00a3, \u00a7, \u00a9, etc.)",
+         "default": "redacted@example.com"
+        },
+        "mobile": {
+         "type": "string",
+         "description": "Customer's mobile number in Indonesia's phone number format (+62xxxxxxxxxx or 08xxxxxxxxxx), with a length of 8 to 14 digits.",
+         "default": "+6281213420562"
+        },
+        "id": {
+         "type": "string",
+         "description": "Durianpay's customer ID"
+        }
+       },
+       "description": "Object containing fields (id, email, mobile, given_name, customer_ref_id). \n\ngiven_name is mandatory for crypto merchants, as this will be the field being used for payor information validation. "
+      }
+     },
+     "required": [
+      "bankCode"
+     ]
+    }
+   },
+   "required": [
+    "virtualAccountName",
+    "virtualAccountTrxType",
+    "additionalInfo",
+    "trxId"
+   ]
+  },
+  "responses": [
+   "200"
+  ]
+ },
+ {
+  "page": "update-virtual-account",
+  "server": "https://api.durianpay.id/v1.0",
+  "method": "PUT",
+  "path": "/transfer-va/update-va",
+  "summary": "Update Virtual Account API",
+  "operationId": "update-virtual-account",
+  "headers": [
+   "Content-Type",
+   "X-TIMESTAMP",
+   "Authorization",
+   "X-SIGNATURE",
+   "X-PARTNER-ID",
+   "X-EXTERNAL-ID",
+   "CHANNEL-ID"
+  ],
+  "body_schema": {
+   "type": "object",
+   "x-examples": {
+    "Example 1": {
+     "virtualAccountName": "Jane Doe",
+     "customerNo": "REDACTED-NUMBER",
+     "trxId": "merchant_trx_0001",
+     "totalAmount": {
+      "value": "150000.00",
+      "currency": "IDR"
+     },
+     "virtualAccountTrxType": "O",
+     "expiredDate": "2030-12-31T23:59:59+07:00",
+     "additionalInfo": {
+      "bankCode": "BCA",
+      "isReusable": true,
+      "customerInfo": {
+       "customer_ref_id": "cust_001",
+       "given_name": "Jane Doe",
+       "email": "redacted@example.com",
+       "mobile": "6281234567890"
+      }
+     }
+    }
+   },
+   "required": [
+    "partnerServiceId",
+    "customerNo",
+    "virtualAccountNo",
+    "virtualAccountName",
+    "trxId"
+   ],
+   "properties": {
+    "partnerServiceId": {
+     "type": "string",
+     "x-stoplight": {
+      "id": "u2uevvw8teqkh"
+     },
+     "description": "Virtual Account prefix. Please pass the same one as returned in the Create VA API."
+    },
+    "customerNo": {
+     "type": "string",
+     "description": "Virtual Account suffix. Please pass the same one as returned in the Create VA API."
+    },
+    "virtualAccountNo": {
+     "type": "string",
+     "x-stoplight": {
+      "id": "ptaialhrzw1rx"
+     },
+     "description": "Full Virtual Account Number. Please pass the same one as returned in the Create VA API."
+    },
+    "virtualAccountName": {
+     "type": "string",
+     "description": "Display name for the virtual account which will appear in ATM/Banking app."
+    },
+    "trxId": {
+     "type": "string",
+     "description": "Transaction reference from merchant\u2019s system."
+    },
+    "expiredDate": {
+     "type": "string",
+     "description": "Expiry time in ISO 8601: YYYY-MM-DDThh:mm:ss+07:00."
+    },
+    "totalAmount": {
+     "type": "object",
+     "description": "Conditional. Required if updating the amount of a closed-amount type virtual account.",
+     "required": [
+      "currency",
+      "value"
+     ],
+     "properties": {
+      "currency": {
+       "type": "string",
+       "description": "Currency in ISO 4217 format. Only \u201cIDR\u201d value is accepted."
+      },
+      "value": {
+       "type": "string",
+       "description": "Transaction amount with 2 decimal places."
+      }
+     }
+    }
+   }
+  },
+  "responses": [
+   "200",
+   "400",
+   "404",
+   "500"
+  ]
+ }
+]

@@ -1,0 +1,138 @@
+# Durianpay Documentation
+
+## Guides
+- [Reports & Reconciliations](https://docs.durianpay.id/docs/reports-reconciliations.md)
+- [Subaccount Feature](https://docs.durianpay.id/docs/subaccount-feature.md): Manage Funds, Branches, and Partners with Ease.
+- [Integration Steps](https://docs.durianpay.id/docs/integrations.md)
+- [Subaccount Types](https://docs.durianpay.id/docs/subaccount-types.md)
+- [Use Cases](https://docs.durianpay.id/docs/use-cases-1.md)
+- [Check Payment Status](https://docs.durianpay.id/docs/check-payments-status.md)
+- [SNAP Virtual Account Notify / Callback Handling](https://docs.durianpay.id/docs/snap-virtual-account-notify-callback-handling.md)
+- [Legacy Webhooks Events ](https://docs.durianpay.id/docs/webhooks-events.md)
+- [Refunds](https://docs.durianpay.id/docs/refund-apis.md)
+- [Integration Steps](https://docs.durianpay.id/docs/refund-integration-walkthrough.md)
+- [Refund Limitations](https://docs.durianpay.id/docs/refund-limitations.md)
+- [Faster Settlements](https://docs.durianpay.id/docs/faster-settlements.md)
+- [Settlements](https://docs.durianpay.id/docs/settlements.md)
+- [Settlement SLA](https://docs.durianpay.id/docs/settlement-service-level-agreements.md)
+- [Cancelling a Payment](https://docs.durianpay.id/docs/cancelling-a-payment.md)
+- [Dynamic Routing](https://docs.durianpay.id/docs/dynamic-routing.md)
+- [Overview](https://docs.durianpay.id/docs/integration-walkthrough.md): Accept payments in your website, app OR get started with NO CODE integration
+- [BNPL](https://docs.durianpay.id/docs/bnpl.md): Accept payment through Buy Now Pay Later for your customer convenience
+- [Payment Flow](https://docs.durianpay.id/docs/payment-flow-4.md)
+- [Cards](https://docs.durianpay.id/docs/cards.md): Accept payment through Debit and Credit Cards
+- [E-wallet](https://docs.durianpay.id/docs/e-wallet.md): Accept payments conveniently using top 5 e-wallets in Indonesia
+- [Limitations](https://docs.durianpay.id/docs/limitations.md)
+- [Payment Flow](https://docs.durianpay.id/docs/payment-flow-1.md)
+- [Payment Methods](https://docs.durianpay.id/docs/payment-methods.md)
+- [Internet Banking](https://docs.durianpay.id/docs/internet-banking.md): Accept payments through internet banking
+- [Payment Flow](https://docs.durianpay.id/docs/payment-flow-5.md)
+- [QRIS](https://docs.durianpay.id/docs/qris.md): Enable QRIS for standardized QR Code payment in your stores
+- [Payment Flow](https://docs.durianpay.id/docs/payment-flow-2.md)
+- [Convenience Store](https://docs.durianpay.id/docs/retail-store.md): Provide the convenience of transacting through nearby retail stores
+- [Payment Flow](https://docs.durianpay.id/docs/payment-flow-3.md)
+- [Difference between Aggregator and Direct Model](https://docs.durianpay.id/docs/difference-between-aggregator-and-direct-model.md)
+- [Feature and Use Cases](https://docs.durianpay.id/docs/feature-and-use-cases.md)
+- [Virtual Account](https://docs.durianpay.id/docs/virtual-account-2.md): Accept payment through virtual account of major banks in Indonesia
+- [Download Receipt](https://docs.durianpay.id/docs/generate-receipt.md)
+- [Handling errors](https://docs.durianpay.id/docs/handling-errors-1.md)
+- [Handling Webhooks](https://docs.durianpay.id/docs/handling-webhooks.md)
+- [Send notification to recipient](https://docs.durianpay.id/docs/send-notification-to-recipient.md)
+- [Verifying Recipients](https://docs.durianpay.id/docs/checking-recipients.md)
+- [IP Whitelisting to secure your API transaction](https://docs.durianpay.id/docs/ip-whitelisting.md): Ensure only the right party can use your disbursment funds
+- [Preparing your fund](https://docs.durianpay.id/docs/preparing-your-fund.md)
+- [Preventing Double Pay Outs on API transactions](https://docs.durianpay.id/docs/preventing-double-pay-outs.md)
+- [No Code Pay Outs](https://docs.durianpay.id/docs/no-code-pay-outs.md)
+- [Preparation & Configuration](https://docs.durianpay.id/docs/preparation-configuration.md)
+- [Preparing your fund](https://docs.durianpay.id/docs/preparing-your-fund-1.md)
+- [Reconcile your transactions](https://docs.durianpay.id/docs/reconciliation.md)
+- [Transacting via Dashboard](https://docs.durianpay.id/docs/transacting-via-dashboard.md)
+- [Overview](https://docs.durianpay.id/docs/overview.md): Disburse with Ease—130+ Destination, Zero Hassle & Real-time
+- [Supported Banks & Limits](https://docs.durianpay.id/docs/supported-banks-limits.md): Durianpay offers a real time pay outs which available 24/7 through 130+ banks and top 5 e-wallets.
+- [Payment APIs](https://docs.durianpay.id/docs/durian-apis.md)
+- [Integration Steps](https://docs.durianpay.id/docs/payment-api-integration-steps.md)
+- [Payment Flow](https://docs.durianpay.id/docs/payment-flow.md): Understand how payment flow through Durianpay
+- [Preparation / Prerequisite for SNAP](https://docs.durianpay.id/docs/snap-preparation-prerequisite.md)
+- [Quick Start: JavaScript](https://docs.durianpay.id/docs/checkout-page-implementation.md)
+- [Durian Checkout](https://docs.durianpay.id/docs/durian-checkout.md): Modern and beautiful checkout - with batteries included
+- [Creation via API](https://docs.durianpay.id/docs/create-payment-link-via-api.md)
+- [Creation via Dashboard](https://docs.durianpay.id/docs/creation-via-dashboard.md)
+- [No Code Solutions - Payment Link](https://docs.durianpay.id/docs/no-code-solutions-payment-link.md)
+- [WooCommerce](https://docs.durianpay.id/docs/plugin-woocommerce.md)
+- [ASPI Website URLs](https://docs.durianpay.id/docs/aspi-website-urls.md)
+- [Test & Go Live with SNAP](https://docs.durianpay.id/docs/go-live-with-snap.md)
+- [Sending Pay Outs](https://docs.durianpay.id/docs/payout-integration-steps.md)
+- [Disbursement APIs Implementation](https://docs.durianpay.id/docs/disbursement-apis-implementation.md)
+- [Idempotent Request Implementation Guide](https://docs.durianpay.id/docs/idempotent-request-implementation-guide.md)
+- [Preparation / Prerequisite](https://docs.durianpay.id/docs/pay-out-legacy-api-prerequisite.md)
+- [Preparation / Prerequisite for SNAP](https://docs.durianpay.id/docs/preparation-prerequisite-for-snap.md)
+- [Integration Steps for SNAP](https://docs.durianpay.id/docs/snap-disbursement-api-implementation.md)
+- [Simulating Test Payments](https://docs.durianpay.id/docs/simulating-test-payments.md)
+- [Simulating Test Pay Outs](https://docs.durianpay.id/docs/simulating-your-test-pay-outs.md)
+- [Integration Overview](https://docs.durianpay.id/docs/get-started.md)
+- [Available Integration Types](https://docs.durianpay.id/docs/overvew.md)
+- [Required Documents](https://docs.durianpay.id/docs/uat-form.md)
+- [Website Checklist](https://docs.durianpay.id/docs/website-checklist.md)
+- [Welcome to Durianpay](https://docs.durianpay.id/docs/welcome-to-durianpay.md): 👋 Fast, secure, and scalable payments solution for accepting and sending payments across Indonesia
+
+## API Reference
+- [Create Refund](https://docs.durianpay.id/reference/create-refund.md): The following endpoint creates an Refund.
+- [Refund Fetch by Payment ID](https://docs.durianpay.id/reference/get-refund-by-payment-id.md)
+- [Refund Fetch by ID](https://docs.durianpay.id/reference/refund-fetch-by-id.md): The following endpoint retrieves the details of a single refund
+- [Refund Fetch](https://docs.durianpay.id/reference/refund-fetch.md): The following endpoint retrieves list of all Refunds created
+- [Authentication](https://docs.durianpay.id/reference/authentication.md)
+- [Introduction](https://docs.durianpay.id/reference/introduction.md)
+- [Generate Access Token (B2B) API](https://docs.durianpay.id/reference/access-token-b2b.md): The following endpoint generate access token for SNAP transaction APIs
+- [Balance Inquiry API](https://docs.durianpay.id/reference/balance-inquiry-api.md): The following endpoint fetch the current balance in the merchant's Durianpay account.
+- [Bank Account Inquiry API](https://docs.durianpay.id/reference/bank-account-inquiry-api.md): The following endpoint can be used to check validity of destination bank account and account name information
+- [Bank Transfer API](https://docs.durianpay.id/reference/bank-transfer-api.md): The following endpoint to submit bank transfer pay outs
+- [Bank Transfer Status Inquiry API](https://docs.durianpay.id/reference/bank-transfer-status-inquiry-api.md): The following endpoint to inquiry bank transfer pay outs status
+- [Disbursement Status Definition](https://docs.durianpay.id/reference/disbursement.md)
+- [E-Wallet Account Inquiry API](https://docs.durianpay.id/reference/ewallet-account-inquiry-api.md): The following endpoint can be used to check validity of e-wallet account and account name information
+- [E-Wallet Transfer API](https://docs.durianpay.id/reference/ewallet-transfer-api.md): The following endpoint to submit e-wallet transfer pay outs
+- [E-Wallet Transfer Status Inquiry API](https://docs.durianpay.id/reference/ewallet-transfer-status-inquiry-api.md): The following endpoint to inquiry e-wallet transfer pay outs
+- [Response Code Handling](https://docs.durianpay.id/reference/response-code-handling.md)
+- [SNAP Bank Code List](https://docs.durianpay.id/reference/snap-bank-code-list.md)
+- [Transfer Bank Notify](https://docs.durianpay.id/reference/transfer-bank-notify.md)
+- [Create Order API](https://docs.durianpay.id/reference/create-order.md): The following endpoint creates an Order
+- [Order Fetch by ID API](https://docs.durianpay.id/reference/fetch-order-by-id.md): The following endpoint retrieves the details of a single Order
+- [Order Fetch API](https://docs.durianpay.id/reference/fetch-order.md): The following endpoint retrieves the details of all Orders created
+- [Order Object](https://docs.durianpay.id/reference/order-object.md)
+- [Cancel Payment API](https://docs.durianpay.id/reference/cancel-payment-api.md): The following endpoint cancels a single Payment
+- [Check Payment Status](https://docs.durianpay.id/reference/check-payment-status.md): The following endpoint checks the status of a single Payment
+- [Payment Fetch by ID](https://docs.durianpay.id/reference/fetch-payment-by-id.md): The following endpoint retrieves the details of a single payment
+- [Buy Now Pay Later (BNPL)](https://docs.durianpay.id/reference/payment-charge-bnpl.md): The following endpoint charges the payment for Buy Now Pay Later
+- [Card](https://docs.durianpay.id/reference/payment-charge-card.md): The following endpoint charges the payment for Card
+- [E-wallet](https://docs.durianpay.id/reference/payment-charge-ewallet.md): The following endpoint charges the payment for E-wallet
+- [Online Banking](https://docs.durianpay.id/reference/payment-charge-online-banking.md): The following endpoint charges the payment for online banking
+- [QRIS](https://docs.durianpay.id/reference/payment-charge-qris.md): The following endpoint charges the payment for QRIS
+- [Retail Store](https://docs.durianpay.id/reference/payment-charge-retail-store.md): The following endpoint charges the payment for Retail Store
+- [Virtual Account](https://docs.durianpay.id/reference/payment-charge-virtual-account.md): The following endpoint charges the payment for virtual account
+- [Payment Fetch API](https://docs.durianpay.id/reference/payment-fetch-api.md): The following endpoint retrieves the details of all Payments created
+- [Payment Object](https://docs.durianpay.id/reference/payment-object.md)
+- [Verify Payments](https://docs.durianpay.id/reference/verify-payments.md): The following endpoint verifies the signature of payment callback
+- [Generate Access Token (B2B) API](https://docs.durianpay.id/reference/access-token-b2b-1.md): The following endpoint generate access token for SNAP transaction APIs
+- [Cancel eWallet Payment](https://docs.durianpay.id/reference/cancel-ewallet-payment.md): The following endpoint can be used to cancel an incomplete eWallet payment.
+- [Create eWallet Payment API](https://docs.durianpay.id/reference/create-ewallet-payment.md): The following endpoint can be used to initiate payment via eWallets.
+- [eWallet Notification](https://docs.durianpay.id/reference/ewallet-notif.md): Durianpay triggers events whenever a status change occurs on your SNAP eWallet transaction. These events are sent to your configured webhook URL via HTTP POST.  - If your server does not respond with 200 OK, we retry delivery after 2, 5, 10, 90, and 210 minutes. - Each request includes a signature header that must be verified before processing the payload.
+- [Inquiry eWallet Payment Status](https://docs.durianpay.id/reference/inquiry-ewallet-status.md): The following endpoint can be used to inquiry an eWallet payment status.
+- [Refund eWallet Payment](https://docs.durianpay.id/reference/refund-ewallet-payment.md): The following endpoint can be used to refund a completed eWallet payment.
+- [Cancel QRIS](https://docs.durianpay.id/reference/cancel-qris.md): The following endpoint can be used to cancel an incomplete QRIS payment.
+- [Generate QRIS](https://docs.durianpay.id/reference/generate-qris.md): The following endpoint can be used to generate a QRIS code.
+- [Query QRIS](https://docs.durianpay.id/reference/inquiry-qris.md): The following endpoint can be used to query a QRIS payment.
+- [QRIS Notification](https://docs.durianpay.id/reference/qris-notif.md): Durianpay triggers events whenever a status change occurs on your SNAP QRIS transaction. These events are sent to your configured webhook URL via HTTP POST.  - If your server does not respond with 200 OK, we retry delivery after 2, 5, 10, 90, and 210 minutes. - Each request includes a signature header that must be verified before processing the payload.
+- [Refund QRIS Payment](https://docs.durianpay.id/reference/refund-ewallet-payment-1.md): The following endpoint can be used to refund a completed QRIS payment.
+- [Inquiry Virtual Account API](https://docs.durianpay.id/reference/inquiry-virtual-account-1.md): The following endpoint can be used to inquiry a virtual account information.
+- [Create Virtual Account](https://docs.durianpay.id/reference/snap-create-virtual-account.md): The following endpoint creates a new virtual account
+- [Update Virtual Account](https://docs.durianpay.id/reference/update-virtual-account.md): Use this endpoint to update the properties of an existing virtual account. Common use cases include:  - Updating the transaction amount for closed virtual accounts  - Extending or modifying the expiry date of an active virtual account  - Expiring a virtual account immediately by setting the expiredDate to the current timestamp  This operation requires a valid `virtualAccountNo`, along with the associated `trxId`.
+- [Create Virtual Account](https://docs.durianpay.id/reference/create-virtual-account.md): The following endpoint creates a new virtual account
+- [Fetch Virtual Account by ID](https://docs.durianpay.id/reference/fetch-virtual-account-by-id.md): The following endpoint retrieves the details of a single Virtual Account
+- [Fetch Virtual Account](https://docs.durianpay.id/reference/fetch-virtual-account.md): The following endpoint retrieves the details of all Virtual Accounts created
+- [Patch Virtual Accounts By ID](https://docs.durianpay.id/reference/virtual-accounts-patch-by-id.md): The following endpoint is used to override Expiry Time of a single Virtual Account.
+- [Update Customer API](https://docs.durianpay.id/reference/update-customer-api.md): This following endpoint updates customer data
+- [Fetch Sub-Account Fees](https://docs.durianpay.id/reference/fetch-sub-account-fees.md): The following endpoint retrieves fees of a single subaccount
+- [Fetch Subaccount Balance API](https://docs.durianpay.id/reference/fetch-subaccount-balance.md): The following endpoint retrieves balance of a single subaccount
+- [Fetch Sub-Account](https://docs.durianpay.id/reference/fetch-subaccount.md): This following endpoint retrieves the details of all created subaccounts
+- [Register Sub-Account](https://docs.durianpay.id/reference/register-sub-account.md): The following endpoint registers a sub account under your master account.
+- [Update Sub-Account](https://docs.durianpay.id/reference/update-sub-account-api.md): The following endpoint updates subaccount's informations
+- [Update Sub-Account Fees](https://docs.durianpay.id/reference/update-sub-account-fees.md): This following endpoint allows master accounts to manage fees for subaccounts
