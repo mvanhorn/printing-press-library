@@ -82,10 +82,12 @@ func classifyRefundAudit(refunds []localRefund, paymentAmounts map[string]float6
 		dupGroups[dk] = append(dupGroups[dk], r.ID)
 	}
 
-	// Over-refunds: total refunded exceeds the payment amount.
+	// Over-refunds: total refunded exceeds the payment amount. Use a sub-cent
+	// epsilon (consistent with reconcile) so float accumulation artifacts from
+	// summing string-parsed amounts don't mask or fabricate a fractional overage.
 	for pid, total := range totalByPayment {
 		amt := paymentAmounts[pid]
-		if total > amt {
+		if total-amt > 0.005 {
 			res.OverRefunds = append(res.OverRefunds, overRefund{
 				PaymentID:     pid,
 				PaymentAmount: amt,

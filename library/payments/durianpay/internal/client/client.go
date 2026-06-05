@@ -247,9 +247,15 @@ func (c *Client) readCache(path string, params map[string]string) (json.RawMessa
 }
 
 func (c *Client) writeCache(path string, params map[string]string, data json.RawMessage) {
-	os.MkdirAll(c.cacheDir, 0o755)
+	// Cached API responses can contain payment/customer data; keep them
+	// owner-only (0600 file, 0700 dir) so other users on a shared machine
+	// cannot read financial data out of the cache. Mirrors the SNAP token
+	// cache permissions in internal/snap/client.go.
+	if err := os.MkdirAll(c.cacheDir, 0o700); err != nil {
+		return
+	}
 	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
-	os.WriteFile(cacheFile, []byte(data), 0o644)
+	_ = os.WriteFile(cacheFile, []byte(data), 0o600)
 }
 
 // invalidateCache wholesale-removes the cache directory so the next read
