@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "substack-notes-recent-reader",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260605-230950",
+  "base_printing_press_version": "4.22.1",
+  "summary": "Add a portable recent Notes reader and profile-feed contract.",
+  "reason": "The generated raw endpoints did not provide an ergonomic read command for recent published Notes.",
+  "files": [
+    "internal/cli/notes.go",
+    "internal/cli/notes_test.go",
+    "spec.yaml",
+    "tools-manifest.json",
+    "internal/types/types.go",
+    "internal/mcp/tools.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Fake-server tests cover feed-card filtering and a live read smoke returned a valid compact note shape."
+}

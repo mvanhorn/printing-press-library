@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "substack-notes",
+  "run_id": "20260605-230950",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 60,
+  "tests_passed": 60,
+  "tests_skipped": 42,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

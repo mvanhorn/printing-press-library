@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "substack-notes-pp-mcp",
+  "display_name": "Substack Notes",
+  "version": "4.22.1",
+  "description": "Unofficial Substack Notes endpoints observed from the authenticated web app.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/substack-notes-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/substack-notes-pp-mcp",
+      "args": [],
+      "env": {
+        "SUBSTACK_NOTES_COOKIE_AUTH": "${user_config.substack_notes_cookie_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "substack_notes_cookie_auth": {
+      "type": "string",
+      "title": "SUBSTACK_NOTES_COOKIE_AUTH",
+      "description": "Cookie header from your own authenticated Substack browser session. Treat it like a password.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
