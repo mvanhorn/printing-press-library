@@ -39,10 +39,10 @@ func newNovelSinceCmd(flags *rootFlags) *cobra.Command {
 		Use:   "since [window]",
 		Short: "Show planned, completed and missed sessions in a recent window.",
 		Long: "Aggregate calendar events and activities across a window (default 7d)\n" +
-			"into upcoming planned workouts, completed activities, and missed\n" +
-			"planned workouts (no matching activity). Use for a quick 'what\n" +
-			"happened / what's coming' digest. Do NOT use for a single date; use\n" +
-			"'athlete events list'.",
+			"into upcoming planned sessions, completed activities, and missed\n" +
+			"planned sessions — workouts and races with no matching activity. Use\n" +
+			"for a quick 'what happened / what's coming' digest. Do NOT use for a\n" +
+			"single date; use 'athlete events list'.",
 		Example:     "  intervals-icu-pp-cli since 14d --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -102,9 +102,12 @@ func newNovelSinceCmd(flags *rootFlags) *cobra.Command {
 				if d == "" {
 					d = dayOf(jsonStr(a, "start_date"))
 				}
-				if d != "" {
-					activityDates[d] = true
+				if d == "" {
+					// No usable date: drop rather than emit a blank-dated entry
+					// that shows an empty column and breaks JSON consumers.
+					continue
 				}
+				activityDates[d] = true
 				completed = append(completed, sinceItem{
 					Date: d, Name: jsonStr(a, "name"), Type: jsonStr(a, "type"), ID: jsonStr(a, "id"),
 				})
@@ -123,8 +126,9 @@ func newNovelSinceCmd(flags *rootFlags) *cobra.Command {
 					upcoming = append(upcoming, it)
 					continue
 				}
-				// Past planned workout with no activity that day = missed.
-				if strings.EqualFold(cat, "WORKOUT") && !activityDates[d] {
+				// Past planned session (workout or race) with no activity that
+				// day = missed.
+				if missedSessionCategories[strings.ToUpper(cat)] && !activityDates[d] {
 					missed = append(missed, it)
 				}
 			}
@@ -153,7 +157,7 @@ func newNovelSinceCmd(flags *rootFlags) *cobra.Command {
 			for _, it := range completed {
 				fmt.Fprintf(out, "  %s  %-10s %s\n", it.Date, it.Type, it.Name)
 			}
-			fmt.Fprintf(out, "\nMissed planned workouts (%d):\n", len(missed))
+			fmt.Fprintf(out, "\nMissed planned sessions (%d):\n", len(missed))
 			for _, it := range missed {
 				fmt.Fprintf(out, "  %s  %s\n", it.Date, it.Name)
 			}
@@ -161,6 +165,17 @@ func newNovelSinceCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	return cmd
+}
+
+// missedSessionCategories are the planned-event categories whose lack of a
+// matching activity counts as a missed session. Workouts and all race tiers
+// are trainable sessions; NOTE/PLAN/HOLIDAY/SICK/INJURED and the rest are
+// annotations or states, not sessions, so their non-completion is not a miss.
+var missedSessionCategories = map[string]bool{
+	"WORKOUT": true,
+	"RACE_A":  true,
+	"RACE_B":  true,
+	"RACE_C":  true,
 }
 
 // dayOf returns the YYYY-MM-DD prefix of an ISO datetime string.
