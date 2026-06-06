@@ -1,8 +1,9 @@
 // uk-train-goat hand-authored: service delay-reason briefing. Transcendence feature.
 //
-// Composes GetServiceDetails with the calling-points view and surfaces
-// the delay reason in plain prose. Resolves Field-engineer Frank's
-// "why is my train late" frustration in one screen.
+// Composes GetServiceDetails with the calling-points view and reports the
+// service status in plain prose. The upstream service-detail payload has no
+// delay-reason field; the cause and operator alerts live on the board
+// (board/arrivals), so this view reports status, not the reason text.
 package cli
 
 import (
@@ -20,7 +21,7 @@ func newWhyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "why <serviceID>",
 		Short:       "Explain what's happening with a single train service (transcendence)",
-		Long:        "Look up a service by ID and surface the delay/cancel reason, current platform, expected vs scheduled times, and the calling-points context — in one terminal-friendly view.",
+		Long:        "Look up a service by ID and surface its status (on time, running late, or cancelled), current platform, expected vs scheduled times, and the calling-points context, in one terminal-friendly view. The delay-reason text and operator alerts (including strike notices) come from the live board: see the board and arrivals commands.",
 		Example:     "  uk-train-goat-pp-cli why L8rW0bMonHt3K4IengVPQw== --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
