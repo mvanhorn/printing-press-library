@@ -9,8 +9,10 @@ import (
 
 func newUsersTimelinesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "timelines",
-		Short: "Manage timelines",
+		Use:         "timelines",
+		Short:       "Get timelines for users",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersTimelinesGetUsersCmd(flags))

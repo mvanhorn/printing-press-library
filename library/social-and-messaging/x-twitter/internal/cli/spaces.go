@@ -9,8 +9,11 @@ import (
 
 func newSpacesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "spaces",
-		Short: "Endpoints related to retrieving, managing Spaces",
+		Use:         "spaces",
+		Short:       "Endpoints related to retrieving, managing Spaces",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newSpacesGetByCreatorIdsCmd(flags))

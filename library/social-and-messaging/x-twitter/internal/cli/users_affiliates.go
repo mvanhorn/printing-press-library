@@ -9,8 +9,10 @@ import (
 
 func newUsersAffiliatesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "affiliates",
-		Short: "Manage affiliates",
+		Use:         "affiliates",
+		Short:       "Get affiliates for users",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersAffiliatesGetUsersCmd(flags))

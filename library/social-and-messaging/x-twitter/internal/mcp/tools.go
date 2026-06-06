@@ -5,6 +5,7 @@ package mcp
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -24,2014 +25,11 @@ import (
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
-	s.AddTool(
-		mcplib.NewTool("account-activity_create-subscription",
-			mcplib.WithDescription("Creates an Account Activity subscription for the user and the given webhook. Required: webhook_id. Returns the new SubscriptionsCreateResponse."),
-			mcplib.WithString("webhook_id", mcplib.Required(), mcplib.Description("The webhook ID to check subscription against.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/account_activity/webhooks/{webhook_id}/subscriptions/all", []mcpParamBinding{{PublicName: "webhook_id", WireName: "webhook_id", Location: "path"}}, []string{"webhook_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("account-activity_delete-subscription",
-			mcplib.WithDescription("Deletes an Account Activity subscription for the given webhook and user ID. Required: webhook_id, user_id. Returns the SubscriptionsDeleteResponse. Destructive."),
-			mcplib.WithString("webhook_id", mcplib.Required(), mcplib.Description("The webhook ID to check subscription against.")),
-			mcplib.WithString("user_id", mcplib.Required(), mcplib.Description("User ID to unsubscribe from.")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/account_activity/webhooks/{webhook_id}/subscriptions/{user_id}/all", []mcpParamBinding{{PublicName: "webhook_id", WireName: "webhook_id", Location: "path"}, {PublicName: "user_id", WireName: "user_id", Location: "path"}}, []string{"webhook_id", "user_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("account-activity_get-subscription-count",
-			mcplib.WithDescription("Retrieves a count of currently active Account Activity subscriptions. Returns the SubscriptionsCountGetResponse."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/account_activity/subscriptions/count", []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("account-activity_get-subscriptions",
-			mcplib.WithDescription("Retrieves a list of all active subscriptions for a given webhook. Required: webhook_id. Returns the SubscriptionsListGetResponse."),
-			mcplib.WithString("webhook_id", mcplib.Required(), mcplib.Description("The webhook ID to pull subscriptions for.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/account_activity/webhooks/{webhook_id}/subscriptions/all/list", []mcpParamBinding{{PublicName: "webhook_id", WireName: "webhook_id", Location: "path"}}, []string{"webhook_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("account-activity_validate-subscription",
-			mcplib.WithDescription("Checks a user’s Account Activity subscription for a given webhook. Required: webhook_id. Returns the SubscriptionsGetResponse."),
-			mcplib.WithString("webhook_id", mcplib.Required(), mcplib.Description("The webhook ID to check subscription against.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/account_activity/webhooks/{webhook_id}/subscriptions/all", []mcpParamBinding{{PublicName: "webhook_id", WireName: "webhook_id", Location: "path"}}, []string{"webhook_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("activity_create-subscription",
-			mcplib.WithDescription("Creates a subscription for an X activity event. Required: event_type, filter. Optional: tag, webhook_id. Returns the new ActivitySubscriptionCreateResponse."),
-			mcplib.WithString("event_type", mcplib.Required(), mcplib.Description("Event type")),
-			mcplib.WithString("filter", mcplib.Required(), mcplib.Description("An XAA subscription filter.")),
-			mcplib.WithString("tag", mcplib.Description("Tag")),
-			mcplib.WithString("webhook_id", mcplib.Description("The unique identifier of this webhook config.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/activity/subscriptions", []mcpParamBinding{{PublicName: "event_type", WireName: "event_type", Location: "body"}, {PublicName: "filter", WireName: "filter", Location: "body"}, {PublicName: "tag", WireName: "tag", Location: "body"}, {PublicName: "webhook_id", WireName: "webhook_id", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("activity_delete-subscription",
-			mcplib.WithDescription("Deletes a subscription for an X activity event. Required: subscription_id. Returns the ActivitySubscriptionDeleteResponse. Destructive."),
-			mcplib.WithString("subscription_id", mcplib.Required(), mcplib.Description("The ID of the subscription to delete.")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/activity/subscriptions/{subscription_id}", []mcpParamBinding{{PublicName: "subscription_id", WireName: "subscription_id", Location: "path"}}, []string{"subscription_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("activity_delete-subscriptions-by-ids",
-			mcplib.WithDescription("Deletes multiple subscriptions for X activity events by their IDs. Required: ids. Returns the ActivitySubscriptionDeleteResponse. Destructive."),
-			mcplib.WithString("ids", mcplib.Required(), mcplib.Description("Comma-separated list of subscription IDs to delete.")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/activity/subscriptions", []mcpParamBinding{{PublicName: "ids", WireName: "ids", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("activity_get-subscriptions",
-			mcplib.WithDescription("Get a list of active subscriptions for XAA. Optional: max_results, pagination_token. Returns array of ActivitySubscription."),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results to return per page.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get the next 'page' of results.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/activity/subscriptions", []mcpParamBinding{{PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("activity_stream",
-			mcplib.WithDescription("Stream of X Activities. Optional: backfill_minutes, start_time, end_time. Returns the ActivityStreamingResponse."),
-			mcplib.WithString("backfill_minutes", mcplib.Description("The number of minutes of backfill requested.")),
-			mcplib.WithString("start_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the Post labels will be provided.")),
-			mcplib.WithString("end_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp from which the Post labels will be provided.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/activity/stream", []mcpParamBinding{{PublicName: "backfill_minutes", WireName: "backfill_minutes", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("activity_update-subscription",
-			mcplib.WithDescription("Updates a subscription for an X activity event. Required: subscription_id. Optional: tag, webhook_id. Returns the updated ActivitySubscriptionUpdateResponse."),
-			mcplib.WithString("subscription_id", mcplib.Required(), mcplib.Description("The ID of the subscription to update.")),
-			mcplib.WithString("tag", mcplib.Description("Tag")),
-			mcplib.WithString("webhook_id", mcplib.Description("The unique identifier of this webhook config.")),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("PUT", "/2/activity/subscriptions/{subscription_id}", []mcpParamBinding{{PublicName: "subscription_id", WireName: "subscription_id", Location: "path"}, {PublicName: "tag", WireName: "tag", Location: "body"}, {PublicName: "webhook_id", WireName: "webhook_id", Location: "body"}}, []string{"subscription_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("chat_add-group-members",
-			mcplib.WithDescription("Adds one or more members to an existing encrypted Chat group conversation, rotating the conversation key. Required: id, user_ids. Optional: action_signatures, conversation_key_version, conversation_participant_keys (plus 2 more). Returns the new ChatAddGroupMembersResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The Chat group conversation ID.")),
-			mcplib.WithString("action_signatures", mcplib.Description("Cryptographic signatures for the add-members action.")),
-			mcplib.WithString("conversation_key_version", mcplib.Description("Version of the new rotated conversation key.")),
-			mcplib.WithString("conversation_participant_keys", mcplib.Description("Encrypted conversation keys for each new participant after key rotation.")),
-			mcplib.WithString("encrypted_avatar_url", mcplib.Description("Re-encrypted group avatar URL with new conversation key.")),
-			mcplib.WithString("encrypted_title", mcplib.Description("Re-encrypted group title with new conversation key.")),
-			mcplib.WithString("user_ids", mcplib.Required(), mcplib.Description("List of user IDs to add to the group conversation.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/chat/conversations/{id}/members", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "action_signatures", WireName: "action_signatures", Location: "body"}, {PublicName: "conversation_key_version", WireName: "conversation_key_version", Location: "body"}, {PublicName: "conversation_participant_keys", WireName: "conversation_participant_keys", Location: "body"}, {PublicName: "encrypted_avatar_url", WireName: "encrypted_avatar_url", Location: "body"}, {PublicName: "encrypted_title", WireName: "encrypted_title", Location: "body"}, {PublicName: "user_ids", WireName: "user_ids", Location: "body"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("chat_create-conversation",
-			mcplib.WithDescription("Creates a new encrypted Chat group conversation on behalf of the authenticated user. Required: conversation_id, conversation_key_version, conversation_participant_keys, group_members. Optional: action_signatures, base64_encoded_key_rotation, group_admins (plus 4 more). Returns the new ChatCreateConversationResponse."),
-			mcplib.WithString("action_signatures", mcplib.Description("Cryptographic signatures for the create action.")),
-			mcplib.WithString("base64_encoded_key_rotation", mcplib.Description("Base64-encoded key rotation payload.")),
-			mcplib.WithString("conversation_id", mcplib.Required(), mcplib.Description("Client-generated conversation ID.")),
-			mcplib.WithString("conversation_key_version", mcplib.Required(), mcplib.Description("Version of the conversation encryption key.")),
-			mcplib.WithString("conversation_participant_keys", mcplib.Required(), mcplib.Description("Encrypted conversation keys for each participant.")),
-			mcplib.WithString("group_admins", mcplib.Description("User IDs of group admins. Defaults to the creator if omitted.")),
-			mcplib.WithString("group_avatar_url", mcplib.Description("URL of the avatar image for the group conversation.")),
-			mcplib.WithString("group_description", mcplib.Description("Description for the group conversation.")),
-			mcplib.WithString("group_members", mcplib.Required(), mcplib.Description("User IDs of group members to include in the conversation.")),
-			mcplib.WithString("group_name", mcplib.Description("Display name for the group conversation.")),
-			mcplib.WithString("ttl_msec", mcplib.Description("Message time-to-live in milliseconds. Messages expire after this duration.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/chat/conversations/group", []mcpParamBinding{{PublicName: "action_signatures", WireName: "action_signatures", Location: "body"}, {PublicName: "base64_encoded_key_rotation", WireName: "base64_encoded_key_rotation", Location: "body"}, {PublicName: "conversation_id", WireName: "conversation_id", Location: "body"}, {PublicName: "conversation_key_version", WireName: "conversation_key_version", Location: "body"}, {PublicName: "conversation_participant_keys", WireName: "conversation_participant_keys", Location: "body"}, {PublicName: "group_admins", WireName: "group_admins", Location: "body"}, {PublicName: "group_avatar_url", WireName: "group_avatar_url", Location: "body"}, {PublicName: "group_description", WireName: "group_description", Location: "body"}, {PublicName: "group_members", WireName: "group_members", Location: "body"}, {PublicName: "group_name", WireName: "group_name", Location: "body"}, {PublicName: "ttl_msec", WireName: "ttl_msec", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("chat_get-conversation",
-			mcplib.WithDescription("Retrieves messages and key change events for a specific Chat conversation with pagination support. For 1:1 conversations, provide the recipient's user ID; the server constructs the canonical conversation ID from the authenticated user and recipient. Required: id. Optional: max_results (default: 10), pagination_token, chat_message_event.fields. Returns array of ChatMessageEvent."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The recipient's user ID for a 1:1 conversation, or a group conversation ID (prefixed with 'g').")),
-			mcplib.WithString("max_results", mcplib.Description("Maximum number of message events to return.")),
-			mcplib.WithString("pagination_token", mcplib.Description("Token for pagination to retrieve the next page of results.")),
-			mcplib.WithString("chat_message_event.fields", mcplib.Description("A comma separated list of ChatMessageEvent fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/chat/conversations/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "chat_message_event.fields", WireName: "chat_message_event.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("chat_get-conversations",
-			mcplib.WithDescription("Retrieves a list of Chat conversations for the authenticated user's inbox. Optional: max_results (default: 10), pagination_token, chat_conversation.fields (plus 2 more). Returns array of ChatConversation."),
-			mcplib.WithString("max_results", mcplib.Description("Maximum number of conversations to return.")),
-			mcplib.WithString("pagination_token", mcplib.Description("Token for pagination to retrieve the next page of results.")),
-			mcplib.WithString("chat_conversation.fields", mcplib.Description("A comma separated list of ChatConversation fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/chat/conversations", []mcpParamBinding{{PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "chat_conversation.fields", WireName: "chat_conversation.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("chat_initialize-conversation-keys",
-			mcplib.WithDescription("Initializes encryption keys for a Chat conversation. This is the first step before sending messages in a new 1:1 conversation. For 1:1 conversations, provide the recipient's user ID as the conversation_id. The server constructs the canonical conversation ID from the authenticated user and recipient. The request body must contain the conversation key version and participant keys (the conversation key encrypted for each participant using their public key). **Workflow (1:1 conversation):** 1. Generate a conversation key using the SDK 2. Encrypt the key for both participants using their public keys 3. Call this endpoint to register the keys 4. Send messages using `POST /chat/conversations/{id}/messages` **Authentication:** - Requires OAuth 1.0a User Context or OAuth 2.0 User Context - Required scopes: `tweet.read`, `users.read`, `dm.write`. Required: id, conversation_key_version, conversation_participant_keys. Optional: action_signatures, base64_encoded_key_rotation. Returns the new ChatInitializeConversationKeysResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The recipient's user ID for a 1:1 conversation, or a group conversation ID (prefixed with 'g').")),
-			mcplib.WithString("action_signatures", mcplib.Description("Cryptographic signatures for the key initialization action.")),
-			mcplib.WithString("base64_encoded_key_rotation", mcplib.Description("Base64-encoded key rotation payload for ratchet tree key management.")),
-			mcplib.WithString("conversation_key_version", mcplib.Required(), mcplib.Description("Version of the conversation encryption key (typically a timestamp in milliseconds).")),
-			mcplib.WithString("conversation_participant_keys", mcplib.Required(), mcplib.Description("The conversation key encrypted for each participant using their public key.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/chat/conversations/{id}/keys", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "action_signatures", WireName: "action_signatures", Location: "body"}, {PublicName: "base64_encoded_key_rotation", WireName: "base64_encoded_key_rotation", Location: "body"}, {PublicName: "conversation_key_version", WireName: "conversation_key_version", Location: "body"}, {PublicName: "conversation_participant_keys", WireName: "conversation_participant_keys", Location: "body"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("chat_initialize-group",
-			mcplib.WithDescription("Initializes a new XChat group conversation and returns a unique conversation ID. This endpoint is the first step in creating a group chat. The returned conversation_id should be used in subsequent calls to POST /chat/conversations/group to fully create and configure the group with members, admins, encryption keys, and other settings. **Workflow:** 1. Call this endpoint to get a `conversation_id` 2. Use that `conversation_id` when calling `POST /chat/conversations/group` to create the group **Authentication:** - Requires OAuth 1.0a User Context or OAuth 2.0 User Context - Required scope: `dm.write`."),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/chat/conversations/group/initialize", []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("chat_mark-conversation-read",
-			mcplib.WithDescription("Marks a specific Chat conversation as read on behalf of the authenticated user. For 1:1 conversations, provide the recipient's user ID; the server constructs the canonical conversation ID from the authenticated user and recipient. Required: id, seen_until_sequence_id. Returns the new ChatMarkConversationReadResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The recipient's user ID for a 1:1 conversation, or a group conversation ID (prefixed with 'g').")),
-			mcplib.WithString("seen_until_sequence_id", mcplib.Required(), mcplib.Description("The sequence ID of the last message to mark as read up to.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/chat/conversations/{id}/read", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "seen_until_sequence_id", WireName: "seen_until_sequence_id", Location: "body"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("chat_media-download",
-			mcplib.WithDescription("Downloads encrypted media bytes from an XChat conversation. The response body contains raw binary bytes. For 1:1 conversations, provide the recipient's user ID; the server constructs the canonical conversation ID from the authenticated user and recipient. Required: id, media_hash_key."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The recipient's user ID for a 1:1 conversation, or a group conversation ID (prefixed with 'g').")),
-			mcplib.WithString("media_hash_key", mcplib.Required(), mcplib.Description("The media hash key returned from the upload initialize step.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/chat/media/{id}/{media_hash_key}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "media_hash_key", WireName: "media_hash_key", Location: "path"}}, []string{"id", "media_hash_key"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("chat_media-upload-append",
-			mcplib.WithDescription("Appends media data to an XChat upload session. Required: id. Returns the new MediaUploadAppendResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The session/resume id from initialize.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/chat/media/upload/{id}/append", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("chat_media-upload-finalize",
-			mcplib.WithDescription("Finalizes an XChat media upload session. Required: id. Optional: conversation_id, media_hash_key, message_id (plus 2 more). Returns the new ChatMediaUploadFinalizeResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The session/resume id from initialize.")),
-			mcplib.WithString("conversation_id", mcplib.Description("XChat conversation identifier for the upload.")),
-			mcplib.WithString("media_hash_key", mcplib.Description("Media hash key returned from initialize.")),
-			mcplib.WithString("message_id", mcplib.Description("Optional message identifier associated with the upload.")),
-			mcplib.WithString("num_parts", mcplib.Description("Total number of uploaded parts as a numeric string.")),
-			mcplib.WithString("ttl_msec", mcplib.Description("Optional TTL for the media in milliseconds.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/chat/media/upload/{id}/finalize", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "conversation_id", WireName: "conversation_id", Location: "body"}, {PublicName: "media_hash_key", WireName: "media_hash_key", Location: "body"}, {PublicName: "message_id", WireName: "message_id", Location: "body"}, {PublicName: "num_parts", WireName: "num_parts", Location: "body"}, {PublicName: "ttl_msec", WireName: "ttl_msec", Location: "body"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("chat_media-upload-initialize",
-			mcplib.WithDescription("Initializes an XChat media upload session. Optional: conversation_id, total_bytes. Returns the new ChatMediaUploadInitializeResponse."),
-			mcplib.WithString("conversation_id", mcplib.Description("XChat conversation identifier for the upload.")),
-			mcplib.WithString("total_bytes", mcplib.Description("Total size of the media upload in bytes.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/chat/media/upload/initialize", []mcpParamBinding{{PublicName: "conversation_id", WireName: "conversation_id", Location: "body"}, {PublicName: "total_bytes", WireName: "total_bytes", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("chat_send-message",
-			mcplib.WithDescription("Sends an encrypted message to a specific Chat conversation. For 1:1 conversations, provide the recipient's user ID; the server constructs the canonical conversation ID from the authenticated user and recipient. Required: id, encoded_message_create_event, message_id. Optional: conversation_token, encoded_message_event_signature. Returns the new ChatSendMessageResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The recipient's user ID for a 1:1 conversation, or a group conversation ID (prefixed with 'g').")),
-			mcplib.WithString("conversation_token", mcplib.Description("Optional conversation token.")),
-			mcplib.WithString("encoded_message_create_event", mcplib.Required(), mcplib.Description("Base64-encoded Thrift MessageCreateEvent containing encrypted message contents.")),
-			mcplib.WithString("encoded_message_event_signature", mcplib.Description("Base64-encoded Thrift MessageEventSignature for message verification.")),
-			mcplib.WithString("message_id", mcplib.Required(), mcplib.Description("Unique identifier for this message.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/chat/conversations/{id}/messages", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "conversation_token", WireName: "conversation_token", Location: "body"}, {PublicName: "encoded_message_create_event", WireName: "encoded_message_create_event", Location: "body"}, {PublicName: "encoded_message_event_signature", WireName: "encoded_message_event_signature", Location: "body"}, {PublicName: "message_id", WireName: "message_id", Location: "body"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("chat_send-typing-indicator",
-			mcplib.WithDescription("Sends a typing indicator to a specific Chat conversation on behalf of the authenticated user. For 1:1 conversations, provide the recipient's user ID; the server constructs the canonical conversation ID from the authenticated user and recipient. Required: id. Returns the new ChatSendTypingIndicatorResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The recipient's user ID for a 1:1 conversation, or a group conversation ID (prefixed with 'g').")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/chat/conversations/{id}/typing", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("communities_get-by-id",
-			mcplib.WithDescription("Retrieves details of a specific Community by its ID. Required: id. Optional: community.fields. Returns the Get2CommunitiesIdResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the Community.")),
-			mcplib.WithString("community.fields", mcplib.Description("A comma separated list of Community fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/communities/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "community.fields", WireName: "community.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("communities_search",
-			mcplib.WithDescription("Retrieves a list of Communities matching the specified search query. Required: query. Optional: max_results (default: 10), next_token, pagination_token (plus 1 more). Returns array of Community."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Query to search communities.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of search results to be returned by a request.")),
-			mcplib.WithString("next_token", mcplib.Description("This parameter is used to get the next 'page' of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get the next 'page' of results.")),
-			mcplib.WithString("community.fields", mcplib.Description("A comma separated list of Community fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/communities/search", []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "next_token", WireName: "next_token", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "community.fields", WireName: "community.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("compliance_create-jobs",
-			mcplib.WithDescription("Creates a new Compliance Job for the specified job type. Required: type. Optional: name, resumable. Returns the new CreateComplianceJobResponse."),
-			mcplib.WithString("name", mcplib.Description("User-provided name for a compliance job.")),
-			mcplib.WithString("resumable", mcplib.Description("If true, this endpoint will return a pre-signed URL with resumable uploads enabled.")),
-			mcplib.WithString("type", mcplib.Required(), mcplib.Description("Type of compliance job to list.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/compliance/jobs", []mcpParamBinding{{PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "resumable", WireName: "resumable", Location: "body"}, {PublicName: "type", WireName: "type", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("compliance_get-jobs",
-			mcplib.WithDescription("Retrieves a list of Compliance Jobs filtered by job type and optional status. Required: type. Optional: status, compliance_job.fields. Returns array of ComplianceJob."),
-			mcplib.WithString("type", mcplib.Required(), mcplib.Description("Type of Compliance Job to list.")),
-			mcplib.WithString("status", mcplib.Description("Status of Compliance Job to list.")),
-			mcplib.WithString("compliance_job.fields", mcplib.Description("A comma separated list of ComplianceJob fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/compliance/jobs", []mcpParamBinding{{PublicName: "type", WireName: "type", Location: "query"}, {PublicName: "status", WireName: "status", Location: "query"}, {PublicName: "compliance_job.fields", WireName: "compliance_job.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("compliance_get-jobs-by-id",
-			mcplib.WithDescription("Retrieves details of a specific Compliance Job by its ID. Required: id. Optional: compliance_job.fields. Returns the Get2ComplianceJobsIdResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the Compliance Job to retrieve.")),
-			mcplib.WithString("compliance_job.fields", mcplib.Description("A comma separated list of ComplianceJob fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/compliance/jobs/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "compliance_job.fields", WireName: "compliance_job.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("connections_delete-all",
-			mcplib.WithDescription("Terminates all active streaming connections for the authenticated application. Returns the KillAllConnectionsResponse. Destructive."),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/connections/all", []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("connections_delete-by-endpoint",
-			mcplib.WithDescription("Terminates all streaming connections for a specific endpoint ID for the authenticated application. Required: endpoint_id (default: filtered_stream). Returns the KillConnectionsByEndpointResponse. Destructive."),
-			mcplib.WithString("endpoint_id", mcplib.Description("The endpoint ID to terminate connections for.")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/connections/{endpoint_id}", []mcpParamBinding{{PublicName: "endpoint_id", WireName: "endpoint_id", Location: "path"}}, []string{"endpoint_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("connections_delete-by-uuids",
-			mcplib.WithDescription("Terminates multiple streaming connections by their UUIDs for the authenticated application. Required: uuids. Returns the KillConnectionsByUuidsResponse. Destructive."),
-			mcplib.WithString("uuids", mcplib.Required(), mcplib.Description("Array of connection UUIDs to terminate")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/connections", []mcpParamBinding{{PublicName: "uuids", WireName: "uuids", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("connections_get-history",
-			mcplib.WithDescription("Returns active and historical streaming connections with disconnect reasons for the authenticated application. Optional: status (default: active), endpoints, max_results (default: 10) (plus 2 more)."),
-			mcplib.WithString("status", mcplib.Description("Filter by connection status. Use 'active' for current connections, 'inactive' for historical/disconnected...")),
-			mcplib.WithString("endpoints", mcplib.Description("Filter by streaming endpoint. Specify one or more endpoint names to filter results.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results to return per page.")),
-			mcplib.WithString("pagination_token", mcplib.Description("Token for paginating through results. Use the value from 'next_token' in the previous response.")),
-			mcplib.WithString("connection.fields", mcplib.Description("A comma separated list of Connection fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/connections", []mcpParamBinding{{PublicName: "status", WireName: "status", Location: "query"}, {PublicName: "endpoints", WireName: "endpoints", Location: "query"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "connection.fields", WireName: "connection.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("dm-conversations_create-direct-messages-by-participant-id",
-			mcplib.WithDescription("Sends a new direct message to a specific participant by their ID. Required: participant_id. Returns the new CreateDmEventResponse."),
-			mcplib.WithString("participant_id", mcplib.Required(), mcplib.Description("The ID of the recipient user that will receive the DM.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/dm_conversations/with/{participant_id}/messages", []mcpParamBinding{{PublicName: "participant_id", WireName: "participant_id", Location: "path"}}, []string{"participant_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("dm-conversations_create-direct-messages-conversation",
-			mcplib.WithDescription("Initiates a new direct message conversation with specified participants. Required: conversation_type, message, participant_ids. Returns the new CreateDmEventResponse."),
-			mcplib.WithString("conversation_type", mcplib.Required(), mcplib.Description("The conversation type that is being created.")),
-			mcplib.WithString("message", mcplib.Required(), mcplib.Description("Message")),
-			mcplib.WithString("participant_ids", mcplib.Required(), mcplib.Description("Participants for the DM Conversation.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/dm_conversations", []mcpParamBinding{{PublicName: "conversation_type", WireName: "conversation_type", Location: "body"}, {PublicName: "message", WireName: "message", Location: "body"}, {PublicName: "participant_ids", WireName: "participant_ids", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("dm-conversations_get-direct-messages-events-by-participant-id",
-			mcplib.WithDescription("Retrieves direct message events for a specific conversation. Required: participant_id. Optional: max_results (default: 100), pagination_token, event_types (plus 5 more). Returns array of DmEvent."),
-			mcplib.WithString("participant_id", mcplib.Required(), mcplib.Description("The ID of the participant user for the One to One DM conversation.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get a specified 'page' of results.")),
-			mcplib.WithString("event_types", mcplib.Description("The set of event_types to include in the results.")),
-			mcplib.WithString("dm_event.fields", mcplib.Description("A comma separated list of DmEvent fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/dm_conversations/with/{participant_id}/dm_events", []mcpParamBinding{{PublicName: "participant_id", WireName: "participant_id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "event_types", WireName: "event_types", Location: "query"}, {PublicName: "dm_event.fields", WireName: "dm_event.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{"participant_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("dm-conversations_media-download",
-			mcplib.WithDescription("Downloads media attached to a legacy Direct Message. The requesting user must be a participant in the conversation containing the specified DM event. The response body contains raw binary bytes. Required: dm_id, media_id, resource_id."),
-			mcplib.WithString("dm_id", mcplib.Required(), mcplib.Description("The unique identifier of the Direct Message event containing the media.")),
-			mcplib.WithString("media_id", mcplib.Required(), mcplib.Description("The unique identifier of the media attached to the Direct Message.")),
-			mcplib.WithString("resource_id", mcplib.Required(), mcplib.Description("The resource identifier of the media file, including file extension (e.g. 'hVJQTwig.jpg').")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/dm_conversations/media/{dm_id}/{media_id}/{resource_id}", []mcpParamBinding{{PublicName: "dm_id", WireName: "dm_id", Location: "path"}, {PublicName: "media_id", WireName: "media_id", Location: "path"}, {PublicName: "resource_id", WireName: "resource_id", Location: "path"}}, []string{"dm_id", "media_id", "resource_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("dm-conversations_dm-events_get-direct-messages-events-by-conversation-id",
-			mcplib.WithDescription("Retrieves direct message events for a specific conversation. Required: id. Optional: max_results (default: 100), pagination_token, event_types (plus 5 more). Returns array of DmEvent."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The DM conversation ID.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get a specified 'page' of results.")),
-			mcplib.WithString("event_types", mcplib.Description("The set of event_types to include in the results.")),
-			mcplib.WithString("dm_event.fields", mcplib.Description("A comma separated list of DmEvent fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/dm_conversations/{id}/dm_events", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "event_types", WireName: "event_types", Location: "query"}, {PublicName: "dm_event.fields", WireName: "dm_event.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("dm-conversations_messages_create-direct-by-conversation-id",
-			mcplib.WithDescription("Sends a new direct message to a specific conversation by its ID. Required: dm_conversation_id. Returns the new CreateDmEventResponse."),
-			mcplib.WithString("dm_conversation_id", mcplib.Required(), mcplib.Description("The DM Conversation ID.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/dm_conversations/{dm_conversation_id}/messages", []mcpParamBinding{{PublicName: "dm_conversation_id", WireName: "dm_conversation_id", Location: "path"}}, []string{"dm_conversation_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("dm-events_delete-direct-messages-events",
-			mcplib.WithDescription("Deletes a specific direct message event by its ID, if owned by the authenticated user. Required: event_id. Returns the DeleteDmResponse. Destructive."),
-			mcplib.WithString("event_id", mcplib.Required(), mcplib.Description("The ID of the direct-message event to delete.")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/dm_events/{event_id}", []mcpParamBinding{{PublicName: "event_id", WireName: "event_id", Location: "path"}}, []string{"event_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("dm-events_get-direct-messages-events",
-			mcplib.WithDescription("Retrieves a list of recent direct message events across all conversations. Optional: max_results (default: 100), pagination_token, event_types (plus 5 more). Returns array of DmEvent."),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get a specified 'page' of results.")),
-			mcplib.WithString("event_types", mcplib.Description("The set of event_types to include in the results.")),
-			mcplib.WithString("dm_event.fields", mcplib.Description("A comma separated list of DmEvent fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/dm_events", []mcpParamBinding{{PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "event_types", WireName: "event_types", Location: "query"}, {PublicName: "dm_event.fields", WireName: "dm_event.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("dm-events_get-direct-messages-events-by-id",
-			mcplib.WithDescription("Retrieves details of a specific direct message event by its ID. Required: event_id. Optional: dm_event.fields, expansions, media.fields (plus 2 more). Returns the Get2DmEventsEventIdResponse."),
-			mcplib.WithString("event_id", mcplib.Required(), mcplib.Description("dm event id.")),
-			mcplib.WithString("dm_event.fields", mcplib.Description("A comma separated list of DmEvent fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/dm_events/{event_id}", []mcpParamBinding{{PublicName: "event_id", WireName: "event_id", Location: "path"}, {PublicName: "dm_event.fields", WireName: "dm_event.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{"event_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("evaluate-note_evaluate-community-notes",
-			mcplib.WithDescription("Endpoint to evaluate a community note. Required: note_text, post_id. Returns the new EvaluateNoteResponse."),
-			mcplib.WithString("note_text", mcplib.Required(), mcplib.Description("Text for the community note.")),
-			mcplib.WithString("post_id", mcplib.Required(), mcplib.Description("Unique identifier of this Tweet. This is returned as a string in order to avoid complications with languages and...")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/evaluate_note", []mcpParamBinding{{PublicName: "note_text", WireName: "note_text", Location: "body"}, {PublicName: "post_id", WireName: "post_id", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("insights_get-historical",
-			mcplib.WithDescription("Retrieves historical engagement metrics for specified Posts within a defined time range. Required: tweet_ids, end_time, start_time, granularity, requested_metrics. Optional: engagement.fields. Returns array of Engagement."),
-			mcplib.WithString("tweet_ids", mcplib.Required(), mcplib.Description("List of PostIds for historical metrics.")),
-			mcplib.WithString("end_time", mcplib.Required(), mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The UTC timestamp representing the end of the time range.")),
-			mcplib.WithString("start_time", mcplib.Required(), mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The UTC timestamp representing the start of the time range.")),
-			mcplib.WithString("granularity", mcplib.Required(), mcplib.Description("granularity of metrics response.")),
-			mcplib.WithString("requested_metrics", mcplib.Required(), mcplib.Description("request metrics for historical request.")),
-			mcplib.WithString("engagement.fields", mcplib.Description("A comma separated list of Engagement fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/insights/historical", []mcpParamBinding{{PublicName: "tweet_ids", WireName: "tweet_ids", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "granularity", WireName: "granularity", Location: "query"}, {PublicName: "requested_metrics", WireName: "requested_metrics", Location: "query"}, {PublicName: "engagement.fields", WireName: "engagement.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("insights_get-insights28-hr",
-			mcplib.WithDescription("Retrieves engagement metrics for specified Posts over the last 28 hours. Required: tweet_ids, granularity, requested_metrics. Optional: engagement.fields. Returns array of Engagement."),
-			mcplib.WithString("tweet_ids", mcplib.Required(), mcplib.Description("List of PostIds for 28hr metrics.")),
-			mcplib.WithString("granularity", mcplib.Required(), mcplib.Description("granularity of metrics response.")),
-			mcplib.WithString("requested_metrics", mcplib.Required(), mcplib.Description("request metrics for historical request.")),
-			mcplib.WithString("engagement.fields", mcplib.Description("A comma separated list of Engagement fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/insights/28hr", []mcpParamBinding{{PublicName: "tweet_ids", WireName: "tweet_ids", Location: "query"}, {PublicName: "granularity", WireName: "granularity", Location: "query"}, {PublicName: "requested_metrics", WireName: "requested_metrics", Location: "query"}, {PublicName: "engagement.fields", WireName: "engagement.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("likes_stream-compliance",
-			mcplib.WithDescription("Streams all compliance data related to Likes for Users. Optional: backfill_minutes, start_time, end_time."),
-			mcplib.WithString("backfill_minutes", mcplib.Description("The number of minutes of backfill requested.")),
-			mcplib.WithString("start_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the Likes Compliance events will be provided.")),
-			mcplib.WithString("end_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp from which the Likes Compliance events will be provided.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/likes/compliance/stream", []mcpParamBinding{{PublicName: "backfill_minutes", WireName: "backfill_minutes", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("likes_stream-firehose",
-			mcplib.WithDescription("Streams all public Likes in real-time. Required: partition. Optional: backfill_minutes, start_time, end_time (plus 5 more). Returns the StreamingLikeResponseV2."),
-			mcplib.WithString("backfill_minutes", mcplib.Description("The number of minutes of backfill requested.")),
-			mcplib.WithString("partition", mcplib.Required(), mcplib.Description("The partition number.")),
-			mcplib.WithString("start_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp to which the Likes will be provided.")),
-			mcplib.WithString("end_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided.")),
-			mcplib.WithString("like_with_tweet_author.fields", mcplib.Description("A comma separated list of LikeWithTweetAuthor fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/likes/firehose/stream", []mcpParamBinding{{PublicName: "backfill_minutes", WireName: "backfill_minutes", Location: "query"}, {PublicName: "partition", WireName: "partition", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}, {PublicName: "like_with_tweet_author.fields", WireName: "like_with_tweet_author.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("likes_stream-sample10",
-			mcplib.WithDescription("Streams a 10% sample of public Likes in real-time. Required: partition. Optional: backfill_minutes, start_time, end_time (plus 5 more). Returns the StreamingLikeResponseV2."),
-			mcplib.WithString("backfill_minutes", mcplib.Description("The number of minutes of backfill requested.")),
-			mcplib.WithString("partition", mcplib.Required(), mcplib.Description("The partition number.")),
-			mcplib.WithString("start_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp to which the Likes will be provided.")),
-			mcplib.WithString("end_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided.")),
-			mcplib.WithString("like_with_tweet_author.fields", mcplib.Description("A comma separated list of LikeWithTweetAuthor fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/likes/sample10/stream", []mcpParamBinding{{PublicName: "backfill_minutes", WireName: "backfill_minutes", Location: "query"}, {PublicName: "partition", WireName: "partition", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}, {PublicName: "like_with_tweet_author.fields", WireName: "like_with_tweet_author.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("lists_create",
-			mcplib.WithDescription("Creates a new List for the authenticated user. Required: name. Optional: description, private (default: false). Returns the new ListCreateResponse."),
-			mcplib.WithString("description", mcplib.Description("Description")),
-			mcplib.WithString("name", mcplib.Required(), mcplib.Description("Name")),
-			mcplib.WithString("private", mcplib.Description("Private")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/lists", []mcpParamBinding{{PublicName: "description", WireName: "description", Location: "body"}, {PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "private", WireName: "private", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("lists_delete",
-			mcplib.WithDescription("Deletes a specific List owned by the authenticated user by its ID. Required: id. Returns the ListDeleteResponse. Destructive."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the List to delete.")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/lists/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("lists_get-by-id",
-			mcplib.WithDescription("Retrieves details of a specific List by its ID. Required: id. Optional: list.fields, expansions, user.fields. Returns the Get2ListsIdResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the List.")),
-			mcplib.WithString("list.fields", mcplib.Description("A comma separated list of List fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/lists/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "list.fields", WireName: "list.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("lists_update",
-			mcplib.WithDescription("Updates the details of a specific List owned by the authenticated user by its ID. Required: id. Optional: description, name, private. Returns the updated ListUpdateResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the List to modify.")),
-			mcplib.WithString("description", mcplib.Description("Description")),
-			mcplib.WithString("name", mcplib.Description("Name")),
-			mcplib.WithString("private", mcplib.Description("Private")),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("PUT", "/2/lists/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "description", WireName: "description", Location: "body"}, {PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "private", WireName: "private", Location: "body"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("lists_followers_get-lists",
-			mcplib.WithDescription("Retrieves a list of Users who follow a specific List by its ID. Required: id. Optional: max_results (default: 100), pagination_token, user.fields (plus 2 more). Returns array of User."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the List.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get a specified 'page' of results.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/lists/{id}/followers", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("lists_members_add-lists",
-			mcplib.WithDescription("Adds a User to a specific List by its ID. Required: id, user_id. Returns the new ListMutateResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the List for which to add a member.")),
-			mcplib.WithString("user_id", mcplib.Required(), mcplib.Description("Unique identifier of this User. This is returned as a string in order to avoid complications with languages and...")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/lists/{id}/members", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "user_id", WireName: "user_id", Location: "body"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("lists_members_get-lists",
-			mcplib.WithDescription("Retrieves a list of Users who are members of a specific List by its ID. Required: id. Optional: max_results (default: 100), pagination_token, user.fields (plus 2 more). Returns array of User."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the List.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get a specified 'page' of results.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/lists/{id}/members", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("lists_members_remove-lists-by-user-id",
-			mcplib.WithDescription("Removes a User from a specific List by its ID and the User’s ID. Required: id, user_id. Returns the ListMutateResponse. Destructive."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the List to remove a member.")),
-			mcplib.WithString("user_id", mcplib.Required(), mcplib.Description("The ID of User that will be removed from the List.")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/lists/{id}/members/{user_id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "user_id", WireName: "user_id", Location: "path"}}, []string{"id", "user_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("lists_tweets_get-lists-posts",
-			mcplib.WithDescription("Retrieves a list of Posts associated with a specific List by its ID. Required: id. Optional: max_results (default: 100), pagination_token, tweet.fields (plus 5 more). Returns array of Tweet."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the List.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get the next 'page' of results.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/lists/{id}/tweets", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("media_append-upload",
-			mcplib.WithDescription("Appends data to a Media upload request. Required: id. Returns the new MediaUploadAppendResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The media identifier for the media to perform the append operation.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/media/upload/{id}/append", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("media_create-metadata",
-			mcplib.WithDescription("Creates metadata for a Media file. Required: id. Optional: metadata. Returns the new MetadataCreateResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The unique identifier of this Media.")),
-			mcplib.WithString("metadata", mcplib.Description("Metadata")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/media/metadata", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "body"}, {PublicName: "metadata", WireName: "metadata", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("media_create-subtitles",
-			mcplib.WithDescription("Creates subtitles for a specific Media file. Optional: id, media_category, subtitles. Returns the new SubtitlesCreateResponse."),
-			mcplib.WithString("id", mcplib.Description("The unique identifier of this Media.")),
-			mcplib.WithString("media_category", mcplib.Description("The media category of uploaded media to which subtitles should be added/deleted")),
-			mcplib.WithString("subtitles", mcplib.Description("Subtitles")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/media/subtitles", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "body"}, {PublicName: "media_category", WireName: "media_category", Location: "body"}, {PublicName: "subtitles", WireName: "subtitles", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("media_delete-subtitles",
-			mcplib.WithDescription("Deletes subtitles for a specific Media file. Optional: id, language_code, media_category. Returns the SubtitlesDeleteResponse. Destructive."),
-			mcplib.WithString("id", mcplib.Description("The unique identifier of this Media.")),
-			mcplib.WithString("language_code", mcplib.Description("The language code should be a BCP47 code (e.g. 'EN', 'SP')")),
-			mcplib.WithString("media_category", mcplib.Description("The media category of uploaded media to which subtitles should be added/deleted")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/media/subtitles", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "body"}, {PublicName: "language_code", WireName: "language_code", Location: "body"}, {PublicName: "media_category", WireName: "media_category", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("media_finalize-upload",
-			mcplib.WithDescription("Finalizes a Media upload request. Required: id. Returns the new MediaUploadResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The media id of the targeted media to finalize.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/media/upload/{id}/finalize", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("media_get-analytics",
-			mcplib.WithDescription("Retrieves analytics data for media. Required: media_keys, end_time, start_time, granularity (default: daily). Optional: media_analytics.fields. Returns array of MediaGetAnalyticsItem."),
-			mcplib.WithString("media_keys", mcplib.Required(), mcplib.Description("A comma separated list of Media Keys. Up to 100 are allowed in a single request.")),
-			mcplib.WithString("end_time", mcplib.Required(), mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The UTC timestamp representing the end of the time range.")),
-			mcplib.WithString("start_time", mcplib.Required(), mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The UTC timestamp representing the start of the time range.")),
-			mcplib.WithString("granularity", mcplib.Required(), mcplib.Description("The granularity for the search counts results.")),
-			mcplib.WithString("media_analytics.fields", mcplib.Description("A comma separated list of MediaAnalytics fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/media/analytics", []mcpParamBinding{{PublicName: "media_keys", WireName: "media_keys", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "granularity", WireName: "granularity", Location: "query"}, {PublicName: "media_analytics.fields", WireName: "media_analytics.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("media_get-by-key",
-			mcplib.WithDescription("Retrieves details of a specific Media file by its media key. Required: media_key. Optional: media.fields. Returns the Get2MediaMediaKeyResponse."),
-			mcplib.WithString("media_key", mcplib.Required(), mcplib.Description("A single Media Key.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/media/{media_key}", []mcpParamBinding{{PublicName: "media_key", WireName: "media_key", Location: "path"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}}, []string{"media_key"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("media_get-by-keys",
-			mcplib.WithDescription("Retrieves details of Media files by their media keys. Required: media_keys. Optional: media.fields. Returns array of Media."),
-			mcplib.WithString("media_keys", mcplib.Required(), mcplib.Description("A comma separated list of Media Keys. Up to 100 are allowed in a single request.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/media", []mcpParamBinding{{PublicName: "media_keys", WireName: "media_keys", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("media_get-upload-status",
-			mcplib.WithDescription("Retrieves the status of a Media upload by its ID. Required: media_id. Optional: command. Returns the MediaUploadResponse."),
-			mcplib.WithString("media_id", mcplib.Required(), mcplib.Description("Media id for the requested media upload status.")),
-			mcplib.WithString("command", mcplib.Description("The command for the media upload request.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/media/upload", []mcpParamBinding{{PublicName: "media_id", WireName: "media_id", Location: "query"}, {PublicName: "command", WireName: "command", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("media_initialize-upload",
-			mcplib.WithDescription("Initializes a media upload. Optional: additional_owners, media_category, media_type (plus 2 more). Returns the new MediaUploadResponse."),
-			mcplib.WithString("additional_owners", mcplib.Description("Additional owners")),
-			mcplib.WithString("media_category", mcplib.Description("A string enum value which identifies a media use-case. This identifier is used to enforce use-case specific...")),
-			mcplib.WithString("media_type", mcplib.Description("The type of media.")),
-			mcplib.WithString("shared", mcplib.Description("Whether this media is shared or not.")),
-			mcplib.WithString("total_bytes", mcplib.Description("The total size of the media upload in bytes.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/media/upload/initialize", []mcpParamBinding{{PublicName: "additional_owners", WireName: "additional_owners", Location: "body"}, {PublicName: "media_category", WireName: "media_category", Location: "body"}, {PublicName: "media_type", WireName: "media_type", Location: "body"}, {PublicName: "shared", WireName: "shared", Location: "body"}, {PublicName: "total_bytes", WireName: "total_bytes", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("media_upload",
-			mcplib.WithDescription("Uploads a media file for use in posts or other content. Required: media, media_category. Optional: additional_owners, media_type, shared (default: false). Returns the new MediaUploadResponse."),
-			mcplib.WithString("additional_owners", mcplib.Description("Additional owners")),
-			mcplib.WithString("media", mcplib.Required(), mcplib.Description("Media")),
-			mcplib.WithString("media_category", mcplib.Required(), mcplib.Description("A string enum value which identifies a media use-case. This identifier is used to enforce use-case specific...")),
-			mcplib.WithString("media_type", mcplib.Description("The type of image or subtitle.")),
-			mcplib.WithString("shared", mcplib.Description("Whether this media is shared or not.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/media/upload", []mcpParamBinding{{PublicName: "additional_owners", WireName: "additional_owners", Location: "body"}, {PublicName: "media", WireName: "media", Location: "body"}, {PublicName: "media_category", WireName: "media_category", Location: "body"}, {PublicName: "media_type", WireName: "media_type", Location: "body"}, {PublicName: "shared", WireName: "shared", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("news_get",
-			mcplib.WithDescription("Retrieves news story by its ID. Required: id. Optional: news.fields. Returns the Get2NewsIdResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the news story.")),
-			mcplib.WithString("news.fields", mcplib.Description("A comma separated list of News fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/news/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "news.fields", WireName: "news.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("news_search",
-			mcplib.WithDescription("Retrieves a list of News stories matching the specified search query. Required: query. Optional: max_results (default: 10), max_age_hours (default: 168), news.fields. Returns array of News."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("The search query.")),
-			mcplib.WithString("max_results", mcplib.Description("The number of results to return.")),
-			mcplib.WithString("max_age_hours", mcplib.Description("The maximum age of the News story to search for.")),
-			mcplib.WithString("news.fields", mcplib.Description("A comma separated list of News fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/news/search", []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "max_age_hours", WireName: "max_age_hours", Location: "query"}, {PublicName: "news.fields", WireName: "news.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("notes_create-community",
-			mcplib.WithDescription("Creates a community note endpoint for LLM use case. Required: info, post_id, test_mode. Returns the new CreateNoteResponse."),
-			mcplib.WithString("info", mcplib.Required(), mcplib.Description("A X Community Note is a note on a Post.")),
-			mcplib.WithString("post_id", mcplib.Required(), mcplib.Description("Unique identifier of this Tweet. This is returned as a string in order to avoid complications with languages and...")),
-			mcplib.WithString("test_mode", mcplib.Required(), mcplib.Description("If true, the note being submitted is only for testing the capability of the bot, and won't be publicly visible. If...")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/notes", []mcpParamBinding{{PublicName: "info", WireName: "info", Location: "body"}, {PublicName: "post_id", WireName: "post_id", Location: "body"}, {PublicName: "test_mode", WireName: "test_mode", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("notes_delete-community",
-			mcplib.WithDescription("Deletes a community note. Required: id. Returns the DeleteNoteResponse. Destructive."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The community note id to delete.")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/notes/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("notes_search-community-written",
-			mcplib.WithDescription("Returns all the community notes written by the user. Required: test_mode. Optional: pagination_token, max_results (default: 10), note.fields."),
-			mcplib.WithString("test_mode", mcplib.Required(), mcplib.Description("If true, return the notes the caller wrote for the test. If false, return the notes the caller wrote on the product.")),
-			mcplib.WithString("pagination_token", mcplib.Description("Pagination token to get next set of posts eligible for notes.")),
-			mcplib.WithString("max_results", mcplib.Description("Max results to return.")),
-			mcplib.WithString("note.fields", mcplib.Description("A comma separated list of Note fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/notes/search/notes_written", []mcpParamBinding{{PublicName: "test_mode", WireName: "test_mode", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "note.fields", WireName: "note.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("notes_search-eligible-posts",
-			mcplib.WithDescription("Returns all the posts that are eligible for community notes. Required: test_mode. Optional: pagination_token, max_results (default: 10), post_selection (plus 6 more)."),
-			mcplib.WithString("test_mode", mcplib.Required(), mcplib.Description("If true, return a list of posts that are for the test. If false, return a list of posts that the bots can write...")),
-			mcplib.WithString("pagination_token", mcplib.Description("Pagination token to get next set of posts eligible for notes.")),
-			mcplib.WithString("max_results", mcplib.Description("Max results to return.")),
-			mcplib.WithString("post_selection", mcplib.Description("The selection of posts to return. Valid values are 'feed_size: [small|large|xl|xxl], feed_lang: [en|es|...|all]'....")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/notes/search/posts_eligible_for_notes", []mcpParamBinding{{PublicName: "test_mode", WireName: "test_mode", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "post_selection", WireName: "post_selection", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("openapi-json_get-open-api-spec",
-			mcplib.WithDescription("Retrieves the full OpenAPI Specification in JSON format. (See https://github.com/OAI/OpenAPI-Specification/blob/master/README.md). Returns the OpenapiJsonGetOpenApiSpecResponse."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/openapi.json", []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("spaces_get-by-creator-ids",
-			mcplib.WithDescription("Retrieves details of Spaces created by specified User IDs. Required: user_ids. Optional: space.fields, expansions, user.fields (plus 1 more). Returns array of Space."),
-			mcplib.WithString("user_ids", mcplib.Required(), mcplib.Description("The IDs of Users to search through.")),
-			mcplib.WithString("space.fields", mcplib.Description("A comma separated list of Space fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("topic.fields", mcplib.Description("A comma separated list of Topic fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/spaces/by/creator_ids", []mcpParamBinding{{PublicName: "user_ids", WireName: "user_ids", Location: "query"}, {PublicName: "space.fields", WireName: "space.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "topic.fields", WireName: "topic.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("spaces_get-by-id",
-			mcplib.WithDescription("Retrieves details of a specific space by its ID. Required: id. Optional: space.fields, expansions, user.fields (plus 1 more). Returns the Get2SpacesIdResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the Space to be retrieved.")),
-			mcplib.WithString("space.fields", mcplib.Description("A comma separated list of Space fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("topic.fields", mcplib.Description("A comma separated list of Topic fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/spaces/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "space.fields", WireName: "space.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "topic.fields", WireName: "topic.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("spaces_get-by-ids",
-			mcplib.WithDescription("Retrieves details of multiple Spaces by their IDs. Required: ids. Optional: space.fields, expansions, user.fields (plus 1 more). Returns array of Space."),
-			mcplib.WithString("ids", mcplib.Required(), mcplib.Description("The list of Space IDs to return.")),
-			mcplib.WithString("space.fields", mcplib.Description("A comma separated list of Space fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("topic.fields", mcplib.Description("A comma separated list of Topic fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/spaces", []mcpParamBinding{{PublicName: "ids", WireName: "ids", Location: "query"}, {PublicName: "space.fields", WireName: "space.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "topic.fields", WireName: "topic.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("spaces_search",
-			mcplib.WithDescription("Retrieves a list of Spaces matching the specified search query. Required: query. Optional: state (default: all), max_results (default: 100), space.fields (plus 3 more). Returns array of Space."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("The search query.")),
-			mcplib.WithString("state", mcplib.Description("The state of Spaces to search for.")),
-			mcplib.WithString("max_results", mcplib.Description("The number of results to return.")),
-			mcplib.WithString("space.fields", mcplib.Description("A comma separated list of Space fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("topic.fields", mcplib.Description("A comma separated list of Topic fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/spaces/search", []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"}, {PublicName: "state", WireName: "state", Location: "query"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "space.fields", WireName: "space.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "topic.fields", WireName: "topic.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("spaces_buyers_get-spaces",
-			mcplib.WithDescription("Retrieves a list of Users who purchased tickets to a specific Space by its ID. Required: id. Optional: pagination_token, max_results (default: 100), user.fields (plus 2 more). Returns array of User."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the Space to be retrieved.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get a specified 'page' of results.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/spaces/{id}/buyers", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("spaces_tweets_get-spaces-posts",
-			mcplib.WithDescription("Retrieves a list of Posts shared in a specific Space by its ID. Required: id. Optional: max_results (default: 100), tweet.fields, expansions (plus 4 more). Returns array of Tweet."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the Space to be retrieved.")),
-			mcplib.WithString("max_results", mcplib.Description("The number of Posts to fetch from the provided space. If not provided, the value will default to the maximum of 100.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/spaces/{id}/tweets", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("trends_get-by-woeid",
-			mcplib.WithDescription("Retrieves trending topics for a specific location identified by its WOEID. Required: woeid. Optional: max_trends (default: 20), trend.fields. Returns array of Trend."),
-			mcplib.WithString("woeid", mcplib.Required(), mcplib.Description("The WOEID of the place to lookup a trend for.")),
-			mcplib.WithString("max_trends", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("trend.fields", mcplib.Description("A comma separated list of Trend fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/trends/by/woeid/{woeid}", []mcpParamBinding{{PublicName: "woeid", WireName: "woeid", Location: "path"}, {PublicName: "max_trends", WireName: "max_trends", Location: "query"}, {PublicName: "trend.fields", WireName: "trend.fields", Location: "query"}}, []string{"woeid"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_create-posts",
-			mcplib.WithDescription("Creates a new Post for the authenticated user, or edits an existing Post when edit_options are provided. Supports paid partnership disclosure via the paid_partnership field. Optional: card_uri, community_id, direct_message_deep_link (plus 13 more). Returns the new TweetCreateResponse."),
-			mcplib.WithString("card_uri", mcplib.Description("Card Uri Parameter. This is mutually exclusive from Quote Tweet Id, Poll, Media, and Direct Message Deep Link.")),
-			mcplib.WithString("community_id", mcplib.Description("The unique identifier of this Community.")),
-			mcplib.WithString("direct_message_deep_link", mcplib.Description("Link to take the conversation from the public timeline to a private Direct Message.")),
-			mcplib.WithString("edit_options", mcplib.Description("Options for editing an existing Post. When provided, this request will edit the specified Post instead of creating a...")),
-			mcplib.WithString("for_super_followers_only", mcplib.Description("Exclusive Tweet for super followers.")),
-			mcplib.WithString("geo", mcplib.Description("Place ID being attached to the Tweet for geo location.")),
-			mcplib.WithString("made_with_ai", mcplib.Description("Whether this Post contains AI-generated media. When true, the Post will be labeled accordingly.")),
-			mcplib.WithString("media", mcplib.Description("Media information being attached to created Tweet. This is mutually exclusive from Quote Tweet Id, Poll, and Card URI.")),
-			mcplib.WithString("nullcast", mcplib.Description("Nullcasted (promoted-only) Posts do not appear in the public timeline and are not served to followers.")),
-			mcplib.WithString("paid_partnership", mcplib.Description("Whether this Post is a paid partnership. When true, the Post will be labeled as a paid promotion.")),
-			mcplib.WithString("poll", mcplib.Description("Poll options for a Tweet with a poll. This is mutually exclusive from Media, Quote Tweet Id, and Card URI.")),
-			mcplib.WithString("quote_tweet_id", mcplib.Description("Unique identifier of this Tweet. This is returned as a string in order to avoid complications with languages and...")),
-			mcplib.WithString("reply", mcplib.Description("Tweet information of the Tweet being replied to.")),
-			mcplib.WithString("reply_settings", mcplib.Description("Settings to indicate who can reply to the Tweet.")),
-			mcplib.WithString("share_with_followers", mcplib.Description("Share community post with followers too.")),
-			mcplib.WithString("text", mcplib.Description("The content of the Tweet.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/tweets", []mcpParamBinding{{PublicName: "card_uri", WireName: "card_uri", Location: "body"}, {PublicName: "community_id", WireName: "community_id", Location: "body"}, {PublicName: "direct_message_deep_link", WireName: "direct_message_deep_link", Location: "body"}, {PublicName: "edit_options", WireName: "edit_options", Location: "body"}, {PublicName: "for_super_followers_only", WireName: "for_super_followers_only", Location: "body"}, {PublicName: "geo", WireName: "geo", Location: "body"}, {PublicName: "made_with_ai", WireName: "made_with_ai", Location: "body"}, {PublicName: "media", WireName: "media", Location: "body"}, {PublicName: "nullcast", WireName: "nullcast", Location: "body"}, {PublicName: "paid_partnership", WireName: "paid_partnership", Location: "body"}, {PublicName: "poll", WireName: "poll", Location: "body"}, {PublicName: "quote_tweet_id", WireName: "quote_tweet_id", Location: "body"}, {PublicName: "reply", WireName: "reply", Location: "body"}, {PublicName: "reply_settings", WireName: "reply_settings", Location: "body"}, {PublicName: "share_with_followers", WireName: "share_with_followers", Location: "body"}, {PublicName: "text", WireName: "text", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_create-webhooks-stream-link",
-			mcplib.WithDescription("Creates a link to deliver FilteredStream events to the given webhook. Required: webhook_id. Optional: tweet.fields, expansions, media.fields (plus 3 more). Returns the new WebhookLinksCreateResponse."),
-			mcplib.WithString("webhook_id", mcplib.Required(), mcplib.Description("The webhook ID to link to your FilteredStream ruleset.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/tweets/search/webhooks/{webhook_id}", []mcpParamBinding{{PublicName: "webhook_id", WireName: "webhook_id", Location: "path"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{"webhook_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_delete-posts",
-			mcplib.WithDescription("Deletes a specific Post by its ID, if owned by the authenticated user. Required: id. Returns the TweetDeleteResponse. Destructive."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the Post to be deleted.")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/tweets/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_delete-webhooks-stream-link",
-			mcplib.WithDescription("Deletes a link from FilteredStream events to the given webhook. Required: webhook_id. Returns the WebhookLinksDeleteResponse. Destructive."),
-			mcplib.WithString("webhook_id", mcplib.Required(), mcplib.Description("The webhook ID to link to your FilteredStream ruleset.")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/tweets/search/webhooks/{webhook_id}", []mcpParamBinding{{PublicName: "webhook_id", WireName: "webhook_id", Location: "path"}}, []string{"webhook_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_get-posts-analytics",
-			mcplib.WithDescription("Retrieves analytics data for specified Posts within a defined time range. Required: ids, end_time, start_time, granularity (default: total). Optional: analytics.fields. Returns array of TweetsGetPostsAnalyticsItem."),
-			mcplib.WithString("ids", mcplib.Required(), mcplib.Description("A comma separated list of Post IDs. Up to 100 are allowed in a single request.")),
-			mcplib.WithString("end_time", mcplib.Required(), mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The UTC timestamp representing the end of the time range.")),
-			mcplib.WithString("start_time", mcplib.Required(), mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The UTC timestamp representing the start of the time range.")),
-			mcplib.WithString("granularity", mcplib.Required(), mcplib.Description("The granularity for the search counts results.")),
-			mcplib.WithString("analytics.fields", mcplib.Description("A comma separated list of Analytics fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/tweets/analytics", []mcpParamBinding{{PublicName: "ids", WireName: "ids", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "granularity", WireName: "granularity", Location: "query"}, {PublicName: "analytics.fields", WireName: "analytics.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_get-posts-by-id",
-			mcplib.WithDescription("Retrieves details of a specific Post by its ID. Required: id. Optional: tweet.fields, expansions, media.fields (plus 3 more). Returns the Get2TweetsIdResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("A single Post ID.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/tweets/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_get-posts-by-ids",
-			mcplib.WithDescription("Retrieves details of multiple Posts by their IDs. Required: ids. Optional: tweet.fields, expansions, media.fields (plus 3 more). Returns array of Tweet."),
-			mcplib.WithString("ids", mcplib.Required(), mcplib.Description("A comma separated list of Post IDs. Up to 100 are allowed in a single request.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/tweets", []mcpParamBinding{{PublicName: "ids", WireName: "ids", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_get-posts-counts-recent",
-			mcplib.WithDescription("Retrieves the count of Posts from the last 7 days matching a search query. Required: query. Optional: start_time, end_time, since_id (plus 5 more). Returns array of SearchCount."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("One query/rule/filter for matching Posts. Refer to https://t.co/rulelength to identify the max query length.")),
-			mcplib.WithString("start_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The oldest UTC timestamp (from most recent 7 days) from which the Posts will be provided....")),
-			mcplib.WithString("end_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The newest, most recent UTC timestamp to which the Posts will be provided. Timestamp is in...")),
-			mcplib.WithString("since_id", mcplib.Description("Returns results with a Post ID greater than (that is, more recent than) the specified ID.")),
-			mcplib.WithString("until_id", mcplib.Description("Returns results with a Post ID less than (that is, older than) the specified ID.")),
-			mcplib.WithString("next_token", mcplib.Description("This parameter is used to get the next 'page' of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get the next 'page' of results.")),
-			mcplib.WithString("granularity", mcplib.Description("The granularity for the search counts results.")),
-			mcplib.WithString("search_count.fields", mcplib.Description("A comma separated list of SearchCount fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/tweets/counts/recent", []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}, {PublicName: "since_id", WireName: "since_id", Location: "query"}, {PublicName: "until_id", WireName: "until_id", Location: "query"}, {PublicName: "next_token", WireName: "next_token", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "granularity", WireName: "granularity", Location: "query"}, {PublicName: "search_count.fields", WireName: "search_count.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_get-webhooks-stream-links",
-			mcplib.WithDescription("Get a list of webhook links associated with a filtered stream ruleset. Returns the WebhookLinksGetResponse."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/tweets/search/webhooks", []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_search-posts-recent",
-			mcplib.WithDescription("Retrieves Posts from the last 7 days matching a search query. Required: query. Optional: start_time, end_time, since_id (plus 11 more). Returns array of Tweet."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("One query/rule/filter for matching Posts. Refer to https://t.co/rulelength to identify the max query length.")),
-			mcplib.WithString("start_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The oldest UTC timestamp from which the Posts will be provided. Timestamp is in second...")),
-			mcplib.WithString("end_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The newest, most recent UTC timestamp to which the Posts will be provided. Timestamp is in...")),
-			mcplib.WithString("since_id", mcplib.Description("Returns results with a Post ID greater than (that is, more recent than) the specified ID.")),
-			mcplib.WithString("until_id", mcplib.Description("Returns results with a Post ID less than (that is, older than) the specified ID.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of search results to be returned by a request.")),
-			mcplib.WithString("next_token", mcplib.Description("This parameter is used to get the next 'page' of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get the next 'page' of results.")),
-			mcplib.WithString("sort_order", mcplib.Description("This order in which to return results.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/tweets/search/recent", []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}, {PublicName: "since_id", WireName: "since_id", Location: "query"}, {PublicName: "until_id", WireName: "until_id", Location: "query"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "next_token", WireName: "next_token", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "sort_order", WireName: "sort_order", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_stream-labels-compliance",
-			mcplib.WithDescription("Streams all labeling events applied to Posts. Optional: backfill_minutes, start_time, end_time."),
-			mcplib.WithString("backfill_minutes", mcplib.Description("The number of minutes of backfill requested.")),
-			mcplib.WithString("start_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the Post labels will be provided.")),
-			mcplib.WithString("end_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp from which the Post labels will be provided.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/tweets/label/stream", []mcpParamBinding{{PublicName: "backfill_minutes", WireName: "backfill_minutes", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_stream-posts-compliance",
-			mcplib.WithDescription("Streams all compliance data related to Posts. Required: partition. Optional: backfill_minutes, start_time, end_time."),
-			mcplib.WithString("backfill_minutes", mcplib.Description("The number of minutes of backfill requested.")),
-			mcplib.WithString("partition", mcplib.Required(), mcplib.Description("The partition number.")),
-			mcplib.WithString("start_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the Post Compliance events will be provided.")),
-			mcplib.WithString("end_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Post Compliance events will be provided.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/tweets/compliance/stream", []mcpParamBinding{{PublicName: "backfill_minutes", WireName: "backfill_minutes", Location: "query"}, {PublicName: "partition", WireName: "partition", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_stream-posts-firehose",
-			mcplib.WithDescription("Streams all public Posts in real-time. Required: partition. Optional: backfill_minutes, start_time, end_time (plus 6 more). Returns the StreamingTweetResponse."),
-			mcplib.WithString("backfill_minutes", mcplib.Description("The number of minutes of backfill requested.")),
-			mcplib.WithString("partition", mcplib.Required(), mcplib.Description("The partition number.")),
-			mcplib.WithString("start_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp to which the Posts will be provided.")),
-			mcplib.WithString("end_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/tweets/firehose/stream", []mcpParamBinding{{PublicName: "backfill_minutes", WireName: "backfill_minutes", Location: "query"}, {PublicName: "partition", WireName: "partition", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_stream-posts-firehose-en",
-			mcplib.WithDescription("Streams all public English-language Posts in real-time. Required: partition. Optional: backfill_minutes, start_time, end_time (plus 6 more). Returns the StreamingTweetResponse."),
-			mcplib.WithString("backfill_minutes", mcplib.Description("The number of minutes of backfill requested.")),
-			mcplib.WithString("partition", mcplib.Required(), mcplib.Description("The partition number.")),
-			mcplib.WithString("start_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp to which the Posts will be provided.")),
-			mcplib.WithString("end_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/tweets/firehose/stream/lang/en", []mcpParamBinding{{PublicName: "backfill_minutes", WireName: "backfill_minutes", Location: "query"}, {PublicName: "partition", WireName: "partition", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_stream-posts-firehose-ja",
-			mcplib.WithDescription("Streams all public Japanese-language Posts in real-time. Required: partition. Optional: backfill_minutes, start_time, end_time (plus 6 more). Returns the StreamingTweetResponse."),
-			mcplib.WithString("backfill_minutes", mcplib.Description("The number of minutes of backfill requested.")),
-			mcplib.WithString("partition", mcplib.Required(), mcplib.Description("The partition number.")),
-			mcplib.WithString("start_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp to which the Posts will be provided.")),
-			mcplib.WithString("end_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/tweets/firehose/stream/lang/ja", []mcpParamBinding{{PublicName: "backfill_minutes", WireName: "backfill_minutes", Location: "query"}, {PublicName: "partition", WireName: "partition", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_stream-posts-firehose-ko",
-			mcplib.WithDescription("Streams all public Korean-language Posts in real-time. Required: partition. Optional: backfill_minutes, start_time, end_time (plus 6 more). Returns the StreamingTweetResponse."),
-			mcplib.WithString("backfill_minutes", mcplib.Description("The number of minutes of backfill requested.")),
-			mcplib.WithString("partition", mcplib.Required(), mcplib.Description("The partition number.")),
-			mcplib.WithString("start_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp to which the Posts will be provided.")),
-			mcplib.WithString("end_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/tweets/firehose/stream/lang/ko", []mcpParamBinding{{PublicName: "backfill_minutes", WireName: "backfill_minutes", Location: "query"}, {PublicName: "partition", WireName: "partition", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_stream-posts-firehose-pt",
-			mcplib.WithDescription("Streams all public Portuguese-language Posts in real-time. Required: partition. Optional: backfill_minutes, start_time, end_time (plus 6 more). Returns the StreamingTweetResponse."),
-			mcplib.WithString("backfill_minutes", mcplib.Description("The number of minutes of backfill requested.")),
-			mcplib.WithString("partition", mcplib.Required(), mcplib.Description("The partition number.")),
-			mcplib.WithString("start_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp to which the Posts will be provided.")),
-			mcplib.WithString("end_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/tweets/firehose/stream/lang/pt", []mcpParamBinding{{PublicName: "backfill_minutes", WireName: "backfill_minutes", Location: "query"}, {PublicName: "partition", WireName: "partition", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_stream-posts-sample",
-			mcplib.WithDescription("Streams a 1% sample of public Posts in real-time. Optional: backfill_minutes, tweet.fields, expansions (plus 4 more). Returns the StreamingTweetResponse."),
-			mcplib.WithString("backfill_minutes", mcplib.Description("The number of minutes of backfill requested.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/tweets/sample/stream", []mcpParamBinding{{PublicName: "backfill_minutes", WireName: "backfill_minutes", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_stream-posts-sample10",
-			mcplib.WithDescription("Streams a 10% sample of public Posts in real-time. Required: partition. Optional: backfill_minutes, start_time, end_time (plus 6 more). Returns the Get2TweetsSample10StreamResponse."),
-			mcplib.WithString("backfill_minutes", mcplib.Description("The number of minutes of backfill requested.")),
-			mcplib.WithString("partition", mcplib.Required(), mcplib.Description("The partition number.")),
-			mcplib.WithString("start_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp to which the Posts will be provided.")),
-			mcplib.WithString("end_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/tweets/sample10/stream", []mcpParamBinding{{PublicName: "backfill_minutes", WireName: "backfill_minutes", Location: "query"}, {PublicName: "partition", WireName: "partition", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_hidden_hide-posts-reply",
-			mcplib.WithDescription("Hides or unhides a reply to a conversation owned by the authenticated user. Required: tweet_id, hidden. Returns the updated TweetHideResponse."),
-			mcplib.WithString("tweet_id", mcplib.Required(), mcplib.Description("The ID of the reply that you want to hide or unhide.")),
-			mcplib.WithString("hidden", mcplib.Required(), mcplib.Description("Hidden")),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("PUT", "/2/tweets/{tweet_id}/hidden", []mcpParamBinding{{PublicName: "tweet_id", WireName: "tweet_id", Location: "path"}, {PublicName: "hidden", WireName: "hidden", Location: "body"}}, []string{"tweet_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_liking-users_get-posts",
-			mcplib.WithDescription("Retrieves a list of Users who liked a specific Post by its ID. Required: id. Optional: max_results (default: 100), pagination_token, user.fields (plus 2 more). Returns array of User."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("A single Post ID.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get the next 'page' of results.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/tweets/{id}/liking_users", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_quote-tweets_get-posts-quoted-posts",
-			mcplib.WithDescription("Retrieves a list of Posts that quote a specific Post by its ID. Required: id. Optional: max_results (default: 10), pagination_token, exclude (plus 6 more). Returns array of Tweet."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("A single Post ID.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results to be returned.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get a specified 'page' of results.")),
-			mcplib.WithString("exclude", mcplib.Description("The set of entities to exclude (e.g. 'replies' or 'retweets').")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/tweets/{id}/quote_tweets", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "exclude", WireName: "exclude", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_retweeted-by_get-posts-reposted-by",
-			mcplib.WithDescription("Retrieves a list of Users who reposted a specific Post by its ID. Required: id. Optional: max_results (default: 100), pagination_token, user.fields (plus 2 more). Returns array of User."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("A single Post ID.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get the next 'page' of results.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/tweets/{id}/retweeted_by", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tweets_retweets_get-posts-reposts",
-			mcplib.WithDescription("Retrieves a list of Posts that repost a specific Post by its ID. Required: id. Optional: max_results (default: 100), pagination_token, tweet.fields (plus 5 more). Returns array of Tweet."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("A single Post ID.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get the next 'page' of results.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/tweets/{id}/retweets", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("usage_get",
-			mcplib.WithDescription("Retrieves usage statistics for Posts over a specified number of days. Optional: days (default: 7), usage.fields. Returns the Get2UsageTweetsResponse."),
-			mcplib.WithString("days", mcplib.Description("The number of days for which you need usage for.")),
-			mcplib.WithString("usage.fields", mcplib.Description("A comma separated list of Usage fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/usage/tweets", []mcpParamBinding{{PublicName: "days", WireName: "days", Location: "query"}, {PublicName: "usage.fields", WireName: "usage.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_get-by-id",
-			mcplib.WithDescription("Retrieves details of a specific User by their ID. Required: id. Optional: user.fields, expansions, tweet.fields. Returns the Get2UsersIdResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the User to lookup.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_get-by-ids",
-			mcplib.WithDescription("Retrieves details of multiple Users by their IDs. Required: ids. Optional: user.fields, expansions, tweet.fields. Returns array of User."),
-			mcplib.WithString("ids", mcplib.Required(), mcplib.Description("A list of User IDs, comma-separated. You can specify up to 100 IDs.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users", []mcpParamBinding{{PublicName: "ids", WireName: "ids", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_get-by-username",
-			mcplib.WithDescription("Retrieves details of a specific User by their username. Required: username. Optional: user.fields, expansions, tweet.fields. Returns the Get2UsersByUsernameUsernameResponse."),
-			mcplib.WithString("username", mcplib.Required(), mcplib.Description("A username.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/by/username/{username}", []mcpParamBinding{{PublicName: "username", WireName: "username", Location: "path"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{"username"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_get-by-usernames",
-			mcplib.WithDescription("Retrieves details of multiple Users by their usernames. Required: usernames. Optional: user.fields, expansions, tweet.fields. Returns array of User."),
-			mcplib.WithString("usernames", mcplib.Required(), mcplib.Description("A list of usernames, comma-separated.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/by", []mcpParamBinding{{PublicName: "usernames", WireName: "usernames", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_get-me",
-			mcplib.WithDescription("Retrieves details of the authenticated user. Optional: user.fields, expansions, tweet.fields. Returns the Get2UsersMeResponse."),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/me", []mcpParamBinding{{PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_get-public-keys",
-			mcplib.WithDescription("Returns the public keys and Juicebox configuration for the specified users. Required: ids. Optional: public_key.fields."),
-			mcplib.WithString("ids", mcplib.Required(), mcplib.Description("A list of User IDs, comma-separated. You can specify up to 100 IDs.")),
-			mcplib.WithString("public_key.fields", mcplib.Description("A comma separated list of PublicKey fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/public_keys", []mcpParamBinding{{PublicName: "ids", WireName: "ids", Location: "query"}, {PublicName: "public_key.fields", WireName: "public_key.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_get-reposts-of-me",
-			mcplib.WithDescription("Retrieves a list of Posts that repost content from the authenticated user. Optional: max_results (default: 100), pagination_token, tweet.fields (plus 5 more). Returns array of Tweet."),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get the next 'page' of results.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/reposts_of_me", []mcpParamBinding{{PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_get-trends-personalized-trends",
-			mcplib.WithDescription("Retrieves personalized trending topics for the authenticated user. Optional: personalized_trend.fields. Returns array of PersonalizedTrend."),
-			mcplib.WithString("personalized_trend.fields", mcplib.Description("A comma separated list of PersonalizedTrend fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/personalized_trends", []mcpParamBinding{{PublicName: "personalized_trend.fields", WireName: "personalized_trend.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_search",
-			mcplib.WithDescription("Retrieves a list of Users matching a search query. Required: query. Optional: max_results (default: 100), next_token, user.fields (plus 2 more). Returns array of User."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("TThe the query string by which to query for users.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("next_token", mcplib.Description("This parameter is used to get the next 'page' of results.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/search", []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "next_token", WireName: "next_token", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_stream-compliance",
-			mcplib.WithDescription("Streams all compliance data related to Users. Required: partition. Optional: backfill_minutes, start_time, end_time."),
-			mcplib.WithString("backfill_minutes", mcplib.Description("The number of minutes of backfill requested.")),
-			mcplib.WithString("partition", mcplib.Required(), mcplib.Description("The partition number.")),
-			mcplib.WithString("start_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the User Compliance events will be provided.")),
-			mcplib.WithString("end_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp from which the User Compliance events will be provided.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/compliance/stream", []mcpParamBinding{{PublicName: "backfill_minutes", WireName: "backfill_minutes", Location: "query"}, {PublicName: "partition", WireName: "partition", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_affiliates_get-users",
-			mcplib.WithDescription("Retrieves a list of Users who are affiliated with a specific organization User by their ID. Required: id. Optional: max_results, pagination_token, user.fields (plus 2 more). Returns array of User."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the User to lookup.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get a specified 'page' of results.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/{id}/affiliates", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_blocking_get-users",
-			mcplib.WithDescription("Retrieves a list of Users blocked by the specified User ID. Required: id. Optional: max_results, pagination_token, user.fields (plus 2 more). Returns array of User."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User for whom to return results.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get a specified 'page' of results.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/{id}/blocking", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_bookmarks_create-users",
-			mcplib.WithDescription("Adds a post to the authenticated user’s bookmarks. Required: id, tweet_id. Returns the new BookmarkMutationResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User for whom to add bookmarks.")),
-			mcplib.WithString("tweet_id", mcplib.Required(), mcplib.Description("Unique identifier of this Tweet.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/users/{id}/bookmarks", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "tweet_id", WireName: "tweet_id", Location: "body"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_bookmarks_delete-users",
-			mcplib.WithDescription("Removes a Post from the authenticated user’s Bookmarks by its ID. Required: id, tweet_id. Returns the BookmarkMutationResponse. Destructive."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User whose bookmark is to be removed.")),
-			mcplib.WithString("tweet_id", mcplib.Required(), mcplib.Description("The ID of the Post that the source User is removing from bookmarks.")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/users/{id}/bookmarks/{tweet_id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "tweet_id", WireName: "tweet_id", Location: "path"}}, []string{"id", "tweet_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_bookmarks_get-users",
-			mcplib.WithDescription("Retrieves a list of Posts bookmarked by the authenticated user. Required: id. Optional: max_results, pagination_token, tweet.fields (plus 5 more). Returns array of Tweet."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User for whom to return results.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get the next 'page' of results.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/{id}/bookmarks", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_bookmarks_get-users-by-folder-id",
-			mcplib.WithDescription("Retrieves Posts in a specific Bookmark folder by its ID for the authenticated user. Required: id, folder_id. Returns array of BookmarksGetUsersByFolderIdItem."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User for whom to return results.")),
-			mcplib.WithString("folder_id", mcplib.Required(), mcplib.Description("The ID of the Bookmark Folder that the authenticated User is trying to fetch Posts for.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/{id}/bookmarks/folders/{folder_id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "folder_id", WireName: "folder_id", Location: "path"}}, []string{"id", "folder_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_bookmarks_get-users-folders",
-			mcplib.WithDescription("Retrieves a list of Bookmark folders created by the authenticated user. Required: id. Optional: max_results, pagination_token. Returns array of BookmarksGetUsersFoldersItem."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User for whom to return results.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get the next 'page' of results.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/{id}/bookmarks/folders", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_dm_block-users",
-			mcplib.WithDescription("Blocks direct messages to or from a specific User by their ID for the authenticated user. Required: id. Returns the new UsersDmblockCreateResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the target User that the authenticated user requesting to block dms for.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/users/{id}/dm/block", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_dm_unblock-users",
-			mcplib.WithDescription("Unblocks direct messages to or from a specific User by their ID for the authenticated user. Required: id. Returns the new UsersDmunBlockCreateResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the target User that the authenticated user requesting to unblock dms for.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/users/{id}/dm/unblock", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_followed-lists_follow-list",
-			mcplib.WithDescription("Causes the authenticated user to follow a specific List by its ID. Required: id, list_id. Returns the new ListFollowedResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User that will follow the List.")),
-			mcplib.WithString("list_id", mcplib.Required(), mcplib.Description("The unique identifier of this List.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/users/{id}/followed_lists", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "list_id", WireName: "list_id", Location: "body"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_followed-lists_get-users",
-			mcplib.WithDescription("Retrieves a list of Lists followed by a specific User by their ID. Required: id. Optional: max_results (default: 100), pagination_token, list.fields (plus 2 more). Returns array of List."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the User to lookup.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get a specified 'page' of results.")),
-			mcplib.WithString("list.fields", mcplib.Description("A comma separated list of List fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/{id}/followed_lists", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "list.fields", WireName: "list.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_followed-lists_unfollow-list",
-			mcplib.WithDescription("Causes the authenticated user to unfollow a specific List by its ID. Required: id, list_id. Returns the ListFollowedResponse. Destructive."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User that will unfollow the List.")),
-			mcplib.WithString("list_id", mcplib.Required(), mcplib.Description("The ID of the List to unfollow.")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/users/{id}/followed_lists/{list_id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "list_id", WireName: "list_id", Location: "path"}}, []string{"id", "list_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_followers_get-users",
-			mcplib.WithDescription("Retrieves a list of Users who follow a specific User by their ID. Required: id. Optional: max_results, pagination_token, user.fields (plus 2 more). Returns array of User."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the User to lookup.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get a specified 'page' of results.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/{id}/followers", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_following_follow-user",
-			mcplib.WithDescription("Causes the authenticated user to follow a specific user by their ID. Required: id, target_user_id. Returns the new UsersFollowingCreateResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User that is requesting to follow the target User.")),
-			mcplib.WithString("target_user_id", mcplib.Required(), mcplib.Description("Unique identifier of this User. This is returned as a string in order to avoid complications with languages and...")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/users/{id}/following", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "target_user_id", WireName: "target_user_id", Location: "body"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_following_get-users",
-			mcplib.WithDescription("Retrieves a list of Users followed by a specific User by their ID. Required: id. Optional: max_results, pagination_token, user.fields (plus 2 more). Returns array of User."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the User to lookup.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get a specified 'page' of results.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/{id}/following", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_following_unfollow-user",
-			mcplib.WithDescription("Causes the authenticated user to unfollow a specific user by their ID. Required: source_user_id, target_user_id. Returns the UsersFollowingDeleteResponse. Destructive."),
-			mcplib.WithString("source_user_id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User that is requesting to unfollow the target User.")),
-			mcplib.WithString("target_user_id", mcplib.Required(), mcplib.Description("The ID of the User that the source User is requesting to unfollow.")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/users/{source_user_id}/following/{target_user_id}", []mcpParamBinding{{PublicName: "source_user_id", WireName: "source_user_id", Location: "path"}, {PublicName: "target_user_id", WireName: "target_user_id", Location: "path"}}, []string{"source_user_id", "target_user_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_liked-tweets_get-users-liked-posts",
-			mcplib.WithDescription("Retrieves a list of Posts liked by a specific User by their ID. Required: id. Optional: max_results, pagination_token, tweet.fields (plus 5 more). Returns array of Tweet."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the User to lookup.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get the next 'page' of results.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/{id}/liked_tweets", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_likes_post",
-			mcplib.WithDescription("Causes the authenticated user to Like a specific Post by its ID. Required: id, tweet_id. Returns the new UsersLikesCreateResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User that is requesting to like the Post.")),
-			mcplib.WithString("tweet_id", mcplib.Required(), mcplib.Description("Unique identifier of this Tweet.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/users/{id}/likes", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "tweet_id", WireName: "tweet_id", Location: "body"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_likes_unlike-post",
-			mcplib.WithDescription("Causes the authenticated user to Unlike a specific Post by its ID. Required: id, tweet_id. Returns the UsersLikesDeleteResponse. Destructive."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User that is requesting to unlike the Post.")),
-			mcplib.WithString("tweet_id", mcplib.Required(), mcplib.Description("The ID of the Post that the User is requesting to unlike.")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/users/{id}/likes/{tweet_id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "tweet_id", WireName: "tweet_id", Location: "path"}}, []string{"id", "tweet_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_list-memberships_get-users",
-			mcplib.WithDescription("Retrieves a list of Lists that a specific User is a member of by their ID. Required: id. Optional: max_results (default: 100), pagination_token, list.fields (plus 2 more). Returns array of List."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the User to lookup.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get a specified 'page' of results.")),
-			mcplib.WithString("list.fields", mcplib.Description("A comma separated list of List fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/{id}/list_memberships", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "list.fields", WireName: "list.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_mentions_get-users",
-			mcplib.WithDescription("Retrieves a list of Posts that mention a specific User by their ID. Required: id. Optional: since_id, until_id, max_results (plus 9 more). Returns array of Tweet."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the User to lookup.")),
-			mcplib.WithString("since_id", mcplib.Description("The minimum Post ID to be included in the result set.")),
-			mcplib.WithString("until_id", mcplib.Description("The maximum Post ID to be included in the result set.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get the next 'page' of results.")),
-			mcplib.WithString("start_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the Posts will be provided. The...")),
-			mcplib.WithString("end_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided. The...")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/{id}/mentions", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "since_id", WireName: "since_id", Location: "query"}, {PublicName: "until_id", WireName: "until_id", Location: "query"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_muting_get-users",
-			mcplib.WithDescription("Retrieves a list of Users muted by the authenticated user. Required: id. Optional: max_results (default: 100), pagination_token, user.fields (plus 2 more). Returns array of User."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User for whom to return results.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get the next 'page' of results.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/{id}/muting", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_muting_mute-user",
-			mcplib.WithDescription("Causes the authenticated user to mute a specific User by their ID. Required: id, target_user_id. Returns the new MuteUserMutationResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User that is requesting to mute the target User.")),
-			mcplib.WithString("target_user_id", mcplib.Required(), mcplib.Description("Unique identifier of this User. This is returned as a string in order to avoid complications with languages and...")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/users/{id}/muting", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "target_user_id", WireName: "target_user_id", Location: "body"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_muting_unmute-user",
-			mcplib.WithDescription("Causes the authenticated user to unmute a specific user by their ID. Required: source_user_id, target_user_id. Returns the MuteUserMutationResponse. Destructive."),
-			mcplib.WithString("source_user_id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User that is requesting to unmute the target User.")),
-			mcplib.WithString("target_user_id", mcplib.Required(), mcplib.Description("The ID of the User that the source User is requesting to unmute.")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/users/{source_user_id}/muting/{target_user_id}", []mcpParamBinding{{PublicName: "source_user_id", WireName: "source_user_id", Location: "path"}, {PublicName: "target_user_id", WireName: "target_user_id", Location: "path"}}, []string{"source_user_id", "target_user_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_owned-lists_get-users",
-			mcplib.WithDescription("Retrieves a list of Lists owned by a specific User by their ID. Required: id. Optional: max_results (default: 100), pagination_token, list.fields (plus 2 more). Returns array of List."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the User to lookup.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get a specified 'page' of results.")),
-			mcplib.WithString("list.fields", mcplib.Description("A comma separated list of List fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/{id}/owned_lists", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "list.fields", WireName: "list.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_pinned-lists_get-users",
-			mcplib.WithDescription("Retrieves a list of Lists pinned by the authenticated user. Required: id. Optional: list.fields, expansions, user.fields. Returns array of List."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User for whom to return results.")),
-			mcplib.WithString("list.fields", mcplib.Description("A comma separated list of List fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/{id}/pinned_lists", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "list.fields", WireName: "list.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_pinned-lists_pin-list",
-			mcplib.WithDescription("Causes the authenticated user to pin a specific List by its ID. Required: id, list_id. Returns the new ListPinnedResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User that will pin the List.")),
-			mcplib.WithString("list_id", mcplib.Required(), mcplib.Description("The unique identifier of this List.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/users/{id}/pinned_lists", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "list_id", WireName: "list_id", Location: "body"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_pinned-lists_unpin-list",
-			mcplib.WithDescription("Causes the authenticated user to unpin a specific List by its ID. Required: id, list_id. Returns the ListUnpinResponse. Destructive."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User for whom to return results.")),
-			mcplib.WithString("list_id", mcplib.Required(), mcplib.Description("The ID of the List to unpin.")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/users/{id}/pinned_lists/{list_id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "list_id", WireName: "list_id", Location: "path"}}, []string{"id", "list_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_public-keys_add-user",
-			mcplib.WithDescription("Registers a user's public key for X Chat encryption. Required: id, public_key, version. Optional: generate_version. Returns the new ChatAddPublicKeyResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the requesting user.")),
-			mcplib.WithString("generate_version", mcplib.Description("When true, the server generates a new version.")),
-			mcplib.WithString("public_key", mcplib.Required(), mcplib.Description("Public key registration payload.")),
-			mcplib.WithString("version", mcplib.Required(), mcplib.Description("Public key version.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/users/{id}/public_keys", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "generate_version", WireName: "generate_version", Location: "body"}, {PublicName: "public_key", WireName: "public_key", Location: "body"}, {PublicName: "version", WireName: "version", Location: "body"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_public-keys_get-users",
-			mcplib.WithDescription("Returns the public keys and Juicebox configuration for the specified user. Required: id. Optional: public_key.fields."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the User to lookup.")),
-			mcplib.WithString("public_key.fields", mcplib.Description("A comma separated list of PublicKey fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/{id}/public_keys", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "public_key.fields", WireName: "public_key.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_retweets_repost-post",
-			mcplib.WithDescription("Causes the authenticated user to repost a specific Post by its ID. Required: id, tweet_id. Returns the new UsersRetweetsCreateResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User that is requesting to repost the Post.")),
-			mcplib.WithString("tweet_id", mcplib.Required(), mcplib.Description("Unique identifier of this Tweet.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/users/{id}/retweets", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "tweet_id", WireName: "tweet_id", Location: "body"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_retweets_unrepost-post",
-			mcplib.WithDescription("Causes the authenticated user to unrepost a specific Post by its ID. Required: id, source_tweet_id. Returns the UsersRetweetsDeleteResponse. Destructive."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User that is requesting to repost the Post.")),
-			mcplib.WithString("source_tweet_id", mcplib.Required(), mcplib.Description("The ID of the Post that the User is requesting to unretweet.")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/users/{id}/retweets/{source_tweet_id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "source_tweet_id", WireName: "source_tweet_id", Location: "path"}}, []string{"id", "source_tweet_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_timelines_get-users",
-			mcplib.WithDescription("Retrieves a reverse chronological list of Posts in the authenticated User’s Timeline. Required: id. Optional: since_id, until_id, max_results (plus 10 more). Returns array of Tweet."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the authenticated source User to list Reverse Chronological Timeline Posts of.")),
-			mcplib.WithString("since_id", mcplib.Description("The minimum Post ID to be included in the result set.")),
-			mcplib.WithString("until_id", mcplib.Description("The maximum Post ID to be included in the result set.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get the next 'page' of results.")),
-			mcplib.WithString("exclude", mcplib.Description("The set of entities to exclude (e.g. 'replies' or 'retweets').")),
-			mcplib.WithString("start_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the Posts will be provided. The...")),
-			mcplib.WithString("end_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided. The...")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/{id}/timelines/reverse_chronological", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "since_id", WireName: "since_id", Location: "query"}, {PublicName: "until_id", WireName: "until_id", Location: "query"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "exclude", WireName: "exclude", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_tweets_get-users-posts",
-			mcplib.WithDescription("Retrieves a list of posts authored by a specific User by their ID. Required: id. Optional: since_id, until_id, max_results (plus 10 more). Returns array of Tweet."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the User to lookup.")),
-			mcplib.WithString("since_id", mcplib.Description("The minimum Post ID to be included in the result set.")),
-			mcplib.WithString("until_id", mcplib.Description("The maximum Post ID to be included in the result set.")),
-			mcplib.WithString("max_results", mcplib.Description("The maximum number of results.")),
-			mcplib.WithString("pagination_token", mcplib.Description("This parameter is used to get the next 'page' of results.")),
-			mcplib.WithString("exclude", mcplib.Description("The set of entities to exclude (e.g. 'replies' or 'retweets').")),
-			mcplib.WithString("start_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the Posts will be provided. The...")),
-			mcplib.WithString("end_time", mcplib.Description("YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided. The...")),
-			mcplib.WithString("tweet.fields", mcplib.Description("A comma separated list of Tweet fields to display.")),
-			mcplib.WithString("expansions", mcplib.Description("A comma separated list of fields to expand.")),
-			mcplib.WithString("media.fields", mcplib.Description("A comma separated list of Media fields to display.")),
-			mcplib.WithString("poll.fields", mcplib.Description("A comma separated list of Poll fields to display.")),
-			mcplib.WithString("user.fields", mcplib.Description("A comma separated list of User fields to display.")),
-			mcplib.WithString("place.fields", mcplib.Description("A comma separated list of Place fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/users/{id}/tweets", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "since_id", WireName: "since_id", Location: "query"}, {PublicName: "until_id", WireName: "until_id", Location: "query"}, {PublicName: "max_results", WireName: "max_results", Location: "query"}, {PublicName: "pagination_token", WireName: "pagination_token", Location: "query"}, {PublicName: "exclude", WireName: "exclude", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}, {PublicName: "tweet.fields", WireName: "tweet.fields", Location: "query"}, {PublicName: "expansions", WireName: "expansions", Location: "query"}, {PublicName: "media.fields", WireName: "media.fields", Location: "query"}, {PublicName: "poll.fields", WireName: "poll.fields", Location: "query"}, {PublicName: "user.fields", WireName: "user.fields", Location: "query"}, {PublicName: "place.fields", WireName: "place.fields", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("webhooks_create",
-			mcplib.WithDescription("Creates a new webhook configuration. Required: url. Returns the new WebhookConfigCreateResponse."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Url")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/webhooks", []mcpParamBinding{{PublicName: "url", WireName: "url", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("webhooks_create-replay-job",
-			mcplib.WithDescription("Creates a replay job to retrieve events from up to the past 24 hours for all events delivered or attempted to be delivered to the webhook. Required: from_date, to_date, webhook_id. Returns the new ReplayJobCreateResponse."),
-			mcplib.WithString("from_date", mcplib.Required(), mcplib.Description("The oldest (starting) UTC timestamp (inclusive) from which events will be provided, in yyyymmddhhmm format.")),
-			mcplib.WithString("to_date", mcplib.Required(), mcplib.Description("The oldest (starting) UTC timestamp (inclusive) from which events will be provided, in yyyymmddhhmm format.")),
-			mcplib.WithString("webhook_id", mcplib.Required(), mcplib.Description("The unique identifier of this webhook config.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/2/webhooks/replay", []mcpParamBinding{{PublicName: "from_date", WireName: "from_date", Location: "body"}, {PublicName: "to_date", WireName: "to_date", Location: "body"}, {PublicName: "webhook_id", WireName: "webhook_id", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("webhooks_delete",
-			mcplib.WithDescription("Deletes an existing webhook configuration. Required: webhook_id. Returns the WebhookConfigDeleteResponse. Destructive."),
-			mcplib.WithString("webhook_id", mcplib.Required(), mcplib.Description("The ID of the webhook to delete.")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/2/webhooks/{webhook_id}", []mcpParamBinding{{PublicName: "webhook_id", WireName: "webhook_id", Location: "path"}}, []string{"webhook_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("webhooks_get",
-			mcplib.WithDescription("Get a list of webhook configs associated with a client app. Optional: webhook_config.fields. Returns array of WebhookConfig."),
-			mcplib.WithString("webhook_config.fields", mcplib.Description("A comma separated list of WebhookConfig fields to display.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/2/webhooks", []mcpParamBinding{{PublicName: "webhook_config.fields", WireName: "webhook_config.fields", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("webhooks_validate",
-			mcplib.WithDescription("Triggers a CRC check for a given webhook. Required: webhook_id. Returns the updated WebhookConfigPutResponse."),
-			mcplib.WithString("webhook_id", mcplib.Required(), mcplib.Description("The ID of the webhook to check.")),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("PUT", "/2/webhooks/{webhook_id}", []mcpParamBinding{{PublicName: "webhook_id", WireName: "webhook_id", Location: "path"}}, []string{"webhook_id"}),
-	)
+	// Code-orchestration mode — the full surface is covered by two tools
+	// (<api>_search + <api>_execute). Endpoint-mirror tools are suppressed.
+	RegisterCodeOrchestrationTools(s)
+	// Intent tools — higher-level compositions declared in the spec or lifted from recipes.
+	RegisterIntents(s)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
 		mcplib.NewTool("search",
@@ -2074,10 +72,31 @@ type mcpParamBinding struct {
 	PublicName string
 	WireName   string
 	Location   string
+	BodyPath   []string
+}
+
+func setNestedBodyArg(body map[string]any, path []string, value any) {
+	if len(path) == 0 {
+		return
+	}
+	if len(path) == 1 {
+		body[path[0]] = value
+		return
+	}
+	current := body
+	for _, key := range path[:len(path)-1] {
+		next, ok := current[key].(map[string]any)
+		if !ok {
+			next = map[string]any{}
+			current[key] = next
+		}
+		current = next
+	}
+	current[path[len(path)-1]] = value
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
+func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		c, err := newMCPClient()
 		if err != nil {
@@ -2097,6 +116,23 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 		pathParams := make(map[string]bool, len(positionalParams))
 		params := make(map[string]string)
 		bodyArgs := make(map[string]any)
+		var headers map[string]string
+		if len(headerOverrides) > 0 {
+			headers = make(map[string]string, len(headerOverrides)+1)
+			for k, v := range headerOverrides {
+				headers[k] = v
+			}
+		}
+		if binaryResponse {
+			if headers == nil {
+				headers = map[string]string{}
+			}
+			headers[client.BinaryResponseHeader] = "true"
+		}
+		// bodyJSONOverride holds an opaque body for endpoints whose request
+		// schema is a oneOf/anyOf and was wired with a single body_json input.
+		// When set, it replaces the bodyArgs map for POST/PUT/PATCH.
+		var bodyJSONOverride json.RawMessage
 		for _, binding := range bindings {
 			knownArgs[binding.PublicName] = true
 			v, ok := args[binding.PublicName]
@@ -2109,7 +145,22 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 				pathParams[binding.PublicName] = true
 				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
 			case "body":
-				bodyArgs[binding.WireName] = v
+				if len(binding.BodyPath) > 0 {
+					setNestedBodyArg(bodyArgs, binding.BodyPath, v)
+				} else {
+					bodyArgs[binding.WireName] = v
+				}
+			case "body_json":
+				if s, ok := v.(string); ok && s != "" {
+					var parsed any
+					if err := json.Unmarshal([]byte(s), &parsed); err != nil {
+						return mcplib.NewToolResultError("body_json must be a valid JSON object: " + err.Error()), nil
+					}
+					if _, isMap := parsed.(map[string]any); !isMap {
+						return mcplib.NewToolResultError(fmt.Sprintf("body_json must be a JSON object, got JSON %T", parsed)), nil
+					}
+					bodyJSONOverride = json.RawMessage(s)
+				}
 			default:
 				params[binding.WireName] = fmt.Sprintf("%v", v)
 			}
@@ -2140,18 +191,75 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 		var data json.RawMessage
 		switch method {
 		case "GET":
-			data, err = c.Get(path, params)
+			if len(headers) > 0 {
+				data, err = c.GetWithHeaders(ctx, path, params, headers)
+				break
+			}
+			data, err = c.Get(ctx, path, params)
 		case "POST":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Post(path, body)
+			if len(bodyJSONOverride) > 0 {
+				if len(headers) > 0 {
+					if readOnly {
+						data, _, err = c.PostQueryWithParamsAndHeaders(ctx, path, params, bodyJSONOverride, headers)
+					} else {
+						data, _, err = c.PostWithParamsAndHeaders(ctx, path, params, bodyJSONOverride, headers)
+					}
+					break
+				}
+				if readOnly {
+					data, _, err = c.PostQueryWithParams(ctx, path, params, bodyJSONOverride)
+				} else {
+					data, _, err = c.PostWithParams(ctx, path, params, bodyJSONOverride)
+				}
+				break
+			}
+			if len(headers) > 0 {
+				if readOnly {
+					data, _, err = c.PostQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PostWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
+				break
+			}
+			if readOnly {
+				data, _, err = c.PostQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PostWithParams(ctx, path, params, bodyArgs)
+			}
 		case "PUT":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Put(path, body)
+			if len(bodyJSONOverride) > 0 {
+				if len(headers) > 0 {
+					data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyJSONOverride, headers)
+					break
+				}
+				data, _, err = c.PutWithParams(ctx, path, params, bodyJSONOverride)
+				break
+			}
+			if len(headers) > 0 {
+				data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				break
+			}
+			data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
 		case "PATCH":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Patch(path, body)
+			if len(bodyJSONOverride) > 0 {
+				if len(headers) > 0 {
+					data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyJSONOverride, headers)
+					break
+				}
+				data, _, err = c.PatchWithParams(ctx, path, params, bodyJSONOverride)
+				break
+			}
+			if len(headers) > 0 {
+				data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				break
+			}
+			data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
 		case "DELETE":
-			data, _, err = c.Delete(path)
+			if len(headers) > 0 {
+				data, _, err = c.DeleteWithParamsAndHeaders(ctx, path, params, headers)
+				break
+			}
+			data, _, err = c.DeleteWithParams(ctx, path, params)
 		default:
 			return mcplib.NewToolResultError("unsupported method: " + method), nil
 		}
@@ -2164,17 +272,23 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
 				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
-					"\n      Set your API key: export X_OAUTH2_USER_TOKEN=<your-key>" +
+					"\n      Set your API key: export X_BEARER_TOKEN=<your-key>" +
+					"\n      Get a key at: https://console.x.com/" +
+					"\n      Bearer Token (required) is on your app Keys and Tokens page at console.x.com. Optional X_OAUTH2_USER_TOKEN unlocks v2 writes and personal reads. X Articles authoring uses browser cookies captured via auth login --chrome." +
 					"\n      Run 'x-twitter-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
 				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your token." +
-					"\n      Set it with: export X_OAUTH2_USER_TOKEN=<your-key>" +
+					"\n      Set it with: export X_BEARER_TOKEN=<your-key>" +
+					"\n      Get a key at: https://console.x.com/" +
+					"\n      Bearer Token (required) is on your app Keys and Tokens page at console.x.com. Optional X_OAUTH2_USER_TOKEN unlocks v2 writes and personal reads. X Articles authoring uses browser cookies captured via auth login --chrome." +
 					"\n      Run 'x-twitter-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource." +
-					"\n      Set it with: export X_OAUTH2_USER_TOKEN=<your-key>" +
+					"\n      Set it with: export X_BEARER_TOKEN=<your-key>" +
+					"\n      Get a key at: https://console.x.com/" +
+					"\n      Bearer Token (required) is on your app Keys and Tokens page at console.x.com. Optional X_OAUTH2_USER_TOKEN unlocks v2 writes and personal reads. X Articles authoring uses browser cookies captured via auth login --chrome." +
 					"\n      Run 'x-twitter-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
@@ -2203,6 +317,14 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 				}
 			}
 		}
+		if binaryResponse {
+			out, _ := json.Marshal(map[string]any{
+				"content_encoding": "base64",
+				"data_base64":      base64.StdEncoding.EncodeToString(data),
+				"byte_count":       len(data),
+			})
+			return mcplib.NewToolResultText(string(out)), nil
+		}
 		return mcplib.NewToolResultText(string(data)), nil
 	}
 }
@@ -2214,7 +336,7 @@ func newMCPClient() (*client.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
-	c := client.New(cfg, 30*time.Second, 0)
+	c := client.New(cfg, 60*time.Second, 0)
 	// Agents calling through MCP need fresh data every call. The on-disk
 	// response cache survives across MCP server invocations, so a
 	// DELETE/PATCH followed by a GET would otherwise return the
@@ -2336,7 +458,10 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 	}
 	defer rows.Close()
 
-	cols, _ := rows.Columns()
+	cols, err := rows.Columns()
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading columns: %v", err)), nil
+	}
 	var results []map[string]any
 	for rows.Next() {
 		values := make([]any, len(cols))
@@ -2344,12 +469,20 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		for i := range values {
 			ptrs[i] = &values[i]
 		}
-		rows.Scan(ptrs...)
+		if err := rows.Scan(ptrs...); err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("scanning row: %v", err)), nil
+		}
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
 		results = append(results, row)
+	}
+	// A DB error mid-iteration leaves rows.Next() returning false without
+	// erroring the loop; without this check a truncated result set would be
+	// returned to the caller as success.
+	if err := rows.Err(); err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading rows: %v", err)), nil
 	}
 
 	data, _ := json.MarshalIndent(results, "", "  ")
@@ -2358,23 +491,32 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
-		"api":         "x",
-		"description": "X API v2 available endpoints",
+		"api":         "x-twitter",
+		"description": "The only X CLI with an offline",
 		"archetype":   "communication",
-		"tool_count":  156,
+		"tool_count":  163,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion x-twitter-pp-cli binary.",
 		"auth": map[string]any{
 			"type": "bearer_token",
 			"env_vars": []map[string]any{
 				{
-					"name":        "X_OAUTH2_USER_TOKEN",
+					"name":        "X_BEARER_TOKEN",
 					"kind":        "per_call",
 					"required":    true,
 					"sensitive":   true,
 					"description": "Set to your API credential.",
 				},
+				{
+					"name":        "X_OAUTH2_USER_TOKEN",
+					"kind":        "per_call",
+					"required":    false,
+					"sensitive":   true,
+					"description": "Set to your API credential.",
+				},
 			},
+			"key_url":      "https://console.x.com/",
+			"instructions": "Bearer Token (required) is on your app Keys and Tokens page at console.x.com. Optional X_OAUTH2_USER_TOKEN unlocks v2 writes and personal reads. X Articles authoring uses browser cookies captured via auth login --chrome.",
 		},
 		"resources": []map[string]any{
 			{
@@ -2387,14 +529,14 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{
 				"name":        "activity",
 				"description": "Manage activity",
-				"endpoints":   []string{"create-subscription", "delete-subscription", "delete-subscriptions-by-ids", "get-subscriptions", "stream", "update-subscription"},
+				"endpoints":   []string{"create-subscription", "delete-subscription", "delete-subscriptions-by-ids", "get-subscriptions", "update-subscription"},
 				"syncable":    true,
 				"searchable":  true,
 			},
 			{
 				"name":        "chat",
 				"description": "Manage chat",
-				"endpoints":   []string{"add-group-members", "create-conversation", "get-conversation", "get-conversations", "initialize-conversation-keys", "initialize-group", "mark-conversation-read", "media-download", "media-upload-append", "media-upload-finalize", "media-upload-initialize", "send-message", "send-typing-indicator"},
+				"endpoints":   []string{"add-group-members", "create-conversation", "get-conversation", "get-conversation-events", "get-conversations", "initialize-conversation-keys", "initialize-group", "mark-conversation-read", "media-download", "media-upload-append", "media-upload-finalize", "media-upload-initialize", "send-message", "send-typing-indicator"},
 				"syncable":    true,
 				"searchable":  true,
 			},
@@ -2446,7 +588,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{
 				"name":        "likes",
 				"description": "Manage likes",
-				"endpoints":   []string{"stream-compliance", "stream-firehose", "stream-sample10"},
+				"endpoints":   []string{},
 				"searchable":  true,
 			},
 			{
@@ -2493,7 +635,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{
 				"name":        "tweets",
 				"description": "Endpoints related to retrieving, searching, and modifying Tweets",
-				"endpoints":   []string{"create-posts", "create-webhooks-stream-link", "delete-posts", "delete-webhooks-stream-link", "get-posts-analytics", "get-posts-by-id", "get-posts-by-ids", "get-posts-counts-recent", "get-webhooks-stream-links", "search-posts-recent", "stream-labels-compliance", "stream-posts-compliance", "stream-posts-firehose", "stream-posts-firehose-en", "stream-posts-firehose-ja", "stream-posts-firehose-ko", "stream-posts-firehose-pt", "stream-posts-sample", "stream-posts-sample10"},
+				"endpoints":   []string{"create-posts", "create-webhooks-stream-link", "delete-posts", "delete-webhooks-stream-link", "get-posts-analytics", "get-posts-by-id", "get-posts-by-ids", "get-posts-counts-all", "get-posts-counts-recent", "get-rule-counts", "get-rules", "get-webhooks-stream-links", "search-posts-all", "search-posts-recent", "update-rules"},
 				"syncable":    true,
 				"searchable":  true,
 			},
@@ -2506,7 +648,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{
 				"name":        "users",
 				"description": "Endpoints related to retrieving, managing relationships of Users",
-				"endpoints":   []string{"get-by-id", "get-by-ids", "get-by-username", "get-by-usernames", "get-me", "get-public-keys", "get-reposts-of-me", "get-trends-personalized-trends", "search", "stream-compliance"},
+				"endpoints":   []string{"get-by-id", "get-by-ids", "get-by-username", "get-by-usernames", "get-me", "get-public-keys", "get-reposts-of-me", "get-trends-personalized-trends", "search"},
 				"syncable":    true,
 				"searchable":  true,
 			},
@@ -2529,12 +671,14 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Markdown to tweet thread", "command": "thread compose", "description": "Split a markdown file into a numbered tweet thread. Atom-aware splitter honors paragraphs, list items, and code...", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Markdown to X Article", "command": "articles-publish-md", "description": "Parse a markdown file with YAML frontmatter (title, cover, tags) and convert the body to Draft.js content_state JSON...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Offline thread reconstruction", "command": "thread show", "description": "Rebuild a full conversation thread from your locally synced posts — ordered and depth-tagged — without re-spending API", "rationale": "No single X endpoint returns an ordered conversation tree", "via": "mcp-command-mirror"},
+			{"name": "Markdown to tweet thread", "command": "thread compose", "description": "Split a markdown file into a numbered, 280-char-packed self-reply thread; prints by default and only posts with --post.", "rationale": "Atom-aware splitting (paragraphs, list items, code fences)", "via": "mcp-command-mirror"},
+			{"name": "Markdown to X Article", "command": "articles-publish-md", "description": "Parse a markdown file with YAML frontmatter into the Draft.", "rationale": "X Articles have no official v2 API surface; this converts markdown (headings, lists, blockquotes, code, bold/italic", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Markdown to tweet thread", "insight": ""},
-			{"topic": "Markdown to X Article", "insight": ""},
+			{"topic": "Offline thread reconstruction", "insight": "No single X endpoint returns an ordered conversation tree; this joins conversation_id and referenced_tweets across the local SQLite store, which only exists because the CLI syncs and persists."},
+			{"topic": "Markdown to tweet thread", "insight": "Atom-aware splitting (paragraphs, list items, code fences) plus numbering-suffix reservation is content logic no generic API wrapper does; self-reply threading is the workflow that survives X's Feb-2026 reply restriction."},
+			{"topic": "Markdown to X Article", "insight": "X Articles have no official v2 API surface; this converts markdown (headings, lists, blockquotes, code, bold/italic, images, cover) to the bespoke Draft.js shape via the browser/GraphQL editor path, draft-first."},
 			{"topic": "Message search", "insight": "Use the search tool on synced data rather than paginating through message history. Message APIs often have aggressive rate limits."},
 			{"topic": "Channel health", "insight": "When analyzing channel activity, use the channel-health command or sql aggregation on synced messages. Don't iterate individual messages via API."},
 		},

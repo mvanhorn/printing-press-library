@@ -9,8 +9,11 @@ import (
 
 func newNotesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "notes",
-		Short: "Manage notes",
+		Use:         "notes",
+		Short:       "Search, create, and delete notes",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newNotesCreateCommunityCmd(flags))

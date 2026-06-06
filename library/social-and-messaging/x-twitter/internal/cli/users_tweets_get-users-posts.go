@@ -44,7 +44,7 @@ func newUsersTweetsGetUsersPostsCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/2/users/{id}/tweets"
 			path = replacePathParam(path, "id", args[0])
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "tweets", path, map[string]string{
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "tweets", path, map[string]string{
 				"since_id":         fmt.Sprintf("%v", flagSinceId),
 				"until_id":         fmt.Sprintf("%v", flagUntilId),
 				"max_results":      fmt.Sprintf("%v", flagMaxResults),
@@ -58,20 +58,26 @@ func newUsersTweetsGetUsersPostsCmd(flags *rootFlags) *cobra.Command {
 				"poll.fields":      fmt.Sprintf("%v", flagPollFields),
 				"user.fields":      fmt.Sprintf("%v", flagUserFields),
 				"place.fields":     fmt.Sprintf("%v", flagPlaceFields),
-			}, nil, flagAll, "", "", "")
+			}, nil, flagAll, "", "offset", "max_results", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -100,13 +106,13 @@ func newUsersTweetsGetUsersPostsCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagSinceId, "since-id", "", "The minimum Post ID to be included in the result set. This parameter takes precedence over start_time if both are...")
-	cmd.Flags().StringVar(&flagUntilId, "until-id", "", "The maximum Post ID to be included in the result set. This parameter takes precedence over end_time if both are...")
+	cmd.Flags().StringVar(&flagSinceId, "since-id", "", "The minimum Post ID to be included in the result set.")
+	cmd.Flags().StringVar(&flagUntilId, "until-id", "", "The maximum Post ID to be included in the result set.")
 	cmd.Flags().IntVar(&flagMaxResults, "max-results", 0, "The maximum number of results.")
 	cmd.Flags().StringVar(&flagPaginationToken, "pagination-token", "", "This parameter is used to get the next 'page' of results.")
 	cmd.Flags().StringVar(&flagExclude, "exclude", "", "The set of entities to exclude (e.g. 'replies' or 'retweets').")
-	cmd.Flags().StringVar(&flagStartTime, "start-time", "", "YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the Posts will be provided. The since_id parameter takes...")
-	cmd.Flags().StringVar(&flagEndTime, "end-time", "", "YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided. The until_id parameter takes...")
+	cmd.Flags().StringVar(&flagStartTime, "start-time", "", "YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the Posts will be provided.")
+	cmd.Flags().StringVar(&flagEndTime, "end-time", "", "YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided.")
 	cmd.Flags().StringVar(&flagTweetFields, "tweet-fields", "", "A comma separated list of Tweet fields to display.")
 	cmd.Flags().StringVar(&flagExpansions, "expansions", "", "A comma separated list of fields to expand.")
 	cmd.Flags().StringVar(&flagMediaFields, "media-fields", "", "A comma separated list of Media fields to display.")

@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "twelvelabs-editor-workflows",
+  "applied_at": "2026-06-05",
+  "base_run_id": "20260605-150627",
+  "base_printing_press_version": "4.21.0",
+  "summary": "Adds editor-focused video upload, brief, embedding, and local clipping workflows.",
+  "reason": "The generated endpoint mirrors expose raw Twelve Labs APIs, but users need a higher-level path from long video to editor-ready cut plan. Upstream spec examples with presigned S3 query strings were also redacted for the publish secret-scan gate.",
+  "files": [
+    "internal/cli/embed.go",
+    "internal/cli/root.go",
+    "internal/cli/video_search_any-to-video-retrieve-specific-page.go",
+    "internal/cli/workflow_novel.go",
+    "internal/cli/workflow_novel_test.go",
+    "spec.yaml"
+  ],
+  "validated_outcome": "Live smoke uploaded a disposable video, generated JSON and Markdown briefs via analyze fallback, cut a local clip, and completed an embedding task."
+}

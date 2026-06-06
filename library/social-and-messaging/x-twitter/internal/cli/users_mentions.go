@@ -9,8 +9,10 @@ import (
 
 func newUsersMentionsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "mentions",
-		Short: "Manage mentions",
+		Use:         "mentions",
+		Short:       "Get mentions for users",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersMentionsGetUsersCmd(flags))

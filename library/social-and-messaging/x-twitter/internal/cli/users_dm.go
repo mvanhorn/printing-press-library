@@ -9,8 +9,10 @@ import (
 
 func newUsersDmCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "dm",
-		Short: "Manage dm",
+		Use:         "dm",
+		Short:       "Create dm for users",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersDmBlockUsersCmd(flags))

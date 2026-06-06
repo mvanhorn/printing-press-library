@@ -9,8 +9,11 @@ import (
 
 func newComplianceCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "compliance",
-		Short: "Endpoints related to keeping X data in your systems compliant",
+		Use:         "compliance",
+		Short:       "Endpoints related to keeping X data in your systems compliant",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newComplianceCreateJobsCmd(flags))

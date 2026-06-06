@@ -11,9 +11,10 @@ import (
 
 func newArticlesSetCoverCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-cover <article-id> <image-file>",
-		Short: "Upload an image and set it as an X Article cover",
-		Args:  cobra.ExactArgs(2),
+		Use:     "set-cover <article-id> <image-file>",
+		Short:   "Upload an image and set it as an X Article cover",
+		Example: "  x-twitter-pp-cli articles set-cover 1750000000000000000 ./cover.jpg",
+		Args:    cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if flags.dryRun {
 				fmt.Fprintf(cmd.OutOrStdout(), "DRY-RUN: would upload %s and set it as cover for article %s\n", args[1], args[0])
@@ -23,7 +24,7 @@ func newArticlesSetCoverCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			mediaID, err := c.UploadArticleImage(args[1])
+			mediaID, err := c.UploadArticleImage(cmd.Context(), args[1])
 			if err != nil {
 				return err
 			}
@@ -38,7 +39,7 @@ func newArticlesSetCoverCmd(flags *rootFlags) *cobra.Command {
 				"features": articleGraphQLFeatures(),
 				"queryId":  "Es8InPh7mEkK9PxclxFAVQ",
 			}
-			data, _, err := c.Post(client.ArticleOpURL("ArticleEntityUpdateCoverMedia"), body)
+			data, _, err := c.Post(cmd.Context(), client.ArticleOpURL("ArticleEntityUpdateCoverMedia"), body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

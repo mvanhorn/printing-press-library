@@ -105,9 +105,16 @@ reading source. Schema is versioned via schema_version.`,
 func buildAgentContext(rootCmd *cobra.Command) agentContext {
 	envVars := []agentContextAuthEnvVar{
 		{
-			Name:        "X_OAUTH2_USER_TOKEN",
+			Name:        "X_BEARER_TOKEN",
 			Kind:        "per_call",
 			Required:    true,
+			Sensitive:   true,
+			Description: "Set to your API credential.",
+		},
+		{
+			Name:        "X_OAUTH2_USER_TOKEN",
+			Kind:        "per_call",
+			Required:    false,
 			Sensitive:   true,
 			Description: "Set to your API credential.",
 		},
@@ -124,7 +131,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name:        "x-twitter-pp-cli",
-			Description: "Combined CLI for multiple API services",
+			Description: "The only X CLI with an offline",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{
@@ -143,17 +150,23 @@ func buildAgentDiscoveryContext() *agentContextDiscovery {
 }
 
 // collectAgentCommands walks the cobra tree from the given command and
-// returns its direct children (skipping hidden commands and the
-// agent-context command itself to avoid self-reference). Each child is
-// recursed into if it has subcommands. Flags are captured via VisitAll.
-// Output is sorted by command name for stable diffs across regenerations.
+// returns its direct children (skipping the agent-context command itself
+// to avoid self-reference). Each child is recursed into if it has
+// subcommands. Flags are captured via VisitAll. Output is sorted by
+// command name for stable diffs across regenerations.
+//
+// Cobra's Hidden flag suppresses listing in --help but does not gate
+// agent discovery. Raw resource parents are Hidden so --help stays
+// curated and the `api` browser populates; the agent-context surface
+// must still enumerate them and their endpoints so agents can call any
+// action a CLI user could.
 func collectAgentCommands(c *cobra.Command) []agentContextCommand {
 	children := c.Commands()
 	sort.Slice(children, func(i, j int) bool { return children[i].Name() < children[j].Name() })
 
 	out := make([]agentContextCommand, 0, len(children))
 	for _, sub := range children {
-		if sub.Hidden || sub.Name() == "agent-context" {
+		if sub.Name() == "agent-context" {
 			continue
 		}
 		entry := agentContextCommand{

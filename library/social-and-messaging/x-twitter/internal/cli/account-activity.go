@@ -9,8 +9,11 @@ import (
 
 func newAccountActivityCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "account-activity",
-		Short: "Endpoints relating to retrieving, managing AAA subscriptions",
+		Use:         "account-activity",
+		Short:       "Endpoints relating to retrieving, managing AAA subscriptions",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newAccountActivityCreateSubscriptionCmd(flags))

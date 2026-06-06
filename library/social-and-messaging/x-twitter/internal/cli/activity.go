@@ -9,15 +9,17 @@ import (
 
 func newActivityCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "activity",
-		Short: "Manage activity",
+		Use:         "activity",
+		Short:       "Get, create, update, and delete activity",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newActivityCreateSubscriptionCmd(flags))
 	cmd.AddCommand(newActivityDeleteSubscriptionCmd(flags))
 	cmd.AddCommand(newActivityDeleteSubscriptionsByIdsCmd(flags))
 	cmd.AddCommand(newActivityGetSubscriptionsCmd(flags))
-	cmd.AddCommand(newActivityStreamCmd(flags))
 	cmd.AddCommand(newActivityUpdateSubscriptionCmd(flags))
 	return cmd
 }

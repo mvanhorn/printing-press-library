@@ -9,13 +9,17 @@ import (
 
 func newChatCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "chat",
-		Short: "Manage chat",
+		Use:         "chat",
+		Short:       "Get, create, add, and send chat",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newChatAddGroupMembersCmd(flags))
 	cmd.AddCommand(newChatCreateConversationCmd(flags))
 	cmd.AddCommand(newChatGetConversationCmd(flags))
+	cmd.AddCommand(newChatGetConversationEventsCmd(flags))
 	cmd.AddCommand(newChatGetConversationsCmd(flags))
 	cmd.AddCommand(newChatInitializeConversationKeysCmd(flags))
 	cmd.AddCommand(newChatInitializeGroupCmd(flags))

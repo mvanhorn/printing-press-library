@@ -222,3 +222,28 @@ func TestTopPostsDryRunEmitsNothing(t *testing.T) {
 		t.Fatalf("dry-run emitted output: %q", out.String())
 	}
 }
+
+func TestMissingImpressionsCount(t *testing.T) {
+	items := []tweetItem{
+		{PublicMetrics: publicMetrics{LikeCount: 3}},
+		{PublicMetrics: publicMetrics{ImpressionCount: intPtr(0)}},
+		{PublicMetrics: publicMetrics{ImpressionCount: intPtr(9)}},
+	}
+	if got := missingImpressionsCount(items); got != 1 {
+		t.Fatalf("missing impressions = %d, want 1", got)
+	}
+}
+
+func TestRankTopPostsPartialImpressionsNilScoresZero(t *testing.T) {
+	items := []tweetItem{
+		{ID: "1", PublicMetrics: publicMetrics{ImpressionCount: intPtr(5)}},
+		{ID: "2", PublicMetrics: publicMetrics{LikeCount: 99}},
+	}
+	posts := rankTopPosts(items, "", "impressions", 2)
+	if posts[0].ID != "1" || posts[0].Score != 5 {
+		t.Fatalf("impression-backed post should rank first with score 5, got %+v", posts[0])
+	}
+	if posts[1].ID != "2" || posts[1].Score != 0 || posts[1].Impressions != nil {
+		t.Fatalf("missing impression post should remain visible with score 0/nil impressions, got %+v", posts[1])
+	}
+}

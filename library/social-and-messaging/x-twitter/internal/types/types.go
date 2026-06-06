@@ -312,10 +312,11 @@ type ChatMessageSigningKeyInfo struct {
 }
 
 type ChatPublicKey struct {
-	JuiceboxConfig   json.RawMessage `json:"juicebox_config"`
-	PublicKey        string          `json:"public_key"`
-	SigningPublicKey string          `json:"signing_public_key"`
-	Version          string          `json:"version"`
+	IdentityPublicKeySignature string          `json:"identity_public_key_signature"`
+	JuiceboxConfig             json.RawMessage `json:"juicebox_config"`
+	PublicKey                  string          `json:"public_key"`
+	SigningPublicKey           string          `json:"signing_public_key"`
+	Version                    string          `json:"version"`
 }
 
 type ChatSendMessageRequest struct {
@@ -607,10 +608,16 @@ type Geo struct {
 	Type       string          `json:"type"`
 }
 
-type Get2ChatConversationsIdResponse struct {
+type Get2ChatConversationsIdEventsResponse struct {
 	Data   json.RawMessage `json:"data"`
 	Errors json.RawMessage `json:"errors"`
 	Meta   json.RawMessage `json:"meta"`
+}
+
+type Get2ChatConversationsIdResponse struct {
+	Data     json.RawMessage `json:"data"`
+	Errors   json.RawMessage `json:"errors"`
+	Includes json.RawMessage `json:"includes"`
 }
 
 type Get2ChatConversationsResponse struct {
@@ -1262,6 +1269,7 @@ type ManagementInfo struct {
 
 type MarketplaceHandleAvailability struct {
 	AvailabilityState string `json:"availability_state"`
+	ProductTier       string `json:"product_tier"`
 	RedirectUrl       string `json:"redirect_url"`
 }
 
@@ -1454,9 +1462,6 @@ type Oauth1PermissionsProblem struct {
 	Type   string `json:"type"`
 }
 
-type OpenapiJsonGetOpenApiSpecResponse struct {
-}
-
 type OperationalDisconnectProblem struct {
 	Detail         string `json:"detail"`
 	DisconnectType string `json:"disconnect_type"`
@@ -1602,10 +1607,11 @@ type ProfileUpdateActivityResponsePayload struct {
 }
 
 type PublicKey struct {
-	PublicKey        string          `json:"public_key"`
-	SigningPublicKey string          `json:"signing_public_key"`
-	TokenMap         json.RawMessage `json:"token_map"`
-	Version          string          `json:"version"`
+	IdentityPublicKeySignature string          `json:"identity_public_key_signature"`
+	PublicKey                  string          `json:"public_key"`
+	SigningPublicKey           string          `json:"signing_public_key"`
+	TokenMap                   json.RawMessage `json:"token_map"`
+	Version                    string          `json:"version"`
 }
 
 type ReplayJobCreateResponse struct {
@@ -1838,8 +1844,10 @@ type Tweet struct {
 	Lang                           string          `json:"lang"`
 	MatchedMediaNotes              json.RawMessage `json:"matched_media_notes"`
 	NonPublicMetrics               json.RawMessage `json:"non_public_metrics"`
+	NoteRequestSuggestions         json.RawMessage `json:"note_request_suggestions"`
 	NoteTweet                      json.RawMessage `json:"note_tweet"`
 	OrganicMetrics                 json.RawMessage `json:"organic_metrics"`
+	PaidPartnership                bool            `json:"paid_partnership"`
 	PossiblySensitive              bool            `json:"possibly_sensitive"`
 	PromotedMetrics                json.RawMessage `json:"promoted_metrics"`
 	PublicMetrics                  json.RawMessage `json:"public_metrics"`

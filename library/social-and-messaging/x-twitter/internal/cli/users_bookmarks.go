@@ -9,8 +9,10 @@ import (
 
 func newUsersBookmarksCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "bookmarks",
-		Short: "Endpoints related to retrieving, managing bookmarks of a user",
+		Use:         "bookmarks",
+		Short:       "Endpoints related to retrieving, managing bookmarks of a user",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersBookmarksCreateUsersCmd(flags))

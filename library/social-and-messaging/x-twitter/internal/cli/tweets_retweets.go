@@ -9,8 +9,10 @@ import (
 
 func newTweetsRetweetsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "retweets",
-		Short: "Manage retweets",
+		Use:         "retweets",
+		Short:       "Get retweets for tweets",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newTweetsRetweetsGetPostsRepostsCmd(flags))
