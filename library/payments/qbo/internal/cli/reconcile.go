@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/payments/qbo/internal/store"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -89,7 +90,13 @@ func newReconcileCmd(flags *rootFlags) *cobra.Command {
 
 				var rows, err = s.DB().Query(query, amountFlag)
 				if err != nil {
-					continue
+					// A missing table means this entity type has never been
+					// synced; skip it gracefully. Any other error is a real
+					// problem (WAL conflict, schema mismatch) that must surface.
+					if strings.Contains(err.Error(), "no such table") {
+						continue
+					}
+					return fmt.Errorf("querying %s: %w", src.entityType, err)
 				}
 
 				for rows.Next() {
@@ -127,6 +134,10 @@ func newReconcileCmd(flags *rootFlags) *cobra.Command {
 					}
 
 					candidates = append(candidates, c)
+				}
+				if err := rows.Err(); err != nil {
+					rows.Close()
+					return fmt.Errorf("reading %s rows: %w", src.entityType, err)
 				}
 				rows.Close()
 			}

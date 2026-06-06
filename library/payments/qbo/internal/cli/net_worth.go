@@ -71,6 +71,9 @@ func newNetWorthCmd(flags *rootFlags) *cobra.Command {
 					report.TotalLiabilities += balance
 				}
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("reading accounts: %w", err)
+			}
 
 			report.NetWorth = report.TotalAssets - report.TotalLiabilities
 
