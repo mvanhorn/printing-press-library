@@ -118,6 +118,16 @@
         "internal/cli/compare.go"
       ],
       "validated_outcome": "go build/vet/test all green; 'compare --models nano-banana,byte-plus-seedance-2 --prompt test --dry-run' now plans both models successfully instead of erroring at nano-banana preflight."
+    },
+    {
+      "id": "media-ext-for-url",
+      "summary": "downloadCompletions infers the file extension from the resource URL via mediaExtForURL instead of hardcoding .mp4.",
+      "reason": "compare and prompts replay route image-family completions through downloadCompletions, which saved every file as .mp4. The helper recognizes video and image extensions (query/fragment stripped) and defaults to .mp4 for extension-less video CDN URLs. Greptile P1 on PR #554.",
+      "files": [
+        "internal/cli/video.go",
+        "internal/cli/video_test.go"
+      ],
+      "validated_outcome": "New TestMediaExtForURL covers mp4/png/webp/jpg/webm, signed-URL query strings, fragments, and extension-less fallback."
     }
   ]
 }

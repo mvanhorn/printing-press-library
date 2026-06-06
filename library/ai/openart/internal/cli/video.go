@@ -462,7 +462,7 @@ func downloadCompletions(ctx context.Context, dir string, completions []Completi
 			fmt.Fprintf(progressW, "  skip download %s: no URL (status=%s)\n", comp.ResourceID, comp.Status)
 			continue
 		}
-		path := filepath.Join(dir, fmt.Sprintf("%s.mp4", comp.ResourceID))
+		path := filepath.Join(dir, fmt.Sprintf("%s%s", comp.ResourceID, mediaExtForURL(comp.URL)))
 		if err := streamToFile(ctx, comp.URL, path); err != nil {
 			fmt.Fprintf(progressW, "  download %s failed: %v\n", comp.ResourceID, err)
 			if firstErr == nil {
@@ -474,6 +474,22 @@ func downloadCompletions(ctx context.Context, dir string, completions []Completi
 		out[comp.ResourceID] = path
 	}
 	return out, firstErr
+}
+
+// mediaExtForURL infers the output extension from the resource URL so that
+// image-family completions flowing through shared callers (compare, prompts
+// replay) are not saved as .mp4. Falls back to .mp4 for extension-less video
+// CDN URLs, which is the dominant case for this downloader.
+func mediaExtForURL(u string) string {
+	if i := strings.IndexAny(u, "?#"); i >= 0 {
+		u = u[:i]
+	}
+	for _, ext := range []string{".mp4", ".webm", ".mov", ".png", ".webp", ".jpg", ".jpeg", ".gif"} {
+		if hasSuffixCI(u, ext) {
+			return ext
+		}
+	}
+	return ".mp4"
 }
 
 func streamToFile(ctx context.Context, src, dst string) error {
