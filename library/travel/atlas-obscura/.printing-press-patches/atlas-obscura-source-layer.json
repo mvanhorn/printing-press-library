@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "atlas-obscura-source-layer",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260606-104318-ao87811-27595",
+  "base_printing_press_version": "4.22.1",
+  "summary": "Hand-authored Atlas Obscura source layer + implemented all novel-feature commands.",
+  "reason": "Atlas Obscura has no official API/spec; the discovered JSON-search + HTML place contract, Open-Meteo geocoding, interestingness score, local trip/visited tables, and the search/near/show/route/trip/visited/gaps/cluster/surprise/export command bodies are all hand-built on the generated scaffold.",
+  "files": [
+    "internal/cli/ao_source.go",
+    "internal/cli/ao_output.go",
+    "internal/cli/search.go",
+    "internal/cli/near.go",
+    "internal/cli/show.go",
+    "internal/cli/route.go",
+    "internal/cli/trip.go",
+    "internal/cli/visited.go",
+    "internal/cli/gaps.go",
+    "internal/cli/cluster.go",
+    "internal/cli/surprise.go",
+    "internal/cli/export.go"
+  ],
+  "validated_outcome": "shipcheck 6/6 PASS, live dogfood 65/65, scorecard 87/100 Grade A."
+}

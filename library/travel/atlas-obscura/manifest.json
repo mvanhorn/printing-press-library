@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "atlas-obscura-pp-mcp",
+  "display_name": "Atlas Obscura",
+  "version": "4.22.1",
+  "description": "Every Atlas Obscura search, plus a local database, road-trip corridor routing, and saved trips no other Atlas Obscura tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/atlas-obscura-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/atlas-obscura-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

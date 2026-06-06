@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="atlas-obscura-pp-cli" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata><name>california-oddities</name><desc>community-sourced from atlasobscura.com; not an official API</desc></metadata>
+  <wpt lat="37.318946" lon="-121.950600">
+    <name>The Winchester Mystery House</name>
+    <desc>San Jose, California</desc>
+    <link href="https://www.atlasobscura.com/places/winchester-mystery-house"/>
+  </wpt>
+</gpx>

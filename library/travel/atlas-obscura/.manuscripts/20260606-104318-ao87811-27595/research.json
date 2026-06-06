@@ -1,0 +1,267 @@
+{
+  "api_name": "atlas-obscura",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "atlas-obscura-api",
+      "url": "https://github.com/bartholomej/atlas-obscura-api",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 9,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "node-atlas-obscura",
+      "url": "https://github.com/TruitMeGood/node-atlas-obscura",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "travel-hacking-toolkit (atlas-obscura skill)",
+      "url": "https://github.com/borski/travel-hacking-toolkit",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "obscura-scraper",
+      "url": "https://github.com/seeksort/obscura-scraper",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-06T17:43:00Z",
+  "novel_features": [
+    {
+      "name": "Road-trip corridor",
+      "command": "route",
+      "description": "Find Atlas Obscura wonders along the driving corridor between two cities, not just in one place.",
+      "rationale": "Requires geocoding both endpoints, sampling the path, near-searching each point, and deduping into one corridor view that no live single-place scraper produces.",
+      "example": "atlas-obscura-pp-cli route \"San Francisco\" \"Los Angeles\" --min-score 6 --limit 15 --json",
+      "why_it_matters": "Reach for this when a user is driving between two places and wants worthwhile stops along the way.",
+      "group": "Trip planning"
+    },
+    {
+      "name": "Saved trips",
+      "command": "trip",
+      "description": "Accumulate places into named itineraries that persist across sessions.",
+      "rationale": "Requires a durable local SQLite store; live scrapers have no memory between invocations.",
+      "example": "atlas-obscura-pp-cli trip add winchester-mystery-house --trip california-oddities",
+      "why_it_matters": "Use to build up a trip over multiple sessions instead of re-searching each time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Visited tracking",
+      "command": "visited",
+      "description": "Record which wonders you've seen, with optional date and note.",
+      "rationale": "Session-spanning personal state only possible with a persistent local store.",
+      "example": "atlas-obscura-pp-cli visited mark salvation-mountain --note \"worth the desert drive\"",
+      "why_it_matters": "Use to remember what you've already seen so gaps and surprise can skip them.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Unvisited gaps",
+      "command": "gaps",
+      "description": "Show good wonders near a point that you haven't visited yet, ranked by interestingness.",
+      "rationale": "Joins the cached places against the local visited table offline; a live scraper has no visited state to diff against.",
+      "example": "atlas-obscura-pp-cli gaps \"Portland, Oregon\" --radius 40 --min-score 6 --json",
+      "why_it_matters": "Use to plan what's left to see near a place you're revisiting.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Walkable clusters",
+      "command": "cluster",
+      "description": "Group nearby wonders into spatially tight clusters that make a walkable half-day.",
+      "rationale": "Clustering over a full cached result set is instant locally; a live scraper would need many paginated radius calls.",
+      "example": "atlas-obscura-pp-cli cluster \"Edinburgh\" --radius 3 --min 3 --json",
+      "why_it_matters": "Use to turn a pile of nearby wonders into an efficient day on foot.",
+      "group": "Trip planning"
+    },
+    {
+      "name": "Daily surprise",
+      "command": "surprise",
+      "description": "Pick one high-interest wonder you haven't visited, seeded by date so it's stable per day.",
+      "rationale": "Date-stable selection that excludes visited places requires a persistent corpus and a local visited join.",
+      "example": "atlas-obscura-pp-cli surprise --near \"Tokyo\" --exclude-visited --json",
+      "why_it_matters": "Use in a daily agent heartbeat to surface a fresh wonder without repeats.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Export trip",
+      "command": "export",
+      "description": "Serialize a saved trip to GPX, GeoJSON, or a markdown itinerary, fully offline.",
+      "rationale": "Pulls coords, descriptions, and Know-Before-You-Go from the local cache with zero network calls.",
+      "example": "atlas-obscura-pp-cli export california-oddities --format md",
+      "why_it_matters": "Use to hand a road trip to a GPS, a map tool, or a human-readable log.",
+      "group": "Trip planning"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Road-trip corridor",
+      "command": "route",
+      "description": "Find Atlas Obscura wonders along the driving corridor between two cities, not just in one place.",
+      "rationale": "Requires geocoding both endpoints, sampling the path, near-searching each point, and deduping into one corridor view that no live single-place scraper produces.",
+      "example": "atlas-obscura-pp-cli route \"San Francisco\" \"Los Angeles\" --min-score 6 --limit 15 --json",
+      "why_it_matters": "Reach for this when a user is driving between two places and wants worthwhile stops along the way.",
+      "group": "Trip planning"
+    },
+    {
+      "name": "Saved trips",
+      "command": "trip",
+      "description": "Accumulate places into named itineraries that persist across sessions.",
+      "rationale": "Requires a durable local SQLite store; live scrapers have no memory between invocations.",
+      "example": "atlas-obscura-pp-cli trip add winchester-mystery-house --trip california-oddities",
+      "why_it_matters": "Use to build up a trip over multiple sessions instead of re-searching each time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Visited tracking",
+      "command": "visited",
+      "description": "Record which wonders you've seen, with optional date and note.",
+      "rationale": "Session-spanning personal state only possible with a persistent local store.",
+      "example": "atlas-obscura-pp-cli visited mark salvation-mountain --note \"worth the desert drive\"",
+      "why_it_matters": "Use to remember what you've already seen so gaps and surprise can skip them.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Unvisited gaps",
+      "command": "gaps",
+      "description": "Show good wonders near a point that you haven't visited yet, ranked by interestingness.",
+      "rationale": "Joins the cached places against the local visited table offline; a live scraper has no visited state to diff against.",
+      "example": "atlas-obscura-pp-cli gaps \"Portland, Oregon\" --radius 40 --min-score 6 --json",
+      "why_it_matters": "Use to plan what's left to see near a place you're revisiting.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Walkable clusters",
+      "command": "cluster",
+      "description": "Group nearby wonders into spatially tight clusters that make a walkable half-day.",
+      "rationale": "Clustering over a full cached result set is instant locally; a live scraper would need many paginated radius calls.",
+      "example": "atlas-obscura-pp-cli cluster \"Edinburgh\" --radius 3 --min 3 --json",
+      "why_it_matters": "Use to turn a pile of nearby wonders into an efficient day on foot.",
+      "group": "Trip planning"
+    },
+    {
+      "name": "Daily surprise",
+      "command": "surprise",
+      "description": "Pick one high-interest wonder you haven't visited, seeded by date so it's stable per day.",
+      "rationale": "Date-stable selection that excludes visited places requires a persistent corpus and a local visited join.",
+      "example": "atlas-obscura-pp-cli surprise --near \"Tokyo\" --exclude-visited --json",
+      "why_it_matters": "Use in a daily agent heartbeat to surface a fresh wonder without repeats.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Export trip",
+      "command": "export",
+      "description": "Serialize a saved trip to GPX, GeoJSON, or a markdown itinerary, fully offline.",
+      "rationale": "Pulls coords, descriptions, and Know-Before-You-Go from the local cache with zero network calls.",
+      "example": "atlas-obscura-pp-cli export california-oddities --format md",
+      "why_it_matters": "Use to hand a road trip to a GPS, a map tool, or a human-readable log.",
+      "group": "Trip planning"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Atlas Obscura",
+    "headline": "Every Atlas Obscura search, plus a local database, road-trip corridor routing, and saved trips no other Atlas Obscura tool has.",
+    "value_prop": "Search the world's hidden wonders by keyword or coordinates, pull full place detail with Know-Before-You-Go notes, and mirror it all into a local SQLite store for offline, agent-native use. Then go further than any scraper: find wonders along a driving route, save and export trips, and track what you've visited. Community-sourced from atlasobscura.com — not an official API.",
+    "quickstart": [
+      {
+        "command": "atlas-obscura-pp-cli doctor --dry-run",
+        "comment": "health check; works with no setup since Atlas Obscura needs no API key"
+      },
+      {
+        "command": "atlas-obscura-pp-cli search \"catacombs\" --json",
+        "comment": "keyword search across all wonders"
+      },
+      {
+        "command": "atlas-obscura-pp-cli near \"Paris\" --radius 5 --json",
+        "comment": "wonders within 5 miles of a place, sorted by distance"
+      },
+      {
+        "command": "atlas-obscura-pp-cli show gustave-eiffels-secret-apartment",
+        "comment": "full detail incl. Know Before You Go"
+      },
+      {
+        "command": "atlas-obscura-pp-cli route \"San Francisco\" \"Los Angeles\" --limit 10 --json",
+        "comment": "wonders along the drive"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Empty results for a place name",
+        "fix": "Place geocoding uses Open-Meteo; try a more specific name (\"Portland, Oregon\") or pass explicit lat,lng to near."
+      },
+      {
+        "symptom": "near --category returns few results",
+        "fix": "Category is filtered client-side from place tags; raise --max-scan-pages or --radius to widen the scan."
+      },
+      {
+        "symptom": "Stale cached place",
+        "fix": "Pass --refresh on show/near to bypass the local cache TTL and re-fetch from atlasobscura.com."
+      },
+      {
+        "symptom": "Rate-limited or 403 from atlasobscura.com",
+        "fix": "The CLI keeps a low request rate by default; slow down with --limit and rely on the local cache for repeat queries."
+      }
+    ],
+    "when_to_use": "Use Atlas Obscura when a user wants offbeat, unusual, or hidden points of interest — for trip planning, road trips, or adding curiosity stops to an itinerary. It excels at corridor routing between two cities, accumulating saved trips, and offline re-querying of a local mirror. Reach for it when the task is discovery of weird/wonderful places rather than mainstream travel booking.",
+    "anti_triggers": [
+      "Do not use for booking hotels, flights, or restaurants — it only surfaces places.",
+      "Do not use for mainstream tourist attractions or reviews; it is curated oddities, not a general POI directory.",
+      "Do not use for real-time opening hours or ticketing — Atlas Obscura has no structured hours; check the place's own site."
+    ],
+    "recipes": [
+      {
+        "title": "Plan stops along a road trip",
+        "command": "atlas-obscura-pp-cli route \"Denver\" \"Moab\" --min-score 6 --limit 12 --json",
+        "explanation": "Surfaces the best-scoring wonders within the driving corridor between two cities."
+      },
+      {
+        "title": "Lean nearby scan for an agent",
+        "command": "atlas-obscura-pp-cli near \"35.0116,135.7681\" --radius 3 --json --select results.title,results.distance_from_query,results.url",
+        "explanation": "Deeply nested response narrowed to just title, distance, and URL so an agent doesn't parse image and coordinate noise."
+      },
+      {
+        "title": "Build and export a trip",
+        "command": "atlas-obscura-pp-cli trip add winchester-mystery-house --trip ca \u0026\u0026 atlas-obscura-pp-cli export ca --format md",
+        "explanation": "Accumulate places into a named trip, then render a markdown itinerary with descriptions and Know Before You Go."
+      },
+      {
+        "title": "What haven't I seen near home",
+        "command": "atlas-obscura-pp-cli gaps \"Austin, Texas\" --radius 30 --min-score 6 --json",
+        "explanation": "Cross-references cached wonders against your visited log and returns only the worthwhile unseen ones."
+      }
+    ],
+    "trigger_phrases": [
+      "weird places near me",
+      "atlas obscura",
+      "hidden gems along my route",
+      "offbeat things to do in",
+      "unusual places to visit",
+      "use atlas-obscura",
+      "run atlas-obscura"
+    ]
+  }
+}
