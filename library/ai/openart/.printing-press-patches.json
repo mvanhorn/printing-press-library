@@ -128,6 +128,24 @@
         "internal/cli/video_test.go"
       ],
       "validated_outcome": "New TestMediaExtForURL covers mp4/png/webp/jpg/webm, signed-URL query strings, fragments, and extension-less fallback."
+    },
+    {
+      "id": "media-since-windows-on-generation-time",
+      "summary": "All media --since windows (stats, prompts find, prompts top) filter on created_at (generation time from the payload) with a synced_at fallback for rows without one.",
+      "reason": "synced_at is rewritten on every resync, so after a first-time full sync every historical row landed inside any --since window. created_at is the actual generation timestamp (epoch ms). Greptile P1 on PR #554, prior rounds.",
+      "files": [
+        "internal/cli/stats.go",
+        "internal/cli/prompts_novel.go"
+      ],
+      "validated_outcome": "Against the live local store: stats --since 24h returns 0 media (last generation in May) while --since 30d returns the real counts; before the fix both returned everything synced."
+    },
+    {
+      "id": "compare-image-resolution-explicit-only",
+      "summary": "compare only forwards resolution in the image-model submit body when the user explicitly set --resolution.",
+      "reason": "The flag default (720p) is a video format string the image endpoint rejects; the resolution != \"\" guard was always true under the default. Mirrors the cost.go gating. Greptile open thread on PR #554 compare.go.",
+      "files": [
+        "internal/cli/compare.go"
+      ]
     }
   ]
 }

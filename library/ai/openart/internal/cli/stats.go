@@ -30,14 +30,23 @@ Run 'openart-pp-cli sync' to refresh the local mirror first.`,
 
 			cutoff := parseSince(since)
 			cutoffStr := ""
+			cutoffMs := int64(0)
 			if !cutoff.IsZero() {
 				cutoffStr = cutoff.Format("2006-01-02 15:04:05")
+				cutoffMs = cutoff.UnixMilli()
 			}
+
+			// PATCH: media windows filter on created_at (generation time,
+			// epoch ms from the resource payload) instead of synced_at,
+			// which is rewritten on every resync — after a first-time full
+			// sync every historical row would land inside `--since 30d`.
+			// Rows without a payload createdAt fall back to synced_at.
+			// Greptile P1 on PR #554.
 
 			// Total counts.
 			totalQ := `SELECT COUNT(*) FROM media`
 			if cutoffStr != "" {
-				totalQ += " WHERE synced_at >= '" + cutoffStr + "'"
+				totalQ += mediaSinceClause(cutoffMs, cutoffStr)
 			}
 			var totalCount int
 			_ = db.QueryRowContext(cmd.Context(), totalQ).Scan(&totalCount)
@@ -45,7 +54,7 @@ Run 'openart-pp-cli sync' to refresh the local mirror first.`,
 			// Counts by resource_type.
 			byTypeQ := `SELECT resource_type, COUNT(*) FROM media`
 			if cutoffStr != "" {
-				byTypeQ += " WHERE synced_at >= '" + cutoffStr + "'"
+				byTypeQ += mediaSinceClause(cutoffMs, cutoffStr)
 			}
 			byTypeQ += " GROUP BY resource_type"
 			byType := map[string]int{}
@@ -63,16 +72,23 @@ Run 'openart-pp-cli sync' to refresh the local mirror first.`,
 
 			// Counts by model (parsed from data.input.model JSON).
 			byModel := map[string]int{}
-			rows2, err := db.QueryContext(cmd.Context(), `SELECT data, synced_at FROM media`)
+			rows2, err := db.QueryContext(cmd.Context(), `SELECT data, created_at, synced_at FROM media`)
 			if err == nil {
 				for rows2.Next() {
 					var data []byte
+					var createdAt sql.NullInt64
 					var syncedAt string
-					if err := rows2.Scan(&data, &syncedAt); err != nil {
+					if err := rows2.Scan(&data, &createdAt, &syncedAt); err != nil {
 						continue
 					}
-					if cutoffStr != "" && syncedAt < cutoffStr {
-						continue
+					if cutoffStr != "" {
+						if createdAt.Valid {
+							if createdAt.Int64 < cutoffMs {
+								continue
+							}
+						} else if syncedAt < cutoffStr {
+							continue
+						}
 					}
 					var blob map[string]any
 					if json.Unmarshal(data, &blob) != nil {
@@ -152,4 +168,13 @@ func sortMapByValue(m map[string]int) []map[string]any {
 		out = append(out, map[string]any{"name": p.Key, "count": p.Count})
 	}
 	return out
+}
+
+// mediaSinceClause windows media rows on created_at (the generation time
+// carried in the resource payload, epoch milliseconds) rather than
+// synced_at, which is rewritten on every resync. Rows whose payload had no
+// createdAt (created_at IS NULL) fall back to the synced_at proxy so they
+// are not silently dropped.
+func mediaSinceClause(cutoffMs int64, cutoffStr string) string {
+	return fmt.Sprintf(" WHERE (created_at >= %d OR (created_at IS NULL AND synced_at >= '%s'))", cutoffMs, cutoffStr)
 }

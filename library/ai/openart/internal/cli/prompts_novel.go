@@ -72,7 +72,7 @@ func newPromptsFindCmd(flags *rootFlags) *cobra.Command {
 
 			// FTS5 over resources_fts (id, resource_type, content)
 			rows, err := db.QueryContext(cmd.Context(), `
-				SELECT m.id, m.data, m.synced_at, m.url, m.thumbnail_url, m.resource_type
+				SELECT m.id, m.data, m.created_at, m.synced_at, m.url, m.thumbnail_url, m.resource_type
 				FROM resources_fts ft
 				JOIN media m ON m.id = ft.id
 				WHERE resources_fts MATCH ?
@@ -99,11 +99,15 @@ func newPromptsFindCmd(flags *rootFlags) *cobra.Command {
 			out := []hit{}
 			for rows.Next() {
 				var id, syncedAt, urlStr, thumb, rType string
+				var createdAt sql.NullInt64
 				var data []byte
-				if err := rows.Scan(&id, &data, &syncedAt, &urlStr, &thumb, &rType); err != nil {
+				if err := rows.Scan(&id, &data, &createdAt, &syncedAt, &urlStr, &thumb, &rType); err != nil {
 					continue
 				}
 				h := hit{ResourceID: id, URL: urlStr, ThumbnailURL: thumb, ResourceType: rType, CreatedAt: syncedAt}
+				if createdAt.Valid {
+					h.CreatedAt = time.UnixMilli(createdAt.Int64).UTC().Format("2006-01-02 15:04:05")
+				}
 				var blob map[string]any
 				if json.Unmarshal(data, &blob) == nil {
 					if input, ok := blob["input"].(map[string]any); ok {
@@ -149,13 +153,24 @@ func newPromptsFindCmd(flags *rootFlags) *cobra.Command {
 				if maxDuration > 0 && h.DurationSec > float64(maxDuration) {
 					continue
 				}
+				// PATCH: --since windows on created_at (generation time)
+				// rather than synced_at, which is rewritten on every resync —
+				// after a first-time full sync every historical row would
+				// land inside the window. synced_at remains the fallback for
+				// rows whose payload had no createdAt. Greptile P1 on PR #554.
 				if !cutoff.IsZero() {
-					ts, _ := time.Parse(time.RFC3339, syncedAt)
-					if ts.IsZero() {
-						ts, _ = time.Parse("2006-01-02 15:04:05", syncedAt)
-					}
-					if !ts.IsZero() && ts.Before(cutoff) {
-						continue
+					if createdAt.Valid {
+						if time.UnixMilli(createdAt.Int64).Before(cutoff) {
+							continue
+						}
+					} else {
+						ts, _ := time.Parse(time.RFC3339, syncedAt)
+						if ts.IsZero() {
+							ts, _ = time.Parse("2006-01-02 15:04:05", syncedAt)
+						}
+						if !ts.IsZero() && ts.Before(cutoff) {
+							continue
+						}
 					}
 				}
 				out = append(out, h)
@@ -454,7 +469,7 @@ can stop iterating it without thinking.`,
 			// proximity (the API doesn't link media→credit ledger entries
 			// 1:1 explicitly, but createdAt + capability typically uniquely
 			// identifies). Fall back to grouping by prompt text alone.
-			mediaQ := `SELECT id, data, synced_at FROM media`
+			mediaQ := `SELECT id, data, created_at, synced_at FROM media`
 			rows, err := db.QueryContext(cmd.Context(), mediaQ)
 			if err != nil {
 				return err
@@ -469,12 +484,26 @@ can stop iterating it without thinking.`,
 			lastSeen := map[promptKey]string{}
 			for rows.Next() {
 				var id, syncedAt string
+				var createdAt sql.NullInt64
 				var data []byte
-				if err := rows.Scan(&id, &data, &syncedAt); err != nil {
+				if err := rows.Scan(&id, &data, &createdAt, &syncedAt); err != nil {
 					continue
 				}
-				if cutoffStr != "" && syncedAt < cutoffStr {
-					continue
+				// PATCH: window on created_at (generation time) with a
+				// synced_at fallback for rows without a payload createdAt,
+				// mirroring stats and prompts find. Greptile P1 on PR #554.
+				if cutoffStr != "" {
+					if createdAt.Valid {
+						if createdAt.Int64 < cutoff.UnixMilli() {
+							continue
+						}
+					} else if syncedAt < cutoffStr {
+						continue
+					}
+				}
+				seenAt := syncedAt
+				if createdAt.Valid {
+					seenAt = time.UnixMilli(createdAt.Int64).UTC().Format("2006-01-02 15:04:05")
 				}
 				var blob map[string]any
 				if json.Unmarshal(data, &blob) != nil {
@@ -491,7 +520,9 @@ can stop iterating it without thinking.`,
 				model, _ := input["model"].(string)
 				k := promptKey{prompt, model}
 				counts[k]++
-				lastSeen[k] = syncedAt
+				if seenAt > lastSeen[k] {
+					lastSeen[k] = seenAt
+				}
 			}
 
 			// Fallback spend = events × 200 (rough average) when we cannot

@@ -161,7 +161,10 @@ real /suite/api/resources/<id> polling for each submission.`,
 							"aspectRatio":      imgAspect,
 							"visualReferences": []string{},
 						}
-						if resolution != "" {
+						// Only forward resolution when the user explicitly set it:
+						// the flag default ("720p") is a video format string the
+						// image endpoint rejects. Mirrors the cost.go gating.
+						if cmd.Flags().Changed("resolution") && resolution != "" {
 							body["resolution"] = resolution
 						}
 					} else {
