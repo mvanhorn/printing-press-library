@@ -21,6 +21,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
+	"sort"
 	"strings"
 	"time"
 
@@ -46,6 +48,7 @@ func xCookieFilePath() (string, error) {
 
 func newXAuthLoginCmd(flags *rootFlags) *cobra.Command {
 	var chrome bool
+	var profile string
 	cmd := &cobra.Command{
 		Use:   "login",
 		Short: "Capture x.com session cookies for X Articles (use --chrome)",
@@ -56,8 +59,11 @@ func newXAuthLoginCmd(flags *rootFlags) *cobra.Command {
 			"only sets up the cookie session the `articles ...` commands read.\n\n" +
 			"auth_token is an httpOnly cookie, so this shells out to a cookie reader that\n" +
 			"can see it: pycookiecheat (recommended: pip install pycookiecheat), or the\n" +
-			"press-auth companion. Make sure you're logged into x.com in Chrome first.",
-		Example: "  x-twitter-pp-cli auth login --chrome",
+			"press-auth companion. Make sure you're logged into x.com in Chrome first.\n\n" +
+			"If you use multiple Chrome profiles, this command checks each profile for\n" +
+			"auth_token + ct0. Use --profile to force a specific Chrome profile.",
+		Example: "  x-twitter-pp-cli auth login --chrome\n" +
+			"  x-twitter-pp-cli auth login --chrome --profile \"Profile 1\"",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			w := cmd.OutOrStdout()
 			if !chrome {
@@ -75,7 +81,7 @@ func newXAuthLoginCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 
-			authToken, ct0, source, err := captureXSessionCookies(w)
+			authToken, ct0, source, err := captureXSessionCookies(w, profile)
 			if err != nil {
 				return err
 			}
@@ -108,6 +114,7 @@ func newXAuthLoginCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().BoolVar(&chrome, "chrome", false, "Capture cookies from your logged-in Chrome session")
 	cmd.Flags().BoolVar(&chrome, "browser", false, "Alias for --chrome")
+	cmd.Flags().StringVar(&profile, "profile", "", "Chrome profile name or directory (e.g. \"Default\", \"Profile 1\", \"Work\")")
 	return cmd
 }
 
@@ -115,13 +122,32 @@ func newXAuthLoginCmd(flags *rootFlags) *cobra.Command {
 // installer is to have them: pycookiecheat first (the recommended pip install,
 // reads Chrome's cookie DB including httpOnly cookies), then the press-auth
 // companion. Returns actionable install + manual guidance when neither works.
-func captureXSessionCookies(w io.Writer) (authToken, ct0, source string, err error) {
+func captureXSessionCookies(w io.Writer, profile string) (authToken, ct0, source string, err error) {
 	if bin, lookErr := exec.LookPath("pycookiecheat"); lookErr == nil {
-		at, c, ok := cookiesFromPycookiecheat(bin)
-		if ok {
-			return at, c, "pycookiecheat", nil
+		profiles, profileErr := chromeCookieProfiles(profile)
+		if profileErr != nil {
+			if profile != "" {
+				return "", "", "", fmt.Errorf("resolving Chrome profile: %w", profileErr)
+			}
+			fmt.Fprintf(w, "Could not inspect Chrome profiles (%v); trying pycookiecheat default profile.\n", profileErr)
 		}
-		fmt.Fprintln(w, "pycookiecheat is installed but found no x.com session — are you logged into x.com in Chrome?")
+		for _, candidate := range profiles {
+			at, c, ok := cookiesFromPycookiecheat(bin, candidate.CookiePath)
+			if ok {
+				return at, c, "pycookiecheat (" + candidate.DisplayName + ")", nil
+			}
+		}
+		if len(profiles) == 0 && profile == "" {
+			at, c, ok := cookiesFromPycookiecheat(bin, "")
+			if ok {
+				return at, c, "pycookiecheat", nil
+			}
+		}
+		if profile != "" {
+			fmt.Fprintf(w, "pycookiecheat is installed but found no x.com session in Chrome profile %q.\n", profile)
+		} else {
+			fmt.Fprintln(w, "pycookiecheat is installed but found no x.com session in any Chrome profile — are you logged into x.com in Chrome?")
+		}
 	}
 	if bin, lookErr := exec.LookPath("press-auth"); lookErr == nil {
 		at, c, ok := cookiesFromPressAuth(bin)
@@ -135,8 +161,12 @@ func captureXSessionCookies(w io.Writer) (authToken, ct0, source string, err err
 
 // cookiesFromPycookiecheat runs `pycookiecheat https://x.com`, which prints a
 // flat {cookie_name: value} JSON object read from Chrome's cookie DB.
-func cookiesFromPycookiecheat(bin string) (authToken, ct0 string, ok bool) {
-	out, err := exec.Command(bin, "https://"+xCookieDomain).Output()
+func cookiesFromPycookiecheat(bin, cookiePath string) (authToken, ct0 string, ok bool) {
+	args := []string{"https://" + xCookieDomain}
+	if cookiePath != "" {
+		args = []string{"-c", cookiePath, "https://" + xCookieDomain}
+	}
+	out, err := exec.Command(bin, args...).Output()
 	if err != nil {
 		return "", "", false
 	}
@@ -147,6 +177,105 @@ func cookiesFromPycookiecheat(bin string) (authToken, ct0 string, ok bool) {
 	authToken = jar["auth_token"]
 	ct0 = jar["ct0"]
 	return authToken, ct0, authToken != "" && ct0 != ""
+}
+
+type xChromeCookieProfile struct {
+	Dir         string
+	DisplayName string
+	CookiePath  string
+}
+
+func chromeCookieProfiles(profile string) ([]xChromeCookieProfile, error) {
+	dataDir, err := chromeUserDataDir()
+	if err != nil {
+		return nil, err
+	}
+	entries, err := os.ReadDir(dataDir)
+	if err != nil {
+		return nil, fmt.Errorf("cannot read Chrome data directory: %w", err)
+	}
+
+	var profiles []xChromeCookieProfile
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		dir := entry.Name()
+		if dir != "Default" && !strings.HasPrefix(dir, "Profile ") {
+			continue
+		}
+		cookiePath := filepath.Join(dataDir, dir, "Cookies")
+		if _, err := os.Stat(cookiePath); err != nil {
+			continue
+		}
+		displayName := readChromeProfileDisplayName(filepath.Join(dataDir, dir, "Preferences"))
+		if displayName == "" {
+			displayName = dir
+		}
+		profiles = append(profiles, xChromeCookieProfile{
+			Dir:         dir,
+			DisplayName: displayName,
+			CookiePath:  cookiePath,
+		})
+	}
+
+	sort.Slice(profiles, func(i, j int) bool {
+		if profiles[i].Dir == "Default" {
+			return true
+		}
+		if profiles[j].Dir == "Default" {
+			return false
+		}
+		return profiles[i].Dir < profiles[j].Dir
+	})
+
+	if profile == "" {
+		return profiles, nil
+	}
+	lower := strings.ToLower(profile)
+	for _, candidate := range profiles {
+		if strings.ToLower(candidate.Dir) == lower || strings.ToLower(candidate.DisplayName) == lower {
+			return []xChromeCookieProfile{candidate}, nil
+		}
+	}
+	return nil, fmt.Errorf("Chrome profile %q not found", profile)
+}
+
+func chromeUserDataDir() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	switch runtime.GOOS {
+	case "darwin":
+		return filepath.Join(home, "Library", "Application Support", "Google", "Chrome"), nil
+	case "linux":
+		return filepath.Join(home, ".config", "google-chrome"), nil
+	case "windows":
+		localAppData := os.Getenv("LOCALAPPDATA")
+		if localAppData == "" {
+			localAppData = filepath.Join(home, "AppData", "Local")
+		}
+		return filepath.Join(localAppData, "Google", "Chrome", "User Data"), nil
+	default:
+		return "", fmt.Errorf("unsupported OS: %s", runtime.GOOS)
+	}
+}
+
+func readChromeProfileDisplayName(prefsPath string) string {
+	data, err := os.ReadFile(prefsPath)
+	if err != nil {
+		return ""
+	}
+	var prefs struct {
+		Profile struct {
+			Name string `json:"name"`
+		} `json:"profile"`
+	}
+	if err := json.Unmarshal(data, &prefs); err != nil {
+		return ""
+	}
+	return prefs.Profile.Name
 }
 
 // cookiesFromPressAuth runs `press-auth cookies x.com`, which prints a Cookie
