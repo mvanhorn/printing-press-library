@@ -1,0 +1,221 @@
+{
+  "api_name": "shopping",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-05T21:20:10Z",
+  "novel_features": [
+    {
+      "name": "Local retail index sync",
+      "command": "index",
+      "description": "Pull products (and optional price history) from one or more retailers into a fast local SQLite store so every other query runs instantly and offline.",
+      "rationale": "Turns N single-retailer API calls into one joinable local dataset that the per-retailer live API can never assemble in a single request.",
+      "example": "shopping-pp-cli index --retailer walmart --retailer target --on-sale --limit 500",
+      "why_it_matters": "Reach for this first: the compare/deals/arbitrage/analytics commands all read what index populates.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-retailer identifier compare",
+      "command": "compare",
+      "description": "See which synced retailer sells the exact same item (by UPC/EAN/GTIN/ASIN) cheapest right now, ranked, with the savings spread.",
+      "rationale": "The live API is keyed per retailer and cannot join one identifier across 70 storefronts; only the local store holds all retailers' rows side by side.",
+      "example": "shopping-pp-cli compare 012345678905 --lookup-type upc --in-stock --json",
+      "why_it_matters": "Use it to answer 'who has this cheapest' in one call instead of N per-retailer lookups.",
+      "group": "Cross-retailer intelligence"
+    },
+    {
+      "name": "Compound deal finder",
+      "command": "deals",
+      "description": "Surface deals that clear several bars at once — deep discount, under a price ceiling, well-reviewed, in stock — across all tracked retailers in one ranked list.",
+      "rationale": "Joins filters across retailers that no single API call combines (the paid endpoint is one retailer at a time; the free one drops several filters).",
+      "example": "shopping-pp-cli deals --min-discount 30 --max-price 100 --min-rating 4 --in-stock --sort discount --json",
+      "why_it_matters": "Pick this when an agent needs the best deals worth a human's time, not a raw product dump.",
+      "group": "Cross-retailer intelligence"
+    },
+    {
+      "name": "FBA arbitrage margin",
+      "command": "arbitrage",
+      "description": "Rank synced products by what you would net reselling them on Amazon after referral and FBA fees, filtered by ROI and buy price.",
+      "rationale": "Profitability requires joining a retailer's buy price to Amazon's fee/profitability block — two responses about the same item — which only the local store holds together on the shared ASIN.",
+      "example": "shopping-pp-cli arbitrage --retailer walmart --min-roi 30 --max-buy-price 50 --in-stock --json",
+      "why_it_matters": "Use it to filter clearance products down to the ones that actually clear a resale ROI bar.",
+      "group": "Profitability"
+    },
+    {
+      "name": "Weekly price-drop ranking",
+      "command": "price-drops",
+      "description": "Rank the products that fell the most over the last week (or N weeks) across everything synced, by both dollar and percent drop.",
+      "rationale": "A weekly delta compares two points in a time series the live API only returns one product at a time; the store holds every product's history together to rank drops across the whole set.",
+      "example": "shopping-pp-cli price-drops --weeks 1 --min-drop-pct 15 --limit 25 --json",
+      "why_it_matters": "Reach for it to catch fresh markdowns first instead of re-pulling each product's history by hand.",
+      "group": "Time-series analytics"
+    },
+    {
+      "name": "Retailer \u0026 category discount leaderboard",
+      "command": "leaderboard",
+      "description": "Show which retailers and categories are consistently the deepest-discount buckets in your synced data, by average discount, on-sale count, or average price.",
+      "rationale": "A cross-retailer group-by aggregation the per-retailer API never computes; the store is the only place all retailers' products coexist to roll up.",
+      "example": "shopping-pp-cli leaderboard --by avg-discount --limit 15 --json",
+      "why_it_matters": "Use it to decide which retailer/category to scan first when hunting deals.",
+      "group": "Time-series analytics"
+    },
+    {
+      "name": "Price watch tracker",
+      "command": "watch status",
+      "description": "Pin items you care about and, after each index refresh, see which ones moved, by how much, and which hit your target price.",
+      "rationale": "'Has this changed since I last looked' is a stateful question the stateless API cannot answer; only the local store retains the prior observed price to diff against.",
+      "example": "shopping-pp-cli watch status --json",
+      "why_it_matters": "Use it for change-since-last-observation on a curated set instead of re-fetching and eyeballing prices.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Local retail index sync",
+      "command": "index",
+      "description": "Pull products (and optional price history) from one or more retailers into a fast local SQLite store so every other query runs instantly and offline.",
+      "rationale": "Turns N single-retailer API calls into one joinable local dataset that the per-retailer live API can never assemble in a single request.",
+      "example": "shopping-pp-cli index --retailer walmart --retailer target --on-sale --limit 500",
+      "why_it_matters": "Reach for this first: the compare/deals/arbitrage/analytics commands all read what index populates.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-retailer identifier compare",
+      "command": "compare",
+      "description": "See which synced retailer sells the exact same item (by UPC/EAN/GTIN/ASIN) cheapest right now, ranked, with the savings spread.",
+      "rationale": "The live API is keyed per retailer and cannot join one identifier across 70 storefronts; only the local store holds all retailers' rows side by side.",
+      "example": "shopping-pp-cli compare 012345678905 --lookup-type upc --in-stock --json",
+      "why_it_matters": "Use it to answer 'who has this cheapest' in one call instead of N per-retailer lookups.",
+      "group": "Cross-retailer intelligence"
+    },
+    {
+      "name": "Compound deal finder",
+      "command": "deals",
+      "description": "Surface deals that clear several bars at once — deep discount, under a price ceiling, well-reviewed, in stock — across all tracked retailers in one ranked list.",
+      "rationale": "Joins filters across retailers that no single API call combines (the paid endpoint is one retailer at a time; the free one drops several filters).",
+      "example": "shopping-pp-cli deals --min-discount 30 --max-price 100 --min-rating 4 --in-stock --sort discount --json",
+      "why_it_matters": "Pick this when an agent needs the best deals worth a human's time, not a raw product dump.",
+      "group": "Cross-retailer intelligence"
+    },
+    {
+      "name": "FBA arbitrage margin",
+      "command": "arbitrage",
+      "description": "Rank synced products by what you would net reselling them on Amazon after referral and FBA fees, filtered by ROI and buy price.",
+      "rationale": "Profitability requires joining a retailer's buy price to Amazon's fee/profitability block — two responses about the same item — which only the local store holds together on the shared ASIN.",
+      "example": "shopping-pp-cli arbitrage --retailer walmart --min-roi 30 --max-buy-price 50 --in-stock --json",
+      "why_it_matters": "Use it to filter clearance products down to the ones that actually clear a resale ROI bar.",
+      "group": "Profitability"
+    },
+    {
+      "name": "Weekly price-drop ranking",
+      "command": "price-drops",
+      "description": "Rank the products that fell the most over the last week (or N weeks) across everything synced, by both dollar and percent drop.",
+      "rationale": "A weekly delta compares two points in a time series the live API only returns one product at a time; the store holds every product's history together to rank drops across the whole set.",
+      "example": "shopping-pp-cli price-drops --weeks 1 --min-drop-pct 15 --limit 25 --json",
+      "why_it_matters": "Reach for it to catch fresh markdowns first instead of re-pulling each product's history by hand.",
+      "group": "Time-series analytics"
+    },
+    {
+      "name": "Retailer \u0026 category discount leaderboard",
+      "command": "leaderboard",
+      "description": "Show which retailers and categories are consistently the deepest-discount buckets in your synced data, by average discount, on-sale count, or average price.",
+      "rationale": "A cross-retailer group-by aggregation the per-retailer API never computes; the store is the only place all retailers' products coexist to roll up.",
+      "example": "shopping-pp-cli leaderboard --by avg-discount --limit 15 --json",
+      "why_it_matters": "Use it to decide which retailer/category to scan first when hunting deals.",
+      "group": "Time-series analytics"
+    },
+    {
+      "name": "Price watch tracker",
+      "command": "watch status",
+      "description": "Pin items you care about and, after each index refresh, see which ones moved, by how much, and which hit your target price.",
+      "rationale": "'Has this changed since I last looked' is a stateful question the stateless API cannot answer; only the local store retains the prior observed price to diff against.",
+      "example": "shopping-pp-cli watch status --json",
+      "why_it_matters": "Use it for change-since-last-observation on a curated set instead of re-fetching and eyeballing prices.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SHOPPING_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Shopping",
+    "headline": "Every LemmeBuyIt retail endpoint, plus a local store that compares one UPC across 70+ retailers, ranks weekly price drops, and computes Amazon FBA arbitrage margin — compound queries the per-retailer API can't answer.",
+    "value_prop": "Shopping wraps the LemmeBuyIt aggregated-retail API (115M+ products across 70+ retailers) and adds a local SQLite layer no other tool has. `index` syncs products and price history; `compare` finds the cheapest retailer for a shared identifier; `deals` runs a compound discount/price/rating/stock query across stores; `arbitrage` ranks Amazon FBA resale margin; `price-drops` surfaces weekly price drops and `leaderboard` ranks discount buckets. Agent-native --json/--select, offline search, typed exit codes.",
+    "auth_narrative": "Authenticate with a single LemmeBuyIt API key sent as the `X-API-Key` header on every request (set `SHOPPING_API_KEY`, or run `shopping-pp-cli auth set-token \u003ckey\u003e`). Free keys reach the `/shopping/` product surface; paid keys additionally unlock full product search, weekly price history, Amazon ASIN history, and the Amazon profitability data that powers `arbitrage`. Get a key at https://www.lemmebuyit.com/developer.",
+    "quickstart": [
+      {
+        "command": "shopping-pp-cli doctor --dry-run",
+        "comment": "Verify config and connectivity before pulling data."
+      },
+      {
+        "command": "shopping-pp-cli retailers list --json",
+        "comment": "See which retailers your key can reach."
+      },
+      {
+        "command": "shopping-pp-cli index --retailer walmart --on-sale --limit 200",
+        "comment": "Build the local store from one retailer's on-sale catalog."
+      },
+      {
+        "command": "shopping-pp-cli deals --min-discount 30 --max-price 100 --in-stock --json",
+        "comment": "Run a compound deal query over the synced store."
+      },
+      {
+        "command": "shopping-pp-cli compare 012345678905 --lookup-type upc --json",
+        "comment": "Find the cheapest retailer for a shared identifier."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 \"API key required\"",
+        "fix": "Set SHOPPING_API_KEY (or run `shopping-pp-cli auth set-token \u003ckey\u003e`); every endpoint needs the X-API-Key header. Get a key at lemmebuyit.com/developer."
+      },
+      {
+        "symptom": "403 / 'not in your plan' on full products, price-history, or arbitrage",
+        "fix": "Those are paid-tier endpoints; a free key only reaches the `/shopping/` surface. Use a paid key or the `retailers shopping products` commands."
+      },
+      {
+        "symptom": "compare / deals / arbitrage return nothing",
+        "fix": "Run `shopping-pp-cli index --retailer \u003cid\u003e` first; these commands read the local store, which is empty until you sync."
+      }
+    ],
+    "when_to_use": "Use Shopping for cross-retailer retail-product tasks an agent needs answered fast: find the cheapest retailer for a UPC, surface the best in-stock deals over a discount/price threshold, rank biggest weekly price drops, or evaluate Amazon FBA resale margin. It is strongest when you sync once and run many compound queries against the local store.",
+    "anti_triggers": [
+      "Do not use it to place orders, add to cart, or check out — it is a read-only data API.",
+      "Do not use it for non-retail data or for a single retailer's own order-management API.",
+      "Do not use it as a real-time price oracle — store-backed queries reflect the last `index` sync, not the live shelf price."
+    ],
+    "recipes": [
+      {
+        "title": "Cheapest retailer for a UPC",
+        "command": "shopping-pp-cli compare 012345678905 --lookup-type upc --in-stock --json --select results.retailer_id,results.current_price",
+        "explanation": "Cross-retailer compare narrowed to the two fields an agent needs to act on."
+      },
+      {
+        "title": "Best in-stock deals",
+        "command": "shopping-pp-cli deals --min-discount 40 --max-price 75 --in-stock --sort discount --limit 20 --json",
+        "explanation": "Compound discount/price/stock query ranked by discount over the synced store."
+      },
+      {
+        "title": "FBA arbitrage shortlist",
+        "command": "shopping-pp-cli arbitrage --retailer walmart --min-roi 30 --max-buy-price 50 --json --select results.product_name,results.roi,results.net_margin",
+        "explanation": "Rank resale candidates by ROI, selecting only the decision fields."
+      },
+      {
+        "title": "This week's biggest drops",
+        "command": "shopping-pp-cli price-drops --weeks 1 --min-drop-pct 20 --limit 25 --json",
+        "explanation": "Weekly time-series delta ranking across every synced product."
+      }
+    ],
+    "trigger_phrases": [
+      "compare prices across retailers",
+      "find the cheapest retailer for this UPC",
+      "find retail deals over 30% off",
+      "is this product profitable to flip on Amazon",
+      "show this week's biggest price drops",
+      "use shopping",
+      "run shopping"
+    ]
+  }
+}

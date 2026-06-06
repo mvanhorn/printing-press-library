@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "shopping-pp-mcp",
+  "display_name": "Shopping",
+  "version": "4.22.1",
+  "description": "Every LemmeBuyIt retail endpoint, plus a local store that compares one UPC across 70+ retailers, ranks weekly price drops, and computes Amazon FBA arbitrage margin — compound queries the per-retailer API can't answer.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/shopping-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/shopping-pp-mcp",
+      "args": [],
+      "env": {
+        "SHOPPING_API_KEY": "${user_config.shopping_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "shopping_api_key": {
+      "type": "string",
+      "title": "SHOPPING_API_KEY",
+      "description": "Sets SHOPPING_API_KEY for the Shopping MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

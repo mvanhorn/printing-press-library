@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "shopping-pp-cli"
+display_name = "Shopping"
+description = "Every LemmeBuyIt retail endpoint, plus a local store that compares one UPC across 70+ retailers, ranks weekly price drops, and computes Amazon FBA arbitrage margin — compound queries the per-retailer API can't answer."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/shopping-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+SHOPPING_API_KEY = true

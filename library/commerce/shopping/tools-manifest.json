@@ -1,0 +1,497 @@
+{
+  "api_name": "shopping",
+  "base_url": "https://api.lemmebuyit.com/v1",
+  "description": "Every LemmeBuyIt retail endpoint, plus a local store that compares one UPC across 70+ retailers, ranks weekly price drops, and computes Amazon FBA arbitrage margin — compound queries the per-retailer API can't answer.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-API-Key",
+    "in": "header",
+    "env_vars": [
+      "SHOPPING_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SHOPPING_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "amazon_get-price-history",
+      "description": "Returns chart-ready weekly Amazon-side time-series data for a specific ASIN — direct access to amazon_price_history without going through a retailer's product_id. Useful when the consumer already knows the ASIN (e.g., charting the historical-backfill data without a Walmart UPC mapping in the path). The returned series carries Amazon retail / 3P-new / Buy Box prices plus monthly_sold per week, sorted ascending by `ts`. Weeks with no observed samples are omitted. For Walmart-side or merged history, use `/v1/retailers/walmart/products/{product_id}/price-history` instead. Required: asin. Optional: weeks (default: 52).",
+      "method": "GET",
+      "path": "/amazon/asins/{asin}/price-history",
+      "params": [
+        {
+          "name": "asin",
+          "type": "string",
+          "location": "path",
+          "description": "Amazon Standard Identification Number (e.g., 'B0EXAMPLE1').",
+          "required": true
+        },
+        {
+          "name": "weeks",
+          "type": "int",
+          "location": "query",
+          "description": "Number of weeks of history to return (1..104). Defaults to 52."
+        }
+      ]
+    },
+    {
+      "name": "retailers_list",
+      "description": "Retrieves a list of retailers that the authenticated API key has access to. **Currently Supported Retailers (73 total):** This rollout is configured in `configs/retailers.yaml` and may vary by API key permissions. Use this endpoint to fetch the current retailer list available to the authenticated key. Returns array of Retailer.",
+      "method": "GET",
+      "path": "/retailers",
+      "params": []
+    },
+    {
+      "name": "retailers_categories_get-retailer",
+      "description": "Retrieves a list of distinct product categories for a specific retailer. Categories are hierarchical with '\u003e' separators and are retailer-specific. ## Common Use Cases **Category Discovery:** ``` GET /retailers/walmart/categories # Get all Walmart categories for filtering GET /retailers/homedepot/categories # Get all Home Depot categories for navigation ``` **Integration Patterns:** - Product filtering: Use categories as filter options - Navigation menus: Build hierarchical category trees - Analytics: Category-based reporting - Search refinement: Narrow search results by category **Category Structure Examples:** - 'Clothing\u003eFashion Brands\u003eNike\u003eNike Mens\u003eNike Mens Clothing' - 'Electronics\u003eComputers \u0026 Tablets\u003eLaptops\u003eGaming Laptops' - 'Home \u0026 Garden\u003eKitchen \u0026 Dining\u003eSmall Kitchen Appliances' **Performance:** Categories are cached and typically return in under 25ms. Required: retailer_id. Returns array of string.",
+      "method": "GET",
+      "path": "/retailers/{retailer_id}/categories",
+      "params": [
+        {
+          "name": "retailer_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the retailer. Use the `/retailers` endpoint for the full current list. Examples:...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "retailers_products_find-retailer-cursor",
+      "description": "Retrieves a paginated list of products for a specific retailer with advanced search and filtering capabilities. The API searches across 115+ million products with sub-second response times. ## Search Capabilities ## Common Query Patterns **Text Search with Auto-Detection (NEW!):** ``` GET /retailers/walmart/products?search_query=Nike%20Socks # Auto-detects as text search - Returns 13.6M+ Nike sock products GET /retailers/walmart/products?search_query=gaming%20laptop\u0026min_price=500\u0026max_price=2000 # Auto-detects as text search - Gaming laptops in $500-2000 price range GET /retailers/walmart/products?search_query=08004608232285 # Auto-detects as GTIN barcode - Returns specific product GET /retailers/walmart/products?search_query=123456789012,987654321098 # Auto-detects as multiple GTINs - Returns products matching any barcode GET /retailers/walmart/products?lookup_type=text\u0026search_query=12345 # Force text search even for numeric queries (optional override) ``` **Barcode/Identifier Lookups:** ``` GET /retailers/walmart/products?upc=123456789012 # Filter by UPC barcode (exact match) GET /retailers/walmart/products?ean=1234567890123 # Filter by EAN barcode (exact match) GET /retailers/walmart/products?gtin=12345678901234\u0026condition=New # GTIN filter with condition GET /retailers/walmart/products?mpn=WIDGET-PRO-123\u0026brand=Acme # Filter by Manufacturer Part Number with brand ``` **SKU and Model Searches:** ``` GET /retailers/walmart/products/873973300 # Get specific product by SKU (direct lookup endpoint) GET /retailers/walmart/products?unique_merchant_sku=873973300 # Search by SKU using filter parameter GET /retailers/walmart/products?model=iPhone-15-Pro\u0026brand=Apple\u0026color=Natural%20Titanium # Find products by model number with attributes ``` **Category \u0026 Subcategory Filtering:** ``` GET /retailers/walmart/products?category=Clothing\u003eFashion%20Brands\u003eNike # All Nike fashion products GET /retailers/walmart/products?subcategory=Athletic%20Socks\u0026color=Black\u0026size=Large # Black athletic socks in large size GET /retailers/walmart/products?category=Electronics\u0026subcategory=Gaming%20Laptops\u0026min_price=1000 # Gaming laptops over $1000 in Electronics category ``` **Discount \u0026 Sale Filtering (Enhanced!):** ``` GET /retailers/walmart/products?on_sale=true\u0026sort_by=discount_desc # All sale items sorted by highest discount percentage first GET /retailers/walmart/products?min_discount_percent=30 # Products with at least 30% off GET /retailers/walmart/products?min_discount_percent=20\u0026max_discount_percent=50 # Products with 20-50% discount range GET /retailers/walmart/products?min_discount_percent=25\u0026category=Electronics\u0026in_stock=true # Electronics with 25%+ discount that are in stock GET /retailers/walmart/products?on_sale=true\u0026min_discount_percent=40\u0026sort_by=price_asc # Sale items with 40%+ off, sorted by lowest price GET /retailers/walmart/products?brand=Nike\u0026min_discount_percent=15\u0026max_price=100 # Nike products with 15%+ discount under $100 ``` **Advanced Multi-Parameter Filtering:** ``` GET /retailers/walmart/products?min_price=10\u0026max_price=50\u0026on_sale=true\u0026in_stock=true\u0026currency=USD # Sale items in stock between $10-50 in USD GET /retailers/walmart/products?min_rating=4.5\u0026min_reviews=100\u0026max_shipping=0 # Highly rated products with free shipping GET /retailers/walmart/products?material=Cotton\u0026size=Large\u0026color=Blue\u0026condition=New\u0026in_stock=true # Specific product attributes with stock availability GET /retailers/walmart/products?created_since=2025-01-01T00:00:00Z\u0026min_rating=4.0\u0026min_reviews=50\u0026sort_by=created_at_desc # Recently added well-reviewed products GET /retailers/walmart/products?min_weight=1.0\u0026max_weight=5.0\u0026category=Sports%20%26%20Outdoors # Sports equipment within specific weight range GET /retailers/walmart/products?stock_availability=In%20Stock\u0026max_shipping=15.99\u0026min_reviews=10 # In-stock items with affordable shipping and reviews ``` **Sorting Options with Examples:** ``` GET /retailers/walmart/products?category=Electronics\u0026sort_by=price_asc # Electronics sorted by lowest price first GET /retailers/walmart/products?on_sale=true\u0026sort_by=discount_desc # Sale items sorted by highest discount percentage first GET /retailers/walmart/products?search_query=laptop\u0026sort_by=price_desc # Laptops sorted by highest price first GET /retailers/walmart/products?brand=Nike\u0026sort_by=discount_asc # Nike products sorted by lowest discount first GET /retailers/walmart/products?category=Clothing\u0026sort_by=updated_at_desc # Recently updated clothing items first GET /retailers/walmart/products?min_rating=4.0\u0026sort_by=created_at_desc # Newest highly-rated products first GET /retailers/walmart/products?search_query=shoes # Shoes with relevance-based sorting (default when sort_by omitted) ``` GET /retailers/walmart/products?search_query=laptop\u0026sort_by=price_desc # Laptops sorted by highest price (premium products first) ``` ## Pagination Guide **Efficient Cursor-Based Pagination:** ``` # Step 1: First request (omit 'after' parameter) GET /retailers/walmart/products?lookup_type=text\u0026search_query=laptop\u0026limit=100\u0026sort_by=price_asc # Response includes next_cursor: 'WzU5OS45OSw3ODkxMjNd' # Step 2: Use cursor for next page GET /retailers/walmart/products?lookup_type=text\u0026search_query=laptop\u0026limit=100\u0026sort_by=price_asc\u0026after=WzU5OS45OSw3ODkxMjNd # Step 3: Continue until next_cursor is null (last page) ``` **Pagination Best Practices:** - **Use consistent parameters**: Keep `search_query`, `limit`, and `sort_by` the same across requests - **Handle large datasets**: Maximum 10,000 items per request - paginate for larger datasets - **Performance optimization**: Smaller page sizes (25-100) provide faster response times - **Error handling**: Check for 400 errors if limit exceeds 10,000 - **Cursor format**: Base64-encoded sort values ensure stable pagination even with data changes **Common Pagination Patterns:** - **Small previews**: `limit=10` for quick product previews - **Standard browsing**: `limit=25-50` for user-facing product lists - **Bulk processing**: `limit=1000-10000` for data analysis or batch operations - **Real-time sync**: Use `sort_by=updated_at_desc` with pagination for incremental updates. Required: retailer_id. Optional: lookup_type, search_query, category (plus 35 more).",
+      "method": "GET",
+      "path": "/retailers/{retailer_id}/products",
+      "params": [
+        {
+          "name": "retailer_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the retailer. Use the `/retailers` endpoint for the full current list. Examples:...",
+          "required": true
+        },
+        {
+          "name": "lookup_type",
+          "type": "string",
+          "location": "query",
+          "description": "**OPTIONAL**: Type of lookup to perform when search_query is provided. **Auto-Detection (Recommended)**: When omitted, the API automatically detects the query type: - **Numeric queries** (8-14 digits): Automatically detected as GTIN search - **Text queries**: Automatically detected as text search - **Multiple GTINs**: Comma-separated numeric codes are detected as GTIN search **Manual Override**: You can explicitly specify the lookup type: - `gtin`: Force GTIN/UPC/EAN search mode for identifier lookups - `text`: Force text search mode for name/description matching **Examples of Auto-Detection**: - `search_query=123456789012` → Auto-detected as `gtin` - `search_query=Nike Shoes` → Auto-detected as `text` - `search_query=123456789012,987654321098` → Auto-detected as `gtin` (multiple)"
+        },
+        {
+          "name": "search_query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query string with automatic detection of search type. **GTIN/Barcode Queries** (automatically detected): - Single GTIN: `123456789012` (8-14 digits) - Multiple GTINs: `123456789012,987654321098` (comma-separated) - Max identifiers per request: 10,000 (configurable) - Searches exact matches in UPC, EAN, GTIN, and MPN fields **Text Queries** (automatically detected): - Product searches: `Nike shoes`, `gaming laptop`, `coffee maker` - Brand queries: `Apple`, `Samsung`, `Nike` - Category searches: `wireless headphones`, `kitchen appliances` - Uses fuzzy matching across names, descriptions, brands, and categories **Auto-Detection Examples:** - Brand + Product: `Nike shoes` → Text search across 13.6M+ results - GTIN lookup: `123456789012` → Exact barcode match - Category search: `gaming laptops` → Text search with fuzzy matching - Multiple codes: `123456789012,987654321098` → Batch GTIN lookup"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by product category (exact match). Categories are hierarchical with '\u003e' separators. **Common Categories:** - 'Clothing\u003eFashion Brands\u003eNike\u003eNike Mens\u003eNike Mens Clothing\u003eNike Mens Socks' - 'Electronics\u003eComputers \u0026 Tablets\u003eLaptops' - 'Home \u0026 Garden\u003eKitchen \u0026 Dining\u003eSmall Kitchen Appliances' - 'Sports \u0026 Outdoors\u003eExercise \u0026 Fitness\u003eCardio Equipment'"
+        },
+        {
+          "name": "min_price",
+          "type": "float",
+          "location": "query",
+          "description": "Filter by minimum product price. Useful for finding premium products or setting budget constraints."
+        },
+        {
+          "name": "max_price",
+          "type": "float",
+          "location": "query",
+          "description": "Filter by maximum product price. Combine with min_price for price range filtering."
+        },
+        {
+          "name": "brand",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by product brand (exact match). Use exact brand names as they appear in the data. **Popular Brands Available:** - Nike, Adidas, Under Armour (Sportswear) - Apple, Samsung, Sony (Electronics) - KitchenAid, Cuisinart, Hamilton Beach (Kitchen) - Levi's, Calvin Klein, Tommy Hilfiger (Fashion)"
+        },
+        {
+          "name": "manufacturer",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by product manufacturer (exact match). The manufacturer may be different from the brand in some cases. **Common Manufacturers:** - Oatey (hardware and plumbing supplies) - Nike, Inc. (athletic apparel and footwear) - Apple Inc. (consumer electronics) - Whirlpool Corporation (home appliances)"
+        },
+        {
+          "name": "on_sale",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter for products that are currently on sale (current_price \u003c original_price)."
+        },
+        {
+          "name": "min_discount_percent",
+          "type": "float",
+          "location": "query",
+          "description": "Filter by minimum discount percentage (0-100). Returns products with discount percentage greater than or equal to this value. Discount is calculated as: ((original_price - current_price) / original_price) * 100"
+        },
+        {
+          "name": "max_discount_percent",
+          "type": "float",
+          "location": "query",
+          "description": "Filter by maximum discount percentage (0-100). Returns products with discount percentage less than or equal to this value. Useful for finding products within specific discount ranges."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of products to return per page. Defaults to 25, max 10000. Returns 400 error if limit exceeds 10000."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "**Cursor-based pagination parameter** for fetching the next page of results. ## How to Use: 1. **First Request**: Omit this parameter to get the first page 2. **Subsequent Requests**: Use the `next_cursor` value from the previous response 3. **Last Page**: When `next_cursor` is `null`, you've reached the end ## Cursor Format: - Base64-encoded string containing sort values for efficient pagination - Uses Elasticsearch `search_after` for consistent results - Format: `[sort_value_1, sort_value_2, ...]` (price, id, etc.) ## Example Pagination Flow: ``` # Step 1: First page GET /retailers/walmart/products?limit=10\u0026sort_by=price_asc # Returns: next_cursor = 'WzE5Ljk5LDEyMzQ1Nl0=' # Step 2: Second page GET /retailers/walmart/products?limit=10\u0026sort_by=price_asc\u0026after=WzE5Ljk5LDEyMzQ1Nl0= # Returns: next_cursor = 'WzI5Ljk5LDc4OTEyM10=' # Step 3: Continue until next_cursor is null ```"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sorting order for the results. When not specified, results are returned in the database's physical order for optimal performance. When specified, must be one of the allowed values: - `price_asc`: Sort by price, lowest first - `price_desc`: Sort by price, highest first - `discount_asc`: Sort by discount percentage, lowest first - `discount_desc`: Sort by discount percentage, highest first (best deals first) - `top_seller_rank_asc`: Sort by Amazon sales rank, best rank first - `updated_at_asc/desc`: Sort by last update time - `created_at_asc/desc`: Sort by creation time Note that using explicit sorting may impact query performance on large datasets."
+        },
+        {
+          "name": "subcategory",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by product subcategory (exact match)."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by currency code (e.g., USD, EUR, CAD)."
+        },
+        {
+          "name": "stock_availability",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by stock availability status."
+        },
+        {
+          "name": "in_stock",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter for products that are currently in stock (boolean)."
+        },
+        {
+          "name": "upc",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by UPC barcode (exact match). Comma-separated values supported; max 10,000 (configurable)."
+        },
+        {
+          "name": "ean",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by EAN barcode (exact match). Comma-separated values supported; max 10,000 (configurable)."
+        },
+        {
+          "name": "gtin",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by GTIN code (exact match). Comma-separated values supported; max 10,000 (configurable)."
+        },
+        {
+          "name": "asin",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by Amazon ASIN (exact match). Comma-separated values supported; max 10,000 (configurable)."
+        },
+        {
+          "name": "mpn",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by Manufacturer Part Number (exact match)."
+        },
+        {
+          "name": "unique_merchant_sku",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by unique merchant SKU (exact match). Comma-separated values supported; max 10,000 (configurable)."
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by product model (exact match)."
+        },
+        {
+          "name": "condition",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by product condition (e.g., New, Used, Refurbished)."
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by product color (exact match)."
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by product size (exact match)."
+        },
+        {
+          "name": "material",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by product material (exact match)."
+        },
+        {
+          "name": "min_weight",
+          "type": "float",
+          "location": "query",
+          "description": "Filter by minimum weight (in product's weight unit)."
+        },
+        {
+          "name": "max_weight",
+          "type": "float",
+          "location": "query",
+          "description": "Filter by maximum weight (in product's weight unit)."
+        },
+        {
+          "name": "min_rating",
+          "type": "float",
+          "location": "query",
+          "description": "Filter by minimum product rating (0-5 scale)."
+        },
+        {
+          "name": "max_rating",
+          "type": "float",
+          "location": "query",
+          "description": "Filter by maximum product rating (0-5 scale)."
+        },
+        {
+          "name": "min_reviews",
+          "type": "int",
+          "location": "query",
+          "description": "Filter by minimum number of reviews."
+        },
+        {
+          "name": "min_sales_rank",
+          "type": "int",
+          "location": "query",
+          "description": "Filter by minimum Amazon sales rank."
+        },
+        {
+          "name": "max_sales_rank",
+          "type": "int",
+          "location": "query",
+          "description": "Filter by maximum Amazon sales rank."
+        },
+        {
+          "name": "max_shipping",
+          "type": "float",
+          "location": "query",
+          "description": "Filter by maximum shipping cost."
+        },
+        {
+          "name": "created_since",
+          "type": "string",
+          "location": "query",
+          "description": "Filter products created since this date (ISO 8601 format)."
+        },
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Filter products updated since this date (ISO 8601 format)."
+        }
+      ]
+    },
+    {
+      "name": "retailers_products_get-price-history",
+      "description": "Returns chart-ready weekly time-series data for a product, sourced from the daily price-history sampler + the one-time historical backfill. When the product's UPC maps to a resolved Amazon ASIN, Amazon retail / 3P-new / Buy-Box / monthly-sold series are merged on weekly timestamps alongside Walmart's own price series. Weeks with no observed samples are omitted. Use the rolled-up averages on the `Product.price_averages` block when you just need the lifetime / 30 / 90 / 180 / 365-day means. Use this endpoint when you actually want to plot a chart. Required: retailer_id, product_id. Optional: weeks (default: 52).",
+      "method": "GET",
+      "path": "/retailers/{retailer_id}/products/{product_id}/price-history",
+      "params": [
+        {
+          "name": "retailer_id",
+          "type": "string",
+          "location": "path",
+          "description": "Retailer ID. Use the `/retailers` endpoint for the full list.",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Retailer-native product identifier (Walmart product_id, Home Depot SKU, etc.).",
+          "required": true
+        },
+        {
+          "name": "weeks",
+          "type": "int",
+          "location": "query",
+          "description": "Number of weeks of history to return (1..104). Defaults to 52."
+        }
+      ]
+    },
+    {
+      "name": "retailers_products_get-retailer-details-by-sku",
+      "description": "Retrieves detailed information for a specific product within a retailer's catalog, looking up by Unique Merchant SKU. ## Common Use Cases **Direct Product Access:** ``` GET /retailers/walmart/products/226595547 # Get Nike sock product by SKU GET /retailers/walmart/products/ASUS-ROG-G15-2024 # Get gaming laptop by alphanumeric SKU GET /retailers/homedepot/products/HD-12345-XL # Get Home Depot product by SKU format ``` **Integration Patterns:** - Product detail pages: Use SKU from search results - Inventory management: Direct SKU lookups - Price monitoring: Regular SKU-based checks - Catalog synchronization: Bulk SKU validation **Performance:** Sub-50ms response times for direct SKU lookups with full product details. Required: retailer_id, product_id. Returns the Product.",
+      "method": "GET",
+      "path": "/retailers/{retailer_id}/products/{product_id}",
+      "params": [
+        {
+          "name": "retailer_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the retailer. Use the `/retailers` endpoint for the full current list. Examples:...",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "The Unique Merchant SKU of the product. SKU formats vary by retailer: - Walmart: Numeric (e.g., '226595547') or alphanumeric (e.g., 'ASUS-ROG-G15-2024') - Home Depot: Typically alphanumeric with retailer prefix (e.g., 'HD-12345-XL')",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "retailers_shopping_get-retailer-product-details-by-sku",
+      "description": "Retrieves a shopping product within a retailer's catalog by Unique Merchant SKU. The response uses the shopping-safe response contract and includes the shopping destination URL as `product_url`. Required: retailer_id, product_id. Returns array of string.",
+      "method": "GET",
+      "path": "/retailers/{retailer_id}/shopping/products/{product_id}",
+      "params": [
+        {
+          "name": "retailer_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the retailer.",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "The Unique Merchant SKU of the product.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "retailers_shopping_get-retailer-products",
+      "description": "Retrieves a paginated list of shopping products for a specific retailer. Shopping products use a shopping-safe response contract and only include products with a shopping destination URL, returned as `product_url`. This endpoint supports the same API-key authentication, rate limiting, usage tracking, and retailer authorization as retailer product endpoints. Unsupported shopping query parameters return `400 Bad Request`: - `asin` - `min_sales_rank` - `max_sales_rank` - `sort_by=top_seller_rank_asc`. Required: retailer_id. Optional: search_query, lookup_type, unique_merchant_sku (plus 12 more). Returns array of ShoppingProduct.",
+      "method": "GET",
+      "path": "/retailers/{retailer_id}/shopping/products",
+      "params": [
+        {
+          "name": "retailer_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the retailer.",
+          "required": true
+        },
+        {
+          "name": "search_query",
+          "type": "string",
+          "location": "query",
+          "description": "Text, SKU, UPC, EAN, GTIN, or MPN search query."
+        },
+        {
+          "name": "lookup_type",
+          "type": "string",
+          "location": "query",
+          "description": "Optional lookup mode override. Omit `lookup_type` for auto-detection."
+        },
+        {
+          "name": "unique_merchant_sku",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by retailer SKU."
+        },
+        {
+          "name": "upc",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by UPC barcode."
+        },
+        {
+          "name": "ean",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by EAN barcode."
+        },
+        {
+          "name": "gtin",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by GTIN barcode."
+        },
+        {
+          "name": "mpn",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by Manufacturer Part Number."
+        },
+        {
+          "name": "min_price",
+          "type": "float",
+          "location": "query",
+          "description": "Minimum current price."
+        },
+        {
+          "name": "max_price",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum current price."
+        },
+        {
+          "name": "brand",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by brand."
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by category."
+        },
+        {
+          "name": "in_stock",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by stock status."
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order. `top_seller_rank_asc` is not supported by shopping endpoints."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of products to return."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "status_get",
+      "description": "Provides the current operational status of the API service, including database connectivity. Returns the StatusResponse.",
+      "method": "GET",
+      "path": "/status",
+      "params": []
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "shopping-dogfood-and-review-fixes",
+  "applied_at": "2026-06-05",
+  "base_run_id": "20260605-212010",
+  "base_printing_press_version": "4.22.1",
+  "summary": "Generator-gap and review fixes: cap dependent-parent sync fan-out under live-dogfood, mark amazon/compare pp:no-error-path-probe (API returns 200+empty for unknown IDs), add a transient-shard retry to index, drop false mcp:read-only on store-writing index/watch-add, and correct the README config-path slug.",
+  "reason": "The generated sync only caps pages (not parent count) under dogfood; the amazon/compare error-path probe assumes non-2xx for invalid input; the search backend intermittently returns 'all shards failed'; and the README config path used the spec-title slug instead of the CLI name. Retro candidates for the machine.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/promoted_amazon.go",
+    "internal/cli/compare.go",
+    "internal/cli/index.go",
+    "internal/cli/watch_add.go",
+    "README.md"
+  ],
+  "validated_outcome": "shipcheck PASS 6/6 (93/100 Grade A); live dogfood 76/0.",
+  "upstream_issue": ""
+}

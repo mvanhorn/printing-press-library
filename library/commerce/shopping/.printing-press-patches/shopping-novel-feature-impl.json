@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "shopping-novel-feature-impl",
+  "applied_at": "2026-06-05",
+  "base_run_id": "20260605-212010",
+  "base_printing_press_version": "4.22.1",
+  "summary": "Implemented the 7 stubbed transcendence commands and the hand-authored store tables they read.",
+  "reason": "The generator emits stub bodies for novel features; the local-store compound-query logic (index/compare/deals/arbitrage/price-drops/leaderboard/watch) is hand-authored beyond generator output.",
+  "files": [
+    "internal/cli/index.go",
+    "internal/cli/compare.go",
+    "internal/cli/deals.go",
+    "internal/cli/arbitrage.go",
+    "internal/cli/price_drops.go",
+    "internal/cli/leaderboard.go",
+    "internal/cli/watch.go",
+    "internal/cli/watch_add.go",
+    "internal/cli/watch_status.go",
+    "internal/cli/shop_store.go",
+    "internal/store/shopping_extra.go"
+  ],
+  "validated_outcome": "go test ./... green; live dogfood --level full passed 76/0 against api.lemmebuyit.com.",
+  "upstream_issue": ""
+}
