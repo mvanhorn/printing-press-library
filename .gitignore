@@ -1,5 +1,6 @@
 # Compiled Go binaries (generated CLIs)
 *-pp-cli
+*-pp-mcp
 *-pp-cli-[0-9]*
 # But allow CLI source directories in the library
 !library/**/*-pp-cli/
