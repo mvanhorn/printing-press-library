@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "articles-list-cookie-user-id",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260603-230951",
+  "base_printing_press_version": "4.20.1",
+  "summary": "X Articles list must supply the signed-in browser user's id from the cookie session when building the ArticleEntitiesSlice GraphQL variables.",
+  "reason": "The Articles surface is authenticated by x.com browser cookies, not by the v2 OAuth token path; omitting userId produces a GraphQL validation failure even when auth_token and ct0 are valid.",
+  "files": [
+    "internal/cli/articles_list.go",
+    "internal/cli/x_auth_login.go",
+    "internal/client/cookies.go"
+  ],
+  "validated_outcome": "go test ./internal/cli ./internal/client and go build ./cmd/x-twitter-pp-cli passed from library/social-and-messaging/x-twitter with GOCACHE=/private/tmp/pp-go-cache"
+}

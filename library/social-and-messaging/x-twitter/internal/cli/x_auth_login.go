@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -75,7 +76,7 @@ func newXAuthLoginCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 
-			authToken, ct0, source, err := captureXSessionCookies(w)
+			authToken, ct0, userID, source, err := captureXSessionCookies(w)
 			if err != nil {
 				return err
 			}
@@ -90,6 +91,7 @@ func newXAuthLoginCmd(flags *rootFlags) *cobra.Command {
 			doc := map[string]string{
 				"auth_token":  authToken,
 				"ct0":         ct0,
+				"user_id":     userID,
 				"web_bearer":  xWebBearer,
 				"captured_at": time.Now().UTC().Format("2006-01-02"),
 			}
@@ -115,46 +117,47 @@ func newXAuthLoginCmd(flags *rootFlags) *cobra.Command {
 // installer is to have them: pycookiecheat first (the recommended pip install,
 // reads Chrome's cookie DB including httpOnly cookies), then the press-auth
 // companion. Returns actionable install + manual guidance when neither works.
-func captureXSessionCookies(w io.Writer) (authToken, ct0, source string, err error) {
+func captureXSessionCookies(w io.Writer) (authToken, ct0, userID, source string, err error) {
 	if bin, lookErr := exec.LookPath("pycookiecheat"); lookErr == nil {
-		at, c, ok := cookiesFromPycookiecheat(bin)
+		at, c, uid, ok := cookiesFromPycookiecheat(bin)
 		if ok {
-			return at, c, "pycookiecheat", nil
+			return at, c, uid, "pycookiecheat", nil
 		}
 		fmt.Fprintln(w, "pycookiecheat is installed but found no x.com session — are you logged into x.com in Chrome?")
 	}
 	if bin, lookErr := exec.LookPath("press-auth"); lookErr == nil {
-		at, c, ok := cookiesFromPressAuth(bin)
+		at, c, uid, ok := cookiesFromPressAuth(bin)
 		if ok {
-			return at, c, "press-auth", nil
+			return at, c, uid, "press-auth", nil
 		}
 		fmt.Fprintf(w, "press-auth is installed but has no captured x.com session. Run: press-auth login %s\n", xCookieDomain)
 	}
-	return "", "", "", fmt.Errorf("%s", xCookieManualGuidance())
+	return "", "", "", "", fmt.Errorf("%s", xCookieManualGuidance())
 }
 
 // cookiesFromPycookiecheat runs `pycookiecheat https://x.com`, which prints a
 // flat {cookie_name: value} JSON object read from Chrome's cookie DB.
-func cookiesFromPycookiecheat(bin string) (authToken, ct0 string, ok bool) {
+func cookiesFromPycookiecheat(bin string) (authToken, ct0, userID string, ok bool) {
 	out, err := exec.Command(bin, "https://"+xCookieDomain).Output()
 	if err != nil {
-		return "", "", false
+		return "", "", "", false
 	}
 	var jar map[string]string
 	if err := json.Unmarshal(out, &jar); err != nil {
-		return "", "", false
+		return "", "", "", false
 	}
 	authToken = jar["auth_token"]
 	ct0 = jar["ct0"]
-	return authToken, ct0, authToken != "" && ct0 != ""
+	userID = xUserIDFromTWID(jar["twid"])
+	return authToken, ct0, userID, authToken != "" && ct0 != ""
 }
 
 // cookiesFromPressAuth runs `press-auth cookies x.com`, which prints a Cookie
 // header line ("auth_token=...; ct0=...; ...") for the captured session.
-func cookiesFromPressAuth(bin string) (authToken, ct0 string, ok bool) {
+func cookiesFromPressAuth(bin string) (authToken, ct0, userID string, ok bool) {
 	out, err := exec.Command(bin, "cookies", xCookieDomain).Output()
 	if err != nil {
-		return "", "", false
+		return "", "", "", false
 	}
 	for _, pair := range strings.Split(strings.TrimSpace(string(out)), ";") {
 		pair = strings.TrimSpace(pair)
@@ -167,9 +170,31 @@ func cookiesFromPressAuth(bin string) (authToken, ct0 string, ok bool) {
 			authToken = strings.TrimSpace(value)
 		case "ct0":
 			ct0 = strings.TrimSpace(value)
+		case "twid":
+			userID = xUserIDFromTWID(strings.TrimSpace(value))
 		}
 	}
-	return authToken, ct0, authToken != "" && ct0 != ""
+	return authToken, ct0, userID, authToken != "" && ct0 != ""
+}
+
+func xUserIDFromTWID(twid string) string {
+	twid = strings.TrimSpace(twid)
+	if twid == "" {
+		return ""
+	}
+	if decoded, err := url.QueryUnescape(twid); err == nil {
+		twid = decoded
+	}
+	twid = strings.TrimPrefix(twid, "\"")
+	twid = strings.TrimSuffix(twid, "\"")
+	twid = strings.TrimPrefix(twid, "u%3D")
+	twid = strings.TrimPrefix(twid, "u=")
+	for _, r := range twid {
+		if r < '0' || r > '9' {
+			return ""
+		}
+	}
+	return twid
 }
 
 func xCookieManualGuidance() string {
@@ -182,7 +207,7 @@ func xCookieManualGuidance() string {
 		"       go install github.com/mvanhorn/cli-printing-press/v4/cmd/press-auth@latest\n" +
 		"       press-auth login " + xCookieDomain + "\n" +
 		"  3. Manual: in Chrome (logged into x.com) open DevTools -> Application -> Cookies\n" +
-		"     -> https://x.com, copy auth_token and ct0, then write:\n" +
+		"     -> https://x.com, copy auth_token, ct0, and twid (u=<user id>), then write:\n" +
 		"       " + path + "\n" +
-		"     {\"auth_token\":\"<auth_token>\",\"ct0\":\"<ct0>\",\"web_bearer\":\"" + xWebBearer + "\"}"
+		"     {\"auth_token\":\"<auth_token>\",\"ct0\":\"<ct0>\",\"user_id\":\"<twid user id>\",\"web_bearer\":\"" + xWebBearer + "\"}"
 }
