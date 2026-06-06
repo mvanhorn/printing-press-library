@@ -179,7 +179,7 @@ func cookiesFromPycookiecheat(bin, cookiePath string) (authToken, ct0, userID st
 	authToken = jar["auth_token"]
 	ct0 = jar["ct0"]
 	userID = xUserIDFromTWID(jar["twid"])
-	return authToken, ct0, userID, authToken != "" && ct0 != "" && userID != ""
+	return authToken, ct0, userID, authToken != "" && ct0 != ""
 }
 
 type xChromeCookieProfile struct {
@@ -303,7 +303,7 @@ func cookiesFromPressAuth(bin string) (authToken, ct0, userID string, ok bool) {
 			userID = xUserIDFromTWID(strings.TrimSpace(value))
 		}
 	}
-	return authToken, ct0, userID, authToken != "" && ct0 != "" && userID != ""
+	return authToken, ct0, userID, authToken != "" && ct0 != ""
 }
 
 func xUserIDFromTWID(twid string) string {
