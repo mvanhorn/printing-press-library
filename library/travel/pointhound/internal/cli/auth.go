@@ -470,10 +470,26 @@ func resolveChromeProfile(w io.Writer, r io.Reader, domain, profileFlag string, 
 	if len(withRequired) > 0 {
 		return chooseChromeProfile(w, r, withRequired, domain, true)
 	}
+	if len(requiredCookies) > 0 {
+		printMissingCookieHint(w, profiles, requiredCookies)
+	}
 	if len(withCookies) > 0 {
 		return chooseChromeProfile(w, r, withCookies, domain, false)
 	}
 	return "", fmt.Errorf("no Chrome profile has cookies for %s", domain)
+}
+
+func printMissingCookieHint(w io.Writer, profiles []chromeProfile, requiredCookies []string) {
+	if len(requiredCookies) == 0 {
+		return
+	}
+	for _, p := range profiles {
+		if p.CookieCount == 0 || len(p.MissingCookies) == 0 {
+			continue
+		}
+		fmt.Fprintf(w, "Chrome profile %s (%s) is missing required cookies: %s\n", p.DisplayName, p.Dir, strings.Join(p.MissingCookies, ", "))
+		return
+	}
 }
 
 func chooseChromeProfile(w io.Writer, r io.Reader, profiles []chromeProfile, domain string, required bool) (string, error) {
