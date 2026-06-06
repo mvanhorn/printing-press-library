@@ -23,6 +23,7 @@ func newCheapestCmd(flags *rootFlags) *cobra.Command {
 			if flags.dryRun {
 				return printJSONFiltered(cmd.OutOrStdout(), dryRunCheapest(target), flags)
 			}
+			// PATCH: open store and pass to computeCheapest for best-effort persistence.
 			db := openScrapeStore(cmd.Context())
 			if db != nil {
 				defer db.Close()

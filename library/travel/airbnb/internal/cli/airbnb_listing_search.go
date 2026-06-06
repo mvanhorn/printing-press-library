@@ -62,7 +62,7 @@ func newAirbnbListingSearchCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(err)
 			}
 			_ = flagAll
-			// F1: best-effort persist each scraped search-result listing into
+			// PATCH: best-effort persist each scraped search-result listing into
 			// the local store so it compounds for host portfolio / sync /
 			// match. Cards lacking a stable id are skipped inside
 			// persistAirbnbListing; store errors are swallowed and never

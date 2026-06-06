@@ -97,9 +97,9 @@ Exit codes & warnings:
 				resources = defaultSyncResources()
 			}
 
-			// Scrape-resync rewire: this CLI has no paginated REST collection
+			// PATCH: scrape-resync rewire — this CLI has no paginated REST collection
 			// to mirror, so "sync" re-scrapes what the store already knows and
-			// persists fresh price snapshots (via the F1 path in
+			// persists fresh price snapshots (via the persistence path in
 			// computeCheapest). Partition the requested resources:
 			//   - "scrape" (the default)  -> re-scrape known watchlist + listings
 			//   - "airbnb_wishlist"       -> auth-gated GraphQL wishlist sync
@@ -398,7 +398,7 @@ func syncResource(c interface {
 		// roll-up "all_items_failed_id_extraction" when an entire
 		// page yields zero stored, a per-resource
 		// "primary_key_unresolved" the first time any single item
-		// fails, and the F4b "stored_count_zero_after_extraction"
+		// fails, and the PATCH "stored_count_zero_after_extraction"
 		// probe when extraction succeeded but rows still didn't land.
 		stored, extractFailures, err := upsertResourceBatch(db, resource, items)
 		if err != nil {
@@ -500,7 +500,7 @@ func syncResource(c interface {
 	// Final sync state: clear cursor (sync is complete), update count
 	_ = db.SaveSyncState(resource, "", totalCount)
 
-	// F4b symptom probe: if items were consumed and successfully
+	// PATCH: symptom probe — if items were consumed and successfully
 	// extracted (extractFailures < consumed) but nothing landed in
 	// the store, something downstream of extraction silently dropped
 	// rows — FTS5 trigger error, transaction rollback, character

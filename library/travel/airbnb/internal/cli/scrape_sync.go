@@ -79,7 +79,7 @@ func collectScrapeTargets(db *store.Store) ([]scrapeTarget, error) {
 }
 
 // runScrapeSync re-scrapes every store-known listing and persists fresh
-// snapshots via the F1 persistence path inside computeCheapest. It reports
+// snapshots via the PATCH persistence path inside computeCheapest. It reports
 // honestly (no API call, no error) when the store is empty, and emits the
 // same sync_start / sync_progress / sync_complete / sync_summary event shapes
 // the API-mirror sync path uses so existing tooling keeps working. The return
@@ -114,6 +114,7 @@ func runScrapeSync(ctx context.Context, db *store.Store) (int, error) {
 	}
 
 	priced := 0
+	visited := 0
 	warned := 0
 	for _, t := range targets {
 		select {
@@ -121,8 +122,9 @@ func runScrapeSync(ctx context.Context, db *store.Store) (int, error) {
 			return priced, ctx.Err()
 		default:
 		}
-		// computeCheapest persists the listing + host + (price>0) snapshot
-		// through db via the F1 path. We count a "priced" refresh when a real
+		visited++
+		// PATCH: computeCheapest persists the listing + host + (price>0) snapshot
+		// through db via the persistence path. We count a "priced" refresh when a real
 		// positive platform total came back, so the summary reflects how many
 		// listings actually produced a new snapshot rather than how many were
 		// merely revisited.
@@ -144,7 +146,7 @@ func runScrapeSync(ctx context.Context, db *store.Store) (int, error) {
 			priced++
 		}
 		if !humanFriendly {
-			fmt.Fprintf(os.Stderr, `{"event":"sync_progress","resource":"%s","fetched":%d}`+"\n", scrapeSyncResource, priced)
+			fmt.Fprintf(os.Stderr, `{"event":"sync_progress","resource":"%s","fetched":%d}`+"\n", scrapeSyncResource, visited)
 		}
 	}
 

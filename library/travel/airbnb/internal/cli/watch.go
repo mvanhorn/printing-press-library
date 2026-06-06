@@ -136,9 +136,9 @@ func newWatchListCmd(flags *rootFlags) *cobra.Command {
 
 func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "check",
-		Short: "Check watched listings; exit 7 only when a real scraped price drops under threshold (a null/unavailable price is reported, never a hit)",
-		Example: "  airbnb-pp-cli watch check --json",
+		Use:         "check",
+		Short:       "Check watched listings; exit 7 only when a real scraped price drops under threshold (a null/unavailable price is reported, never a hit)",
+		Example:     "  airbnb-pp-cli watch check --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if flags.dryRun {
@@ -156,9 +156,9 @@ func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 			var hits []store.WatchlistItem
 			var noPrice []map[string]any
 			for _, item := range items {
-				// Pass db so the scrape inside computeCheapest persists the
+				// PATCH: pass db so the scrape inside computeCheapest persists the
 				// listing + a price snapshot through the already-open handle
-				// (F1) — only when a real price is scraped (the snapshot write
+				// — only when a real price is scraped (the snapshot write
 				// is guarded on total > 0).
 				ch, err := computeCheapest(cmd.Context(), item.ListingURL, cheapestParams{Checkin: item.Checkin, Checkout: item.Checkout, store: db})
 				if err != nil {
@@ -166,7 +166,7 @@ func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 				}
 				price, _ := firstPlatformTotals(ch)
 				hasPrice, hit := classifyWatchPrice(price, item.MaxPrice)
-				// F2: a non-positive price means the SSR did not expose a
+				// PATCH: a non-positive price means the SSR did not expose a
 				// bookable total for these dates (unavailable/sold-out/auth-
 				// gated). That is "no price data" — NOT a drop. Record the
 				// check timestamp with hit=false, surface the item in the
@@ -205,7 +205,7 @@ func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
-// classifyWatchPrice is the F2 decision for one watched listing given the
+// classifyWatchPrice is the PATCH decision for one watched listing given the
 // scraped platform total and the watchlist's max-price threshold. It returns
 // (hasPrice, hit):
 //

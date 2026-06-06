@@ -57,7 +57,7 @@ func (s *Store) UpsertWatchlistItem(item WatchlistItem) error {
 	return err
 }
 
-// DeleteWatchlistItem removes a watchlist entry by its listing URL and
+// PATCH: DeleteWatchlistItem removes a watchlist entry by its listing URL and
 // reports how many rows were deleted (0 when the URL was not watched). The
 // watchlist's listing_url column is UNIQUE, so this affects at most one row.
 // Runs under writeMu like the other mutators.

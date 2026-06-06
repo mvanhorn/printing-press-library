@@ -123,7 +123,7 @@ func computeCheapest(ctx context.Context, rawURL string, p cheapestParams) (*che
 		if total == 0 {
 			platformOption["note"] = airbnbPricingUnavailableNote
 		}
-		// F1: best-effort persist the scraped listing, host, and (when a real
+		// PATCH: best-effort persist the scraped listing, host, and (when a real
 		// price was scraped) a price snapshot. persistPriceSnapshot is guarded
 		// on total > 0 internally, so an unavailable SSR price never writes a
 		// phantom $0 snapshot. All three calls are no-ops when p.store is nil.

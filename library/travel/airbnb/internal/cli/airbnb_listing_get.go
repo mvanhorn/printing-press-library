@@ -38,7 +38,7 @@ func newAirbnbListingGetCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err)
 			}
-			// F1: best-effort persist the scraped listing and, when a real
+			// PATCH: best-effort persist the scraped listing and, when a real
 			// price was scraped for these dates, a price snapshot. The
 			// snapshot write is guarded on total > 0 inside
 			// persistPriceSnapshot, so an unavailable SSR price is never
@@ -47,7 +47,7 @@ func newAirbnbListingGetCmd(flags *rootFlags) *cobra.Command {
 				defer db.Close()
 				persistAirbnbListing(db, listing)
 				total, fees := airbnbTotals(listing)
-				persistPriceSnapshot(db, flagId, "airbnb", flagCheckin, flagCheckout, total, fees)
+				persistPriceSnapshot(db, listing.ID, "airbnb", flagCheckin, flagCheckout, total, fees)
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), listing, flags)
 		},

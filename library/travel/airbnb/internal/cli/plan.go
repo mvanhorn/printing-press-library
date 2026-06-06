@@ -78,7 +78,7 @@ func newPlanCmd(flags *rootFlags) *cobra.Command {
 			if len(urls) > cheapestLimit {
 				urls = urls[:cheapestLimit]
 			}
-			// F1: open one store for the whole plan fan-out; computeCheapest
+			// PATCH: open one store for the whole plan fan-out; computeCheapest
 			// persists each scraped listing + snapshot through it. The store
 			// serializes writes via writeMu, so concurrent leg goroutines are
 			// race-safe. nil (open failed) disables persistence harmlessly.
