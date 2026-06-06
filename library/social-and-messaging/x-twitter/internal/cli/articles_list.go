@@ -35,6 +35,20 @@ func newArticlesListCmd(flags *rootFlags) *cobra.Command {
 			}
 			if flagVariables != "" {
 				params["variables"] = fmt.Sprintf("%v", flagVariables)
+			} else {
+				cookies, err := client.LoadCookieAuth()
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+				userID := cookies.ArticleUserID()
+				if userID == "" {
+					return fmt.Errorf("articles list requires the signed-in X user id; re-run `x-twitter-pp-cli auth login --chrome` to refresh cookies with the twid user id, or pass --variables '{\"userId\":\"<x-user-id>\"}'")
+				}
+				variables, err := json.Marshal(map[string]string{"userId": userID})
+				if err != nil {
+					return err
+				}
+				params["variables"] = string(variables)
 			}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "articles", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
