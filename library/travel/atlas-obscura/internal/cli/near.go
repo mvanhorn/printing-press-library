@@ -206,7 +206,7 @@ func hasCategory(cats []string, want string) bool {
 	want = strings.ToLower(want)
 	for _, c := range cats {
 		c = strings.ToLower(c)
-		if c == want || strings.Contains(c, want) || strings.Contains(want, c) {
+		if c == want || strings.Contains(c, want) {
 			return true
 		}
 	}

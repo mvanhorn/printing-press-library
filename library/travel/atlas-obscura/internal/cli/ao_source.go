@@ -17,6 +17,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/travel/atlas-obscura/internal/client"
@@ -319,7 +320,10 @@ func filterEmpty(in []string) []string {
 
 // --- Geocoding (Open-Meteo, no auth) ----------------------------------------
 
-var geocodeCache = map[string]aoGeoHit{}
+var (
+	geocodeCacheMu sync.RWMutex
+	geocodeCache   = map[string]aoGeoHit{}
+)
 
 type aoGeoHit struct {
 	Lat   float64
@@ -352,7 +356,10 @@ var geoHTTP = &http.Client{Timeout: 15 * time.Second}
 
 func aoGeocode(ctx context.Context, name string) (aoGeoHit, error) {
 	key := strings.ToLower(strings.TrimSpace(name))
-	if h, ok := geocodeCache[key]; ok {
+	geocodeCacheMu.RLock()
+	h, ok := geocodeCache[key]
+	geocodeCacheMu.RUnlock()
+	if ok {
 		return h, nil
 	}
 	// Open-Meteo matches a single place name and does not parse "City, State"
@@ -369,7 +376,9 @@ func aoGeocode(ctx context.Context, name string) (aoGeoHit, error) {
 			break
 		}
 	}
+	geocodeCacheMu.Lock()
 	geocodeCache[key] = hit
+	geocodeCacheMu.Unlock()
 	return hit, nil
 }
 
@@ -397,6 +406,9 @@ func aoGeocodeOne(ctx context.Context, name string) (aoGeoHit, error) {
 		return aoGeoHit{}, fmt.Errorf("geocoding %q via Open-Meteo: %w", name, err)
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return aoGeoHit{}, fmt.Errorf("geocoding %q via Open-Meteo: unexpected status %d", name, resp.StatusCode)
+	}
 	var body struct {
 		Results []struct {
 			Name      string  `json:"name"`
