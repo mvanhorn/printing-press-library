@@ -39,7 +39,7 @@ func newArticlesListCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				cookies, err := client.LoadCookieAuth()
 				if err != nil {
-					return classifyAPIError(err, flags)
+					return err
 				}
 				userID := cookies.ArticleUserID()
 				if userID == "" {

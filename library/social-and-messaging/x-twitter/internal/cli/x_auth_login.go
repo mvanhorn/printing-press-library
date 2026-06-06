@@ -95,6 +95,10 @@ func newXAuthLoginCmd(flags *rootFlags) *cobra.Command {
 				"web_bearer":  xWebBearer,
 				"captured_at": time.Now().UTC().Format("2006-01-02"),
 			}
+			if userID == "" {
+				fmt.Fprintln(w, "Warning: captured auth_token + ct0, but could not find the twid user id.")
+				fmt.Fprintln(w, "`articles list` will need --variables '{\"userId\":\"<x-user-id>\"}' until cookies include twid; re-run after refreshing your x.com login if needed.")
+			}
 			blob, err := json.MarshalIndent(doc, "", "  ")
 			if err != nil {
 				return fmt.Errorf("encoding cookies: %w", err)
@@ -187,6 +191,8 @@ func xUserIDFromTWID(twid string) string {
 	}
 	twid = strings.TrimPrefix(twid, "\"")
 	twid = strings.TrimSuffix(twid, "\"")
+	// The first decode turns the usual u%3D prefix into u=. Keep the encoded
+	// strip for the uncommon double-encoded cookie value (u%253D... -> u%3D...).
 	twid = strings.TrimPrefix(twid, "u%3D")
 	twid = strings.TrimPrefix(twid, "u=")
 	for _, r := range twid {
