@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-06T22:46:20.594921Z",
+  "printing_press_version": "4.22.1",
+  "api_name": "tripadvisor",
+  "display_name": "Tripadvisor",
+  "cli_name": "tripadvisor-pp-cli",
+  "creator": {
+    "handle": "dbryson",
+    "name": "David Bryson"
+  },
+  "owner": "dbryson",
+  "printer": "dbryson",
+  "printer_name": "David Bryson",
+  "spec_path": "tripadvisor-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:bd5a7e9a1a3b3e83d700693b6a6a90c8410829f6b6fdf0a5c44e4d646cc4a33f",
+  "run_id": "20260606-103633",
+  "category": "travel",
+  "description": "Every Tripadvisor Content API endpoint, plus a local store and ranked compare/best/drift commands no other Tripadvisor tool has.",
+  "mcp_binary": "tripadvisor-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "TRIPADVISOR_API_KEY"
+  ],
+  "auth_key_url": "https://www.tripadvisor.com/developers",
+  "auth_title": "Tripadvisor Content API key",
+  "novel_features": [
+    {
+      "name": "Ranked best-of search",
+      "command": "best",
+      "description": "Search a place type, auto-fetch details for the top hits, and return them ranked by rating, review count, or Tripadvisor ranking in one table."
+    },
+    {
+      "name": "Side-by-side compare",
+      "command": "compare",
+      "description": "Pull details (and subratings + trip-type mix) for 2-5 location IDs and emit one structured comparison table."
+    },
+    {
+      "name": "Geo-ranked shortlist",
+      "command": "nearby-best",
+      "description": "From a lat/long, find nearby places, batch-fetch details up to a scan cap, filter by category and minimum rating, return the top K."
+    },
+    {
+      "name": "Rating drift",
+      "command": "drift",
+      "description": "Compare a location's stored rating/review-count snapshot against a fresh fetch and report the delta, flagging drops past a threshold."
+    },
+    {
+      "name": "Location digest",
+      "command": "digest",
+      "description": "One location ID to a single agent-friendly payload combining details, top reviews (user-generated), and photo URLs."
+    },
+    {
+      "name": "Traveler fit ranking",
+      "command": "fit",
+      "description": "Rank search results by how well their trip-type mix matches a declared traveler profile (families, couples, solo, business)."
+    }
+  ]
+}

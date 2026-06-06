@@ -1,0 +1,12 @@
+{
+  "run_id": "20260606-103633",
+  "sources": [
+    {
+      "source_name": "tripadvisor-website",
+      "decision": "approved",
+      "reason": "user pre-approved site-first then chose 'try browser capture anyway'; capture attempted firsthand",
+      "asked_at": "2026-06-06T10:36:00Z",
+      "outcome": "no-replayable-surface: in-browser 200 w/ JSON-LD, but curl replay of detail pages 403 (DataDome) even with freshly-warmed cookie; homepage-only replays. Resident-browser runtime forbidden -> pivot to hosted no-key API or official API."
+    }
+  ]
+}

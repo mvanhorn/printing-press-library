@@ -1,0 +1,243 @@
+{
+  "api_name": "tripadvisor",
+  "base_url": "https://api.content.tripadvisor.com/api/v1",
+  "description": "Every Tripadvisor Content API endpoint, plus a local store and ranked compare/best/drift commands no other Tripadvisor tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "key",
+    "in": "query",
+    "env_vars": [
+      "TRIPADVISOR_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TRIPADVISOR_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://www.tripadvisor.com/developers"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "find_search",
+      "description": "Search locations by name. Returns location_id + name + address you can pass to show/reviews/photos. Required: query. Optional: category, lat-long, radius (plus 4 more).",
+      "method": "GET",
+      "path": "/location/search",
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "searchQuery",
+          "type": "string",
+          "location": "path",
+          "description": "Text to search for, e.g. 'Boston Harbor Hotel' or 'Paris'",
+          "required": true
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict results to a place type"
+        },
+        {
+          "name": "lat-long",
+          "wire_name": "latLong",
+          "type": "string",
+          "location": "query",
+          "description": "Bias results near 'lat,long' e.g. '42.3455,-71.10767'"
+        },
+        {
+          "name": "radius",
+          "type": "string",
+          "location": "query",
+          "description": "Radius from lat-long (use with --radius-unit)"
+        },
+        {
+          "name": "radius-unit",
+          "wire_name": "radiusUnit",
+          "type": "string",
+          "location": "query",
+          "description": "Unit for --radius"
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by address string"
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by phone number"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language code for results"
+        }
+      ]
+    },
+    {
+      "name": "near_search",
+      "description": "Find locations near 'lat,long'. Returns location_id + name + address. Required: lat-long. Optional: category, radius, radius-unit (plus 3 more).",
+      "method": "GET",
+      "path": "/location/nearby_search",
+      "params": [
+        {
+          "name": "lat-long",
+          "wire_name": "latLong",
+          "type": "string",
+          "location": "path",
+          "description": "Center point as 'lat,long' e.g. '42.3455,-71.10767'",
+          "required": true
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict results to a place type"
+        },
+        {
+          "name": "radius",
+          "type": "string",
+          "location": "query",
+          "description": "Radius from the center point (use with --radius-unit)"
+        },
+        {
+          "name": "radius-unit",
+          "wire_name": "radiusUnit",
+          "type": "string",
+          "location": "query",
+          "description": "Unit for --radius"
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by address string"
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by phone number"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language code for results"
+        }
+      ]
+    },
+    {
+      "name": "photos_list",
+      "description": "Photos for a location_id with thumbnail/medium/large/original URLs. Content API caps at 5. Required: location-id. Optional: limit (default: 5), offset, source (plus 1 more). Returns array of Photo.",
+      "method": "GET",
+      "path": "/location/{locationId}/photos",
+      "params": [
+        {
+          "name": "location-id",
+          "wire_name": "locationId",
+          "type": "string",
+          "location": "path",
+          "description": "Tripadvisor location_id from a find/near result",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max photos to return (Content API hard-caps at 5)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Index of first photo for pagination"
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated source filter: Expert, Management, Traveler"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language code"
+        }
+      ]
+    },
+    {
+      "name": "reviews_list",
+      "description": "Recent reviews for a location_id. Review text is user-generated content; the free Content API caps this at 5 most-recent reviews. Required: location-id. Optional: limit (default: 5), offset, language (default: en). Returns array of Review.",
+      "method": "GET",
+      "path": "/location/{locationId}/reviews",
+      "params": [
+        {
+          "name": "location-id",
+          "wire_name": "locationId",
+          "type": "string",
+          "location": "path",
+          "description": "Tripadvisor location_id from a find/near result",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max reviews to return (Content API hard-caps at 5)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Index of first review for pagination"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language code"
+        }
+      ]
+    },
+    {
+      "name": "show_details",
+      "description": "Full details for one location_id. Leads with rating, num_reviews, and ranking so agents can compare options. Required: location-id. Optional: language (default: en), currency (default: USD). Returns the LocationDetails.",
+      "method": "GET",
+      "path": "/location/{locationId}/details",
+      "params": [
+        {
+          "name": "location-id",
+          "wire_name": "locationId",
+          "type": "string",
+          "location": "path",
+          "description": "Tripadvisor location_id from a find/near result",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language code"
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 4217 currency for price fields"
+        }
+      ]
+    }
+  ]
+}

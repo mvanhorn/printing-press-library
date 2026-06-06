@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "tripadvisor-transcendence-commands",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260606-103633",
+  "base_printing_press_version": "4.22.1",
+  "summary": "Implemented the 6 hand-coded transcendence commands plus shared helpers and a local rating-snapshot table.",
+  "reason": "Generator emits novel-feature stubs; these are the real implementations of best/compare/nearby-best/drift/digest/fit, the shared Tripadvisor fetch/parse/rank helpers, and the drift snapshot store schema.",
+  "files": [
+    "internal/cli/best.go",
+    "internal/cli/compare.go",
+    "internal/cli/nearby_best.go",
+    "internal/cli/drift.go",
+    "internal/cli/digest.go",
+    "internal/cli/fit.go",
+    "internal/cli/tripadvisor_novel.go",
+    "internal/cli/tripadvisor_novel_test.go",
+    "internal/store/tripadvisor_snapshots.go"
+  ],
+  "validated_outcome": "Live dogfood 63/63; sample-output probe 6/6 against the live Content API; go test ./internal/cli ./internal/store pass."
+}

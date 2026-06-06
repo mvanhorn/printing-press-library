@@ -1,0 +1,309 @@
+name: tripadvisor
+display_name: "Tripadvisor"
+description: "Search Tripadvisor hotels, restaurants & attractions and compare rating, review count, and ranking from the command line"
+version: "0.1.0"
+base_url: "https://api.content.tripadvisor.com/api/v1"
+category: travel
+health_check_path: "/location/search"
+
+auth:
+  type: api_key
+  in: query
+  header: key
+  key_url: "https://www.tripadvisor.com/developers"
+  instructions: "Sign in, create an API key, then set an IP (your public IPv4 as a /32) or domain restriction before the key is revealed. Domain-restricted keys also require a Referer header on every request."
+  title: "Tripadvisor Content API key"
+  env_vars:
+    - TRIPADVISOR_API_KEY
+
+config:
+  format: toml
+  path: "~/.config/tripadvisor-pp-cli/config.toml"
+
+resources:
+  find:
+    description: "Search Tripadvisor for hotels, restaurants, attractions, or geos by name"
+    endpoints:
+      search:
+        method: GET
+        path: "/location/search"
+        description: "Search locations by name. Returns location_id + name + address you can pass to show/reviews/photos."
+        params:
+          - name: searchQuery
+            flag_name: query
+            type: string
+            required: true
+            positional: true
+            description: "Text to search for, e.g. \"Boston Harbor Hotel\" or \"Paris\""
+          - name: category
+            type: string
+            required: false
+            enum: [hotels, restaurants, attractions, geos]
+            description: "Restrict results to a place type"
+          - name: latLong
+            flag_name: lat-long
+            type: string
+            required: false
+            description: "Bias results near \"lat,long\" e.g. \"42.3455,-71.10767\""
+          - name: radius
+            type: string
+            required: false
+            description: "Radius from lat-long (use with --radius-unit)"
+          - name: radiusUnit
+            flag_name: radius-unit
+            type: string
+            required: false
+            enum: [km, mi, m]
+            description: "Unit for --radius"
+          - name: address
+            type: string
+            required: false
+            description: "Filter by address string"
+          - name: phone
+            type: string
+            required: false
+            description: "Filter by phone number"
+          - name: language
+            type: string
+            required: false
+            default: en
+            description: "Language code for results"
+        response:
+          type: array
+          item: LocationStub
+        response_path: data
+
+  near:
+    description: "Find Tripadvisor locations near a lat/long point"
+    endpoints:
+      search:
+        method: GET
+        path: "/location/nearby_search"
+        description: "Find locations near \"lat,long\". Returns location_id + name + address."
+        params:
+          - name: latLong
+            flag_name: lat-long
+            type: string
+            required: true
+            positional: true
+            description: "Center point as \"lat,long\" e.g. \"42.3455,-71.10767\""
+          - name: category
+            type: string
+            required: false
+            enum: [hotels, restaurants, attractions, geos]
+            description: "Restrict results to a place type"
+          - name: radius
+            type: string
+            required: false
+            description: "Radius from the center point (use with --radius-unit)"
+          - name: radiusUnit
+            flag_name: radius-unit
+            type: string
+            required: false
+            enum: [km, mi, m]
+            description: "Unit for --radius"
+          - name: address
+            type: string
+            required: false
+            description: "Filter by address string"
+          - name: phone
+            type: string
+            required: false
+            description: "Filter by phone number"
+          - name: language
+            type: string
+            required: false
+            default: en
+            description: "Language code for results"
+        response:
+          type: array
+          item: LocationStub
+        response_path: data
+
+  show:
+    description: "Show full details for a location: rating, review count, ranking, address, hours, price level, awards"
+    endpoints:
+      details:
+        method: GET
+        path: "/location/{locationId}/details"
+        description: "Full details for one location_id. Leads with rating, num_reviews, and ranking so agents can compare options."
+        params:
+          - name: locationId
+            flag_name: location-id
+            type: string
+            required: true
+            positional: true
+            description: "Tripadvisor location_id from a find/near result"
+          - name: language
+            type: string
+            required: false
+            default: en
+            description: "Language code"
+          - name: currency
+            type: string
+            required: false
+            default: USD
+            description: "ISO 4217 currency for price fields"
+        response:
+          type: object
+          item: LocationDetails
+
+  reviews:
+    description: "List recent traveler reviews for a location (user-generated content; Content API returns up to 5)"
+    endpoints:
+      list:
+        method: GET
+        path: "/location/{locationId}/reviews"
+        description: "Recent reviews for a location_id. Review text is user-generated content; the free Content API caps this at 5 most-recent reviews."
+        params:
+          - name: locationId
+            flag_name: location-id
+            type: string
+            required: true
+            positional: true
+            description: "Tripadvisor location_id from a find/near result"
+          - name: limit
+            type: int
+            required: false
+            default: 5
+            description: "Max reviews to return (Content API hard-caps at 5)"
+          - name: offset
+            type: int
+            required: false
+            description: "Index of first review for pagination"
+          - name: language
+            type: string
+            required: false
+            default: en
+            description: "Language code"
+        response:
+          type: array
+          item: Review
+        response_path: data
+
+  photos:
+    description: "List photo URLs for a location (thumbnail/medium/large/original sizes)"
+    endpoints:
+      list:
+        method: GET
+        path: "/location/{locationId}/photos"
+        description: "Photos for a location_id with thumbnail/medium/large/original URLs. Content API caps at 5."
+        params:
+          - name: locationId
+            flag_name: location-id
+            type: string
+            required: true
+            positional: true
+            description: "Tripadvisor location_id from a find/near result"
+          - name: limit
+            type: int
+            required: false
+            default: 5
+            description: "Max photos to return (Content API hard-caps at 5)"
+          - name: offset
+            type: int
+            required: false
+            description: "Index of first photo for pagination"
+          - name: source
+            type: string
+            required: false
+            description: "Comma-separated source filter: Expert, Management, Traveler"
+          - name: language
+            type: string
+            required: false
+            default: en
+            description: "Language code"
+        response:
+          type: array
+          item: Photo
+        response_path: data
+
+types:
+  LocationStub:
+    fields:
+      - name: location_id
+        type: string
+      - name: name
+        type: string
+      - name: distance
+        type: string
+      - name: bearing
+        type: string
+      - name: address_obj
+        type: object
+  LocationDetails:
+    fields:
+      - name: location_id
+        type: string
+      - name: name
+        type: string
+      - name: rating
+        type: string
+      - name: num_reviews
+        type: string
+      - name: ranking_data
+        type: object
+      - name: rating_image_url
+        type: string
+      - name: price_level
+        type: string
+      - name: web_url
+        type: string
+      - name: address_obj
+        type: object
+      - name: latitude
+        type: string
+      - name: longitude
+        type: string
+      - name: hours
+        type: object
+      - name: awards
+        type: array
+      - name: subratings
+        type: object
+      - name: review_rating_count
+        type: object
+      - name: trip_types
+        type: array
+      - name: category
+        type: object
+      - name: subcategory
+        type: array
+  Review:
+    fields:
+      - name: id
+        type: int
+      - name: rating
+        type: int
+      - name: title
+        type: string
+      - name: text
+        type: string
+      - name: published_date
+        type: string
+      - name: travel_date
+        type: string
+      - name: trip_type
+        type: string
+      - name: lang
+        type: string
+      - name: user
+        type: object
+  Photo:
+    fields:
+      - name: id
+        type: int
+      - name: caption
+        type: string
+      - name: published_date
+        type: string
+      - name: album
+        type: string
+      - name: is_blessed
+        type: bool
+      - name: images
+        type: object
+      - name: source
+        type: object
+      - name: user
+        type: object
