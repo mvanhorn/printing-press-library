@@ -24,7 +24,7 @@ This skill drives the `walkingpad-pp-cli` binary. **You must verify the CLI is i
 2. Verify: `walkingpad-pp-cli --version`
 3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer). The binary will be placed in `$GOPATH/bin` (or `$HOME/go/bin` if `$GOPATH` is unset), so ensure that directory is on `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/devices/walkingpad/cmd/walkingpad-pp-cli@latest
