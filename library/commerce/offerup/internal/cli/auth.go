@@ -591,8 +591,6 @@ func chooseChromeProfile(w io.Writer, r io.Reader, profiles []chromeProfile, dom
 	}
 
 	switch len(profiles) {
-	case 0:
-		return "", fmt.Errorf("no Chrome profile has cookies for %s", domain)
 	case 1:
 		fmt.Fprintf(w, "Auto-detected Chrome profile: %s (%s, %d %s)\n", profiles[0].DisplayName, profiles[0].Dir, profileCookieCount(profiles[0], required), label)
 		return profiles[0].Dir, nil
