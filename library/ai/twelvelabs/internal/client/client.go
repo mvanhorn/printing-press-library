@@ -90,18 +90,19 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			// "Moved Permanently" body back to the caller.
 			return errors.New("stopped after 10 redirects")
 		}
-		// Same-host gate mirrors Go's shouldCopyHeaderOnRedirect: a
-		// cross-domain 3xx (open redirect or partner handoff) must not
-		// receive the auth credential, even though we are inside
-		// CheckRedirect where Go's automatic stripping has already run.
-		if req.URL.Host == via[0].URL.Host {
+		// Same-origin gate mirrors Go's shouldCopyHeaderOnRedirect: a
+		// cross-domain or scheme-downgrade 3xx must not receive the auth
+		// credential, even though we are inside CheckRedirect where Go's
+		// automatic stripping has already run.
+		if req.URL.Host == via[0].URL.Host && req.URL.Scheme == via[0].URL.Scheme {
 			if h, err := c.authHeader(req.Context()); err == nil && h != "" {
 				req.Header.Set("x-api-key", h)
 			}
 		} else {
-			// Cross-host hop: Go strips standard auth headers (Authorization,
-			// Cookie) but not custom ones, so a custom API-key header would be
-			// forwarded verbatim to the redirect target. Delete it explicitly.
+			// Cross-host or scheme-downgrade hop: Go strips standard auth
+			// headers (Authorization, Cookie) but not custom ones, so a custom
+			// API-key header would be forwarded verbatim to the redirect
+			// target. Delete it explicitly.
 			req.Header.Del("x-api-key")
 		}
 		return nil

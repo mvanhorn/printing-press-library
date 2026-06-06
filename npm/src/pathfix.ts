@@ -1,10 +1,11 @@
 /**
- * Platform- and shell-aware instructions for putting the Go install directory on
- * PATH. `go install` writes to $(go env GOPATH)/bin (default ~/go/bin), which Go
- * never adds to PATH itself — so a freshly installed CLI is unusable by name until
- * the user wires up PATH. This builds the exact, copy-pasteable fix for the
- * detected (platform, shell) rather than a single Unix-flavored hint that is wrong
- * on Windows and imprecise on fish.
+ * Platform- and shell-aware instructions for adding a binary directory to PATH.
+ * Used when a freshly installed CLI binary is not yet discoverable by name — either
+ * because it was written to the default user bin directory (`~/.local/bin` on
+ * macOS/Linux, `%LOCALAPPDATA%\\Programs\\PrintingPress\\bin` on Windows) or to Go's
+ * `$(go env GOPATH)/bin`. Builds the exact, copy-pasteable fix for the detected
+ * (platform, shell) rather than a single Unix-flavored hint that is wrong on
+ * Windows and imprecise on fish.
  *
  * Pure and dependency-free so the full (platform × shell) matrix is unit-testable.
  */
@@ -15,7 +16,7 @@ export interface PathFixContext {
   platform: NodeJS.Platform;
   /** process.env.SHELL — the login shell on Unix; set under Git Bash/MSYS on Windows. */
   shell?: string;
-  /** process.env.HOME ?? process.env.USERPROFILE — used to prefer the portable $HOME/go/bin form. */
+  /** process.env.HOME ?? process.env.USERPROFILE — used to prefer portable $HOME/... forms. */
   home?: string;
 }
 
@@ -37,8 +38,8 @@ function detectShell(platform: NodeJS.Platform, shell?: string): ShellKind {
 }
 
 /**
- * The PATH entry to print for a Unix shell: the portable `$HOME/go/bin` form when
- * the dir is the default (so it survives a GOPATH reset), else the literal path.
+ * The PATH entry to print for a Unix shell: portable `$HOME/...` forms for known
+ * per-user defaults, else the literal path.
  * fish passes its own `nullFallback` because its command-substitution syntax
  * `(...)` differs from bash's `$(...)`.
  */
@@ -48,6 +49,7 @@ function unixPathEntry(
   nullFallback = "$(go env GOPATH)/bin",
 ): string {
   if (!binDir) return nullFallback;
+  if (home && binDir === `${home}/.local/bin`) return "$HOME/.local/bin";
   if (home && binDir === `${home}/go/bin`) return "$HOME/go/bin";
   return binDir;
 }

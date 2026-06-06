@@ -1,0 +1,49 @@
+{
+  "Reports": [
+    {
+      "ReportID": "BalanceSheet",
+      "ReportName": "BalanceSheet",
+      "Rows": [
+        {
+          "Cells": [
+            {
+              "Value": ""
+            },
+            {
+              "Value": "31 May 2026"
+            }
+          ],
+          "RowType": "Header"
+        },
+        {
+          "RowType": "Section",
+          "Rows": [
+            {
+              "Cells": [
+                {
+                  "Value": "Business Bank"
+                },
+                {
+                  "Value": "5000.00"
+                }
+              ],
+              "RowType": "Row"
+            },
+            {
+              "Cells": [
+                {
+                  "Value": "Total Assets"
+                },
+                {
+                  "Value": "5000.00"
+                }
+              ],
+              "RowType": "SummaryRow"
+            }
+          ],
+          "Title": "Assets"
+        }
+      ]
+    }
+  ]
+}

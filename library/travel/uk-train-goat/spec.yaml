@@ -1,0 +1,36 @@
+name: uk-train-goat
+description: "UK National Rail train CLI"
+version: "0.1.0"
+base_url: "https://lite.realtime.nationalrail.co.uk/OpenLDBWS/ldb12.asmx"
+health_check_path: "/"
+
+auth:
+  type: api_key
+  header: "Authorization"
+  format: "{token}"
+  env_vars:
+    - LDBWS_API_TOKEN
+  in: header
+
+config:
+  format: toml
+  path: "~/.config/uk-train-goat-pp-cli/config.toml"
+
+resources:
+  status:
+    description: "Internal placeholder resource. Real commands are hand-authored against the OpenLDBWS wrapper."
+    endpoints:
+      ping:
+        method: GET
+        path: "/"
+        description: "Placeholder; deleted post-generate. Real CLI commands live in internal/cli/board.go etc."
+        params: []
+        response:
+          type: object
+          item: PlaceholderResponse
+
+types:
+  PlaceholderResponse:
+    fields:
+      - name: ok
+        type: bool

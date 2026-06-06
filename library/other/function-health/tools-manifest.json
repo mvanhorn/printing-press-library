@@ -1,0 +1,185 @@
+{
+  "api_name": "function-health",
+  "base_url": "https://member-app-mid.functionhealth.com/api/v1",
+  "description": "Every Function Health feature, plus a local SQLite store with biomarker trends across every round you've ever drawn, plus a branded shareable PDF your doctor will actually read.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {FUNCTION_HEALTH_TOKEN}",
+    "in": "header",
+    "env_vars": [
+      "FUNCTION_HEALTH_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "FUNCTION_HEALTH_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "Accept",
+      "value": "application/json, text/plain, */*"
+    },
+    {
+      "name": "fe-app-version",
+      "value": "0.84.0"
+    },
+    {
+      "name": "X-Backend-Skip-Cache",
+      "value": "true"
+    },
+    {
+      "name": "referer",
+      "value": "https://my.functionhealth.com/"
+    },
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "biological_age_bio_age",
+      "description": "Your biological age vs. chronological age. 404 if not yet calculated.",
+      "method": "GET",
+      "path": "/biological-calculations/biological-age",
+      "params": []
+    },
+    {
+      "name": "biological_age_bmi",
+      "description": "BMI with the weight and height inputs Function recorded.",
+      "method": "GET",
+      "path": "/biological-calculations/bmi",
+      "params": []
+    },
+    {
+      "name": "biomarkers_get",
+      "description": "Get one biomarker's full result history across every round you've drawn, with values, units, status, and ranges. Required: biomarker_id.",
+      "method": "GET",
+      "path": "/biomarker-data/{biomarker_id}",
+      "params": [
+        {
+          "name": "biomarker_id",
+          "type": "string",
+          "location": "path",
+          "description": "Biomarker UUID (from /biomarkers list)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "biomarkers_list",
+      "description": "List every biomarker the platform knows about (across all categories).",
+      "method": "GET",
+      "path": "/biomarkers",
+      "params": []
+    },
+    {
+      "name": "categories_list",
+      "description": "List every biomarker category with the biomarkers nested under it.",
+      "method": "GET",
+      "path": "/categories",
+      "params": []
+    },
+    {
+      "name": "notes_list",
+      "description": "List all clinician notes (annotations on biomarkers / rounds).",
+      "method": "GET",
+      "path": "/notes",
+      "params": []
+    },
+    {
+      "name": "notifications_list",
+      "description": "List notifications about result changes for the authenticated Function Health member — new biomarker results landing, direction changes (improving/worsening), and round-completion events. Takes no parameters. Returns an array of notification objects with id, type, biomarker reference (when applicable), createdAt, and read/unread status. Use this to detect what's new since the last sync rather than re-reading every result.",
+      "method": "GET",
+      "path": "/notifications",
+      "params": []
+    },
+    {
+      "name": "recommendations_list",
+      "description": "Per-category health guidance. May 404 if Function hasn't computed any yet.",
+      "method": "GET",
+      "path": "/recommendations",
+      "params": []
+    },
+    {
+      "name": "requisitions_completed",
+      "description": "Completed requisitions (your past test rounds, keyed by requisitionId). Required: pending (default: false).",
+      "method": "GET",
+      "path": "/requisitions",
+      "params": [
+        {
+          "name": "pending",
+          "type": "bool",
+          "location": "query",
+          "description": "Always pass false to filter to completed requisitions.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "requisitions_pending",
+      "description": "Currently in-progress requisitions (lab orders awaiting completion). Required: pending (default: true).",
+      "method": "GET",
+      "path": "/requisitions",
+      "params": [
+        {
+          "name": "pending",
+          "type": "bool",
+          "location": "query",
+          "description": "Always pass true to filter to in-progress requisitions.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "results_list",
+      "description": "Raw requisition / PDF result data (less useful for queries; see results-report for structured values).",
+      "method": "GET",
+      "path": "/results",
+      "params": []
+    },
+    {
+      "name": "results_report",
+      "description": "The structured lab-results report — every biomarker, every round, with value, unit, status, Quest reference range, and Function's optimal range. The headline endpoint for sync.",
+      "method": "GET",
+      "path": "/results-report",
+      "params": []
+    },
+    {
+      "name": "schedules_list",
+      "description": "List upcoming scheduled lab-draw appointments the authenticated Function Health member has booked but not yet completed. Takes no parameters. Returns an array of schedule objects with id, scheduledFor timestamp, location, and visit type. Use this to surface what's on the calendar; for completed draws see visits_list or requisitions_list.",
+      "method": "GET",
+      "path": "/pending-schedules",
+      "params": []
+    },
+    {
+      "name": "user_get",
+      "description": "Get the authenticated member profile. Used by doctor for reachability + auth check.",
+      "method": "GET",
+      "path": "/user",
+      "params": []
+    },
+    {
+      "name": "visits_list",
+      "description": "List every visit (draw event) — useful when a round has multiple draws.",
+      "method": "GET",
+      "path": "/visits",
+      "params": []
+    },
+    {
+      "name": "wearables_supported_apps",
+      "description": "List the wearable apps Function currently supports for integration.",
+      "method": "GET",
+      "path": "/wearables/supported-apps",
+      "params": []
+    }
+  ]
+}

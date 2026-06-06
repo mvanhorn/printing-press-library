@@ -20,6 +20,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var sanitizeClipNameRe = regexp.MustCompile(`[^a-z0-9]+`)
+
 type uploadVideoOptions struct {
 	indexID           string
 	file              string
@@ -849,8 +851,7 @@ func sanitizeClipName(name string) string {
 	if name == "" {
 		name = "clip"
 	}
-	re := regexp.MustCompile(`[^a-z0-9]+`)
-	name = strings.Trim(re.ReplaceAllString(name, "-"), "-")
+	name = strings.Trim(sanitizeClipNameRe.ReplaceAllString(name, "-"), "-")
 	if name == "" {
 		return "clip"
 	}

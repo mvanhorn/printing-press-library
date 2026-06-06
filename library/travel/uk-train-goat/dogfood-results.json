@@ -1,0 +1,163 @@
+{
+  "dir": "\u003ccli-dir\u003e/uk-train-goat-pp-cli",
+  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 19,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 63,
+    "dead": 4,
+    "items": [
+      "printProvenance",
+      "unwrapSingleKeyArray",
+      "wantsHumanTable",
+      "wrapWithProvenance"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": false,
+    "detail": "sync uses domain-specific Upsert methods; search methods not found; 1 domain tables found; defaultSyncResources empty (sync command is a no-op)"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 38,
+      "registered": 38
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 8,
+    "found": 8
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 8,
+    "exempted_via_store": 2,
+    "exempted_via_client_directive": 4,
+    "missing_data_source_strategy": [
+      {
+        "command": "go",
+        "file": "go.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "stations",
+        "file": "stations.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "saved status",
+        "file": "saved.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "why",
+        "file": "why.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "journey",
+        "file": "journey.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "recent",
+        "file": "recent.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "board",
+        "file": "board.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "eval",
+        "file": "eval.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      }
+    ]
+  },
+  "source_client_check": {
+    "checked": 3,
+    "findings": [
+      {
+        "package": "farescrape",
+        "file": "internal/farescrape/farescrape.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      }
+    ]
+  },
+  "print_json_filtered_check": {
+    "checked": 27
+  },
+  "test_presence": {
+    "checked": 3,
+    "missing_tests": [
+      "evals",
+      "farescrape",
+      "openldbws"
+    ]
+  },
+  "naming_check": {
+    "checked": 27
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "4 dead helper functions found",
+    "defaultSyncResources empty: sync command is a runtime no-op; store-dependent novel commands have no advertised population path",
+    "1 source client file(s) without rate-limit handling: internal/farescrape/farescrape.go — outbound HTTP without rate limiter or typed 429 handling",
+    "pure-logic packages with no tests: evals, farescrape, openldbws"
+  ]
+}

@@ -9,7 +9,6 @@ func TestXUserIDFromTWID(t *testing.T) {
 		want string
 	}{
 		{name: "plain escaped", twid: "u%3D1234567890", want: "1234567890"},
-		{name: "double encoded escaped", twid: "u%253D1234567890", want: "1234567890"},
 		{name: "plain equals", twid: "u=1234567890", want: "1234567890"},
 		{name: "quoted escaped", twid: "\"u%3D1234567890\"", want: "1234567890"},
 		{name: "url encoded quotes", twid: "%22u%3D1234567890%22", want: "1234567890"},

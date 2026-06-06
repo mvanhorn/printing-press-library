@@ -102,9 +102,6 @@ func (c *Config) AuthHeader() string {
 	if token == "" {
 		return ""
 	}
-	if c.TwelvelabsXApiKey == "" {
-		return ""
-	}
 	return token
 }
 

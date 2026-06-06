@@ -1,0 +1,278 @@
+{
+  "api_name": "function-health",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "daveremy/function-health-mcp",
+      "url": "https://github.com/daveremy/function-health-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 13,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bogini/function-health-exporter",
+      "url": "https://github.com/bogini/function-health-exporter",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Greenband1/biomarker_chrome_extension",
+      "url": "https://github.com/Greenband1/biomarker_chrome_extension",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-28T08:55:00Z",
+  "novel_features": [
+    {
+      "name": "Branded doctor PDF",
+      "command": "export pdf-for-doctor",
+      "description": "Render a Function-branded multi-round lab report PDF with your name and date of birth, suitable for emailing to your personal physician.",
+      "rationale": "Every byte is rendered from the local SQLite store — the existing tools stop at JSON or 19-file ZIPs that doctors won't open.",
+      "example": "function-health-pp-cli export pdf-for-doctor --out ~/Downloads/function-history.pdf",
+      "why_it_matters": "When an agent needs to produce something the user will hand to a third party, this is the durable artifact — not a JSON blob.",
+      "group": "Doctor-ready outputs"
+    },
+    {
+      "name": "Biomarker trend across all rounds",
+      "command": "biomarker trend",
+      "description": "Every value of a biomarker across every round you've ever drawn, with the delta from Function's optimal range, an ASCII sparkline in the terminal, and structured JSON for agents.",
+      "rationale": "Requires a cross-round join across SQLite — impossible in the per-round JSON-file model the existing competitors use.",
+      "example": "function-health-pp-cli biomarker trend ApoB --json",
+      "why_it_matters": "When the agent is asked 'how has X changed', this is the one query that answers it without re-fetching anything.",
+      "group": "Local-SQL trend analysis"
+    },
+    {
+      "name": "Drift-toward-optimal goat",
+      "command": "goat",
+      "description": "Ranks every biomarker by distance-from-optimal multiplied by its slope-away-from-optimal across the last 3 rounds; returns the single most worrying biomarker right now with reasoning fields.",
+      "rationale": "Pure SQL over the local store — no LLM, no external service. The 'most worrying' answer requires cross-round joins no single API call provides.",
+      "example": "function-health-pp-cli goat --agent",
+      "why_it_matters": "When the agent is asked 'what should I worry about', this is the one-call answer.",
+      "group": "Local-SQL trend analysis"
+    },
+    {
+      "name": "Trending-worse cohort",
+      "command": "biomarkers trending",
+      "description": "Lists every biomarker whose slope across the last N rounds points away from Function's optimal range, sorted by magnitude.",
+      "rationale": "SQLite window over results with a linear-fit slope over each biomarker's draw_date series — purely local.",
+      "example": "function-health-pp-cli biomarkers trending --direction worse --last 3 --json",
+      "why_it_matters": "Lets the agent prioritize a long biomarker list without burning the user's context window on every reading.",
+      "group": "Local-SQL trend analysis"
+    },
+    {
+      "name": "Category-level health-score timeline",
+      "command": "category trend",
+      "description": "For one of the ~13 categories, returns a per-round aggregate score (percent of biomarkers inside Function's optimal range) over time.",
+      "rationale": "GROUP BY round_id over results filtered by category_id — pure SQL aggregate from synced data.",
+      "example": "function-health-pp-cli category trend cardiovascular --json",
+      "why_it_matters": "Rolls up 100+ biomarkers into a single trajectory per body system, so the agent can summarize organ-level changes.",
+      "group": "Local-SQL trend analysis"
+    },
+    {
+      "name": "Oscillation detector",
+      "command": "biomarkers oscillating",
+      "description": "Biomarkers that crossed the optimal-range boundary at least twice in the last N rounds — flags instability separate from trend.",
+      "rationale": "SQLite window counting sign-changes of (value − optimal_low) × (value − optimal_high) across consecutive draws.",
+      "example": "function-health-pp-cli biomarkers oscillating --rounds 4",
+      "why_it_matters": "Distinguishes 'unstable measurement noise' from 'consistently bad' — important when the agent is reasoning about whether a single high reading matters.",
+      "group": "Local-SQL trend analysis"
+    },
+    {
+      "name": "LLM-ready bundle composer",
+      "command": "bundle",
+      "description": "Composes a single Markdown file with a biomarker's full history, every clinician note mentioning it (FTS5), Function's optimal range, and relevant recommendations — ready to paste into Claude or ChatGPT.",
+      "rationale": "Local SQLite + FTS5 across results, reports, recommendations, and notes joined by biomarker name — one query, one Markdown render.",
+      "example": "function-health-pp-cli bundle ApoB --window 3rounds",
+      "why_it_matters": "When the agent is being asked to draft a question for the user's clinician, this is the prefab context block.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Recommendation resolution tracker",
+      "command": "recommendations stale",
+      "description": "Recommendations issued at least one round ago whose associated biomarker has not moved into Function's optimal range — surfaces recs the user didn't act on or that didn't work.",
+      "rationale": "SQL join between recommendations and the latest two results per biomarker — flags recs whose target biomarker hasn't entered Function-optimal range.",
+      "example": "function-health-pp-cli recommendations stale --json",
+      "why_it_matters": "Closes the loop between guidance and outcome — the agent can ask 'did the last fix work?' instead of 'what is recommended now?'.",
+      "group": "Local-SQL trend analysis"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Branded doctor PDF",
+      "command": "export pdf-for-doctor",
+      "description": "Render a Function-branded multi-round lab report PDF with your name and date of birth, suitable for emailing to your personal physician.",
+      "rationale": "Every byte is rendered from the local SQLite store — the existing tools stop at JSON or 19-file ZIPs that doctors won't open.",
+      "example": "function-health-pp-cli export pdf-for-doctor --out ~/Downloads/function-history.pdf",
+      "why_it_matters": "When an agent needs to produce something the user will hand to a third party, this is the durable artifact — not a JSON blob.",
+      "group": "Doctor-ready outputs"
+    },
+    {
+      "name": "Biomarker trend across all rounds",
+      "command": "biomarker trend",
+      "description": "Every value of a biomarker across every round you've ever drawn, with the delta from Function's optimal range, an ASCII sparkline in the terminal, and structured JSON for agents.",
+      "rationale": "Requires a cross-round join across SQLite — impossible in the per-round JSON-file model the existing competitors use.",
+      "example": "function-health-pp-cli biomarker trend ApoB --json",
+      "why_it_matters": "When the agent is asked 'how has X changed', this is the one query that answers it without re-fetching anything.",
+      "group": "Local-SQL trend analysis"
+    },
+    {
+      "name": "Drift-toward-optimal goat",
+      "command": "goat",
+      "description": "Ranks every biomarker by distance-from-optimal multiplied by its slope-away-from-optimal across the last 3 rounds; returns the single most worrying biomarker right now with reasoning fields.",
+      "rationale": "Pure SQL over the local store — no LLM, no external service. The 'most worrying' answer requires cross-round joins no single API call provides.",
+      "example": "function-health-pp-cli goat --agent",
+      "why_it_matters": "When the agent is asked 'what should I worry about', this is the one-call answer.",
+      "group": "Local-SQL trend analysis"
+    },
+    {
+      "name": "Trending-worse cohort",
+      "command": "biomarkers trending",
+      "description": "Lists every biomarker whose slope across the last N rounds points away from Function's optimal range, sorted by magnitude.",
+      "rationale": "SQLite window over results with a linear-fit slope over each biomarker's draw_date series — purely local.",
+      "example": "function-health-pp-cli biomarkers trending --direction worse --last 3 --json",
+      "why_it_matters": "Lets the agent prioritize a long biomarker list without burning the user's context window on every reading.",
+      "group": "Local-SQL trend analysis"
+    },
+    {
+      "name": "Category-level health-score timeline",
+      "command": "category trend",
+      "description": "For one of the ~13 categories, returns a per-round aggregate score (percent of biomarkers inside Function's optimal range) over time.",
+      "rationale": "GROUP BY round_id over results filtered by category_id — pure SQL aggregate from synced data.",
+      "example": "function-health-pp-cli category trend cardiovascular --json",
+      "why_it_matters": "Rolls up 100+ biomarkers into a single trajectory per body system, so the agent can summarize organ-level changes.",
+      "group": "Local-SQL trend analysis"
+    },
+    {
+      "name": "Oscillation detector",
+      "command": "biomarkers oscillating",
+      "description": "Biomarkers that crossed the optimal-range boundary at least twice in the last N rounds — flags instability separate from trend.",
+      "rationale": "SQLite window counting sign-changes of (value − optimal_low) × (value − optimal_high) across consecutive draws.",
+      "example": "function-health-pp-cli biomarkers oscillating --rounds 4",
+      "why_it_matters": "Distinguishes 'unstable measurement noise' from 'consistently bad' — important when the agent is reasoning about whether a single high reading matters.",
+      "group": "Local-SQL trend analysis"
+    },
+    {
+      "name": "LLM-ready bundle composer",
+      "command": "bundle",
+      "description": "Composes a single Markdown file with a biomarker's full history, every clinician note mentioning it (FTS5), Function's optimal range, and relevant recommendations — ready to paste into Claude or ChatGPT.",
+      "rationale": "Local SQLite + FTS5 across results, reports, recommendations, and notes joined by biomarker name — one query, one Markdown render.",
+      "example": "function-health-pp-cli bundle ApoB --window 3rounds",
+      "why_it_matters": "When the agent is being asked to draft a question for the user's clinician, this is the prefab context block.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Recommendation resolution tracker",
+      "command": "recommendations stale",
+      "description": "Recommendations issued at least one round ago whose associated biomarker has not moved into Function's optimal range — surfaces recs the user didn't act on or that didn't work.",
+      "rationale": "SQL join between recommendations and the latest two results per biomarker — flags recs whose target biomarker hasn't entered Function-optimal range.",
+      "example": "function-health-pp-cli recommendations stale --json",
+      "why_it_matters": "Closes the loop between guidance and outcome — the agent can ask 'did the last fix work?' instead of 'what is recommended now?'.",
+      "group": "Local-SQL trend analysis"
+    }
+  ],
+  "narrative": {
+    "display_name": "Function Health",
+    "headline": "Every Function Health feature, plus a local SQLite store with biomarker trends across every round you've ever drawn, plus a branded shareable PDF your doctor will actually read.",
+    "value_prop": "Function Health gives you a great single-round dashboard but no way to see what's drifting across years of draws — and no way to share a clean, branded lab history with your physician. function-health-pp-cli pulls every round into a local SQLite store with FTS5, exposes cross-round trend analysis nobody else offers (`goat`, `biomarker trend`, `biomarkers trending`, `biomarkers oscillating`), and renders a Function-branded PDF with your name and date of birth that an MD can read in 30 seconds.",
+    "auth_narrative": "Authenticate once with your Function Health email and password via `function-health-pp-cli auth login`. The CLI exchanges those for a Firebase id-token and refresh-token, stores both in `~/.config/function-health-pp-cli/credentials.toml` (mode 0600), and auto-refreshes the id-token before its 1-hour expiry — without the `API_KEY_INVALID` failure mode that has kept the competing daveremy/function-health-mcp tool broken since May 2026. Set `FUNCTION_HEALTH_TOKEN` to override stored credentials for CI or one-shot use.",
+    "quickstart": [
+      {
+        "command": "function-health-pp-cli auth login --email you@example.com",
+        "comment": "Exchange email+password for a Firebase id-token, stored locally with mode 0600."
+      },
+      {
+        "command": "function-health-pp-cli sync",
+        "comment": "Pull every round, biomarker, recommendation, and clinician note into the local SQLite store with adaptive pacing."
+      },
+      {
+        "command": "function-health-pp-cli goat",
+        "comment": "Show the single biomarker that's drifting fastest away from Function's optimal range right now."
+      },
+      {
+        "command": "function-health-pp-cli biomarker trend ApoB --json",
+        "comment": "See every ApoB value you've ever drawn, with Function optimal range and delta — JSON for agents, sparkline in a terminal."
+      },
+      {
+        "command": "function-health-pp-cli bundle ApoB --window 3rounds | pbcopy",
+        "comment": "Compose a Markdown context block (biomarker history + clinician notes + recommendations) and paste it straight into Claude or ChatGPT."
+      },
+      {
+        "command": "function-health-pp-cli export pdf-for-doctor --out ~/Downloads/function-history.pdf",
+        "comment": "Render a Function-branded multi-round PDF with your name and DOB — the file you actually email to your MD."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`auth login` succeeds but every subsequent call returns 401 `Not allowed to perform this operation.`",
+        "fix": "The id-token expired between calls. Run `function-health-pp-cli auth refresh`; if it still fails with `API_KEY_INVALID`, the refresh-token was revoked — re-run `auth login`."
+      },
+      {
+        "symptom": "`sync` finishes but `results list` returns nothing for a recent draw",
+        "fix": "Run `function-health-pp-cli sync check` — Function may not have published the round yet; this command compares local round IDs against the live requisitions list and reports whether a new round landed."
+      },
+      {
+        "symptom": "`biomarker get \u003cname\u003e` reports `not found` for a biomarker visible in the Function web app",
+        "fix": "Function reuses biomarker names across categories. Run `function-health-pp-cli biomarkers list --search \u003csubstring\u003e` to find the exact name or UUID, or pass `--id \u003cuuid\u003e`."
+      },
+      {
+        "symptom": "`export pdf-for-doctor` renders an empty PDF",
+        "fix": "PDF rendering pulls from the local SQLite — run `function-health-pp-cli sync` first if you haven't pulled any rounds yet."
+      }
+    ],
+    "when_to_use": "Reach for function-health-pp-cli whenever an agent is asked to reason about lab trends over time, to prioritize which biomarker the user should worry about, or to produce an artifact a clinician will actually read. It is the right tool when the question requires joining data across multiple test rounds, when the user wants a branded PDF for a doctor, or when an agent needs a focused Markdown context block for one biomarker rather than the entire JSON export. It is the wrong tool for one-off single-result lookups on a draw that hasn't been synced yet — for those, run `sync` first or query the Function web app directly.",
+    "recipes": [
+      {
+        "title": "Morning check-in",
+        "command": "function-health-pp-cli sync check \u0026\u0026 function-health-pp-cli goat",
+        "explanation": "Cheap incremental sync, then the single most-worrying biomarker right now — both calls are local after the first sync."
+      },
+      {
+        "title": "Doctor-ready PDF",
+        "command": "function-health-pp-cli export pdf-for-doctor --out ~/Downloads/function-$(date +%Y).pdf",
+        "explanation": "Branded multi-round report with member name and DOB header, per-category sections, per-biomarker history sparklines."
+      },
+      {
+        "title": "Narrow JSON for agents",
+        "command": "function-health-pp-cli biomarker trend ApoB --agent --select \\\\brounds.draw_date,rounds.value,rounds.status\\\\b",
+        "explanation": "Strip the response down to the three fields an agent actually reasons about; `--select` accepts dotted paths into nested response objects."
+      },
+      {
+        "title": "LLM context bundle",
+        "command": "function-health-pp-cli bundle hs-CRP --window 3rounds | pbcopy",
+        "explanation": "Compose a Markdown context block — history + clinician notes + recommendations — and paste into Claude or ChatGPT for a focused conversation."
+      },
+      {
+        "title": "Stale-rec audit",
+        "command": "function-health-pp-cli recommendations stale --json",
+        "explanation": "Surface every recommendation issued at least one round ago whose target biomarker has not moved into Function's optimal range."
+      }
+    ],
+    "trigger_phrases": [
+      "show me my function health labs",
+      "what's worst on my function panel",
+      "trend my apoB",
+      "make me a pdf for my doctor with my function history",
+      "what changed since my last function draw",
+      "use function-health",
+      "run function-health-pp-cli"
+    ]
+  }
+}

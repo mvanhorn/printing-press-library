@@ -1,0 +1,183 @@
+{
+  "dir": "\u003ccli-dir\u003e",
+  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "bearer token format (expects \"Bearer \" prefix)",
+    "generated_format": "Bearer ",
+    "match": true,
+    "detail": "spec and generated client both use \"Bearer\""
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 19,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 64,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 59,
+      "registered": 59
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 8,
+    "found": 8
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 8,
+    "exempted_via_store": 0,
+    "suspicious": [
+      {
+        "command": "export pdf-for-doctor",
+        "file": "export_pdf_for_doctor.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "biomarker trend",
+        "file": "biomarker_trend.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "goat",
+        "file": "goat.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "biomarkers trending",
+        "file": "biomarkers_trending.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "category trend",
+        "file": "biomarker_trend.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "biomarkers oscillating",
+        "file": "biomarkers_oscillating.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "bundle",
+        "file": "bundle.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "recommendations stale",
+        "file": "recommendations_stale.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      }
+    ],
+    "missing_data_source_strategy": [
+      {
+        "command": "export pdf-for-doctor",
+        "file": "export_pdf_for_doctor.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "biomarker trend",
+        "file": "biomarker_trend.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "goat",
+        "file": "goat.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "biomarkers trending",
+        "file": "biomarkers_trending.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "category trend",
+        "file": "biomarker_trend.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "biomarkers oscillating",
+        "file": "biomarkers_oscillating.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "bundle",
+        "file": "bundle.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "recommendations stale",
+        "file": "recommendations_stale.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      }
+    ]
+  },
+  "source_client_check": {
+    "checked": 1
+  },
+  "print_json_filtered_check": {
+    "checked": 53
+  },
+  "test_presence": {
+    "checked": 1
+  },
+  "naming_check": {
+    "checked": 53
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "8/8 novel features look reimplemented: export pdf-for-doctor (export_pdf_for_doctor.go) — hand-rolled response: no API client call, no store access; biomarker trend (biomarker_trend.go) — hand-rolled response: no API client call, no store access; goat (goat.go) — hand-rolled response: no API client call, no store access; biomarkers trending (biomarkers_trending.go) — hand-rolled response: no API client call, no store access; category trend (biomarker_trend.go) — hand-rolled response: no API client call, no store access; biomarkers oscillating (biomarkers_oscillating.go) — hand-rolled response: no API client call, no store access; bundle (bundle.go) — hand-rolled response: no API client call, no store access; recommendations stale (recommendations_stale.go) — hand-rolled response: no API client call, no store access"
+  ]
+}

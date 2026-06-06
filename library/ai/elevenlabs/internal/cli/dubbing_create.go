@@ -49,10 +49,12 @@ func newDubbingCreateCmd(flags *rootFlags) *cobra.Command {
 			fields := map[string]string{}
 			fileFields := map[string]string{}
 			if bodyBackgroundAudioFile != "" {
-				fields["background_audio_file"] = bodyBackgroundAudioFile
+				// PATCH: file upload, not a text field.
+				fileFields["background_audio_file"] = bodyBackgroundAudioFile
 			}
 			if bodyCsvFile != "" {
-				fields["csv_file"] = bodyCsvFile
+				// PATCH: file upload, not a text field.
+				fileFields["csv_file"] = bodyCsvFile
 			}
 			if bodyCsvFps != "" {
 				fields["csv_fps"] = bodyCsvFps
@@ -70,10 +72,12 @@ func newDubbingCreateCmd(flags *rootFlags) *cobra.Command {
 				fields["end_time"] = bodyEndTime
 			}
 			if bodyFile != "" {
-				fields["file"] = bodyFile
+				// PATCH: the source media is an upload, not a text field.
+				fileFields["file"] = bodyFile
 			}
 			if bodyForegroundAudioFile != "" {
-				fields["foreground_audio_file"] = bodyForegroundAudioFile
+				// PATCH: file upload, not a text field.
+				fileFields["foreground_audio_file"] = bodyForegroundAudioFile
 			}
 			if bodyHighestResolution != false {
 				fields["highest_resolution"] = fmt.Sprintf("%v", bodyHighestResolution)

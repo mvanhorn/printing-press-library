@@ -1,0 +1,52 @@
+api:
+  name: Fox News
+  slug: foxnews
+  description: |
+    Read-only CLI for Fox News Google Publisher RSS feeds (moxie.foxnews.com).
+    No authentication. Users pick a section or default to latest headlines.
+
+auth:
+  type: none
+
+sources:
+  - id: latest
+    url: https://moxie.foxnews.com/google-publisher/latest.xml
+    description: Latest headlines (all sections)
+  - id: world
+    url: https://moxie.foxnews.com/google-publisher/world.xml
+  - id: politics
+    url: https://moxie.foxnews.com/google-publisher/politics.xml
+  - id: science
+    url: https://moxie.foxnews.com/google-publisher/science.xml
+  - id: health
+    url: https://moxie.foxnews.com/google-publisher/health.xml
+  - id: sports
+    url: https://moxie.foxnews.com/google-publisher/sports.xml
+  - id: travel
+    url: https://moxie.foxnews.com/google-publisher/travel.xml
+  - id: tech
+    url: https://moxie.foxnews.com/google-publisher/tech.xml
+  - id: opinion
+    url: https://moxie.foxnews.com/google-publisher/opinion.xml
+  - id: video
+    url: https://moxie.foxnews.com/google-publisher/videos.xml
+    aliases: [videos]
+
+commands:
+  - name: headlines
+    description: Fetch RSS headlines for a section (default latest)
+    flags:
+      - name: section
+        default: latest
+      - name: limit
+        type: int
+      - name: json
+      - name: select
+  - name: sections
+    description: List available RSS sections
+  - name: doctor
+    description: Verify connectivity to the latest feed
+
+env:
+  - name: FOX_NEWS_FEED_BASE
+    description: Optional override for RSS base URL (default https://moxie.foxnews.com/google-publisher)

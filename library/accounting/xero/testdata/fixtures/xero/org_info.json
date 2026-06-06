@@ -1,0 +1,11 @@
+{
+  "Organisations": [
+    {
+      "BaseCurrency": "USD",
+      "CountryCode": "US",
+      "LegalName": "Acme LLC",
+      "Name": "Acme Xero Demo",
+      "OrganisationID": "org-1"
+    }
+  ]
+}

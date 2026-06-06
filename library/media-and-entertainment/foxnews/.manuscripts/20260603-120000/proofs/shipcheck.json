@@ -1,0 +1,6 @@
+{
+  "run_id": "20260603-120000",
+  "cli": "foxnews-pp-cli",
+  "verdict": "PASS",
+  "notes": "RSS headlines CLI; live fetch verified against moxie.foxnews.com latest.xml"
+}

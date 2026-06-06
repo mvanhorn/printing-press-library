@@ -1,0 +1,122 @@
+# ───────────────────────────── Secrets / credentials ─────────────────────────────
+# These must NEVER be committed. The CLI stores its token in
+# ~/.config/function-health-pp-cli/config.toml (outside the repo); these
+# patterns are defense-in-depth in case a copy lands in the working tree.
+config.toml
+credentials.toml
+*.credentials.toml
+.env
+.env.*
+*.pem
+*.key
+secrets.*
+agentcookie.local.toml
+
+# ───────────────────────────── Local data (medical / PII) ────────────────────────
+# The local SQLite store lives in ~/.local/share/, not the repo — but never
+# commit a database, dump, or captured API response (they contain lab results).
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.sqlite-shm
+*.sqlite-wal
+*.sql
+*.sql.gz
+*.dump
+data.db
+function-health.db
+/captures/
+/fh-capture/
+*-capture.json
+results-report.json
+recommendations.json
+notes.json
+
+# ───────────────────────────── Compiled binaries / build ─────────────────────────
+/function-health-pp-cli
+/function-health-pp-mcp
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+/build/
+/dist/
+/bin/
+*.mcpb
+
+# ───────────────────────────── Go ────────────────────────────────────────────────
+*.cover
+coverage.txt
+coverage.out
+coverage.html
+*.prof
+go.work
+go.work.sum
+vendor/
+
+# ───────────────────────────── Printing Press (local run artifacts) ───────────────
+/.runstate/
+/scorecard.json
+/.cache/
+
+# ───────────────────────────── macOS ──────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+.DocumentRevisions-V100
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+Icon?
+
+# ───────────────────────────── Windows ────────────────────────────────────────────
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# ───────────────────────────── Linux ──────────────────────────────────────────────
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ───────────────────────────── Editors / IDEs ─────────────────────────────────────
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+*.swn
+*.bak
+*.tmp
+.*.un~
+Session.vim
+.netrwhist
+*.sublime-workspace
+*.sublime-project
+.history/
+.zed/
+
+# ───────────────────────────── Logs ───────────────────────────────────────────────
+*.log
+logs/
+npm-debug.log*

@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-05-28T21:45:32.690262Z",
+  "cli_dir": "\u003ccli-dir\u003e",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 325,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; agents recognize this without elaboration. Short is accurate and brief."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-05-28T14:49:37.769742Z"
+  }
+}

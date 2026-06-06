@@ -37,7 +37,7 @@ npx -y @mvanhorn/printing-press-library install x-twitter --agent claude-code --
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/cmd/x-twitter-pp-cli@latest
@@ -52,6 +52,14 @@ Download a pre-built binary for your platform from the [latest release](https://
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes
 
+Install the CLI binary first. The installer writes binaries to a per-user managed bin directory by default: `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows.
+
+```bash
+npx -y @mvanhorn/printing-press-library install x-twitter --cli-only
+```
+
+Then install the focused Hermes skill.
+
 From the Hermes CLI:
 
 ```bash
@@ -64,11 +72,14 @@ Inside a Hermes chat session:
 /skills install mvanhorn/printing-press-library/cli-skills/pp-x-twitter --force
 ```
 
+Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
+
 ## Install for OpenClaw
-Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
+
+Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
 
 ```bash
-npx -y @mvanhorn/printing-press-library install x-twitter --agent openclaw --bin-dir ~/.local/bin
+npx -y @mvanhorn/printing-press-library install x-twitter --agent openclaw
 ```
 
 Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
@@ -163,7 +174,6 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ## Recipes
-
 
 ### Archive a topic, then query it offline
 
@@ -457,19 +467,6 @@ Manage webhooks
 - **`x-twitter-pp-cli webhooks delete`** - Deletes an existing webhook configuration.
 - **`x-twitter-pp-cli webhooks get`** - Get a list of webhook configs associated with a client app.
 - **`x-twitter-pp-cli webhooks validate`** - Triggers a CRC check for a given webhook.
-
-
-### Composite workflows
-
-Read-only commands that compose existing reads into a higher-value answer — no new HTTP surface, no writes.
-
-```bash
-# Rank recent posts for the authenticated user by engagement.
-x-twitter-pp-cli top-posts --limit 10
-x-twitter-pp-cli top-posts --metric likes --since 2026-01-01
-x-twitter-pp-cli top-posts --exclude replies,retweets   # original posts only
-x-twitter-pp-cli top-posts --user-id 2244994945 --json  # rank another user
-```
 
 ## Output Formats
 

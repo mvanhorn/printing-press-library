@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-03T12:00:00Z",
+  "printing_press_version": "4.10.0",
+  "api_name": "foxnews",
+  "display_name": "Fox News",
+  "cli_name": "foxnews-pp-cli",
+  "creator": {
+    "handle": "john-fiedler",
+    "name": "John Fiedler"
+  },
+  "owner": "john-fiedler",
+  "printer": "john-fiedler",
+  "printer_name": "John Fiedler",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:foxnews-google-publisher-rss-v1",
+  "spec_source": "internal-yaml",
+  "run_id": "20260603-120000",
+  "description": "Fox News headlines from Google Publisher RSS feeds on moxie.foxnews.com — section-selectable, no API key.",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Section headlines",
+      "command": "headlines",
+      "description": "Fetch headlines from a Fox News RSS section (latest, world, politics, science, health, sports, travel, tech, opinion, video); defaults to latest."
+    },
+    {
+      "name": "List sections",
+      "command": "sections",
+      "description": "List available RSS section ids and feed paths for agents choosing a topic."
+    },
+    {
+      "name": "Agent context",
+      "command": "agent-context",
+      "description": "Emit structured JSON describing commands, RSS sections, default_section latest, and Drudge commands not available on this CLI."
+    }
+  ]
+}

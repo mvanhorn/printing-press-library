@@ -1,0 +1,35 @@
+{
+  "api_name": "uk-train-goat",
+  "base_url": "https://lite.realtime.nationalrail.co.uk/OpenLDBWS/ldb12.asmx",
+  "description": "The only Go-native, agent-native, MCP-exposed UK rail CLI; live boards, journey planning, and a local SQLite store that remembers your commute.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "{LDBWS_API_TOKEN}",
+    "in": "header",
+    "env_vars": [
+      "LDBWS_API_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "LDBWS_API_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "status_ping",
+      "description": "Placeholder; deleted post-generate. Real CLI commands live in internal/cli/board.go etc. Returns the PlaceholderResponse.",
+      "method": "GET",
+      "path": "/",
+      "params": []
+    }
+  ]
+}

@@ -4,38 +4,44 @@
 
 Sumble is usage-based, and the bare API gives you no way to see a balance, preview a call's cost, or avoid re-billing data you already pulled. This CLI fixes all three: cost-estimate previews spend before you pay, balance and spend track every credit from a local ledger, budget refuses calls over a ceiling, and sync caches organizations, people, postings, and technologies so stack-diff and stale run offline for zero credits.
 
-Printed by [@cpard](https://github.com/cpard).
+Created by [@cpard](https://github.com/cpard) (Kostas Pardalis).
 
 ## Install
 
 The recommended path installs both the `sumble-pp-cli` binary and the `pp-sumble` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install sumble
+npx -y @mvanhorn/printing-press-library install sumble
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install sumble --cli-only
+npx -y @mvanhorn/printing-press-library install sumble --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install sumble --skill-only
+npx -y @mvanhorn/printing-press-library install sumble --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install sumble --agent claude-code
-npx -y @mvanhorn/printing-press install sumble --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install sumble --agent claude-code
+npx -y @mvanhorn/printing-press-library install sumble --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/sumble/cmd/sumble-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -43,6 +49,14 @@ Download a pre-built binary for your platform from the [latest release](https://
 
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes
+
+Install the CLI binary first. The installer writes binaries to a per-user managed bin directory by default: `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows.
+
+```bash
+npx -y @mvanhorn/printing-press-library install sumble --cli-only
+```
+
+Then install the focused Hermes skill.
 
 From the Hermes CLI:
 
@@ -56,13 +70,17 @@ Inside a Hermes chat session:
 /skills install mvanhorn/printing-press-library/cli-skills/pp-sumble --force
 ```
 
+Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
+
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
 
+```bash
+npx -y @mvanhorn/printing-press-library install sumble --agent openclaw
 ```
-Install the pp-sumble skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-sumble. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -107,22 +125,17 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 # Confirm SUMBLE_API_KEY is set and the API is reachable before spending anything.
 sumble-pp-cli doctor
 
-
 # Cheap (1 credit) lookup of the canonical technology slug to filter on.
 sumble-pp-cli technologies --query kafka
-
 
 # See the credit cost (~125) before you pay it; run 'budget set <n>' first to hard-cap it.
 sumble-pp-cli cost-estimate organizations.find --rows 25
 
-
 # Billed call (5 credits/row); results are cached locally so reads are free afterward.
 sumble-pp-cli organizations find --filters-technologies '["kafka"]' --limit 25
 
-
 # Check remaining credits after the call.
 sumble-pp-cli balance
-
 
 # List cached entities worth re-billing; runs offline for zero credits.
 sumble-pp-cli stale --older-than 24h
@@ -242,7 +255,6 @@ Find job postings and the people behind them — Sumble's hiring-signal layer
 Search Sumble's technology taxonomy
 
 - **`sumble-pp-cli technologies`** - Search technologies by name; returns canonical slugs (1 credit only if at least one match, else free)
-
 
 ## Output Formats
 

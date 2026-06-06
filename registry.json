@@ -4027,6 +4027,34 @@
       }
     },
     {
+      "name": "foxnews",
+      "category": "media-and-entertainment",
+      "api": "Fox News",
+      "description": "Fox News headlines from Google Publisher RSS feeds on moxie.foxnews.com — section-selectable, no API key.",
+      "search_terms": [
+        "foxnews",
+        "Fox News",
+        "foxnews-pp-cli",
+        "Fox News headlines from Google Publisher RSS feeds on moxie.foxnews.com — section-selectable, no API key.",
+        "Section headlines",
+        "headlines",
+        "Fetch headlines from a Fox News RSS section (latest, world, politics, science, health, sports, travel, tech, opinion, video); defaults to latest.",
+        "List sections",
+        "sections",
+        "List available RSS section ids and feed paths for agents choosing a topic.",
+        "Agent context",
+        "agent-context",
+        "Emit structured JSON describing commands, RSS sections, default_section latest, and Drudge commands not available on this CLI."
+      ],
+      "path": "library/media-and-entertainment/foxnews",
+      "printer": "john-fiedler",
+      "printer_name": "John Fiedler",
+      "creator": {
+        "handle": "john-fiedler",
+        "name": "John Fiedler"
+      }
+    },
+    {
       "name": "freshservice",
       "category": "productivity",
       "api": "Freshservice",
@@ -4086,6 +4114,64 @@
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "function-health",
+      "category": "other",
+      "api": "Function Health",
+      "description": "Every Function Health feature, plus a local SQLite store with biomarker trends across every round you've ever drawn",
+      "search_terms": [
+        "function-health",
+        "Function Health",
+        "function-health-pp-cli",
+        "Every Function Health feature, plus a local SQLite store with biomarker trends across every round you've ever drawn, plus a branded shareable PDF your doctor will actually read.",
+        "Branded doctor PDF",
+        "export pdf-for-doctor",
+        "Render a Function-branded multi-round lab report PDF with your name and date of birth, suitable for emailing to your personal physician.",
+        "Biomarker trend across all rounds",
+        "biomarker trend",
+        "Every value of a biomarker across every round you've ever drawn, with the delta from Function's optimal range, an ASCII sparkline in the terminal, and structured JSON for agents.",
+        "Drift-toward-optimal goat",
+        "goat",
+        "Ranks every biomarker by distance-from-optimal multiplied by its slope-away-from-optimal across the last 3 rounds; returns the single most worrying biomarker right now with reasoning fields.",
+        "Trending-worse cohort",
+        "biomarkers trending",
+        "Lists every biomarker whose slope across the last N rounds points away from Function's optimal range, sorted by magnitude.",
+        "Category-level health-score timeline",
+        "category trend",
+        "For one of the ~13 categories, returns a per-round aggregate score (percent of biomarkers inside Function's optimal range) over time.",
+        "Oscillation detector",
+        "biomarkers oscillating",
+        "Biomarkers that crossed the optimal-range boundary at least twice in the last N rounds — flags instability separate from trend.",
+        "LLM-ready bundle composer",
+        "bundle",
+        "Composes a single Markdown file with a biomarker's full history, every clinician note mentioning it (FTS5), Function's optimal range, and relevant recommendations — ready to paste into Claude or ChatGPT.",
+        "Recommendation resolution tracker",
+        "recommendations stale",
+        "Recommendations (supplements / foods) whose target biomarker is STILL outside Function's optimal range, joined by Quest code. The /recommendations endpoint has no issued-date, so staleness is by outcome not age; --min-rounds tightens to persistence and --group (supplements, foods_to_eat, foods_to_avoid) focuses a large set."
+      ],
+      "path": "library/other/function-health",
+      "printer": "DamienStevens",
+      "printer_name": "Damien Stevens",
+      "creator": {
+        "handle": "DamienStevens",
+        "name": "Damien Stevens"
+      },
+      "mcp": {
+        "binary": "function-health-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 16,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "FUNCTION_HEALTH_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
       }
     },
     {
@@ -8045,6 +8131,33 @@
       }
     },
     {
+      "name": "qbo",
+      "category": "accounting",
+      "api": "qbo",
+      "description": "Fixture-first, read-only QuickBooks Online CLI for agents.",
+      "search_terms": [
+        "qbo",
+        "qbo-pp-cli",
+        "Fixture-first, read-only QuickBooks Online CLI for agents.",
+        "Fixture-only read surface",
+        "qbo-pp-cli status",
+        "Reports read-only, no-live-OAuth safety status for agent use.",
+        "Local JSON fixture reads",
+        "qbo-pp-cli accounts list --fixture testdata/fixtures/qbo/accounts.json",
+        "Reads deterministic local accounting fixtures without credentials or network access.",
+        "Report fixture reads",
+        "qbo-pp-cli reports trial-balance --fixture testdata/fixtures/qbo/trial_balance.json",
+        "Exposes accounting report fixtures as JSON envelopes for agent workflows."
+      ],
+      "path": "library/accounting/qbo",
+      "printer": "jeffreydebolt",
+      "printer_name": "Jeff DeBolt",
+      "creator": {
+        "handle": "jeffreydebolt",
+        "name": "Jeff DeBolt"
+      }
+    },
+    {
       "name": "rappi",
       "category": "food-and-dining",
       "api": "Rappi",
@@ -10775,6 +10888,52 @@
       }
     },
     {
+      "name": "twelvelabs",
+      "category": "ai",
+      "api": "Twelvelabs Video Understanding",
+      "description": "Use the TwelveLabs Video Understanding API to extract information from your videos and make it available to your",
+      "search_terms": [
+        "twelvelabs",
+        "Twelvelabs Video Understanding",
+        "twelvelabs-pp-cli",
+        "Use the TwelveLabs Video Understanding API to extract information from your videos and make it available to your",
+        "Upload and wait for indexing",
+        "upload-video",
+        "Upload a local video file or register a public URL, then poll Twelve Labs until indexing reaches a terminal status.",
+        "Editor-ready video brief",
+        "video-brief",
+        "Generate a deterministic JSON or Markdown editing plan with title, topics, hashtags, chapters, highlights, and recommended cuts.",
+        "Video embedding workflow",
+        "embed",
+        "Create a video embedding task from a local file or public URL and optionally wait for ready results.",
+        "Local clip cutting from plans",
+        "clips",
+        "Cut local clip files with ffmpeg from a video-brief JSON plan without inventing timestamps."
+      ],
+      "path": "library/ai/twelvelabs",
+      "printer": "cathrynlavery",
+      "printer_name": "Cathryn Lavery",
+      "creator": {
+        "handle": "cathrynlavery",
+        "name": "Cathryn Lavery"
+      },
+      "mcp": {
+        "binary": "twelvelabs-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 54,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "TWELVELABS_X_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "twilio",
       "category": "social-and-messaging",
       "api": "Twilio",
@@ -10928,6 +11087,64 @@
         "public_tool_count": 4,
         "auth_type": "none",
         "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "uk-train-goat",
+      "category": "travel",
+      "api": "UK Train Goat",
+      "description": "The only Go-native, agent-native, MCP-exposed UK rail CLI; live boards, journey planning",
+      "search_terms": [
+        "uk-train-goat",
+        "UK Train Goat",
+        "uk-train-goat-pp-cli",
+        "The only Go-native, agent-native, MCP-exposed UK rail CLI; live boards, journey planning, and a local SQLite store that remembers your commute.",
+        "Saved-commute one-shot",
+        "go",
+        "Run a saved commute in one keystroke; resolves origin, destination, and time-window from the local store.",
+        "Offline station search",
+        "stations",
+        "FTS5 search over the local UK CRS code table; resolves Paddington -> PAD with no network call.",
+        "Saved-routes morning status",
+        "saved status",
+        "Fans out across every saved route and prints a single ranked status table for all your commutes.",
+        "Service delay-reason briefing",
+        "why",
+        "Combines GetServiceDetails delay/cancel reasons with adjacent operator alerts into one screen explaining what is going wrong with one service.",
+        "Disruption-aware journey ranking",
+        "journey",
+        "Ranks A->B options by combined scheduled-time, current delay, and platform-known signal so on-time-but-later beats earlier-but-late.",
+        "Recent-journey replay",
+        "recent",
+        "Re-runs your recent A->B searches with fresh live data, side-by-side, so iterative trip planning is one keystroke per refresh.",
+        "Multi-origin board fan-out",
+        "board",
+        "Accept a comma-separated list of CRS codes and merge departures across all of them into one ranked time-ordered list.",
+        "Eval-grader 9th quality gate",
+        "eval",
+        "Programmatic eval grader that scores an LLM agent against a fixture suite of natural-language UK-rail prompts; 80% pass-rate threshold blocks ship."
+      ],
+      "path": "library/travel/uk-train-goat",
+      "printer": "ahujasachin92",
+      "printer_name": "Sachin Ahuja",
+      "creator": {
+        "handle": "ahujasachin92",
+        "name": "Sachin Ahuja"
+      },
+      "mcp": {
+        "binary": "uk-train-goat-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 1,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "LDBWS_API_TOKEN"
+        ],
         "mcp_ready": "full",
         "spec_format": "internal"
       }
@@ -11502,6 +11719,33 @@
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "xero",
+      "category": "accounting",
+      "api": "xero",
+      "description": "Fixture-first, read-only Xero CLI for agents.",
+      "search_terms": [
+        "xero",
+        "xero-pp-cli",
+        "Fixture-first, read-only Xero CLI for agents.",
+        "Fixture-only read surface",
+        "xero-pp-cli status",
+        "Reports read-only, no-live-OAuth safety status for agent use.",
+        "Local JSON fixture reads",
+        "xero-pp-cli accounts list --fixture testdata/fixtures/xero/accounts.json",
+        "Reads deterministic local accounting fixtures without credentials or network access.",
+        "Report fixture reads",
+        "xero-pp-cli reports trial-balance --fixture testdata/fixtures/xero/trial_balance.json",
+        "Exposes accounting report fixtures as JSON envelopes for agent workflows."
+      ],
+      "path": "library/accounting/xero",
+      "printer": "jeffreydebolt",
+      "printer_name": "Jeff DeBolt",
+      "creator": {
+        "handle": "jeffreydebolt",
+        "name": "Jeff DeBolt"
       }
     },
     {

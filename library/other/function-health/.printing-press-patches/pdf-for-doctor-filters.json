@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "pdf-for-doctor-filters",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260528-084148",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Add combinable --out-of-range and --section filters to `export pdf-for-doctor`; filtered set drives the PDF subtitle, summary counts, and JSON envelope.",
+  "reason": "Doctors want a focused report (only out-of-range, or one section like Heart/Liver), not the full 128-biomarker dump.",
+  "files": [
+    "internal/cli/export_pdf_for_doctor.go",
+    "internal/cli/export_pdf_for_doctor_test.go"
+  ],
+  "validated_outcome": "Live: ALL=128, --out-of-range=23, --section Nutrients=26, combined=4, unknown section returns a friendly notFoundErr."
+}

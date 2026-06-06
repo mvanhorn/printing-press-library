@@ -48,6 +48,14 @@ Download a pre-built binary for your platform from the [latest release](https://
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes
 
+Install the CLI binary first. The installer writes binaries to a per-user managed bin directory by default: `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows.
+
+```bash
+npx -y @mvanhorn/printing-press-library install arxiv --cli-only
+```
+
+Then install the focused Hermes skill.
+
 From the Hermes CLI:
 
 ```bash
@@ -56,16 +64,18 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-arxiv --forc
 
 Inside a Hermes chat session:
 
-```text
+```bash
 /skills install mvanhorn/printing-press-library/cli-skills/pp-arxiv --force
 ```
 
+Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
+
 ## Install for OpenClaw
 
-Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
+Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
 
 ```bash
-npx -y @mvanhorn/printing-press-library install arxiv --agent openclaw --bin-dir ~/.local/bin
+npx -y @mvanhorn/printing-press-library install arxiv --agent openclaw
 ```
 
 Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.

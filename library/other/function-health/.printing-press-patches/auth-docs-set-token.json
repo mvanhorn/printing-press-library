@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "auth-docs-set-token",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260528-084148",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Correct README + SKILL auth docs: email/password `auth login` is blocked at the Function Health project level and `auth login --chrome` is unreliable; document the DevTools token extraction -> `auth set-token` path and add a Known Gaps section.",
+  "reason": "The generated docs claimed email/password login works and auto-refreshes; in reality Firebase REST password sign-in is blocked (retro #1) and the chrome flow doesn't capture a refresh token (retro #2). Also notes that a pure-Go IndexedDB LevelDB reader is the planned long-term auth fix.",
+  "files": [
+    "README.md",
+    "SKILL.md"
+  ],
+  "deferred_to_upstream": [
+    {
+      "feature": "Pure-Go IndexedDB LevelDB reader to extract Firebase tokens from Chrome without a browser shell-out",
+      "reason": "browser-use against a sandboxed profile is unreliable; reading Chrome's IndexedDB directly would make `auth login --chrome` durable."
+    }
+  ]
+}

@@ -8,6 +8,7 @@
   "tests_passed": 351,
   "tests_skipped": 449,
   "auth_context": {
-    "type": "bearer_token"
+    "type": "bearer_token",
+    "api_key_available": true
   }
 }

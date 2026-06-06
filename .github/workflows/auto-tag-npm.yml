@@ -1,78 +1,89 @@
-name: Auto-tag npm release on version bump
+name: Auto-tag npm release
 
-# When npm/package.json's "version" field changes on main, push a matching
-# `npm-v<version>` tag, then explicitly dispatch npm-publish.yml for that tag.
-# Tag pushes made with GITHUB_TOKEN do not trigger another workflow run, so the
-# dispatch step is the part that actually starts the trusted publishing flow.
+# Reconcile the published npm release with npm/package.json on every push to
+# main: if the version in npm/package.json has no matching `npm-v<version>` git
+# tag yet, push that tag and dispatch npm-publish.yml for it. Tag pushes made
+# with GITHUB_TOKEN do not trigger another workflow run, so the dispatch step is
+# the part that actually starts the trusted publishing flow.
 #
-# This means the entire release rhythm is:
+# Release rhythm (unchanged for the author):
 #   1. Bump npm/package.json version in a PR (alongside any code change).
 #   2. Merge the PR.
-#   3. This workflow tags and dispatches npm-publish.yml. Done.
+#   3. This workflow tags + dispatches npm-publish.yml. Done.
 #
-# Things that intentionally do NOT trigger a release:
-#   - Library / SKILL.md / registry.json / cli-skills changes (sourced live by
-#     the orchestrator at install time, not bundled in the npm tarball).
-#   - Root README, AGENTS.md, CI workflow tweaks (not in the npm tarball).
-#   - npm/package.json changes that don't bump the version (metadata polish
-#     only ships when packaged with an intentional version bump — re-publishing
-#     the same version would fail at npm anyway).
+# Why it runs on EVERY push and gates on tag existence (not a version diff):
+# the original workflow used `paths: ['npm/package.json']` + a HEAD~1 version
+# diff, which gave the release exactly ONE chance to fire — the single push that
+# bumped the version. When that one trigger was missed, there was no recovery.
+# That is exactly what happened to 0.1.16 (the `--bin-dir` feature): the bump
+# landed on main, two other path-filtered workflows ran on the same push, but
+# this one did not — so no tag, no publish, and npm stayed pinned to 0.1.15 for
+# days while `npx` users hit "Unknown install option: --bin-dir".
 #
-# Bot regen commits with `[skip ci]` (registry / skill regenerations) skip
-# this workflow entirely, by design.
+# Gating on "does npm-v<current version> exist?" makes the job self-healing and
+# idempotent: any later push to main re-checks and catches a missed release on
+# the next push, and it never double-publishes (an existing tag is a no-op that
+# exits in milliseconds; npm also rejects republishing an existing version). The
+# per-push run is the recovery mechanism, not waste.
+#
+# Things that do NOT produce a release: any push where npm/package.json's version
+# already has a tag (the common case — a fast no-op), and `[skip ci]` bot regen
+# commits (registry / skill regenerations), which skip this workflow entirely.
 
 on:
   push:
     branches: [main]
-    paths:
-      - 'npm/package.json'
 
 permissions:
   actions: write    # needs to dispatch npm-publish.yml
   contents: write   # needs to push the tag
+
+# Serialize runs so two near-simultaneous main pushes can't race on the same tag.
+concurrency:
+  group: auto-tag-npm
+  cancel-in-progress: false
 
 jobs:
   tag:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-        with:
-          fetch-depth: 2   # need previous commit to diff against
 
       - id: check
-        name: Detect version bump
+        name: Detect unreleased version
         run: |
           set -euo pipefail
           new=$(jq -r .version npm/package.json)
-          if old=$(git show HEAD~1:npm/package.json 2>/dev/null | jq -r .version); then
-            :
-          else
-            old=""
+          if [ -z "$new" ] || [ "$new" = "null" ]; then
+            echo "No version in npm/package.json; nothing to do."
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
-          echo "old=$old" >> "$GITHUB_OUTPUT"
-          echo "new=$new" >> "$GITHUB_OUTPUT"
-          if [ -n "$new" ] && [ "$new" != "null" ] && [ "$old" != "$new" ]; then
-            echo "bumped=true" >> "$GITHUB_OUTPUT"
-            echo "Version changed: $old → $new"
+          tag="npm-v$new"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+            echo "$tag already exists; nothing to release."
+            echo "release=false" >> "$GITHUB_OUTPUT"
           else
-            echo "No version bump (old=$old, new=$new); skipping tag."
+            echo "$tag does not exist; will tag and publish $new."
+            echo "release=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Push npm-v<new> tag
-        if: steps.check.outputs.bumped == 'true'
+      - name: Push tag
+        if: steps.check.outputs.release == 'true'
         run: |
           set -euo pipefail
-          tag="npm-v${{ steps.check.outputs.new }}"
+          tag="${{ steps.check.outputs.tag }}"
           git tag "$tag"
           git push origin "$tag"
-          echo "Pushed tag $tag."
+          echo "Pushed $tag."
 
       - name: Dispatch npm publish workflow
-        if: steps.check.outputs.bumped == 'true'
+        if: steps.check.outputs.release == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          tag="npm-v${{ steps.check.outputs.new }}"
+          tag="${{ steps.check.outputs.tag }}"
           gh workflow run npm-publish.yml --ref "$tag"
           echo "Dispatched npm-publish.yml for $tag."

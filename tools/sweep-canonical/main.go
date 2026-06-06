@@ -750,12 +750,12 @@ func buildPrerequisitesSection(ctx patchSkillCtx) string {
 
 This skill drives the `+"`%s`"+` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer into a user bin directory:
+1. Install via the Printing Press installer. It defaults binaries to `+"`$HOME/.local/bin`"+` on macOS/Linux and `+"`%%LOCALAPPDATA%%\\Programs\\PrintingPress\\bin`"+` on Windows:
    `+"```bash"+`
-   npx -y @mvanhorn/printing-press-library install %s --cli-only --bin-dir ~/.local/bin
+   npx -y @mvanhorn/printing-press-library install %s --cli-only
    `+"```"+`
 2. Verify: `+"`%s --version`"+`
-3. Ensure `+"`~/.local/bin`"+` is on `+"`$PATH`"+` for the agent/runtime that will invoke this skill.
+3. Ensure the reported install directory is on `+"`$PATH`"+` for the agent/runtime that will invoke this skill.
 
 If the `+"`npx`"+` install fails (no Node, offline, etc.), fall back to a direct Go install (requires %s):
 
@@ -1124,21 +1124,27 @@ func stripH2Section(body, heading string) string {
 
 func buildReadmeInstallSections(ctx patchReadmeCtx) string {
 	return fmt.Sprintf("## Install for Hermes\n\n"+
+		"Install the CLI binary first. The installer writes binaries to a per-user managed bin directory by default: `$HOME/.local/bin` on macOS/Linux and `%%LOCALAPPDATA%%\\Programs\\PrintingPress\\bin` on Windows.\n\n"+
+		"```bash\n"+
+		"npx -y @mvanhorn/printing-press-library install %s --cli-only\n"+
+		"```\n\n"+
+		"Then install the focused Hermes skill.\n\n"+
 		"From the Hermes CLI:\n\n"+
 		"```bash\n"+
 		"hermes skills install mvanhorn/printing-press-library/cli-skills/pp-%s --force\n"+
 		"```\n\n"+
 		"Inside a Hermes chat session:\n\n"+
-		"```text\n"+
+		"```bash\n"+
 		"/skills install mvanhorn/printing-press-library/cli-skills/pp-%s --force\n"+
 		"```\n\n"+
+		"Restart the Hermes session or gateway if the newly installed skill is not visible immediately.\n\n"+
 		"## Install for OpenClaw\n\n"+
-		"Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:\n\n"+
+		"Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%%LOCALAPPDATA%%\\Programs\\PrintingPress\\bin` on Windows):\n\n"+
 		"```bash\n"+
-		"npx -y @mvanhorn/printing-press-library install %s --agent openclaw --bin-dir ~/.local/bin\n"+
+		"npx -y @mvanhorn/printing-press-library install %s --agent openclaw\n"+
 		"```\n\n"+
 		"Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.\n\n",
-		ctx.APIName, ctx.APIName, ctx.APIName,
+		ctx.APIName, ctx.APIName, ctx.APIName, ctx.APIName,
 	)
 }
 

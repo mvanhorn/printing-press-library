@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "recommendations-stale-real-shape",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260528-084148",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Rewrite `recommendations stale` for the real nested /recommendations shape (category groups -> items with name + Quest-code Biomarkers); join targets to results by Quest code; add --group and --limit; repurpose --min-rounds as out-of-optimal persistence (the endpoint has no issued-date).",
+  "reason": "The generated command assumed flat recs with id/title/body/biomarkerId/createdAt — none of which exist. The live payload is dietary/supplement guidance tagged with Quest codes and no timestamp, so age-based staleness is impossible; outcome-based (target still out-of-optimal) is the honest signal. This is retro 'recommendations stale field-mismatch'.",
+  "files": [
+    "internal/cli/recommendations_stale.go",
+    "internal/cli/recommendations_stale_test.go",
+    "internal/cli/transcend_helpers.go"
+  ],
+  "validated_outcome": "Live: joins all 10 distinct rec Quest codes to biomarkers; --group supplements and --min-rounds N filter correctly; QuestCode field added to resultRow for the join."
+}

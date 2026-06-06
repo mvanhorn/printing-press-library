@@ -2,8 +2,9 @@
 
 ## 0.1.16
 
-- Add `install --bin-dir <dir>` and thread it through `update` / `reinstall` so Go binaries can be installed into a runtime-visible user bin directory such as `~/.local/bin`.
-- Document OpenClaw installs as `--agent openclaw --bin-dir ~/.local/bin`, keeping skill placement and binary placement explicit.
+- Default `install` to a per-user binary directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows) instead of Go's `$GOPATH/bin`, so humans, agents, and gateway processes converge on the same install location.
+- Keep `--bin-dir <dir>` as an explicit override and thread it through `update` / `reinstall` for machines with a different runtime-visible bin directory.
+- Document OpenClaw installs as `--agent openclaw`; binary placement now follows the installer default instead of requiring a separate `--bin-dir ~/.local/bin` flag.
 
 ## 0.1.15
 

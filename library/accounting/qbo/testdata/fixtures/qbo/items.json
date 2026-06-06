@@ -1,0 +1,14 @@
+{
+  "QueryResponse": {
+    "Item": [
+      {
+        "Active": true,
+        "Description": "Hourly consulting",
+        "Id": "5",
+        "Name": "Consulting",
+        "Type": "Service",
+        "UnitPrice": 150
+      }
+    ]
+  }
+}

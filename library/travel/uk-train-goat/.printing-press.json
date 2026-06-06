@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-03T22:19:04.3913Z",
+  "printing_press_version": "4.20.1",
+  "api_name": "uk-train-goat",
+  "display_name": "UK Train Goat",
+  "cli_name": "uk-train-goat-pp-cli",
+  "creator": {
+    "handle": "ahujasachin92",
+    "name": "Sachin Ahuja"
+  },
+  "owner": "ahujasachin92",
+  "printer": "ahujasachin92",
+  "printer_name": "Sachin Ahuja",
+  "spec_path": "uk-train-goat-seed-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:81620141ab26de7af907dd75e376e72565ba0d65b4988f526d23e5bc6cc58997",
+  "run_id": "20260603-220423",
+  "category": "travel",
+  "description": "The only Go-native, agent-native, MCP-exposed UK rail CLI; live boards, journey planning, and a local SQLite store that remembers your commute.",
+  "mcp_binary": "uk-train-goat-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "LDBWS_API_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Saved-commute one-shot",
+      "command": "go",
+      "description": "Run a saved commute in one keystroke; resolves origin, destination, and time-window from the local store."
+    },
+    {
+      "name": "Offline station search",
+      "command": "stations",
+      "description": "FTS5 search over the local UK CRS code table; resolves Paddington -\u003e PAD with no network call."
+    },
+    {
+      "name": "Saved-routes morning status",
+      "command": "saved status",
+      "description": "Fans out across every saved route and prints a single ranked status table for all your commutes."
+    },
+    {
+      "name": "Service delay-reason briefing",
+      "command": "why",
+      "description": "Combines GetServiceDetails delay/cancel reasons with adjacent operator alerts into one screen explaining what is going wrong with one service."
+    },
+    {
+      "name": "Disruption-aware journey ranking",
+      "command": "journey",
+      "description": "Ranks A-\u003eB options by combined scheduled-time, current delay, and platform-known signal so on-time-but-later beats earlier-but-late."
+    },
+    {
+      "name": "Recent-journey replay",
+      "command": "recent",
+      "description": "Re-runs your recent A-\u003eB searches with fresh live data, side-by-side, so iterative trip planning is one keystroke per refresh."
+    },
+    {
+      "name": "Multi-origin board fan-out",
+      "command": "board",
+      "description": "Accept a comma-separated list of CRS codes and merge departures across all of them into one ranked time-ordered list."
+    },
+    {
+      "name": "Eval-grader 9th quality gate",
+      "command": "eval",
+      "description": "Programmatic eval grader that scores an LLM agent against a fixture suite of natural-language UK-rail prompts; 80% pass-rate threshold blocks ship."
+    }
+  ]
+}

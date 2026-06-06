@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "oscillating-inconclusive-fix",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260528-084148",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Fix `biomarkers oscillating` to exclude draws without a defined Function-optimal range from the crossing count (new hasOptimal helper + extracted optimalCrossings), so undefined-optimal draws no longer masquerade as in-range and absorb real crossings.",
+  "reason": "optimalSign returns 0 for BOTH 'in range' and 'no optimal range defined', so an undefined-optimal draw between an above and a below reading silently swallowed the crossing — the 'oscillating inconclusive' gap. optimalSign is left unchanged (other call sites depend on its semantics).",
+  "files": [
+    "internal/cli/biomarkers_oscillating.go",
+    "internal/cli/biomarkers_oscillating_test.go"
+  ],
+  "validated_outcome": "Unit test asserts an undefined-optimal draw between above/below still counts the crossing; full suite green."
+}

@@ -251,7 +251,7 @@ stuff.
 	if strings.Contains(got, "STALE INSTALL CONTENT") {
 		t.Errorf("stale Prerequisites content not removed:\n%s", got)
 	}
-	if !strings.Contains(got, "npx -y @mvanhorn/printing-press-library install x --cli-only --bin-dir ~/.local/bin") {
+	if !strings.Contains(got, "npx -y @mvanhorn/printing-press-library install x --cli-only") {
 		t.Errorf("canonical npx install line not present:\n%s", got)
 	}
 	if strings.Count(got, "## Prerequisites: Install the CLI") != 1 {
@@ -356,6 +356,15 @@ stuff.
 	if !(installIdx < hermesIdx && hermesIdx < openclawIdx && openclawIdx < authIdx) {
 		t.Errorf("expected order Install → Install for Hermes → Install for OpenClaw → Authentication; got positions %d/%d/%d/%d:\n%s",
 			installIdx, hermesIdx, openclawIdx, authIdx, got)
+	}
+	if !strings.Contains(got, "npx -y @mvanhorn/printing-press-library install x --cli-only") {
+		t.Errorf("Hermes section should install the CLI binary before the focused skill:\n%s", got)
+	}
+	if !strings.Contains(got, "Restart the Hermes session or gateway if the newly installed skill is not visible immediately.") {
+		t.Errorf("Hermes section should include the restart hint:\n%s", got)
+	}
+	if strings.Contains(got, "--cli-only --bin-dir") || strings.Contains(got, "--agent openclaw --bin-dir") {
+		t.Errorf("install sections should rely on installer default bin dirs, not hardcoded --bin-dir:\n%s", got)
 	}
 }
 
@@ -501,7 +510,7 @@ auth body.
 	if !strings.Contains(got, "## Install for Hermes") || !strings.Contains(got, "## Install for OpenClaw") {
 		t.Errorf("canonical Hermes/OpenClaw blocks missing:\n%s", got)
 	}
-	if !strings.Contains(got, "npx -y @mvanhorn/printing-press-library install x --agent openclaw --bin-dir ~/.local/bin") {
+	if !strings.Contains(got, "npx -y @mvanhorn/printing-press-library install x --agent openclaw") {
 		t.Errorf("canonical OpenClaw install command missing:\n%s", got)
 	}
 }
