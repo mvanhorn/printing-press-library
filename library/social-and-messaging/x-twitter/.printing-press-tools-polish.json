@@ -1,5 +1,15 @@
 {
-  "timestamp": "2026-05-09T17:41:06.527307Z",
-  "cli_dir": "/Users/cathrynlavery/printing-press/library/x",
-  "findings": null
+  "timestamp": "2026-06-04T19:04:27.706166Z",
+  "cli_dir": "\u003ccli-dir\u003e/x-twitter-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 335,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' framework command (excluded from MCP); agents understand this without elaboration"
+    }
+  ]
 }

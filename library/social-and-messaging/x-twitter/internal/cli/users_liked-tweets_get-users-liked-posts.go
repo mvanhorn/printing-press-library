@@ -39,7 +39,7 @@ func newUsersLikedTweetsGetUsersLikedPostsCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/2/users/{id}/liked_tweets"
 			path = replacePathParam(path, "id", args[0])
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "liked-tweets", path, map[string]string{
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "liked-tweets", path, map[string]string{
 				"max_results":      fmt.Sprintf("%v", flagMaxResults),
 				"pagination_token": fmt.Sprintf("%v", flagPaginationToken),
 				"tweet.fields":     fmt.Sprintf("%v", flagTweetFields),
@@ -48,20 +48,26 @@ func newUsersLikedTweetsGetUsersLikedPostsCmd(flags *rootFlags) *cobra.Command {
 				"poll.fields":      fmt.Sprintf("%v", flagPollFields),
 				"user.fields":      fmt.Sprintf("%v", flagUserFields),
 				"place.fields":     fmt.Sprintf("%v", flagPlaceFields),
-			}, nil, flagAll, "", "", "")
+			}, nil, flagAll, "", "offset", "max_results", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)

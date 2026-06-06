@@ -9,8 +9,10 @@ import (
 
 func newTweetsQuoteTweetsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "quote-tweets",
-		Short: "Manage quote tweets",
+		Use:         "quote-tweets",
+		Short:       "Get quote tweets for tweets",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newTweetsQuoteTweetsGetPostsQuotedPostsCmd(flags))

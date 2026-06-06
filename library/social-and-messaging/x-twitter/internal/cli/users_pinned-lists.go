@@ -9,8 +9,10 @@ import (
 
 func newUsersPinnedListsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "pinned-lists",
-		Short: "Manage pinned lists",
+		Use:         "pinned-lists",
+		Short:       "Get, create, and delete pinned lists for users",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersPinnedListsGetUsersCmd(flags))

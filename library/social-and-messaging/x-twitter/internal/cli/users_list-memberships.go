@@ -9,8 +9,10 @@ import (
 
 func newUsersListMembershipsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "list-memberships",
-		Short: "Manage list memberships",
+		Use:         "list-memberships",
+		Short:       "Get list memberships for users",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersListMembershipsGetUsersCmd(flags))

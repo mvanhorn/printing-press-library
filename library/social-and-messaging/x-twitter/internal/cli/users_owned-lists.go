@@ -9,8 +9,10 @@ import (
 
 func newUsersOwnedListsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "owned-lists",
-		Short: "Manage owned lists",
+		Use:         "owned-lists",
+		Short:       "Get owned lists for users",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersOwnedListsGetUsersCmd(flags))

@@ -9,8 +9,11 @@ import (
 
 func newTweetsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "tweets",
-		Short: "Endpoints related to retrieving, searching, and modifying Tweets",
+		Use:         "tweets",
+		Short:       "Endpoints related to retrieving, searching, and modifying Tweets",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newTweetsCreatePostsCmd(flags))
@@ -20,18 +23,14 @@ func newTweetsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newTweetsGetPostsAnalyticsCmd(flags))
 	cmd.AddCommand(newTweetsGetPostsByIdCmd(flags))
 	cmd.AddCommand(newTweetsGetPostsByIdsCmd(flags))
+	cmd.AddCommand(newTweetsGetPostsCountsAllCmd(flags))
 	cmd.AddCommand(newTweetsGetPostsCountsRecentCmd(flags))
+	cmd.AddCommand(newTweetsGetRuleCountsCmd(flags))
+	cmd.AddCommand(newTweetsGetRulesCmd(flags))
 	cmd.AddCommand(newTweetsGetWebhooksStreamLinksCmd(flags))
+	cmd.AddCommand(newTweetsSearchPostsAllCmd(flags))
 	cmd.AddCommand(newTweetsSearchPostsRecentCmd(flags))
-	cmd.AddCommand(newTweetsStreamLabelsComplianceCmd(flags))
-	cmd.AddCommand(newTweetsStreamPostsComplianceCmd(flags))
-	cmd.AddCommand(newTweetsStreamPostsFirehoseCmd(flags))
-	cmd.AddCommand(newTweetsStreamPostsFirehoseEnCmd(flags))
-	cmd.AddCommand(newTweetsStreamPostsFirehoseJaCmd(flags))
-	cmd.AddCommand(newTweetsStreamPostsFirehoseKoCmd(flags))
-	cmd.AddCommand(newTweetsStreamPostsFirehosePtCmd(flags))
-	cmd.AddCommand(newTweetsStreamPostsSampleCmd(flags))
-	cmd.AddCommand(newTweetsStreamPostsSample10Cmd(flags))
+	cmd.AddCommand(newTweetsUpdateRulesCmd(flags))
 	cmd.AddCommand(newTweetsHiddenCmd(flags))
 	cmd.AddCommand(newTweetsLikingUsersCmd(flags))
 	cmd.AddCommand(newTweetsQuoteTweetsCmd(flags))

@@ -1,7 +1,8 @@
 {
-  "dir": "library/social-and-messaging/x-twitter",
-  "spec_path": "library/social-and-messaging/x-twitter/spec.yaml",
-  "verdict": "PASS",
+  "dir": "\u003ccli-dir\u003e/x-twitter-pp-cli",
+  "spec_path": "\u003ccli-dir\u003e/spec.json",
+  "spec_source": "bundled",
+  "verdict": "FAIL",
   "path_check": {
     "tested": 8,
     "valid": 8,
@@ -18,19 +19,1770 @@
     "pass": true,
     "detail": "browser-session auth not required"
   },
+  "oauth_scope_coverage_check": {
+    "checked": 118,
+    "covered": 0,
+    "violations": [
+      {
+        "endpoint": "GET /2/account_activity/webhooks/{webhook_id}/subscriptions/all",
+        "operation_id": "validateAccountActivitySubscription",
+        "required_scopes": [
+          "dm.read",
+          "dm.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.read",
+            "dm.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/account_activity/webhooks/{webhook_id}/subscriptions/all",
+        "operation_id": "createAccountActivitySubscription",
+        "required_scopes": [
+          "dm.read",
+          "dm.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.read",
+            "dm.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/activity/subscriptions",
+        "operation_id": "getActivitySubscriptions",
+        "required_scopes": [
+          "tweet.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/activity/subscriptions",
+        "operation_id": "createActivitySubscription",
+        "required_scopes": [
+          "dm.read",
+          "tweet.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.read",
+            "tweet.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/chat/conversations",
+        "operation_id": "getChatConversations",
+        "required_scopes": [
+          "dm.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/chat/conversations/group",
+        "operation_id": "createChatConversation",
+        "required_scopes": [
+          "dm.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/chat/conversations/group/initialize",
+        "operation_id": "initializeChatGroup",
+        "required_scopes": [
+          "dm.write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/chat/conversations/{id}",
+        "operation_id": "getChatConversation",
+        "required_scopes": [
+          "dm.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/chat/conversations/{id}/events",
+        "operation_id": "getChatConversationEvents",
+        "required_scopes": [
+          "dm.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/chat/conversations/{id}/keys",
+        "operation_id": "initializeChatConversationKeys",
+        "required_scopes": [
+          "dm.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/chat/conversations/{id}/members",
+        "operation_id": "addChatGroupMembers",
+        "required_scopes": [
+          "dm.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/chat/conversations/{id}/messages",
+        "operation_id": "sendChatMessage",
+        "required_scopes": [
+          "dm.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/chat/conversations/{id}/read",
+        "operation_id": "markChatConversationRead",
+        "required_scopes": [
+          "dm.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/chat/conversations/{id}/typing",
+        "operation_id": "sendChatTypingIndicator",
+        "required_scopes": [
+          "dm.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/chat/media/upload/initialize",
+        "operation_id": "chatMediaUploadInitialize",
+        "required_scopes": [
+          "media.write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "media.write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/chat/media/upload/{id}/append",
+        "operation_id": "chatMediaUploadAppend",
+        "required_scopes": [
+          "media.write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "media.write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/chat/media/upload/{id}/finalize",
+        "operation_id": "chatMediaUploadFinalize",
+        "required_scopes": [
+          "media.write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "media.write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/chat/media/{id}/{media_hash_key}",
+        "operation_id": "chatMediaDownload",
+        "required_scopes": [
+          "media.write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "media.write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/communities/search",
+        "operation_id": "searchCommunities",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/communities/{id}",
+        "operation_id": "getCommunitiesById",
+        "required_scopes": [
+          "list.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "list.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/dm_conversations",
+        "operation_id": "createDirectMessagesConversation",
+        "required_scopes": [
+          "dm.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/dm_conversations/media/{dm_id}/{media_id}/{resource_id}",
+        "operation_id": "dmConversationsMediaDownload",
+        "required_scopes": [
+          "dm.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/dm_conversations/with/{participant_id}/dm_events",
+        "operation_id": "getDirectMessagesEventsByParticipantId",
+        "required_scopes": [
+          "dm.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/dm_conversations/with/{participant_id}/messages",
+        "operation_id": "createDirectMessagesByParticipantId",
+        "required_scopes": [
+          "dm.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/dm_conversations/{dm_conversation_id}/messages",
+        "operation_id": "createDirectMessagesByConversationId",
+        "required_scopes": [
+          "dm.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/dm_conversations/{id}/dm_events",
+        "operation_id": "getDirectMessagesEventsByConversationId",
+        "required_scopes": [
+          "dm.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/dm_events",
+        "operation_id": "getDirectMessagesEvents",
+        "required_scopes": [
+          "dm.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /2/dm_events/{event_id}",
+        "operation_id": "deleteDirectMessagesEvents",
+        "required_scopes": [
+          "dm.read",
+          "dm.write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.read",
+            "dm.write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/dm_events/{event_id}",
+        "operation_id": "getDirectMessagesEventsById",
+        "required_scopes": [
+          "dm.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/evaluate_note",
+        "operation_id": "evaluateCommunityNotes",
+        "required_scopes": [
+          "tweet.write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/insights/28hr",
+        "operation_id": "getInsights28Hr",
+        "required_scopes": [
+          "tweet.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/insights/historical",
+        "operation_id": "getInsightsHistorical",
+        "required_scopes": [
+          "tweet.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/lists",
+        "operation_id": "createLists",
+        "required_scopes": [
+          "list.read",
+          "list.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "list.read",
+            "list.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /2/lists/{id}",
+        "operation_id": "deleteLists",
+        "required_scopes": [
+          "list.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "list.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/lists/{id}",
+        "operation_id": "getListsById",
+        "required_scopes": [
+          "list.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "list.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /2/lists/{id}",
+        "operation_id": "updateLists",
+        "required_scopes": [
+          "list.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "list.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/lists/{id}/followers",
+        "operation_id": "getListsFollowers",
+        "required_scopes": [
+          "list.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "list.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/lists/{id}/members",
+        "operation_id": "getListsMembers",
+        "required_scopes": [
+          "list.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "list.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/lists/{id}/members",
+        "operation_id": "addListsMember",
+        "required_scopes": [
+          "list.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "list.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /2/lists/{id}/members/{user_id}",
+        "operation_id": "removeListsMemberByUserId",
+        "required_scopes": [
+          "list.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "list.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/lists/{id}/tweets",
+        "operation_id": "getListsPosts",
+        "required_scopes": [
+          "list.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "list.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/media",
+        "operation_id": "getMediaByMediaKeys",
+        "required_scopes": [
+          "tweet.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/media/analytics",
+        "operation_id": "getMediaAnalytics",
+        "required_scopes": [
+          "tweet.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/media/metadata",
+        "operation_id": "createMediaMetadata",
+        "required_scopes": [
+          "media.write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "media.write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /2/media/subtitles",
+        "operation_id": "deleteMediaSubtitles",
+        "required_scopes": [
+          "media.write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "media.write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/media/subtitles",
+        "operation_id": "createMediaSubtitles",
+        "required_scopes": [
+          "media.write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "media.write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/media/upload",
+        "operation_id": "getMediaUploadStatus",
+        "required_scopes": [
+          "media.write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "media.write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/media/upload",
+        "operation_id": "mediaUpload",
+        "required_scopes": [
+          "media.write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "media.write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/media/upload/initialize",
+        "operation_id": "initializeMediaUpload",
+        "required_scopes": [
+          "media.write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "media.write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/media/upload/{id}/append",
+        "operation_id": "appendMediaUpload",
+        "required_scopes": [
+          "media.write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "media.write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/media/upload/{id}/finalize",
+        "operation_id": "finalizeMediaUpload",
+        "required_scopes": [
+          "media.write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "media.write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/media/{media_key}",
+        "operation_id": "getMediaByMediaKey",
+        "required_scopes": [
+          "tweet.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/news/search",
+        "operation_id": "searchNews",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/news/{id}",
+        "operation_id": "getNews",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/notes",
+        "operation_id": "createCommunityNotes",
+        "required_scopes": [
+          "tweet.write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/notes/search/notes_written",
+        "operation_id": "searchCommunityNotesWritten",
+        "required_scopes": [
+          "tweet.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/notes/search/posts_eligible_for_notes",
+        "operation_id": "searchEligiblePosts",
+        "required_scopes": [
+          "tweet.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /2/notes/{id}",
+        "operation_id": "deleteCommunityNotes",
+        "required_scopes": [
+          "tweet.write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/spaces",
+        "operation_id": "getSpacesByIds",
+        "required_scopes": [
+          "space.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "space.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/spaces/by/creator_ids",
+        "operation_id": "getSpacesByCreatorIds",
+        "required_scopes": [
+          "space.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "space.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/spaces/search",
+        "operation_id": "searchSpaces",
+        "required_scopes": [
+          "space.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "space.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/spaces/{id}",
+        "operation_id": "getSpacesById",
+        "required_scopes": [
+          "space.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "space.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/spaces/{id}/buyers",
+        "operation_id": "getSpacesBuyers",
+        "required_scopes": [
+          "space.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "space.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/spaces/{id}/tweets",
+        "operation_id": "getSpacesPosts",
+        "required_scopes": [
+          "space.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "space.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/tweets",
+        "operation_id": "getPostsByIds",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/tweets",
+        "operation_id": "createPosts",
+        "required_scopes": [
+          "tweet.read",
+          "tweet.write",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "tweet.write",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/tweets/analytics",
+        "operation_id": "getPostsAnalytics",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/tweets/search/recent",
+        "operation_id": "searchPostsRecent",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /2/tweets/{id}",
+        "operation_id": "deletePosts",
+        "required_scopes": [
+          "tweet.read",
+          "tweet.write",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "tweet.write",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/tweets/{id}",
+        "operation_id": "getPostsById",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/tweets/{id}/liking_users",
+        "operation_id": "getPostsLikingUsers",
+        "required_scopes": [
+          "like.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "like.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/tweets/{id}/quote_tweets",
+        "operation_id": "getPostsQuotedPosts",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/tweets/{id}/retweeted_by",
+        "operation_id": "getPostsRepostedBy",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/tweets/{id}/retweets",
+        "operation_id": "getPostsReposts",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /2/tweets/{tweet_id}/hidden",
+        "operation_id": "hidePostsReply",
+        "required_scopes": [
+          "tweet.moderate.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.moderate.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users",
+        "operation_id": "getUsersByIds",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/by",
+        "operation_id": "getUsersByUsernames",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/by/username/{username}",
+        "operation_id": "getUsersByUsername",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/me",
+        "operation_id": "getUsersMe",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/personalized_trends",
+        "operation_id": "getTrendsPersonalizedTrends",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/public_keys",
+        "operation_id": "getUsersPublicKeys",
+        "required_scopes": [
+          "dm.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/reposts_of_me",
+        "operation_id": "getUsersRepostsOfMe",
+        "required_scopes": [
+          "timeline.read",
+          "tweet.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "timeline.read",
+            "tweet.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/search",
+        "operation_id": "searchUsers",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/{id}",
+        "operation_id": "getUsersById",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/{id}/affiliates",
+        "operation_id": "getUsersAffiliates",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/{id}/blocking",
+        "operation_id": "getUsersBlocking",
+        "required_scopes": [
+          "block.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "block.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/{id}/bookmarks",
+        "operation_id": "getUsersBookmarks",
+        "required_scopes": [
+          "bookmark.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "bookmark.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/users/{id}/bookmarks",
+        "operation_id": "createUsersBookmark",
+        "required_scopes": [
+          "bookmark.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "bookmark.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/{id}/bookmarks/folders",
+        "operation_id": "getUsersBookmarkFolders",
+        "required_scopes": [
+          "bookmark.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "bookmark.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/{id}/bookmarks/folders/{folder_id}",
+        "operation_id": "getUsersBookmarksByFolderId",
+        "required_scopes": [
+          "bookmark.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "bookmark.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /2/users/{id}/bookmarks/{tweet_id}",
+        "operation_id": "deleteUsersBookmark",
+        "required_scopes": [
+          "bookmark.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "bookmark.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/users/{id}/dm/block",
+        "operation_id": "blockUsersDms",
+        "required_scopes": [
+          "dm.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/users/{id}/dm/unblock",
+        "operation_id": "unblockUsersDms",
+        "required_scopes": [
+          "dm.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/{id}/followed_lists",
+        "operation_id": "getUsersFollowedLists",
+        "required_scopes": [
+          "list.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "list.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/users/{id}/followed_lists",
+        "operation_id": "followList",
+        "required_scopes": [
+          "list.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "list.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /2/users/{id}/followed_lists/{list_id}",
+        "operation_id": "unfollowList",
+        "required_scopes": [
+          "list.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "list.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/{id}/followers",
+        "operation_id": "getUsersFollowers",
+        "required_scopes": [
+          "follows.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "follows.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/{id}/following",
+        "operation_id": "getUsersFollowing",
+        "required_scopes": [
+          "follows.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "follows.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/users/{id}/following",
+        "operation_id": "followUser",
+        "required_scopes": [
+          "follows.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "follows.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/{id}/liked_tweets",
+        "operation_id": "getUsersLikedPosts",
+        "required_scopes": [
+          "like.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "like.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/users/{id}/likes",
+        "operation_id": "likePost",
+        "required_scopes": [
+          "like.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "like.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /2/users/{id}/likes/{tweet_id}",
+        "operation_id": "unlikePost",
+        "required_scopes": [
+          "like.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "like.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/{id}/list_memberships",
+        "operation_id": "getUsersListMemberships",
+        "required_scopes": [
+          "list.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "list.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/{id}/mentions",
+        "operation_id": "getUsersMentions",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/{id}/muting",
+        "operation_id": "getUsersMuting",
+        "required_scopes": [
+          "mute.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "mute.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/users/{id}/muting",
+        "operation_id": "muteUser",
+        "required_scopes": [
+          "mute.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "mute.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/{id}/owned_lists",
+        "operation_id": "getUsersOwnedLists",
+        "required_scopes": [
+          "list.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "list.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/{id}/pinned_lists",
+        "operation_id": "getUsersPinnedLists",
+        "required_scopes": [
+          "list.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "list.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/users/{id}/pinned_lists",
+        "operation_id": "pinList",
+        "required_scopes": [
+          "list.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "list.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /2/users/{id}/pinned_lists/{list_id}",
+        "operation_id": "unpinList",
+        "required_scopes": [
+          "list.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "list.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/{id}/public_keys",
+        "operation_id": "getUsersPublicKey",
+        "required_scopes": [
+          "dm.read",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.read",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/users/{id}/public_keys",
+        "operation_id": "addUserPublicKey",
+        "required_scopes": [
+          "dm.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "dm.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /2/users/{id}/retweets",
+        "operation_id": "repostPost",
+        "required_scopes": [
+          "tweet.read",
+          "tweet.write",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "tweet.write",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /2/users/{id}/retweets/{source_tweet_id}",
+        "operation_id": "unrepostPost",
+        "required_scopes": [
+          "tweet.read",
+          "tweet.write",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "tweet.write",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/{id}/timelines/reverse_chronological",
+        "operation_id": "getUsersTimeline",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /2/users/{id}/tweets",
+        "operation_id": "getUsersPosts",
+        "required_scopes": [
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /2/users/{source_user_id}/following/{target_user_id}",
+        "operation_id": "unfollowUser",
+        "required_scopes": [
+          "follows.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "follows.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /2/users/{source_user_id}/muting/{target_user_id}",
+        "operation_id": "unmuteUser",
+        "required_scopes": [
+          "mute.write",
+          "tweet.read",
+          "users.read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "mute.write",
+            "tweet.read",
+            "users.read"
+          ]
+        ]
+      }
+    ],
+    "detail": "generated auth.go declares no OAuth scopes"
+  },
   "dead_flags": {
-    "total": 19,
+    "total": 21,
     "dead": 0
   },
   "dead_functions": {
-    "total": 54,
+    "total": 67,
     "dead": 0
   },
   "pipeline_check": {
     "sync_calls_domain": true,
     "search_calls_domain": true,
-    "domain_tables": 3,
-    "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 3 domain tables found"
+    "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 1 domain tables found"
   },
   "example_check": {
     "tested": 10,
@@ -40,8 +1792,8 @@
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 247,
-      "registered": 247
+      "defined": 257,
+      "registered": 257
     },
     "config_consistency": {
       "consistent": true
@@ -54,9 +1806,8 @@
     }
   },
   "novel_features_check": {
-    "planned": 0,
-    "found": 0,
-    "skipped": true
+    "planned": 3,
+    "found": 3
   },
   "mcp_surface_parity": {
     "state": "runtime_walking",
@@ -64,22 +1815,39 @@
     "detail": "MCP surface mirrors the Cobra tree at runtime"
   },
   "reimplementation_check": {
-    "checked": 0,
-    "exempted_via_store": 0,
-    "skipped": true
+    "checked": 3,
+    "exempted_via_store": 1,
+    "missing_data_source_strategy": [
+      {
+        "command": "thread compose",
+        "file": "thread_compose.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "articles-publish-md",
+        "file": "articles_publish_md.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      }
+    ]
   },
   "source_client_check": {
     "checked": 0,
     "skipped": true
   },
   "print_json_filtered_check": {
-    "checked": 235
+    "checked": 246
   },
   "test_presence": {
     "checked": 0
   },
   "naming_check": {
-    "checked": 235
+    "checked": 246
   },
-  "issues": null
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "OAuth scope coverage missing for 118 endpoint(s)"
+  ]
 }

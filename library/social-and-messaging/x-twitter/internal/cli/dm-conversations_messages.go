@@ -9,8 +9,10 @@ import (
 
 func newDmConversationsMessagesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "messages",
-		Short: "Manage messages",
+		Use:         "messages",
+		Short:       "Create messages for dm conversations",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newDmConversationsMessagesCreateDirectByConversationIdCmd(flags))

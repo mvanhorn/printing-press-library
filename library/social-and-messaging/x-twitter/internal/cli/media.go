@@ -9,8 +9,11 @@ import (
 
 func newMediaCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "media",
-		Short: "Endpoints related to Media",
+		Use:         "media",
+		Short:       "Endpoints related to Media",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newMediaAppendUploadCmd(flags))

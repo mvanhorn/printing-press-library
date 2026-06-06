@@ -9,8 +9,11 @@ import (
 
 func newConnectionsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "connections",
-		Short: "Endpoints related to streaming connections",
+		Use:         "connections",
+		Short:       "Endpoints related to streaming connections",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newConnectionsDeleteAllCmd(flags))

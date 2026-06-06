@@ -21,7 +21,7 @@ func newArticlesListCmd(flags *rootFlags) *cobra.Command {
 		Use:         "list",
 		Short:       "GET /i/api/graphql/N1zzFzRPspT-sP9Q42n_bg/ArticleEntitiesSlice",
 		Example:     "  x-twitter-pp-cli articles list",
-		Annotations: map[string]string{"pp:endpoint": "articles.list", "pp:method": "GET", "pp:path": "/i/api/graphql/N1zzFzRPspT-sP9Q42n_bg/ArticleEntitiesSlice", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "articles.list", "pp:method": "GET", "pp:path": "/i/api/graphql/N1zzFzRPspT-sP9Q42n_bg/ArticleEntitiesSlice", "mcp:read-only": "true", "pp:requires-tier": "cookie"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -36,7 +36,7 @@ func newArticlesListCmd(flags *rootFlags) *cobra.Command {
 			if flagVariables != "" {
 				params["variables"] = fmt.Sprintf("%v", flagVariables)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "articles", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "articles", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

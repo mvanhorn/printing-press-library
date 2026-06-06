@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"sort"
@@ -96,8 +97,12 @@ func newTopPostsCmd(flags *rootFlags) *cobra.Command {
 			// Resolve the target user and a username for building post URLs.
 			userID := strings.TrimSpace(flagUserID)
 			username := ""
+			ctx := cmd.Context()
 			if userID == "" {
-				meData, merr := c.Get("/2/users/me", nil)
+				if c.Config != nil && c.Config.XBearerToken != "" && c.Config.XOauth2UserToken == "" && c.Config.AccessToken == "" && c.Config.AuthHeaderVal == "" {
+					return fmt.Errorf("top-posts without --user-id requires a user-context token because /2/users/me does not accept app-only bearer tokens; pass --user-id for bearer-token reads or export X_OAUTH2_USER_TOKEN")
+				}
+				meData, merr := c.Get(ctx, "/2/users/me", nil)
 				if merr != nil {
 					return classifyAPIError(merr, flags)
 				}
@@ -112,21 +117,26 @@ func newTopPostsCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				// Look up the username so post URLs are canonical; tolerate a
 				// lookup failure by falling back to the id-based URL form.
-				if uData, uerr := c.Get("/2/users/"+userID, nil); uerr == nil {
+				if uData, uerr := c.Get(ctx, "/2/users/"+userID, nil); uerr == nil {
 					_, username, _ = decodeUserEnvelope(uData)
 				}
 			}
 
-			items, err := fetchUserPosts(c, flags, userID, flagMaxFetch, flagExclude)
+			items, err := fetchUserPosts(ctx, c, flags, userID, flagMaxFetch, flagExclude)
 			if err != nil {
 				return err
 			}
 
 			// Gracefully handle impression ranking on tiers that omit the field.
 			effectiveMetric := metric
-			if metric == "impressions" && !impressionsAvailable(items) {
-				fmt.Fprintln(cmd.ErrOrStderr(), "note: impression_count is unavailable on this access tier; ranking by engagement instead.")
-				effectiveMetric = "engagement"
+			if metric == "impressions" {
+				missingImpressions := missingImpressionsCount(items)
+				if missingImpressions == len(items) {
+					fmt.Fprintln(cmd.ErrOrStderr(), "note: impression_count is unavailable on this access tier; ranking by engagement instead.")
+					effectiveMetric = "engagement"
+				} else if missingImpressions > 0 {
+					fmt.Fprintf(cmd.ErrOrStderr(), "note: impression_count is missing on %d of %d posts; missing values rank as 0 impressions.\n", missingImpressions, len(items))
+				}
 			}
 
 			posts := rankTopPosts(items, username, effectiveMetric, flagLimit)
@@ -218,12 +228,18 @@ func metricScore(pm publicMetrics, metric string) (int, bool) {
 // impressionsAvailable reports whether any item carried impression_count, which
 // distinguishes a tier that omits the field from posts with genuine zeroes.
 func impressionsAvailable(items []tweetItem) bool {
+	return missingImpressionsCount(items) < len(items)
+}
+
+// missingImpressionsCount reports how many fetched posts omitted impression_count.
+func missingImpressionsCount(items []tweetItem) int {
+	missing := 0
 	for _, it := range items {
-		if it.PublicMetrics.ImpressionCount != nil {
-			return true
+		if it.PublicMetrics.ImpressionCount == nil {
+			missing++
 		}
 	}
-	return false
+	return missing
 }
 
 // rankTopPosts sorts items by the chosen metric (descending), breaking ties by
@@ -344,7 +360,7 @@ func decodeTweetsPage(data json.RawMessage) (items []tweetItem, nextToken string
 
 // fetchUserPosts pages the user timeline until it has gathered maxFetch posts or
 // the timeline is exhausted, reusing the CLI's existing client + error plumbing.
-func fetchUserPosts(c *client.Client, flags *rootFlags, userID string, maxFetch int, exclude string) ([]tweetItem, error) {
+func fetchUserPosts(ctx context.Context, c *client.Client, flags *rootFlags, userID string, maxFetch int, exclude string) ([]tweetItem, error) {
 	path := "/2/users/" + userID + "/tweets"
 	collected := make([]tweetItem, 0, maxFetch)
 	nextToken := ""
@@ -366,7 +382,7 @@ func fetchUserPosts(c *client.Client, flags *rootFlags, userID string, maxFetch 
 		if nextToken != "" {
 			params["pagination_token"] = nextToken
 		}
-		data, err := c.Get(path, params)
+		data, err := c.Get(ctx, path, params)
 		if err != nil {
 			return nil, classifyAPIError(err, flags)
 		}

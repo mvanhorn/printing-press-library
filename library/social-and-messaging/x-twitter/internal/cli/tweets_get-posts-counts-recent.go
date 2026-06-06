@@ -28,6 +28,12 @@ func newTweetsGetPostsCountsRecentCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  x-twitter-pp-cli tweets get-posts-counts-recent --query example-value",
 		Annotations: map[string]string{"pp:endpoint": "tweets.get-posts-counts-recent", "pp:method": "GET", "pp:path": "/2/tweets/counts/recent", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "query")
 			}
@@ -41,7 +47,7 @@ func newTweetsGetPostsCountsRecentCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validGranularity {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "granularity", flagGranularity, allowedGranularity)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagGranularity, "granularity", allowedGranularity)
 				}
 			}
 			c, err := flags.newClient()
@@ -78,20 +84,26 @@ func newTweetsGetPostsCountsRecentCmd(flags *rootFlags) *cobra.Command {
 			if flagSearchCountFields != "" {
 				params["search_count.fields"] = fmt.Sprintf("%v", flagSearchCountFields)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "tweets", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "tweets", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -121,12 +133,12 @@ func newTweetsGetPostsCountsRecentCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagQuery, "query", "", "One query/rule/filter for matching Posts. Refer to https://t.co/rulelength to identify the max query length.")
-	cmd.Flags().StringVar(&flagStartTime, "start-time", "", "YYYY-MM-DDTHH:mm:ssZ. The oldest UTC timestamp (from most recent 7 days) from which the Posts will be provided....")
-	cmd.Flags().StringVar(&flagEndTime, "end-time", "", "YYYY-MM-DDTHH:mm:ssZ. The newest, most recent UTC timestamp to which the Posts will be provided. Timestamp is in...")
+	cmd.Flags().StringVar(&flagStartTime, "start-time", "", "YYYY-MM-DDTHH:mm:ssZ. The oldest UTC timestamp (from most recent 7 days) from which the Posts will be provided.")
+	cmd.Flags().StringVar(&flagEndTime, "end-time", "", "YYYY-MM-DDTHH:mm:ssZ. The newest, most recent UTC timestamp to which the Posts will be provided.")
 	cmd.Flags().StringVar(&flagSinceId, "since-id", "", "Returns results with a Post ID greater than (that is, more recent than) the specified ID.")
 	cmd.Flags().StringVar(&flagUntilId, "until-id", "", "Returns results with a Post ID less than (that is, older than) the specified ID.")
-	cmd.Flags().StringVar(&flagNextToken, "next-token", "", "This parameter is used to get the next 'page' of results. The value used with the parameter is pulled directly from...")
-	cmd.Flags().StringVar(&flagPaginationToken, "pagination-token", "", "This parameter is used to get the next 'page' of results. The value used with the parameter is pulled directly from...")
+	cmd.Flags().StringVar(&flagNextToken, "next-token", "", "This parameter is used to get the next 'page' of results.")
+	cmd.Flags().StringVar(&flagPaginationToken, "pagination-token", "", "This parameter is used to get the next 'page' of results.")
 	cmd.Flags().StringVar(&flagGranularity, "granularity", "hour", "The granularity for the search counts results. (one of: minute, hour, day)")
 	cmd.Flags().StringVar(&flagSearchCountFields, "search-count-fields", "", "A comma separated list of SearchCount fields to display.")
 
