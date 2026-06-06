@@ -15,6 +15,7 @@ import (
 
 func newArticlesListCmd(flags *rootFlags) *cobra.Command {
 	var flagFeatures string
+	var flagLifecycle string
 	var flagVariables string
 
 	cmd := &cobra.Command{
@@ -44,7 +45,10 @@ func newArticlesListCmd(flags *rootFlags) *cobra.Command {
 				if userID == "" {
 					return fmt.Errorf("articles list requires the signed-in X user id; re-run `x-twitter-pp-cli auth login --chrome` to refresh cookies with the twid user id, or pass --variables '{\"userId\":\"<x-user-id>\"}'")
 				}
-				variables, err := json.Marshal(map[string]string{"userId": userID})
+				variables, err := json.Marshal(map[string]string{
+					"userId":    userID,
+					"lifecycle": flagLifecycle,
+				})
 				if err != nil {
 					return err
 				}
@@ -93,6 +97,7 @@ func newArticlesListCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagFeatures, "features", "", "")
+	cmd.Flags().StringVar(&flagLifecycle, "lifecycle", "Draft", "Article lifecycle to list when --variables is not supplied (Draft or Published)")
 	cmd.Flags().StringVar(&flagVariables, "variables", "", "")
 
 	return cmd
