@@ -45,6 +45,9 @@ func newArticlesListCmd(flags *rootFlags) *cobra.Command {
 				if userID == "" {
 					return fmt.Errorf("articles list requires the signed-in X user id; re-run `x-twitter-pp-cli auth login --chrome` to refresh cookies with the twid user id, or pass --variables '{\"userId\":\"<x-user-id>\"}'")
 				}
+				if flagLifecycle != "Draft" && flagLifecycle != "Published" {
+					return usageErr(fmt.Errorf("invalid --lifecycle %q: must be Draft or Published", flagLifecycle))
+				}
 				variables, err := json.Marshal(map[string]string{
 					"userId":    userID,
 					"lifecycle": flagLifecycle,
