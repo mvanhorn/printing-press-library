@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/payments/qbo/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/payments/qbo/internal/store"
@@ -62,11 +63,18 @@ func newChangedCmd(flags *rootFlags) *cobra.Command {
 				for rows.Next() {
 					var item changeItem
 					item.Type = et.Name
-					if err := rows.Scan(&item.ID, &item.Name, &item.DocNumber, &item.LastUpdated); err != nil {
+					var name, docNum sql.NullString
+					if err := rows.Scan(&item.ID, &name, &docNum, &item.LastUpdated); err != nil {
 						rows.Close()
-						return err
+						return fmt.Errorf("scanning %s row: %w", et.Name, err)
 					}
+					item.Name = name.String
+					item.DocNumber = docNum.String
 					changes = append(changes, item)
+				}
+				if err := rows.Err(); err != nil {
+					rows.Close()
+					return fmt.Errorf("reading %s rows: %w", et.Name, err)
 				}
 				rows.Close()
 			}

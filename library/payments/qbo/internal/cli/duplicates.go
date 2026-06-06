@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/payments/qbo/internal/store"
 
@@ -59,10 +60,12 @@ func newDuplicatesCmd(flags *rootFlags) *cobra.Command {
 			for rows.Next() {
 				var d duplicateGroup
 				d.Type = "Purchase"
-				if err := rows.Scan(&d.VendorName, &d.Amount, &d.Item1ID, &d.Item1Date, &d.Item1RefNum, &d.Item2ID, &d.Item2Date, &d.Item2RefNum); err != nil {
+				var vendorName sql.NullString
+				if err := rows.Scan(&vendorName, &d.Amount, &d.Item1ID, &d.Item1Date, &d.Item1RefNum, &d.Item2ID, &d.Item2Date, &d.Item2RefNum); err != nil {
 					rows.Close()
 					return fmt.Errorf("scanning purchase duplicate row: %w", err)
 				}
+				d.VendorName = vendorName.String
 				duplicates = append(duplicates, d)
 			}
 			if err := rows.Err(); err != nil {
@@ -92,10 +95,12 @@ func newDuplicatesCmd(flags *rootFlags) *cobra.Command {
 			for rows.Next() {
 				var d duplicateGroup
 				d.Type = "Bill"
-				if err := rows.Scan(&d.VendorName, &d.Amount, &d.Item1ID, &d.Item1Date, &d.Item1RefNum, &d.Item2ID, &d.Item2Date, &d.Item2RefNum); err != nil {
+				var vendorName sql.NullString
+				if err := rows.Scan(&vendorName, &d.Amount, &d.Item1ID, &d.Item1Date, &d.Item1RefNum, &d.Item2ID, &d.Item2Date, &d.Item2RefNum); err != nil {
 					rows.Close()
 					return fmt.Errorf("scanning bill duplicate row: %w", err)
 				}
+				d.VendorName = vendorName.String
 				duplicates = append(duplicates, d)
 			}
 			if err := rows.Err(); err != nil {

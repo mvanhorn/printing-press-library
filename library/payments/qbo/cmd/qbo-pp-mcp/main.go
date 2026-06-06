@@ -20,7 +20,7 @@ import (
 // guidance that production agents need a remote option.
 
 const (
-	defaultHTTPAddr = ":7777"
+	defaultHTTPAddr = "127.0.0.1:7777"
 )
 
 func main() {

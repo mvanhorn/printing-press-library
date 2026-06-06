@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/payments/qbo/internal/store"
 
@@ -51,24 +52,25 @@ func newNetWorthCmd(flags *rootFlags) *cobra.Command {
 			var report netWorthReport
 
 			for rows.Next() {
-				var name, accType string
-				var balance float64
+				var name string
+				var accType sql.NullString
+				var balance sql.NullFloat64
 				if err := rows.Scan(&name, &accType, &balance); err != nil {
-					return err
+					return fmt.Errorf("scanning account row: %w", err)
 				}
 
 				acc := netWorthAccount{
 					Name:    name,
-					Type:    accType,
-					Balance: balance,
+					Type:    accType.String,
+					Balance: balance.Float64,
 				}
 
-				if isAssetAccount(accType) {
+				if isAssetAccount(accType.String) {
 					report.Assets = append(report.Assets, acc)
-					report.TotalAssets += balance
-				} else if isLiabilityAccount(accType) {
+					report.TotalAssets += balance.Float64
+				} else if isLiabilityAccount(accType.String) {
 					report.Liabilities = append(report.Liabilities, acc)
-					report.TotalLiabilities += balance
+					report.TotalLiabilities += balance.Float64
 				}
 			}
 			if err := rows.Err(); err != nil {

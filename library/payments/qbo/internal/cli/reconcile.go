@@ -103,10 +103,13 @@ func newReconcileCmd(flags *rootFlags) *cobra.Command {
 					var c reconcileCandidate
 					c.Type = src.entityType
 					var balance sql.NullFloat64
-					if err := rows.Scan(&c.ID, &c.RefNum, &c.Party, &c.Date, &c.TotalAmount, &balance); err != nil {
+					var party, date sql.NullString
+					if err := rows.Scan(&c.ID, &c.RefNum, &party, &date, &c.TotalAmount, &balance); err != nil {
 						rows.Close()
-						return err
+						return fmt.Errorf("scanning %s row: %w", src.entityType, err)
 					}
+					c.Party = party.String
+					c.Date = date.String
 
 					if balance.Valid {
 						c.Balance = balance.Float64
