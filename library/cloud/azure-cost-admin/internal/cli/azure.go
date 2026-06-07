@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -597,15 +596,9 @@ func asString(value any) string {
 }
 
 func escapeKustoString(value string) string {
-	return strings.ReplaceAll(value, "'", "\\'")
+	return strings.ReplaceAll(value, "'", "''")
 }
 
 func escapeODataString(value string) string {
 	return strings.ReplaceAll(value, "'", "''")
-}
-
-func compactJSON(v any) string {
-	var buf bytes.Buffer
-	_ = json.NewEncoder(&buf).Encode(v)
-	return strings.TrimSpace(buf.String())
 }

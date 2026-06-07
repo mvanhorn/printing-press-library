@@ -123,6 +123,22 @@ func TestBuildMissingTagQueryEscapesTagNameAndLimitsResults(t *testing.T) {
 	}
 }
 
+func TestBuildMissingTagQueryEscapesKustoSingleQuotes(t *testing.T) {
+	query := buildMissingTagQuery("owner's-team", "rg's-data", 25)
+
+	for _, expected := range []string{
+		`isnull(tags['owner''s-team'])`,
+		`resourceGroup == 'rg''s-data'`,
+	} {
+		if !strings.Contains(query, expected) {
+			t.Fatalf("query missing %q: %s", expected, query)
+		}
+	}
+	if strings.Contains(query, `\'`) {
+		t.Fatalf("query used backslash escaping: %s", query)
+	}
+}
+
 func TestQueryMissingTagsUsesResourceGraphQueryFlag(t *testing.T) {
 	runner := &recordingRunner{output: []byte(`{"data":[]}`)}
 	app := defaultApp()
