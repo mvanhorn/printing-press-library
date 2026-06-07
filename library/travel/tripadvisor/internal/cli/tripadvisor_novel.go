@@ -330,33 +330,24 @@ func taFetchDetailsBounded(ctx context.Context, c *client.Client, ids []string, 
 		idx int
 		det taDetail
 	}
+	// results is buffered to len(ids) so workers never block on send while the
+	// spawn loop is still running; sem caps concurrency at 5.
 	results := make(chan res, len(ids))
 	sem := make(chan struct{}, 5)
-	done := make(chan struct{})
-	go func() {
-		var pending int
-		for i, id := range ids {
-			pending++
-			sem <- struct{}{}
-			go func(i int, id string) {
-				defer func() { <-sem }()
-				d, _ := taFetchDetail(ctx, c, id, language, currency)
-				results <- res{idx: i, det: d}
-			}(i, id)
-		}
-		_ = pending
-		close(done)
-	}()
+	for i, id := range ids {
+		sem <- struct{}{}
+		go func(i int, id string) {
+			defer func() { <-sem }()
+			d, _ := taFetchDetail(ctx, c, id, language, currency)
+			results <- res{idx: i, det: d}
+		}(i, id)
+	}
 
 	ordered := make([]taDetail, len(ids))
-	got := 0
-	// Spawn loop above is non-blocking after each send; collect len(ids) results.
-	for got < len(ids) {
+	for got := 0; got < len(ids); got++ {
 		r := <-results
 		ordered[r.idx] = r.det
-		got++
 	}
-	<-done
 
 	ok = make([]taDetail, 0, len(ids))
 	failures = make([]taFetchFailure, 0)

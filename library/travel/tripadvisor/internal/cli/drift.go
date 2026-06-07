@@ -43,8 +43,10 @@ func newNovelDriftCmd(flags *rootFlags) *cobra.Command {
 			"saved locally on a previous run, and flag a meaningful drop. Each run also records a new snapshot, " +
 			"so drift compounds over time. The first run for a location establishes the baseline.",
 		Example: "  tripadvisor-pp-cli drift 93450 --threshold 0.2 --agent",
+		// No mcp:read-only hint: drift appends a row to the local
+		// rating_snapshots table on every call (unless --no-record), so it
+		// modifies local state and must not advertise readOnlyHint=true.
 		Annotations: map[string]string{
-			"mcp:read-only": "true",
 			"pp:happy-args": "<locationId>=89575",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {

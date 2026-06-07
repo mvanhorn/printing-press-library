@@ -41,9 +41,10 @@ func newNovelFitCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "fit <query>",
 		Short: "Rank search results by how well their traveler mix fits a profile (families, couples, solo, business)",
-		Long: "Search Tripadvisor, fetch details up to --max-scan (metered API), and rank results by the share of " +
-			"reviews from your declared traveler type. The fit score is that share (0-1); higher means a larger " +
-			"fraction of travelers like you reviewed the place.",
+		Long: "Search Tripadvisor, fetch details up to --max-scan (metered API), and rank results by a fit score " +
+			"that combines the share of reviews from your declared traveler type with the location's overall " +
+			"rating. traveler_share is the raw share (0-1); fit_score weights that share by rating/5 so a place " +
+			"that is both popular with your traveler type and well-rated ranks highest.",
 		Example: "  tripadvisor-pp-cli fit \"Orlando\" --category hotels --traveler families --top 5 --agent",
 		Annotations: map[string]string{
 			"mcp:read-only": "true",
@@ -92,7 +93,14 @@ func newNovelFitCmd(flags *rootFlags) *cobra.Command {
 				if total > 0 {
 					share = float64(d.TripTypes[key]) / float64(total)
 				}
-				rows = append(rows, fitRow{taDetail: d, TravelerShare: round2(share), FitScore: round2(share)})
+				// fit_score weights traveler share by overall rating (rating/5),
+				// so a place popular with this traveler type AND well-rated ranks
+				// highest. Falls back to raw share when no rating is available.
+				fitScore := share
+				if d.Rating > 0 {
+					fitScore = share * (d.Rating / 5.0)
+				}
+				rows = append(rows, fitRow{taDetail: d, TravelerShare: round2(share), FitScore: round2(fitScore)})
 			}
 			sort.SliceStable(rows, func(i, j int) bool {
 				if rows[i].FitScore != rows[j].FitScore {
