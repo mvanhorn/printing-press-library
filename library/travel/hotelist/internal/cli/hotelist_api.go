@@ -177,7 +177,12 @@ func adaptiveFetch(ctx context.Context, c *client.Client, filters []apiFilter, s
 		if err != nil {
 			break
 		}
-		hotels = h2
+		// Only accept the wider search when it actually improves coverage — a
+		// wider geohash can occasionally return fewer rows, and we must never
+		// hand back fewer hotels than the initial fetch produced.
+		if len(h2) > len(hotels) {
+			hotels = h2
+		}
 	}
 	return hotels, nil
 }

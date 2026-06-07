@@ -102,12 +102,14 @@ func newNovelChainCompareCmd(flags *rootFlags) *cobra.Command {
 				}
 				hotels = dedupeHotels(hotels)
 				storeHotels(db, hotels)
-				if len(hotels) < minHotels {
-					view.Skipped = append(view.Skipped, fmt.Sprintf("%s (only %d hotels < --min-hotels %d)", display, len(hotels), minHotels))
-					continue
-				}
+				// Check empty first so it stays reachable even when --min-hotels
+				// is 0 (where the count guard below would not fire).
 				if len(hotels) == 0 {
 					view.Skipped = append(view.Skipped, display+" (no hotels in scope)")
+					continue
+				}
+				if len(hotels) < minHotels {
+					view.Skipped = append(view.Skipped, fmt.Sprintf("%s (only %d hotels < --min-hotels %d)", display, len(hotels), minHotels))
 					continue
 				}
 				ratings := ratingsOf(hotels)

@@ -6,6 +6,8 @@ package cli
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"sort"
@@ -107,8 +109,13 @@ func loadBaseline(ctx context.Context, db *store.Store, scope, since string) (st
 			`SELECT batch FROM hotel_snapshots WHERE scope=?
 			 ORDER BY scraped_at DESC LIMIT 1`, scope).Scan(&batch)
 	}
+	if errors.Is(err, sql.ErrNoRows) {
+		return "", nil, nil // genuinely no baseline yet
+	}
 	if err != nil {
-		return "", nil, nil // no baseline yet
+		// A real query error (locked DB, I/O, cancelled context) must not be
+		// mistaken for "no baseline" — that would overwrite the user's history.
+		return "", nil, fmt.Errorf("looking up baseline snapshot: %w", err)
 	}
 	rows, err := db.DB().QueryContext(ctx,
 		`SELECT hotel_id, name, rating, price FROM hotel_snapshots WHERE scope=? AND batch=?`, scope, batch)
