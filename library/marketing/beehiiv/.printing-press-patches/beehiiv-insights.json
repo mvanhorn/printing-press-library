@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "beehiiv-insights",
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260510-144732",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Adds Beehiiv-specific read-only insight commands and warning handling for partial failures.",
+  "reason": "The generated OpenAPI surface exposes raw endpoints, but Beehiiv users need compact growth, source, post, field, referral, and subscriber lookup workflows.",
+  "files": [
+    "internal/cli/insights.go"
+  ],
+  "validated_outcome": "go test ./... and verify-skill pass for the published Beehiiv CLI."
+}

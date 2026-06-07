@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "phase-3-computed-analytics",
+  "applied_at": "2026-05-27",
+  "base_run_id": "2026-05-02T18:02:09.219489Z",
+  "base_printing_press_version": "3.5.0",
+  "summary": "Add root-level computed analytics commands for flow collisions, send fatigue, subject lines, send time, revenue efficiency, segment velocity, flow paths, campaign decay, list quality, and content fatigue.",
+  "reason": "Klaviyo exposes the raw events and report aggregates, but these actionable cross-entity analytics require local joins, snapshots, and derived scoring.",
+  "files": [
+    "internal/cli/novel_computed_analytics.go",
+    "internal/cli/root.go",
+    "internal/cli/novel_klaviyo_test.go"
+  ],
+  "validated_outcome": "go build ./...; go test ./internal/cli/ -v -count=1; dry-run smoke for all 10 Phase 3 commands; live read-only smoke for optimal-send-time, revenue-per-email, subject-line-analysis --source campaign, and list-quality-score"
+}

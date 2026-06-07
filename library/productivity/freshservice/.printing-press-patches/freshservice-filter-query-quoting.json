@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "freshservice-filter-query-quoting",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-170855",
+  "base_printing_press_version": "4.5.0",
+  "summary": "Wrap the value of `query=` in literal double quotes before sending /tickets/filter and /changes/filter requests, and route both filter commands through the wrapFreshserviceFilterQuery helper.",
+  "reason": "Freshservice's filter endpoint requires the entire query value to arrive as a double-quoted string before URL encoding; the generator emitted the raw user string and the API responded HTTP 500. Same quirk applies to /assets?filter=, so the resolver in assets_get.go calls the same helper.",
+  "files": [
+    "internal/cli/freshservice_novel.go",
+    "internal/cli/tickets_filter.go",
+    "internal/cli/changes_filter.go"
+  ],
+  "validated_outcome": "tickets filter --query \"status:2 AND priority:4\" now returns the expected page; previously returned `{\"description\":\"Validation failed\",\"errors\":[{\"field\":\"query\",\"message\":\"There was an unexpected error\"}]}` with HTTP 500."
+}

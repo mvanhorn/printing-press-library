@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "messages-preview-rune-aware-truncate",
+  "applied_at": "2026-05-23",
+  "base_run_id": "hand-written",
+  "base_printing_press_version": "0.1.3",
+  "summary": "fillLastPreviews and printSearchTable slice text via []rune so previews don't split multi-byte UTF-8 runes at the truncation boundary.",
+  "reason": "Byte-index truncation (text[:maxLen]) on emoji or CJK previews left a half rune at the end, which both JSON encoders and terminals render as U+FFFD mojibake. Rune-aware slicing keeps the cut at a glyph boundary. Greptile P1 on PR #766.",
+  "files": [
+    "internal/cli/messages_db.go",
+    "internal/cli/messages_search.go"
+  ]
+}

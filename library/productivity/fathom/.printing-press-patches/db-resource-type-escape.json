@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "db-resource-type-escape",
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-090403",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Fixed db_ff.go JSONL envelope to use json.Marshal(rt) instead of raw string concatenation for resource_type.",
+  "reason": "Raw concatenation of rt into a JSON string literal produces malformed JSON if rt contains backslashes or quotes (e.g. from a restored JSONL with unusual resource type names).",
+  "files": [
+    "internal/cli/db_ff.go"
+  ]
+}

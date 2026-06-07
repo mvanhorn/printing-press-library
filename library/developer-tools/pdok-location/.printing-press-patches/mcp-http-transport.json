@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "mcp-http-transport",
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260520-150244",
+  "base_printing_press_version": "4.9.0",
+  "summary": "MCP server entry now supports both stdio (default) and streamable HTTP (MCP_TRANSPORT=http, MCP_HTTP_ADDR=:8080).",
+  "reason": "Cloud-hosted agents (Claude Desktop's remote install, Managed Agents, web clients) need HTTP transport to connect; stdio-only restricts the server to local installs. The dual-transport binary uses the same tool surface either way.",
+  "files": [
+    "cmd/pdok-location-pp-mcp/main.go"
+  ],
+  "validated_outcome": "`MCP_TRANSPORT=http MCP_HTTP_ADDR=:18080 pdok-location-pp-mcp` listens on /mcp and responds to JSON-RPC; stdio remains the default."
+}

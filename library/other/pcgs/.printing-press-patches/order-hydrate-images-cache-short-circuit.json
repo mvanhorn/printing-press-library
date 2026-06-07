@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "order-hydrate-images-cache-short-circuit",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260516-193948",
+  "base_printing_press_version": "4.8.0",
+  "summary": "hydrateImages checks the SQLite coin_images cache before falling through to the API; matches hydrateFacts's pattern.",
+  "reason": "Without the SQLite short-circuit, the pre-flight quota gate's image-cache probe (countOrderHydrateImageHits) could under-count live calls when SQLite has a row but the HTTP file cache has aged out (5-min TTL). A large order with cached images on disk but a stale HTTP cache would silently exceed the daily quota. Greptile P1 finding on PR #630 (review 3).",
+  "files": [
+    "internal/cli/order_hydrate.go"
+  ],
+  "validated_outcome": "go build ./... && go vet ./..."
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "sensors-temp-unit-normalization",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260517-015408",
+  "base_printing_press_version": "4.8.0",
+  "summary": "sensors: normalize per-device temperatures to °C using tempunit and rename the output column to TEMP_C / temperature_c so the sibling sensors and rooms commands display on the same scale.",
+  "reason": "rooms.go was fixed in the prior patch but the whole-house sensors snapshot still showed raw temperature values — a device reporting 72 °F and one reporting 22 °C appeared in the same TEMP column with no unit annotation. Same tempunit guard (convert when tempunit==1) and same column-naming convention now apply, keeping the two commands consistent.",
+  "files": [
+    "internal/cli/sensors.go",
+    "SKILL.md"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "gisis-kooky-cookie-extractor",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260527-211808",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Wire kooky into the cookie-extraction chain AND fix GISIS cookie handling so re-auth is one command: extract at the imo.org parent (so kooky captures the .imo.org IMOWEBACC SSO token, not just gisis.imo.org cookies), require IMOWEBACC, and keep ASP.NET_SessionId/ARRAffinity when present. The generated login filter demanded a nonexistent .ASPXAUTH cookie, which made `auth login --chrome` error out before writing the jar.",
+  "reason": "detectCookieTool only knew pycookiecheat/cookies/cookie-scoop (all Chrome-tuned). GISIS sessions often live in a non-Chrome browser, forcing manual cookie hand-extraction into cookies.json. kooky reads every browser's store cross-platform.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/doctor.go",
+    "internal/cli/auth_test.go"
+  ],
+  "validated_outcome": "Verified end-to-end LIVE: from a cleared jar, `GISIS_KOOKY_BROWSER=brave gisis-pp-cli auth login --chrome` wrote 4 cookies (IMOWEBACC, ASP.NET_SessionId, ARRAffinity, ARRAffinitySameSite) and `ship get 9866641` then returned authenticated particulars (auth as the logged-in user). publish validate: manifest/govulncheck/go vet/go build/--help/--version pass. New TestParseKookyJSONL + TestExtractCookiesRejectsUnknownTool pass; full go test ./... green. (Pre-existing verify-skill doc-shape and phase5-proof failures are unrelated to this patch.)",
+  "deferred_to_upstream": [
+    {
+      "feature": "The Printing Press cookie-auth template should emit kooky as a detected extractor for every browser-session CLI, not just gisis.",
+      "reason": "kooky is the only cross-browser, cross-platform (incl. Windows) reader in the chain; the generated template currently stops at pycookiecheat/cookies/cookie-scoop, which are all Chrome-tuned."
+    }
+  ]
+}

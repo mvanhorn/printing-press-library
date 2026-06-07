@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "novel-events-on-sale-soon",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-051647",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Add 'events on-sale-soon --window N' scanner that filters local events by sales.public.startDateTime falling in the next N days.",
+  "reason": "Canonical 'presale watch' gap. No API endpoint orders events by upcoming on-sale date.",
+  "files": [
+    "internal/cli/events_on_sale_soon.go",
+    "internal/cli/events.go"
+  ],
+  "validated_outcome": "--help pass; classification + DMA filter wiring verified."
+}

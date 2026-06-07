@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "store-list-unbounded-limit",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260522-124732",
+  "base_printing_press_version": "4.11.0",
+  "summary": "store.List treats negative limit as unbounded; analytics/data_source pass -1 for the full dataset.",
+  "reason": "db.List(...,0) clamped to 200, silently truncating analytics/full-read callers to 200 rows.",
+  "files": [
+    "internal/store/store.go",
+    "internal/cli/analytics.go",
+    "internal/cli/data_source.go"
+  ]
+}

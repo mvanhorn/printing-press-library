@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "oauth-state-roundtrip",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260511-095555",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Validate the Auth0-echoed state value against the one sent on the authorize request before accepting the access token.",
+  "reason": "The OAuth2 state round-trip is the standard CSRF check for implicit/silent flows. Validating state catches a tampered or replayed Location header from a network intermediary before we accept a token for a different session (greptile P2).",
+  "files": [
+    "internal/auth0silent/silent.go"
+  ]
+}

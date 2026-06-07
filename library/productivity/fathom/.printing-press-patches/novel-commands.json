@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "novel-commands",
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-090403",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Added 9 novel commands not available in any Fathom MCP server: commitments, topics, brief, velocity, workload, account, stale, crm-gaps, coverage.",
+  "reason": "Fathom API has no aggregation endpoints. All novel commands read from the local SQLite store populated by sync.",
+  "files": [
+    "internal/cli/commitments_ff.go",
+    "internal/cli/topics_ff.go",
+    "internal/cli/brief_ff.go",
+    "internal/cli/velocity_ff.go",
+    "internal/cli/workload_ff.go",
+    "internal/cli/account_ff.go",
+    "internal/cli/stale_ff.go",
+    "internal/cli/crm_gaps_ff.go",
+    "internal/cli/coverage_ff.go",
+    "internal/cli/fathom_types.go",
+    "internal/cli/fathom_helpers.go"
+  ]
+}

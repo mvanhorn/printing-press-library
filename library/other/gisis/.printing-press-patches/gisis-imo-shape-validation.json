@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "gisis-imo-shape-validation",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260527-211808",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Added a 7-digit IMO-number validator (imoNumberPattern + isValidIMOFormat) in ship_pin_impl.go and gated `ship pin <imo>` + `ship unpin <imo>` on it. Invalid input (typos, the runner's __printing_press_invalid__ sentinel) now exits 2 with a usage error before touching the local cache, instead of pinning/unpinning the bad string silently.",
+  "reason": "ship pin / ship unpin accepted any positional string as an IMO. Live dogfood's error_path probes reported 2 failures because the commands silently succeeded with exit 0 on the runner sentinel. Beyond the runner, the silent-accept behavior was a real bug: a user typo would happily pin `9866642` instead of `9866641` and you'd never know until refresh ran. IMO numbers are always 7 digits — easy to validate at the CLI boundary. Annotated `owner fleet <owner>` with pp:no-error-path-probe because owner names are arbitrary strings (no shape to validate).",
+  "files": [
+    "internal/cli/ship_pin_impl.go",
+    "internal/cli/owner_fleet_impl.go"
+  ],
+  "validated_outcome": "Live dogfood error_path failures 3 -> 0. `ship pin __invalid__` and `ship unpin __invalid__` now exit 2 with 'invalid IMO number: expected 7 digits'; valid IMOs (9866641) unchanged. `owner fleet __invalid__` skipped by the runner via pp:no-error-path-probe. Full dogfood 47/47 PASS, phase5-acceptance.json status:pass."
+}

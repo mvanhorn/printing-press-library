@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "mcp-auth-hints",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260522-124732",
+  "base_printing_press_version": "4.11.0",
+  "summary": "MCP server 401/403 error hints corrected to name GODADDY_API_KEY/GODADDY_API_SECRET; removed the misleading 'this API is configured without credentials' 403 text.",
+  "reason": "Auth-hint sweep: the MCP tool error path carried the same 'configured without credentials' bug already fixed in the CLI's helpers.go 403 hint, plus a generic 401 hint. GoDaddy requires credentials, so the old MCP hints misled agents into ignoring missing/under-scoped keys.",
+  "files": [
+    "internal/mcp/tools.go"
+  ]
+}

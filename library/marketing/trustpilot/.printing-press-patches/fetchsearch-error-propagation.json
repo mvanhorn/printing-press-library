@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "fetchsearch-error-propagation",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260515-075905",
+  "base_printing_press_version": "4.6.1",
+  "summary": "FetchSearch propagates url.Parse and http.NewRequestWithContext errors instead of discarding them with _.",
+  "reason": "Greptile P2 on PR #588: a malformed searchBuildID could nil-dereference on the next u.Query() or req.Header.Set call. FetchPage above already handles this correctly.",
+  "files": [
+    "internal/trustpilot/transport.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass.",
+  "upstream_issue": "Greptile PR #588 inline finding"
+}

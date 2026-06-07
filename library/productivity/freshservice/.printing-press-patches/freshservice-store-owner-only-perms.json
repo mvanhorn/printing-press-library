@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "freshservice-store-owner-only-perms",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-170855",
+  "base_printing_press_version": "4.5.0",
+  "summary": "Tighten the SQLite DB directory to 0o700 and chmod the DB file to 0o600 after the driver creates it.",
+  "reason": "Own-audit follow-up to the Greptile cache-perms finding. The SQLite database under `~/.local/share/freshservice-pp-cli/` (or platform equivalent) contains the *primary* synced data corpus — tickets, requesters, assets, KB articles, group/department metadata — strictly more sensitive than the response cache Greptile flagged. Generator's 0o755 directory left the DB file's effective permissions to the user's umask (typically 0o644 = world-readable). Tightening dir to 0o700 and explicit chmod on the DB file closes the same exposure class.",
+  "files": [
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "The DB directory is owner-only; the DB file itself is 0o600 after the first open. New installs are tight from creation; existing installs should `chmod -R go-rwx ~/.local/share/freshservice-pp-cli` once after upgrade."
+}

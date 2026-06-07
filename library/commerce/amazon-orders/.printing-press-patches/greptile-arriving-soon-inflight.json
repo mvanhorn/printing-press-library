@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-arriving-soon-inflight",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260510-105710",
+  "base_printing_press_version": "4.2.2",
+  "summary": "arrivingByDay pre-filters through inflightOrders() so cancelled-after-shipping orders with a future ETA do not surface.",
+  "reason": "lateOrders and where-is-my-stuff already restrict their input to inflightOrders(orders). arrivingByDay iterated the raw slice, so an order Amazon marked Cancelled after the carrier handoff (real Amazon scenario — the listing HTML keeps the future ETA but flips the status) would still appear in `arriving-soon`. Consistent inflight gating across the novel commands keeps the contract uniform.",
+  "files": [
+    "internal/cli/novel_helpers.go"
+  ]
+}

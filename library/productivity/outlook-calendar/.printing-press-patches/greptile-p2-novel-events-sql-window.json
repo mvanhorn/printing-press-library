@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-p2-novel-events-sql-window",
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260510-094714",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Push start/end window into the SQL WHERE clause via json_extract in loadEvents.",
+  "reason": "Greptile (P2) — conflicts/freetime/prep previously pulled the entire events table into memory and filtered in Go; on accounts with multi-year history this is unnecessary. SQL bounds are coarse (UTC-shaped strings) and the Go-side overlap filter remains the precise gate.",
+  "files": [
+    "internal/cli/novel_events.go"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "aircraft-seat-type-amenities",
+  "applied_at": "2026-05-12",
+  "base_run_id": "2026-05-02T22:09:06.820184Z",
+  "base_printing_press_version": "3.6.0",
+  "upstream_issue": "",
+  "files": [
+    "internal/gflights/flights_native.go",
+    "internal/gflights/gflights.go"
+  ],
+  "summary": "Extract aircraft type (leg[17]), seat type (leg[13]), and amenities (leg[12]) from Google Flights GetShoppingResults response. Adds AircraftType, SeatType, and Amenities fields to the Leg struct.",
+  "reason": "Google Flights returns aircraft type, seat configuration (lie-flat, individual-suite, recliner, standard), and cabin amenities (wifi, power, entertainment, legroom) in the leg array but the parser did not extract them. These fields are critical for business/first class searches where seat type varies by aircraft on the same route.",
+  "validated_outcome": "go build ./...; live flight-goat-pp-cli flights BOS SFO 2026-06-10 --class business --agent returns aircraft_type, seat_type, and amenities on each leg. JetBlue Mint A320 individual-suite and United 777 lie-flat both correctly identified."
+}

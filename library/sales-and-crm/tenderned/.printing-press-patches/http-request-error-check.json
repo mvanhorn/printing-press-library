@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "http-request-error-check",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260517-211252",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Check errors returned by http.NewRequestWithContext instead of discarding them.",
+  "reason": "Four sites used `req, _ := http.NewRequestWithContext(...)`, leaving req=nil on URL parse failure. The following Header.Set or Do(req) call would then panic. While the URLs are built from typed integers plus a constant base URL making failure unlikely in practice, the docID path in tnFetchDocumentText takes a server-supplied string that could theoretically produce an invalid URL.",
+  "files": [
+    "internal/cli/docs_grep.go",
+    "internal/cli/awards.go",
+    "internal/cli/watch.go"
+  ]
+}

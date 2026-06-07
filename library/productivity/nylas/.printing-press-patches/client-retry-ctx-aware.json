@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "client-retry-ctx-aware",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-164045",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Replace `time.Sleep(wait)` in 429 and 5xx retry paths with `select { case <-ctx.Done(): ...; case <-time.After(wait): }` so Ctrl+C is responsive during backoff waits.",
+  "reason": "Greptile P2 review finding on PR #676 (fifth pass summary): Retry-After backoffs can be tens of seconds; bare time.Sleep ignores cmd.Context() cancellation, so Ctrl+C would not interrupt a long rate-limit wait. The context plumbing from the third-pass patch is already wired into do(); this completes the chain by honouring it during backoff as well as during the in-flight request.",
+  "files": [
+    "internal/client/client.go"
+  ]
+}

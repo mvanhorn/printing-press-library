@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "retry-non-idempotent-internalapi-20260517",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Internal-API 401 token-refresh retry gated on idempotent methods, mirroring the public-client 5xx gate.",
+  "reason": "doWithEncodedBody used to retry the original request after a 401-triggered token refresh regardless of method. 401s typically fire before body processing, so a POST retry is normally safe, but a token expiring mid-handler could leave a successful POST followed by a 401, and the retry would double-commit. Limit auto-retry to GET/PUT/DELETE/HEAD/OPTIONS; non-idempotent callers surface the 401 and re-run if appropriate. Pre-emptive fix for the pattern Greptile would likely flag on its next pass.",
+  "files": [
+    "internal/internalapi/client.go"
+  ],
+  "validated_outcome": "go test ./internal/internalapi passes."
+}

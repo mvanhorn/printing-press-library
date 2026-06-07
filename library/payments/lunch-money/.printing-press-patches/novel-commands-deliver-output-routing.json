@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "novel-commands-deliver-output-routing",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Routed novel command JSON and table output through Cobra's command writer.",
+  "reason": "The --deliver buffer is attached to cmd.OutOrStdout(); direct os.Stdout and fmt.Print calls bypass file and webhook delivery sinks.",
+  "files": [
+    "internal/cli/accounts.go",
+    "internal/cli/budgets_burn.go",
+    "internal/cli/changed.go",
+    "internal/cli/changed_helpers.go",
+    "internal/cli/changed_test.go",
+    "internal/cli/net-worth.go",
+    "internal/cli/recurring_missing.go",
+    "internal/cli/transactions_duplicates.go",
+    "internal/cli/transactions_subscriptions.go",
+    "internal/cli/triage.go"
+  ],
+  "validated_outcome": "go test ./internal/cli passes, including command-output routing coverage for changed --json."
+}

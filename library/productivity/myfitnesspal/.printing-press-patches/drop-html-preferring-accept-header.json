@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "drop-html-preferring-accept-header",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260508-133559",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Remove the unconditional Accept: text/html,...,application/json;q=0.9 header from the shared do() function.",
+  "reason": "The shared client is used for both HTML scrape paths and JSON v2 API endpoints. Setting an HTML-preferring Accept header globally would cause any content-negotiating API endpoint (/v2/foods/*, /api/services/reports/*) to return HTML and break JSON parsing. HTML scrape paths set their own Accept where it's actually the target; the Chrome TLS fingerprint (not the Accept header) is what clears MFP's anti-bot.",
+  "files": [
+    "internal/client/client.go"
+  ]
+}

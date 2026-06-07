@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "default-baseurl-https",
+  "applied_at": "2026-05-10T18:30:00Z",
+  "base_run_id": "20260510T124341Z-e440f457",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Default Config.BaseURL to HTTPS instead of HTTP so the CLI doesn't ship a cleartext-credential footgun.",
+  "reason": "Greptile P1 (security) on PR #396: Load() set `BaseURL: \"http://pad-dev.etherpad.org/api/1.3.1\"` as the default, but `.printing-press.json` already registers the same host as `https://`, and pad-dev.etherpad.org serves the spec over TLS. Any user who runs the CLI without setting $ETHERPAD_BASE_URL would transmit their bearer token in cleartext to pad-dev.etherpad.org.",
+  "files": [
+    "internal/config/config.go"
+  ],
+  "validated_outcome": "Default is now https://. Local development instances that run on plain HTTP can still be reached by setting $ETHERPAD_BASE_URL explicitly. AuthURL/TokenURL helpers inherit the scheme from BaseURL, so the OIDC fallback path also defaults to HTTPS now.",
+  "upstream_issue": "TODO: file on mvanhorn/cli-printing-press — generator template should default to HTTPS whenever the spec_url is HTTPS (and warn loudly if a printed CLI ships an HTTP default for a host that the spec serves over HTTPS)."
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-2026-05-21-tenure-contiguous",
+  "applied_at": "2026-05-21",
+  "base_run_id": "20260521-061607",
+  "base_printing_press_version": "4.10.0",
+  "summary": "Tenure commands now compute contiguous splash-run length instead of all-time MIN/MAX.",
+  "reason": "A story demoted from splash and later re-promoted previously reported gross MAX-MIN tenure, overstating duration. Both `tenure` and `tenure --history` now compute the active (or longest) contiguous splash run per story_id from `drudge_slot_event` appeared/promoted starts.",
+  "files": [
+    "internal/cli/tenure.go"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "review-mcp-bool-and-meal-date-validation",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Preserved explicit false MCP boolean flags and validated meal date ranges shared by meal commands.",
+  "reason": "Greptile noted that MCP callers could not disable true-defaulting flags and that meal add/show accepted invalid explicit date ranges.",
+  "files": [
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/shellout_test.go",
+    "internal/cli/local_anylist.go",
+    "internal/cli/root_test.go"
+  ],
+  "validated_outcome": "Added regressions for MCP false flag forwarding and invalid explicit date ranges in meal add-to-list and meal show."
+}

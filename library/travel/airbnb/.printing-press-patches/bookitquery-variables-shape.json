@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "bookitquery-variables-shape",
+  "applied_at": "2026-05-20",
+  "base_run_id": "2026-05-03T06:03:12.15145Z",
+  "base_printing_press_version": "3.6.1",
+  "summary": "Rewrite BookingPrice variables to {id, dateRange, guestCounts, 4 includeFragment booleans}; refit priceBreakdownFromAny to read structuredDisplayPrice + explanationData.priceDetails. The persisted-query hash was NOT stale (F3 misdiagnosis); the schema validator was rejecting the variables shape.",
+  "reason": "Empirical capture via .manuscripts/20260502-210359/.../airbnb-capture.har showed the real request variables are {id, dateRange:{startDate,endDate}, guestCounts:{numberOfAdults}, 4 includeFragment booleans}. The CLI was sending a flat {checkin, checkout, adults} shape that tripped ValidationError. With all four includeFragment booleans set true, the response carries pdpPresentation.bookIt.structuredDisplayPrice with primaryLine.price (display total) and explanationData.priceDetails[].items[] (line items). priceBreakdownFromAny was looking for the legacy {label, amount} fee shape that this schema no longer carries; updated to parse the new shape with the legacy walker retained as fallback.",
+  "files": [
+    "internal/source/airbnb/graphql.go"
+  ],
+  "validated_outcome": "Live `airbnb-listing get 18413186 --checkin 2026-05-26 --checkout 2026-05-29 --adults 1` returns total=$514, subtotal=$513.53, per_night=$171.18, currency=USD. End-to-end pricing path restored."
+}

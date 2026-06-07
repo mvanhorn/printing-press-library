@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "authheader-as-cookie",
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260512-151223",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Route the composed cookie string to the Cookie request header in client.do() instead of Authorization.",
+  "reason": "All authenticated alaskaair.com endpoints (SvelteKit __data.json + Atmos Rewards API) read the standard Cookie header. The prior Authorization assignment was silently dropped server-side, so every authenticated command (atmos-rewards, account status, authenticated flight search) was effectively unauthenticated (greptile P1).",
+  "files": [
+    "internal/client/client.go"
+  ]
+}

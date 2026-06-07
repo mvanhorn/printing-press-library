@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "freshservice-notes-create-private-default",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-170855",
+  "base_printing_press_version": "4.5.0",
+  "summary": "Always send `body[\"private\"]` in tickets notes create, even when the flag is the zero value (false), and clarify the flag description.",
+  "reason": "The generator's 'omit optional bool when its zero-value matches the spec default' idiom interacts badly with Freshservice's server-side default of `private: true` on this endpoint. The CLI default of --private=false matches what a human typing `tickets note <id>` virtually always intends (public reply to the requester), but omitting the field shipped the note as private. Heads-up was caught during live write testing.",
+  "files": [
+    "internal/cli/tickets_notes_create-ticket.go"
+  ],
+  "validated_outcome": "`tickets notes create-ticket <id> --body \"…\"` (no --private flag) posts a public reply visible to the requester; previously posted as agent-only private."
+}

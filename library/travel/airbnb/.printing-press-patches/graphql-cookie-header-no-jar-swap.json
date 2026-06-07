@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "graphql-cookie-header-no-jar-swap",
+  "applied_at": "2026-05-20",
+  "base_run_id": "2026-05-03T06:03:12.15145Z",
+  "base_printing_press_version": "3.6.1",
+  "summary": "Replace c.http.Jar swap in graphQLGet with a per-request Cookie header. Eliminates the data race on the shared client field flagged by Greptile on PR #740.",
+  "reason": "graphQLGet previously did `old := c.http.Jar; c.http.Jar = jar; defer ... = old`. With defaultClient as a package-global, any concurrent graphQLGet caller would race on the .Jar field. Race detector currently passes only because no test exercises concurrent paths. Building the Cookie header per-request and passing it via the existing headers map produces the identical wire result (Cookie: header on the outbound request) without shared mutable state. buildCookieHeader is a pure helper covered by three unit tests.",
+  "files": [
+    "internal/source/airbnb/graphql.go",
+    "internal/source/airbnb/graphql_test.go"
+  ],
+  "validated_outcome": "162 tests / 21 packages green with -race (added TestBuildCookieHeader_Multiple, _Empty, _SkipsNilAndEmptyName). Live `airbnb-listing get` still returns total=$514 / per_night=$171.18."
+}

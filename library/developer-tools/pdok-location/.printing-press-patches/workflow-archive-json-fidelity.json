@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "workflow-archive-json-fidelity",
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260520-150244",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Workflow archive's RunE redirects os.Stdout to /dev/null while syncResource runs (in --json mode), then restores it before emitting the final summary JSON.",
+  "reason": "syncResource emits NDJSON event lines directly to os.Stdout, which interleaves with workflow archive's final JSON summary object — `workflow archive --json` then produced invalid JSON. The redirect suppresses the events under --json while keeping them visible in the human path.",
+  "files": [
+    "internal/cli/channel_workflow.go"
+  ],
+  "validated_outcome": "`pdok-location-pp-cli workflow archive --json | jq .` parses cleanly; non-JSON mode still streams events to stderr."
+}

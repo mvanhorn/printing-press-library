@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "azure-arm-token-injection",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260530-083324",
+  "base_printing_press_version": "4.18.1",
+  "summary": "root.go newClient() injects an ARMBearer() token into the generated client's auth header so absorbed ARM commands (subscriptions, sync, apps) send a real AAD token instead of the AZURE_TENANT_ID placeholder.",
+  "reason": "The generated client models auth as a bearer token read from AZURE_TENANT_ID (a GUID, not a token). Without the injection those commands send the GUID and get HTTP 401.",
+  "files": [
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "subscriptions / sync / apps return live ARM data under the dogfood gate."
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "erank-greptile-pr991-fixes",
+  "applied_at": "2026-05-31",
+  "base_run_id": "20260531-142147",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Fixed public-library review findings in list filtering and shared keyword scoring.",
+  "reason": "Greptile review on the publish PR found list-name filtering, difficulty scoring, consensus counting, and title-casing defects in eRank-specific novel commands.",
+  "files": [
+    "internal/cli/lists_optimize.go",
+    "internal/cli/lists_optimize_test.go",
+    "internal/cli/erank_signals.go",
+    "internal/cli/erank_signals_test.go",
+    "internal/cli/erank_drift_history.go",
+    "internal/cli/tags_consensus_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli -run 'Test(NovelListsOptimize|KeywordListID|FilterKeywordTermRows|ScoreKeyword|RankConsensusTags|BuildAngles)' and go test ./... pass."
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "venues-now-max-eta-strict",
+  "applied_at": "2026-05-23",
+  "base_run_id": "20260523T141801Z-fb7995c2",
+  "base_printing_press_version": "4.12.0",
+  "summary": "venues-now's --max-eta filter now excludes venues with unknown ETA (EstimateMin == 0).",
+  "reason": "The original guard 'row.EstimateMin > 0 && row.EstimateMin > maxETA' short-circuited for unknown-ETA venues, silently including them even when the user asked for fast delivery. The command's --help promises 'deliver within --max-eta minutes', so unknown-ETA venues cannot satisfy the contract.",
+  "files": [
+    "internal/cli/venues_now.go"
+  ]
+}

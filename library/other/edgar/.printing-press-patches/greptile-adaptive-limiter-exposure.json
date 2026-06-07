@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "greptile-adaptive-limiter-exposure",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-115144",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Route fetchAbsoluteRaw (and therefore fetchSubmissions / refreshTickerCache / fetchFilingBody / fetchForm4XML) through a new client.DoRaw method that wraps the AdaptiveLimiter.",
+  "reason": "fetchAbsoluteRaw previously called c.HTTPClient.Do directly, bypassing the limiter that c.do() honors. Every hand-rolled SEC fetch ignored fair-access pacing.",
+  "files": [
+    "internal/client/client.go",
+    "internal/cli/edgar_helpers.go"
+  ]
+}

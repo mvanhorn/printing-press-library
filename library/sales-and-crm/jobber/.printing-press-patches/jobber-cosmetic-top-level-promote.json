@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "jobber-cosmetic-top-level-promote",
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260522-234028",
+  "base_printing_press_version": "4.10.0",
+  "summary": "Promote `clients` and `jobs` parents to top level; rename Cobra Use `jobber-jobs` to `jobs`; remove dropped-novel sections from README.",
+  "reason": "Transport rewrite is done; the generated parents were Hidden:true (press v4.9.0 default for multi-endpoint parents) and `jobber-jobs` carried a press-collision-era prefix that no longer applies. README also still referenced novels (jobs pnl / payouts reconcile / jobs stale / funnel / clients 360) that were dropped from locked scope.",
+  "files": [
+    "internal/cli/clients.go",
+    "internal/cli/jobber_jobs.go",
+    "README.md"
+  ],
+  "validated_outcome": "Top-level --help now lists `clients` and `jobs` alongside other resources; `go build ./...` and `go vet ./...` pass."
+}

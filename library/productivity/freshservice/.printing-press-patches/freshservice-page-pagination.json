@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "freshservice-page-pagination",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-170855",
+  "base_printing_press_version": "4.5.0",
+  "summary": "Change sync's cursorParam default from `after` to `page`, and synthesize the next integer page number whenever a full page came back without a body cursor.",
+  "reason": "Freshservice paginates exclusively by integer `?page=N` and exposes the next-page URL only in the HTTP Link response header. extractPageItems' body-cursor scan therefore never finds a cursor, and the sync loop stops after page 1. The generator's pagination-style detection picked `after` from the spec without checking that Freshservice declares no body cursor.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "`freshservice-pp-cli sync --resource tickets` paginates through all pages until items < per_page returns; previously stopped at 100 tickets even when the tenant had thousands."
+}

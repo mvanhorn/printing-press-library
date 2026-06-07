@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "marianatek-browser-auth",
+  "applied_at": "2026-05-12T04:00:00Z",
+  "reason": "Mariana Tek's Customer API does not offer a self-serve token endpoint for end users — OAuth registration requires going through <vendor-integrations-email>. The only practical auth path for individual members is to extract the bearer token from the iframe widget's session cookie. The generator's default `auth setup` text pointed at RFC 6750 (the bearer-token RFC) but offered no concrete extraction steps.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/auth_browser.go"
+  ],
+  "change": "Added a new `auth from-browser` subcommand that parses the cookie value `{expires, tokenData: {accessToken, refreshToken, tokenType, scope, expiresIn}}` users copy from DevTools, then writes the access token to config under oauth_authorization (the auto-Bearer-prefix patch handles the wire format). Updated `auth setup` to print Mariana-Tek-specific extraction steps instead of the generic RFC 6750 message."
+}

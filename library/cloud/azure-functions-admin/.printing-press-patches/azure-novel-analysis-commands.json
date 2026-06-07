@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "azure-novel-analysis-commands",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260530-083324",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Seven hand-authored read-only analysis commands (coldstart, scaling, failures, drift, secrets-audit, stale, plan-fit) deriving cold-start/scaling/failure analytics from App Insights KQL and ARM that Azure does not expose directly.",
+  "reason": "These are the CLI's novel value (NOI = cold-start/plan-fit observatory); the generator emits CRUD scaffolds, not domain analytics.",
+  "files": [
+    "internal/cli/coldstart.go",
+    "internal/cli/scaling.go",
+    "internal/cli/failures.go",
+    "internal/cli/drift.go",
+    "internal/cli/secrets_audit.go",
+    "internal/cli/stale.go",
+    "internal/cli/plan_fit.go",
+    "internal/cli/appinsights.go",
+    "internal/cli/azure_helpers.go"
+  ],
+  "validated_outcome": "All seven live-validated against a real Function App (manual acceptance) and pass the dogfood matrix."
+}

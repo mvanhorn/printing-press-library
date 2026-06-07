@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "review-cache-permissions-and-meal-dry-run-counts",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Made HTTP cache files private and reported dry-run meal ingredient counts.",
+  "reason": "Greptile noted that cached AnyList responses were world-readable and that meal add-to-list dry-run JSON hid per-recipe ingredient counts.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/client_test.go",
+    "internal/cli/meal_add-to-list.go",
+    "internal/cli/recipes_to_list.go",
+    "internal/cli/root_test.go"
+  ],
+  "validated_outcome": "Added regressions for cache directory/file permissions and dry-run would_add counts."
+}

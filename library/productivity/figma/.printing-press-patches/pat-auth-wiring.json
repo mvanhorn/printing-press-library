@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "pat-auth-wiring",
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260509-190854",
+  "base_printing_press_version": "4.2.0",
+  "summary": "Added Personal Access Token auth wiring (X-Figma-Token header) to internal/config/config.go and internal/client/client.go.",
+  "reason": "The Figma OpenAPI spec declares three security schemes (PersonalAccessToken, PlanAccessToken, OAuth2). The printing-press generator emitted only the OAuth2 Bearer path, so PAT users were forced to set FIGMA_OAUTH2 with their PAT — which Figma's API rejects (PATs require the X-Figma-Token header, not Authorization Bearer). Patched config.go to also read FIGMA_ACCESS_TOKEN/FIGMA_API_TOKEN/FIGMA_API_KEY into a new FigmaPAT field, and client.go to detect the PAT marker and route it to the X-Figma-Token header. Doctor confirms 'auth_source: env:FIGMA_API_TOKEN' end-to-end. Tracked upstream as a generator multi-scheme-auth selection bug.",
+  "files": [
+    "internal/config/config.go",
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "Live test against api.figma.com with a real PAT: 'figma-pp-cli files get abc' returns HTTP 404 (file not found, but auth accepted) instead of 401 (auth missing). Phase 5 dogfood: 152/165 (92%) of live tests passed."
+}

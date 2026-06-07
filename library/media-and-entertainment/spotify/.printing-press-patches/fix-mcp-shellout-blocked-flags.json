@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "fix-mcp-shellout-blocked-flags",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260512-184940",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Restore the blockedRootFlags security filter in cliArgsFromMCP after `printing-press mcp-sync` regen dropped it.",
+  "reason": "TestCliArgsFromMCP_BlocksRootFlags asserts that root flags (--base-url, --config, --deliver, --profile, --token) cannot be smuggled into a CLI invocation via the structured MCP args channel — those control auth target, output sink, and config file. The current generator template emits a shellout.go that has no such filter, so the test (which IS still preserved through regen) fails, and a malicious MCP host could redirect/exfiltrate via structured args. Generator-side fix tracked in mvanhorn/cli-printing-press#1276.",
+  "files": [
+    "internal/mcp/cobratree/shellout.go"
+  ],
+  "validated_outcome": "TestCliArgsFromMCP_BlocksRootFlags passes; the test's blocked-list (base-url, config, deliver, profile, token) is enforced again."
+}

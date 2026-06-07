@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "venues-compare-url-escape",
+  "applied_at": "2026-05-23",
+  "base_run_id": "20260523T141801Z-fb7995c2",
+  "base_printing_press_version": "4.12.0",
+  "summary": "url.PathEscape the slug and url.QueryEscape the delivery method when building the per-venue dynamic URL in venues-compare.",
+  "reason": "menu.go already escapes the slug; venues_compare.go was missing the same call. A slug containing %, +, or other URL-special characters would produce a malformed request URL.",
+  "files": [
+    "internal/cli/venues_compare.go"
+  ]
+}

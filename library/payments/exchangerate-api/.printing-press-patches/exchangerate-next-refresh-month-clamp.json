@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "exchangerate-next-refresh-month-clamp",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-025552",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Clamp refresh_day_of_month to the actual last day of the candidate month before calling time.Date so refresh days of 29-31 don't overflow short months.",
+  "reason": "Greptile P2 review of PR #635 flagged nextRefreshDate constructing time.Date(year, April, 31, ...), which time.Date normalises to May 1, pushing next_refresh one month later than reality and potentially suppressing a real WARNING projected-exhaustion status. Clamp to time.Date(year, month+1, 0).Day() before the candidate, and re-clamp for the next-month rollover branch.",
+  "files": [
+    "internal/cli/quota_burn.go"
+  ],
+  "validated_outcome": "Apr 30 with refreshDay=31 now returns Apr 30 (was May 1); May 17 with refreshDay=31 returns May 31 (was May 31, unchanged); Feb 28 with refreshDay=31 returns Feb 28; go test ./internal/cli passes including the existing TestNextRefreshDate cases."
+}

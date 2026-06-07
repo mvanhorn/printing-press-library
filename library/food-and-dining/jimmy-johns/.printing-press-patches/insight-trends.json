@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "insight-trends",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-034611",
+  "base_printing_press_version": "4.2.2",
+  "files": [
+    "internal/cli/trends.go"
+  ],
+  "summary": "Add `trends` — weekly cadence + ordering breakdown from local order history.",
+  "reason": "Insight scorer paired with `stats`; surfaces a usage-pattern view from the local store."
+}

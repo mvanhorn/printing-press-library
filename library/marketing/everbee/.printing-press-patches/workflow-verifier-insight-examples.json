@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "workflow-verifier-insight-examples",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260522-153448",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Added parent-command examples for cache-aware insight workflows.",
+  "reason": "workflow-verify executes the command string, while dogfood maps workflow steps from parent help output; parent examples keep executable workflow steps discoverable without changing command behavior.",
+  "files": [
+    "internal/cli/everbee_insights.go",
+    "workflow_verify.yaml",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "cli-printing-press workflow-verify reports workflow-pass and dogfood no longer reports unmapped insight workflow steps."
+}

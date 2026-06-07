@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "sync-store-collision",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260509-053752",
+  "base_printing_press_version": "4.2.0",
+  "summary": "Fix silent data loss: every non-GET API request was calling os.RemoveAll on the shared cache directory, which deleted store.db right after sync wrote to it. Moved HTTP response cache into a `responses/` subdirectory so the analytics store is untouched.",
+  "reason": "The Printing Press generated a Client that puts its HTTP response cache at the same path as the Store package's SQLite DB. invalidateCache() runs after every POST/PUT/DELETE/PATCH and does `os.RemoveAll(cacheDir)`. Sync POSTs to /searchAnalytics/query so every sync silently deleted store.db immediately after writing it. Generalizable Printing Press bug: any printed CLI that combines Client (with response cache) + Store (with SQLite) at the same canonical cache path has the same trap.",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "After fix: 21-day sync persists 23,250 rows, quick-wins/cliff/compare/historical all return real data. Response cache .json files now live in `~/.cache/<cli>/responses/` while store.db lives at `~/.cache/<cli>/store.db`. POST requests safely invalidate only response JSON."
+}

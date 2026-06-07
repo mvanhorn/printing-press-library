@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "gravity-rows-err",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-164045",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Check rows.Err() after both row iterations in gravity.go so query interruption surfaces an error instead of silently producing partial weights.",
+  "reason": "Greptile P1 review finding on PR #676: a context cancellation mid-iteration would return false from rows.Next() and the partially populated counters map would be used to compute gravity, masking the failure.",
+  "files": [
+    "internal/cli/gravity.go"
+  ]
+}

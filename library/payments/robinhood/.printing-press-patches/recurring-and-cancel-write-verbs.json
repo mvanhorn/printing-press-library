@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "recurring-and-cancel-write-verbs",
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260522-162911",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Added the recurring_schedules/{id}/ write route (PATCH resume/pause, DELETE) to the embedded brokerage route map, and declared HTTP methods on the previously method-less equity/options order-cancel routes (POST) and ach/transfers (GET+POST).",
+  "reason": "Recurring-investment writes were unreachable: the map had only the read-side recurring_schedules/ listing, so `brokerage execute` could not resume or pause a schedule. PATCH with {\"state\":\"active\"|\"paused\"} was verified live against the real API. The cancel and ach/transfers routes existed but carried no methods, so execute could not select a verb. The new route is risk=destructive so it stays behind the ROBINHOOD_PP_ALLOW_WRITES dry-run gate; recurring_schedules/{id}/ is a new URL with no read-route collision under the URL-keyed Find.",
+  "files": [
+    "internal/brokeragemap/brokerage-routes.json"
+  ],
+  "validated_outcome": "go build/vet/test (incl. fresh brokeragemap), verify-skill, and govulncheck all pass; recurring_schedules/{id}/ resolves as destructive and defaults to dry-run without --live-write."
+}

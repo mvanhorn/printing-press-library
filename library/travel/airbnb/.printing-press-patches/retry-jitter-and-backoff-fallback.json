@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "retry-jitter-and-backoff-fallback",
+  "applied_at": "2026-05-20",
+  "base_run_id": "2026-05-03T06:03:12.15145Z",
+  "base_printing_press_version": "3.6.1",
+  "summary": "Add 25% jitter to the 429 retry sleep; fall back to Backoff(attempt) when Retry-After header is absent so subsequent retries grow rather than re-sleeping the same 5s default.",
+  "reason": "The previous retry loop slept for cliutil.RetryAfter(resp), which returns 5s when the Retry-After header is missing or unparseable. Across attempts the wait never grew, and a fleet of retrying clients would synchronize their retries (thundering herd). Two changes: detect resp.Header.Get('Retry-After') == '' and use cliutil.Backoff(attempt) in that case; wrap the chosen base wait with a 0-to-base/4 jitter so retries spread out. Jitter helper guards against base < 4ns so rand.Int63n never panics on zero.",
+  "files": [
+    "internal/source/airbnb/client.go",
+    "internal/source/airbnb/jitter_test.go"
+  ],
+  "validated_outcome": "TestJitterBounds and TestJitterZeroBase pass (1000 samples per base, all in [0, base/4); zero-base returns 0 without panic). Full suite 148 tests / 21 packages green."
+}

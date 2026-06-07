@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "review-create-update-form-encode",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260522-095940",
+  "base_printing_press_version": "4.11.0",
+  "summary": "review create-update now flattens the stdin JSON map into review[...] bracket-key form fields and POSTs application/x-www-form-urlencoded via PostFormWithParams, instead of sending a JSON body.",
+  "reason": "Greptile P1: the legacy Rails controller at POST /review/update/:book_id only accepts application/x-www-form-urlencoded; the JSON body sent via PostWithParams was silently ignored and nothing updated.",
+  "files": [
+    "internal/cli/review_create-update.go"
+  ],
+  "validated_outcome": "Against a local echo server the command sends Content-Type application/x-www-form-urlencoded with body authenticity_token=...&review%5Bnotes%5D=...&review%5Breview%5D=... to POST /review/update/12345."
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "diary-surf-transport-nil-loud-warning",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260508-133559",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Emit a loud stderr warning when Surf's underlying *http.Transport is nil in sharedDiaryHTTPClient(), mirroring the existing guard in newHTTPClient.",
+  "reason": "sharedDiaryHTTPClient previously assigned surfStd.Transport without a nil check. If a future enetx/surf release changes Std()'s shape and returns a client with no Transport, the silent fallback would drop the Chrome TLS fingerprint on the diary scrape path and every request would hit MFP's anti-bot wall with no visible cause. Brings the diary path in line with surf-transport-nil-loud-warning in internal/client/client.go.",
+  "files": [
+    "internal/cli/diary_get_day.go"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "vestaboard-review-cleanups",
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260529-212647",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Tighten Vestaboard CLI review-blocker details without regenerating the print.",
+  "reason": "The generated tree already shipped the custom Vestaboard character table and message body handling; review identified a stale no-op branch and help text that omitted black and filled-cell preview glyphs.",
+  "files": [
+    "internal/cli/message_send.go",
+    "internal/cli/characters.go",
+    "internal/cli/message_preview.go",
+    ".manuscripts/20260529-212647/research/vestaboard-research.md",
+    ".manuscripts/20260529-212647/proofs/acceptance-summary.json"
+  ],
+  "validated_outcome": "go test ./... and verify_publish_package.py --base-ref origin/main pass locally."
+}

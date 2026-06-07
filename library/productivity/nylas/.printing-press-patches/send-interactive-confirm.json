@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "send-interactive-confirm",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-164045",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Add interactive confirmation in grants_messages_send.go before the outbound POST; --yes / --agent / --no-input / --dry-run all bypass.",
+  "reason": "Greptile P1 review finding on PR #676: the PR description promises an interactive confirmation that --yes (or --agent) bypasses, but the generated send command dispatched the API call immediately with no guard. Non-interactive shells without --yes now fail explicitly instead of either prompting blindly or sending silently.",
+  "files": [
+    "internal/cli/grants_messages_send.go"
+  ]
+}

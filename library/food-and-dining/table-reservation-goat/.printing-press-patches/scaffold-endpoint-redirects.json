@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "scaffold-endpoint-redirects",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260509-110540",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Generated scaffold endpoints (restaurants list/get, availability check) rewritten to delegate to the cross-network source clients so they hit real Surf-cleared SSR data instead of opentable.com placeholder paths that 404.",
+  "reason": "The internal YAML spec defines /restaurants and /availability as REST paths with placeholder paths because OpenTable doesn't expose REST equivalents. The generated scaffold's client.Get(...) calls 404 against the live consumer site. Without these redirects the resource-style commands would always fail — and the user's headline workflow (find a restaurant, check availability) needs them to work. Each rewrite preserves the spec annotations (pp:endpoint, pp:method, pp:path, mcp:read-only) so the typed MCP surface keeps working; only RunE is changed.",
+  "files": [
+    "internal/cli/restaurants_list.go",
+    "internal/cli/restaurants_get.go",
+    "internal/cli/availability_check.go",
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "Live dogfood went from 16/78 failures (placeholder 404s) to 0/64 failures after the redirects landed. `sync` returns an empty success summary instead of erroring with stream issues; `restaurants list/get` and `availability check` route through the same Surf-cleared path goat/earliest use.",
+  "upstream_issue": "Multiple gaps surfaced as Printing Press retro candidates: (1) generator emits unused helpers in helpers.go; (2) dogfood reimplementation_check sibling-import regex misses multi-segment internal/source/* paths; (3) generator does not emit .printing-press-patches.json on fresh print despite library CI requiring it."
+}

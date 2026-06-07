@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "models-query-tests",
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-165428",
+  "base_printing_press_version": "4.2.0",
+  "summary": "Added unit tests for the models query DSL parser (parseSizeSuffix, queryTokenRe, jsonPathExpr).",
+  "reason": "models_query.go is the only pure-logic transcendence component (DSL → SQL compiler). Defends against silent OpenRouter schema drift.",
+  "files": [
+    "internal/cli/models_query_test.go"
+  ],
+  "validated_outcome": "13 test cases pass under `go test ./internal/cli/`."
+}

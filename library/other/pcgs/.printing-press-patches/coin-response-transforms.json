@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "coin-response-transforms",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260516-193948",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Adds applyCoinResponseTransforms (new internal/cli/coin_response_transform.go): rewrites PriceGuideValue=0 to null on every coin record so unpriced modern slabs (David Hall FDI, brand-new releases) don't silently undercount in sums, and injects a top-level year_mismatch={name_year,year_field} when the year prefix parsed from Name disagrees with the Year field. Wired into coin facts-cert, coin facts-grade, and coin batch (live + cached paths).",
+  "reason": "PCGS returns PriceGuideValue=0 for unpriced bullion (4-of-31 certs on the 2026-05-18 inventory pass); mathematically indistinguishable from a zero-valued coin. PCGS also occasionally returns Name='2022-S ...' with Year=2021 (2-of-31 certs same pass); silent disagreement forces the agent to pick one field as canonical without knowing which. Both are documented in AGENTS.md P3 and P4 with the locked-in fixes used here.",
+  "files": [
+    "internal/cli/coin_response_transform.go",
+    "internal/cli/coin_facts-cert.go",
+    "internal/cli/coin_facts-grade.go",
+    "internal/cli/coin_batch.go"
+  ],
+  "validated_outcome": "go build ./... && go vet ./...; live smoke against pcgs-coin-list.csv (53972744 → PriceGuideValue=null; 45987467 → year_mismatch populated; 50483263 → PriceGuideValue numeric, year_mismatch absent)"
+}

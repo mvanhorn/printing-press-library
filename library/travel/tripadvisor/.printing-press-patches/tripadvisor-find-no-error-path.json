@@ -6,6 +6,8 @@
   "base_printing_press_version": "4.22.1",
   "summary": "Added pp:no-error-path-probe annotation to the generated find command.",
   "reason": "Free-text location search returns HTTP 200 with an empty result set for a nonsense query, so the dogfood error-path probe cannot distinguish bad input from a valid empty result.",
-  "files": ["internal/cli/promoted_find.go"],
+  "files": [
+    "internal/cli/promoted_find.go"
+  ],
   "validated_outcome": "dogfood error_path no longer false-fails on find; full live dogfood 63/63."
 }

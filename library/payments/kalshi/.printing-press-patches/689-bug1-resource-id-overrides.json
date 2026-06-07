@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "689-bug1-resource-id-overrides",
+  "applied_at": "2026-05-07",
+  "base_run_id": "20260504-204550",
+  "base_printing_press_version": "3.9.0",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/689",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/store/store.go"
+  ],
+  "summary": "Replace `cursor` with real array-element PKs in resourceIDFieldOverrides.",
+  "reason": "Generator profiler picked the response-wrapper pagination field instead of descending into the array-element schema, so every synced row was silently dropped at upsert time.",
+  "validated_outcome": "events 0 → ~10000 rows, markets 0 → ~10000, portfolio 0 → ~2698, series 0 → ~10021, historical 0 → ~8878 (per upstream issue's debug session)."
+}

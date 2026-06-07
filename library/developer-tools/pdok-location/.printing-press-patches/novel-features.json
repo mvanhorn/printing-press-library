@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "novel-features",
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260520-150244",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Added 11 hand-coded novel commands per the Phase 1.5 absorb manifest: batch geocode, resolve, nearest, convert (rd-to-ll / ll-to-rd / wkt-to-geojson / geojson-to-wkt), gemeente (get / list / of-point), provincie list, search (FTS over cache; the generic search command shares this), features search, top, perceel lookup.",
+  "reason": "These were the user-approved transcendence features from Phase 1.5. None of the existing community wrappers (foarsitter/locatieserver, Amsterdam/pdok-api-client, uRosConf/nlgeocoder, oldgeogap/angular-locatieserver-geocoder) ships a batch geocode loop, suggest+lookup chain, multi-source nearest reverse geocode, RD↔WGS84 math, WKT↔GeoJSON conversion, offline gemeente gazetteer, kadastrale-aanduiding parser, or bbox-multi-collection CSV dump. Each command is ~50–150 LoC plus root.go wiring; collectively ~1100 LoC across 9 new files.",
+  "files": [
+    "internal/cli/novel_batch.go",
+    "internal/cli/novel_convert.go",
+    "internal/cli/novel_features_bbox.go",
+    "internal/cli/novel_gemeente.go",
+    "internal/cli/novel_helpers.go",
+    "internal/cli/novel_nearest.go",
+    "internal/cli/novel_perceel.go",
+    "internal/cli/novel_resolve.go",
+    "internal/cli/novel_top.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "All 11 commands verified live: convert math round-trips to <0.5m precision; resolve returns canonical record with WKT→GeoJSON conversion; nearest returns address+parcel+hectometerpaal+weg+gemeente in one call; gemeente get reads from cached gazetteer (342 gemeenten); batch geocode processes a CSV with cached lookups. Phase 5 full dogfood 128/128 mandatory tests passing."
+}

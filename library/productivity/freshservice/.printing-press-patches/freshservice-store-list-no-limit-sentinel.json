@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "freshservice-store-list-no-limit-sentinel",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-170855",
+  "base_printing_press_version": "4.5.0",
+  "summary": "`Store.List(resourceType, 0)` now means no-limit (SQL LIMIT -1) rather than silently capping at 200. Fixes group-by analytics dropping rows beyond the cap and matches the `0 = no limit` semantics the existing callers already documented in their inline comments.",
+  "reason": "Greptile round-4 P1 on PR #533 (analytics group-by silently caps at 200). Root cause is in the store template: `Store.List` remaps `limit <= 0` to 200, contradicting the documented intent of `0` in `data_source.go:227` and `analytics.go:101`. Fixed at the source so both call sites are correct without changing their semantics.",
+  "files": [
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "`analytics --group-by` on a synced tenant with N tickets aggregates over all N tickets, not the 200 most-recently-updated. `data_source list` similarly returns the full corpus. No call sites pass a positive limit today so the behavior change is observable only on the unbounded paths."
+}

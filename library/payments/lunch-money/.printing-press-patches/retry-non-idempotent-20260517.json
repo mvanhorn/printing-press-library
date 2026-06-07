@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "retry-non-idempotent-20260517",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Restricted 5xx retry to idempotent HTTP methods (GET, PUT, DELETE, HEAD, OPTIONS).",
+  "reason": "Original code retried every 5xx regardless of method. createRetagTag POSTs /tags and a 5xx after server-side commit would, on retry, create a duplicate tag. Now POST and PATCH return the 5xx without retry; caller can surface a clean error and the user re-decides. Closes Greptile fourth re-review P1 on PR #624.",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "go test ./internal/client passes."
+}

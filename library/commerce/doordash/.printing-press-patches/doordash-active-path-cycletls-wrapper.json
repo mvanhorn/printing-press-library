@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "doordash-active-path-cycletls-wrapper",
+  "applied_at": "2026-05-24",
+  "base_run_id": "2026-05-13T21:47:44.838084603Z",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Keep active doordash-pp-cli PATH locations on the Node/CycleTLS wrapper and shared DoorDash session.",
+  "reason": "Paperclip/Herman profile HOME and PATH ordering exposed stale generated Go binaries, causing DoorDash 403s and command-surface mismatches for browser-facing live calls.",
+  "files": [
+    "DOORDASH_CLI_STATUS.md",
+    "PHASE5_PAUSE_HANDOFF.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "2026-05-14T05:07Z: active command doctor reports authenticated=true/csrf_present=true; live read-only smoke passes for search/menu/item-options/convenience/orders/addresses/payment/cart; order place rejects without ALLOW_DOORDASH_ORDERING=1."
+}

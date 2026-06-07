@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "non-novel-output-routing-20260515",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Routed analytics, tail, sync, and idempotent no-op machine output through the CLI delivery path.",
+  "reason": "PR #551 exposed direct stdout writes as a review failure class; local review found the same class outside the novel command set.",
+  "files": [
+    "internal/cli/analytics.go",
+    "internal/cli/channel_workflow.go",
+    "internal/cli/helpers.go",
+    "internal/cli/output_routing_test.go",
+    "internal/cli/sync.go",
+    "internal/cli/tail.go"
+  ],
+  "validated_outcome": "go test ./internal/cli passes, including analytics --deliver, sync writer, and no-op delivery buffer coverage."
+}

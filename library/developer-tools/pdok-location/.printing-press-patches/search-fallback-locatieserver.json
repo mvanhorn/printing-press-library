@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "search-fallback-locatieserver",
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260520-150244",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Patched generic `search` live fallback to hit /bzk/locatieserver/search/v3_1/free instead of /kadaster/location-api/v1/search.",
+  "reason": "Multi-spec generation picked the Kadaster /search endpoint as the live-fallback URL for the generic search command, but that endpoint requires bracketed per-collection opt-in syntax (`?<col>[version]=1`) that the generic generated path can't construct. Switching the fallback to Locatieserver /free makes search work without forcing users into the OGC opt-in shape; users wanting OGC search use `features search` directly.",
+  "files": [
+    "internal/cli/search.go"
+  ],
+  "validated_outcome": "`pdok-location-pp-cli search 'amsterdam centraal' --json` returns 200 (was HTTP 400 before)."
+}

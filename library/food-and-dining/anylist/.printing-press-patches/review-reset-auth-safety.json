@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "review-reset-auth-safety",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Required list reset targets during dry-runs and removed plaintext password fallback after terminal read failures.",
+  "reason": "Greptile noted that dry-run reset without a list could preview an arbitrary list and that auth login could echo passwords if terminal password capture failed.",
+  "files": [
+    "internal/cli/lists_reset.go",
+    "internal/cli/auth.go",
+    "internal/cli/root_test.go"
+  ],
+  "validated_outcome": "Added regressions for dry-run reset name validation and terminal password read failure handling."
+}

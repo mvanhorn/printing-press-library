@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-followup-redundant-draft-flags",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-172123",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Drop redundant ExcludeDrafts:true in followup and rename misnamed isTrue→isFalse so a single (more restrictive) draft filter remains.",
+  "reason": "Greptile observed that IsDraft=&false already emits `is_draft = 0`, which subsumes ExcludeDrafts's broader `(is_draft = 0 OR is_draft IS NULL)` clause. Dropping the redundant flag and renaming the misleading local var makes intent legible.",
+  "files": [
+    "internal/cli/novel_followup.go"
+  ]
+}

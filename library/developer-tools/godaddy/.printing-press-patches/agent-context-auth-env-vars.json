@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "agent-context-auth-env-vars",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260522-124732",
+  "base_printing_press_version": "4.11.0",
+  "summary": "agent-context now reports auth mode \"api-key\" and the GODADDY_API_KEY/GODADDY_API_SECRET/GODADDY_AUTH_HEADER env vars instead of \"none\" with an empty list.",
+  "reason": "Greptile: hardcoded authMode \"none\" and empty envVars meant agents bootstrapping from agent-context output could not discover the required GoDaddy credentials.",
+  "files": [
+    "internal/cli/agent_context.go"
+  ]
+}

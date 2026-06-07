@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "greptile-cache-full-sha256",
+  "applied_at": "2026-05-26",
+  "base_run_id": "20260526-210536",
+  "base_printing_press_version": "4.16.0",
+  "summary": "Use the full SHA256 digest for cache filenames.",
+  "reason": "Avoids unnecessary truncation of cache keys and maximizes collision margin for file-backed cache entries.",
+  "files": [
+    "internal/cache/cache.go"
+  ],
+  "validated_outcome": "go test ./..."
+}

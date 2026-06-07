@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "triage-review-status-boundary",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Restricted the triage inbox to transactions whose Lunch Money status is unreviewed.",
+  "reason": "Reviewed or cleared transactions can legitimately remain uncategorized; triage should not show them as pending work solely because category_id is empty.",
+  "files": [
+    "internal/cli/triage.go",
+    "internal/cli/triage_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli passes, including reviewed/cleared uncategorized exclusions."
+}

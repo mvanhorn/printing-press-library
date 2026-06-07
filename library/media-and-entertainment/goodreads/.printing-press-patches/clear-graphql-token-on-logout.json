@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "clear-graphql-token-on-logout",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260522-095940",
+  "base_printing_press_version": "4.11.0",
+  "summary": "ClearTokens() now also zeroes Config.GraphQLToken and Config.Headers.",
+  "reason": "Greptile P1/security: logout cleared every other credential but left the AppSync GraphQL JWT persisted in the on-disk TOML, so it survived `auth logout` and silently re-authenticated GraphQL rating mutations. The custom Headers map (applied verbatim to every request, can carry an Authorization header) was also never cleared; the sweep added it for a complete logout.",
+  "files": [
+    "internal/config/config.go"
+  ],
+  "validated_outcome": "After `auth logout`, graphql_token is absent from the config TOML (omitempty + empty); Headers cleared to nil."
+}

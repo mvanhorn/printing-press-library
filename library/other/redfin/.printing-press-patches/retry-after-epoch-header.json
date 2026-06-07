@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "retry-after-epoch-header",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260504-175601",
+  "base_printing_press_version": "3.8.0",
+  "summary": "Parse future Unix epoch seconds and milliseconds in Retry-After headers before treating numeric values as delta seconds.",
+  "reason": "The generated helper tests cover epoch-form Retry-After values, but the parser treated any numeric string as delta seconds and capped future epoch values to 60s. This made full package tests fail even though a seven-second future epoch should resolve to roughly seven seconds.",
+  "files": [
+    "internal/cliutil/ratelimit.go"
+  ],
+  "validated_outcome": "go test ./... passes for the Redfin CLI module, including TestRetryAfter_EpochSeconds and TestRetryAfter_EpochMilliseconds."
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "subscription-cadence-logical-transactions",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Filtered split and group child rows out of subscription cadence grouping.",
+  "reason": "Split/group children create same-day duplicate merchant rows that distort inter-charge gaps and can hide real subscriptions.",
+  "files": [
+    "internal/cli/transactions_subscriptions.go",
+    "internal/cli/transactions_subscriptions_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli passes, including split/group child subscription cadence coverage."
+}

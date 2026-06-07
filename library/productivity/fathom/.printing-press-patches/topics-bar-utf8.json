@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "topics-bar-utf8",
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-090403",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Fixed bar chart truncation in topics_ff.go to not cut mid-codepoint on the 3-byte █ character.",
+  "reason": "bar[:40] sliced at byte 40, which lands inside the 14th █ codepoint (3 bytes each), producing invalid UTF-8 for any term appearing ≥14 times. Fixed by capping the repeat count at 40 runes instead of slicing bytes.",
+  "files": [
+    "internal/cli/topics_ff.go"
+  ]
+}

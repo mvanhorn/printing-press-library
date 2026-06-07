@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "skill-narrative",
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260520-150244",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Added 'Why this CLI bundles two PDOK services' section to SKILL.md explaining the Locatieserver+Location-API combination, with a per-source comparison table. Added Netherlands-only anti-trigger and 'Do not use for mutating remote state' bullets to 'When Not to Use'.",
+  "reason": "User explicitly asked for the meta description to explain why we chose to combine the two APIs. The anti-trigger explicitly tells agents not to use this CLI for non-Dutch addresses.",
+  "files": [
+    "SKILL.md",
+    "README.md"
+  ]
+}

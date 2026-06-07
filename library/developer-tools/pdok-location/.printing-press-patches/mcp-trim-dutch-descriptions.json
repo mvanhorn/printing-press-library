@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "mcp-trim-dutch-descriptions",
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260520-150244",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Replaced long Dutch spec descriptions on the 4 Locatieserver MCP tools (free_free, lookup_lookup, reverse_geocoder, suggest_suggest) and the OGC `pdok-location-api_get-open` tool with concise English summaries.",
+  "reason": "The spec's Dutch descriptions are 2-3 sentences long and only marginally agent-readable. Concise English summaries reduce MCP token cost per tool list call and read better in English-language tool selectors.",
+  "files": [
+    "internal/mcp/tools.go"
+  ]
+}

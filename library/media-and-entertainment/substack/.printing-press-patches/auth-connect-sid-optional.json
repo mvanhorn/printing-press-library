@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "auth-connect-sid-optional",
+  "applied_at": "2026-05-31",
+  "base_run_id": "20260531-014452",
+  "base_printing_press_version": "4.19.0",
+  "summary": "auth login --chrome requires substack.sid and treats connect.sid as optional (carried only when present), instead of requiring both.",
+  "reason": "Live Substack sessions do not always set connect.sid on .substack.com — custom-domain publications carry it in the custom domain's cookie jar instead. Requiring both blocked every otherwise-valid logged-in user from authenticating at all, including the read/apex surface that needs only substack.sid.",
+  "files": [
+    "internal/cli/auth.go"
+  ],
+  "validated_outcome": "auth login --chrome succeeds with substack.sid alone; doctor reports Credentials: valid; 14/16 live read commands pass against real Substack."
+}

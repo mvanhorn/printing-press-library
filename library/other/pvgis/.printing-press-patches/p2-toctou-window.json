@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "p2-toctou-window",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-214920",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Hold `AdaptiveLimiter.mu` for the full read-decide-write region in `Wait()` so concurrent sync workers cannot bypass pacing.",
+  "reason": "Greptile review (P2) flagged that the original `Wait()` released the lock between reading `elapsed` and writing `lastRequest`. With sync's worker pool sharing one `*Client` (and therefore one `AdaptiveLimiter`) across `concurrency` goroutines, two callers could observe the same `elapsed`, take the same sleep decision, and fire requests at the same instant. Holding the lock through the sleep matches the limiter's contract (outbound pacing is its whole purpose) and the sleep is always bounded by 1/rate. Originally deferred to upstream as a multi-CLI template bug; applying the fix locally now so the published pvgis CLI is correct without waiting for the generator regeneration cycle.",
+  "files": [
+    "internal/cliutil/ratelimit.go"
+  ],
+  "validated_outcome": "Local `go test ./internal/cliutil/` passes after the change.",
+  "upstream_issue": "TBD — will be filed against cli-printing-press; the same shape ships in every printed CLI in the library."
+}

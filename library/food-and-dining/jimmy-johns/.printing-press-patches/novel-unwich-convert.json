@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "novel-unwich-convert",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-034611",
+  "base_printing_press_version": "4.2.2",
+  "files": [
+    "internal/cli/menu_unwich.go",
+    "internal/cli/menu_unwich_test.go"
+  ],
+  "summary": "Add `menu unwich-convert` — pure-local modifier-delta computation that converts any sandwich to its Unwich (lettuce wrap) variant.",
+  "reason": "Transcendence command. JJ exposes Unwich as an order-time modifier, not a separate product; computing the delta locally lets agents preview the conversion without a live cart round-trip."
+}

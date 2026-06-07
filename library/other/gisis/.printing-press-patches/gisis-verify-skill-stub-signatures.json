@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "gisis-verify-skill-stub-signatures",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260527-211808",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Reconcile the generated novel-feature command stubs with the hand-authored implementations so verify-skill's command resolver reads the true signatures. ship_pin.go Use \"pin\" -> \"pin <imo>\"; ship_history.go Use \"history\" -> \"history <imo>\"; owner_fleet.go Use \"fleet\" -> \"fleet <owner>\"; ship_batch.go gains the --file flag. The SKILL.md / README.md examples were already correct (they match the real runtime commands shown by --help); only the dead generated stubs were out of sync.",
+  "reason": "verify-skill resolves a documented command to its Go source to check positional-arg and flag shape. Its graph-walk resolver cannot collect newShipParentCmd / newOwnerParentCmd because they build the parent via newNovel*Cmd()+ResetCommands() and set Use by assignment (cmd.Use = ...), so no `Use:` struct literal is visible; it falls back to the legacy basename heuristic, which resolves e.g. `ship pin` to ship_pin.go (the discarded stub) instead of ship_pin_impl.go (the live impl). The stubs declared Use without the positional arg and lacked --file, producing 10 false doc-vs-code errors. The stub commands are discarded at runtime via ResetCommands(), so aligning their Use strings and flags is zero-runtime-risk and only corrects the static analyzer's view.",
+  "files": [
+    "internal/cli/ship_pin.go",
+    "internal/cli/ship_history.go",
+    "internal/cli/owner_fleet.go",
+    "internal/cli/ship_batch.go"
+  ],
+  "validated_outcome": "publish validate verify-skill flipped from 10 error(s) -> PASS; go build, go vet, go mod tidy, govulncheck, --help, --version all green. Real impls untouched, so `ship pin`/`ship history`/`ship get` and `owner fleet` --help signatures are unchanged. The 3 `ship get 9966233` findings were already classified [likely false positive] and never blocked. Remaining publish-validate failure is phase5 only.",
+  "phase5_determination": "A phase5-skip.json is NOT appropriate for this CLI. auth_type is \"cookie\" (browser-session), and the phase5 gate explicitly rejects skip markers for cookie/composed/session_handshake auth: confirmed empirically with the error \"browser-session auth APIs require phase5 acceptance; missing API key is not a valid skip\". No skip_reason can satisfy a cookie-auth skip. phase5 therefore requires a phase5-acceptance.json (status pass) produced by a live run against an authenticated GISIS session: `cli-printing-press dogfood --live --write-acceptance \"<run>/proofs/phase5-acceptance.json\"`. No marker was fabricated; phase5 will remain failing until that live acceptance is generated.",
+  "deferred_to_upstream": [
+    {
+      "feature": "verify-skill's command resolver should handle the promoted-endpoint parent pattern (parent built from newNovelXxxCmd() then ResetCommands()'d, with the real subcommands added from *_impl.go). Either collect a parent constructor's Use from `cmd.Use = \"...\"` assignments (not only `Use:` struct literals) so the durable graph-walk succeeds, or, in the legacy basename fallback, prefer a leaf's *_impl.go over the identically-named generated stub.",
+      "reason": "The legacy fallback currently resolves `ship pin` to the dead ship_pin.go stub instead of ship_pin_impl.go, yielding false positional-arg / flag errors for any CLI that uses the parent + ResetCommands composition pattern this generator emits for promoted endpoints."
+    }
+  ]
+}

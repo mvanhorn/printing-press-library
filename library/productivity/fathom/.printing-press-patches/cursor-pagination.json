@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "cursor-pagination",
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-090403",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Four fixes in sync.go: (1) treat non-empty next_cursor as hasMore=true; (2) cursorParam 'after' → 'cursor'; (3) sinceParam 'since' → 'created_after'; (4) incremental sync clears cursor and uses created_after filter instead of resuming from positional cursor.",
+  "reason": "Fathom's cursor is positional (descending order) not temporal — resuming it on incremental sync re-fetches old meetings rather than new ones. The correct incremental approach is to start from page 1 filtered by created_after=last_synced_at.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "Full sync fetches all 3,366 meetings; incremental sync completes in ~3 seconds fetching only 1 new record."
+}

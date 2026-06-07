@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "format-flag-routing-and-helpers",
+  "applied_at": "2026-05-16",
+  "base_run_id": "20260509-180956",
+  "base_printing_press_version": "4.2.1",
+  "summary": "Add unwrapResultsArray, unwrapSingleEnvelope, printQuiet, printPlain helpers; route --csv/--quiet/--plain above the piped JSON gate; unwrap envelopes before --select/--compact.",
+  "reason": "The generated gate `flags.asJSON || !isTerminal()` short-circuited explicit format flags when stdout was piped (the agent / shell case). printOutputWithFlags also fed CSV/plain renderers an envelope-shaped JSON instead of a flat array. --quiet was silent despite docs saying 'one value per line'. --plain had no renderer at all.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/videos_list.go"
+  ],
+  "validated_outcome": "videos list --csv --select id,name | head -3 emits CSV header + 2 rows; videos list --quiet --select id emits one ID per line; videos list --plain --select id,views emits tab-separated rows; videos/playlists/clips get --select id,name returns the populated {id,name} object."
+}

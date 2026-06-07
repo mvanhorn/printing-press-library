@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "chrome-auth-import",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260601-000336",
+  "base_printing_press_version": "4.19.1",
+  "summary": "`auth login --chrome` reads Blacklane's Auth0 access token directly from Chrome's Local Storage LevelDB (snapshot-copy + goleveldb), so login is one command with no DevTools.",
+  "reason": "DevTools localStorage extraction is onerous; the published superhuman-pp-cli established the Chrome-leveldb read pattern. Imports the 24h access token only (not the rotating refresh token) to avoid poisoning the browser's Auth0 session.",
+  "files": [
+    "internal/cli/chrome_auth.go",
+    "internal/cli/auth.go"
+  ],
+  "validated_outcome": "auth login --chrome imports from the Default profile and `me` returns the account; non-invasive to the browser session. auth0CacheTokens falls back to a 24h relative lifetime when the cache entry carries neither expiresAt nor expires_in, so an imported token is never stamped already-expired."
+}

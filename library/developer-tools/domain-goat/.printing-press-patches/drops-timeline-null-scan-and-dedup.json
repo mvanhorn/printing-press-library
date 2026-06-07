@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "drops-timeline-null-scan-and-dedup",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-093229",
+  "base_printing_press_version": "4.4.0",
+  "summary": "Scan score/tld as sql.NullInt64/NullString; replaced MAX(fetched_at) join with ROW_NUMBER() window for per-fqdn dedup.",
+  "reason": "(a) Domains looked up via `rdap` (writes rdap_records only) were silently dropped from the timeline because the LEFT JOIN to `domains` produced NULL on score/tld and the plain-int scan errored. (b) Two writes within one second shared fetched_at (1s SQLite resolution), so MAX(fetched_at) matched both rows and the domain appeared twice.",
+  "files": [
+    "internal/cli/transcendence.go"
+  ],
+  "validated_outcome": "go test ./internal/cli passes; rdap-only domains now appear once each in the timeline."
+}

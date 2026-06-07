@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "markallasread-mutation-annotation",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260522-095940",
+  "base_printing_press_version": "4.11.0",
+  "summary": "message list-markallasread annotated mcp:read-only=false to match its account-mutation behavior.",
+  "reason": "Greptile P1: GET /message/mark_all_as_read mutates the account, but the cobra command advertised mcp:read-only=true, telling MCP hosts it was safe to call without approval.",
+  "files": [
+    "internal/cli/message_list-markallasread.go"
+  ]
+}

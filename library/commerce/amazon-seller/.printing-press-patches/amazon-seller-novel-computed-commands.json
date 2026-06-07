@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "amazon-seller-novel-computed-commands",
+  "applied_at": "2026-05-28",
+  "base_run_id": "2026-05-06T17:12:38.566433Z",
+  "base_printing_press_version": "3.10.0",
+  "summary": "Add Amazon Seller novel computed report commands for profitability, inventory, sales, brand analytics, listing, and account health insights.",
+  "reason": "The published Amazon Seller CLI needs curated multi-report computations that go beyond one-to-one SP-API endpoint wrappers while preserving the existing output and local SQLite conventions.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/novel_report_helpers.go",
+    "internal/cli/novel_store.go",
+    "internal/cli/novel_profitability.go",
+    "internal/cli/novel_inventory.go",
+    "internal/cli/novel_sales.go",
+    "internal/cli/novel_search_terms.go",
+    "internal/cli/novel_listings.go",
+    "internal/cli/novel_account.go",
+    "internal/cli/novel_amazon_seller_test.go",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go test ./..."
+}

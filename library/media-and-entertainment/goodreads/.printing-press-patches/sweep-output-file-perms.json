@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "sweep-output-file-perms",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260522-095940",
+  "base_printing_press_version": "4.11.0",
+  "summary": "export output file created 0600 (was os.Create's umask-default ~0644); deliver target dir created 0700 (was 0755).",
+  "reason": "Both write API response data that can include private account/shelf records; matches the world-readable class Greptile flagged on store/cache. Hardened to owner-only.",
+  "files": [
+    "internal/cli/export.go",
+    "internal/cli/deliver.go"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "rules-update-preserve-existing",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Made rules update preserve existing rule fields when only action flags are supplied.",
+  "reason": "The internal PUT endpoint requires a full rule body, but CLI callers naturally expect action-only updates such as category and notes edits to keep the existing payee/match condition.",
+  "files": [
+    "internal/cli/rules.go",
+    "internal/cli/rules_test.go",
+    "internal/internalapi/captures/rules.md",
+    "internal/internalapi/rules.go",
+    "internal/internalapi/rules_test.go"
+  ],
+  "validated_outcome": "go test ./... passes, including command-level coverage that rules update preserves payee/match while changing category and notes."
+}

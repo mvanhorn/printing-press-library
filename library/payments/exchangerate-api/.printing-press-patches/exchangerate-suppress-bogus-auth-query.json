@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "exchangerate-suppress-bogus-auth-query",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-025552",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Skip emission of the placeholder apikey_placeholder=<KEY> query parameter that the auth template adds to every live request.",
+  "reason": "Spec declares auth.type: api_key, in: query as a workaround for the lack of path-based auth support. The real auth lives in the URL path each command builds; the query-string copy is harmless garbage that clutters logs and exposes credential material in URL renders.",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "Live observation confirms no apikey_placeholder=... query param in outgoing requests; verify and dogfood still PASS."
+}

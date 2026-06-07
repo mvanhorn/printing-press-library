@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "greptile-workflow-sync-resources",
+  "applied_at": "2026-05-26",
+  "base_run_id": "20260526-210536",
+  "base_printing_press_version": "4.16.0",
+  "summary": "Reuse defaultSyncResources() from workflow archive instead of duplicating the generated resource list.",
+  "reason": "Keeps workflow archive aligned with sync whenever the generated canonical sync resource set changes.",
+  "files": [
+    "internal/cli/channel_workflow.go"
+  ],
+  "validated_outcome": "go test ./..."
+}

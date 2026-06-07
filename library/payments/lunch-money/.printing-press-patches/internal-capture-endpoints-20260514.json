@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "internal-capture-endpoints-20260514",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Wired captured internal Plaid fetch, budget write, CSV import, import-config, and multipart transaction helper endpoints.",
+  "reason": "The generated public OpenAPI surface misses or cannot authenticate several web-UI internal endpoints needed for CLI parity.",
+  "files": [
+    "internal/cli/internal_extras.go",
+    "internal/cli/internal_more.go",
+    "internal/internalapi/README.md",
+    "internal/internalapi/captures/INVENTORY.md",
+    "internal/internalapi/captures/accounts.md",
+    "internal/internalapi/captures/budgets.md",
+    "internal/internalapi/captures/categories.md",
+    "internal/internalapi/captures/settings-profile-export-probes.md",
+    "internal/internalapi/client.go",
+    "internal/internalapi/endpoints.go",
+    "internal/internalapi/endpoints_test.go"
+  ],
+  "validated_outcome": "go test ./internal/internalapi and go test ./internal/cli pass for captured paths and command wiring."
+}

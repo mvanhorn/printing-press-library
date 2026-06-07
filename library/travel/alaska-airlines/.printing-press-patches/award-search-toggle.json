@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "award-search-toggle",
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260512-151223",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Add --award, --shopping-method, --upgrade flags to flights search; new flights award-search command that defaults to award mode.",
+  "reason": "Manuscript scoped award-vs-cash comparator as a gap (research.json). Live browser sniff against alaskaair.com on 2026-05-19 confirmed the same /search/results/__data.json endpoint serves award data when ShoppingMethod=onlineaward plus UPG=none, OT=Anytime, DT=Anytime are added. Reuses existing Cookie auth and response parser; no new endpoint needed.",
+  "files": [
+    "internal/cli/flights_search.go",
+    "internal/cli/flights_award_search.go",
+    "internal/cli/flights.go"
+  ],
+  "validated_outcome": "Dry-run emits the exact URL captured during the live sniff. SvelteKit response identical shape to cash search; existing --select / --compact / --json filters carry through."
+}

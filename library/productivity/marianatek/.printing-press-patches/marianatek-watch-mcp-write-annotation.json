@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "marianatek-watch-mcp-write-annotation",
+  "applied_at": "2026-05-12T16:10:35Z",
+  "reason": "`watch --auto-book` posts to `/me/reservations`, so advertising the shell-out MCP tool as read-only can bypass host write confirmation guardrails.",
+  "files": [
+    "internal/cli/watch.go"
+  ],
+  "change": "Removed the `mcp:read-only` annotation from `watch` while keeping the command exposed as a novel MCP shell-out tool."
+}

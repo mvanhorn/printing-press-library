@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "deferred_to_upstream": [
+    {
+      "id": "ratelimit-toctou",
+      "summary": "AdaptiveLimiter.Wait() has a TOCTOU race: lastRequest is read under the lock, the lock is released, both goroutines sleep, both fire simultaneously.",
+      "reason": "internal/cliutil/ratelimit.go is generator-emitted shared code present in every printed CLI in this library. A one-CLI patch here would not help the rest; the fix belongs upstream in cli-printing-press.",
+      "files": [
+        "internal/cliutil/ratelimit.go"
+      ]
+    },
+    {
+      "id": "sync-latest-only-since-warning",
+      "summary": "When --latest-only is combined with --since, sync.go silently ignores --since but emits no structured JSON warning for agent consumers running in --json mode.",
+      "reason": "internal/cli/sync.go is generator-emitted shared code present in every printed CLI. Adding an sync_warning event for this flag combination belongs in the generator template so the whole catalog gets it consistently, not patched per-CLI. Greptile classified this finding as a diagnostics gap, not a data-loss or behavioral defect.",
+      "files": [
+        "internal/cli/sync.go"
+      ]
+    },
+    {
+      "id": "pages-endpoint-zero-coord-drop",
+      "summary": "Generated endpoint wrappers (pages_list-restaurants-near.go, pages_search.go) gate lat/lon params on != 0.0 instead of 'flag was explicitly set', silently dropping coordinates of exactly 0.0 from the request.",
+      "reason": "Generator-emitted code present in every printed CLI that has float64 query/body params. Affects equatorial / prime-meridian coordinates. Not user-affecting for Wolt in practice (Wolt operates in Europe, Israel, Japan — none near 0,0) but the generator template should switch to cmd.Flags().Changed() or distinguish a sentinel from a real zero.",
+      "files": [
+        "internal/cli/pages_list-restaurants-near.go",
+        "internal/cli/pages_search.go"
+      ]
+    }
+  ]
+}

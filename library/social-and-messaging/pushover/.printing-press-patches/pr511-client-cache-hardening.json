@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "pr511-client-cache-hardening",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-140827",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Harden the generated HTTP cache after PR review (live path + unused scaffolding package).",
+  "reason": "GET cache responses can contain user-scoped Pushover data, so cache files must be owner-only; the review also identified a redundant AuthHeader read in the cache key path. A later Greptile pass surfaced that the unused internal/cache package wrote at 0o644; aligned it to 0o600 so it doesn't ship a regression vector if it's ever wired up.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/dryrun_test.go",
+    "internal/cache/cache.go"
+  ],
+  "validated_outcome": "go test ./internal/client -run TestWriteCacheUsesOwnerOnlyPermissions -count=1 confirms live cache files are written 0o600; publish-package verifier passes locally. internal/cache has no callers and no tests; the change is a one-line constant align that go vet ./... and go build ./... cover."
+}

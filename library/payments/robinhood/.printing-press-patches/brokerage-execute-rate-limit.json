@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "brokerage-execute-rate-limit",
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260522-162911",
+  "base_printing_press_version": "4.11.0",
+  "summary": "brokeragemap.Execute wires cliutil.NewAdaptiveLimiter (Wait/OnSuccess/OnRateLimit) around its HTTP call.",
+  "reason": "Greptile P2: Execute used a plain http.Client with no per-second cap, unlike client.go's AdaptiveLimiter, so brokerage execute in a loop could hit Robinhood's rate limiter with no back-off.",
+  "files": [
+    "internal/brokeragemap/route_map.go"
+  ]
+}

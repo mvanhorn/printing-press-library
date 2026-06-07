@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "p1-zero-value-optional-params-sent",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-214920",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Gate every numeric PVGIS param whose valid range includes zero (`peakpower`, `loss`, `angle`, `aspect`, `usehorizon`, `pvcalculation`, `horirrad`, `selectrad`, `optrad`, `avtemp`) on `cmd.Flags().Changed(...)` instead of `!= 0(.0)` so an explicit zero is forwarded to the API instead of silently dropped.",
+  "reason": "Greptile review (P1, across three passes) progressively flagged that the entire family of numeric/boolean params using `!= 0(.0)` gates suffered the same defect: `--pnom 0`, `--system-loss 0`, `--tilt 0` (horizontal panel), `--azimuth 0` (south-facing), `--use-horizon 0` (flat-horizon scenario), `--pvcalculation 0` (radiation-only timeseries), and the per-output toggles (`--horizontal 0`, `--tilted 0`, `--optimal 0`, `--avg-temp 0`) all became indistinguishable from 'flag not set' under the `!= 0` gate. PVGIS then substitutes its own defaults: `loss` defaults to 14% (so a user requesting 0% losses received +16% lower E_y); `usehorizon` defaults to 1 (terrain horizon ON, so `--use-horizon 0` was silently inverted); `peakpower` has no default and PVGIS returned an opaque API error. Lat/lon were already fixed by always-include in an earlier patch. Each `Changed(...)` call here checks both the primary flag name and the hidden alias the generator emits, so `--tilt`/`--angle`, `--azimuth`/`--aspect`, `--system-loss`/`--loss`, `--pnom`/`--peakpower`, `--use-horizon`/`--usehorizon`, `--horizontal`/`--horirrad`, `--tilted`/`--selectrad`, `--optimal`/`--optrad`, `--avg-temp`/`--avtemp` all behave consistently. Applied to production_monthly.go (`peakpower`, `loss`, `angle`, `aspect`, `usehorizon`), production_hourly.go (`pvcalculation`, `peakpower`, `loss`, `angle`, `aspect`, `usehorizon`), and promoted_radiation.go (`usehorizon`, `horirrad`, `selectrad`, `angle`, `aspect`, `optrad`, `avtemp`).",
+  "files": [
+    "internal/cli/production_monthly.go",
+    "internal/cli/production_hourly.go",
+    "internal/cli/promoted_radiation.go"
+  ],
+  "validated_outcome": "Verified with --dry-run across the full param family: `--system-loss 0` emits `loss=0`; `--tilt 0 --azimuth 0` emits `angle=0&aspect=0`; `--pnom 0` emits `peakpower=0`; `--use-horizon 0` emits `usehorizon=0`; `--pvcalculation 0` emits `pvcalculation=0`; `radiation --horizontal 0 --tilted 0 --use-horizon 0` emits all three explicit zeros; not setting any flags omits them all (PVGIS server-side defaults apply, as intended)."
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "book-handoff",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260601-000336",
+  "base_printing_press_version": "4.19.1",
+  "summary": "book command: quote + assemble a booking, then hand payment off to the browser under --confirm. Never calls createBooking.",
+  "reason": "createBooking requires a Braintree-minted nonce + deviceData + 3-D Secure that can only be produced in a browser; headless booking is impossible by design, so payment stays human-driven in the browser.",
+  "files": [
+    "internal/cli/book.go"
+  ],
+  "validated_outcome": "book prints plan + real price; opens checkout only with --confirm; short-circuits under PRINTING_PRESS_VERIFY."
+}

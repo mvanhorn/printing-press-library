@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "validation-risk-gates",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260522-124732",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Risk annotation classifier uses the exact POST-path allowlist (isUngatedValidationRoute) that mirrors client.go's isValidationStyleMutation, instead of a broad \"validate\" substring heuristic.",
+  "reason": "Greptile P1: the substring heuristic tagged certificates validate and agents verify-acme as Barrier:none, but client.go's exact allowlist still gated them, so the help text contradicted runtime enforcement (ErrWriteRequiresApproval). The two functions now share the same allowlist and stay in sync.",
+  "files": [
+    "internal/cli/risk_annotations.go"
+  ]
+}

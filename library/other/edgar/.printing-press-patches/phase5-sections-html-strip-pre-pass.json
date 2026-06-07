@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "phase5-sections-html-strip-pre-pass",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-115144",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Pre-strip HTML tags before running the ITEM-header regex in extractSections.",
+  "reason": "SEC 10-K bodies embed ITEM headers inside font/span/b tags; without the strip pass the boundary regex matches nothing and every sections call returns boundary_unverifiable.",
+  "files": [
+    "internal/cli/edgar_helpers.go"
+  ]
+}

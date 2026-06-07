@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "shellout-single-quote-grouping-20260517",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Taught splitShellArgs to honor POSIX single-quoted grouping, not just double-quoted.",
+  "reason": "MCP callers passing a value containing a space via single quotes (e.g. 'Bob's diner') saw their token silently split into multiple positional arguments. Closes Greptile finding #3 on PR #624.",
+  "files": [
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/shellout_test.go"
+  ],
+  "validated_outcome": "go test ./internal/mcp/cobratree passes, including single-quote and mixed-quote regression coverage."
+}

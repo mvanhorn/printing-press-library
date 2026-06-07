@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "novel-commands",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260509-110540",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Five hand-written novel commands (auth, goat, watch, earliest, drift) registered in root.go, implementing the cross-network unified search, cancellation watcher, multi-venue earliest-available, and per-venue change feed.",
+  "reason": "Phase 1.5 absorb manifest approved a tight-v1 with 4 transcendence features (goat, watch, earliest, drift) plus auth login --chrome cookie import. None of these have a generator-template equivalent — they require local SQLite (watch), cross-network composition (goat, earliest), and snapshot diffing (drift). root.go is modified to register them.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/goat.go",
+    "internal/cli/watch.go",
+    "internal/cli/earliest.go",
+    "internal/cli/drift.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "Phase 5 live dogfood: 64/64 PASS. All four transcendence commands return well-shaped JSON in dry-run; live-data paths surface honest errors when SSR JS-state can't be fully parsed (documented v0.2 gap). v0.1.3 (Greptile review): removed misleading mcp:read-only on `auth` parent group and `auth login` (login writes cookies to disk); `watch tick` no longer reports Polled=true on the OT branch (honest no-op until v0.2 RestaurantsAvailability bootstrap); `watch add` refuses opentable-prefixed slugs with a clear v0.2 error rather than storing a watch that silently never matches. v0.1.4 (Greptile follow-up): removed misleading mcp:read-only on `drift` (writes snapshot files); reordered earliest's network preference to try Tock first (real availability) before OT, with the OT branch surfacing an honest 'venue exists, availability watching is v0.2 work' rather than a misleading Available=false. v0.1.5: `earliest` and `watch tick` OT branches now fire RestaurantsAvailability for real and surface actual SlotAt/HasMatch values. The previous `watch add opentable:` rejection has been removed since OT-side polling now works. v0.1.7 (Greptile review round 3): Tock pollOneWatch now scans a 7-day forward window matching the OT branch, instead of querying only today. A watch added for 'next Saturday' now actually triggers. v0.1.8 (Greptile r4): earliest's Tock branch now iterates `date` through `date+within-1` like the OT branch and pollOneWatch's Tock branch — so `earliest tock:alinea --within 14d` actually scans 14 days instead of just today. v0.1.9: earliest + watch Tock branches now use the real Calendar() endpoint (see cross-network-source-clients/v0.1.9), replacing the SSR-metadata-only path that conflated 'venue offers experiences for this party size' with 'open slot exists'. earliestRow lost the v0.1.4-era SSR honesty fields (VenueOpenToday, VenueOpenTimes, EligibleExperiences, AllExperiences) since real availability obsoletes them; BookableTimes is now populated from confirmed-open slots not just OT data."
+}

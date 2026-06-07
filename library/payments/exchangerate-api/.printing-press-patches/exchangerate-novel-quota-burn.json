@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "exchangerate-novel-quota-burn",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-025552",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Add quota burn subcommand under quota that fits a linear trend over quota_snapshots and projects exhaustion vs refresh_day_of_month. Caps hoursUntilZero at 8760 (1 year) to avoid +Inf overflowing time.Time.",
+  "reason": "Single-call /quota cannot project burn rate. quota burn auto-captures a fresh snapshot on each call (unless --no-fetch); over time the projection sharpens. Annotations correctly omit mcp:read-only because of the auto-capture write.",
+  "files": [
+    "internal/cli/quota_burn.go"
+  ],
+  "validated_outcome": "First call: warming-up with 1 snapshot. After 2+ snapshots: returns burn_rate_per_hour and projected_exhaustion ISO timestamp; status flips to WARNING when projected_exhaustion is before next_refresh."
+}

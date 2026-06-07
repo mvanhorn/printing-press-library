@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "workflow-archive-json-stdout-redirect",
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260519-002038",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Redirect syncResource NDJSON events to stderr during workflow archive --json so stdout is a single parseable JSON document.",
+  "reason": "Generated syncResource writes per-event NDJSON to os.Stdout; workflow archive --json then appended a final summary object on the same stream, producing dual-format output that neither json.Unmarshal nor a strict NDJSON parser accepts. Patched locally so users piping `--json` into jq get clean JSON; NDJSON progress events still surface on stderr.",
+  "files": [
+    "internal/cli/channel_workflow.go"
+  ],
+  "validated_outcome": "After fix, `workflow archive --json > out.txt` produces a 4-key JSON object parseable by python json.load; 47 NDJSON event lines land on stderr.",
+  "upstream_issue": "Generator-level fix needed: syncResource should route events through a writer that switches to stderr when --json is set. Filed as retro candidate for cli-printing-press."
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "production-sweep-no-cell-shadow",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-214920",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Rename the `cell` value in `production sweep`'s inner loop from `c` to `pt` so it no longer shadows the API client.",
+  "reason": "Greptile review (P2) flagged variable shadowing — the inner-loop `c := cell{...}` shadowed the outer API client `c`. No current runtime bug (the `pvgisPVcalc(c, ...)` call happens before the shadow), but any future edit that moves the call below the shadow would silently fail. Renamed to remove the trap.",
+  "files": [
+    "internal/cli/novel.go"
+  ]
+}

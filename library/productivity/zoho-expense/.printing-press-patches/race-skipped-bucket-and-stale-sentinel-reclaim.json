@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "race-skipped-bucket-and-stale-sentinel-reclaim",
+  "applied_at": "2026-05-23",
+  "base_run_id": "20260523-163843",
+  "base_printing_press_version": "4.12.0",
+  "summary": "Bucket race-skipped invoice ingest results into skipped (not ingested); reclaim stale ReserveHash sentinels older than 30 minutes so crashed runs do not permanently quarantine a file.",
+  "reason": "Two issues in one Greptile P1 finding on the original TOCTOU fix: (1) the aggregation loop only special-cased status=duplicate, so race-skipped sentinel results landed in ingested without an expense_id, inflating the uploaded count; (2) if a run crashed between ReserveHash and ConfirmHash/ReleaseHash, the sentinel row was orphaned forever and every retry returned race-skipped until the user discovered --force. Fix (1): bucket by status != uploaded. Fix (2): ReserveHash now reclaims sentinels older than ReservationTTL (default 30 min) before inserting a fresh row.",
+  "files": [
+    "internal/cli/zoho_invoice_ingest.go",
+    "internal/zohotools/receipthash.go",
+    "internal/zohotools/receipthash_reserve_test.go"
+  ],
+  "validated_outcome": "TestReserveHash_ReclaimsStaleSentinel + TestReserveHash_DoesNotReclaimFreshSentinel + the existing parallel-claim regression all pass."
+}

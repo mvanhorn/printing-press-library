@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "greptile-4-db-per-upsert",
+  "applied_at": "2026-05-23",
+  "base_run_id": "20260517-231116",
+  "base_printing_press_version": "4.8.0",
+  "files": [
+    "internal/dashboard/dashboard.go",
+    "internal/cli/gravitus_sync_impl.go"
+  ],
+  "summary": "Add OpenDB and change Upsert/ExistsOnDate/TableExists to accept *sql.DB; open the dashboard connection once before the sync loop.",
+  "reason": "dashboard.Upsert and ExistsOnDate each called sql.Open+Close, creating a fresh connection per workout; sharing one *sql.DB across the loop avoids the per-row overhead."
+}

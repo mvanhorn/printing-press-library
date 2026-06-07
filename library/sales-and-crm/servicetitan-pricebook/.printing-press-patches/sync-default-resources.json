@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "sync-default-resources",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-073613",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Populates defaultSyncResources() with the seven Pricebook resource types (categories, equipment, materials, services, discounts-and-fees, materialsmarkup, clientspecificpricing).",
+  "reason": "The v4.6.1 generator emitted an empty defaultSyncResources(), so `sync` was a no-op (#1305). Resource names match the exact strings the generated list commands use as resourceType keys.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "sync populates the local SQLite store; the 12 novel audit/find/dedupe commands read from it"
+}

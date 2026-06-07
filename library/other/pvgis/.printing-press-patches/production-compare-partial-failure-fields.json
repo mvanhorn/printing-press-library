@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "production-compare-partial-failure-fields",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-214920",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Add `partial` and `errors` fields to the `production compare` summary so agents can distinguish a clean comparison from one where a database returned an error (e.g. NSRDB rejected outside the Americas).",
+  "reason": "PVGIS v5_3 returns HTTP 400 for `raddatabase=PVGIS-NSRDB` outside the Americas. The original `summary.databases_ok` field was true whenever ≥1 database succeeded, which hid the partial-failure state. The polish skill split the boolean into `databases_ok` (false on any error) plus explicit `partial`/`errors` lists.",
+  "files": [
+    "internal/cli/novel.go"
+  ]
+}

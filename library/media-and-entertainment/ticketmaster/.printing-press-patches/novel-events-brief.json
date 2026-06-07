@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "novel-events-brief",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-051647",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Add 'events brief --window N --dma <id>' markdown renderer that groups local events by date → venue → events with classification labels and (when available) price ranges.",
+  "reason": "Persona D (newsletter author) workflow + user-vision Obsidian/iMessage composition. Mechanical group-by + markdown formatting; no API endpoint produces formatted reports.",
+  "files": [
+    "internal/cli/events_brief.go",
+    "internal/cli/events.go"
+  ],
+  "validated_outcome": "--help pass; --watchlist flag composes with the watchlist table from the events-watchlist patch."
+}

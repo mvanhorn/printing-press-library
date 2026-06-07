@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "sync-resource-paths-and-uuid-injection",
+  "applied_at": "2026-05-26",
+  "base_run_id": "20260526-094831",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Wire bento resources (tags/fields/broadcasts/subscribers) into syncResourcePath() + auto-inject site_uuid query param.",
+  "reason": "Generator emitted only 'experimental' as a sync target; subscribers gracefully degrade to a sync_warning on 422 Enterprise gate.",
+  "files": [
+    "internal/cli/sync.go"
+  ]
+}

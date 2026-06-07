@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "oidc-urls-from-base-url",
+  "applied_at": "2026-05-10T18:30:00Z",
+  "base_run_id": "20260510T124341Z-e440f457",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Derive OIDC authorization and token URLs from cfg.BaseURL (or cfg.OIDCIssuer override) instead of hardcoding localhost:9001.",
+  "reason": "Generator emits hardcoded http://localhost:9001 OIDC URLs in auth.go (lines 70 + 129) and client.go (line 375), bypassing cfg.BaseURL entirely. `auth login` and automatic token refresh are broken for any non-local Etherpad deployment. Greptile flagged this as P1 on review of mvanhorn/printing-press-library#396.",
+  "files": [
+    "internal/config/config.go",
+    "internal/cli/auth.go",
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "Adds cfg.OIDCIssuer field + ETHERPAD_OIDC_ISSUER env override + AuthURL()/TokenURL() helpers that derive scheme://host from BaseURL. auth login + refresh now work against any Etherpad deployment whose OIDC provider is at the same host, with explicit override for separate-host providers. localhost:9001 fallback preserved only when BaseURL is unset or unparseable.",
+  "upstream_issue": "TODO: file on mvanhorn/cli-printing-press — generator template should derive OIDC URLs from BaseURL by default."
+}

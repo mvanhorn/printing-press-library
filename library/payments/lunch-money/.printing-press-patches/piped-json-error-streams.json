@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "piped-json-error-streams",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Rendered errors as JSON whenever stdout is piped, even without --agent.",
+  "reason": "Generated commands auto-select JSON for piped success output, but API failures still printed human text and broke `2>&1 | jq` transaction-update pipelines.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/root_test.go"
+  ],
+  "validated_outcome": "go test ./... passes, including a transactions update --stdin regression for piped API errors."
+}

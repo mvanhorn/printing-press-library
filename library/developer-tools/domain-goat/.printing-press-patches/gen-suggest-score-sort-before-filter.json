@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "gen-suggest-score-sort-before-filter",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-093229",
+  "base_printing_press_version": "4.4.0",
+  "summary": "Sort gen-suggest rows by score BEFORE the --available-only RDAP filter loop, so the count early-exit returns the top-N highest-scoring available domains.",
+  "reason": "gen.Generate emits candidates alphabetically; the availableOnly loop iterated in that order and broke at `count` matches, so users got the first N alphabetically-available domains rather than the top-N by brandability score (which --include-score=true makes the implicit goal).",
+  "files": [
+    "internal/cli/gen_score_similar.go"
+  ],
+  "validated_outcome": "go test ./... passes; alphabetical-vs-score selection bias removed. The standalone `else if includeScore` sort block became unnecessary and was inlined into the unconditional pre-filter sort."
+}

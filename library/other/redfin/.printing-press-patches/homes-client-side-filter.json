@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "homes-client-side-filter",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260504-175601",
+  "base_printing_press_version": "3.8.0",
+  "summary": "Apply price / beds / baths / sqft / year-built / lot-size / property-type bounds in the CLI after parsing the Stingray response, since the server ignores or only partially applies those query params.",
+  "reason": "Stingray's `/api/gis` endpoint accepts min_price, max_price, min_beds, min_baths, min_sqft, max_sqft, min_year_built, max_year_built, min_lot_size, and uipt in the query string but does not consistently honor them server-side. Verified against multiple city regions on 2026-05-17: a request with min_price=700000&max_price=900000 still returns below-band listings alongside the $700-900k matches, and a request with uipt=1 (house) still returns rows with other uiPropertyType codes. The website filters those rows out client-side in its React layer; the CLI was forwarding the same params and inheriting the same gap, so --price-min / --price-max / --type / --lot-min were silently advisory. We now filter after parsing.",
+  "files": [
+    "internal/cli/promoted_homes.go",
+    "internal/cli/promoted_homes_filter_test.go",
+    "internal/redfin/client.go",
+    "internal/redfin/client_test.go",
+    "internal/redfin/types.go"
+  ],
+  "validated_outcome": "Live search with --price-min 700000 --price-max 900000 --beds-min 3 --baths-min 2.5 --type house returns only listings with known prices inside the requested band and ui_property_type=1; no missing-price rows pass price bounds. TestFilterListings_* unit tests cover price bounds, zero-means-unbounded, sparse non-price field pass-through, max-bound enforcement, lot-min enforcement, UIPropertyType drops non-matching rows, UIPropertyType preserves unknown (gis-missing) rows, and no-filter pass-through."
+}

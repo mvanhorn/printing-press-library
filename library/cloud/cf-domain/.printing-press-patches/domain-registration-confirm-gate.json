@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "domain-registration-confirm-gate",
+  "applied_at": "2026-05-11",
+  "base_run_id": "local-generate",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Require --confirm-domain for live registration and disable stdin registration.",
+  "reason": "Domain purchase is destructive/paid; --agent sets --yes, so registration needs a typed target confirmation after price check.",
+  "files": [
+    "internal/cli/registrar_domain-register.go"
+  ],
+  "validated_outcome": "go test ./... and go build ./cmd/cf-domain-pp-cli pass."
+}

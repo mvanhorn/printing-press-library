@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "servizi-help-docs",
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260514-212234",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Expand servizi command help for IPA digital services discovery.",
+  "reason": "The servizi command exposed portal-only digital service data, but its help did not explain practical workflows such as finding an Albo Pretorio URL via tipologia 1 or filtering broad text matches.",
+  "files": [
+    "internal/cli/servizi.go",
+    "internal/cli/servizi_ente.go",
+    "internal/cli/servizi_tipi.go",
+    "internal/cli/servizi_uo.go"
+  ],
+  "validated_outcome": "go run ./cmd/openipa-pp-cli servizi --help and subcommand help render expanded guidance."
+}

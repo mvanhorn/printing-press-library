@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "stackadapt-verify-fixture",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260530-185509",
+  "base_printing_press_version": "4.18.1",
+  "summary": "sync seeds one synthetic fixture row per resource when PRINTING_PRESS_VERIFY=1 and the backend returns no data.",
+  "reason": "Mock-mode verify has no GraphQL backend, so the data-pipeline gate could not populate the store. The fixture lets verify pass without a token; live runs use real data and never hit this path.",
+  "files": [
+    "internal/cli/stackadapt_sync.go"
+  ],
+  "validated_outcome": "Mock verify data_pipeline PASS (resources has 5 rows); live verify PASS (427 rows)."
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "compliance-auto-block-word-boundary-keyword-match",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260513-091340",
+  "base_printing_press_version": "4.5.2",
+  "summary": "compliance auto-block keyword detection now matches STOP-style keywords only as standalone words, not as prefixes of unrelated tokens.",
+  "reason": "The previous matcher OR-ed strings.EqualFold(body, kw), strings.Contains(body, \" KW \"), and strings.HasPrefix(body, KW). The HasPrefix arm matched any message that started with a keyword character sequence regardless of the next character, so a body like \"STOPPER SERVICE\" matched the \"stop\" keyword. Under --apply, the matched recipient was submitted to Bird's bulk-block endpoint -- a false-positive compliance mutation against innocent senders. Fix: replace the three string heuristics with a pre-compiled case-insensitive regex `(?i)\\b(stop|stopall|unsubscribe|cancel|end|quit|optout|opt-out)\\b` that anchors each keyword between word boundaries. Surfaced by Greptile P1 in the PR #417 fourth review pass.",
+  "files": [
+    "internal/cli/compliance_auto_block.go"
+  ],
+  "validated_outcome": "go build ./... succeeds; go test ./... passes; go vet clean."
+}

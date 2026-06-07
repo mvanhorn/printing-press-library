@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "greptile-novel-feature-fixes",
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260518-202518",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Address 6 real bugs in hand-coded novel features surfaced by Greptile review on PR #679.",
+  "reason": "Lint-cleanup sweep had inadvertently replaced unfinished or refactored variables with `_ = x` rather than completing the logic. Greptile correctly flagged the resulting dead code, ignored flags, and unbounded I/O. All fixes are functional repairs to the novel features themselves.",
+  "files": [
+    "internal/cli/suppression_diff.go",
+    "internal/cli/subusers_rollup.go",
+    "internal/cli/templates_lint.go",
+    "internal/cli/activity_tail.go",
+    "internal/cli/suppression_sync.go"
+  ],
+  "validated_outcome": "go build ./..., go vet ./..., golangci-lint v2 run ./... all clean. Fixes: (1) suppression diff three-way categorisation now exhaustive over (api,local,external) tuple with one category per email; (2) --metric flag on subusers rollup now actually filters output columns; (3) templates lint replaces os.Exit(2) with &cliError{code:2,...} so deferred db.Close()/file handles run; (4) dead firstPoll variable in activity tail removed (lobotomized when query strategy changed to msg_id dedup); (5) fetchURLCSV now uses bounded http.Client{Timeout: 30s} + NewRequestWithContext; (6) suppression sync paginates via offset+limit with maxPages safety cap, removing silent truncation at 500."
+}

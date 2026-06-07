@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "cache-key-param-separator",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-073613",
+  "base_printing_press_version": "4.6.1",
+  "summary": "cacheKey() inserts '&' between sorted param entries so different param sets cannot collide on a single cache file.",
+  "reason": "Greptile review (PR #576): the original loop concatenated 'k=v' with no separator, so {\"a\":\"1b\",\"c\":\"2\"} and {\"a\":\"1\",\"bc\":\"2\"} both produced 'a=1bc=2' — different queries could silently share a cached response.",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "go build, go vet, go test ./internal/pricebook/ all clean"
+}

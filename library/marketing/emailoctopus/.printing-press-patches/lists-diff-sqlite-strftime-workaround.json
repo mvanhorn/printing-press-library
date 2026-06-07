@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "lists-diff-sqlite-strftime-workaround",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-015019",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Replace `strftime('%Y-%m-%dT%H:%M:%SZ', synced_at)` with `substr(synced_at, 1, 19)` in `lists diff` for both SELECT and WHERE.",
+  "reason": "The generator stores `synced_at` via Go's `time.Time.String()` which appends a timezone suffix (`2026-05-17 02:23:57.241892 -0700 PDT`) that SQLite's strftime cannot parse — it returns NULL. The substr workaround clips to the comparable 19-character ISO prefix.",
+  "files": [
+    "internal/cli/lists_diff.go"
+  ]
+}

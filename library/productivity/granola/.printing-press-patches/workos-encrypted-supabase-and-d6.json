@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "workos-encrypted-supabase-and-d6",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "files": [
+    "internal/granola/workos.go",
+    "internal/granola/workos_test.go",
+    "internal/granola/workos_integration_test.go"
+  ],
+  "summary": "Teach loadFromSupabaseJSON to prefer supabase.json.enc. Add TokenSource enum tracking origin of the cached token. RefreshAccessToken now refuses to rotate the token when CurrentTokenSource()==TokenSourceEncryptedSupabase, returning a new ErrRefreshRefused sentinel; refresh stays allowed for env-override, plaintext supabase, and stored-accounts sources. Added 5 unit tests + an integration test.",
+  "reason": "WorkOS uses single-use refresh-token rotation. If the CLI reads the live refresh token from supabase.json.enc and rotates it, Granola desktop's stored copy becomes invalid and the user is signed out next time the desktop tries to refresh. Plan D6 - the CLI is read-only against the encrypted token store."
+}

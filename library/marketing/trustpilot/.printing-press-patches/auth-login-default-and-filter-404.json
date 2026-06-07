@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "auth-login-default-and-filter-404",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260515-075905",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Defaults auth login to Chrome harvest and separates unsupported filter 404s from stale build IDs.",
+  "reason": "First-use auth required a redundant flag, and unsupported filters produced misleading re-auth guidance.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/tp_helpers.go",
+    "internal/trustpilot/transport.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass."
+}

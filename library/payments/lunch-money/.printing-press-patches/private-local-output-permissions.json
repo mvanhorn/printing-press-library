@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "private-local-output-permissions",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Created export, deliver, and generated cache files with owner-only permissions.",
+  "reason": "Local command output and cached API responses can include Lunch Money transactions, balances, and account metadata.",
+  "files": [
+    "internal/cache/cache.go",
+    "internal/cache/cache_test.go",
+    "internal/cli/deliver.go",
+    "internal/cli/export.go",
+    "internal/cli/output_permissions_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cache and go test ./internal/cli pass for private cache, export, and deliver file permissions."
+}

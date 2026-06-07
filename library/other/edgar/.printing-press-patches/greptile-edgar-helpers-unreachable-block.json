@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-edgar-helpers-unreachable-block",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-115144",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Remove unreachable `if err == nil { _ = cached }` nested inside `if err != nil` in resolveTickerToCIK.",
+  "reason": "Dead-code cleanup flagged by Greptile review; the `_ = cached` was suppressing a lint warning that would otherwise surface the dead block. Stale-cache fallback below is preserved.",
+  "files": [
+    "internal/cli/edgar_helpers.go"
+  ]
+}

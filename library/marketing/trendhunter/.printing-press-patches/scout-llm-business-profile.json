@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "scout-llm-business-profile",
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260513-134344",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Forward the --business profile into llmTrendScore so the LLM scores trends against the user's stated business context.",
+  "reason": "scoreTrends received business but never passed it to llmTrendScore, so scout --llm scored trends on an undirected scale unrelated to --business. Greptile blocking finding on PR #548.",
+  "files": [
+    "internal/cli/trendhunter_commands.go"
+  ]
+}

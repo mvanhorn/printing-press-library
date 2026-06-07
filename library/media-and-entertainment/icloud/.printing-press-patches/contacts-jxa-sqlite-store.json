@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "contacts-jxa-sqlite-store",
+  "applied_at": "2026-05-23",
+  "base_run_id": "hand-written",
+  "base_printing_press_version": "0.1.3",
+  "summary": "contacts.go / contacts_db.go / contacts_analytics.go add a full contacts command group: sync (JXA → SQLite), list, get, search (FTS5), create, update, delete, and analytics subcommands (countries, domains, missing).",
+  "reason": "macOS Contacts requires Full Disk Access for raw SQLite but is fully readable via JXA (JavaScript for Automation) without any special permission. A local SQLite cache (~/Library/Application Support/icloud-pp-cli/contacts.db) is populated once via a single JXA call and makes all subsequent reads instant (<20ms). Phone numbers are resolved to countries via a longest-prefix E.164 dial-code map, enabling the `contacts analytics countries` command that groups contacts by country without any network call.",
+  "files": [
+    "internal/cli/contacts.go",
+    "internal/cli/contacts_analytics.go",
+    "internal/cli/contacts_db.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "Synced 1,648 contacts; analytics countries returned 47 countries; FTS5 search on 'juan' returned 21 results in 13ms."
+}

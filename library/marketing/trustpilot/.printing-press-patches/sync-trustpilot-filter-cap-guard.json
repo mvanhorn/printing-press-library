@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "sync-trustpilot-filter-cap-guard",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260515-075905",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Detects Trustpilot pagination cap responses and refuses degenerate cursor writes.",
+  "reason": "Cap-hit pages returned totalPages=0 and could poison resume state.",
+  "files": [
+    "internal/cli/sync_tp.go",
+    "internal/trustpilot/store.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass."
+}

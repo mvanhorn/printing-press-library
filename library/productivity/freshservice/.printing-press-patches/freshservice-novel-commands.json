@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "freshservice-novel-commands",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-170855",
+  "base_printing_press_version": "4.5.0",
+  "summary": "Hand-authored novel command set under freshservice_novel.go (breach-risk, my-queue, workload, change-collisions, recurrence, kb-gaps, orphan-assets, dept-sla, oncall-gap) and a tenant-specific code→label resolver in freshservice_meta.go backed by the synced ticket-form-fields choices.",
+  "reason": "These transcendence commands aggregate across resources (tickets + agents + groups + assets + changes + KB articles) and rely on FTS scoring against the synced local store; the OpenAPI spec describes the underlying endpoints but not the aggregation. Per-tenant integer codes for status/priority/type/source/urgency/impact mean a static enum-to-label map (what the generator emits) is wrong on every Freshservice tenant — the resolver synthesizes the map from synced choices at query time, with built-in fallbacks for the canonical 2/3/4/5 codes when the local store has not been hydrated yet.",
+  "files": [
+    "internal/cli/freshservice_novel.go",
+    "internal/cli/freshservice_meta.go"
+  ],
+  "validated_outcome": "All 9 novel commands return non-empty results against the live tenant; `tickets get` and `tickets list` decorate status/priority codes with the tenant's actual labels (e.g. custom status code 9 → 'Awaiting Customer Response') rather than blank or built-in defaults."
+}

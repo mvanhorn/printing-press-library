@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "freshservice-cache-owner-only-perms",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-170855",
+  "base_printing_press_version": "4.5.0",
+  "summary": "Tighten cache writes to 0o600 files in a 0o700 directory across BOTH `internal/client/client.go:writeCache` (Greptile-flagged) and the secondary `internal/cache/cache.go:Set` (found in same-class audit Greptile didn't reach). Matches the config file's permissions.",
+  "reason": "Greptile blocking (security) finding on PR #533 (round 3) named client.go specifically; an own-audit found the same 0o644/0o755 pattern in the secondary cache store. API response cache contains real ITSM data — tickets, users, assets — which on shared/multi-user hosts becomes readable by every local user. The config file template correctly uses 0o600; both cache templates were inconsistent.",
+  "files": [
+    "internal/client/client.go",
+    "internal/cache/cache.go"
+  ],
+  "validated_outcome": "Both `~/.cache/freshservice-pp-cli/` (primary) and the secondary cache directory now owner-only (0o600/0o700). Existing caches written with the old permissions are not retroactively tightened; users on shared hosts should `chmod -R go-rwx ~/.cache/freshservice-pp-cli` once after upgrade."
+}

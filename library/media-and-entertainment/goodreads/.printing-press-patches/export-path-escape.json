@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "export-path-escape",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260522-095940",
+  "base_printing_press_version": "4.11.0",
+  "summary": "export escapes the optional ID arg via url.PathEscape.",
+  "reason": "Greptile P1: args[1] was concatenated raw into the URL path, allowing path/query injection via space, '/', or '?'.",
+  "files": [
+    "internal/cli/export.go"
+  ]
+}

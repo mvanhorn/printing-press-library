@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "greptile-pr444-ratelimit-unbounded-ramp",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-051647",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Add MaxRate=10.0 hard cap in AdaptiveLimiter.OnSuccess() so a long success streak before the first 429 cannot push the rate past a sane outbound ceiling.",
+  "reason": "Greptile P2 finding on PR #444 (ratelimit.go:59-74). Without a 429, OnSuccess multiplies by 1.25 indefinitely, reaching ~16 req/s after ~100 successes.",
+  "files": [
+    "internal/cliutil/ratelimit.go"
+  ],
+  "validated_outcome": "go test ./internal/cliutil/... PASS; build/vet clean.",
+  "upstream_issue": "see upstream_tracking.press-ratelimit-unbounded-ramp"
+}

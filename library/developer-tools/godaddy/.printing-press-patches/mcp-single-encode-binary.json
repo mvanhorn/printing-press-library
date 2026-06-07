@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "mcp-single-encode-binary",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260522-124732",
+  "base_printing_press_version": "4.11.0",
+  "summary": "MCP binary-response handler passes the client's binaryResponseEnvelope JSON through verbatim (detected via the _pp_binary discriminator) instead of base64-encoding it a second time; removed the now-unused encoding/base64 import.",
+  "reason": "The HTTP client already wraps genuinely binary bodies into a self-describing {\"_pp_binary\":true,\"encoding\":\"base64\",\"data\":...} envelope. makeAPIHandler then base64-encoded that whole JSON string AGAIN, double-encoding the payload and discarding the envelope metadata. When binaryResponse is set but the API returns JSON/text, the body is not enveloped, so the handler must detect the envelope rather than blindly re-encode.",
+  "files": [
+    "internal/mcp/tools.go"
+  ]
+}

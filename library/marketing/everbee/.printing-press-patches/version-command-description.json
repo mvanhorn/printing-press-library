@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "version-command-description",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260522-153448",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Expanded the generated version command description.",
+  "reason": "tools-audit flagged the generated 'Print version' short text as too thin for agent-facing command discovery.",
+  "files": [
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "cli-printing-press tools-audit reports no pending findings."
+}

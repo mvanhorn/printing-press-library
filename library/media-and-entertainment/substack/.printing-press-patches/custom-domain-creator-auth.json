@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "custom-domain-creator-auth",
+  "applied_at": "2026-05-31",
+  "base_run_id": "20260531-014452",
+  "base_printing_press_version": "4.19.0",
+  "summary": "auth login --chrome also captures the publication's Creator-session cookie (connect.sid) from its custom domain, so Creator endpoints (drafts, scheduled_release, sections) work for custom-domain publications.",
+  "reason": "Substack stores connect.sid on the publication's Creator host. For a custom-domain publication that is the custom domain (e.g. trevinsays.com), reached when {pub}.substack.com 301-redirects there; the .substack.com session cookie does not follow cross-domain, so Creator endpoints returned 403. resolveCreatorHost follows the redirect; captureCreatorDomainCookie writes connect.sid into the cookie jar scoped to that host, and the stdlib http.Client carries it across the 301 hop automatically — no per-endpoint routing change needed.",
+  "files": [
+    "internal/cli/substack_creator_auth.go",
+    "internal/cli/auth.go"
+  ],
+  "validated_outcome": "With SUBSTACK_PUBLICATION set, auth login --chrome reports 'Captured Creator session for trevinsays.com'; `drafts list --data-source live` returns real drafts (HTTP 200, byline Trevin Chow) with zero 403s. Note: a session that 403s after expiry can leave a rotated duplicate connect.sid in the jar; clearing ~/.local/share/substack-pp-cli/cookies.json + re-running auth login --chrome restores a clean capture."
+}

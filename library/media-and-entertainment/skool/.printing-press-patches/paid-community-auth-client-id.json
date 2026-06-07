@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "paid-community-auth-client-id",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260510-114931",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Preserve client_id alongside auth_token in sanitizeCookieJar so paid Skool communities authenticate instead of 307-redirecting to /about.",
+  "reason": "The original cookie-jar-jwt-sanitize patch (filed for macOS pycookiecheat encrypted_value defense) stripped every cookie except auth_token. Free Skool communities authenticate with auth_token alone, so this looked correct in dogfood; paid communities (verified against ai-automation-society-plus) reject auth_token-only requests with a 307 to /about because Skool's edge requires the client_id cookie too. Verified via curl: full cookie jar returns classroom.json payload, auth_token-only redirects. Fix preserves client_id when its value matches an ASCII allowlist (clientIDPattern) so Chrome encrypted_value bytes still can't leak into config.toml.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/auth_test.go"
+  ],
+  "validated_outcome": "`go test ./internal/cli/...` passes the new sanitize-cookie-jar table tests; `go build ./...` clean; `go vet ./...` clean. Manual curl reproduction in the user's session confirms paid-community classroom.json returns full payload with client_id preserved.",
+  "upstream_issue": "cli-printing-press: cookie-sanitizer template assumes a single auth cookie; APIs that require a session-pair (auth + client/device id) need a generator-level allowlist hook so every printed CLI doesn't hand-roll this filter."
+}

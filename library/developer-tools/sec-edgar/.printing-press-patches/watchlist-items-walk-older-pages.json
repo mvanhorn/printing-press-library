@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "watchlist-items-walk-older-pages",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260511-180534",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Extend `watchlist items` to scan older `Filings.Files` pages whose date range overlaps the requested `--since`/`--until` window.",
+  "reason": "Same Filings.Recent ~400-filing cap surfaced for find13FAccession also hides older watchlist matches when the window extends past Recent. Refactored the per-CIK scan into a closure and applied it to Recent plus every overlapping older page. filingsPageOverlaps now treats zero start/end as unbounded so an open-ended window doesn't reject every page.",
+  "files": [
+    "internal/cli/sec_transcendence.go"
+  ]
+}

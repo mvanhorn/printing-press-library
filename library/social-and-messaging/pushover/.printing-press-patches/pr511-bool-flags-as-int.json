@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "pr511-bool-flags-as-int",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-140827",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Encode --html / --monospace / --encrypted as integer 1 in messages_send body, matching Pushover's binary-as-integer convention.",
+  "reason": "Pushover's /1/messages.json takes binary on/off flags as integer 1, not JSON true. The novel notify command already did this correctly (body[\"html\"] = 1), but the direct messages_send CLI bound the cobra BoolVars and assigned `body[\"html\"] = bodyHtml` — so json.Marshal emitted \"html\":true. HTML / monospace formatting was silently dropped; --encrypted was the worst case because it would have made Pushover treat an encrypted payload as plaintext on the device. All three (Greptile flagged html / monospace; encrypted has the same line shape and same defect class) now encode as integer 1, with the original CLI BoolVar shape preserved so the user experience stays --html instead of forcing --html=1.",
+  "files": [
+    "internal/cli/messages_send.go",
+    "internal/cli/messages_send_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli -run TestMessagesSendBoolFlagsAsIntegerOne -count=1 stands up an httptest server, drives `messages send --html --monospace --encrypted`, and asserts the captured body decodes each of the three keys as a JSON number 1 (not a JSON bool)."
+}

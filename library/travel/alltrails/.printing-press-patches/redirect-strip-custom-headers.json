@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "redirect-strip-custom-headers",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260526-193757",
+  "base_printing_press_version": "4.18.0",
+  "summary": "CheckRedirect strips all configured custom credential headers (x-csrftoken, etc.) on cross-host hops, not just Authorization.",
+  "reason": "Greptile P1/security: Go strips Authorization/Cookie cross-host but forwards custom headers verbatim, leaking the CSRF token to the redirect target.",
+  "files": [
+    "internal/client/client.go"
+  ]
+}

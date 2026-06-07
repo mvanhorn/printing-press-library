@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "dependent-fk",
+  "applied_at": "2026-05-16",
+  "base_run_id": "20260516-065803",
+  "base_printing_press_version": "4.8.0",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/store/store.go"
+  ],
+  "summary": "Inject the parent FK into dependent items before upsert (sync.go) and coalesce to parent_id when the typed FK column is absent (store.go coalesceFKValue).",
+  "reason": "Dependent typed tables declare a NOT NULL '<parent>_id' column the API response does not carry, so typed inserts failed their constraint and rows fell back to the generic resources table only.",
+  "validated_outcome": "Dependent rows land in their typed tables instead of only the generic resources table."
+}

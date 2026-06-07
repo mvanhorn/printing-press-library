@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "remove-dead-applyauthformat",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260526-193757",
+  "base_printing_press_version": "4.18.0",
+  "summary": "Removed unused applyAuthFormat and its strings.ReplaceAll keep-alive guard.",
+  "reason": "Greptile: dead code kept compilable only by a 'var _ = strings.ReplaceAll' guard; strings is already used by Load().",
+  "files": [
+    "internal/config/config.go"
+  ]
+}

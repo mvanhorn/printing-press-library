@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "here-now-brand-deslug-in-renamed-resource-descriptions",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260530-170355",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Brand name 'here now' (space-mangled) -> 'here.now' in the fallback descriptions for the framework-collision-renamed resources (here-now-analytics, here-now-auth).",
+  "reason": "When a resource name collides with a reserved framework command, the generator renames it (analytics->here-now-analytics, auth->here-now-auth) and de-slugs the new name for a fallback description, turning 'here-now-auth' into 'Manage here now auth'. That mangles the brand. Corrected the 4 rendered strings.",
+  "files": [
+    "internal/cli/here-now-auth.go",
+    "internal/mcp/tools.go",
+    "README.md",
+    "SKILL.md"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "retag-recurring-missing-exclude-status-20260517",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Extended the status=exclude filter to retagCountsTransaction and recurringHasTransaction; added Status to retagTransaction.",
+  "reason": "retag mutates rows via the API, so an excluded row must not be matched by a broad --match regex; recurringHasTransaction must not let an excluded historical match suppress a genuine missed-payment alert. Closes Greptile second re-review on PR #624.",
+  "files": [
+    "internal/cli/transcendence_helpers.go",
+    "internal/cli/recurring_missing.go"
+  ],
+  "validated_outcome": "go test ./internal/cli passes."
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "menu-unwich-tty-guard",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-034611",
+  "base_printing_press_version": "4.2.2",
+  "files": [
+    "internal/cli/menu_unwich.go"
+  ],
+  "summary": "Skip io.ReadAll on stdin when it's a TTY in `menu unwich-convert` (carry over the readerIsTerminal guard from order_plan.go).",
+  "reason": "Without the guard, `menu unwich-convert --product-id 33328641` hangs forever on a TTY waiting for Ctrl-D before the empty-input error can fire. Found by codex review."
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "namecheap-api-error-status",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-namecheap",
+  "base_printing_press_version": "4.6.0",
+  "summary": "Treat Namecheap XML ApiResponse Status=ERROR envelopes as command errors.",
+  "reason": "Namecheap returns HTTP 200 for invalid credentials and other API failures, so the converted JSON body must be inspected before reporting success.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/review_regression_test.go",
+    "internal/cli/doctor.go"
+  ],
+  "validated_outcome": "TestNamecheapXMLStatusErrorReturnsError verifies Status=ERROR converts to *NamecheapAPIError."
+}

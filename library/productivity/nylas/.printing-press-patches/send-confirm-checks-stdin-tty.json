@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "send-confirm-checks-stdin-tty",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-164045",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Refuse send without --yes whenever stdin is non-TTY OR --stdin was passed (which drains stdin for the body), so the confirmation prompt can never silently EOF-cancel a send.",
+  "reason": "Greptile P1 findings on PR #676, fifth and sixth passes: (1) `cat body.json | … --stdin` — stdout was still a TTY but stdin was a pipe at EOF, so the old stdout-based check let Fscanln read empty and cancel silently. (2) Interactive TTY + `--stdin` — even with a terminal, io.ReadAll(os.Stdin) drains the body, leaving Fscanln nothing to read. The combined check (stdinBody || !stdinIsTTY → require --yes) covers both vectors with one actionable error.",
+  "files": [
+    "internal/cli/grants_messages_send.go"
+  ]
+}

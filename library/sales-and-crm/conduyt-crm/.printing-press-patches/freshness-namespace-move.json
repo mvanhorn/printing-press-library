@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "freshness-namespace-move",
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509T181000Z-6513e1d0",
+  "base_printing_press_version": "4.2.0",
+  "summary": "Moved freshness types from generator-owned internal/cliutil/ to internal/cli/ to survive regen.",
+  "reason": "Generator regen overwrites internal/cliutil/; hand-written freshness logic (Policy, FreshnessMeta, EnsureFresh) must live in internal/cli/ to persist across regenerations.",
+  "files": [
+    "internal/cli/freshness.go",
+    "internal/cli/auto_refresh.go"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "ordertogo-menu-search-preserve-modifiers",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260510-083403",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Preserve full modifier and sub-item trees when a menu record directly matches --search.",
+  "reason": "Direct menu matches should be returned intact; pruning their children in place can silently strip modifier data from matching items.",
+  "files": [
+    "internal/cli/restaurants_menu.go",
+    "internal/cli/restaurants_menu_test.go"
+  ],
+  "validated_outcome": "Compiled with go test -c ./internal/cli."
+}

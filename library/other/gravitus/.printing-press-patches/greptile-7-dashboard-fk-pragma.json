@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "greptile-7-dashboard-fk-pragma",
+  "applied_at": "2026-05-23",
+  "base_run_id": "20260517-231116",
+  "base_printing_press_version": "4.8.0",
+  "files": [
+    "internal/dashboard/dashboard.go",
+    "internal/dashboard/dashboard_test.go"
+  ],
+  "summary": "Add PRAGMA foreign_keys=ON (plus WAL and busy_timeout) to OpenDB; add FK constraint and cascade-delete test.",
+  "reason": "OpenDB opened without foreign_keys=ON so ON DELETE CASCADE on ExerciseSet never fired; re-syncing an existing session orphaned ExerciseSet rows on every update."
+}

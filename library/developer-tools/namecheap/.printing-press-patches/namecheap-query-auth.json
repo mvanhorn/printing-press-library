@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "namecheap-query-auth",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-namecheap",
+  "base_printing_press_version": "4.6.0",
+  "summary": "Adapt the published Namecheap CLI to the Namecheap XML API query-parameter authentication model.",
+  "reason": "Namecheap requires ApiUser, ApiKey, UserName, and ClientIp query parameters instead of bearer headers; the published CLI must inject and advertise the credentials users actually configure.",
+  "files": [
+    "internal/config/config.go",
+    "internal/client/client.go",
+    "internal/cli/auth.go",
+    "internal/cli/agent_context.go",
+    "internal/cli/helpers.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "go test ./... and focused auth/cache regression tests pass."
+}

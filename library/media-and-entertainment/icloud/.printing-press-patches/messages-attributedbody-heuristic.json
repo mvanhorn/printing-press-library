@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "messages-attributedbody-heuristic",
+  "applied_at": "2026-05-23",
+  "base_run_id": "hand-written",
+  "base_printing_press_version": "0.1.3",
+  "summary": "messages_decode.go vendors a ~150-line MIT-licensed heuristic typedstream parser for the attributedBody column.",
+  "reason": "Since macOS 11+, message.text is often NULL and the actual content lives in attributedBody (an NSArchiver typedstream blob, not a binary plist). The Go ecosystem's full typedstream parsers are GPL/AGPL-licensed; a small MIT-licensed heuristic ported from teslashibe/imessage-go covers the dominant message shape without license contamination or new go.mod entries.",
+  "files": [
+    "internal/cli/messages_decode.go",
+    "internal/cli/messages_decode_test.go"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "novel-workflow-run-command",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-132617",
+  "base_printing_press_version": "4.8.0",
+  "summary": "New `workflow run` subcommand (internal/cli/workflow_run.go): executes a YAML-declared multi-Actor workflow — each step starts an Actor, waits, normalizes + persists items (with optional per-step only_new), then an optional digest block renders to stdout or a file. Records each run to pp_workflow_runs. Registered as a child of the generated `workflow` command.",
+  "rationale": "Replaces a hand-written orchestration script with one declarative file that an agent can invoke as a single MCP tool.",
+  "files": [
+    "internal/cli/workflow_run.go",
+    "internal/cli/root.go"
+  ],
+  "upstream_issue": ""
+}

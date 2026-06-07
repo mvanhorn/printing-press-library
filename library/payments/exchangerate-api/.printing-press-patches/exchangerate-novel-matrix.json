@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "exchangerate-novel-matrix",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-025552",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Add the matrix command: NxN cross-rate matrix derived locally from a single /latest call.",
+  "reason": "API exposes /pair per pair, which costs N^2 quota for an N-currency matrix. Hand-built local cross-rate derivation needs one /latest call and produces N^2 rates. Reviewer flagged map mutation on the unmarshaled response; copy before mutating so a future caching refactor in c.Get can't corrupt cached views.",
+  "files": [
+    "internal/cli/matrix.go"
+  ],
+  "validated_outcome": "matrix USD,EUR,GBP,JPY --json returns 16 cross-rates; round-trip matrix[A][B] * matrix[B][A] approx 1.0 verified by TestCrossRateComputation."
+}

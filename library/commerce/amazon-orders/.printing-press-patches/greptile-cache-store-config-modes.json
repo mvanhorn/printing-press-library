@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "greptile-cache-store-config-modes",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260510-105710",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Tighten cache, store, and config directory/file modes to owner-only (0o700 / 0o600).",
+  "reason": "writeCache used 0o644/0o755, so cached Amazon response bodies (full order history, items, addresses, payments) were world-readable on shared hosts (CI runners, multi-user dev boxes, Docker images with multiple UIDs). Same defect existed in store.OpenWithContext and config.save().",
+  "files": [
+    "internal/cache/cache.go",
+    "internal/store/store.go",
+    "internal/config/config.go"
+  ]
+}

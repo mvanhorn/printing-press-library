@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "log-hook-lazy-store",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260516-193948",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Log-hook store is opened + closed per LogLookup invocation instead of held for the client's lifetime.",
+  "reason": "The hook captured a long-lived *Store opened with context.Background() that was never closed. Although a short-lived CLI rarely surfaces visible problems, the open SQLite WAL connection leaks a file descriptor per command run. Greptile P2 finding on PR #630.",
+  "files": [
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go build ./... && go vet ./..."
+}

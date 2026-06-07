@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "usage-exit-codes",
+  "applied_at": "2026-05-16",
+  "base_run_id": "20260509-180956",
+  "base_printing_press_version": "4.2.1",
+  "summary": "Replace `if len(args) == 0 { return cmd.Help() }` with usageErr; add rejectUnknownSubcommand RunE on parent commands.",
+  "reason": "Two related issues: (1) cmd.Help() returns nil so missing positional args silently exited rc=0 in 51 generated commands; (2) parent commands without Run/RunE are non-Runnable in cobra v1.9.1, so `videos garbage` returned flag.ErrHelp (rc=0) before Args validation could run. Fix: make parents Runnable with a RunE that errors on unknown subcommand.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/playlists.go"
+  ],
+  "validated_outcome": "playlists update --name x (missing <id>) exits rc=2; videos garbage exits rc=3 with 'unknown command'; bare parent (videos with no subcommand) still exits rc=0 with help; valid subcommands still dispatch."
+}

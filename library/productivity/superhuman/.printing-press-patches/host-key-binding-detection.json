@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "host-key-binding-detection",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260512-165241",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Strip the 32-byte SHA-256(host_key) prefix only when it matches the computed hash so older-Chrome cookies are not silently truncated.",
+  "reason": "The 32-byte plaintext prefix is added by Chrome's M120+ cookie host-binding feature; older Chrome versions write cookies without it. The unconditional strip discarded the first 32 chars of every cookie value, so the session token sent to accounts.superhuman.com was always wrong and RefreshFromChromeCookies never succeeded. We now verify the prefix matches sha256(host) before stripping (greptile P1).",
+  "files": [
+    "internal/auth/chrome_cookies.go"
+  ]
+}

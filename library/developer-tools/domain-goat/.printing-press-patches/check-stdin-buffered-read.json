@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "check-stdin-buffered-read",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-093229",
+  "base_printing_press_version": "4.4.0",
+  "summary": "readNamesFile reads all input into a single []byte before JSON vs plain-text branching.",
+  "reason": "Previous implementation opened the source twice; for path=='-' the second open returned the same os.Stdin fd after the first json.Decoder had buffered ~512 bytes internally, silently truncating plain-text input piped via `check --file -`.",
+  "files": [
+    "internal/cli/check.go"
+  ],
+  "validated_outcome": "Smoke-tested JSON array and plain-text (with # comments) stdin shapes via `check --file - --dry-run`; both round-trip cleanly."
+}

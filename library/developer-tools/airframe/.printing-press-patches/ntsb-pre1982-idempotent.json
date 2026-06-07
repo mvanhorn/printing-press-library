@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "ntsb-pre1982-idempotent",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-023951",
+  "base_printing_press_version": "4.5.2",
+  "summary": "DELETE pre-1982 events before re-ingesting the ntsb_pre1982 source.",
+  "reason": "The PRE1982 branch previously skipped the wipe entirely. Re-running `sync --source ntsb --include-pre1982` after the upstream PRE1982.zip changed left removed rows in place and either silently skipped or PK-collided on modified ones. The targeted DELETE keeps re-ingest idempotent without touching the 1982-present rows owned by the avall source.",
+  "files": [
+    "internal/ingest/ntsb.go"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "budget-burn-canonical-transactions",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Adjusted budget burn spend totals to count Lunch Money's canonical transaction tier only.",
+  "reason": "Expanded local stores can contain both split parents and children or both group parents and children; budget spend should mirror the default API list shape to avoid double-counting.",
+  "files": [
+    "internal/cli/budgets_burn.go",
+    "internal/cli/budgets_burn_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli passes, including split/group budget-burn tier coverage."
+}

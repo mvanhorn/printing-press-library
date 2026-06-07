@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "erank-lists-optimize-invalid-list",
+  "applied_at": "2026-05-31",
+  "base_run_id": "20260531-142147",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Rejected Printing Press invalid placeholders in the lists optimize list-name argument.",
+  "reason": "Publish-time live dogfood expects invalid argument probes to fail before the command performs eRank API work.",
+  "files": [
+    "internal/cli/lists_optimize.go",
+    "internal/cli/lists_optimize_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli -run TestNovelListsOptimize and go test ./... pass; publish live dogfood passes 205/205 tests."
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "transactions-updated-at-normalized-index",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Normalized indexed transaction updated_at values to a fixed-width UTC timestamp.",
+  "reason": "SQLite compares TEXT index values lexicographically; mixing RFC3339 and space-separated timestamp formats can silently exclude recent changed-since results.",
+  "files": [
+    "internal/cli/changed.go",
+    "internal/cli/changed_test.go",
+    "internal/store/store.go",
+    "internal/store/upsert_batch_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli and go test ./internal/store pass, including mixed-format changed-since and v3 migration coverage."
+}

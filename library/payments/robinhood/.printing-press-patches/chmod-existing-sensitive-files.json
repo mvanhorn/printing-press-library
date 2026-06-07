@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "chmod-existing-sensitive-files",
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260522-162911",
+  "base_printing_press_version": "4.11.0",
+  "summary": "After every sensitive WriteFile/MkdirAll/O_CREATE on cache/store/config/profile/feedback paths, added os.Chmod to 0o700 (dirs) / 0o600 (files).",
+  "reason": "os.WriteFile / os.OpenFile(O_CREATE) / os.MkdirAll only apply the perm bits when CREATING; a dir/file left over from an older 0o755/0o644 build kept its world-readable mode forever. The prior perms patches only hardened newly-created paths. Chmod re-secures the existing artifacts on the next write.",
+  "files": [
+    "internal/cache/cache.go",
+    "internal/config/config.go",
+    "internal/client/client.go",
+    "internal/cli/profile.go",
+    "internal/cli/feedback.go",
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "go build/vet/test pass; verify-skill passes. store.go's db file + WAL/SHM sidecars were already chmod'd; this adds the missing dir chmod and re-secures the config/profile/feedback/cache files. deliver.go left at 0o755 (user-chosen output sink, not a sensitive cache/store path)."
+}

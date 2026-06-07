@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "novel-run-command",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-132617",
+  "base_printing_press_version": "4.8.0",
+  "summary": "New `run` command (internal/cli/run.go): runs an Actor, optionally waits/polls to terminal status, fetches + normalizes + persists dataset items, and with --only-new emits only items whose hash is absent from the local store. Prints a p50/p90 cost projection before the run; --max-cost aborts pre-flight when the projection exceeds budget. --format json|markdown|raw. Dataset fetch pages through offset pagination (1000/page, 50-page cap) and path-escapes the dataset ID.",
+  "rationale": "Novelty diffing (the #1 transcendence feature) and cost-aware runs require local state the generator does not produce.",
+  "files": [
+    "internal/cli/run.go",
+    "internal/cli/root.go"
+  ],
+  "upstream_issue": ""
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "doordash-readonly-question-polish",
+  "applied_at": "2026-05-24",
+  "base_run_id": "2026-05-13T21:47:44.838084603Z",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Polish active Node/CycleTLS wrapper read-only answers for recent orders, ranked Thai stores, and cheapest chicken parmesan menu search.",
+  "reason": "bricenice17’s first real read-only test exposed that order items were not first-class, store rankings lacked enriched rating/delivery fields, and cheapest menu item answers required ad-hoc probing instead of a direct command.",
+  "files": [
+    "DOORDASH_CLI_STATUS.md",
+    "README.md",
+    "SKILL.md",
+    "/home/hermes/printing-press/sources/doordash-mcp-ashah360/src/api/orders.ts",
+    "/home/hermes/printing-press/sources/doordash-mcp-ashah360/src/api/menu.ts",
+    "/home/hermes/printing-press/sources/doordash-mcp-ashah360/src/cli.ts",
+    "/home/hermes/printing-press/sources/doordash-mcp-ashah360/dist/api/orders.js",
+    "/home/hermes/printing-press/sources/doordash-mcp-ashah360/dist/api/menu.js",
+    "/home/hermes/printing-press/sources/doordash-mcp-ashah360/dist/cli.js"
+  ],
+  "validated_outcome": "2026-05-14T15:53Z: npm run build passed using /home/hermes/.local/bin/npm; generated Go skeleton checks passed with /home/hermes/.local/bin/go test -vet=off ./... plus go build for both CLI and MCP commands; active installed wrapper doctor/help passed with authenticated=true, csrf_present=true, consumer_id_present=true; orders recent --limit 2 --json returned itemDetails; stores rank Thai --limit 5 --json returned enriched ranked stores with normalized rating displays; items search \"chicken parmesan\" --store-query \"italian\" --stores 5 --limit 10 --json returned dinner_or_pasta and sub_or_sandwich cheapest buckets. No cart/checkout/order mutation commands were run."
+}

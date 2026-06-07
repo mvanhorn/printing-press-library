@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "fix-merge-replace-and-paginate",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260512-184940",
+  "base_printing_press_version": "4.5.2",
+  "summary": "playlists merge: first chunk PUT (replaces destination) for idempotent re-runs; paginate sources via fetchFullPlaylist; corrected misleading 'dry-plan first' doc.",
+  "reason": "POST /playlists/{id}/tracks appends. The original merge POST'd every chunk, so re-running with the same sources silently doubled the destination playlist. PUT for the first chunk replaces, POST for subsequent chunks appends — re-runs produce the same destination state. The Long description also claimed a future --apply flag with dry-plan-by-default; the command actually mutates immediately unless --dry-run is passed.",
+  "files": [
+    "internal/cli/transcendence_t3_merge.go"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "tidycal-agentic-workflows",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260601-020228",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Add five TidyCal workflow commands for schedule briefs, triage, availability proposals, follow-up queues, and confirmation-gated assisted booking.",
+  "reason": "The generated endpoint mirror exposes raw TidyCal operations, but agentic scheduling needs composed read-only views and an inspectable booking workflow built on real endpoints.",
+  "files": [
+    "internal/cli/tidycal_workflows.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go test ./..., go build ./..., structural dogfood, publish validate, and full live dogfood passed after adding workflow examples and UTC booking-window query parameters.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2564"
+}

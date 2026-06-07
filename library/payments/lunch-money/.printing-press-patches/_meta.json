@@ -1,0 +1,9 @@
+{
+  "schema_version": 2,
+  "deferred_to_upstream": [
+    {
+      "topic": "Generator OR-case alias absorption should be opt-in, not default",
+      "note": "The generator's research/absorb phase added env-var aliases for neighbor tools (lunchable, lunchtui, robshox MCP) without user opt-in. Consider a manifest knob (e.g. auth_compat: minimal | ecosystem) so future prints pick the surface explicitly instead of forcing a post-generation trim."
+    }
+  ]
+}

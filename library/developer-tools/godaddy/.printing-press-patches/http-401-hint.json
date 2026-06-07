@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "http-401-hint",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260522-124732",
+  "base_printing_press_version": "4.11.0",
+  "summary": "401 error hint now names GODADDY_API_KEY/GODADDY_API_SECRET and notes production/OTE keys are not interchangeable, matching the corrected 403 hint.",
+  "reason": "Auth-hint sweep (follow-on to the 403 fix): the generic '401: check your API credentials' hint did not tell a user with unset/wrong credentials which env vars to set, contradicting the specificity of the 403 hint.",
+  "files": [
+    "internal/cli/helpers.go"
+  ]
+}

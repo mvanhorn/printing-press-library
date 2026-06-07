@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "live-first-mcp-research-tools",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260522-153448",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Made MCP research/search guidance live-first with targeted local caching instead of sync-first.",
+  "reason": "EverBee tools should use current live API data for requested research slices, storing returned evidence locally for repeated analysis without bulk-syncing all records.",
+  "files": [
+    "internal/mcp/search.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go",
+    "internal/cli/everbee_insights.go"
+  ],
+  "validated_outcome": "go test ./internal/mcp ./internal/cli, go test ./..., go vet ./..., go build ./..., and git diff --check passed."
+}

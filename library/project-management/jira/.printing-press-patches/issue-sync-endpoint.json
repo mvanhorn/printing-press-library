@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "issue-sync-endpoint",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-114028",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Fix issue sync to use /rest/api/3/search/jql; add --project flag for scoped sync; make issue_changelog, issue_comment, issue_worklog opt-in.",
+  "reason": "Generator picked wrong list endpoint; JQL endpoint needs maxResults/nextPageToken; per-issue child resources generate N API calls per issue so must be explicit.",
+  "files": [
+    "internal/cli/sync.go"
+  ]
+}

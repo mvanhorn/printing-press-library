@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "gear-status-api-sleep",
+  "applied_at": "2026-05-22",
+  "base_run_id": "20260521-164944",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Add 500ms sleep between per-gear GET /gear/{id} calls in gear status.",
+  "reason": "Unbounded sequential API calls with no sleep could silently exhaust Strava's shared 200 req/15 min quota when a user has many gear items.",
+  "files": [
+    "internal/cli/gear_status.go"
+  ]
+}

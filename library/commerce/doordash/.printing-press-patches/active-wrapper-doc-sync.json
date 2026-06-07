@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "active-wrapper-doc-sync",
+  "applied_at": "2026-05-24",
+  "base_run_id": "2026-05-13T21:47:44.838084603Z",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Synchronize repo docs with the active Node/CycleTLS wrapper command surface.",
+  "reason": "AGENTS.md, README, SKILL, and status docs referenced generated-only helpers such as agent-context/which and older cart/auth command names; Paperclip agents should follow the installed wrapper runtime truth.",
+  "files": [
+    ".printing-press-patches.json",
+    "AGENTS.md",
+    "DOORDASH_CLI_STATUS.md",
+    "README.md",
+    "SKILL.md",
+    "scripts/smoke-doordash-phase4-live-readonly.sh"
+  ],
+  "validated_outcome": "2026-05-14T06:38Z: go test -vet=off ./... passed; Go CLI/MCP builds passed; node --check passed for dist/cli.js, dist/api/cart.js, and dist/checkout-preview.js; active wrapper doctor/help passed; live read-only smoke passed; cart add/remove dry-runs returned no-mutation previews; cart add/remove without --yes rejected; order place without ALLOW_DOORDASH_ORDERING=1 rejected; session dir/file modes are 0700/0600."
+}

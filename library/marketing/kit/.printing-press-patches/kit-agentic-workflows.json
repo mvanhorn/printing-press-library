@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "kit-agentic-workflows",
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260519-111411",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Added Kit-specific read-only workflow commands for creator snapshots, audience health, content inventory, and subscriber lookup.",
+  "reason": "The generated endpoint mirror was MCP-like; these workflows combine real Kit v4 endpoint calls into higher-level agent context before publish.",
+  "files": [
+    ".printing-press.json",
+    "internal/cli/channel_workflow.go",
+    "internal/cli/which.go",
+    "README.md",
+    "SKILL.md",
+    "research.json"
+  ],
+  "validated_outcome": "go fmt ./... and go build ./... passed; live workflow checks were run without printing account output."
+}

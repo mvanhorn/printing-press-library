@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "whois-goroutine-bounded",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-093229",
+  "base_printing_press_version": "4.4.0",
+  "summary": "whoissrc.Lookup constructs a per-call whois.NewClient().SetTimeout(15s) so the goroutine terminates on TCP deadline rather than the library's 30s default.",
+  "reason": "likexian/whois has no ctx hook; the goroutine could be stranded on an open WHOIS socket for ~30s after the outer ctx already returned. Under check --parallel 8 against a slow server that was 8 sockets held simultaneously.",
+  "files": [
+    "internal/source/whoissrc/whoissrc.go"
+  ],
+  "validated_outcome": "go vet/build clean; lookup deadline now matches outer time.After arm."
+}

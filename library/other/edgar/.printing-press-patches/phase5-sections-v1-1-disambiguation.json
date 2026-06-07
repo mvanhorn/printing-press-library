@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "phase5-sections-v1.1-disambiguation",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-115144",
+  "base_printing_press_version": "4.3.0",
+  "summary": "When multiple substantial candidate boundaries exist for the same Item, prefer the latest candidate iff it is >3x larger than every earlier substantial candidate; otherwise return boundary_unverifiable.",
+  "reason": "Modern SEC 10-Ks ship a TOC entry for Item X followed by the body for Item X; the v1 parser couldn't tell them apart and bailed. v1.1 heuristic preserves boundary safety while recovering the common case.",
+  "files": [
+    "internal/cli/edgar_helpers.go"
+  ]
+}

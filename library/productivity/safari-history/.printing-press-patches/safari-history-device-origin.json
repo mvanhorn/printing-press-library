@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "safari-history-device-origin",
+  "applied_at": "2026-05-24T00:00:00Z",
+  "base_run_id": "20260523-231334",
+  "base_printing_press_version": "4.13.0",
+  "summary": "Cross-device (origin) partitioning via history_visits.origin (this/synced, binary) + --device filter + devices command.",
+  "reason": "Safari history includes synced other-device activity; surfaced as a first-class dimension (no per-device identity, unlike Chrome).",
+  "files": [
+    "internal/cli/devices.go",
+    "internal/source/safari/source.go"
+  ]
+}

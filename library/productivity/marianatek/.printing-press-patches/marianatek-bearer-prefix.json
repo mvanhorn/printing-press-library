@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "marianatek-bearer-prefix",
+  "applied_at": "2026-05-12T04:00:00Z",
+  "reason": "Config field `oauth_authorization` stored the raw token and `AuthHeader()` returned it verbatim — the upstream Customer API requires `Bearer <token>` and returned 401 when the prefix was missing. Discovered during production test: had to manually set `auth_header = \"Bearer <token>\"` in config.toml because the more natural `oauth_authorization = \"<token>\"` produced silent auth failures.",
+  "files": [
+    "internal/config/config.go"
+  ],
+  "change": "Patched `AuthHeader()` to auto-prefix `Bearer ` when the source is `oauth_authorization`, with a pass-through for tokens that already include a `Bearer ` or `Token ` scheme. `auth_header` continues to be sent verbatim."
+}

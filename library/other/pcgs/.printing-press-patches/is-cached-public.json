@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "is-cached-public",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260516-193948",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Added (c *Client) IsCached(path, params) bool to expose the 5-minute HTTP-cache hit signal.",
+  "reason": "Commands that fan out many requests (coin pop-curve initially; coin batch and others in the future) need a public hit-probe to compute accurate live-call counts before fan-out. The cacheKey/readCache machinery already existed as private methods; this wraps them in a single bool query. Companion patch to pop-curve-cache-probe.",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "go build ./... && go vet ./..."
+}

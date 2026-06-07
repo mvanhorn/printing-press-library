@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "freshservice-auth-hint-domain-placeholder",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-170855",
+  "base_printing_press_version": "4.5.0",
+  "summary": "Show a real Freshservice subdomain example for FRESHSERVICE_DOMAIN (acme.freshservice.com) instead of the generator's token-shaped placeholder, in both `auth status` and `auth setup`. Clarify that the value is the tenant subdomain, not the Freshworks org dashboard.",
+  "reason": "Greptile P2 on PR #533. The generator emits the same token placeholder for every required env var, but FRESHSERVICE_DOMAIN is a subdomain. A user copying the hint verbatim ends up either with a literal placeholder host (DNS-fails) or guesses at <org>.myfreshworks.com (the Freshworks unified-org dashboard) — exactly the trap that the doctor command was built to diagnose. The hint should not be the on-ramp to the trap. Greptile's second-pass review flagged that `auth setup` was the companion site to the originally-patched `auth status`; both now corrected.",
+  "files": [
+    "internal/cli/auth.go"
+  ],
+  "validated_outcome": "Both `auth status` (unconfigured) and `auth setup` now print `export FRESHSERVICE_DOMAIN=\"acme.freshservice.com\"` with an inline note about the tenant-vs-dashboard distinction; previously printed the misleading token-shaped placeholder."
+}

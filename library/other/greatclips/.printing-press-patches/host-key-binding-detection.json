@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "host-key-binding-detection",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260511-095555",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Strip the 32-byte SHA-256(host_key) prefix only when it actually matches the expected hash, so older Chrome cookies (no prefix) are not silently truncated.",
+  "reason": "The 32-byte plaintext prefix is added by Chrome's M120+ cookie host-binding feature. Older Chrome versions write cookies without it, so the unconditional strip discarded the first 32 chars of every JWT-sized Auth0 cookie on older Chrome and produced opaque auth failures. We now verify the prefix matches SHA-256(host_key) before stripping (greptile P2).",
+  "files": [
+    "internal/auth0silent/cookies_darwin.go"
+  ]
+}

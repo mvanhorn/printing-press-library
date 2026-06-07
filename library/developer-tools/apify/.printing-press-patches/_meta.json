@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "deferred_to_upstream": [
+    {
+      "id": "natural-duration-flag-parsing",
+      "summary": "The generator's --since-style duration flags use Go's time.Duration, whose ParseDuration rejects day units ('7d', '30d'). Worked around in the novel commands with a string flag + a parseSinceWindow helper that accepts both Go durations and Nd day forms. The generator should accept day/week forms for time-window flags so hand-written commands don't each re-implement the parser.",
+      "rationale": "Every novel command with a time window hit this; a generator-level duration type would remove the per-command workaround."
+    },
+    {
+      "id": "auto-refresh-prerun-hook",
+      "summary": "An opportunistic auto-refresh of the local store on every non-meta command (PersistentPreRunE, with --no-refresh and APIFY_NO_AUTO_REFRESH opt-outs) was scoped out of this build. The granola printed CLI added the same hook as a post-print patch; it belongs in the generator's standard template.",
+      "rationale": "Users should not have to remember to run sync; this is a generator-standard ergonomics feature, not an API-specific one."
+    },
+    {
+      "id": "auth-key-url-from-description",
+      "summary": "The generator populated auth_key_url from the OpenAPI security scheme's description prose, which for Apify contained an MDN Authorization-header link rather than a token-issuing URL. The generator should prefer a structured key URL or leave the field empty rather than scrape a link out of description text.",
+      "rationale": "A wrong key URL ships into doctor's hint and the manifest; corrected by hand here."
+    }
+  ]
+}

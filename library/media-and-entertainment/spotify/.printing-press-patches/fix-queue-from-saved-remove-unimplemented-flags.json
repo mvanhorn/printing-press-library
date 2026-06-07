@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "fix-queue-from-saved-remove-unimplemented-flags",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260512-184940",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Remove --artist and --playlist flags from `queue from-saved` until the saved_tracks schema is joined against a tracks-cache table.",
+  "reason": "Both flags were registered and shown in --help but never referenced in the SQL query. The 'not yet implemented' annotation in flag help text prevented complete surprise but still misled agents/scripts. Removing entirely is honest; the flags can come back when sync wires up a tracks-cache table with artist/playlist linkage.",
+  "files": [
+    "internal/cli/transcendence_t8_queue_from_saved.go"
+  ]
+}

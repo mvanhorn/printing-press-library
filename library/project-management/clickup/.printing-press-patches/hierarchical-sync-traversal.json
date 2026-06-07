@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "hierarchical-sync-traversal",
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260510-202319",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Hand-authored parent-ID traversal so sync walks ClickUp's hierarchical resources (teams → spaces → folders → lists → tasks; teams → docs; teams → channels) instead of failing on the first list endpoint that requires a parent ID.",
+  "reason": "The generator's default sync layer assumes global list endpoints (e.g. /users, /repos). ClickUp requires a parent ID for almost every list operation, so without parent traversal every hierarchical resource fails sync with `unknown sync resource` or HTTP 404. This is a generic hierarchical-API gap likely worth backporting upstream; in the meantime the traversal lives here.",
+  "files": [
+    "internal/cli/clickup_sync_handlers.go",
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "Default `sync` populates 116 records across 8 resource types in the printer's three workspaces (3 teams, 1 user, 6 spaces, 0 folders, 9 lists, 86 tasks, 2 docs, 9 channels)."
+}

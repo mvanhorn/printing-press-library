@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "cap-hit-preserves-resume-cursor",
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260510-202319",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Only clear a target's resume cursor when the page loop exhausted the resource naturally — not when the --max-pages cap cut it short.",
+  "reason": "Greptile finding on PR #433. After each per-target page loop, `syncResource` unconditionally wrote `SaveSyncState(ckey, \"\", totalCount)`, clobbering the resume cursor saved after the last fetched page. That is correct for natural exhaustion (the next run re-scans from the head) but wrong on a `--max-pages` cap hit: a workspace with more records than maxPages × pageLimit would re-fetch the same first maxPages pages on every run, leaving deeper records permanently unreachable. Track whether the loop broke on the cap (`capHit`) and skip the end-of-target cursor clear in that case so the next run resumes where it left off.",
+  "files": [
+    "internal/cli/sync.go"
+  ]
+}

@@ -23,12 +23,6 @@ For install, auth, examples, and longer product guidance, read `README.md` and `
 
 ## Local Customizations
 
-If you modify this CLI beyond what the generator produced, record each customization so it is visible to future maintainers.
+This directory is **generated output** -- a fresh print can overwrite the whole tree, so ad-hoc hand-edits don't survive on their own. If you modify the generated code, record each change under `.printing-press-patches/` (parallel to `.printing-press.json`) so a regen carries the intent forward instead of silently dropping it.
 
-1. Mark every changed Go source site with a short comment:
-
-    ```
-    // PATCH: <one-line summary>
-    ```
-
-2. Catalog the change in `.printing-press-patches.json` at this CLI root. Keep the entry short and include the touched files and validation outcome.
+The entry shape, and the altitude to write it at -- a durable reprint-guard, not a changelog -- live in the source catalog's `AGENTS.md`, which is the single source of truth; this guide intentionally doesn't duplicate them.

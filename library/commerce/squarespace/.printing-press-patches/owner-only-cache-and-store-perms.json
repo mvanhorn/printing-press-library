@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "owner-only-cache-and-store-perms",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260512-123445",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Tighten HTTP response cache, generic cache store, and SQLite sync DB to 0700 dirs / 0600 files (incl. WAL+SHM sidecar chmod).",
+  "reason": "Cached API responses and the synced SQLite store hold order, customer-contact, and profile PII; the writers created them world/group-readable (0755 dir, 0644 file).",
+  "files": [
+    "internal/client/client.go",
+    "internal/cache/cache.go",
+    "internal/store/store.go"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "novel-events-watchlist",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-051647",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Add 'events watchlist save|ls|run|rm' subcommand tree backed by a new `watchlists` SQLite table.",
+  "reason": "User vision called for persistent named watchlists as the generic primitive behind curated 'my venues' workflows. The Discovery API has no concept of named filter sets; this stays local.",
+  "files": [
+    "internal/cli/events_watchlist.go",
+    "internal/cli/events.go"
+  ],
+  "validated_outcome": "Build clean; `events watchlist save/ls/rm/run` all visible in --help; watchlists table auto-created via idempotent DDL on first run."
+}

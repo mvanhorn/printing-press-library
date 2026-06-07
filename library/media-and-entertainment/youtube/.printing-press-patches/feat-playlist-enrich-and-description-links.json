@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "feat-playlist-enrich-and-description-links",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260515-050804",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Add two novel read-only commands for yt-video-mcp parity: playlist-enrich (resolves a playlist URL/ID -> per-video metadata + transcript + description in one concurrent, start-index/limit-paged call with per-row error isolation) and videos-links (extracts HTTP(S) links from a video description, expands known short-link redirects, and skips social/storefront noise).",
+  "reason": "The published CLI had per-video transcript (videos-transcript) and uploads-playlist walking (channel-uploads) but no command that resolves an arbitrary playlist to enriched per-video rows in one call, and no command that surfaces the resource links creators put in descriptions. playlist-enrich collapses the playlistItems.list -> videos.list -> per-video InnerTube transcript workflow with cliutil.FanoutRun-bounded concurrency, --start-index/--limit paging over the resolved ID list, and per-row transcriptError/metadataError fields so one captionless video never aborts the run. videos-links calls videos.list for the description, regex-extracts URLs, and (under --resolve, default on) follows redirects for known shorteners (amzn.to, bit.ly, goo.gl, ow.ly, t.co, tinyurl.com, buff.ly) to their final URL; --include-social (default off) controls the social/storefront skip filter. Both reuse the existing transcript helpers and HTML-unescape titles/descriptions to match the existing novel commands.",
+  "files": [
+    "internal/cli/playlist_enrich.go",
+    "internal/cli/playlist_enrich_test.go",
+    "internal/cli/videos_links.go",
+    "internal/cli/videos_links_test.go",
+    "internal/cli/youtube.go"
+  ],
+  "validated_outcome": "publish validate: 11/12 checks pass (manifest, transcendence, phase5, go mod tidy, govulncheck, go vet, go build, --help, --version, manuscripts). The one failure (verify-skill: SKILL.md install-section drift) is pre-existing on upstream/main and unrelated to this amend — SKILL.md is untouched; the public library refreshes generator-owned skill sections post-merge. go test ./... clean; new table-driven tests cover parsePlaylistID, parseVideoID, hostOf, isNoisyHost, and extractDescriptionLinks (dedupe, trailing-punct trim, shortener flagging, social skip). Dry-run verified for both commands against the test playlist PLkdrbggVaVRDNyR3b5SlqcI9Z0xJjShTh and watch/bare-ID inputs; bad-input usage errors exit 2.",
+  "findings_addressed": [
+    "F1",
+    "F2"
+  ],
+  "patch_count": 2
+}

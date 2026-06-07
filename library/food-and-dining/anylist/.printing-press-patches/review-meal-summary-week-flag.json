@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "review-meal-summary-week-flag",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Wired meal summary's week flag into date-range selection.",
+  "reason": "Greptile noted that meal summary registered --week but ignored explicit --week=false when no alternate range mode was provided.",
+  "files": [
+    "internal/cli/meal_summary.go",
+    "internal/cli/root_test.go"
+  ],
+  "validated_outcome": "Added regression coverage for --week=false requiring --month or an explicit date range."
+}

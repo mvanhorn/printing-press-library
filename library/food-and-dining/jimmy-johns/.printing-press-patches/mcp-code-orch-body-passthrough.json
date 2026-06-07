@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "mcp-code-orch-body-passthrough",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-034611",
+  "base_printing_press_version": "4.2.2",
+  "files": [
+    "internal/mcp/code_orch.go"
+  ],
+  "summary": "Pass MCP execute params directly to Client.Post/Put/Patch instead of marshaling once into []byte and letting the client marshal again.",
+  "reason": "Client.{Post,Put,Patch} take `body any` and call json.Marshal internally; the previous json.Marshal(params) -> []byte chain caused a double encode, so POST/PUT/PATCH endpoints (account.login, order.add_items, etc.) received a base64 JSON string instead of the object payload they expected. Found by codex review."
+}

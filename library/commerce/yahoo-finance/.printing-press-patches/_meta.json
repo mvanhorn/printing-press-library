@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "deferred_to_upstream": [
+    {
+      "id": "greptile-ratelimit-toctou",
+      "summary": "TOCTOU window in cliutil.AdaptiveLimiter.Wait() allows burst under concurrent sync workers.",
+      "reason": "Greptile P2 flagged that between the first Unlock and the second Lock in Wait(), N goroutines under `sync --concurrency N` can all read the same stale lastRequest, compute identical sleeps, and burst-fire requests. The lock guards reads and writes but not the decision between them. The file lives in internal/cliutil/, which is generator-reserved per cli-printing-press's Phase 4.95 review policy: 'Out of scope: internal/cliutil/ and internal/mcp/cobratree/. Any finding there is a machine bug; route to retro, do not patch in place.' Patching the printed CLI hides the machine bug from the next CLI; the correct fix is a token-bucket or time.Ticker-based gate in cli-printing-press's emitter template.",
+      "files": [
+        "library/commerce/yahoo-finance/internal/cliutil/ratelimit.go"
+      ],
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press (filing planned via /printing-press-retro)"
+    }
+  ]
+}

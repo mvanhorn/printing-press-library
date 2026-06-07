@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "triage-retag-group-parent-filter-20260520",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Excluded synthetic group-parent transactions from triage and bulk retag selection.",
+  "reason": "Group parents have no group_parent_id, so child-only filters let aggregate rows into triage voting and bulk-retag API updates. Mirroring the canonical transaction-tier rule keeps synthetic totals out of user-facing mutation and review workflows. Closes Greptile P1 threads on PR #624.",
+  "files": [
+    "internal/cli/triage.go",
+    "internal/cli/triage_test.go",
+    "internal/cli/transcendence_helpers.go",
+    "internal/cli/transactions_retag_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli passes, including group-parent exclusions for triage and retag."
+}

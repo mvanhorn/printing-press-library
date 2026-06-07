@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "insider-cluster-code-warn",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260511-180534",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Emit a stderr warning and reword `--help` when `--code` is set in `insider-cluster`.",
+  "reason": "The v1 implementation does not apply transaction-code filtering (would require per-filing Form 4 XML fetching). Previously the flag was silently ignored with only a buried note in the meta output; now it warns on stderr and the `--help` text states 'NOT APPLIED in v1' unambiguously.",
+  "files": [
+    "internal/cli/sec_transcendence.go"
+  ]
+}

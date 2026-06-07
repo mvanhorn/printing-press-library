@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "public-auth-surface-pop-api-key",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-132356",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Trimmed the published auth contract to POP_API_KEY only.",
+  "reason": "The POP listing should expose a single documented credential variable even though the generator also inferred a header-derived alias.",
+  "files": [
+    ".printing-press.json",
+    "manifest.json",
+    "tools-manifest.json",
+    "README.md",
+    "internal/cli/agent_context.go",
+    "internal/cli/auth.go",
+    "internal/cli/doctor.go",
+    "internal/config/config.go",
+    "internal/mcp/tools.go"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "namecheap-set-token-api-key",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-namecheap",
+  "base_printing_press_version": "4.6.0",
+  "summary": "Persist auth set-token values to the Namecheap api_key config field and clear query-auth credentials on logout.",
+  "reason": "The generated OAuth-style access_token field is not used by Namecheap request preparation; persisted keys must land in api_key.",
+  "files": [
+    "internal/config/config.go",
+    "internal/cli/auth.go",
+    "internal/cli/auth_test.go"
+  ],
+  "validated_outcome": "TestAuthSetTokenPersistsNamecheapAPIKey verifies auth set-token writes api_key and leaves access_token empty."
+}

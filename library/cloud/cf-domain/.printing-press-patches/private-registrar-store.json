@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "private-registrar-store",
+  "applied_at": "2026-05-11",
+  "base_run_id": "local-generate",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Create the SQLite store directory with private permissions.",
+  "reason": "Synced domain data and API responses should not be readable by other local users on shared machines.",
+  "files": [
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "go test ./... passes."
+}

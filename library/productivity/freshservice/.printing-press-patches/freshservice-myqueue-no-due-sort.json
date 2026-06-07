@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "freshservice-myqueue-no-due-sort",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-170855",
+  "base_printing_press_version": "4.5.0",
+  "summary": "In the hand-authored my-queue command, tickets without a `due_by` value now sort to the bottom and render their MINUTES column as `—` instead of `0`. Sort is now stable secondary on minutes-remaining.",
+  "reason": "Greptile noted in PR #533 round-2 review (not elevated to an inline finding, but mentioned in the Important Files Changed remark): tickets with no due_by kept MinutesTo at its float64 zero, so they floated to the top of my-queue as if due-right-now. This is hand-authored code in freshservice_novel.go, not generator output — fix lives only in the printed CLI.",
+  "files": [
+    "internal/cli/freshservice_novel.go"
+  ],
+  "validated_outcome": "`my-queue` now lists SLA-tracked tickets first (sorted by minutes-to-breach) and no-SLA tickets after, with the MINUTES column showing `—` rather than `0` for the latter."
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "fts-rowid-fnv64a-collision-resistance",
+  "applied_at": "2026-05-26",
+  "base_run_id": "20260526-094831",
+  "base_printing_press_version": "4.11.0",
+  "summary": "ftsRowID swapped from 31-multiplier polynomial hash to fnv64a (stdlib hash/fnv) with 0x00 delimiter between scope and id.",
+  "reason": "Greptile P2: Bento IDs are short and numerically similar (\"1464\", \"1465\", \"70064351\"). The polynomial hash has weak avalanche on these inputs; a collision on the truncated 63-bit rowid would cause DELETE WHERE rowid=? to silently nuke the wrong FTS row, leaving stale/missing search results. fnv64a is order-sensitive on a flat byte stream and has much stronger distribution; the delimiter prevents scope/id boundary aliasing.",
+  "review_url": "https://github.com/mvanhorn/printing-press-library/pull/869",
+  "files": [
+    "internal/store/store.go"
+  ]
+}

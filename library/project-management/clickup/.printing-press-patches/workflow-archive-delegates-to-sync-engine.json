@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "workflow-archive-delegates-to-sync-engine",
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260510-202319",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Rewrite `workflow archive` to archive every default resource through the shared `syncResource` engine instead of a private team+user fetch loop. Supersedes the earlier workflow-archive-v2-paths and workflow-archive-envelope-unwrap patches, which fixed the now-deleted loop.",
+  "reason": "Greptile finding on PR #433. The hand-written archive loop (a) listed only `team` and `user` while the command advertised \"all syncable resources\", so `workflow archive` followed by `search` for tasks/spaces/docs returned nothing, and (b) paginated v2 list endpoints with a `?after=<id>` cursor ClickUp ignores — an account with exactly 100 workspaces never satisfied the `len(items) < 100` break and re-fetched page one forever. Delegating to `syncResource` makes `workflow archive` honor its contract (all 8 resources, hierarchical parent-first order) and reuses the per-resource pagination (v2 page-number vs v3 cursor) and envelope handling already verified for the main `sync` command. The two prior patches that this replaces — the `/v2/` path prefix fix and the `extractPageItems` envelope unwrap — are now subsumed because the bespoke loop they patched no longer exists; `syncResource` already does both correctly.",
+  "files": [
+    "internal/cli/channel_workflow.go"
+  ]
+}

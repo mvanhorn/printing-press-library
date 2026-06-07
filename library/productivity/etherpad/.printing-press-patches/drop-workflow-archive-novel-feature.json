@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "drop-workflow-archive-novel-feature",
+  "applied_at": "2026-05-10T18:30:00Z",
+  "base_run_id": "20260510T124341Z-e440f457",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Drop `workflow archive` from .printing-press.json novel_features for the same reason `sync` was dropped — empty resource list, silent no-op on Etherpad's RPC-shaped API.",
+  "reason": "Greptile P1 on PR #396: `channel_workflow.go` declares `resources := []string{}`, so `etherpad-pp-cli workflow archive` loops over zero resources, prints \"Archived 0 items across 0 resources\", and exits 0. Identical in behavior to the `sync` stub that was dropped from `novel_features` in patches[4]. The root cause is the same — every Etherpad list endpoint returns scalar IDs (`{\"data\":{\"padIDs\":[...]}}`) rather than hydratable objects, and `workflow archive` is built on the same sync machinery.",
+  "files": [
+    ".printing-press.json",
+    "internal/cli/channel_workflow.go"
+  ],
+  "validated_outcome": "novel_features now lists only the three commands that work end-to-end against Etherpad's API shape: tail, import, agent-context. channel_workflow.go carries an inline `// PATCH(drop-workflow-archive-novel-feature)` comment explaining why the resource list is empty so the next regen reviewer doesn't try to remove the comment as dead code.",
+  "upstream_issue": "Same upstream root cause as patches[4] (drop-sync-and-analytics-novel-features) — generator should detect scalar-ID-list APIs and either skip the sync-derived workflow features or emit a per-resource fan-out adapter."
+}

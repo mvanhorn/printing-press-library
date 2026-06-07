@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "model-dedup-events",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-023951",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Dedupe model events via MIN(aircraft_idx) subquery so multi-aircraft events surface once.",
+  "reason": "The original join over event_aircraft produced one row per matching aircraft, double-counting events like a mid-air between two Cessna 172s in both ModelCounts and the returned Events slice. Follow-up note: the first version of this patch built args as [match, filters, pick, limit] which mismatched the SQL's placeholder order (pick subquery is in the JOIN, before the WHERE) — any --since/--until/--state filter then silently bound to the wrong placeholder. Corrected order is [pick, match, filters, limit].",
+  "files": [
+    "internal/cli/model.go"
+  ]
+}

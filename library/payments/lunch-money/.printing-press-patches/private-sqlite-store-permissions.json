@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "private-sqlite-store-permissions",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Created local SQLite store directories and files with owner-only permissions.",
+  "reason": "The local SQLite store contains synced financial data and should not be readable or traversable by other local users.",
+  "files": [
+    "internal/store/store.go",
+    "internal/store/schema_version_test.go"
+  ],
+  "validated_outcome": "go test ./internal/store passes, including store directory and database artifact permission coverage."
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "sync-document-api-hydrate",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "files": [
+    "internal/granola/api_documents.go",
+    "internal/granola/api_documents_test.go",
+    "internal/cli/sync_cache.go",
+    "internal/cli/granola_helpers.go"
+  ],
+  "summary": "Add HydrateDocumentsFromAPI that pages /v2/get-documents (existing internalapi.GetDocuments) and stuffs the results into cache.Documents before SyncFromCache upserts. sync_cache.go calls the hydrate before opening the store; the API error is surfaced as a non-fatal warning so cache-sourced state (transcripts/folders/recipes/panels/chats) still lands when the API is down. Fix in same file: openGranolaCache used to pass the plaintext path to LoadCache, bypassing the resolver - changed to pass empty string so the resolver picks the .enc file.",
+  "reason": "Granola desktop moved meeting documents out of cache-v6.json at the same time as the encryption rollout. Without this, even successfully decrypted cache contains 0 documents; every meetings-list command returns empty. The existing internalapi.go already had GetDocuments; this PR wires it into sync."
+}

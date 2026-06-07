@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "ratelimit-toctou-fix",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260509-110540",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Fix TOCTOU race in cliutil.AdaptiveLimiter.Wait() that defeated rate limiting under concurrent fan-out.",
+  "reason": "Greptile review identified a real correctness bug in the generator-emitted file: read lastRequest under lock, release, sleep, then re-acquire to write. Two concurrent callers would observe the same stale lastRequest, both sleep the same duration, and both update lastRequest to ~the same value — completely defeating rate limiting for the second caller. Fix: under a single lock, compute the sleep deadline, stamp lastRequest forward to that deadline, then sleep without the lock. The next caller queues serially behind the deadline. Filed as a Printing Press retro candidate (cliutil/ratelimit.go is generator-emitted; the same fix should land upstream so all printed CLIs benefit).",
+  "files": [
+    "internal/cliutil/ratelimit.go"
+  ],
+  "validated_outcome": "Build passes; goroutine-pair unit logic: A acquires lock, computes sleep=2s, stamps lastRequest = now+2s, releases. B acquires lock, sees lastRequest = (now)+2s in the future, computes sleep = delay+2s = 4s, stamps lastRequest = now+4s. Result: A sleeps 2s, B sleeps 4s — proper serialization.",
+  "upstream_issue": "Should be filed against https://github.com/mvanhorn/cli-printing-press generator template at internal/generator/templates/cliutil/ratelimit.go.tmpl"
+}

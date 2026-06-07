@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "upsertbatch-rename-shadow",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260511-180534",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Rename local `s` → `idStr` in UpsertBatch ID-extraction blocks.",
+  "reason": "The local `s` shadowed the `*Store` method receiver and would silently break any future block extension that called a receiver method.",
+  "files": [
+    "internal/store/store.go"
+  ]
+}

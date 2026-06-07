@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "novel-events-price-bands",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-051647",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Add 'events price-bands --dma <id> --window N' SQL aggregation that buckets priceRanges.min into <$50 / $50-100 / $100-200 / $200+ bands grouped by classification.",
+  "reason": "Persona D pain (newsletter analytics). priceRanges.min is in the spec; mechanical bucketing — no API analog.",
+  "files": [
+    "internal/cli/events_price_bands.go",
+    "internal/cli/events.go"
+  ],
+  "validated_outcome": "--help pass; missing-price events bucketed as 'unknown' (Discovery omits priceRanges on resale/dynamic-priced events, documented in the brief's data-model quirks)."
+}

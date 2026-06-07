@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "order-hydrate-dry-run-scope",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260516-193948",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Global --dry-run no longer triggers a real GetOrdersBySubmissionNo call in order hydrate.",
+  "reason": "The previous implementation force-set c.DryRun=false when EITHER --dry-run-hydrate OR --dry-run was active. Because newClient() also skips wiring the log hook on --dry-run, the resulting live call was unlogged and the daily quota counter undercounted by one. Greptile P1 finding on PR #630.",
+  "files": [
+    "internal/cli/order_hydrate.go"
+  ],
+  "validated_outcome": "go build ./... && go vet ./..."
+}

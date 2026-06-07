@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "venues-compare-honest-description",
+  "applied_at": "2026-05-23",
+  "base_run_id": "20260523T141801Z-fb7995c2",
+  "base_printing_press_version": "4.12.0",
+  "summary": "Tighten venues-compare description to match what the dynamic endpoint actually returns.",
+  "reason": "Original Short said 'Compare open status, ETA window, and delivery configs' but venueCompareRow has no ETA fields — the dynamic endpoint returns next-close/open timestamps, not delivery-time-in-minutes (that lives in /pages/restaurants). Updated Short + Long to advertise what we actually return and point users to venues-now for ETAs.",
+  "files": [
+    "internal/cli/venues_compare.go"
+  ]
+}

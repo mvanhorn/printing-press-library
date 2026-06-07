@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "dedup-classroom-name-vars",
+  "applied_at": "2026-05-12T02:55:00Z",
+  "reason": "Generator emitted duplicate `var bodyClassSessionClassroomName string` declarations in 4 reservation request-body command files, breaking compilation. Spec has both `classroom.name` (nested) and `classroom_name` (flat alias) on the reservation body schema; the codegen walked both into the same Go identifier.",
+  "files": [
+    "internal/cli/me_reservations-assign-to-spot-create.go",
+    "internal/cli/me_reservations-cancel-create.go",
+    "internal/cli/me_reservations-check-in-create.go",
+    "internal/cli/me_reservations-create.go"
+  ],
+  "change": "Removed the second consecutive `var bodyClassSessionClassroomName string` declaration in each file (line 30)."
+}

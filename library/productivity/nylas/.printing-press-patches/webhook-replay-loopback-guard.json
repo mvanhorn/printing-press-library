@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "webhook-replay-loopback-guard",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-164045",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Require http/https scheme and loopback host on --to by default; add --allow-remote escape hatch.",
+  "reason": "Greptile P2 security finding on PR #676: url.Parse only validates syntax, so agent-loop driven --to values could replay payloads to arbitrary external or internal-metadata endpoints (SSRF). Loopback-only default matches the documented 'local handler URL' intent.",
+  "files": [
+    "internal/cli/webhook_replay.go"
+  ]
+}

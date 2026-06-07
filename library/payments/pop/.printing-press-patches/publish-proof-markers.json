@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "publish-proof-markers",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-132356",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Added publish metadata required by the Printing Press validator.",
+  "reason": "The generated tree built successfully but still needed novel feature metadata and a manual phase5 skip proof to pass publish validation.",
+  "files": [
+    ".printing-press.json",
+    ".manuscripts/20260518-132356/proofs/phase5-skip.json"
+  ]
+}

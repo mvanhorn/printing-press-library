@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "review-agent-json-pagination",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Kept list reset dry-run output structured for JSON callers and made flat-array pagination behavior explicit.",
+  "reason": "Greptile noted that lists reset returned text before checking JSON mode during dry runs and that paginatedGet's flat-array branch looked like an accidental first-page-only exit.",
+  "files": [
+    "internal/cli/lists_reset.go",
+    "internal/cli/helpers.go",
+    "internal/cli/root_test.go"
+  ],
+  "validated_outcome": "Added regression coverage for list reset dry-run JSON output and flat-array pagination termination."
+}

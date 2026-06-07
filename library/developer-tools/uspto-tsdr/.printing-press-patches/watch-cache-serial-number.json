@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "watch-cache-serial-number",
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-135942",
+  "base_printing_press_version": "4.2.0",
+  "summary": "Add watch cache ID field using serialNumber as the key for trademark watch entries.",
+  "reason": "tmWatchEntry uses serialNumber as the unique identifier, not a generic 'id' field.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "Trademark watch correctly caches and compares previous status using serial number keys."
+}

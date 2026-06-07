@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "expires-in-zero-guard-on-login",
+  "applied_at": "2026-05-10T18:30:00Z",
+  "base_run_id": "20260510T124341Z-e440f457",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Guard against ExpiresIn==0 on initial token storage in auth.go (parallel guard already exists in refreshAccessToken).",
+  "reason": "auth.go:167 set `expiry := time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second)` unconditionally. If the OIDC server returns expires_in=0 (non-conformant but possible), expiry == time.Now() (already past) → next request triggers an unnecessary refresh round-trip.",
+  "files": [
+    "internal/cli/auth.go"
+  ],
+  "validated_outcome": "Mirrors the existing client.go:418 guard: `expiry := time.Time{}; if tokenResp.ExpiresIn > 0 { expiry = time.Now().Add(...) }`. Eliminates the spurious refresh per call when ExpiresIn is 0."
+}

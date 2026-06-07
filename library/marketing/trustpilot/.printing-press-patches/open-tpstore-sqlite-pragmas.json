@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "open-tpstore-sqlite-pragmas",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260515-075905",
+  "base_printing_press_version": "4.6.1",
+  "summary": "openTPStore opens SQLite with journal_mode(WAL) + busy_timeout(5000) + foreign_keys(1) DSN pragmas, matching store.OpenWithContext defaults.",
+  "reason": "Greptile P1 on PR #588: bare sql.Open with no pragmas means concurrent CLI invocations get immediate SQLITE_BUSY instead of waiting on writer locks.",
+  "files": [
+    "internal/cli/tp_helpers.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass.",
+  "upstream_issue": "Greptile PR #588 inline finding"
+}

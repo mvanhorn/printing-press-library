@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "namecheap-api-key-env",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-namecheap",
+  "base_printing_press_version": "4.6.0",
+  "summary": "Replace stale NAMECHEAP_API_KEY_QUERY user-facing references with NAMECHEAP_API_KEY.",
+  "reason": "config.Load reads NAMECHEAP_API_KEY, so hints and agent/MCP metadata must not direct users to an ignored environment variable.",
+  "files": [
+    "internal/cli/agent_context.go",
+    "internal/cli/auth.go",
+    "internal/cli/auth_test.go",
+    "internal/cli/helpers.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "TestAuthStatusHintUsesNamecheapAPIKeyEnv verifies auth status hints use NAMECHEAP_API_KEY and omit NAMECHEAP_API_KEY_QUERY."
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "local-transcendence-commands",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Added seven read-only local SQLite audit commands for triage, net worth, subscriptions, duplicates, stale accounts, recurring misses, and budget burn.",
+  "reason": "The research manifest lists these novel local-join features as Lunch Money CLI differentiators, but the generator only emitted spec-derived API commands.",
+  "files": [
+    "internal/cli/accounts.go",
+    "internal/cli/budgets.go",
+    "internal/cli/budgets_burn.go",
+    "internal/cli/net-worth.go",
+    "internal/cli/recurring-items.go",
+    "internal/cli/recurring_missing.go",
+    "internal/cli/root.go",
+    "internal/cli/transactions.go",
+    "internal/cli/transactions_duplicates.go",
+    "internal/cli/transactions_subscriptions.go",
+    "internal/cli/transcendence_helpers.go",
+    "internal/cli/transcendence_helpers_test.go",
+    "internal/cli/triage.go"
+  ],
+  "validated_outcome": "go test ./internal/cli and go build ./... passed after adding the commands."
+}

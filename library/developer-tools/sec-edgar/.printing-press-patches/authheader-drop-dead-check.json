@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "authheader-drop-dead-check",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260511-180534",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Remove unreachable duplicate `c.SecEdgarUserAgent == \"\"` check in `AuthHeader`.",
+  "reason": "Same value is already checked one line above via `token == \"\"`; the second check is dead code.",
+  "files": [
+    "internal/config/config.go"
+  ]
+}

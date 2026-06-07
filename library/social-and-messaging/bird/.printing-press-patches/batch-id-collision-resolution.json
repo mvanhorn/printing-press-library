@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "batch-id-collision-resolution",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260513-091340",
+  "base_printing_press_version": "4.5.2",
+  "summary": "newBatchID suffixes 4 random hex bytes so concurrent send-batch invocations within the same second produce distinct batch IDs.",
+  "reason": "Generator-emitted newBatchID used seconds-resolution timestamps only. Two send-batch invocations starting within the same second (CI jobs, scripts, fast retries) would produce identical IDs; persistBatch then silently overwrites the earlier batch, leaving the first unrecoverable by sms reconcile. Surfaced by Greptile P2 in the PR #417 review.",
+  "files": [
+    "internal/cli/sms_send_batch.go"
+  ],
+  "validated_outcome": "go build ./... succeeds; go test ./... passes."
+}

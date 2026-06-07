@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "messages-like-escape-clause",
+  "applied_at": "2026-05-23",
+  "base_run_id": "hand-written",
+  "base_printing_press_version": "0.1.3",
+  "summary": "searchMessages adds an explicit ESCAPE '\\' clause to the LIKE expression so escapeLike's backslash sequences are honored.",
+  "reason": "escapeLike writes \\%% and \\_ into the pattern but SQLite ignores the backslash without an explicit ESCAPE clause, treating it as a literal. Queries containing %% or _ silently missed matching rows from the SQL phase. Greptile G2 on PR #766.",
+  "files": [
+    "internal/cli/messages_db.go"
+  ]
+}

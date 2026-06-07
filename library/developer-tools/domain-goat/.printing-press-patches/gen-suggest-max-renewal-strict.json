@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "gen-suggest-max-renewal-strict",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-093229",
+  "base_printing_press_version": "4.4.0",
+  "summary": "gen suggest --max-renewal now returns an error when openStore fails instead of silently dropping the filter.",
+  "reason": "Previous code wrapped the entire filter in `if err == nil`, so a failed store-open returned every candidate unfiltered — users got results that violated the budget ceiling they passed.",
+  "files": [
+    "internal/cli/gen_score_similar.go"
+  ],
+  "validated_outcome": "go vet/build clean; the filter is honoured or the command errors — never silently relaxes."
+}

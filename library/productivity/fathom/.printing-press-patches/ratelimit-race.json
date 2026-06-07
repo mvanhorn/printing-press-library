@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "ratelimit-race",
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-090403",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Fixed AdaptiveLimiter.Wait() to serialize concurrent callers by holding the mutex through the sleep.",
+  "reason": "Releasing the lock before time.Sleep allowed all concurrent sync workers to read the same lastRequest, sleep the same duration, then fire simultaneously — delivering concurrency×rate req/s instead of the configured rate.",
+  "files": [
+    "internal/cliutil/ratelimit.go"
+  ]
+}

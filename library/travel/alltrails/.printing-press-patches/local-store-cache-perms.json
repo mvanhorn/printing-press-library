@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "local-store-cache-perms",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260526-193757",
+  "base_printing_press_version": "4.18.0",
+  "summary": "SQLite store and HTTP disk cache (dirs/files/WAL/SHM) restricted to owner-only (0o700/0o600).",
+  "reason": "Same world-readable class Greptile flagged on godaddy: store/cache were created 0o755 dir + umask-default file, leaving locally cached account/session data readable by other local users. Hardened proactively to match the midjourney/godaddy reference.",
+  "files": [
+    "internal/store/store.go",
+    "internal/cache/cache.go"
+  ]
+}

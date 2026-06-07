@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "trip-plan-currency-diagnostic",
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260519-175228",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Returned a diagnostic when trip legs have no common price currency.",
+  "reason": "The planner cannot compare budgets across currencies; returning an empty successful result made multi-country currency mismatches look like no availability.",
+  "files": [
+    "internal/cli/trip_plan.go",
+    "internal/cli/trip_plan_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli -run 'TestChoosePlan|TestValidatePlanSearchSpace' succeeded."
+}

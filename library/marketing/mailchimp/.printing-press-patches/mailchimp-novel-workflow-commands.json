@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "mailchimp-novel-workflow-commands",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-014518",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Added 8 hand-coded workflow commands that compose Mailchimp's split data model: subscribe, bulk-subscribe, digest, compare, attribution, deliverability, segments audit, send-checked. Wired into root.go.",
+  "reason": "Mailchimp's 291-endpoint Marketing API has SDKs in every language, but no tool composes the workflows Mailchimp's data model forces you into. The generator-emitted endpoint mirror handles the raw API surface; these novel commands are the differentiator: subscribe auto-hashes the MD5 subscriber_hash and PUT-upserts (replacing the three-call dance); bulk-subscribe drives the /batches endpoint and decodes the tar.gz of JSONL within the 10-minute response URL window; digest joins four campaign report endpoints into one summary (single-campaign or rollup-of-N); compare diffs two campaigns side-by-side; attribution joins ecommerce-product-activity with synced orders; deliverability rolls up domain-performance across N campaigns; segments audit flags empty/stale segments; send-checked gates the send action on the official send-checklist endpoint, exiting 2 if any item has type=error. Total ~970 LoC across 9 new files. Each file is hand-authored (not generator-emitted) and uses `// pp:client-call` semantics by composing the spec-emitted client.",
+  "files": [
+    "internal/cli/novel_subscribe.go",
+    "internal/cli/novel_bulk_subscribe.go",
+    "internal/cli/novel_digest.go",
+    "internal/cli/novel_compare.go",
+    "internal/cli/novel_attribution.go",
+    "internal/cli/novel_deliverability.go",
+    "internal/cli/novel_segments_audit.go",
+    "internal/cli/novel_segments_parent.go",
+    "internal/cli/novel_send_checked.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "All 8 novel commands compile, register in root.go, and respond to --help / --dry-run. Live verified against a real us6 Mailchimp account: doctor + ping returned 200; subscribe with MD5 hashing + tags worked end-to-end (member created → archived → permanent-deleted → 404); segments audit found 1 healthy segment in a real audience; digest --last 5 gracefully returned empty for an account with 0 sent campaigns; deliverability + attribution + compare correctly handle empty data sets. Shipcheck 6/6 PASS; polish scorecard 93/100 Grade A."
+}

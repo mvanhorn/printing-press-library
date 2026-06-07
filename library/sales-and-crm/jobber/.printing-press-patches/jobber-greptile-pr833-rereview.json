@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "jobber-greptile-pr833-rereview",
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260522-234028",
+  "base_printing_press_version": "4.10.0",
+  "summary": "Address all four Greptile findings from PR #833 re-review: propagate the cache-permission tightening to the standalone internal/cache package, switch ar aging to OpenReadOnly, gate AR Total/InvoiceCount on successful bucket assignment, and tighten snapshot directory permissions to 0o700.",
+  "reason": "Greptile confidence score on PR #833 was 3/5 with four follow-on findings. (1) The PR #816 cache fix only landed in client.go's writeCache; the standalone internal/cache/cache.go package still wrote 0o755/0o644 with raw API responses on disk. (2) ar aging opened the SQLite DB read-write via OpenWithContext while every other read path uses OpenReadOnly. (3) addARAgingBucket silently dropped balances from the four aging buckets when due_date was missing/unparseable, but the caller unconditionally added the balance to row.Total and incremented InvoiceCount — so bucket sums no longer matched Total. (4) snapshot save created its snapshots directory with 0o755 even though the snapshot files themselves were 0o600.",
+  "files": [
+    "internal/cache/cache.go",
+    "internal/cli/ar_aging.go",
+    "internal/cli/snapshot.go"
+  ],
+  "validated_outcome": "go build ./... clean; internal/cache writes use 0o700/0o600 matching client.go; ar aging opens the DB read-only; AR Total and InvoiceCount only advance when addARAgingBucket succeeds (returns true), so bucket sums equal the per-client total; snapshots directory is 0o700."
+}

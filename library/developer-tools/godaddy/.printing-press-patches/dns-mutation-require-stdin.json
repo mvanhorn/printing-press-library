@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "dns-mutation-require-stdin",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260522-124732",
+  "base_printing_press_version": "4.11.0",
+  "summary": "DNS record add/replace commands require --stdin (their only body input).",
+  "reason": "Greptile P1: empty !stdinBody guards let these commands send an empty body, producing a cryptic API 400 instead of a clear CLI error.",
+  "files": [
+    "internal/cli/domains_records_add.go",
+    "internal/cli/domains_records_replace.go",
+    "internal/cli/domains_records_replace-type.go",
+    "internal/cli/domains_records_replace-type-name.go"
+  ]
+}

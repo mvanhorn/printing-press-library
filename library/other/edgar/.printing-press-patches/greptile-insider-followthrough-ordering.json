@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "greptile-insider-followthrough-ordering",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-115144",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Pick the chronologically earliest material 8-K after each insider sale, not the most recent.",
+  "reason": "ListEdgarFilings returns rows ORDER BY filed_at DESC; the original forward-iterate-and-break matched the latest material 8-K in the 90-day window, contradicting the command's documented semantics. Loop now iterates ascending via a new findEarliestMaterial8K helper covered by insider_followthrough_test.go.",
+  "files": [
+    "internal/cli/insider_followthrough.go",
+    "internal/cli/insider_followthrough_test.go"
+  ],
+  "validated_outcome": "insider_followthrough_test.go::TestFindEarliestMaterial8K_PicksChronologicallyFirst exercises a DESC-sorted set with three material 8-Ks and asserts the earliest is selected."
+}

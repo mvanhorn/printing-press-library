@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "wavespeed-novel-common-helpers",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260527-214905",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Added shared Shot type, AgentEnvelope, brand-merge precedence resolver, record-policy resolver, cost/balance helpers, and shotlist IO in novel_common.go; extracted submitAndAwait from run.go and added run --record.",
+  "reason": "All novel commands operate on one canonical Shot schema and emit a uniform envelope; submitAndAwait gives a no-prints structured generation chain reusable across commands.",
+  "files": [
+    "internal/cli/novel_common.go",
+    "internal/cli/run.go",
+    "internal/cli/helpers.go",
+    "internal/cli/channel_workflow.go"
+  ],
+  "validated_outcome": "submitAndAwait_test proves structured-data/no-prints/failed-prediction-not-error; brand precedence and record-policy unit tests pass."
+}

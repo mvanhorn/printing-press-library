@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "granola-current-client-identity",
+  "applied_at": "2026-06-03",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "files": [
+    "internal/granola/internalapi.go",
+    "internal/granola/workos.go",
+    "internal/granola/workos_test.go"
+  ],
+  "summary": "Granola's internal API and token refresh only work when the CLI impersonates a CURRENT Granola desktop build: it must send the desktop's current client-version / platform / User-Agent headers, and it must refresh through Granola's own refresh endpoint rather than the legacy direct-WorkOS authenticate flow. The client version is a moving target - a reprint must re-discover the value a live desktop sends, not trust any generated or previously-pinned default.",
+  "reason": "Spec/generator defaults (a fixed client version and the documented WorkOS flow) are silently rejected by current Granola sessions - WorkOS returns invalid_client - which breaks live transcript access from headless/agent runs. A reprint that regenerates those defaults reintroduces the breakage.",
+  "validated_outcome": "With current desktop headers + native refresh, `transcript get` against a document that previously returned no segments returned a full live transcript."
+}

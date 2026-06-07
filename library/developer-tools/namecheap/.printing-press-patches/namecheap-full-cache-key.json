@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "namecheap-full-cache-key",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-namecheap",
+  "base_printing_press_version": "4.6.0",
+  "summary": "Use the full SHA-256 digest for cache filenames.",
+  "reason": "The generated cache key truncated to 64 bits; keeping the full digest avoids avoidable filename collisions.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/cache_test.go"
+  ],
+  "validated_outcome": "TestCacheKeyUsesFullSHA256Digest verifies cache keys are 64 hex characters."
+}

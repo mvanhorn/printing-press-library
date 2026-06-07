@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "shopifyql-funnel-real-columns",
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260524-085902",
+  "base_printing_press_version": "4.14.0",
+  "author": "@benjaminn8",
+  "summary": "shopifyql funnel uses real ShopifyQL response columns, not hallucinated ones.",
+  "reason": "The novel-feature shopifyql funnel command originally referenced column names (e.g. funnel_step, step_count) that do not exist in Shopify's ShopifyQL response schema, producing empty results against live data. Replacing them with the actual schema fields makes the command return real funnel rows against a live store. This lives only in this CLI's hand-coded internal/cli/shopifyql.go and is novel-feature substance, not a generator template bug.",
+  "validated_outcome": "Funnel command returns real session/checkout/order counts against a live Shopify store.",
+  "files": [
+    "internal/cli/shopifyql.go"
+  ],
+  "applies_to_template": false,
+  "issue_refs": []
+}

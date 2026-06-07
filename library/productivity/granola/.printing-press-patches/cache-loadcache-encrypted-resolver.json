@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "cache-loadcache-encrypted-resolver",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "files": [
+    "internal/granola/cache.go",
+    "internal/granola/cache_test.go",
+    "internal/granola/cache_integration_test.go"
+  ],
+  "summary": "Add DefaultEncryptedCachePath, ResolveCachePath, and supportDir helpers; teach LoadCache to prefer cache-v6.json.enc over the plaintext stub via the resolver. GRANOLA_CACHE_PATH override continues to win. Decrypt failures surface as wrapped errors (no silent fallback to stale plaintext, per plan D2). Updated existing TestLoadCache_RealFile to account for the schema-shift where documents moved out of the cache; added 4 resolver tests + an integration test gated by GRANOLA_INTEGRATION=1.",
+  "reason": "Same root cause as safestorage-package. LoadCache was the load-bearing entry point for every command that reads the cache; without this change the safestorage package would never be invoked."
+}

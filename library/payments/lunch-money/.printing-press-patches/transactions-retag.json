@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "transactions-retag",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Added a transactions retag command that previews local matches and bulk-updates category or tag changes.",
+  "reason": "The generated endpoint commands expose raw transaction updates, but the CLI needs a higher-level local-search workflow for safe bulk retagging.",
+  "files": [
+    "internal/cli/transactions.go",
+    "internal/cli/transactions_retag.go",
+    "internal/cli/transcendence_helpers.go"
+  ],
+  "validated_outcome": "go build ./... && go vet ./... passed; transactions retag --help shows the requested flags."
+}

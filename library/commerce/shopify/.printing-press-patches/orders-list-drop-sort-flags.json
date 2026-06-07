@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "orders-list-drop-sort-flags",
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260524-085902",
+  "base_printing_press_version": "4.14.0",
+  "author": "@benjaminn8",
+  "summary": "orders list no longer exposes --sort-key or --reverse; the v3.2.1 printing carried them via a now-superseded query/search/resolve patch.",
+  "reason": "v3.2.1 (printed by @cathrynlavery) carried a `orders-query-search-resolve` patch that wired --sort-key, --reverse, and several orders search helpers into the generated orders surface. This reprint replaces that approach with the generic --query flag wiring (patch list-query-flag-wiring), which covers the same filter use cases via Shopify's native search syntax and does not need bespoke sort flags. Automations relying on the old --sort-key / --reverse will see unknown-flag errors and must switch to --query 'sort_key:created_at-asc' or equivalent search-syntax expressions. Recording this here so future regen and reprint tooling treats the removal as intentional, not a regression.",
+  "validated_outcome": "shopify-pp-cli orders list --help no longer advertises --sort-key/--reverse; --query covers the same filter shapes.",
+  "files": [
+    "internal/cli/orders_list.go"
+  ],
+  "applies_to_template": false,
+  "issue_refs": []
+}

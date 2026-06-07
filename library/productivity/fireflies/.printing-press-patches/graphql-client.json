@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "graphql-client",
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-005754",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Hand-authored GraphQL HTTP client in internal/gql/client.go replacing the generated REST client.",
+  "reason": "Fireflies exposes only a GraphQL API; the generator emits a REST client scaffold that cannot reach any real endpoint.",
+  "files": [
+    "internal/gql/client.go"
+  ],
+  "validated_outcome": "fireflies-pp-cli sync --full fetches all 353 transcripts across 12 channels using real GraphQL pagination."
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "partial-fetch-notice",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260515-075905",
+  "base_printing_press_version": "4.6.1",
+  "summary": "top_recent and agent_bundle surface fetchBucket errors via NoticePartialFetchError instead of silently discarding them.",
+  "reason": "Greptile P1 on PR #588 (round 2): a mid-pagination error returned partial reviews labeled complete with exit code 0. The new notice lets agents detect incomplete data.",
+  "files": [
+    "internal/cli/tp_helpers.go",
+    "internal/cli/top_recent.go",
+    "internal/cli/agent_bundle.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass; meta.notices includes partial_fetch_due_to_error when fetchBucket fails.",
+  "upstream_issue": "Greptile PR #588 inline finding"
+}

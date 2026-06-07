@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "known_remaining_issues": [
+    {
+      "summary": "v2 Bearer-token-required endpoints (/api/services/reports/*, /v2/foods/*, /v2/users/*) still fail with 'Missing HTTP header: Authorization' because the shared client now sends Cookie: but those endpoints need Authorization: Bearer <token> bootstrapped from /user/auth_token.",
+      "next_step": "Auth-mode-aware client routing: detect v2 paths and use Bearer (cached after one auth-token call) instead of Cookie."
+    },
+    {
+      "summary": "goals command path /account/my-goals returns the login redirect because the actual endpoint is /profile/goals.",
+      "next_step": "Fix the spec or the promoted-goals.go path."
+    },
+    {
+      "summary": "Diary parser: nutrient field names contain embedded newlines and unit suffixes (e.g. 'calories\\n                      kcal').",
+      "next_step": "Trim whitespace and split out units in internal/parser/diary.go."
+    }
+  ]
+}

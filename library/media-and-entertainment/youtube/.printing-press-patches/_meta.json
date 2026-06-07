@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "machine_followups": [
+    {
+      "issue": "internal/client/client.go's do() and the resolvePaginatedRead helper do not thread cmd.Context() to outbound HTTP requests by default, so generated typed endpoints (channels-list, videos-list, etc.) cannot be cancelled with Ctrl+C and ignore --timeout. The per-CLI WithContext escape hatch fixes only hand-authored commands.",
+      "scope": "generator (cli-printing-press)",
+      "filed_as": "TBD — file at github.com/mvanhorn/cli-printing-press"
+    },
+    {
+      "issue": "Generator emits HTML-entity-bearing API response strings to JSON consumers without unescaping at the API boundary. Affects every search-shaped endpoint across YouTube and other APIs whose payloads carry HTML-encoded text.",
+      "scope": "generator (cli-printing-press)",
+      "filed_as": "TBD — file at github.com/mvanhorn/cli-printing-press"
+    }
+  ]
+}

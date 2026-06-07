@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "native-geocoding",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260601-000336",
+  "base_printing_press_version": "4.19.1",
+  "summary": "Resolve addresses via Blacklane's own public GraphQL (graphql.blacklane.com/public locationsAutocomplete+locationsGeocode), falling back to OpenStreetMap.",
+  "reason": "Blacklane-native resolution returns the placeId + airportIata that /prices uses for accurate fares, which OSM geocoding cannot provide.",
+  "files": [
+    "internal/cli/geo_blacklane.go",
+    "internal/cli/quote.go"
+  ],
+  "validated_outcome": "quote 'JFK Airport' resolves to Blacklane's canonical place + placeId; prices match the web."
+}

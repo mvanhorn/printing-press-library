@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "auth-logout-clears-api-key",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513T152516Z-e836a3fe",
+  "base_printing_press_version": "4.5.2",
+  "summary": "ClearTokens now removes persisted API-key auth fields during logout.",
+  "reason": "The generated logout path only cleared OAuth token fields, leaving saved ElevenLabs API keys active after auth logout.",
+  "files": [
+    "internal/config/config.go"
+  ],
+  "validated_outcome": "go test ./..."
+}

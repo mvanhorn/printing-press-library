@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "exchangerate-novel-sync-rates",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-025552",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Add sync-rates command that pulls /latest for a base currency and appends every (base, target, rate) row to rates_snapshots.",
+  "reason": "Foundation for every snapshot-driven feature (history-cache, drift, pair --as-of, watch). The generator's generic sync emits to typed tables only for spec resources; rates_snapshots is a hand-authored table.",
+  "files": [
+    "internal/cli/sync_rates.go"
+  ],
+  "validated_outcome": "sync-rates --base USD writes ~166 snapshots in a single call; rows appear in rates_snapshots with captured_at timestamps; subsequent history-cache USD EUR returns the synced rates."
+}

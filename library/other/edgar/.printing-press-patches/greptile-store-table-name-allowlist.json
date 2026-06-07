@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-store-table-name-allowlist",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-115144",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Gate the fmt.Sprintf table-name interpolation in ListIDs behind a {companies, filings} allowlist; unknown names fall through to the generic resources table.",
+  "reason": "Defensive fix flagged by Greptile review — interpolating a caller-provided string into a SELECT is a latent SQL-injection surface even though current callers pass our own table names.",
+  "files": [
+    "internal/store/store.go"
+  ]
+}

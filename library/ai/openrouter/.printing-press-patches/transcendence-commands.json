@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "id": "transcendence-commands",
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-165428",
+  "base_printing_press_version": "4.2.0",
+  "summary": "Added 8 hand-built novel commands (~1,300 LOC): usage cost-by, usage anomaly, models query, providers degraded, generation explain, key eta, budget set/check, endpoints failover. Plus 2 new parent group commands (usage, budget) and patches to 5 generated parents (root.go, models.go, generation.go, promoted_key.go, promoted_providers.go, promoted_endpoints.go) to register new subcommands.",
+  "reason": "Phase 3 mandate (transcendence layer) — these are the agent-introspection commands that justify the CLI's existence beyond the absorbed REST surface. None are derivable from the spec.",
+  "files": [
+    "internal/cli/usage.go",
+    "internal/cli/usage_cost_by.go",
+    "internal/cli/usage_anomaly.go",
+    "internal/cli/models_query.go",
+    "internal/cli/providers_degraded.go",
+    "internal/cli/generation_explain.go",
+    "internal/cli/key_eta.go",
+    "internal/cli/budget.go",
+    "internal/cli/budget_set.go",
+    "internal/cli/budget_check.go",
+    "internal/cli/endpoints_failover.go",
+    "internal/cli/root.go",
+    "internal/cli/models.go",
+    "internal/cli/generation.go",
+    "internal/cli/promoted_key.go",
+    "internal/cli/promoted_providers.go",
+    "internal/cli/promoted_endpoints.go"
+  ],
+  "validated_outcome": "All 8 transcendence commands callable; behavioral assertions in shipcheck dogfood (96/102 PASS) + post-publish validation."
+}

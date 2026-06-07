@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "novel-events-tour",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-051647",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Add 'events tour <attraction>' view that filters local events by attractionId or name (case-insensitive substring), projects city/venue/status, and flags rows where on-sale is within --on-sale-window days.",
+  "reason": "Persona B workflow (tour-chasing fan). Joins local events × attractions; parses dates.status.code + sales.public.startDateTime — fields documented in the brief's Codebase Intelligence section.",
+  "files": [
+    "internal/cli/events_tour.go",
+    "internal/cli/events.go"
+  ],
+  "validated_outcome": "--help pass; on-sale window math computed against time.Now()."
+}

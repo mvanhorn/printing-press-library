@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "chmod-existing-sensitive-files",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260512-123445",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Add os.Chmod after each sensitive MkdirAll/WriteFile/O_CREATE site so dirs/files left world-readable by an older build are re-secured to 0700/0600.",
+  "reason": "os.WriteFile/os.MkdirAll/O_CREATE only apply perm when creating; an existing path from an older 0o644/0o755 build keeps its world-readable mode. Affects the response cache, generic cache store, config (client id/secret), profile store, and feedback ledger (all PII or credential bearing). store.go already chmods the SQLite db, so it is unchanged.",
+  "files": [
+    "internal/client/client.go",
+    "internal/cache/cache.go",
+    "internal/config/config.go",
+    "internal/cli/profile.go",
+    "internal/cli/feedback.go"
+  ]
+}

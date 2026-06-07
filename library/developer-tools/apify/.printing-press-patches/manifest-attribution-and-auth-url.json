@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "manifest-attribution-and-auth-url",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-132617",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Set owner to the slugified contributor name (kevin-magnan) distinct from printer (the GitHub handle kjmagnan1s), and corrected auth_key_url from the spec-derived MDN Authorization-header doc to the real Apify token page (console.apify.com/account#/integrations). Also corrected two novel_features command paths to match the shipped command tree (search -> search items, schedule apply -> schedules apply).",
+  "rationale": "The generator set owner == printer and pulled auth_key_url from the security scheme's description text; both are corrected to satisfy attribution conventions and give users a working token URL.",
+  "files": [
+    ".printing-press.json"
+  ],
+  "upstream_issue": ""
+}

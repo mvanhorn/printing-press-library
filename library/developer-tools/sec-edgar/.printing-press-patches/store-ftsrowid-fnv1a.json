@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "store-ftsrowid-fnv1a",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260511-180534",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Swap the polynomial 31×h+c hash in `ftsRowID` for `hash/fnv.New64a`.",
+  "reason": "The polynomial hash collided readily on short string IDs of similar length and content (common shape for EDGAR accession numbers and ticker concatenations). A collision in `ftsRowID` causes the FTS upsert path's `DELETE FROM resources_fts WHERE rowid = ?` to silently delete the prior document's index row, leaving the first document unsearchable with no error surfaced. FNV-1a has dramatically better distribution at the same cost.",
+  "files": [
+    "internal/store/store.go"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "doordash-hard-gated-order-placement",
+  "applied_at": "2026-05-24",
+  "base_run_id": "2026-05-13T21:47:44.838084603Z",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Add a curated cart place command and hard-gate raw createOrderFromCart order placement.",
+  "reason": "DoorDash order placement can charge bricenice17's card, so live requests must be disabled by default and require explicit bricenice17 approval plus an exact confirmation phrase; --agent/--yes must not bypass this.",
+  "files": [
+    "internal/cli/cart.go",
+    "internal/cli/cart_test.go",
+    "internal/cli/graphql_create_createOrderFromCart.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go test ./... passed; cart place --dry-run sends no request; cart place and graphql create-create-order-from-cart both exit 2 without all live-order gates"
+}

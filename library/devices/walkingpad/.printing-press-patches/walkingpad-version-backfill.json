@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "walkingpad-version-backfill",
+  "applied_at": "2026-06-04T06:21:03Z",
+  "base_run_id": "20260603-000413",
+  "base_printing_press_version": "4.20.0",
+  "summary": "Hand-applied the shared version command (internal/cli/version.go + root.go registration) and the workflows-in-doctor block.",
+  "reason": "The original print predated the generator fix that emits the device version command and surfaces workflows in doctor; backfilled rather than reprinting to preserve the extensive Tier-2 hand-authoring.",
+  "files": [
+    "internal/cli/version.go",
+    "internal/cli/root.go"
+  ]
+}

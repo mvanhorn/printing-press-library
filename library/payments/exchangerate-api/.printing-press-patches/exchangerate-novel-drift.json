@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "exchangerate-novel-drift",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-025552",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Add drift command that compares the latest rates_snapshots row per (base, target) against the oldest snapshot in a --since window and reports the largest absolute percent movers.",
+  "reason": "Joins two rows of rates_snapshots that no API endpoint can produce. Requires local history nobody else stores.",
+  "files": [
+    "internal/cli/drift.go"
+  ],
+  "validated_outcome": "Verified via synthetic 25h-old snapshot injection: drift --base USD --since 26h correctly identified JPY +5.0%, GBP -2.91%, EUR -2.89% movers."
+}

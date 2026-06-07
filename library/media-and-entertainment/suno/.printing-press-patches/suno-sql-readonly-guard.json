@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "suno-sql-readonly-guard",
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "The `sql` command opens the store via store.OpenReadOnly (mode=ro) so the SQLite driver rejects direct and CTE-wrapped writes; validateReadOnlySQL now collapses whitespace so 'DELETE\\n'/'INSERT\\t' cannot bypass the keyword scan.",
+  "reason": "OpenWithContext gave a read-write handle and the validator's trailing-space keyword scan was bypassable by a newline/tab, allowing a crafted query to mutate the local store (dangerous in MCP/agent mode).",
+  "files": [
+    "internal/cli/suno_sql.go",
+    "internal/cli/suno_novel_test.go"
+  ],
+  "validated_outcome": "Newline/tab bypass cases rejected by TestValidateReadOnlySQL; mode=ro blocks writes at the driver level (verified)."
+}

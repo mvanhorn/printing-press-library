@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "sql-mutation-string-literal-strip",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-164045",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Strip single-quoted string literals before the sqlMutationRE keyword check so legitimate read-only queries that mention mutation keywords inside LIKE patterns are not falsely rejected.",
+  "reason": "Greptile P2 review finding on PR #676: queries like `SELECT body FROM grants_messages WHERE body LIKE '%insert%'` were rejected by the defence-in-depth regex even though OpenReadOnly's mode=ro is the real write barrier and the query is harmless. The strip handles SQL-standard '' escaping for embedded quotes.",
+  "files": [
+    "internal/cli/sql.go"
+  ]
+}

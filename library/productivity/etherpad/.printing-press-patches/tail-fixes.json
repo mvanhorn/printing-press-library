@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "tail-fixes",
+  "applied_at": "2026-05-10T18:30:00Z",
+  "base_run_id": "20260510T124341Z-e440f457",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Honour --follow=false in tail and fix the hint list's hyphenated names to match Etherpad's camelCase API paths.",
+  "reason": "Greptile P1 (two findings) on PR #396: (1) the `follow` flag is declared, registered, and documented (\"set --follow=false for single poll\") but the variable is never checked inside RunE — the ticker for-loop runs indefinitely regardless. (2) `tailKnownResources()` returned hyphenated Cobra command names (`\"get-stats\"`, `\"list-all-pads\"`, ...) but tail builds the HTTP path as `\"/\" + resource` and Etherpad's API endpoints are camelCase (`/getStats`, `/listAllPads`, ...). Every hint was guaranteed to 404 on a real Etherpad instance.",
+  "files": [
+    "internal/cli/tail.go"
+  ],
+  "validated_outcome": "RunE now returns after the initial fetch when follow == false (banner message also branches between \"Tailing ...\" and \"Polling ... once\"). tailKnownResources() now uses camelCase API path segments matching each promoted command's `pp:path` annotation. The JSON help envelope's `note` field flags the additional constraint that most Etherpad endpoints take query parameters tail's bare GET doesn't pass — the no-param endpoints that work as-is are listAllPads, listAllGroups, and getStats.",
+  "upstream_issue": "TODO: file on mvanhorn/cli-printing-press — tail template should derive the hint list from the OpenAPI path segments (not the kebab-cased CLI command names) and should always wire its --follow flag into the loop condition."
+}

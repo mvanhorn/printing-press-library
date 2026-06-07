@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "deferred_to_upstream": [
+    {
+      "id": "giveaway-enter-capture",
+      "summary": "giveaway enter needs a live capture of an actual entry submission (POST target, address/terms fields, Rails CSRF) before it can execute against the live site.",
+      "reason": "The enter-giveaway POST was not observed in the 2026-05-22/2026-05-28 network sweeps."
+    }
+  ]
+}

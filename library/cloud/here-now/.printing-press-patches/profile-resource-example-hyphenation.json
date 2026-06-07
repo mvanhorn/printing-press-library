@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "profile-resource-example-hyphenation",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260530-170355",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Corrected generated Example strings from `profile_resource` to `profile-resource` across the 6 profile_resource command files (and README/SKILL).",
+  "reason": "x-pp-resource=profile_resource was authored with an underscore to avoid the reserved 'profile' template collision, but Cobra normalizes the group name to hyphenated 'profile-resource'. The generated Example strings kept the underscore, so dogfood's happy_path probe could not run them ('missing runnable example').",
+  "files": [
+    "internal/cli/profile_resource_get-profile.go",
+    "internal/cli/profile_resource_list-profile-sites.go",
+    "internal/cli/profile_resource_add-profile-site.go",
+    "internal/cli/profile_resource_patch-profile.go",
+    "internal/cli/profile_resource_patch-profile-username.go",
+    "internal/cli/profile_resource_remove-profile-site.go"
+  ],
+  "validated_outcome": "`profile-resource get-profile --help` exits 0; full dogfood happy_path passes 161/161."
+}

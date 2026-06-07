@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "greptile-write-gate-cache-hardening",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-135804",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Tighten write-gate API status matching and restrict HTTP cache permissions.",
+  "reason": "Greptile flagged that an unreachable API status contained the reachable substring and that cached Marketplace responses were world-readable on multi-user systems.",
+  "files": [
+    "internal/cli/safety.go",
+    "internal/cli/safety_test.go",
+    "internal/client/client.go",
+    "internal/client/client_test.go"
+  ],
+  "validated_outcome": "gofmt on touched Go files, go test ./..., go vet ./..., go build ./..., verify_manifest.py, and verify_publish_package.py passed."
+}

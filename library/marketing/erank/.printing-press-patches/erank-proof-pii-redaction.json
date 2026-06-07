@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "erank-proof-pii-redaction",
+  "applied_at": "2026-05-31",
+  "base_run_id": "20260531-142147",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Redacted customer PII from archived dogfood proof output.",
+  "reason": "Public library packaging blocks email and phone values in manuscripts and generated proof artifacts.",
+  "files": [
+    "docs/printing-press-run/20260522-130049/proofs/2026-05-22-130049-dogfood-results.json"
+  ],
+  "validated_outcome": "cli-printing-press publish package PII scan no longer reports these proof values."
+}

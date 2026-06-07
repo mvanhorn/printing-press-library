@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-export-source-from-authsource",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260510-105710",
+  "base_printing_press_version": "4.2.2",
+  "summary": "auth export records cfg.AuthSource (env:AMAZON_COOKIES, config, browser) instead of a hardcoded \"chrome\".",
+  "reason": "After greptile-auth-export-uses-authheader delegated cookie selection to AuthHeader(), the exported PortableSession.Source still claimed \"chrome\" even when the live cookies came from AMAZON_COOKIES, an `auth import --stdin`, or the TOML file — misleading 1Password and headless-agent inspection. Load() already classifies the source authoritatively, so we forward that and only fall back to \"chrome\" if it is unset.",
+  "files": [
+    "internal/cli/auth_portable.go"
+  ]
+}

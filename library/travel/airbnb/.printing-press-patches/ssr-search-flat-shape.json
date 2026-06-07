@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "ssr-search-flat-shape",
+  "applied_at": "2026-05-20",
+  "base_run_id": "2026-05-03T06:03:12.15145Z",
+  "base_printing_press_version": "3.6.1",
+  "summary": "Extract price, reviews, and location lines from the flat Airbnb SSR Apollo cache shape; legacy nested envelope kept as fallback.",
+  "reason": "Airbnb's current SSR ships each search-result entry as a flat listing card (`structuredDisplayPrice` at the top level, no `pricingQuote` envelope). The original parser looked for `pricingQuote.structuredStayDisplayPrice` and a nested `listing` object, so every search result returned null for price, per-night, and review-count fields. `reviewsCount` now ships null routinely; we backfill from `avgRatingLocalized` (\"4.98 (576)\") and `avgRatingA11yLabel`.",
+  "files": [
+    "internal/source/airbnb/client.go",
+    "internal/source/airbnb/extract.go",
+    "internal/source/airbnb/extract_test.go"
+  ],
+  "validated_outcome": "Live `airbnb-listing search Mercer-Island... --agent` now returns populated `primary_price`, `per_night_price`, and `reviews_count` on every result. Unit tests cover both flat (current) and nested (legacy) SSR shapes."
+}

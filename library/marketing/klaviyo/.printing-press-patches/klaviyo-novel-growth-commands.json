@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "klaviyo-novel-growth-commands",
+  "applied_at": "2026-05-27",
+  "base_run_id": "2026-05-02T18:02:09.219489Z",
+  "base_printing_press_version": "3.5.0",
+  "summary": "Add reusable segment, profile, report, audit, deliverability, cleanup, schedule conflict, universal content, image-swap, and flow preset commands.",
+  "reason": "Klaviyo operators need repeatable CLI workflows for high-leverage growth operations that are not exposed by the generated endpoint mirror commands.",
+  "files": [
+    "internal/cli/novel_segments_reports.go",
+    "internal/cli/novel_klaviyo.go",
+    "internal/cli/novel_klaviyo_test.go",
+    "internal/cli/segments.go",
+    "internal/cli/profiles.go",
+    "internal/cli/flows.go",
+    "internal/cli/campaigns.go",
+    "internal/cli/lists.go",
+    "internal/cli/templates.go",
+    "internal/cli/tags.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go build ./...; go test ./internal/cli/ -v -count=1; 33 dry-run smoke commands; live read-only smoke for report deliverability, profiles stats, flows audit, lists audit, and report dashboard"
+}

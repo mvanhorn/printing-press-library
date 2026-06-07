@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "monthly-quota-lookup-log",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-033846",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Add client-side monthly quota tracking and audit logging for Numista API calls.",
+  "reason": "Numista free plans cap API usage at 2000 calls per month and do not expose a quota endpoint, so the generated CLI needs a local lookup ledger.",
+  "files": [
+    "internal/cliutil/quota.go",
+    "internal/store/store.go",
+    "internal/client/client.go",
+    "internal/cli/root.go",
+    "internal/cli/audit.go"
+  ]
+}

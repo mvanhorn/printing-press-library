@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "polish-html-unescape-and-ranking",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260515-050804",
+  "base_printing_press_version": "4.2.2",
+  "summary": "HTML-unescape titles and channelTitle in videos-related's searchListVideos helper; lower same_channel weight from 3 to 1 and raise shared_topic from 2 to 3 in videos-related ranking so cross-channel topic-shared videos outrank channel-mate fillers; emit stderr warning when 100% of videos-related results come from the input video's own channel.",
+  "reason": "Polish-pass output review (2026-05-15) found that search.list returns titles with HTML entities like &#39; and &amp;, which were leaking into JSON consumers and cached values verbatim. The original same_channel weight (3) dominated tag/topic matches, producing channel-mate filler when better cross-channel matches existed in the topic search. The 100%-same-channel case is a tell that the input video has thin topicDetails/tags or the local sync is too narrow; the warning lets agents widen the sync or pick a richer anchor. Greptile P2 (2026-05-15 PR #585) confirmed search-bulk had the same HTML-entity bug, fixed in the same patch family for consistency.",
+  "files": [
+    "internal/cli/videos_related.go"
+  ],
+  "validated_outcome": "Output-review WARN count went from 2 to 0 (entities decoded; cross-channel diversity improved). videos-related dQw4w9WgXcQ --limit 10 returns mixed-channel results dominated by topic/tag matches, with apostrophes rendered correctly."
+}

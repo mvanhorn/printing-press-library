@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "greptile-insiders-net-buying-default-doc",
+  "applied_at": "2026-05-25",
+  "base_run_id": "20260524-221143",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Document the default symbol source for `insiders-net-buying` in Short, Long, and the --watchlist flag description.",
+  "reason": "Greptile P2 flagged that the command silently falls back to querying `watchlist_members` across all watchlists when neither --all nor --watchlist is set. On a fresh install with no watchlists yet, this yields an empty set and the user sees 'hint: no symbols to scan' without knowing why. The flag-level help also implied 'all watched symbols' was the default, which is technically true but misleading. Short, Long, and the flag description now spell out the three selection modes and the empty-watchlists edge case.",
+  "files": [
+    "library/commerce/yahoo-finance/internal/cli/insiders_net_buying.go"
+  ],
+  "validated_outcome": "Behavior unchanged; only help text updated."
+}

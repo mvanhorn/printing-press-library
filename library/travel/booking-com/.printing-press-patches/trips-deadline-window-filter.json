@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "trips-deadline-window-filter",
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260519-175228",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Skipped trips with unknown cancellation deadlines when applying the deadlines window.",
+  "reason": "The deadlines command promises trips whose cancellation deadline is within --within; including unknown-deadline trips made the filtered output over-inclusive.",
+  "files": [
+    "internal/cli/trips_deadlines.go",
+    "internal/cli/trips_deadlines_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli -run TestTripsWithinDeadlineWindow succeeded."
+}

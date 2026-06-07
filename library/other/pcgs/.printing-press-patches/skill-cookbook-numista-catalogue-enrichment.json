@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "skill-cookbook-numista-catalogue-enrichment",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260516-193948",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Add a SKILL.md recipe pointing agents at numista-pp-cli for catalogue enrichment when they have a PCGS cert in hand and want Numista's N# / mintage / cross-references / collector context. Documents both the direct cross-walk (`numista-pp-cli types search --catalogue 1856 --number <PCGSNo>`, one-call definitive) and the text-search fallback for coins not indexed under the PCGS CoinFacts reference catalogue.",
+  "reason": "Reciprocal of the numista-pp-cli 'If your input is a PCGS cert' cookbook entry (PR #684). Agents landing in pcgs cold with a cert result and needing community-maintained catalogue context had no in-skill pointer to Numista as the complementary CLI. Initial draft of this entry incorrectly claimed PCGS was not a Numista reference catalogue (had only checked the swagger spec, which describes the /catalogues endpoint shape rather than the catalogue data itself); follow-up verification against the live API confirmed PCGS is registered as catalogue id 1856 ('PCGS CoinFacts') and the direct --catalogue 1856 --number <PCGSNo> cross-walk returns a single authoritative type for indexed certs (verified 2026-05-18 with PCGSNos 7130 -> N#1492 Morgan Dollar and 7787 -> N#13432 Coronet Head Quarter Eagle). Greptile policy gate on PR #687 also flagged two correctness issues now addressed: (1) the reciprocal-claim about numista-pp-cli's SKILL.md was unsupportable until PR #684 merges, so the text now references PR #684 explicitly as 'proposed' rather than asserting it exists; (2) the text-search example used --year (year as written on the item, can be Hijri etc. on non-US coins) for the Gregorian year PCGS returns, so the example now uses --date (Gregorian) per the swagger semantics.",
+  "files": [
+    "SKILL.md"
+  ],
+  "validated_outcome": "printing-press publish validate (SKILL.md narrative checks) and go build ./... pass. Live smokes: numista-pp-cli types search --catalogue 1856 --number 7130 -> N#1492; numista-pp-cli types search --catalogue 1856 --number 7787 -> N#13432."
+}

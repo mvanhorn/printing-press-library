@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "no-json-list-endpoints",
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-135942",
+  "base_printing_press_version": "4.2.0",
+  "summary": "Disable sync/archive for TSDR since the API has no JSON list endpoints.",
+  "reason": "TSDR API only returns individual record lookups, not paginated list endpoints. Sync and archive workflows require list capabilities.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/channel_workflow.go"
+  ],
+  "validated_outcome": "Sync command informs user that TSDR doesn't support bulk sync; no silent failures."
+}

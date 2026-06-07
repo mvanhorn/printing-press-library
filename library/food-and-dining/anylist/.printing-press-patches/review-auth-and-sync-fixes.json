@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "review-auth-and-sync-fixes",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Addressed PR review findings in AnyList auth, client identifier persistence, response body handling, and store grouping.",
+  "reason": "The published AnyList CLI exposed a plaintext password flag, generated client identifiers were not persisted until successful login, retry response body handling was unclear, and store grouping matched JSON store IDs by substring.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/config/config.go",
+    "internal/anylist/client.go",
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "Added regression coverage for the removed password flag, persisted client identifiers, and exact store ID matching."
+}

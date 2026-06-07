@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "fts-rank-ambiguous",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-114028",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Qualify ORDER BY rank as ORDER BY <table>_fts.rank in all FTS queries.",
+  "reason": "dashboard table has a rank column that clashes with FTS5 rank pseudo-column.",
+  "files": [
+    "internal/store/store.go"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "iscobrausageerror-backport",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260510-114931",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Hand-merged isCobraUsageError() into root.go to satisfy the new generated root_test.go that v4.5.2 emits.",
+  "reason": "regen-merge from pp v4.0.6 to v4.5.2 left root.go classified as TEMPLATED-BODY-DRIFT (we'd modified the JSON encoder block earlier). The fresh root_test.go file references isCobraUsageError(), so the test wouldn't compile without the function. Re-added the function and the call site that wraps Cobra/pflag pre-RunE errors in usageErr() so they exit with code 2.",
+  "files": [
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "`go vet ./...` and `go test ./internal/cli/` pass; verify-skill PASS.",
+  "upstream_issue": "cli-printing-press: regen-merge's BODY-DRIFT classification correctly avoids overwriting hand-edits, but should optionally emit a stub for required new functions to keep tests compiling."
+}

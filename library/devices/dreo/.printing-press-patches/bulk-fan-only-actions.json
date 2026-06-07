@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "bulk-fan-only-actions",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260517-015408",
+  "base_printing_press_version": "4.8.0",
+  "summary": "bulk: refuse sleep/turbo/auto on non-fan devices instead of sending a no-op windmode/windtype frame.",
+  "reason": "windmode/windtype are fan firmware fields; heaters, purifiers, humidifiers, and ACs accept the WebSocket frame but ignore it, so the command reported success while doing nothing. partitionForAction now filters non-fans for fan-only actions and errors out when no fan-applicable devices remain.",
+  "files": [
+    "internal/cli/bulk.go"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-5-visibility-window-honored",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-171718",
+  "base_printing_press_version": "4.5.0",
+  "summary": "Respect --window in visibility delta and visibility portfolio by suppressing older snapshots that fall outside the requested window.",
+  "reason": "Both commands parsed and validated windowDur then discarded it with `_ = windowDur`. A user asking for `--window 1d` would silently receive a months-old comparison. The fix post-filters the older snapshot from LatestSnapshotPair: if its SnapshotDate is older than windowDur, the pair is reported as single-snapshot with an explanatory note rather than a misleading 'delta'. A future store-side change can replace this with a proper LatestSnapshotPairWithin(since) query, but the user-facing semantics now match the flag's documentation.",
+  "files": [
+    "internal/cli/visibility_novel.go"
+  ]
+}

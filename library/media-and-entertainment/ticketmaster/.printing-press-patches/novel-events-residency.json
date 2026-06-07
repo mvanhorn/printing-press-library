@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "novel-events-residency",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-051647",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Add 'events residency' GROUP BY name+venue collapse so a 16-night opera season shows as one row with first/last/count/id_list.",
+  "reason": "Brief Table-Stakes section lists residency collapse as a competitor gap. Mechanical SQL aggregation over the local events table; no API endpoint provides this.",
+  "files": [
+    "internal/cli/events_residency.go",
+    "internal/cli/events.go"
+  ],
+  "validated_outcome": "--dry-run pass; SQL parses (json_extract path queries verified against the events.data column schema)."
+}

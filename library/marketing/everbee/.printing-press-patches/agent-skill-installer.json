@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "agent-skill-installer",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260522-153448",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Added a CLI installer for the EverBee agent skill.",
+  "reason": "Claude and Codex need a stable way to install the bundled SKILL.md from an installed Go binary.",
+  "files": [
+    "skill_embed.go",
+    "internal/cli/root.go",
+    "internal/cli/skill.go",
+    "internal/cli/skill_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go test ./... and go vet ./... passed; skill install dry run reports Claude and Codex destinations."
+}

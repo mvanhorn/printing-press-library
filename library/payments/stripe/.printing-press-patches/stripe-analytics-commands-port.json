@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "id": "stripe-analytics-commands-port",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260509-093200",
+  "base_printing_press_version": "4.1.0",
+  "summary": "Add five hand-coded analytics commands (mrr-trend, failure-clusters, refund-rate, dispute-win-rate, daily-digest).",
+  "reason": "The generated CLI ships eight transcendence commands (health, dunning-queue, sql, payout-reconcile, customer-360, subs-at-risk, events-since, metadata-grep) but operators still hand-rolled MRR/ARR rollups, failure-pattern grouping, refund-rate trending, dispute outcome ratios, and a one-shot period report via multiple commands + sql. These five additions close those gaps by joining the existing local SQLite mirror via json_extract and the shared transcendence helpers.",
+  "files": [
+    "internal/cli/mrr_trend.go",
+    "internal/cli/failure_clusters.go",
+    "internal/cli/refund_rate.go",
+    "internal/cli/dispute_win_rate.go",
+    "internal/cli/daily_digest.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go build, go vet, --help, --dry-run, and --json against both an empty local DB and a seeded local DB all pass. Math validated: 2 USD active subs ($50 + 2x$50 = $150) + 1 EUR yearly trial ($1200/yr = $100/mo) yields the expected per-currency rollup; refund-rate joins refund.charge to charge.invoice.lines.data[0].price.product for --by product; dispute-win-rate partitions on status with reason and amount-band breakdowns.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Generator-level recognition that printed CLIs with subscription + charge + dispute domain models can ship a canonical analytics suite (MRR/ARR, failure clusters, refund rate, dispute outcomes, period digest) out of the box",
+      "reason": "These five commands are a portable analytics pattern any payments-shaped printed CLI would benefit from — Stripe, Lemon Squeezy, Paddle, etc. all expose the same underlying domain. Long-term they belong in the Printing Press analytics-shape catalog, not as per-CLI patches."
+    },
+    {
+      "feature": "Daily-digest subscription MRR currency-mixing limitation: the digest section sums MRR across all currencies into a single mrr_cents field, which is incorrect when the merchant has multi-currency subscriptions. Operators wanting per-currency precision should use mrr-trend.",
+      "reason": "The digest is a single-shot snapshot for USD-primary merchants; preserving currency separation would balloon the section shape. mrr-trend already exposes by_currency for precise per-currency rollups."
+    }
+  ]
+}

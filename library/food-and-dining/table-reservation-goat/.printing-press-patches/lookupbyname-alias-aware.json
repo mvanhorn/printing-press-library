@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "lookupbyname-alias-aware",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260509-110540",
+  "base_printing_press_version": "4.2.2",
+  "summary": "lookupByNameIn now layers an alias-check on top of the exact-Name match so curated Aliases (nyc, sf, la, dc, weho, bk) resolve through the natural-language by-name path. Hyphen-to-space normalization on both sides lets slug-style aliases interchange with natural-language input. Plus two data additions: 'new york' on NYC and 'washington' on washington-dc-city.",
+  "reason": "Post-#445/#443 follow-up. The by-name path (LookupByName, used by --location LocCity inputs) did strict exact-equal on Name, ignoring the Aliases list — so --location nyc / sf / la / dc / weho / bk all returned location_unknown despite those values being curated. Lookup(slug) honored aliases (--metro nyc worked) but LookupByName(name) didn't, creating an asymmetry between the two surfaces. Explicitly NOT doing token-subset / fuzzy / prefix matching: aliases stay curator-controlled, and algorithmic generalization adds false-positive risk for marginal benefit. When future natural-language truncations are reported, they get added to curated Aliases data.",
+  "files": [
+    "internal/cli/place_registry.go",
+    "internal/cli/place_data.go",
+    "internal/cli/place_registry_test.go",
+    "internal/cli/location_pipeline_test.go"
+  ],
+  "validated_outcome": "Test-first per the U22 unit. lookupByNameIn now consults Aliases case-insensitively with hyphen-space normalization. NYC alias list extended with 'new york'; washington-dc-city alias list extended with 'washington'. Live verification across all previously-broken inputs (nyc, sf, la, dc, weho, bk, new york, 'new york, ny', washington) returns canonical Places; 'new york, ca' still returns location_unknown (state filter correctness preserved); ambiguous bellevue still returns 3 candidates; manhattan/brooklyn/queens still hit the tight U17 borough entries. go fmt/vet/build/test all clean; Resy tests preserved."
+}

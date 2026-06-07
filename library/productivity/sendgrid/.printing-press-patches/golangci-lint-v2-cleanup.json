@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "golangci-lint-v2-cleanup",
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260518-202518",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Bring lint to 0 findings under golangci-lint v2 (config version field + 102 mechanical fixes across 128 files).",
+  "reason": "Pre-existing press-template debt: `.golangci.yml` lacks `version: \"2\"` (rejected by v2.x), and emitted code has bare `defer Close()` / `fmt.Fprintf` / bool-constant comparisons / dead helpers / `err == sql.ErrNoRows` patterns that fire errcheck, staticcheck, unused, ineffassign, and errorlint. The same template-level patterns appear across all 131 library CLIs — the durable fix belongs in `cli-printing-press` generator templates; this entry records the local sweep applied to ship this CLI lint-clean while the upstream fix is in flight.",
+  "files": [
+    ".golangci.yml",
+    "internal/cli/*.go",
+    "internal/client/client.go",
+    "internal/cliutil/*.go",
+    "internal/config/config.go",
+    "internal/mcp/tools.go",
+    "internal/store/store.go",
+    "internal/store/schema_version_test.go",
+    "internal/store/upsert_batch_test.go"
+  ],
+  "validated_outcome": "`golangci-lint run ./...` → 0 issues. `go build ./...`, `go vet ./...` clean. `go test ./...` shows two pre-existing failures in internal/store (parent_id columns absent in subusers_stats/subuser_access typed tables) that are unrelated to the lint sweep.",
+  "upstream_issue": "TODO: file against mvanhorn/cli-printing-press to fix generator templates for: (1) .golangci.yml version field, (2) defer Close patterns, (3) fmt.Fprintf error discard, (4) bool-constant comparisons, (5) dead Cloudflare-pattern MCP scaffold (mcpParamBinding/makeAPIHandler)."
+}

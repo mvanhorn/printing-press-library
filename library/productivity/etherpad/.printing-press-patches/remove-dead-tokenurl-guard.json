@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "remove-dead-tokenurl-guard",
+  "applied_at": "2026-05-10T18:30:00Z",
+  "base_run_id": "20260510T124341Z-e440f457",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Drop the dead `if tokenURL == \"\"` guard in client.go's refreshAccessToken; tokenURL is now always non-empty (returned by helper).",
+  "reason": "client.go:375-378 had `tokenURL := \"http://localhost:9001/oidc/token\"; if tokenURL == \"\" { return nil }` — the literal can never be empty, so the guard was dead code. Likely a leftover from a planned OIDC-discovery lookup that never landed.",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "Replaced with `tokenURL := c.Config.TokenURL()`. Token refresh now works against any non-local deployment; a config-derived URL replaces the dead guard.",
+  "upstream_issue": "Same as oidc-urls-from-base-url"
+}

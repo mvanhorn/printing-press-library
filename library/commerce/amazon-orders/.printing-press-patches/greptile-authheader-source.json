@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-authheader-source",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260510-105710",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Stop AuthHeader() from unconditionally re-stamping AuthSource on every call; only set it when empty.",
+  "reason": "Load() already classifies AuthSource as \"env:AMAZON_COOKIES\" or \"config\". Re-stamping caused config-file cookies to be reported as env-var cookies in auth status.",
+  "files": [
+    "internal/config/config.go"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "airport-alias-table",
+  "applied_at": "2026-05-12",
+  "base_run_id": "2026-05-02T22:09:06.820184Z",
+  "base_printing_press_version": "3.6.0",
+  "upstream_issue": "",
+  "files": [
+    "internal/gflights/airport_alias.go",
+    "internal/gflights/airport_alias_test.go",
+    "internal/gflights/gflights.go",
+    "internal/kayak/kayak.go",
+    "internal/kayak/kayak_test.go"
+  ],
+  "summary": "Remap retired IATA codes (PNH->KTI, REP->SAI) at the request edge of Search/Dates/Kayak Direct; surface the substitution as `airport_remapped` in the response envelope.",
+  "reason": "Phnom Penh's PNH closed September 2025 and was replaced by Techo International (KTI); Siem Reap's REP was replaced by SAI in 2024. Google's GetShoppingResults silently returns an empty payload for retired codes, so `flights SEA PNH ...` returned zero results with no signal that anything was wrong. The remap happens at the public-function boundary; the echoed Query keeps the user's original input, and AirportRemapped is the only signal of the substitution.",
+  "validated_outcome": "go test ./internal/gflights/... ./internal/kayak/... -count=1 (38 tests); live `flights SEA PNH 2026-12-24 --return 2027-01-01 --passengers 4 --agent` returns flights with `airport_remapped: {destination: {from: PNH, to: KTI}}` and `query.destination: PNH`."
+}

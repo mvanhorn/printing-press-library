@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "doorDash-session-transport",
+  "applied_at": "2026-05-24",
+  "base_run_id": "2026-05-13T21:47:44.838084603Z",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Add persistent DoorDash browser-session transport support with auth status/login/logout commands.",
+  "reason": "The generated sniffed GraphQL CLI had raw endpoints but no cookie jar, CSRF handling, browser-context headers, or safe session import flow for live DoorDash use.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/session.go",
+    "internal/client/session_test.go",
+    "internal/config/config.go",
+    "internal/config/config_test.go",
+    "internal/cli/auth.go",
+    "internal/cli/root.go",
+    "DOORDASH_CLI_STATUS.md"
+  ],
+  "validated_outcome": "PER-34 validation passed on 2026-05-13T23:02Z: go test ./... and make build-all passed using /home/hermes/.local/bin/go (go1.26.3); built CLI doctor reports api=reachable after preserving HTTP/2 support; auth status prints safe metadata only and no cookie values."
+}

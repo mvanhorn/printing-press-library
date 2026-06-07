@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "exchangerate-rows-err-checks",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-025552",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Add rows.Err() checks after every for rows.Next() iteration in novel commands so mid-iteration SQLite errors don't silently truncate results.",
+  "reason": "Greptile P1 review of PR #635 flagged three sites (drift, quota_burn, watch.check) where the rows cursor was iterated and closed without consulting rows.Err(). The same omission existed at two more sites the review noted as parity (watch.list, history-cache) and one not in the review (log.show). All six now wrap-and-return the iterator error so partial datasets don't quietly drive drift rankings, burn-rate projections, threshold-crossing detection, or log queries.",
+  "files": [
+    "internal/cli/drift.go",
+    "internal/cli/history_cache.go",
+    "internal/cli/log.go",
+    "internal/cli/quota_burn.go",
+    "internal/cli/watch.go"
+  ],
+  "validated_outcome": "go build ./... clean; go test ./internal/cli passes; manual error injection verified via grep: every for rows.Next() loop in internal/cli/ is followed by an if err := rows.Err() guard."
+}

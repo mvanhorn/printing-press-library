@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "fts-build-tx",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-023951",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Run all DROP/CREATE/INSERT statements in BuildFTS inside a single transaction.",
+  "reason": "A mid-step failure (OOM, disk full, ctx cancel) used to leave one FTS table created-but-empty and the other absent, with HasFTS() returning true and `airframe search` yielding zero hits. The transactional rebuild is atomic.",
+  "files": [
+    "internal/store/fts.go"
+  ]
+}

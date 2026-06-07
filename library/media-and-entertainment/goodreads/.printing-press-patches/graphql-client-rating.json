@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "graphql-client-rating",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260522-095940",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Added Client.GraphQL targeting the AWS AppSync endpoint with Authorization-header (JWT) auth, plus GOODREADS_GRAPHQL_TOKEN env/config wiring; new 'rating set'/'rating clear' commands fire RateBook/UnrateBook.",
+  "reason": "Live capture (2026-05-28) proved star ratings are GraphQL-only on the modern UI; the generator had no GraphQL path and no rating command. This is the core correctness gap that deferred PR #894.",
+  "files": [
+    "internal/client/client.go",
+    "internal/config/config.go",
+    "internal/cli/rating.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "rating set --dry-run posts {operationName:RateBook, variables.input.rating} to the appsync-api host with an Authorization header; live writes gated by GOODREADS_PP_ALLOW_WRITES."
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "brokerage-execute-error-propagation",
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260522-162911",
+  "base_printing_press_version": "4.11.0",
+  "summary": "brokerage execute returns a non-zero exit on HTTP 4xx/5xx and propagates io.ReadAll errors.",
+  "reason": "Greptile P1: brokeragemap.Execute discarded the response body-read error (returning truncated bodies as OK), and the brokerage execute RunE never checked result.OK, so failed live requests exited 0 unlike every other command.",
+  "files": [
+    "internal/brokeragemap/route_map.go",
+    "internal/cli/brokerage.go"
+  ]
+}

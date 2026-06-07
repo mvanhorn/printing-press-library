@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "meta-envelope",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260515-075905",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Adds a standard meta envelope with freshness and notice fields to Trustpilot read commands.",
+  "reason": "First-usage testing showed agents need machine-readable source, freshness, and absence signals.",
+  "files": [
+    "internal/cli/tp_helpers.go",
+    "internal/cli/agent_bundle.go",
+    "internal/cli/top_recent.go",
+    "internal/cli/info.go",
+    "internal/cli/topics.go",
+    "internal/cli/reviews.go",
+    "internal/cli/search_reviews.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass."
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "freshservice-assets-display-id-resolver",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-170855",
+  "base_printing_press_version": "4.5.0",
+  "summary": "Accept asset name or asset_tag as the GET /assets/{display_id} argument by issuing a one-shot /assets?filter=name:'…' (or asset_tag:'…') resolver before the canonical GET fires.",
+  "reason": "The OpenAPI path parameter is the numeric display_id, but the identifiers humans and agents actually have are name and asset_tag. The generator emitted a path-only command that returned 404 on every human-readable input.",
+  "files": [
+    "internal/cli/assets_get.go"
+  ],
+  "validated_outcome": "`assets get LAPTOP-001` resolves the asset_tag to its display_id and returns the asset record; previously returned HTTP 404."
+}

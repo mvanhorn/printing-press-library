@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "db-rows-err-audit-after-scan-loops",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260513-091340",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Every `for rows.Next()` loop now ends with a `rows.Err()` check so mid-iteration query failures surface instead of silently truncating downstream results.",
+  "reason": "Go's database/sql contract is that `rows.Next()` returns false on both result-set exhaustion AND on internal scan error; the only way to distinguish the two is to call `rows.Err()` after the loop. Greptile flagged three call sites (scanOptOuts in compliance_auto_block.go, conversationsForIdentifier in sms_search.go, queryCustomerMessages in messages_from.go) where the missing check would silently produce a truncated candidate list -- with `compliance auto-block --apply`, that meant bulk-blocking some phone numbers while skipping others, with no indication that the scan was incomplete. Audited the rest of the printed CLI in the same pass and added the same check to scanForBody (sms_search.go), queryFailures (messages_failures.go), the sync_state scan in doctor.go, the participants + messages scans in conversations_timeline.go, and the MCP sql tool's scan loop in internal/mcp/tools.go. Surfaced by Greptile P1 in the PR #417 ninth review pass; pre-emptive fixes added in the same patch so the next pass doesn't surface them one-by-one.",
+  "files": [
+    "internal/cli/compliance_auto_block.go",
+    "internal/cli/sms_search.go",
+    "internal/cli/messages_from.go",
+    "internal/cli/messages_failures.go",
+    "internal/cli/doctor.go",
+    "internal/cli/conversations_timeline.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "go build ./... succeeds; go test ./... passes; go vet clean; ratio of rows.Next() loops to rows.Err() checks is now 22:23 (one extra check, no gaps)."
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "digg-enhancements",
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260508-234057",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Add three small surface enhancements: `sql <query>` read-only passthrough (driver-level mode=ro), `authors overlap <a> <b>` INTERSECT query, and `--topics` multi-topic flag on sync.",
+  "reason": "Follow-up to the closed digg-ai PR #704. Read-only enforcement for `sql` runs at the SQLite driver via store.OpenReadOnly so writable CTEs (`WITH x AS (DELETE ... RETURNING ...) SELECT * FROM x`) are rejected before parse — the SELECT/WITH prefix check is just a friendlier error path.",
+  "files": [
+    "internal/cli/sql.go",
+    "internal/cli/digg_commands.go",
+    "internal/cli/digg_sync.go",
+    "internal/cli/root.go",
+    "internal/diggstore/store.go"
+  ],
+  "validated_outcome": "go build / go test all green; smoke: writable-CTE rejected by driver mode=ro; `authors overlap karpathy sama --json` returns INTERSECT result; `sync --topics ai,technology --dry-run` reports both topics; `RecordReplacementsForTopics` scopes the 2-hour window query to the synced topics via WHERE topic IN (...) so a topic-subset sync no longer pollutes the replacements table."
+}

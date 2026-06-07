@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "watch-cadence-enforcement",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-093229",
+  "base_printing_press_version": "4.4.0",
+  "summary": "Added Store.ListDueWatches with cadence-gated WHERE clause; `watch run` calls it by default; new --force flag falls back to ListWatches.",
+  "reason": "watch run iterated every domain on every cron tick regardless of cadence_hours, making the cadence configuration a no-op for users wiring `watch run` into cron.",
+  "files": [
+    "internal/cli/lists_watch.go",
+    "internal/store/domain_schema.go"
+  ],
+  "validated_outcome": "Smoke-tested `watch run --dry-run` and `watch run --dry-run --force` — the dry_run payload reports the force flag end-to-end."
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "diary-scrape-uses-surf",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260508-133559",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Hand-written fetchAuthenticatedHTML helper now uses Surf's Chrome-fingerprinted *http.Client.",
+  "reason": "Hand-written diary_get_day.go bypasses the shared client and previously made its own stdlib http call that hit the same anti-bot wall. Routing through Surf brings the diary scrape path in line with the rest of the CLI.",
+  "files": [
+    "internal/cli/diary_get_day.go",
+    "go.mod",
+    "go.sum"
+  ],
+  "validated_outcome": "Yesterday's diary returns parsed JSON with real meal entries.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/787"
+}

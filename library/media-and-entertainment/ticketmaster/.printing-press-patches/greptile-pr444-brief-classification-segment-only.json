@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "greptile-pr444-brief-classification-segment-only",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-051647",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Fix `events brief --classification` so it matches segment OR genre. First attempt (dual-append into wl.Segments AND wl.Genres) was WRONG — queryFilteredEvents joins filter conditions with AND, so the dual-append produced `segment IN (?) AND genre IN (?)` which excluded events that match only one taxonomy level (a 'Rock' concert has segment='Music', genre='Rock' — segment IN ('Rock') fails and the row is dropped). Reverted to a post-filter via a new `filterEventsByClassification` helper that keeps events whose first classification's segment.name OR genre.name equals the label. Help text updated to 'segment OR genre name'. Both attempts catalogued in commit history so the failure mode is recorded.",
+  "reason": "Greptile P1 finding on PR #444 (events_brief.go:65) + P1 follow-up (events_brief.go:70). Hand-authored novel command — not a generator-template bug; entirely in my code. The first fix illustrated a common error pattern (pushing both halves of an OR into AND-joined filter slices) — the post-filter approach decouples the classification OR semantics from queryFilteredEvents' shared shape used by events upcoming and events watchlist run.",
+  "files": [
+    "internal/cli/events_brief.go"
+  ],
+  "validated_outcome": "go build/vet/test all PASS; help text reads 'segment OR genre name (Music, Arts & Theatre, Sports, Rock, Jazz, Comedy, etc.)'. Post-filter via filterEventsByClassification preserves the original watchlist filter dimensions in queryFilteredEvents.",
+  "upstream_issue": null
+}

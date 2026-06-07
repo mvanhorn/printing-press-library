@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "normalize-package",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-132617",
+  "base_printing_press_version": "4.8.0",
+  "summary": "New internal/normalize package: per-Actor dataset-item schema unification. Loads embedded YAML profiles (profiles/*.yaml) for the top newsletter-relevant Actors (apidojo/tweet-scraper, apidojo/twitter-scraper-lite, trudax/reddit-scraper, apify/google-news-scraper, apify/hacker-news-scraper, apify/youtube-scraper, apify/instagram-scraper, apify/smart-article-extractor) plus a default fallback. Each profile maps raw item fields to a unified Item shape (url, title, body, author, published_at, engagement_score, source_actor, hash). Hash is SHA-256 over URL (or raw JSON when no URL) and powers --only-new dedupe. User overrides load from ~/.apify-pp/profiles/.",
+  "rationale": "Every Apify Actor emits a different item shape; cross-Actor search, novelty diffing, and digest rendering all require one canonical schema. The generator produces per-endpoint typed commands but no normalization layer.",
+  "files": [
+    "internal/normalize/normalize.go",
+    "internal/normalize/profiles/twitter.yaml",
+    "internal/normalize/profiles/twitter-lite.yaml",
+    "internal/normalize/profiles/reddit.yaml",
+    "internal/normalize/profiles/google-news.yaml",
+    "internal/normalize/profiles/hacker-news.yaml",
+    "internal/normalize/profiles/youtube.yaml",
+    "internal/normalize/profiles/instagram.yaml",
+    "internal/normalize/profiles/smart-article.yaml"
+  ],
+  "upstream_issue": ""
+}

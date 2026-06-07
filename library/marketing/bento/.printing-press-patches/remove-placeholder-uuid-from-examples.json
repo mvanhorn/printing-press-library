@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "remove-placeholder-uuid-from-examples",
+  "applied_at": "2026-05-26",
+  "base_run_id": "20260526-094831",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Stripped placeholder --site-uuid 550e8400-e29b-41d4-a716-446655440000 from 15 Example: strings.",
+  "reason": "Dogfood was using the fake UUID from examples and hitting 401 Access denied on the real API.",
+  "files": [
+    "internal/cli/batch_create-emails.go",
+    "internal/cli/batch_create-events.go",
+    "internal/cli/batch_create-subscribers.go",
+    "internal/cli/batch_create.go",
+    "internal/cli/fetch_create-fields.go",
+    "internal/cli/fetch_create-subscribers.go",
+    "internal/cli/fetch_create-tags.go",
+    "internal/cli/fetch_create.go",
+    "internal/cli/fetch_list-fields.go",
+    "internal/cli/fetch_list-search.go",
+    "internal/cli/fetch_list-subscribers.go",
+    "internal/cli/fetch_list-tags.go",
+    "internal/cli/fetch_list.go",
+    "internal/cli/stats_list-site.go",
+    "internal/cli/stats_list.go"
+  ]
+}

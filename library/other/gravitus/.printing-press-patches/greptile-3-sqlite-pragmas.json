@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-3-sqlite-pragmas",
+  "applied_at": "2026-05-23",
+  "base_run_id": "20260517-231116",
+  "base_printing_press_version": "4.8.0",
+  "files": [
+    "internal/cli/gravitus_sync_impl.go"
+  ],
+  "summary": "Enable WAL journal mode, foreign-key enforcement, and 5s busy-timeout on the local SQLite store.",
+  "reason": "openLocalDB used bare sql.Open defaults — no WAL, no busy-timeout, and FOREIGN KEY constraints declared in initLocalSchema were silently unenforced."
+}

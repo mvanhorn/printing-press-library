@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "ratelimit-concurrent-slot-reservation",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-093229",
+  "base_printing_press_version": "4.4.0",
+  "summary": "AdaptiveLimiter advances lastRequest atomically inside the lock; sleeps until reserved instant outside the lock.",
+  "reason": "Previous read-then-sleep-then-write pattern let N parallel goroutines all read the same stale lastRequest, sleep identically, and fire simultaneously — defeating the per-session rate pacing under `check --parallel 8`.",
+  "files": [
+    "internal/cliutil/ratelimit.go",
+    "internal/cliutil/cliutil_test.go"
+  ],
+  "validated_outcome": "Added TestAdaptiveLimiter_WaitPacesConcurrentCallers regression test: 5 concurrent Wait() calls at 10rps now take ~500ms (5 stacked slots) instead of ~100ms (all firing together)."
+}

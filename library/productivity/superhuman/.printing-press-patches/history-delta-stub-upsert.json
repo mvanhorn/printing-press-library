@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "history-delta-stub-upsert",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260512-165241",
+  "base_printing_press_version": "4.5.1",
+  "summary": "ApplyHistoryDelta now writes a minimal stub via upsertGmailMessageStubTx instead of the full upsert, so a previously-fetched complete row stays intact when the same message reappears in a messagesAdded record.",
+  "reason": "storedMessageFromHistory builds a StoredMessage from gmail.HistoryMessage, which only carries id/threadId/labelIds/snippet/historyId/internalDate. Routing that through upsertGmailMessageTx ON CONFLICT DO UPDATE overwrote from/to/cc/subject/body with empty strings every time a history poll fired for a known message (greptile P1 on PR #595). The new stub upsert inserts the row on first sight, then on conflict only refreshes label_ids/history_id/synced_at (always) and thread_id/snippet/internal_date (only when the incoming value is non-empty / non-zero). data column is preserved as-is from the original full fetch.",
+  "files": [
+    "internal/store/messages.go"
+  ],
+  "validated_outcome": "go build + go vet + go test ./... pass (566/17). Full upsert path unchanged for complete-message ingestion."
+}

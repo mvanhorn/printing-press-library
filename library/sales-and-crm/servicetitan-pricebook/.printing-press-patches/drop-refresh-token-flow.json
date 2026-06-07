@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "drop-refresh-token-flow",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-073613",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Removed the unreachable refreshAccessToken() function from the HTTP client.",
+  "reason": "Greptile review (PR #576): ServiceTitan composed auth only issues client_credentials tokens — no refresh tokens are ever minted. The generator-emitted function was never called from authHeader() (which uses mintClientCredentials exclusively) and existed only to mislead future maintainers into believing a refresh-token flow was wired.",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "go build, go vet, go test ./internal/pricebook/ all clean"
+}

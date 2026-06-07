@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "no-env-bleed-on-save",
+  "applied_at": "2026-05-10T18:30:00Z",
+  "base_run_id": "20260510T124341Z-e440f457",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Stop save() from persisting env-var-loaded credentials to disk, while preserving any TOML-set openid value that env happened to override.",
+  "reason": "Load() copies $ETHERPAD_OPENID into c.EtherpadOpenid (and tags the source as `env:ETHERPAD_OPENID`), then toml.Marshal in save() writes the whole struct — persisting the env token under `openid` in ~/.config/etherpad-pp-cli/config.toml. After the user unsets the env var, subsequent CLI invocations still find the token in the config file and AuthHeader() returns `Bearer <token>`, so `auth logout` effectively does not log out for API-key users. Same side-effect occurs on `auth login` (which calls SaveTokens → save()) when the env var is set during login. The naive fix (zero c.EtherpadOpenid in save() when env-sourced) destroys a TOML-set openid the env happened to override — Greptile flagged this as a follow-up P1 (#396).",
+  "files": [
+    "internal/config/config.go"
+  ],
+  "validated_outcome": "Config now carries a `fileOpenid` shadow field (tagged `toml:\"-\"`) that Load() populates from the on-disk value BEFORE the env-var override. save() restores `c.EtherpadOpenid = c.fileOpenid` when AuthSource == \"env:ETHERPAD_OPENID\" before toml.Marshal, then restores the env value for in-memory state. Result: env-only auth never lands on disk (fileOpenid is \"\"); env-overriding-config preserves the persisted openid (fileOpenid carries it); config-only auth marshals normally. ClearTokens() intentionally still only wipes the OAuth-issued AccessToken / RefreshToken / TokenExpiry — wiping AuthHeaderVal or EtherpadOpenid in ClearTokens would persist `auth_header = \"\"` / `openid = \"\"` to disk via save() (no `omitempty` on those TOML tags), destroying a user's manually-configured static credentials on logout.",
+  "upstream_issue": "TODO: file on mvanhorn/cli-printing-press — generator template should not persist any field that Load() also reads from an env var, since the env var is by definition ephemeral and persisting it changes the auth-source semantics under the user's feet. The shadow-field pattern here is a robust drop-in."
+}

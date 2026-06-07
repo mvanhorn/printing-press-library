@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "facts-cert-flat-shape",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260516-193948",
+  "base_printing_press_version": "4.8.0",
+  "summary": "coin facts-cert now emits the same flat object shape that coin batch produces per JSONL line: {\"cert_no\": <n>, \"data\": {...coin fields...}, \"_keep\": {}}. Replaces the prior {meta, results} envelope (provenance moves to a stderr-only printProvenance line in TTY mode).",
+  "reason": "Previously the two surfaces emitted different shapes: facts-cert wrapped under meta+results while batch already used {cert_no, data, _keep}. An agent that knew how to parse one couldn't reuse that code for the other, and there was no _keep equivalent on facts-cert to round-trip non-cert context fields. Unifying on the batch shape (per AGENTS.md P1 locked-in decision) collapses the surface to one parser and trivially extends to a one-shot 'fetch one new cert and append to an existing batch result' workflow.",
+  "files": [
+    "internal/cli/coin_facts-cert.go",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go build ./... && go vet ./...; live smoke: `coin facts-cert 50483263 --agent | jq '.data.Name'` returns \"1881-S $1\"; `coin batch --file pcgs-coin-list.csv --agent | head -1 | jq '.data.Name'` returns a coin name (no regression)"
+}

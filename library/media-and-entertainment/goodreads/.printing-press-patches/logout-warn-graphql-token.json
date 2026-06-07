@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "logout-warn-graphql-token",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260522-095940",
+  "base_printing_press_version": "4.11.0",
+  "summary": "auth logout now also warns when GOODREADS_GRAPHQL_TOKEN is still exported, mirroring the existing GOODREADS_GOODREADS_COOKIE_SESSION warning (both JSON note and human prose).",
+  "reason": "config.Load() re-populates Config.GraphQLToken from GOODREADS_GRAPHQL_TOKEN after logout (so rating set/clear keep working), so a still-exported token meant the user thought they logged out but rating mutations still authenticated. Logout warned about the cookie env var but not this one.",
+  "files": [
+    "internal/cli/auth.go"
+  ],
+  "validated_outcome": "With GOODREADS_GRAPHQL_TOKEN set, `auth logout` prints '... env var is still set; unset it to fully log out.' and the --json envelope's note lists it; both env vars are joined when both are set."
+}

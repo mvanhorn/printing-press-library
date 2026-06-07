@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "novel-events-upcoming",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-051647",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Add 'events upcoming' multi-venue fan-out that reads venue IDs from a file, CSV, or saved watchlist and queries the local events table.",
+  "reason": "Replaces 595 lines of hand-rolled bash (Lobster seattle-events) with one CLI command. The Discovery API has no multi-venue endpoint — without local store + fan-out, agents must loop per-venue and dedup themselves.",
+  "files": [
+    "internal/cli/events_upcoming.go",
+    "internal/cli/events.go"
+  ],
+  "validated_outcome": "--dry-run pass; --help pass; renders empty-store hint when no events synced."
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "dogfood-dead-code-tail-cleanup",
+  "applied_at": "2026-05-24",
+  "base_run_id": "2026-05-13T21:47:44.838084603Z",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Remove stale unregistered tail command and unused generated helper functions from the Go reference tree.",
+  "reason": "Dogfood flagged the generated tail command as unregistered and the pagination/envelope helpers as dead code; these paths are not used by the DoorDash live GraphQL/cart command surface and keeping them adds submit noise.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/tail.go",
+    "dogfood-results.json"
+  ],
+  "validated_outcome": "2026-05-23: generated-cli go test ./..., go build ./..., go vet ./..., and printing-press publish validate all passed; dogfood now reports no dead functions and all defined commands registered, with only the existing sync-pipeline heuristic warning remaining."
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "validate-uses-cookie-header",
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260512-151223",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Send the composed cookie string in the Cookie request header (not Authorization) when validating the saved session.",
+  "reason": "Alaska Airlines uses cookie-based session auth. The previous code set Authorization: to the composed cookie string, which alaskaair.com ignores, so the HEAD request never returned 401/403 and every cookie composition - including expired sessions - reported 'valid' before subsequent API calls failed (greptile P1).",
+  "files": [
+    "internal/cli/auth.go"
+  ]
+}

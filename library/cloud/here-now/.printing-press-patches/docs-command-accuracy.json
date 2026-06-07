@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "docs-command-accuracy",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260530-170355",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Fixed README/SKILL/research.json prose referencing nonexistent commands: `auth login` -> here-now-auth request-agent-code/verify-agent-code + auth set-token; `sites claim` -> claims redeem; `sites refresh-uploads` -> publish uploads refresh-site-urls / publish resume. Also dropped the unimplementable cross-site Site Data search feature.",
+  "reason": "Phase 4.9 doc audit found troubleshooting/auth prose telling users to run commands the CLI does not expose. Site Data search was dropped because the here.now API cannot enumerate a site's collections.",
+  "files": [
+    "README.md",
+    "SKILL.md"
+  ]
+}

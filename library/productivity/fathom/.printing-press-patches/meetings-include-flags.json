@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "meetings-include-flags",
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-090403",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Sync command adds include_action_items, include_summary, include_transcript, include_crm_matches params for the meetings resource.",
+  "reason": "Fathom's /meetings endpoint omits these fields by default. Novel commands (commitments, topics, brief, crm-gaps) require them. Without this, all novel commands return empty results.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "After sync, meetings have 5-15 action items and 300-500 transcript segments per meeting."
+}

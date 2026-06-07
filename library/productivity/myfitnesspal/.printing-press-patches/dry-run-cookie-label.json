@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "dry-run-cookie-label",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260508-133559",
+  "base_printing_press_version": "4.0.6",
+  "summary": "--dry-run prints `Cookie:` (not `Authorization:`) so its output matches the live request shape.",
+  "reason": "The dryRun helper hard-coded `Authorization` as the auth-line label, but cookie-header-not-authorization made the live path send `Cookie:`. A user running --dry-run to diagnose auth failures would see the wrong header and chase the exact bug this PR fixes.",
+  "files": [
+    "internal/client/client.go"
+  ]
+}

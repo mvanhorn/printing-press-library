@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "tail-follow-false-single-poll",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260511-134339",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Honor tail --follow=false by returning after the initial poll and route tail output through Cobra streams.",
+  "reason": "The generated tail command declared a single-poll flag but ignored it, causing scripts and agents to hang until interrupted. It also wrote directly to os.Stdout/os.Stderr, bypassing command output writers used by MCP transports and tests.",
+  "files": [
+    "internal/cli/tail.go"
+  ],
+  "validated_outcome": "go test ./... passes for the generated Gumroad CLI."
+}

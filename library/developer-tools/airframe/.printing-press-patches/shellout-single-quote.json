@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "shellout-single-quote",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-023951",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Extend splitShellArgs to recognize single-quoted tokens symmetrically with double-quoted ones.",
+  "reason": "MCP callers commonly pass multi-word arguments via single quoting (e.g. `--make 'Cessna 172'`); the original tokenizer split on the inner space and produced malformed CLI invocations.",
+  "files": [
+    "internal/mcp/cobratree/shellout.go"
+  ]
+}

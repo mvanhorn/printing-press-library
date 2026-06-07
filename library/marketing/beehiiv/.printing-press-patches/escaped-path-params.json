@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "escaped-path-params",
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260510-144732",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Escapes generated CLI, MCP, and compound insight path parameters before inserting them into URL paths.",
+  "reason": "Beehiiv email and publication path parameters can contain reserved characters, and raw replacement breaks valid API paths.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/insights.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "go test ./... passes for the published Beehiiv CLI."
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "brokerage-forward-timeout-flag",
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260522-162911",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Added a Timeout field to brokeragemap.ExecuteOptions; Execute uses it for the http.Client (falling back to 30s when zero), and every brokerage command threads the CLI --timeout (flags.timeout) into the ExecuteOptions it builds.",
+  "reason": "Greptile (#893): brokeragemap.Execute hardcoded a 30s http.Client timeout and ExecuteOptions had no Timeout field, so the user-visible --timeout flag (wired into the crypto client via flags.newClient) was silently ignored on every brokerage command. Now brokerage honors --timeout like crypto does.",
+  "files": [
+    "internal/brokeragemap/route_map.go",
+    "internal/cli/brokerage.go",
+    "internal/cli/brokerage_read.go"
+  ],
+  "validated_outcome": "go build/vet/test pass; verify-skill passes. Default behavior unchanged when --timeout is unset (zero Timeout falls back to 30s)."
+}

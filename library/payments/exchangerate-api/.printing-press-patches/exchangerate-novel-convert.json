@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "exchangerate-novel-convert",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-025552",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Add convert (ergonomic single/multi-target conversion via /pair or /latest) and convert-batch (stdin-driven batch conversion from one /pair fetch).",
+  "reason": "TimothyYe/exchangerate set the convention er <amount> <from> <to[,to,...]>; reproducing it as native commands is table-stakes. Multi-target via single /latest call and batch-from-stdin via single /pair both save N-1 quota ticks compared to N separate API calls. Both log to conversions_log unless --no-log is set; annotations correctly omit mcp:read-only because local audit writes are side effects.",
+  "files": [
+    "internal/cli/convert.go",
+    "internal/cli/convert_batch.go"
+  ],
+  "validated_outcome": "convert 250 USD EUR returns 214.925; convert 100 USD EUR,GBP,JPY does 3 conversions in 1 call; convert-batch reads stdin, applies rate locally. Single-target convert formats the parsed amount with strconv.FormatFloat (not the raw user string) so the wire value matches the validated input."
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "novel-schedules-gitops",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-132617",
+  "base_printing_press_version": "4.8.0",
+  "summary": "New `schedules apply` and `schedules diff` subcommands (internal/cli/schedules_gitops.go): terraform-style declarative schedule management. Reads a YAML schedule file, lists live Apify schedules, computes a create/update/delete plan, and applies creates. Updates/deletes are surfaced as deferred actions in v1 (recreate to update; use the generated `schedules delete` to remove). Registered as children of the generated `schedules` command.",
+  "rationale": "Apify offers dashboard editing + raw API but no GitOps story; YAML in git makes schedules auditable.",
+  "files": [
+    "internal/cli/schedules_gitops.go",
+    "internal/cli/root.go"
+  ],
+  "upstream_issue": ""
+}

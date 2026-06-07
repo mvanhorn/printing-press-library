@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "raw-create-order-live-gate",
+  "applied_at": "2026-05-24",
+  "base_run_id": "2026-05-13T21:47:44.838084603Z",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Apply live-order safety gates to the raw createOrderFromCart GraphQL command and update public README examples for the generated command surface.",
+  "reason": "Greptile flagged that cart place was gated but graphql create-create-order-from-cart could still post to the order endpoint directly; the newer Printing Press validator also rejected stale Node-wrapper README command examples.",
+  "files": [
+    "internal/cli/graphql_create_createOrderFromCart.go",
+    "internal/cli/cart_test.go",
+    "internal/cli/auth.go",
+    "README.md"
+  ],
+  "validated_outcome": "go test ./... and Printing Press 4.12 publish validate passed locally before updating PR #773."
+}

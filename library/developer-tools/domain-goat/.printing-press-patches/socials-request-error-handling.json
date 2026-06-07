@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "socials-request-error-handling",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-093229",
+  "base_printing_press_version": "4.4.0",
+  "summary": "Capture http.NewRequestWithContext error in socials handler, record on the result row, skip the request instead of dereferencing nil req.",
+  "reason": "A handle with URL-unsafe characters (e.g. control bytes) made url.Parse fail, req nil, and req.Header.Set on the next line panicked.",
+  "files": [
+    "internal/cli/gen_score_similar.go"
+  ],
+  "validated_outcome": "Smoke-tested `socials` with control-char input — each platform returns the parse error as `note` with no crash."
+}

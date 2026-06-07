@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "novel-preset-command",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-132617",
+  "base_printing_press_version": "4.8.0",
+  "summary": "New `preset` command tree (internal/cli/preset.go): save/list/show/delete named Actor input presets in pp_presets. `preset save` accepts inline/@file input or --from-run (fetches a prior run's input via the API). `run --preset` replays a saved preset. rows.Err() checked after the list query iteration.",
+  "rationale": "Apify input templates live in Actor READMEs, not the user's workflow; presets persist known-good input JSON locally.",
+  "files": [
+    "internal/cli/preset.go",
+    "internal/cli/root.go"
+  ],
+  "upstream_issue": ""
+}

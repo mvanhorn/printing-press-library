@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "public-api-env-trim-20260517",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Collapsed the public-API auth env-var surface to a single canonical LUNCHMONEY_API_KEY and dropped the two operational env vars (LUNCH_MONEY_CONFIG, LUNCH_MONEY_BASE_URL). Trimmed manifest.json user_config to one required field so MCP clients do not demand the token five times.",
+  "reason": "Generator's OR-case auth pattern emitted five aliases (LUNCHMONEY_ACCESS_TOKEN + four ecosystem aliases for lunchable/lunchtui/robshox MCP) for one bearer token, plus two operational env vars. User wanted minimal surface and did not need ecosystem-compat aliases. The four alias env vars and matching Config fields collapse to a single AccessToken field. LUNCH_MONEY_CONFIG was redundant with the existing --config flag. LUNCH_MONEY_BASE_URL was only used by tests for httptest server URLs and by the mock.lunchmoney.dev development path; tests now write base_url to a temp config TOML and pass --config <path> instead. Internal-API LUNCHMONEY_INTERNAL_COOKIE is unrelated and untouched. Closes Greptile finding #1 on PR #624 (5x required: true).",
+  "files": [
+    "internal/config/config.go",
+    "internal/cli/auth.go",
+    "internal/cli/agent_context.go",
+    "internal/cli/doctor.go",
+    "internal/cli/helpers.go",
+    "internal/cli/root_test.go",
+    "internal/cli/generated_request_test.go",
+    "internal/mcp/tools.go",
+    "manifest.json",
+    "SKILL.md",
+    "README.md",
+    ".printing-press.json"
+  ],
+  "validated_outcome": "go build ./... && go vet ./... && go test ./... pass."
+}

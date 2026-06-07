@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "search-coins-fts-match-syntax",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260516-193948",
+  "base_printing_press_version": "4.8.0",
+  "summary": "SearchCoins / SearchBanknotes FTS predicate uses bare-table form `resources_fts MATCH ?` instead of the invalid `f.resources_fts MATCH ?`.",
+  "reason": "FTS5 MATCH targets the FTS table, not `<alias>.<vtable>`. The original `f.resources_fts MATCH ?` raised `no such column: f.resources_fts` at runtime, breaking every `search --text <query>` invocation. Aligned with the existing Search method at store.go:~661. Greptile P1 finding on PR #630 (review 4).",
+  "files": [
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "go build ./... && go vet ./...; live smoke `search --text morgan --json` returns empty (correct for empty cache)"
+}

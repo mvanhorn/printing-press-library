@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "contacts-uuid-merge-duplicates",
+  "applied_at": "2026-05-23",
+  "base_run_id": "hand-written",
+  "base_printing_press_version": "0.1.3",
+  "summary": "contacts_db.go adds uuid column + GetByAny (prefix lookup); contacts.go adds merge and duplicates commands.",
+  "reason": "Apple contact IDs (UUID:ABPerson) are unwieldy in shell usage. Extracting the bare UUID and storing it separately allows 8-char prefix lookups across all write commands (get/update/delete/merge). The merge command (contacts merge <id1> <id2> [--confirm]) copies phones, emails, URLs, addresses, and note from contact2 into contact1 via AppleScript on-run-argv, deduplicates phones by normalized number and emails by lowercase value in the local store, then deletes contact2. The duplicates command runs four detection strategies (exact name, same-first-prefix-last, same phone, same email) and prints ready-to-paste merge commands with [UUID8] shortcodes.",
+  "files": [
+    "internal/cli/contacts.go",
+    "internal/cli/contacts_db.go"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "marianatek-required-flag-bloat",
+  "applied_at": "2026-05-12T04:00:00Z",
+  "reason": "Generator marked every nested body field as required on `me reservations-create`, but the live API only requires {reservation_type, class_session.id, payment_option.id} (and payment_option is optional for waitlist). Discovered during production booking test: the CLI rejected reservations-create with --class-session-id alone, demanding 50+ unrelated flags. Empirically validated the minimal body shape against the real /me/reservations endpoint.",
+  "files": [
+    "internal/cli/me_reservations-create.go"
+  ],
+  "change": "Replaced the 550-line `if !stdinBody { ... }` block (lines 209-759 in the generated file) with a 3-rule validator: default reservation_type to standard; enforce enum standard|standby|waitlist; require class-session-id with a hint pointing to `classes list`; require payment-option-id (except for waitlist) with a hint pointing to `classes payment-options <id>`. Defaults and validation now fire in dry-run too so the preview body reflects what would actually be sent."
+}

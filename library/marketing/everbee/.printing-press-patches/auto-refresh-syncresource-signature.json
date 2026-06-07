@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "auto-refresh-syncresource-signature",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260522-153448",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Aligned generated auto-refresh with the local syncResource signature.",
+  "reason": "The reprinted cache auto-refresh hook called syncResource with a trailing stderr writer argument, but EverBee's hand-authored syncResource path no longer accepts that parameter.",
+  "files": [
+    "internal/cli/auto_refresh.go"
+  ],
+  "validated_outcome": "go test ./..., go vet ./..., and go build ./... passed after the signature fix."
+}

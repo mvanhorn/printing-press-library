@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "listids-sql-injection",
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260508-113209",
+  "base_printing_press_version": "4.0.4",
+  "summary": "Guard ListIDs against SQL injection by validating resourceType via sqlite_master before interpolating into a table-name position.",
+  "reason": "resourceType was passed directly into fmt.Sprintf as a table name with no sanitization; a crafted value could escape the SELECT context.",
+  "files": [
+    "internal/store/store.go"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "freshservice-analytics-cmd-outorstdout",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-170855",
+  "base_printing_press_version": "4.5.0",
+  "summary": "Route analytics JSON and text output through cmd.OutOrStdout() instead of os.Stdout in both the summary path and runGroupBy. Threaded *cobra.Command into runGroupBy so it has the writer available.",
+  "reason": "Greptile P2 on PR #533. Direct os.Stdout writes bypass both test redirection (`cmd.SetOut(buf)` in unit tests) and the MCP shell-out layer that captures CLI output. Every other command in the package routes through cmd.OutOrStdout(); analytics was the lone exception.",
+  "files": [
+    "internal/cli/analytics.go"
+  ],
+  "validated_outcome": "`analytics --json` output is now capturable via `cmd.SetOut(buf)` in tests and is correctly proxied through MCP; previously the writer-redirection was silently ignored."
+}

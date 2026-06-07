@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "images-field-strip",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260516-193948",
+  "base_printing_press_version": "4.8.0",
+  "summary": "applyCoinResponseTransforms now deletes the stub Images: [{}, {}] key from every CoinFactsModel response. Wired into coin facts-cert (already calling the transform), coin facts-grade (already calling), coin facts-barcode (gap from PR #683 — transform call added here), and coin batch (live + cached). HasObverseImage / HasReverseImage / HasTrueViewImage / ImageReady booleans are preserved; image URLs continue to be fetched via `coin images <cert>`.",
+  "reason": "PCGS returns a 2-element stub array with no URL fields on every CoinFactsModel response when an image exists. The empty objects read as 'the image fetch failed' to a first-time consumer; the AGENTS.md P6 locked-in fix is option 2 (omit entirely) because option 1 doubles quota per call (violates VISION.md's 1,000/day budget) and option 3 (null) leaves the same confusion in a different shape. Safe: the envelope classifier (classifyPCGSEnvelope) already consumes the Images=[] + Has*Image=false heuristic earlier in resolveRead, so stripping at the response-transform layer cannot affect bogus-cert detection on the GetImagesByCertNo endpoint.",
+  "files": [
+    "internal/cli/coin_response_transform.go",
+    "internal/cli/coin_facts-cert.go",
+    "internal/cli/coin_facts-grade.go",
+    "internal/cli/coin_facts-barcode.go",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go build ./... && go vet ./... && go test ./...; live smoke: `coin facts-cert 50483263 --agent | jq '.data | has(\"Images\")'` returns false; `jq '.data.HasTrueViewImage'` returns true; `coin images 50483263 --agent | jq type` returns \"object\""
+}

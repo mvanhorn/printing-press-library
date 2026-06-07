@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "csv-eof-vs-error-distinction",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260513-091340",
+  "base_printing_press_version": "4.5.2",
+  "summary": "readBatchCSV distinguishes io.EOF from real CSV parse/read errors so mid-file failures do not silently truncate the batch.",
+  "reason": "Generator-emitted readBatchCSV treated any csv.Reader.Read() error as terminal EOF. A malformed quoted field or OS read failure at row 50 of 1000 would return 49 rows with a nil error, then send those 49 rows as if the batch were complete -- a silent compliance and data-integrity failure for SMS workflows. Surfaced by Greptile P1 in the PR #417 review.",
+  "files": [
+    "internal/cli/sms_send_batch.go"
+  ],
+  "validated_outcome": "go build ./... succeeds; go test ./... passes; go vet clean."
+}

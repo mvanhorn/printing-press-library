@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "publish-resume-notfound-exit",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260530-170355",
+  "base_printing_press_version": "4.19.0",
+  "summary": "`publish resume <unknown-slug>` now returns a typed not-found error (non-zero exit) instead of a soft exit-0 message.",
+  "reason": "Dogfood error_path probe expects a non-zero exit for an invalid argument; an unknown slug is a genuine not-found, not a no-op. (An already-finalized slug still returns exit 0 as a legitimate no-op.)",
+  "files": [
+    "internal/cli/publish_resume.go"
+  ],
+  "validated_outcome": "`publish resume nonexistent --db <tmp>` exits 4; full dogfood error_path passes."
+}

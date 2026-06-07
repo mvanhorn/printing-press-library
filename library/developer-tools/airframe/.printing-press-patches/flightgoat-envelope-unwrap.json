@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "flightgoat-envelope-unwrap",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-023951",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Unwrap the standard Printing Press envelope after json.Unmarshal succeeds instead of trying it in an unreachable fallback.",
+  "reason": "json.Unmarshal into map[string]any succeeds for both flat objects and envelope objects, so the original `if err != nil` fallback was unreachable. An envelope response left raw holding {results:...,meta:...} and pickRegistration scanned the wrong layer, always returning ErrNoRegistration.",
+  "files": [
+    "internal/flightgoat/flightgoat.go"
+  ]
+}

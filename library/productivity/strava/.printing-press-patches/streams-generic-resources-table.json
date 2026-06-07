@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "streams-generic-resources-table",
+  "applied_at": "2026-05-22",
+  "base_run_id": "20260521-164944",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Repoint power-curve and training-zones stream queries to resources table (resource_type='streams').",
+  "reason": "Both commands JOINed on the activities_streams typed table, which sync never populates. Individual stream fetches write to the generic resources table under resource_type='streams'. Repointed queries to resources JOIN on id. Added actionable error when no stream data is cached instead of silent all-zero output.",
+  "files": [
+    "internal/cli/athletes_power_curve.go",
+    "internal/cli/training_zones.go"
+  ],
+  "validated_outcome": "Commands now query the correct table and return an error with instructions (run 'activities streams get-activity <id>') when no streams are cached."
+}

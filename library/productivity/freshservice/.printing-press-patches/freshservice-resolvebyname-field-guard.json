@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "freshservice-resolvebyname-field-guard",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-170855",
+  "base_printing_press_version": "4.5.0",
+  "summary": "Add the same validIdentifierRE.MatchString(field) guard ListField uses, so ResolveByName cannot fmt.Sprintf an unvalidated field name into the json_extract SQL path.",
+  "reason": "Greptile P1 (security) on PR #533. ListField and ResolveByName were intended to mirror each other (the in-file comment at store.go:1966 states this), but the generator emitted the validIdentifierRE guard only on ListField. Today's callers all pass literal identifiers like \"name\"/\"email\", so blast radius is bounded — but the asymmetry is the real smell and the guard belongs there as defense in depth.",
+  "files": [
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "ResolveByName now silently skips any matchFields value that does not look like a SQL identifier; legitimate callers (passing \"name\"/\"key\"/\"email\") behave identically."
+}

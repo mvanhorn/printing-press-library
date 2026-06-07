@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "skill-doc-auth-rewrite",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "files": [
+    "SKILL.md"
+  ],
+  "summary": "Rewrite the Auth Setup section for the encrypted-cache install flow. Drops the 'three auth surfaces' framing centered on GRANOLA_API_KEY. New flow: install Granola desktop + sign in; first sync prompts Keychain; CLI is read-only against the refresh token (D6); GRANOLA_WORKOS_TOKEN is the power-user opt-in. Adds a Troubleshooting subsection mapping each doctor verdict to a remediation.",
+  "reason": "The old skill doc was actively misleading post-encryption: it told users to set GRANOLA_API_KEY (a dead path for most workflows) and described auto-discovery from plaintext supabase.json (broken on modern Granola)."
+}

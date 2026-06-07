@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "namecheap-read-only-store",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-namecheap",
+  "base_printing_press_version": "4.6.0",
+  "summary": "Open MCP SQL stores with SQLite mode=ro for database-enforced read-only protection.",
+  "reason": "The MCP SQL validator allows WITH queries and relies on the read-only store as a second safety layer; the store must reject writes at the database level.",
+  "files": [
+    "internal/store/store.go",
+    "internal/store/read_only_test.go"
+  ],
+  "validated_outcome": "TestOpenReadOnlyRejectsWrites verifies writes fail through OpenReadOnly while reads continue to work."
+}

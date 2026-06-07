@@ -6,5 +6,7 @@
   "base_printing_press_version": "4.8.0",
   "summary": "Add \"Apple\" to the root command's --help short/long descriptions.",
   "reason": "The display name and catalog/skill descriptions were rebranded to \"Apple iCloud\" for support and discovery; the --help text is the user-facing support surface and should match.",
-  "files": ["internal/cli/root.go"]
+  "files": [
+    "internal/cli/root.go"
+  ]
 }

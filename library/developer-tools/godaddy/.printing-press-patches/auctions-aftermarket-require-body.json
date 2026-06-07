@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "auctions-aftermarket-require-body",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260522-124732",
+  "base_printing_press_version": "4.11.0",
+  "summary": "auctions-aftermarket (POST /v1/customers/{customerId}/aftermarket/listings/bids) now requires a JSON body piped via --stdin instead of hardcoding an empty body; without --stdin it errors (exit 2), and an empty/invalid body fails to parse rather than being sent.",
+  "reason": "Greptile P-level: body was hardcoded `map[string]any{}` and POSTed verbatim with no body input, so the bid command always sent an empty {} body (silent no-op). The endpoint places multiple bids and has no per-field body flags, so it mirrors the require-stdin array-body pattern from domains records replace.",
+  "files": [
+    "internal/cli/promoted_auctions-aftermarket.go"
+  ],
+  "validated_outcome": "No --stdin exits 2 with '--stdin is required'; empty --stdin fails JSON parse (no {} sent); a valid `[{...}]` body via --stdin --dry-run shows the array body in the request preview."
+}
