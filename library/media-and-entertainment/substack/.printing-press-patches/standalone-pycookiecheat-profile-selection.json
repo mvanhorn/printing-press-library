@@ -7,7 +7,8 @@
   "summary": "Standalone pycookiecheat installs must remain profile-aware during browser-cookie login.",
   "reason": "Users commonly install pycookiecheat as a uv tool or console script, which is not importable from the ambient python3. Falling through to Default-only cookie readers makes authenticated sessions in non-default Chrome profiles look missing.",
   "files": [
-    "internal/cli/auth.go"
+    "internal/cli/auth.go",
+    "internal/cli/auth_test.go"
   ],
   "validated_outcome": "go test ./... passed from library/media-and-entertainment/substack"
 }
