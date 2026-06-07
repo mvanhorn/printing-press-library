@@ -410,10 +410,10 @@ func (a *app) findAnomalies(ctx context.Context, subscription string, days int, 
 		days = 7
 	}
 	today := a.now().UTC().Truncate(24 * time.Hour)
-	currentFrom := today.AddDate(0, 0, -days)
-	previousFrom := today.AddDate(0, 0, -days*2)
+	currentTo := today.AddDate(0, 0, -1)
+	currentFrom := currentTo.AddDate(0, 0, -days+1)
 	previousTo := currentFrom.AddDate(0, 0, -1)
-	currentTo := today
+	previousFrom := previousTo.AddDate(0, 0, -days+1)
 
 	current, err := a.queryCost(ctx, costQueryOptions{
 		Timeframe:    "Custom",
