@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-07T04:39:45.574875Z",
+  "printing_press_version": "4.22.1",
+  "api_name": "hotelist",
+  "display_name": "Hotelist",
+  "cli_name": "hotelist-pp-cli",
+  "creator": {
+    "handle": "dbryson",
+    "name": "David Bryson"
+  },
+  "owner": "dbryson",
+  "printer": "dbryson",
+  "printer_name": "David Bryson",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:7487607971b59e2f199fbb4e9ca19a329d54451358a4c6f44dab42fa55742256",
+  "run_id": "20260606-172109",
+  "category": "travel",
+  "description": "Every Hotelist feature, plus a local SQLite mirror that ranks rating-per-dollar across whole countries, compares chains head-to-head, and tracks how a city's hotels change over time.",
+  "mcp_binary": "hotelist-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Country value leaderboard",
+      "command": "rank-country",
+      "description": "Rank the best hotels across an entire country by Hotelist rating-per-dollar, with compound amenity and price filters."
+    },
+    {
+      "name": "Chain vs chain value showdown",
+      "command": "chain-compare",
+      "description": "Compare hotel chains head-to-head on mean rating, median price, and rating-per-dollar in a country."
+    },
+    {
+      "name": "Nomad corridor scout",
+      "command": "corridor",
+      "description": "Find the best hotel in each stop of a multi-city route in one pass, with shared filters."
+    },
+    {
+      "name": "Watch \u0026 drift tracker",
+      "command": "watch",
+      "description": "Snapshot a saved location over time and diff which hotels improved, declined, or changed price since you last checked."
+    },
+    {
+      "name": "Chain consistency score",
+      "command": "chain-consistency",
+      "description": "Compute mean, median, and spread of a single chain's ratings across a country to see if the brand is reliably good or full of outliers."
+    },
+    {
+      "name": "Price cliff finder",
+      "command": "price-cliff",
+      "description": "Find the price point in a city where rating-per-extra-dollar collapses — the cheapest hotel that's still legitimately good."
+    }
+  ]
+}

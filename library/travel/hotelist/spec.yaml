@@ -1,0 +1,75 @@
+name: hotelist
+description: "AI-rated hotel discovery scraped from Hotelist.com (by @levelsio). Community/AI-rated, not an official API."
+version: "0.1.0"
+base_url: "https://hotelist.com"
+http_transport: standard
+health_check_path: "/"
+category: travel
+
+# Hotelist has no auth. Every request just needs a browser-like UA and the
+# XHR marker so the /api and /modal endpoints respond with data, not the shell.
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+  - name: X-Requested-With
+    value: "XMLHttpRequest"
+  - name: Accept
+    value: "application/json, text/html, */*"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/hotelist/config.toml"
+
+# Only ONE generated endpoint is declared: the hotel detail modal, which is a
+# clean path-param POST that the generated client serializes correctly. The
+# real user commands (search/filter/value/show + the 6 novel commands) are
+# hand-built in Phase 3 against /api, whose jQuery nested-array filter grammar
+# (filters[0][target]=...) cannot be expressed as flat generated query params.
+resources:
+  hotel:
+    description: "A single AI-rated hotel from Hotelist."
+    endpoints:
+      detail:
+        method: GET
+        path: "/modal/{hotel_id}"
+        description: "Fetch the raw detail-modal HTML for one hotel (Hotelist Score, verified amenities, AI rating breakdown). The 'show' command parses this into structured fields."
+        params:
+          - name: hotel_id
+            type: string
+            required: true
+            positional: true
+            description: "Hotelist hotel id, e.g. KYLCGAVE"
+        response_format: html
+        html_extract:
+          mode: page
+
+types:
+  Hotel:
+    fields:
+      - name: hotel_id
+        type: string
+      - name: name
+        type: string
+      - name: hotellist_rating
+        type: float
+      - name: price
+        type: float
+      - name: latitude
+        type: float
+      - name: longitude
+        type: float
+      - name: photo
+        type: string
+      - name: pros
+        type: string
+      - name: cons
+        type: string
+      - name: year_built
+        type: int
+      - name: parent_chain_code
+        type: string
+      - name: youtube_id
+        type: string

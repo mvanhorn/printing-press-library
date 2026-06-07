@@ -1,0 +1,1071 @@
+{
+  "dir": "/Users/dwb/printing-press/.runstate/obsidian-75c44ba7/runs/20260606-172109/working/hotelist-pp-cli",
+  "binary": "/Users/dwb/printing-press/.runstate/obsidian-75c44ba7/runs/20260606-172109/working/hotelist-pp-cli/hotelist-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 75,
+  "passed": 75,
+  "failed": 0,
+  "skipped": 30,
+  "commands": [
+    "api",
+    "chain-compare",
+    "chain-consistency",
+    "corridor",
+    "doctor",
+    "feedback list",
+    "filter",
+    "hotel",
+    "import",
+    "price-cliff",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "rank-country",
+    "search",
+    "show",
+    "stats",
+    "sync cities",
+    "value",
+    "watch add",
+    "watch diff",
+    "watch list",
+    "which",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  hotelist-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  hotelist-pp-cli api\n\n  # Show methods for a specific interface\n  hotelist-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'hotelist-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "chain-compare",
+      "kind": "help",
+      "args": [
+        "chain-compare",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compare two or more hotel chains by mean Hotelist rating, median price, rating-per-dollar, and rating spread, optionally scoped to a country. The website filters one chain at a time with no aggregates; this fetches each chain and computes the comparison locally. Use 'chain-consistency' to measure variance within a single chain. Data is scraped from hotelist.com (community/AI-rated, not an official API).\n\nUsage:\n  hotelist-pp-cli chain-compare [flags]\n\nExamples:\n  hotelist-pp-cli chain-compare --chains marriott,hilton,hyatt --country japan\n  hotelist-pp-cli chain-compare --chains \"four seasons,ritz-carlton\" --metric rating --json\n\nFlags:\n      --chains string    Comma-separated chains (names like 'Marriott' or codes like 'EM')\n      --country string   Restrict comparison to a country\n  -h, --help             help for chain-compare\n      --metric string    Sort metric: best-value (default), rating, or price (default \"best-value\")\n      --min-hotels int   Skip chains with fewer than this many hotels in scope (default 1)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "chain-compare",
+      "kind": "happy_path",
+      "args": [
+        "chain-compare",
+        "--chains",
+        "marriott,hilton,hyatt",
+        "--country",
+        "japan"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"source\": \"hotelist.com (scraped, AI-rated)\",\n  \"disclaimer\": \"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\n  \"scope\": \"Japan\",\n  \"metric\": \"best-value\",\n  \"chains\": [\n    {\n      \"code\": \"EM\",\n      \"chain\": \"Marriott\",\n      \"hotels\": 52,\n      \"mean_rating\": 7.64,\n      \"median_price\": 259.44,\n      \"mean_value_per_100usd\": 3.8,\n      \"rating_stdev\": 0.58\n    },\n    {\n      \"code\": \"EH\",\n      \"chain\": \"Hilton\",\n      \"hotels\": 18,\n      \"mean_rating\": 7.51,\n      \"median_price\": 254.31,\n      \"mean_value_per_100usd\": 3.12,\n      \"rating_stdev\": 0.57\n    },\n    {\n      \"code\": \"HY\",\n      \"chain\": \"Hyatt\",\n      \"hotels\": 15,\n      \"mean_rating\": 7.99,\n      \"median_price\": 448.67,\n      \"mean_value_per_100usd\": 2.22,\n      \"rating_stdev\": 0.65\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "chain-compare",
+      "kind": "json_fidelity",
+      "args": [
+        "chain-compare",
+        "--chains",
+        "marriott,hilton,hyatt",
+        "--country",
+        "japan",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"source\": \"hotelist.com (scraped, AI-rated)\",\n  \"disclaimer\": \"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\n  \"scope\": \"Japan\",\n  \"metric\": \"best-value\",\n  \"chains\": [\n    {\n      \"code\": \"EM\",\n      \"chain\": \"Marriott\",\n      \"hotels\": 52,\n      \"mean_rating\": 7.64,\n      \"median_price\": 259.44,\n      \"mean_value_per_100usd\": 3.8,\n      \"rating_stdev\": 0.58\n    },\n    {\n      \"code\": \"EH\",\n      \"chain\": \"Hilton\",\n      \"hotels\": 18,\n      \"mean_rating\": 7.51,\n      \"median_price\": 254.31,\n      \"mean_value_per_100usd\": 3.12,\n      \"rating_stdev\": 0.57\n    },\n    {\n      \"code\": \"HY\",\n      \"chain\": \"Hyatt\",\n      \"hotels\": 15,\n      \"mean_rating\": 7.99,\n      \"median_price\": 448.67,\n      \"mean_value_per_100usd\": 2.22,\n      \"rating_stdev\": 0.65\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "chain-compare",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "chain-consistency",
+      "kind": "help",
+      "args": [
+        "chain-consistency",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compute the mean, median, spread, and range of a single chain's Hotelist ratings (or prices), optionally within a country — to see whether a brand is reliably good or full of outliers. A population-level stat the website cannot show. Use 'chain-compare' to pit chains against each other. Data is scraped from hotelist.com (community/AI-rated, not an official API).\n\nUsage:\n  hotelist-pp-cli chain-consistency [flags]\n\nExamples:\n  hotelist-pp-cli chain-consistency --chain marriott --country thailand\n  hotelist-pp-cli chain-consistency --chain hilton --metric price --json\n\nFlags:\n      --chain string     Chain name (e.g. 'Marriott') or code (e.g. 'EM')\n      --country string   Restrict to a country\n  -h, --help             help for chain-consistency\n      --metric string    What to measure: rating or price (default \"rating\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "chain-consistency",
+      "kind": "happy_path",
+      "args": [
+        "chain-consistency",
+        "--chain",
+        "marriott",
+        "--country",
+        "thailand"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"source\": \"hotelist.com (scraped, AI-rated)\",\n  \"disclaimer\": \"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\n  \"chain\": \"Marriott (EM)\",\n  \"scope\": \"Thailand\",\n  \"metric\": \"rating\",\n  \"hotels\": 47,\n  \"mean\": 7.87,\n  \"median\": 7.84,\n  \"stdev\": 0.44,\n  \"min\": 6.79,\n  \"max\": 8.8,\n  \"verdict\": \"very consistent — ratings cluster tightly\"\n}\n"
+    },
+    {
+      "command": "chain-consistency",
+      "kind": "json_fidelity",
+      "args": [
+        "chain-consistency",
+        "--chain",
+        "marriott",
+        "--country",
+        "thailand",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"source\": \"hotelist.com (scraped, AI-rated)\",\n  \"disclaimer\": \"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\n  \"chain\": \"Marriott (EM)\",\n  \"scope\": \"Thailand\",\n  \"metric\": \"rating\",\n  \"hotels\": 47,\n  \"mean\": 7.87,\n  \"median\": 7.84,\n  \"stdev\": 0.44,\n  \"min\": 6.79,\n  \"max\": 8.8,\n  \"verdict\": \"very consistent — ratings cluster tightly\"\n}\n"
+    },
+    {
+      "command": "chain-consistency",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "corridor",
+      "kind": "help",
+      "args": [
+        "corridor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Scan a user-defined corridor of cities in one pass and return the best hotels in each, applying the same compound filters everywhere. Resolves each city via the local geohash table. Use 'rank-country' for an exhaustive national scan. Data is scraped from hotelist.com (community/AI-rated, not an official API).\n\nUsage:\n  hotelist-pp-cli corridor [flags]\n\nExamples:\n  hotelist-pp-cli corridor --cities \"Chiang Mai,Lisbon,Tbilisi\" --min-rating 7.5 --max-price 120\n  hotelist-pp-cli corridor --cities \"Bangkok,Bali,Medellin\" --amenities coworking --top 3 --json\n\nFlags:\n      --amenities string   Comma-separated photo-verified amenities to require everywhere\n      --cities string      Comma-separated list of cities for the route\n  -h, --help               help for corridor\n      --max-price float    Only hotels at or below this nightly price\n      --min-rating float   Only hotels with a Hotelist Score at or above this (0-10)\n      --top int            Hotels to show per stop (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "corridor",
+      "kind": "happy_path",
+      "args": [
+        "corridor",
+        "--cities",
+        "Chiang Mai,Lisbon,Tbilisi",
+        "--min-rating",
+        "7.5",
+        "--max-price",
+        "120"
+      ],
+      "status": "pass",
+      "output_sample": "{\"disclaimer\":\"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\"source\":\"hotelist.com (scraped, AI-rated)\",\"stops\":[{\"city\":\"Chiang Mai\",\"label\":\"Chiang Mai, Thailand\",\"matches\":2,\"top\":[{\"exceptional\":true,\"hotel_id\":\"WVCNXAWA\",\"hotelist_rating\":9.1,\"latitude\":18.78628,\"longitude\":98.99502,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/away-chiang-mai-thapae-resort-a-vegan-chiang-mai-21949470213349f44e397d46c30bc124.jpeg\",\"price\":88.67,\"pros\":[\"🧹 Clean and comfortable rooms\",\"🛏️ Super comfy beds\",\"🌿 Vegan and delicious food\",\"👥 Friendly and warm staff\",\"🏛️ Classy amenities\",\"📍 Conveniently located\"],\"url\":\"https://hotelist.com/hotel/WVCNXAWA\",\"value_rating_per_100usd\":10.29},{\"exceptional\":false,\"hotel_id\":\"RTCNXNIM\",\"hotelist_rating\":7.9,\"latitude\":18.80414,\"longitude\":98.96324,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/ibis-chiangmai-nimman-journeyhub-chiang-mai-9a0874e958db29968588a438a5c22131.jpeg\",\"price\":77.69,\"pros\":[\"🛏️ The beds are comfortable and the furniture nicely maintained\",\"📏 The room was surprisingly large\",\"👥 Staff are absolutely lovely and provide top-tier service\",\"🍳 Excellent breakfast catering to Thai and foreign tastes\",\"🧼 The room was spotless and well-organized\",\"🔇 Soundproofing was excellent\",\"📍 Convenient location near shopping and food areas\"],\"url\":\"https://hotelist.com/hotel/RTCNXNIM\",\"value_rating_per_100usd\":10.1}]},{\"city\":\"Lisbon\",\"label\":\"Lisbon, Portugal\",\"matches\":3,\"top\":[{\"cons\":[\"🐢 Slow restaurant and breakfast service\"],\"exceptional\":false,\"hotel_id\":\"RTLISURE\",\"hotelist_rating\":7.6,\"latitude\":38.67085,\"longitude\":-9.17103,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/mercure-lisboa-almada-lisbon-e4af624c732e526f5fafb433b4eaba99.jpeg\",\"price\":103.53,\"pros\":[\"🛏️ Very clean rooms and excellent sleep\",\"🍳 Amazing breakfast with many choices\",\"👥 Friendly helpful and welcoming staff\",\"🍽️ Good quality restaurant meals available\",\"🚍 Convenient transport links to Lisbon\"],\"url\":\"https://hotelist.com/hotel/RTLISURE\",\"value_rating_per_100usd\":7.38},{\"cons\":[\"🪑 Wooden bed frame\",\"🧴 No slippers or water cups\"],\"exceptional\":false,\"hotel_id\":\"FGLISORI\",\"hotelist_rating\":7.8,\"latitude\":38.76536,\"longitude\":-9.10459,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/moov-lisboa-oriente-lisbon-ced7486fe1f060273a2c30ccb84ccb92.jpeg\",\"price\":114.43,\"pros\":[\"🧹 Very clean rooms and facilities\",\"🛏️ Comfortable beds\",\"🍳 Good and abundant breakfast\",\"👥 Friendly and informative staff\",\"📍 Close to bus station, train station and metro\",\"✨ Modern and spacious rooms\",\"🏨 New and effective facilities\"],\"url\":\"https://hotelist.com/hotel/FGLISORI\",\"value_rating_per_100usd\":6.83},{\"cons\":[\"🅿️ Not easy to park and get luggage to the hotel\"],\"exceptional\":false,\"hotel_id\":\"HSLISAOU\",\"hotelist_rating\":7.8,\"latitude\":39.36057,\"longitude\":-9.15696,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/casa-das-senhoras-rainhas-peniche-c32f949d8ec0bc448f14958b8722dfbb.jpeg\",\"price\":115.99,\"pros\":[\"🛏️ Rooms were well appointed, extremely comfortable, and clean\",\"🍳 Great breakfast was provided\",\"🍽️ On-site restaurant with happy hour\",\"👥 Staff were friendly, helpful, attentive, knowledgeable, and multi-lingual\",\"🏨 Property has lovely restaurant and courtyard\",\"🚪 Easy entry with only a couple steps up to first floor rooms\",\"🚪 Quiet rooms with balconies\"],\"url\":\"https://hotelist.com/hotel/HSLISAOU\",\"value_rating_per_100usd\":6.7}]},{\"city\":\"Tbilisi\",\"label\":\"Tbilisi, Georgia\",\"matches\":3,\"top\":[{\"cons\":[\"📦 Rooms are small yet convenient\",\"🥪 Breakfast wasn't huge\"],\"exceptional\":false,\"hotel_id\":\"RTTBSIBT\",\"hotelist_rating\":7.9,\"latitude\":41.70698,\"longitude\":44.78874,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/ibis-budget-tbilisi-center-tbilisi-debb0b6a2eda6f16927588348c4b89a0.jpeg\",\"price\":38,\"pros\":[\"📍 Close to every…[truncated]"
+    },
+    {
+      "command": "corridor",
+      "kind": "json_fidelity",
+      "args": [
+        "corridor",
+        "--cities",
+        "Chiang Mai,Lisbon,Tbilisi",
+        "--min-rating",
+        "7.5",
+        "--max-price",
+        "120",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"disclaimer\":\"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\"source\":\"hotelist.com (scraped, AI-rated)\",\"stops\":[{\"city\":\"Chiang Mai\",\"label\":\"Chiang Mai, Thailand\",\"matches\":2,\"top\":[{\"exceptional\":true,\"hotel_id\":\"WVCNXAWA\",\"hotelist_rating\":9.1,\"latitude\":18.78628,\"longitude\":98.99502,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/away-chiang-mai-thapae-resort-a-vegan-chiang-mai-21949470213349f44e397d46c30bc124.jpeg\",\"price\":88.67,\"pros\":[\"🧹 Clean and comfortable rooms\",\"🛏️ Super comfy beds\",\"🌿 Vegan and delicious food\",\"👥 Friendly and warm staff\",\"🏛️ Classy amenities\",\"📍 Conveniently located\"],\"url\":\"https://hotelist.com/hotel/WVCNXAWA\",\"value_rating_per_100usd\":10.29},{\"exceptional\":false,\"hotel_id\":\"RTCNXNIM\",\"hotelist_rating\":7.9,\"latitude\":18.80414,\"longitude\":98.96324,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/ibis-chiangmai-nimman-journeyhub-chiang-mai-9a0874e958db29968588a438a5c22131.jpeg\",\"price\":77.69,\"pros\":[\"🛏️ The beds are comfortable and the furniture nicely maintained\",\"📏 The room was surprisingly large\",\"👥 Staff are absolutely lovely and provide top-tier service\",\"🍳 Excellent breakfast catering to Thai and foreign tastes\",\"🧼 The room was spotless and well-organized\",\"🔇 Soundproofing was excellent\",\"📍 Convenient location near shopping and food areas\"],\"url\":\"https://hotelist.com/hotel/RTCNXNIM\",\"value_rating_per_100usd\":10.1}]},{\"city\":\"Lisbon\",\"label\":\"Lisbon, Portugal\",\"matches\":3,\"top\":[{\"cons\":[\"🐢 Slow restaurant and breakfast service\"],\"exceptional\":false,\"hotel_id\":\"RTLISURE\",\"hotelist_rating\":7.6,\"latitude\":38.67085,\"longitude\":-9.17103,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/mercure-lisboa-almada-lisbon-e4af624c732e526f5fafb433b4eaba99.jpeg\",\"price\":103.53,\"pros\":[\"🛏️ Very clean rooms and excellent sleep\",\"🍳 Amazing breakfast with many choices\",\"👥 Friendly helpful and welcoming staff\",\"🍽️ Good quality restaurant meals available\",\"🚍 Convenient transport links to Lisbon\"],\"url\":\"https://hotelist.com/hotel/RTLISURE\",\"value_rating_per_100usd\":7.38},{\"cons\":[\"🪑 Wooden bed frame\",\"🧴 No slippers or water cups\"],\"exceptional\":false,\"hotel_id\":\"FGLISORI\",\"hotelist_rating\":7.8,\"latitude\":38.76536,\"longitude\":-9.10459,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/moov-lisboa-oriente-lisbon-ced7486fe1f060273a2c30ccb84ccb92.jpeg\",\"price\":114.43,\"pros\":[\"🧹 Very clean rooms and facilities\",\"🛏️ Comfortable beds\",\"🍳 Good and abundant breakfast\",\"👥 Friendly and informative staff\",\"📍 Close to bus station, train station and metro\",\"✨ Modern and spacious rooms\",\"🏨 New and effective facilities\"],\"url\":\"https://hotelist.com/hotel/FGLISORI\",\"value_rating_per_100usd\":6.83},{\"cons\":[\"🅿️ Not easy to park and get luggage to the hotel\"],\"exceptional\":false,\"hotel_id\":\"HSLISAOU\",\"hotelist_rating\":7.8,\"latitude\":39.36057,\"longitude\":-9.15696,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/casa-das-senhoras-rainhas-peniche-c32f949d8ec0bc448f14958b8722dfbb.jpeg\",\"price\":115.99,\"pros\":[\"🛏️ Rooms were well appointed, extremely comfortable, and clean\",\"🍳 Great breakfast was provided\",\"🍽️ On-site restaurant with happy hour\",\"👥 Staff were friendly, helpful, attentive, knowledgeable, and multi-lingual\",\"🏨 Property has lovely restaurant and courtyard\",\"🚪 Easy entry with only a couple steps up to first floor rooms\",\"🚪 Quiet rooms with balconies\"],\"url\":\"https://hotelist.com/hotel/HSLISAOU\",\"value_rating_per_100usd\":6.7}]},{\"city\":\"Tbilisi\",\"label\":\"Tbilisi, Georgia\",\"matches\":3,\"top\":[{\"cons\":[\"📦 Rooms are small yet convenient\",\"🥪 Breakfast wasn't huge\"],\"exceptional\":false,\"hotel_id\":\"RTTBSIBT\",\"hotelist_rating\":7.9,\"latitude\":41.70698,\"longitude\":44.78874,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/ibis-budget-tbilisi-center-tbilisi-debb0b6a2eda6f16927588348c4b89a0.jpeg\",\"price\":38,\"pros\":[\"📍 Close to every…[truncated]"
+    },
+    {
+      "command": "corridor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  hotelist-pp-cli doctor [flags]\n\nExamples:\n  hotelist-pp-cli doctor\n  hotelist-pp-cli doctor --json\n  hotelist-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: /tmp/claude-501/printing-press-subprocess-468264415/.config/hotelist-pp-cli/config.toml\n  base_url: https://hotelist.com\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /tmp/claude-501/printing-press-subprocess-468264415/.local/share/hotelist-pp-cli/data.db\n    schema_version: 3\n    db_bytes: 1830912\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'hotelist-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://hotelist.com\",\n  \"cache\": {\n    \"db_bytes\": 1830912,\n    \"db_path\": \"/tmp/claude-501/printing-press-subprocess-468264415/.local/share/hotelist-pp-cli/data.db\",\n    \"hint\": \"sync_state is empty; run 'hotelist-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 3,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/tmp/claude-501/printing-press-subprocess-468264415/.config/hotelist-pp-cli/config.toml\",\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  hotelist-pp-cli feedback list [flags]\n\nExamples:\n  hotelist-pp-cli feedback list\n  hotelist-pp-cli feedback list --limit 5\n  hotelist-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "filter",
+      "kind": "help",
+      "args": [
+        "filter",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Filter a location's hotels on Hotelist's photo-verified amenities — the AI cross-checks claimed amenities against actual room photos, so --gym-weights means a real weightlifting gym, not one treadmill in a closet. Multiple amenities are ANDed. Data is scraped from hotelist.com (community/AI-rated, not an official API).\n\nUsage:\n  hotelist-pp-cli filter \u003clocation\u003e [flags]\n\nExamples:\n  hotelist-pp-cli filter lisbon --gym-weights --pool\n  hotelist-pp-cli filter bangkok --amenity coworking,sauna --min-rating 8 --json\n  hotelist-pp-cli filter tokyo --tennis --max-price 300\n  hotelist-pp-cli filter italy --chain marriott --built-after 2018\n\nFlags:\n      --amenity string     Comma-separated amenities to require, e.g. coworking,sauna,bath\n      --boutique           Only independent / boutique hotels\n      --built-after int    Only hotels built after this year\n      --chain string       Restrict to a hotel chain (name like 'Hilton' or code like 'EH')\n      --collection         Only small-luxury collection hotels\n      --gym-weights        Require a real weightlifting gym (verified against photos)\n  -h, --help               help for filter\n      --limit int          Maximum hotels to return (default 25)\n      --max-price float    Only hotels at or below this nightly price\n      --min-price float    Only hotels at or above this nightly price\n      --min-rating float   Only hotels with a Hotelist Score at or above this (0-10)\n      --pool               Require a pool (verified against photos)\n      --sort string        Sort: score (default), price, price-desc, newest, oldest, value\n      --tennis             Require a tennis court (verified against photos)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "filter",
+      "kind": "happy_path",
+      "args": [
+        "filter",
+        "lisbon"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":25,\"disclaimer\":\"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\"hotels\":[{\"cons\":[\"📍 I drove here from the airport and I could not find the hotel using\",\"📐 Compact property is limited on amenities\"],\"exceptional\":true,\"hotel_id\":\"GDLISAVP\",\"hotelist_rating\":8.9,\"latitude\":38.71141,\"longitude\":-9.1313,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/santiago-de-alfama-lisbon-f92be8f6b3b37cf57488366e95783f30.jpeg\",\"price\":397.79,\"pros\":[\"🛏️ Rooms are unique, individual, light and airy with very comfortable beds\",\"🍹 Cocktails in the bar made by Bruno and his staff are the best\",\"🧹 Clean, modern, high quality and comfortable facilities\",\"🤝 Good service and welcoming and attentive staff\",\"🌟 Friendly staff, excellent room, amazing service and phenomenal location\",\"🍽️ Restaurant had great food, service, and selections\",\"🥐 Breakfast was great with good options and service\",\"🏠 Lovely boutique hotel with excellent service and attentive, personable staff\",\"🍳 Wonderful breakfast and the rooms and public areas are beautiful\",\"🏛️ Meticulously crafted boutique hotel that seamlessly combines old and new\"],\"url\":\"https://hotelist.com/hotel/GDLISAVP\",\"value_rating_per_100usd\":2.24},{\"exceptional\":false,\"hotel_id\":\"WVLISSDC\",\"hotelist_rating\":8.8,\"latitude\":38.713,\"longitude\":-9.13299,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/solar-do-castelo-lisbon-8d481abeb955dafc64ca8d7d88b29a8b.jpeg\",\"price\":249.57,\"pros\":[\"✨ Charming, elegant, and comfortable atmosphere\",\"🧑‍💼 Extremely knowledgeable and helpful Front Desk staff\",\"🍳 Amazing breakfast with wonderful touches\",\"🛏️ Beautiful and comfortable rooms\",\"🍋 Endless supply of delicious food and drink\",\"🦚 Delightful rooms with lovely courtyard view including resident peacocks\",\"🤝 Super friendly staff who get to know guests and prioritize pleasant stays\",\"🏰 Enchanting location inside Castelo do St. Jorge walls\",\"📍 Convenient proximity to hilltop attraction\",\"🔥 Awesome fire outside sitting area in the evenings\",\"🍷 Wine at the hotel\",\"🏛️ Stunning 18th-century architecture\",\"🥐 Breakfast buffet with a ton of options\"],\"url\":\"https://hotelist.com/hotel/WVLISSDC\",\"value_rating_per_100usd\":3.53,\"year_built\":1765},{\"exceptional\":true,\"hotel_id\":\"AKLISTIA\",\"hotelist_rating\":8.8,\"latitude\":38.70966,\"longitude\":-9.14026,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/the-ivens-autograph-collection-lisbon-049df8bf3fa7cde88e5a29ec0027933c.jpeg\",\"price\":640.82,\"pros\":[\"🛎️ Service is refined but relaxed and makes guests feel genuinely welcome\",\"🛎️ Staff are warm, professional, attentive, friendly, and hospitable\",\"✨ Luxury permeates every detail\",\"🧹 Cleanliness rated 5 out of 5\",\"🍽️ Dining rated 5 out of 5\",\"📍 Location rated 5 out of 5 and prime with easy access by car and walkable to sites\",\"🏛️ Hotel is full of character and public areas are beautifully designed\",\"🏨 Rooms are luxurious with historical elements\",\"📖 Storytelling about explorers and Portuguese history is loved by guests\"],\"url\":\"https://hotelist.com/hotel/AKLISTIA\",\"value_rating_per_100usd\":1.37,\"year_built\":2021},{\"cons\":[\"🛏️ Hotel room a little tired\",\"🍳 Breakfast is not good enough\",\"📶 Poor wifi reception in room\"],\"exceptional\":true,\"hotel_id\":\"KYLISUPV\",\"hotelist_rating\":8.8,\"latitude\":38.75018,\"longitude\":-8.9678,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/hotel-upon-vila-lisbon-1911eef291616596cd0a076a8a81a81c.jpeg\",\"price\":122.06,\"pros\":[\"🛏️ Room was amazing, spacious, well decorated, cozy and clean\",\"🏊 Pool has fantastic landscape, very well framed\",\"👨‍👩‍👧 Family room was perfect for our kids\",\"🍳 Breakfast was delicious\",\"😊 Staff was wonderful\",\"🏋️ Small but ok gym\",\"📍 Terrific location\",\"🧼 Cleanliness rated 9.5\",\"💰 Value for money rated 8.9\",\"🛠️ Facilities rated 9.3\",\"🛋️ Comfor…[truncated]"
+    },
+    {
+      "command": "filter",
+      "kind": "json_fidelity",
+      "args": [
+        "filter",
+        "lisbon",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":25,\"disclaimer\":\"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\"hotels\":[{\"cons\":[\"📍 I drove here from the airport and I could not find the hotel using\",\"📐 Compact property is limited on amenities\"],\"exceptional\":true,\"hotel_id\":\"GDLISAVP\",\"hotelist_rating\":8.9,\"latitude\":38.71141,\"longitude\":-9.1313,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/santiago-de-alfama-lisbon-f92be8f6b3b37cf57488366e95783f30.jpeg\",\"price\":397.79,\"pros\":[\"🛏️ Rooms are unique, individual, light and airy with very comfortable beds\",\"🍹 Cocktails in the bar made by Bruno and his staff are the best\",\"🧹 Clean, modern, high quality and comfortable facilities\",\"🤝 Good service and welcoming and attentive staff\",\"🌟 Friendly staff, excellent room, amazing service and phenomenal location\",\"🍽️ Restaurant had great food, service, and selections\",\"🥐 Breakfast was great with good options and service\",\"🏠 Lovely boutique hotel with excellent service and attentive, personable staff\",\"🍳 Wonderful breakfast and the rooms and public areas are beautiful\",\"🏛️ Meticulously crafted boutique hotel that seamlessly combines old and new\"],\"url\":\"https://hotelist.com/hotel/GDLISAVP\",\"value_rating_per_100usd\":2.24},{\"exceptional\":false,\"hotel_id\":\"WVLISSDC\",\"hotelist_rating\":8.8,\"latitude\":38.713,\"longitude\":-9.13299,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/solar-do-castelo-lisbon-8d481abeb955dafc64ca8d7d88b29a8b.jpeg\",\"price\":249.57,\"pros\":[\"✨ Charming, elegant, and comfortable atmosphere\",\"🧑‍💼 Extremely knowledgeable and helpful Front Desk staff\",\"🍳 Amazing breakfast with wonderful touches\",\"🛏️ Beautiful and comfortable rooms\",\"🍋 Endless supply of delicious food and drink\",\"🦚 Delightful rooms with lovely courtyard view including resident peacocks\",\"🤝 Super friendly staff who get to know guests and prioritize pleasant stays\",\"🏰 Enchanting location inside Castelo do St. Jorge walls\",\"📍 Convenient proximity to hilltop attraction\",\"🔥 Awesome fire outside sitting area in the evenings\",\"🍷 Wine at the hotel\",\"🏛️ Stunning 18th-century architecture\",\"🥐 Breakfast buffet with a ton of options\"],\"url\":\"https://hotelist.com/hotel/WVLISSDC\",\"value_rating_per_100usd\":3.53,\"year_built\":1765},{\"exceptional\":true,\"hotel_id\":\"AKLISTIA\",\"hotelist_rating\":8.8,\"latitude\":38.70966,\"longitude\":-9.14026,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/the-ivens-autograph-collection-lisbon-049df8bf3fa7cde88e5a29ec0027933c.jpeg\",\"price\":640.82,\"pros\":[\"🛎️ Service is refined but relaxed and makes guests feel genuinely welcome\",\"🛎️ Staff are warm, professional, attentive, friendly, and hospitable\",\"✨ Luxury permeates every detail\",\"🧹 Cleanliness rated 5 out of 5\",\"🍽️ Dining rated 5 out of 5\",\"📍 Location rated 5 out of 5 and prime with easy access by car and walkable to sites\",\"🏛️ Hotel is full of character and public areas are beautifully designed\",\"🏨 Rooms are luxurious with historical elements\",\"📖 Storytelling about explorers and Portuguese history is loved by guests\"],\"url\":\"https://hotelist.com/hotel/AKLISTIA\",\"value_rating_per_100usd\":1.37,\"year_built\":2021},{\"cons\":[\"🛏️ Hotel room a little tired\",\"🍳 Breakfast is not good enough\",\"📶 Poor wifi reception in room\"],\"exceptional\":true,\"hotel_id\":\"KYLISUPV\",\"hotelist_rating\":8.8,\"latitude\":38.75018,\"longitude\":-8.9678,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/hotel-upon-vila-lisbon-1911eef291616596cd0a076a8a81a81c.jpeg\",\"price\":122.06,\"pros\":[\"🛏️ Room was amazing, spacious, well decorated, cozy and clean\",\"🏊 Pool has fantastic landscape, very well framed\",\"👨‍👩‍👧 Family room was perfect for our kids\",\"🍳 Breakfast was delicious\",\"😊 Staff was wonderful\",\"🏋️ Small but ok gym\",\"📍 Terrific location\",\"🧼 Cleanliness rated 9.5\",\"💰 Value for money rated 8.9\",\"🛠️ Facilities rated 9.3\",\"🛋️ Comfor…[truncated]"
+    },
+    {
+      "command": "filter",
+      "kind": "error_path",
+      "args": [
+        "filter",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: unknown location \"__printing_press_invalid__\" — not a known Hotelist city, country, or region\nRun 'hotelist-pp-cli sync cities' to refresh the local table, or check the spelling.\n"
+    },
+    {
+      "command": "hotel",
+      "kind": "help",
+      "args": [
+        "hotel",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch the raw detail-modal HTML for one hotel (Hotelist Score, verified amenities, AI rating breakdown).\n\nUsage:\n  hotelist-pp-cli hotel \u003chotel_id\u003e [flags]\n\nExamples:\n  hotelist-pp-cli hotel 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help   help for hotel\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "hotel",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [hotel] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "hotel",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [hotel] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "hotel",
+      "kind": "error_path",
+      "args": [
+        "hotel",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /modal/__printing_press_invalid__ returned HTTP 404: \u003cscript\u003econsole.log('/srv/http/hotelist.com/app/modal.php @ 7 0ms');\u003c/script\u003e\u003cscript\u003econsole.log('/srv/http/hotelist.com/app/modal.php @ 8 0ms');\u003c/script\u003e\u003cscript\u003econsole.log('/srv/http/hotelist.com/app/modal.php @ 14 0ms');\u003c/script\u003eHotel not found\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  hotelist-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  hotelist-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  hotelist-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | hotelist-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "price-cliff",
+      "kind": "help",
+      "args": [
+        "price-cliff",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Bin a city's hotels by price, compute the mean Hotelist rating per bin, and find the price point where paying more stops buying meaningfully better hotels — the cheapest level that's still legitimately good. The site's histogram is visual-only; this extracts the breakpoint. Data is scraped from hotelist.com (community/AI-rated, not an official API).\n\nUsage:\n  hotelist-pp-cli price-cliff \u003ccity\u003e [flags]\n\nExamples:\n  hotelist-pp-cli price-cliff bangkok\n  hotelist-pp-cli price-cliff lisbon --min-rating 7 --bin-size 20 --json\n\nFlags:\n      --bin-size float     Price bin width (base currency) (default 25)\n  -h, --help               help for price-cliff\n      --min-rating float   Only consider hotels at or above this rating\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "price-cliff",
+      "kind": "happy_path",
+      "args": [
+        "price-cliff",
+        "bangkok"
+      ],
+      "status": "pass",
+      "output_sample": "{\"bin_size\":25,\"bins\":[{\"high\":50,\"hotels\":4,\"low\":25,\"mean_rating\":6.69},{\"high\":75,\"hotels\":14,\"low\":50,\"mean_rating\":7.31},{\"high\":100,\"hotels\":5,\"low\":75,\"mean_rating\":6.81},{\"high\":125,\"hotels\":10,\"low\":100,\"mean_rating\":7.18},{\"high\":150,\"hotels\":12,\"low\":125,\"mean_rating\":7.36},{\"high\":175,\"hotels\":10,\"low\":150,\"mean_rating\":7.67},{\"high\":200,\"hotels\":8,\"low\":175,\"mean_rating\":7.98},{\"high\":225,\"hotels\":3,\"low\":200,\"mean_rating\":8.18},{\"high\":250,\"hotels\":5,\"low\":225,\"mean_rating\":7.88},{\"high\":275,\"hotels\":2,\"low\":250,\"mean_rating\":7.25},{\"high\":300,\"hotels\":4,\"low\":275,\"mean_rating\":8.13},{\"high\":325,\"hotels\":4,\"low\":300,\"mean_rating\":8.34},{\"high\":350,\"hotels\":2,\"low\":325,\"mean_rating\":7.28},{\"high\":375,\"hotels\":2,\"low\":350,\"mean_rating\":7.84},{\"high\":450,\"hotels\":1,\"low\":425,\"mean_rating\":8.66},{\"high\":550,\"hotels\":1,\"low\":525,\"mean_rating\":8.5},{\"high\":575,\"hotels\":1,\"low\":550,\"mean_rating\":8.54},{\"high\":675,\"hotels\":1,\"low\":650,\"mean_rating\":7.36},{\"high\":950,\"hotels\":1,\"low\":925,\"mean_rating\":8.7},{\"high\":975,\"hotels\":1,\"low\":950,\"mean_rating\":9.1}],\"cliff_price\":225,\"disclaimer\":\"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\"location\":\"Bangkok, Thailand\",\"recommended\":[{\"exceptional\":false,\"hotel_id\":\"RTBKKSAT\",\"hotelist_rating\":6.8,\"latitude\":13.72168,\"longitude\":100.54672,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/ibis-bangkok-sathorn-bangkok-c1e2eddea6e9892b28513eccc23d1664.jpeg\",\"price\":36.63,\"pros\":[\"🛏️ Comfortable and clean rooms\",\"🍳 Hearty and varied breakfast\",\"📍 Quiet yet convenient location\",\"👥 Pleasant and helpful staff\",\"🪟 Airy rooms with tree views\",\"🍹 Nice bar available onsite\"],\"url\":\"https://hotelist.com/hotel/RTBKKSAT\",\"value_rating_per_100usd\":18.62,\"year_built\":2007},{\"cons\":[\"🛏️ Small and cramped room space\",\"🔊 Noisy room from traffic\",\"📺 False advertised smart TV\",\"🍳 Unsuitable breakfast dining area\"],\"exceptional\":false,\"hotel_id\":\"BWBKK365\",\"hotelist_rating\":7.3,\"latitude\":13.77306,\"longitude\":100.54205,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/vib-best-western-sanam-pao-bangkok-2a07d16c47c73c51f0ea7b5314a39cfd.jpeg\",\"price\":49.77,\"pros\":[\"🏨 Modern and fairly new hotel\",\"📍 Excellent location near BTS station\",\"🧹 Clean room with good staff\",\"🛏️ Soft comfortable mattress and bed\",\"☕ Capsule coffee machine in room\"],\"url\":\"https://hotelist.com/hotel/BWBKK365\",\"value_rating_per_100usd\":14.73,\"year_built\":2018},{\"exceptional\":false,\"hotel_id\":\"RTBKKRIV\",\"hotelist_rating\":6.8,\"latitude\":13.71783,\"longitude\":100.50917,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/ibis-bangkok-riverside-bangkok-9b7735341d5e81d480d3770bcc42146a.jpeg\",\"price\":46.59,\"pros\":[\"🛏️ Well-maintained clean comfortable rooms\",\"📍 Excellent location with easy access\",\"🏊 Excellent pool facilities\",\"🍳 Lovely riverside breakfast\",\"👨‍👩‍👧 Family friendly hotel environment\",\"😊 Helpful friendly staff throughout\",\"🍽️ Excellent restaurant with great food\"],\"url\":\"https://hotelist.com/hotel/RTBKKRIV\",\"value_rating_per_100usd\":14.64,\"year_built\":2009},{\"cons\":[\"🔊 AC unit is slightly loud\"],\"exceptional\":false,\"hotel_id\":\"HIBKK515\",\"hotelist_rating\":7.8,\"latitude\":13.71786,\"longitude\":100.51625,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/holiday-inn-exp-suites-central-pier-bangkok-fe1ae9f18a36e874b7d328e44e075323.jpeg\",\"price\":57.29,\"pros\":[\"📍 Super convenient location near central pier and BTS station\",\"🍳 Excellent breakfast with many Asian noodles, rice, and hot food choices\",\"🧹 Very clean and spacious rooms with modern comfort\",\"👥 Nice and great staff providing fast check-in and check-out\",\"💰 Amazing value for money with decent free breakfast\"],\"url\":\"https://hotelist.com/hotel/HIBKK515\",\"value_rating_per_100usd\":13.63},{\"exceptional\":true,\"hotel_id\":\"YXBKKSYA\",\"hotelist_rating\":8.5,\"latitude\":13.71134,\"longitude\":100.54301,\"name\":\"\u003credacted\u003e\",\"pho…[truncated]"
+    },
+    {
+      "command": "price-cliff",
+      "kind": "json_fidelity",
+      "args": [
+        "price-cliff",
+        "bangkok",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"bin_size\":25,\"bins\":[{\"high\":50,\"hotels\":4,\"low\":25,\"mean_rating\":6.69},{\"high\":75,\"hotels\":14,\"low\":50,\"mean_rating\":7.31},{\"high\":100,\"hotels\":5,\"low\":75,\"mean_rating\":6.81},{\"high\":125,\"hotels\":10,\"low\":100,\"mean_rating\":7.18},{\"high\":150,\"hotels\":12,\"low\":125,\"mean_rating\":7.36},{\"high\":175,\"hotels\":10,\"low\":150,\"mean_rating\":7.67},{\"high\":200,\"hotels\":8,\"low\":175,\"mean_rating\":7.98},{\"high\":225,\"hotels\":3,\"low\":200,\"mean_rating\":8.18},{\"high\":250,\"hotels\":5,\"low\":225,\"mean_rating\":7.88},{\"high\":275,\"hotels\":2,\"low\":250,\"mean_rating\":7.25},{\"high\":300,\"hotels\":4,\"low\":275,\"mean_rating\":8.13},{\"high\":325,\"hotels\":4,\"low\":300,\"mean_rating\":8.34},{\"high\":350,\"hotels\":2,\"low\":325,\"mean_rating\":7.28},{\"high\":375,\"hotels\":2,\"low\":350,\"mean_rating\":7.84},{\"high\":450,\"hotels\":1,\"low\":425,\"mean_rating\":8.66},{\"high\":550,\"hotels\":1,\"low\":525,\"mean_rating\":8.5},{\"high\":575,\"hotels\":1,\"low\":550,\"mean_rating\":8.54},{\"high\":675,\"hotels\":1,\"low\":650,\"mean_rating\":7.36},{\"high\":950,\"hotels\":1,\"low\":925,\"mean_rating\":8.7},{\"high\":975,\"hotels\":1,\"low\":950,\"mean_rating\":9.1}],\"cliff_price\":225,\"disclaimer\":\"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\"location\":\"Bangkok, Thailand\",\"recommended\":[{\"exceptional\":false,\"hotel_id\":\"RTBKKSAT\",\"hotelist_rating\":6.8,\"latitude\":13.72168,\"longitude\":100.54672,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/ibis-bangkok-sathorn-bangkok-c1e2eddea6e9892b28513eccc23d1664.jpeg\",\"price\":36.63,\"pros\":[\"🛏️ Comfortable and clean rooms\",\"🍳 Hearty and varied breakfast\",\"📍 Quiet yet convenient location\",\"👥 Pleasant and helpful staff\",\"🪟 Airy rooms with tree views\",\"🍹 Nice bar available onsite\"],\"url\":\"https://hotelist.com/hotel/RTBKKSAT\",\"value_rating_per_100usd\":18.62,\"year_built\":2007},{\"cons\":[\"🛏️ Small and cramped room space\",\"🔊 Noisy room from traffic\",\"📺 False advertised smart TV\",\"🍳 Unsuitable breakfast dining area\"],\"exceptional\":false,\"hotel_id\":\"BWBKK365\",\"hotelist_rating\":7.3,\"latitude\":13.77306,\"longitude\":100.54205,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/vib-best-western-sanam-pao-bangkok-2a07d16c47c73c51f0ea7b5314a39cfd.jpeg\",\"price\":49.77,\"pros\":[\"🏨 Modern and fairly new hotel\",\"📍 Excellent location near BTS station\",\"🧹 Clean room with good staff\",\"🛏️ Soft comfortable mattress and bed\",\"☕ Capsule coffee machine in room\"],\"url\":\"https://hotelist.com/hotel/BWBKK365\",\"value_rating_per_100usd\":14.73,\"year_built\":2018},{\"exceptional\":false,\"hotel_id\":\"RTBKKRIV\",\"hotelist_rating\":6.8,\"latitude\":13.71783,\"longitude\":100.50917,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/ibis-bangkok-riverside-bangkok-9b7735341d5e81d480d3770bcc42146a.jpeg\",\"price\":46.59,\"pros\":[\"🛏️ Well-maintained clean comfortable rooms\",\"📍 Excellent location with easy access\",\"🏊 Excellent pool facilities\",\"🍳 Lovely riverside breakfast\",\"👨‍👩‍👧 Family friendly hotel environment\",\"😊 Helpful friendly staff throughout\",\"🍽️ Excellent restaurant with great food\"],\"url\":\"https://hotelist.com/hotel/RTBKKRIV\",\"value_rating_per_100usd\":14.64,\"year_built\":2009},{\"cons\":[\"🔊 AC unit is slightly loud\"],\"exceptional\":false,\"hotel_id\":\"HIBKK515\",\"hotelist_rating\":7.8,\"latitude\":13.71786,\"longitude\":100.51625,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/holiday-inn-exp-suites-central-pier-bangkok-fe1ae9f18a36e874b7d328e44e075323.jpeg\",\"price\":57.29,\"pros\":[\"📍 Super convenient location near central pier and BTS station\",\"🍳 Excellent breakfast with many Asian noodles, rice, and hot food choices\",\"🧹 Very clean and spacious rooms with modern comfort\",\"👥 Nice and great staff providing fast check-in and check-out\",\"💰 Amazing value for money with decent free breakfast\"],\"url\":\"https://hotelist.com/hotel/HIBKK515\",\"value_rating_per_100usd\":13.63},{\"exceptional\":true,\"hotel_id\":\"YXBKKSYA\",\"hotelist_rating\":8.5,\"latitude\":13.71134,\"longitude\":100.54301,\"name\":\"\u003credacted\u003e\",\"pho…[truncated]"
+    },
+    {
+      "command": "price-cliff",
+      "kind": "error_path",
+      "args": [
+        "price-cliff",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: unknown location \"__printing_press_invalid__\" — not a known Hotelist city, country, or region\nRun 'hotelist-pp-cli sync cities' to refresh the local table, or check the spelling.\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  hotelist-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  hotelist-pp-cli profile delete my-defaults --yes\n  hotelist-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  hotelist-pp-cli profile list [flags]\n\nExamples:\n  hotelist-pp-cli profile list\n  hotelist-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  hotelist-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  hotelist-pp-cli profile save my-defaults --json --compact\n  hotelist-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  hotelist-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  hotelist-pp-cli profile show my-defaults\n  hotelist-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  hotelist-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  hotelist-pp-cli profile use my-defaults\n  hotelist-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "rank-country",
+      "kind": "help",
+      "args": [
+        "rank-country",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Rank the best hotels across an entire country by rating-per-dollar (or another sort), applying compound amenity, rating, and price filters in one pass. The website's map UI is bounded to one viewport; this scans the country in a single call. Use 'corridor' for a user-defined multi-city route, or 'chain-compare' to compare brands. Data is scraped from hotelist.com (community/AI-rated, not an official API).\n\nUsage:\n  hotelist-pp-cli rank-country \u003ccountry\u003e [flags]\n\nExamples:\n  hotelist-pp-cli rank-country thailand --top 10\n  hotelist-pp-cli rank-country portugal --min-rating 8 --max-price 150 --amenities pool,coworking --json\n  hotelist-pp-cli rank-country japan --sort score\n\nFlags:\n      --amenities string   Comma-separated photo-verified amenities to require\n  -h, --help               help for rank-country\n      --max-price float    Only hotels at or below this nightly price\n      --min-rating float   Only hotels with a Hotelist Score at or above this (0-10)\n      --sort string        Sort: value (default), score, price, price-desc, newest, oldest\n      --top int            Number of top hotels to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "rank-country",
+      "kind": "happy_path",
+      "args": [
+        "rank-country",
+        "portugal"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":20,\"disclaimer\":\"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\"hotels\":[{\"cons\":[\"📍 A bit far from attractions\"],\"exceptional\":true,\"hotel_id\":\"BDBGZGUI\",\"hotelist_rating\":8.2,\"latitude\":41.45189,\"longitude\":-8.29771,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/bb-hotel-guimaraes-braga-a2ff15d558acf418da1b1511db380479.jpeg\",\"price\":83.97,\"pros\":[\"🛏️ Comfortable bed\",\"🛁 Nice bathroom with powerful shower\",\"🍳 Excellent breakfast with several options\",\"🚗 Free parking available\",\"🧹 Clean and impeccable premises\",\"👥 Friendly and efficient staff\",\"📍 Walking distance to historic attractions\"],\"url\":\"https://hotelist.com/hotel/BDBGZGUI\",\"value_rating_per_100usd\":9.73},{\"cons\":[\"🛏️ Bed is too soft\"],\"exceptional\":true,\"hotel_id\":\"HOOPOTSH\",\"hotelist_rating\":8.9,\"latitude\":41.14824,\"longitude\":-8.60928,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/the-social-hub-porto-b2d81a3d7a78e34ca944f9a22d1d7ce0.png\",\"price\":93.12,\"pros\":[\"🎮 Love the games downstairs\",\"🍹 Rooftop bar and pool\",\"🌟 Lovely vibe and friendly people\",\"🛏️ Spacious and comfortable rooms\",\"🍳 Fresh and varied breakfast\",\"👥 Courteous staff\",\"🏨 Very modern look\",\"🅿️ Parking available\",\"📍 Great location\",\"🛋️ Nice amenities including huge bed, big TV, kitchenette, great shower\",\"☕ Free coffee pods, stationery and other nice touches\",\"🔧 Hotel services are very good\",\"🛌 High quality bed and sheets\"],\"url\":\"https://hotelist.com/hotel/HOOPOTSH\",\"value_rating_per_100usd\":9.56},{\"cons\":[\"🚽 Step-in access to the toilet\",\"🍰 Breakfast quality could be better\"],\"exceptional\":true,\"hotel_id\":\"HSOPOAKS\",\"hotelist_rating\":8.2,\"latitude\":40.63662,\"longitude\":-8.64652,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/hotel-jardim-aveiro-b42da06d16d9f8d03454bbb0462504ee.jpeg\",\"price\":87.56,\"pros\":[\"🛏️ Cosy room with comfortable bed\",\"🧹 Very clean room and hotel\",\"📍 Great location near university, canals and central area\",\"👥 Helpful and pleasant staff\",\"🍽️ Simple but plentiful breakfast\",\"🕊️ Very quiet rooms and neighborhood\",\"🏠 Beautiful hotel with pleasant style and carpeting\"],\"url\":\"https://hotelist.com/hotel/HSOPOAKS\",\"value_rating_per_100usd\":9.4},{\"cons\":[\"🏊 The pool was out of\"],\"exceptional\":true,\"hotel_id\":\"HSBGZAAV\",\"hotelist_rating\":8,\"latitude\":41.64791,\"longitude\":-8.6998,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/quinta-de-sao-sebastiao-hotel-rural-braga-890b9b75d5fd82b2973d5bd9a5f413aa.jpeg\",\"price\":87.37,\"pros\":[\"🏊 The pool was true luxury\",\"🛏️ Our room was a generous size with large bathroom\",\"👥 The staff were delightful\",\"🍳 Breakfast was good\",\"🧹 Cleanliness\",\"📍 The location was convenient and peaceful\",\"🏛️ Beautifully kept little hotel\",\"🤝 Very professional yet friendly service\",\"🌳 Well-maintained pool and gardens\",\"🏢 Spectacular facilities\"],\"url\":\"https://hotelist.com/hotel/HSBGZAAV\",\"value_rating_per_100usd\":9.2},{\"exceptional\":true,\"hotel_id\":\"BDOPOCON\",\"hotelist_rating\":8,\"latitude\":41.36115,\"longitude\":-8.74445,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/bb-hotel-vila-do-conde-porto-81286f719181fd62e071adc69cdcf100.jpeg\",\"price\":88.33,\"pros\":[\"🧹 Very clean rooms and property\",\"😊 Friendly and helpful staff\",\"☕ Excellent and varied breakfast with fresh pastries and 24-hour coffee/juice availability\",\"🛏️ Comfortable beds and spacious rooms\",\"📍 Well located with easy access to local attractions\",\"💰 Good value for money\"],\"url\":\"https://hotelist.com/hotel/BDOPOCON\",\"value_rating_per_100usd\":9.09},{\"cons\":[\"📍 A little bit removed from the tourist area\"],\"exceptional\":false,\"hotel_id\":\"KYOPOMOO\",\"hotelist_rating\":7.9,\"latitude\":41.18027,\"longitude\":-8.65304,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/moov-hotel-porto-norte-fb1b2ab80a50109779e649ffc1445dc4.jpeg\",\"price\":88.74,\"pros\":[\"👋 The service was ve…[truncated]"
+    },
+    {
+      "command": "rank-country",
+      "kind": "json_fidelity",
+      "args": [
+        "rank-country",
+        "portugal",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":20,\"disclaimer\":\"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\"hotels\":[{\"cons\":[\"📍 A bit far from attractions\"],\"exceptional\":true,\"hotel_id\":\"BDBGZGUI\",\"hotelist_rating\":8.2,\"latitude\":41.45189,\"longitude\":-8.29771,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/bb-hotel-guimaraes-braga-a2ff15d558acf418da1b1511db380479.jpeg\",\"price\":83.97,\"pros\":[\"🛏️ Comfortable bed\",\"🛁 Nice bathroom with powerful shower\",\"🍳 Excellent breakfast with several options\",\"🚗 Free parking available\",\"🧹 Clean and impeccable premises\",\"👥 Friendly and efficient staff\",\"📍 Walking distance to historic attractions\"],\"url\":\"https://hotelist.com/hotel/BDBGZGUI\",\"value_rating_per_100usd\":9.73},{\"cons\":[\"🛏️ Bed is too soft\"],\"exceptional\":true,\"hotel_id\":\"HOOPOTSH\",\"hotelist_rating\":8.9,\"latitude\":41.14824,\"longitude\":-8.60928,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/the-social-hub-porto-b2d81a3d7a78e34ca944f9a22d1d7ce0.png\",\"price\":93.12,\"pros\":[\"🎮 Love the games downstairs\",\"🍹 Rooftop bar and pool\",\"🌟 Lovely vibe and friendly people\",\"🛏️ Spacious and comfortable rooms\",\"🍳 Fresh and varied breakfast\",\"👥 Courteous staff\",\"🏨 Very modern look\",\"🅿️ Parking available\",\"📍 Great location\",\"🛋️ Nice amenities including huge bed, big TV, kitchenette, great shower\",\"☕ Free coffee pods, stationery and other nice touches\",\"🔧 Hotel services are very good\",\"🛌 High quality bed and sheets\"],\"url\":\"https://hotelist.com/hotel/HOOPOTSH\",\"value_rating_per_100usd\":9.56},{\"cons\":[\"🚽 Step-in access to the toilet\",\"🍰 Breakfast quality could be better\"],\"exceptional\":true,\"hotel_id\":\"HSOPOAKS\",\"hotelist_rating\":8.2,\"latitude\":40.63662,\"longitude\":-8.64652,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/hotel-jardim-aveiro-b42da06d16d9f8d03454bbb0462504ee.jpeg\",\"price\":87.56,\"pros\":[\"🛏️ Cosy room with comfortable bed\",\"🧹 Very clean room and hotel\",\"📍 Great location near university, canals and central area\",\"👥 Helpful and pleasant staff\",\"🍽️ Simple but plentiful breakfast\",\"🕊️ Very quiet rooms and neighborhood\",\"🏠 Beautiful hotel with pleasant style and carpeting\"],\"url\":\"https://hotelist.com/hotel/HSOPOAKS\",\"value_rating_per_100usd\":9.4},{\"cons\":[\"🏊 The pool was out of\"],\"exceptional\":true,\"hotel_id\":\"HSBGZAAV\",\"hotelist_rating\":8,\"latitude\":41.64791,\"longitude\":-8.6998,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/quinta-de-sao-sebastiao-hotel-rural-braga-890b9b75d5fd82b2973d5bd9a5f413aa.jpeg\",\"price\":87.37,\"pros\":[\"🏊 The pool was true luxury\",\"🛏️ Our room was a generous size with large bathroom\",\"👥 The staff were delightful\",\"🍳 Breakfast was good\",\"🧹 Cleanliness\",\"📍 The location was convenient and peaceful\",\"🏛️ Beautifully kept little hotel\",\"🤝 Very professional yet friendly service\",\"🌳 Well-maintained pool and gardens\",\"🏢 Spectacular facilities\"],\"url\":\"https://hotelist.com/hotel/HSBGZAAV\",\"value_rating_per_100usd\":9.2},{\"exceptional\":true,\"hotel_id\":\"BDOPOCON\",\"hotelist_rating\":8,\"latitude\":41.36115,\"longitude\":-8.74445,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/bb-hotel-vila-do-conde-porto-81286f719181fd62e071adc69cdcf100.jpeg\",\"price\":88.33,\"pros\":[\"🧹 Very clean rooms and property\",\"😊 Friendly and helpful staff\",\"☕ Excellent and varied breakfast with fresh pastries and 24-hour coffee/juice availability\",\"🛏️ Comfortable beds and spacious rooms\",\"📍 Well located with easy access to local attractions\",\"💰 Good value for money\"],\"url\":\"https://hotelist.com/hotel/BDOPOCON\",\"value_rating_per_100usd\":9.09},{\"cons\":[\"📍 A little bit removed from the tourist area\"],\"exceptional\":false,\"hotel_id\":\"KYOPOMOO\",\"hotelist_rating\":7.9,\"latitude\":41.18027,\"longitude\":-8.65304,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/moov-hotel-porto-norte-fb1b2ab80a50109779e649ffc1445dc4.jpeg\",\"price\":88.74,\"pros\":[\"👋 The service was ve…[truncated]"
+    },
+    {
+      "command": "rank-country",
+      "kind": "error_path",
+      "args": [
+        "rank-country",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: unknown location \"__printing_press_invalid__\" — not a known Hotelist city, country, or region\nRun 'hotelist-pp-cli sync cities' to refresh the local table, or check the spelling.\n"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search Hotelist's AI-rated hotels for a city, country, or continent. Results are sorted by Hotelist Score by default. Data is scraped from hotelist.com (community/AI-rated, not an official API).\n\nUsage:\n  hotelist-pp-cli search \u003ccity-or-area\u003e [flags]\n\nExamples:\n  hotelist-pp-cli search bangkok\n  hotelist-pp-cli search lisbon --min-rating 8 --json\n  hotelist-pp-cli search portugal --sort value --limit 10\n  hotelist-pp-cli search \"new york city\" --name marriott\n\nFlags:\n      --checkin string     Check-in date (recorded as context only; Hotelist has no dated pricing)\n      --checkout string    Check-out date (recorded as context only; Hotelist has no dated pricing)\n      --exceptional        Only hotels that meet the Exceptional bar (score 8+, built within ~10y)\n  -h, --help               help for search\n      --limit int          Maximum hotels to return (default 25)\n      --max-price float    Only hotels at or below this nightly price (base currency)\n      --min-rating float   Only hotels with a Hotelist Score at or above this (0-10)\n      --name string        Filter visible hotels by name substring\n      --sort string        Sort: score (default), price, price-desc, newest, oldest, value\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": [
+        "search",
+        "bangkok"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":25,\"disclaimer\":\"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\"hotels\":[{\"exceptional\":true,\"hotel_id\":\"YXBKKRXW\",\"hotelist_rating\":9.4,\"latitude\":13.73536,\"longitude\":100.24343,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/rxv-wellness-bangkok-48888765f9e43e79188cf616a68b8615.jpeg\",\"price\":0,\"pros\":[\"🌿 The holistic treatments are customised\",\"🌿 The physiotherapists and therapists are super friendly and competent\",\"🏠 The rooms in the hotel are lovely\",\"👨‍👩‍👧‍👦 A truly family-oriented wellness retreat for multi-generations\",\"🏛️ The design is bright, modern and distinctly Thai\",\"🌳 There are a lot of trees\",\"🛎️ The service is very good\",\"🍽️ The food is delicious\",\"💆 There is a spa\",\"🧴 A facial sauna room\",\"🧴 Skin care\",\"👨‍⚕️ Expert medical advice\",\"🌳 RXV Wellness Village surrounds visitors with lush gardens and peaceful views\",\"💆 The onsite spa offers Swedish massages and reflexology treatments\",\"🔬 Cutting-edge diagnostics coexist with ancient healing traditions\",\"🏋️ World-class wellness facilities\",\"📋 It is a very well-organized place\",\"🌳 A lot of trees and a large size of land and activities\",\"🥂 Check-in process with an attractive welcome drink\",\"📶 Guests enjoy free WiFi\",\"💆 Massage services\",\"🧘 Yoga classes\",\"🍽️ The hotel features a restaurant\",\"☕ Coffee shop\",\"🏊 Kids' pool\",\"👨‍👩‍👧 Family rooms\",\"♿ What stood out most during my stay was how accessible the entire experience felt\",\"💆 The treatments here were next level\",\"⚖️ A perfect harmony of Eastern wisdom and Western science\"],\"url\":\"https://hotelist.com/hotel/YXBKKRXW\"},{\"cons\":[\"😕 Occasional lapses in service\",\"🗣️ Significant lapses in communication\",\"❄️ Lack of general warmth\"],\"exceptional\":true,\"hotel_id\":\"LWBKK865\",\"hotelist_rating\":9.1,\"latitude\":13.71231,\"longitude\":100.51017,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/capella-bangkok-bangkok-0a12912f2b97a977718f54fd43cc5d18.jpeg\",\"price\":960.55,\"pros\":[\"🌟 Service is generally warm and attentive\",\"✨ Luxurious amenities including a spa and pool\",\"🏛️ Soothingly simple interiors with blond woods, gold hints, and sleek dark lacquer\",\"🛁 Bathrooms feel like miniature sanctuaries\",\"📍 Premier location with beautiful views\",\"🍽️ Excellent F\u0026B offerings\",\"🌏 Modern hotel embracing local culture with timeless classic design\",\"👑 Treats guests like royalty from the moment they walk in\",\"🛏️ Amazing rooms\",\"📍 Perfect location\"],\"url\":\"https://hotelist.com/hotel/LWBKK865\",\"value_rating_per_100usd\":0.95,\"year_built\":2018},{\"exceptional\":true,\"hotel_id\":\"WVBKK446\",\"hotelist_rating\":9,\"latitude\":13.75444,\"longitude\":100.53098,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/eastin-grand-hotel-phayathai-bangkok-ac1c6ad44ce5a25d3479191a8749f003.jpeg\",\"price\":183.36,\"pros\":[\"🌇 Rooftop sunsets\",\"🏋️ Stunning gym\",\"🚇 Extremely convenient location for BTS and airport connections\",\"🍳 Superb breakfast\",\"🛁 Perfect format with 3 baths\",\"👥 Friendly and helpful staff\",\"🏊 Nice pool\",\"🛋️ Comfortable stay in suite with lounge access\"],\"url\":\"https://hotelist.com/hotel/WVBKK446\",\"value_rating_per_100usd\":4.89},{\"cons\":[\"🏢 Described as a soulless business hotel\",\"📍 Located in the middle of nowhere\"],\"exceptional\":true,\"hotel_id\":\"KIBKKSKB\",\"hotelist_rating\":8.9,\"latitude\":13.73668,\"longitude\":100.54361,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/sindhorn-kempinski-bangkok-bangkok-ef0a67dc5dbd5a95811aeefbb7672ac4.jpeg\",\"price\":359.8,\"pros\":[\"🏨 Central yet calm location praised by guests\",\"🧼 Consistently spotless cleanliness highlighted\",\"🛏️ Spacious and well-appointed rooms with comfortable beds\",\"🛁 Stunning bathrooms and walk-in closets\",\"🍳 Great breakfast spread with numerous made-to-order items\",\"🧹 Exemplary service and excellent facilities\"]…[truncated]"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": [
+        "search",
+        "bangkok",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":25,\"disclaimer\":\"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\"hotels\":[{\"exceptional\":true,\"hotel_id\":\"YXBKKRXW\",\"hotelist_rating\":9.4,\"latitude\":13.73536,\"longitude\":100.24343,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/rxv-wellness-bangkok-48888765f9e43e79188cf616a68b8615.jpeg\",\"price\":0,\"pros\":[\"🌿 The holistic treatments are customised\",\"🌿 The physiotherapists and therapists are super friendly and competent\",\"🏠 The rooms in the hotel are lovely\",\"👨‍👩‍👧‍👦 A truly family-oriented wellness retreat for multi-generations\",\"🏛️ The design is bright, modern and distinctly Thai\",\"🌳 There are a lot of trees\",\"🛎️ The service is very good\",\"🍽️ The food is delicious\",\"💆 There is a spa\",\"🧴 A facial sauna room\",\"🧴 Skin care\",\"👨‍⚕️ Expert medical advice\",\"🌳 RXV Wellness Village surrounds visitors with lush gardens and peaceful views\",\"💆 The onsite spa offers Swedish massages and reflexology treatments\",\"🔬 Cutting-edge diagnostics coexist with ancient healing traditions\",\"🏋️ World-class wellness facilities\",\"📋 It is a very well-organized place\",\"🌳 A lot of trees and a large size of land and activities\",\"🥂 Check-in process with an attractive welcome drink\",\"📶 Guests enjoy free WiFi\",\"💆 Massage services\",\"🧘 Yoga classes\",\"🍽️ The hotel features a restaurant\",\"☕ Coffee shop\",\"🏊 Kids' pool\",\"👨‍👩‍👧 Family rooms\",\"♿ What stood out most during my stay was how accessible the entire experience felt\",\"💆 The treatments here were next level\",\"⚖️ A perfect harmony of Eastern wisdom and Western science\"],\"url\":\"https://hotelist.com/hotel/YXBKKRXW\"},{\"cons\":[\"😕 Occasional lapses in service\",\"🗣️ Significant lapses in communication\",\"❄️ Lack of general warmth\"],\"exceptional\":true,\"hotel_id\":\"LWBKK865\",\"hotelist_rating\":9.1,\"latitude\":13.71231,\"longitude\":100.51017,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/capella-bangkok-bangkok-0a12912f2b97a977718f54fd43cc5d18.jpeg\",\"price\":960.55,\"pros\":[\"🌟 Service is generally warm and attentive\",\"✨ Luxurious amenities including a spa and pool\",\"🏛️ Soothingly simple interiors with blond woods, gold hints, and sleek dark lacquer\",\"🛁 Bathrooms feel like miniature sanctuaries\",\"📍 Premier location with beautiful views\",\"🍽️ Excellent F\u0026B offerings\",\"🌏 Modern hotel embracing local culture with timeless classic design\",\"👑 Treats guests like royalty from the moment they walk in\",\"🛏️ Amazing rooms\",\"📍 Perfect location\"],\"url\":\"https://hotelist.com/hotel/LWBKK865\",\"value_rating_per_100usd\":0.95,\"year_built\":2018},{\"exceptional\":true,\"hotel_id\":\"WVBKK446\",\"hotelist_rating\":9,\"latitude\":13.75444,\"longitude\":100.53098,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/eastin-grand-hotel-phayathai-bangkok-ac1c6ad44ce5a25d3479191a8749f003.jpeg\",\"price\":183.36,\"pros\":[\"🌇 Rooftop sunsets\",\"🏋️ Stunning gym\",\"🚇 Extremely convenient location for BTS and airport connections\",\"🍳 Superb breakfast\",\"🛁 Perfect format with 3 baths\",\"👥 Friendly and helpful staff\",\"🏊 Nice pool\",\"🛋️ Comfortable stay in suite with lounge access\"],\"url\":\"https://hotelist.com/hotel/WVBKK446\",\"value_rating_per_100usd\":4.89},{\"cons\":[\"🏢 Described as a soulless business hotel\",\"📍 Located in the middle of nowhere\"],\"exceptional\":true,\"hotel_id\":\"KIBKKSKB\",\"hotelist_rating\":8.9,\"latitude\":13.73668,\"longitude\":100.54361,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/sindhorn-kempinski-bangkok-bangkok-ef0a67dc5dbd5a95811aeefbb7672ac4.jpeg\",\"price\":359.8,\"pros\":[\"🏨 Central yet calm location praised by guests\",\"🧼 Consistently spotless cleanliness highlighted\",\"🛏️ Spacious and well-appointed rooms with comfortable beds\",\"🛁 Stunning bathrooms and walk-in closets\",\"🍳 Great breakfast spread with numerous made-to-order items\",\"🧹 Exemplary service and excellent facilities\"]…[truncated]"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: unknown location \"__printing_press_invalid__\" — not a known Hotelist city, country, or region\nRun 'hotelist-pp-cli sync cities' to refresh the local table, or check the spelling.\n"
+    },
+    {
+      "command": "show",
+      "kind": "help",
+      "args": [
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch and parse a hotel's detail from hotelist.com: the overall Hotelist Score, the AI rating of photos and of reviews, per-source normalized ratings, photo-verified amenities, and pros/cons. Pass a hotel id (e.g. KYLCGAVE) as returned by 'search'. Data is scraped from hotelist.com (community/AI-rated, not an official API).\n\nUsage:\n  hotelist-pp-cli show \u003chotel-id\u003e [flags]\n\nExamples:\n  hotelist-pp-cli show KYLCGAVE\n  hotelist-pp-cli show KYLCGAVE --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [show] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [show] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "show",
+      "kind": "error_path",
+      "args": [
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /modal/__printing_press_invalid__ returned HTTP 404: \u003cscript\u003econsole.log('/srv/http/hotelist.com/app/modal.php @ 7 0ms');\u003c/script\u003e\u003cscript\u003econsole.log('/srv/http/hotelist.com/app/modal.php @ 8 0ms');\u003c/script\u003e\u003cscript\u003econsole.log('/srv/http/hotelist.com/app/modal.php @ 14 0ms');\u003c/script\u003eHotel not found\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "stats",
+      "kind": "help",
+      "args": [
+        "stats",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Report what is currently stored in the local SQLite mirror: how many cities are in the reference table, how many hotels have been cached from prior queries, and how many watch snapshots exist. Hotelist's full live dataset is ~84,000 hotels across ~6,000 cities; this command reports only what you have fetched locally. Data is scraped from hotelist.com (community/AI-rated, not an official API).\n\nUsage:\n  hotelist-pp-cli stats [flags]\n\nExamples:\n  hotelist-pp-cli stats --json\n\nFlags:\n  -h, --help   help for stats\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "stats",
+      "kind": "happy_path",
+      "args": [
+        "stats",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"cached_cities\": 1356,\n  \"cached_hotels\": 543,\n  \"disclaimer\": \"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\n  \"live_dataset_note\": \"Hotelist's live dataset is ~84,000 hotels across ~6,000 cities and 153 countries; this CLI mirrors only what you fetch.\",\n  \"source\": \"hotelist.com (scraped, AI-rated)\",\n  \"watch_scopes\": 0,\n  \"watch_snapshots\": 0\n}\n"
+    },
+    {
+      "command": "stats",
+      "kind": "json_fidelity",
+      "args": [
+        "stats",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"cached_cities\": 1356,\n  \"cached_hotels\": 543,\n  \"disclaimer\": \"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\n  \"live_dataset_note\": \"Hotelist's live dataset is ~84,000 hotels across ~6,000 cities and 153 countries; this CLI mirrors only what you fetch.\",\n  \"source\": \"hotelist.com (scraped, AI-rated)\",\n  \"watch_scopes\": 0,\n  \"watch_snapshots\": 0\n}\n"
+    },
+    {
+      "command": "stats",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync cities",
+      "kind": "help",
+      "args": [
+        "sync",
+        "cities",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Scrape and store the city -\u003e geohash table from hotelist.com\n\nUsage:\n  hotelist-pp-cli sync cities [flags]\n\nExamples:\n  hotelist-pp-cli sync cities\n  hotelist-pp-cli sync cities --json\n\nFlags:\n      --db string   Override the local SQLite store path\n      --full        Full resync (cities are always fully rebuilt)\n  -h, --help        help for cities\n      --limit int   Accepted for compatibility; the city table is synced in full\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sync cities",
+      "kind": "happy_path",
+      "args": [
+        "sync",
+        "cities"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":1374,\"disclaimer\":\"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\"source\":\"hotelist.com (scraped, AI-rated)\",\"synced\":\"cities\"}\n"
+    },
+    {
+      "command": "sync cities",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "cities",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":1374,\"disclaimer\":\"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\"source\":\"hotelist.com (scraped, AI-rated)\",\"synced\":\"cities\"}\n"
+    },
+    {
+      "command": "sync cities",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "value",
+      "kind": "help",
+      "args": [
+        "value",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Rank hotels by rating-per-dollar using Hotelist's own best-value sort. The argument is a location (city/country/region) or a chain name/code (e.g. 'Marriott' or 'EM'); narrow a chain to a country with --country. Data is scraped from hotelist.com (community/AI-rated, not an official API).\n\nUsage:\n  hotelist-pp-cli value \u003clocation-or-chain\u003e [flags]\n\nExamples:\n  hotelist-pp-cli value tulum\n  hotelist-pp-cli value lisbon --max-price 200 --json\n  hotelist-pp-cli value marriott --country thailand\n  hotelist-pp-cli value \"four seasons\" --min-rating 8\n\nFlags:\n      --country string     Narrow a chain to a country (only used when the argument is a chain)\n  -h, --help               help for value\n      --limit int          Maximum hotels to return (default 25)\n      --max-price float    Only hotels at or below this nightly price\n      --min-rating float   Only hotels with a Hotelist Score at or above this (0-10)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "value",
+      "kind": "happy_path",
+      "args": [
+        "value",
+        "tulum"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":12,\"disclaimer\":\"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\"hotels\":[{\"cons\":[\"🔊 Some rooms very loud due to entertainment venue\",\"🏖️ Beach not always high quality (e.g., sargassum issues)\"],\"exceptional\":false,\"hotel_id\":\"BNPCM937\",\"hotelist_rating\":7.9,\"latitude\":20.49145,\"longitude\":-87.2427,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/barcelo-maya-tropical-riviera-maya-b0bd07f44c45ddab2fc3b603e0f0812c.jpeg\",\"price\":229,\"pros\":[\"😴 Very comfortable beds and bedding\",\"🌿 Beautiful site and impressive layout with natural foliage\",\"🏊‍♂️ Clean pools and stunning beach (when no sargassum)\",\"👨‍💼 Courteous, friendly, and outstanding staff service\",\"🍽️ Excellent and outstanding food in buffets\",\"🧹 Very clean rooms that smell fresh\",\"🌅 Great beach proximity and views (especially with premium upgrade)\",\"👨‍👩‍👧‍👦 Ideal location for families near Tulum ruins and ecological parks\",\"😊 Overall relaxing and wonderful experience for all ages\"],\"url\":\"https://hotelist.com/hotel/BNPCM937\",\"value_rating_per_100usd\":3.47},{\"cons\":[\"🍽️ Food not amazing (good enough for non-picky)\",\"🌬️ High humidity makes rooms feel damp\",\"🏖️ Rocky beach hard to walk barefoot on\",\"📞 Room service costs extra\"],\"exceptional\":false,\"hotel_id\":\"BNCUN938\",\"hotelist_rating\":7.7,\"latitude\":20.49064,\"longitude\":-87.24385,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/barcelo-maya-colonial-riviera-maya-d6d31f9661d120f6ae8c3c1c1c5d237e.jpeg\",\"price\":305,\"pros\":[\"🌊 Beautiful beachfront location\",\"🏖️ Hammocks galore and stunning Caribbean beach\",\"🏊 Infinity pool\",\"🍽️ Diverse food options, great buffet, and well-stocked bar\",\"🍳 Excellent breakfast buffet\",\"✨ Spotless rooms, clean hotel, and well-maintained grounds\",\"🎉 Lively atmosphere\",\"🏞️ Beautiful landscaped grounds\",\"👮 Safe on property and beach\"],\"url\":\"https://hotelist.com/hotel/BNCUN938\",\"value_rating_per_100usd\":2.52},{\"cons\":[\"🏠 Rooms and hotel services showing their age\",\"🛋️ Sofas extremely hard and uncomfortable\",\"🍽️ Food in main restaurant disgusting and potentially dangerous\",\"🚶 Beach and pool areas far from rooms, inconvenient\"],\"exceptional\":false,\"hotel_id\":\"GDPCMGPC\",\"hotelist_rating\":6.9,\"latitude\":20.44362,\"longitude\":-87.28806,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/grand-palladium-colonial-resort-spa-playa-del-carmen-6df0b1b857ecdd8b8afcd148c0328b50.jpeg\",\"price\":327,\"pros\":[\"🌟 Beautiful and comfortable suites\",\"🏊 Fantastic pool areas with huge main pools and adult-only options, plenty of sun loungers\",\"🍳 Delicious breakfast buffet with many options\",\"👏 Excellent staff, friendly and willing to serve\",\"🌿 Nice resort grounds\"],\"url\":\"https://hotelist.com/hotel/GDPCMGPC\",\"value_rating_per_100usd\":2.12},{\"cons\":[\"🔨 Resort needs major renovation (cracked walls, peeling paint)\",\"⚙️ In-room amenities sometimes not working\",\"🏝️ No natural beach (man-made due to rough surf and rocks)\",\"🍕 Skip the pizza\"],\"exceptional\":true,\"hotel_id\":\"RKPCMHRH\",\"hotelist_rating\":8.9,\"latitude\":20.50697,\"longitude\":-87.21537,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/hard-rock-hotel-riviera-maya-puerto-aventuras-2b1af157fbbd00b651db853634e20910.jpeg\",\"price\":435,\"pros\":[\"🌿 Beautiful and impeccably maintained grounds\",\"👨‍💼 Amazing, friendly, and fun staff\",\"🍽️ Excellent, varied food with high quality drinks\",\"🛏️ Spacious, comfy, clean rooms (some recently renovated)\",\"🎉 Fun atmosphere with pool foam parties\",\"🏖️ Beautiful (small, man-made) beach safe for kids\",\"📶 Internet included throughout\",\"🚶 Short walks, no long distances needed\"],\"url\":\"https://hotelist.com/hotel/RKPCMHRH\",\"value_rating_per_100usd\":2.04},{\"cons\":[\"🏝️ Terrible rocky beach with sharp rocks making water entry difficult\"],\"exceptional\":true,\"hotel_id\":\"BNCUN179\",\"hotelist_ra…[truncated]"
+    },
+    {
+      "command": "value",
+      "kind": "json_fidelity",
+      "args": [
+        "value",
+        "tulum",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":12,\"disclaimer\":\"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\"hotels\":[{\"cons\":[\"🔊 Some rooms very loud due to entertainment venue\",\"🏖️ Beach not always high quality (e.g., sargassum issues)\"],\"exceptional\":false,\"hotel_id\":\"BNPCM937\",\"hotelist_rating\":7.9,\"latitude\":20.49145,\"longitude\":-87.2427,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/barcelo-maya-tropical-riviera-maya-b0bd07f44c45ddab2fc3b603e0f0812c.jpeg\",\"price\":229,\"pros\":[\"😴 Very comfortable beds and bedding\",\"🌿 Beautiful site and impressive layout with natural foliage\",\"🏊‍♂️ Clean pools and stunning beach (when no sargassum)\",\"👨‍💼 Courteous, friendly, and outstanding staff service\",\"🍽️ Excellent and outstanding food in buffets\",\"🧹 Very clean rooms that smell fresh\",\"🌅 Great beach proximity and views (especially with premium upgrade)\",\"👨‍👩‍👧‍👦 Ideal location for families near Tulum ruins and ecological parks\",\"😊 Overall relaxing and wonderful experience for all ages\"],\"url\":\"https://hotelist.com/hotel/BNPCM937\",\"value_rating_per_100usd\":3.47},{\"cons\":[\"🍽️ Food not amazing (good enough for non-picky)\",\"🌬️ High humidity makes rooms feel damp\",\"🏖️ Rocky beach hard to walk barefoot on\",\"📞 Room service costs extra\"],\"exceptional\":false,\"hotel_id\":\"BNCUN938\",\"hotelist_rating\":7.7,\"latitude\":20.49064,\"longitude\":-87.24385,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/barcelo-maya-colonial-riviera-maya-d6d31f9661d120f6ae8c3c1c1c5d237e.jpeg\",\"price\":305,\"pros\":[\"🌊 Beautiful beachfront location\",\"🏖️ Hammocks galore and stunning Caribbean beach\",\"🏊 Infinity pool\",\"🍽️ Diverse food options, great buffet, and well-stocked bar\",\"🍳 Excellent breakfast buffet\",\"✨ Spotless rooms, clean hotel, and well-maintained grounds\",\"🎉 Lively atmosphere\",\"🏞️ Beautiful landscaped grounds\",\"👮 Safe on property and beach\"],\"url\":\"https://hotelist.com/hotel/BNCUN938\",\"value_rating_per_100usd\":2.52},{\"cons\":[\"🏠 Rooms and hotel services showing their age\",\"🛋️ Sofas extremely hard and uncomfortable\",\"🍽️ Food in main restaurant disgusting and potentially dangerous\",\"🚶 Beach and pool areas far from rooms, inconvenient\"],\"exceptional\":false,\"hotel_id\":\"GDPCMGPC\",\"hotelist_rating\":6.9,\"latitude\":20.44362,\"longitude\":-87.28806,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/grand-palladium-colonial-resort-spa-playa-del-carmen-6df0b1b857ecdd8b8afcd148c0328b50.jpeg\",\"price\":327,\"pros\":[\"🌟 Beautiful and comfortable suites\",\"🏊 Fantastic pool areas with huge main pools and adult-only options, plenty of sun loungers\",\"🍳 Delicious breakfast buffet with many options\",\"👏 Excellent staff, friendly and willing to serve\",\"🌿 Nice resort grounds\"],\"url\":\"https://hotelist.com/hotel/GDPCMGPC\",\"value_rating_per_100usd\":2.12},{\"cons\":[\"🔨 Resort needs major renovation (cracked walls, peeling paint)\",\"⚙️ In-room amenities sometimes not working\",\"🏝️ No natural beach (man-made due to rough surf and rocks)\",\"🍕 Skip the pizza\"],\"exceptional\":true,\"hotel_id\":\"RKPCMHRH\",\"hotelist_rating\":8.9,\"latitude\":20.50697,\"longitude\":-87.21537,\"name\":\"\u003credacted\u003e\",\"photo\":\"https://r2.hotellist.com/hard-rock-hotel-riviera-maya-puerto-aventuras-2b1af157fbbd00b651db853634e20910.jpeg\",\"price\":435,\"pros\":[\"🌿 Beautiful and impeccably maintained grounds\",\"👨‍💼 Amazing, friendly, and fun staff\",\"🍽️ Excellent, varied food with high quality drinks\",\"🛏️ Spacious, comfy, clean rooms (some recently renovated)\",\"🎉 Fun atmosphere with pool foam parties\",\"🏖️ Beautiful (small, man-made) beach safe for kids\",\"📶 Internet included throughout\",\"🚶 Short walks, no long distances needed\"],\"url\":\"https://hotelist.com/hotel/RKPCMHRH\",\"value_rating_per_100usd\":2.04},{\"cons\":[\"🏝️ Terrible rocky beach with sharp rocks making water entry difficult\"],\"exceptional\":true,\"hotel_id\":\"BNCUN179\",\"hotelist_ra…[truncated]"
+    },
+    {
+      "command": "value",
+      "kind": "error_path",
+      "args": [
+        "value",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: unknown location \"__printing_press_invalid__\" — not a known Hotelist city, country, or region\nRun 'hotelist-pp-cli sync cities' to refresh the local table, or check the spelling.\n"
+    },
+    {
+      "command": "watch add",
+      "kind": "help",
+      "args": [
+        "watch",
+        "add",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Save a location and take its first snapshot\n\nUsage:\n  hotelist-pp-cli watch add \u003clocation\u003e [flags]\n\nExamples:\n  hotelist-pp-cli watch add lisbon\n  hotelist-pp-cli watch add thailand --json\n\nFlags:\n  -h, --help   help for add\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch add",
+      "kind": "happy_path",
+      "args": [
+        "watch",
+        "add",
+        "lisbon"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"disclaimer\": \"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\n  \"hotels\": 65,\n  \"label\": \"Lisbon, Portugal\",\n  \"scope\": \"lisbon\",\n  \"snapshot\": \"2026-06-07T04:39:34Z\",\n  \"source\": \"hotelist.com (scraped, AI-rated)\"\n}\n"
+    },
+    {
+      "command": "watch add",
+      "kind": "json_fidelity",
+      "args": [
+        "watch",
+        "add",
+        "lisbon",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"disclaimer\": \"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\n  \"hotels\": 65,\n  \"label\": \"Lisbon, Portugal\",\n  \"scope\": \"lisbon\",\n  \"snapshot\": \"2026-06-07T04:39:34Z\",\n  \"source\": \"hotelist.com (scraped, AI-rated)\"\n}\n"
+    },
+    {
+      "command": "watch add",
+      "kind": "error_path",
+      "args": [
+        "watch",
+        "add",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: unknown location \"__printing_press_invalid__\" — not a known Hotelist city, country, or region\nRun 'hotelist-pp-cli sync cities' to refresh the local table, or check the spelling.\n"
+    },
+    {
+      "command": "watch diff",
+      "kind": "help",
+      "args": [
+        "watch",
+        "diff",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Re-fetch a watched location and report rating/price drift since the last snapshot\n\nUsage:\n  hotelist-pp-cli watch diff \u003clocation\u003e [flags]\n\nExamples:\n  hotelist-pp-cli watch diff lisbon\n  hotelist-pp-cli watch diff lisbon --metric price --json\n\nFlags:\n  -h, --help            help for diff\n      --metric string   What to diff: rating, price, or both (default \"both\")\n      --since string    Compare against the first snapshot on/after this date (YYYY-MM-DD); default is the latest snapshot\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch diff",
+      "kind": "happy_path",
+      "args": [
+        "watch",
+        "diff",
+        "lisbon"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"source\": \"hotelist.com (scraped, AI-rated)\",\n  \"disclaimer\": \"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\n  \"scope\": \"lisbon\",\n  \"baseline_time\": \"2026-06-07T04:39:34Z\",\n  \"current_time\": \"2026-06-07T04:39:34Z\",\n  \"metric\": \"both\"\n}\n"
+    },
+    {
+      "command": "watch diff",
+      "kind": "json_fidelity",
+      "args": [
+        "watch",
+        "diff",
+        "lisbon",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"source\": \"hotelist.com (scraped, AI-rated)\",\n  \"disclaimer\": \"Data scraped from Hotelist.com (by @levelsio); community/AI-rated, not an official API. Ratings are AI-normalized 0-10; prices are AI-estimated nightly figures, not date-specific quotes.\",\n  \"scope\": \"lisbon\",\n  \"baseline_time\": \"2026-06-07T04:39:34Z\",\n  \"current_time\": \"2026-06-07T04:39:34Z\",\n  \"metric\": \"both\"\n}\n"
+    },
+    {
+      "command": "watch diff",
+      "kind": "error_path",
+      "args": [
+        "watch",
+        "diff",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: unknown location \"__printing_press_invalid__\" — not a known Hotelist city, country, or region\nRun 'hotelist-pp-cli sync cities' to refresh the local table, or check the spelling.\n"
+    },
+    {
+      "command": "watch list",
+      "kind": "help",
+      "args": [
+        "watch",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List watched locations and their snapshot counts\n\nUsage:\n  hotelist-pp-cli watch list [flags]\n\nExamples:\n  hotelist-pp-cli watch list\n  hotelist-pp-cli watch list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch list",
+      "kind": "happy_path",
+      "args": [
+        "watch",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"source\": \"hotelist.com (scraped, AI-rated)\",\n  \"watches\": [\n    {\n      \"scope\": \"lisbon\",\n      \"label\": \"Lisbon, Portugal\",\n      \"snapshots\": 1\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "watch list",
+      "kind": "json_fidelity",
+      "args": [
+        "watch",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"source\": \"hotelist.com (scraped, AI-rated)\",\n  \"watches\": [\n    {\n      \"scope\": \"lisbon\",\n      \"label\": \"Lisbon, Portugal\",\n      \"snapshots\": 1\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "watch list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  hotelist-pp-cli which [query] [flags]\n\nExamples:\n  hotelist-pp-cli which \"stale tickets\"\n  hotelist-pp-cli which \"bottleneck\"\n  hotelist-pp-cli which --limit 1 \"send message\"\n  hotelist-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  hotelist-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  hotelist-pp-cli workflow status\n\n  # Show status as JSON\n  hotelist-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hotelist-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  city                           1356 items\n  country                        211 items\n  hotel                          563 items\n\n  Total: 2130 items\n  Store: /tmp/claude-501/printing-press-subprocess-468264415/.local/share/hotelist-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"city\": 1356,\n  \"country\": 211,\n  \"hotel\": 563\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-07T04:39:26.21938Z"
+}

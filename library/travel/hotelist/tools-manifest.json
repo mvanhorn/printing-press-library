@@ -1,0 +1,42 @@
+{
+  "api_name": "hotelist",
+  "base_url": "https://hotelist.com",
+  "description": "Every Hotelist feature, plus a local SQLite mirror that ranks rating-per-dollar across whole countries, compares chains head-to-head, and tracks how a city's hotels change over time.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    },
+    {
+      "name": "X-Requested-With",
+      "value": "XMLHttpRequest"
+    },
+    {
+      "name": "Accept",
+      "value": "application/json, text/html, */*"
+    }
+  ],
+  "tools": [
+    {
+      "name": "hotel_detail",
+      "description": "Fetch the raw detail-modal HTML for one hotel (Hotelist Score, verified amenities, AI rating breakdown). The 'show' command parses this into structured fields. Required: hotel_id.",
+      "method": "GET",
+      "path": "/modal/{hotel_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "hotel_id",
+          "type": "string",
+          "location": "path",
+          "description": "Hotelist hotel id, e.g. KYLCGAVE",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

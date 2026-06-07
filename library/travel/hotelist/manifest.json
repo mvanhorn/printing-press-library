@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "hotelist-pp-mcp",
+  "display_name": "Hotelist",
+  "version": "4.22.1",
+  "description": "Every Hotelist feature, plus a local SQLite mirror that ranks rating-per-dollar across whole countries, compares chains head-to-head, and tracks how a city's hotels change over time.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/hotelist-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/hotelist-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

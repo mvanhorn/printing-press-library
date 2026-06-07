@@ -1,0 +1,209 @@
+{
+  "api_name": "hotelist",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-07T00:30:00Z",
+  "novel_features": [
+    {
+      "name": "Country value leaderboard",
+      "command": "rank-country",
+      "description": "Rank the best hotels across an entire country by Hotelist rating-per-dollar, with compound amenity and price filters.",
+      "rationale": "Hotelist's map UI is bounded to one city viewport; only a local mirror can compute a national value leaderboard from a single country-filtered pull.",
+      "example": "hotelist-pp-cli rank-country thailand --min-rating 8 --max-price 150 --amenities pool,coworking --json",
+      "why_it_matters": "When an agent needs the single best-value hotel in a whole country under hard constraints, reach for this instead of paging city-by-city search.",
+      "group": "Cross-location value the map UI can't express"
+    },
+    {
+      "name": "Chain vs chain value showdown",
+      "command": "chain-compare",
+      "description": "Compare hotel chains head-to-head on mean rating, median price, and rating-per-dollar in a country.",
+      "rationale": "The website filters one chain at a time with no aggregate stats; cross-chain comparison requires joining many per-chain pulls in the local store.",
+      "example": "hotelist-pp-cli chain-compare --chains marriott,hilton,hyatt --country japan --metric best-value --json",
+      "why_it_matters": "Answers 'which chain is actually worth it here?' in one call instead of a dozen manual map filters.",
+      "group": "Cross-location value the map UI can't express"
+    },
+    {
+      "name": "Nomad corridor scout",
+      "command": "corridor",
+      "description": "Find the best hotel in each stop of a multi-city route in one pass, with shared filters.",
+      "rationale": "Requires resolving each city to its geohash via the local table and aggregating per-city winners across a user-defined corridor.",
+      "example": "hotelist-pp-cli corridor --cities \"Chiang Mai,Lisbon,Medellin\" --min-rating 7.5 --max-price 120 --amenities coworking --json",
+      "why_it_matters": "Plans a nomad's annual route in one command; pick this over N separate searches when the user names several cities.",
+      "group": "Cross-location value the map UI can't express"
+    },
+    {
+      "name": "Watch \u0026 drift tracker",
+      "command": "watch",
+      "description": "Snapshot a saved location over time and diff which hotels improved, declined, or changed price since you last checked.",
+      "rationale": "Hotelist has no historical state; only the local SQLite mirror stores timestamped scrape runs to diff against.",
+      "example": "hotelist-pp-cli watch diff lisbon --since 2026-01-01 --metric both --json",
+      "why_it_matters": "The only way to answer 'did this city's hotels get better or more expensive since last time?' — pick it for any change-over-time question.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Chain consistency score",
+      "command": "chain-consistency",
+      "description": "Compute mean, median, and spread of a single chain's ratings across a country to see if the brand is reliably good or full of outliers.",
+      "rationale": "A population-level variance stat over all of a chain's properties is unavailable on the website; it is a pure aggregation on the local mirror.",
+      "example": "hotelist-pp-cli chain-consistency --chain marriott --country thailand --json",
+      "why_it_matters": "Use before trusting a loyalty brand in an unfamiliar region; surfaces hidden outlier risk a single listing can't show.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Price cliff finder",
+      "command": "price-cliff",
+      "description": "Find the price point in a city where rating-per-extra-dollar collapses — the cheapest hotel that's still legitimately good.",
+      "rationale": "The site's price histogram is visual-only; extracting the breakpoint needs the full joint price+rating distribution stored locally.",
+      "example": "hotelist-pp-cli price-cliff bangkok --min-rating 7 --json",
+      "why_it_matters": "Turns 'spend the least without sacrificing quality' into one number plus the hotels just below the cliff.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Country value leaderboard",
+      "command": "rank-country",
+      "description": "Rank the best hotels across an entire country by Hotelist rating-per-dollar, with compound amenity and price filters.",
+      "rationale": "Hotelist's map UI is bounded to one city viewport; only a local mirror can compute a national value leaderboard from a single country-filtered pull.",
+      "example": "hotelist-pp-cli rank-country thailand --min-rating 8 --max-price 150 --amenities pool,coworking --json",
+      "why_it_matters": "When an agent needs the single best-value hotel in a whole country under hard constraints, reach for this instead of paging city-by-city search.",
+      "group": "Cross-location value the map UI can't express"
+    },
+    {
+      "name": "Chain vs chain value showdown",
+      "command": "chain-compare",
+      "description": "Compare hotel chains head-to-head on mean rating, median price, and rating-per-dollar in a country.",
+      "rationale": "The website filters one chain at a time with no aggregate stats; cross-chain comparison requires joining many per-chain pulls in the local store.",
+      "example": "hotelist-pp-cli chain-compare --chains marriott,hilton,hyatt --country japan --metric best-value --json",
+      "why_it_matters": "Answers 'which chain is actually worth it here?' in one call instead of a dozen manual map filters.",
+      "group": "Cross-location value the map UI can't express"
+    },
+    {
+      "name": "Nomad corridor scout",
+      "command": "corridor",
+      "description": "Find the best hotel in each stop of a multi-city route in one pass, with shared filters.",
+      "rationale": "Requires resolving each city to its geohash via the local table and aggregating per-city winners across a user-defined corridor.",
+      "example": "hotelist-pp-cli corridor --cities \"Chiang Mai,Lisbon,Medellin\" --min-rating 7.5 --max-price 120 --amenities coworking --json",
+      "why_it_matters": "Plans a nomad's annual route in one command; pick this over N separate searches when the user names several cities.",
+      "group": "Cross-location value the map UI can't express"
+    },
+    {
+      "name": "Watch \u0026 drift tracker",
+      "command": "watch",
+      "description": "Snapshot a saved location over time and diff which hotels improved, declined, or changed price since you last checked.",
+      "rationale": "Hotelist has no historical state; only the local SQLite mirror stores timestamped scrape runs to diff against.",
+      "example": "hotelist-pp-cli watch diff lisbon --since 2026-01-01 --metric both --json",
+      "why_it_matters": "The only way to answer 'did this city's hotels get better or more expensive since last time?' — pick it for any change-over-time question.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Chain consistency score",
+      "command": "chain-consistency",
+      "description": "Compute mean, median, and spread of a single chain's ratings across a country to see if the brand is reliably good or full of outliers.",
+      "rationale": "A population-level variance stat over all of a chain's properties is unavailable on the website; it is a pure aggregation on the local mirror.",
+      "example": "hotelist-pp-cli chain-consistency --chain marriott --country thailand --json",
+      "why_it_matters": "Use before trusting a loyalty brand in an unfamiliar region; surfaces hidden outlier risk a single listing can't show.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Price cliff finder",
+      "command": "price-cliff",
+      "description": "Find the price point in a city where rating-per-extra-dollar collapses — the cheapest hotel that's still legitimately good.",
+      "rationale": "The site's price histogram is visual-only; extracting the breakpoint needs the full joint price+rating distribution stored locally.",
+      "example": "hotelist-pp-cli price-cliff bangkok --min-rating 7 --json",
+      "why_it_matters": "Turns 'spend the least without sacrificing quality' into one number plus the hotels just below the cliff.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Hotelist",
+    "headline": "Every Hotelist feature, plus a local SQLite mirror that ranks rating-per-dollar across whole countries, compares chains head-to-head, and tracks how a city's hotels change over time.",
+    "value_prop": "Hotelist.com (by @levelsio) rates hotels with AI: it reads real traveler reviews, scores actual room photos, and photo-verifies claimed amenities so you can filter on a gym with real weights or a bathtub that actually exists. This CLI puts that data in your terminal and in agent context with --json/--select output, an offline cache, and cross-location commands the single-map website can't express: rank-country, chain-compare, corridor, and a watch/diff drift tracker. Data is scraped from Hotelist (community/AI-rated, not an official API).",
+    "quickstart": [
+      {
+        "command": "hotelist-pp-cli doctor --dry-run",
+        "comment": "Health check: confirms Hotelist.com is reachable before you search."
+      },
+      {
+        "command": "hotelist-pp-cli search bangkok --json",
+        "comment": "AI-rated hotels in a city, sorted by Hotelist Score."
+      },
+      {
+        "command": "hotelist-pp-cli filter lisbon --gym-weights --pool --json",
+        "comment": "Photo-verified amenities: a real weightlifting gym and a pool."
+      },
+      {
+        "command": "hotelist-pp-cli value tulum --json",
+        "comment": "Best rating-per-dollar in a location."
+      },
+      {
+        "command": "hotelist-pp-cli rank-country portugal --min-rating 8 --max-price 150 --json",
+        "comment": "National value leaderboard the website's map UI can't produce."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "search returns an empty list for a city",
+        "fix": "Run 'hotelist-pp-cli sync cities' to refresh the city-to-geohash table, then retry; the city name must match a Hotelist city."
+      },
+      {
+        "symptom": "prices look off or undated",
+        "fix": "Hotelist prices are AI-estimated nightly figures, not live date-specific quotes; --checkin/--checkout are display context only, not a backend filter."
+      },
+      {
+        "symptom": "stale results",
+        "fix": "Add --fresh to bypass the local cache and re-fetch from Hotelist; default cache is fresh-on-read with a domain-appropriate stale window."
+      },
+      {
+        "symptom": "HTTP 429 or slow responses",
+        "fix": "The CLI rate-limits politely by design; lower concurrency with --max-scan-pages on multi-location commands or wait and retry."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or user wants AI-rated, photo-verified hotel discovery without pay-to-play bias, especially for cross-location questions: best value across a country, chain-vs-chain comparison, a multi-city route, or tracking how a place changes over time. It shines when the answer requires aggregating or joining hotel data that Hotelist's one-city-at-a-time map cannot.",
+    "anti_triggers": [
+      "Do not use this CLI to book a hotel or check live room availability — Hotelist is discovery-only with no booking or dated pricing.",
+      "Do not use it for date-specific nightly quotes; prices are AI-estimated averages.",
+      "Do not use it as a general Booking.com/Expedia client — it only exposes Hotelist's AI-rated dataset."
+    ],
+    "recipes": [
+      {
+        "title": "Best-value hotel with a real gym in a city",
+        "command": "hotelist-pp-cli filter lisbon --gym-weights --json --select hotels.name,hotels.hotellist_rating,hotels.price",
+        "explanation": "Photo-verified weightlifting gym, narrowed to just name/rating/price so an agent doesn't parse the full payload."
+      },
+      {
+        "title": "National value leaderboard",
+        "command": "hotelist-pp-cli rank-country thailand --min-rating 8 --max-price 150 --top 10 --json",
+        "explanation": "Top 10 hotels by rating-per-dollar across the whole country in one call."
+      },
+      {
+        "title": "Compare loyalty chains before committing",
+        "command": "hotelist-pp-cli chain-compare --chains marriott,hyatt --country japan --metric best-value --json",
+        "explanation": "Head-to-head mean rating, median price, and value per chain."
+      },
+      {
+        "title": "Plan a nomad route",
+        "command": "hotelist-pp-cli corridor --cities \"Chiang Mai,Lisbon,Tbilisi\" --min-rating 7.5 --max-price 120 --json",
+        "explanation": "Best hotel per stop that clears all filters, in one pass."
+      },
+      {
+        "title": "Deep-dive one hotel's AI breakdown",
+        "command": "hotelist-pp-cli show KYLCGAVE --json",
+        "explanation": "Full Hotelist Score, AI photo and review ratings, consensus, verified amenities, pros and cons."
+      }
+    ],
+    "trigger_phrases": [
+      "find AI-rated hotels in",
+      "best value hotel in",
+      "hotels with a real gym in",
+      "compare hotel chains",
+      "rank hotels by rating per dollar",
+      "use hotelist",
+      "run hotelist"
+    ]
+  }
+}
