@@ -7,14 +7,17 @@
 package store
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"hash/fnv"
+	"math"
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -665,7 +668,7 @@ func (s *Store) Search(query string, limit int) ([]json.RawMessage, error) {
 func extractObjectID(obj map[string]any) string {
 	for _, key := range []string{"id", "Id", "ID", "uuid", "slug", "name"} {
 		if v, ok := obj[key]; ok {
-			return fmt.Sprintf("%v", v)
+			return ResourceIDString(v)
 		}
 	}
 	return ""
@@ -713,9 +716,11 @@ func LookupFieldValue(obj map[string]any, snakeKey string) any {
 }
 
 func sqliteFieldValue(v any) any {
-	switch v.(type) {
+	switch t := v.(type) {
 	case nil, string, bool, int, int64, float64, []byte:
 		return v
+	case json.Number:
+		return strings.TrimSpace(t.String())
 	default:
 		data, err := json.Marshal(v)
 		if err != nil {
@@ -730,6 +735,42 @@ func sqliteFieldValue(v any) any {
 // with the package name.
 func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	return LookupFieldValue(obj, snakeKey)
+}
+
+// DecodeJSONObject decodes data into an object while preserving JSON numbers.
+// Plain json.Unmarshal turns numbers into float64, and fmt on those values can
+// render large integer IDs as scientific notation before they reach resources.id.
+func DecodeJSONObject(data json.RawMessage) (map[string]any, error) {
+	var obj map[string]any
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.UseNumber()
+	if err := dec.Decode(&obj); err != nil {
+		return nil, err
+	}
+	return obj, nil
+}
+
+// ResourceIDString returns the stable text form used for resources.id.
+func ResourceIDString(v any) string {
+	switch t := v.(type) {
+	case nil:
+		return ""
+	case json.Number:
+		return strings.TrimSpace(t.String())
+	case float64:
+		if math.IsNaN(t) || math.IsInf(t, 0) {
+			return ""
+		}
+		return strconv.FormatFloat(t, 'f', -1, 64)
+	case float32:
+		f := float64(t)
+		if math.IsNaN(f) || math.IsInf(f, 0) {
+			return ""
+		}
+		return strconv.FormatFloat(f, 'f', -1, 32)
+	default:
+		return strings.TrimSpace(fmt.Sprint(t))
+	}
 }
 
 // resourceIDFieldOverrides projects per-resource IDField (set by the profiler
@@ -757,7 +798,7 @@ var genericIDFieldFallbacks = []string{"id", "ID", "gid", "sid", "uid", "uuid", 
 func ExtractResourceID(resourceType string, obj map[string]any) string {
 	if override, ok := resourceIDFieldOverrides[resourceType]; ok && override != "" {
 		if v := lookupFieldValue(obj, override); v != nil {
-			s := fmt.Sprintf("%v", v)
+			s := ResourceIDString(v)
 			if s != "" && s != "<nil>" {
 				return s
 			}
@@ -765,7 +806,7 @@ func ExtractResourceID(resourceType string, obj map[string]any) string {
 	}
 	for _, key := range genericIDFieldFallbacks {
 		if v := lookupFieldValue(obj, key); v != nil {
-			s := fmt.Sprintf("%v", v)
+			s := ResourceIDString(v)
 			if s != "" && s != "<nil>" {
 				return s
 			}
@@ -806,8 +847,8 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 
 	var stored, skippedCount, extractFailures int
 	for _, item := range items {
-		var obj map[string]any
-		if err := json.Unmarshal(item, &obj); err != nil {
+		obj, err := DecodeJSONObject(item)
+		if err != nil {
 			skippedCount++
 			continue
 		}

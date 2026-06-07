@@ -973,8 +973,7 @@ func upsertResourceBatch(db *store.Store, resource string, items []json.RawMessa
 	order := []string{}
 	for _, item := range items {
 		target := resource
-		var obj map[string]any
-		if err := json.Unmarshal(item, &obj); err == nil {
+		if obj, err := store.DecodeJSONObject(item); err == nil {
 			target = resolveDiscriminatedResource(resource, obj)
 		}
 		if _, ok := grouped[target]; !ok {
@@ -1012,8 +1011,8 @@ func resolveDiscriminatedResource(resource string, obj map[string]any) string {
 
 // upsertSingleObject stores a non-array API response as a single record.
 func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
+	obj, err := store.DecodeJSONObject(data)
+	if err != nil {
 		// Not a JSON object either - store raw under resource name
 		return db.Upsert(resource, resource, data)
 	}
@@ -1157,7 +1156,7 @@ var criticalResources = map[string]bool{}
 func extractID(resource string, obj map[string]any) string {
 	if override, ok := resourceIDFieldOverrides[resource]; ok && override != "" {
 		if v := store.LookupFieldValue(obj, override); v != nil {
-			s := fmt.Sprintf("%v", v)
+			s := store.ResourceIDString(v)
 			if s != "" && s != "<nil>" {
 				return s
 			}
@@ -1165,7 +1164,7 @@ func extractID(resource string, obj map[string]any) string {
 	}
 	for _, key := range genericIDFieldFallbacks {
 		if v := store.LookupFieldValue(obj, key); v != nil {
-			s := fmt.Sprintf("%v", v)
+			s := store.ResourceIDString(v)
 			if s != "" && s != "<nil>" {
 				return s
 			}

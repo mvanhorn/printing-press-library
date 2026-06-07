@@ -17,8 +17,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "1.0.0"
-
 type rootFlags struct {
 	asJSON     bool
 	compact    bool
@@ -264,7 +262,7 @@ Run 'reno-goat-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newSaveCmd(flags))
 	rootCmd.AddCommand(newSavedCmd(flags))
 	rootCmd.AddCommand(newHistoryCmd(flags))
-	rootCmd.AddCommand(newVersionCliCmd())
+	rootCmd.AddCommand(newVersionCmd())
 
 	return rootCmd
 }
@@ -316,14 +314,4 @@ func (f *rootFlags) printTable(w *cobra.Command, headers []string, rows [][]stri
 		fmt.Fprintln(tw, line)
 	}
 	return tw.Flush()
-}
-
-func newVersionCliCmd() *cobra.Command {
-	return &cobra.Command{
-		Use:   "version",
-		Short: "Print version",
-		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("reno-goat-pp-cli %s\n", version)
-		},
-	}
 }
