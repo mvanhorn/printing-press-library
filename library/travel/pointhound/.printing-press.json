@@ -26,12 +26,12 @@
     {
       "name": "Reachability from points balance",
       "command": "from-home",
-      "description": "Tell me where I can fly with the points I actually hold — feed in your Chase UR, Amex MR, Bilt, Capital One, and Citi TY balances and get back every destination reachable in the requested cabin within those balances, ranked by lowest effective spend."
+      "description": "Tell me where I can fly with the points I actually hold \u2014 feed in your Chase UR, Amex MR, Bilt, Capital One, and Citi TY balances and get back every destination reachable in the requested cabin within those balances, ranked by lowest effective spend."
     },
     {
       "name": "Effective-cost ranking via transfer ratios",
       "command": "compare-transfer",
-      "description": "Given a transferable points program (Chase UR, Amex MR, etc.) and a route, list every redemption ranked by source-program points spent — multiplying each offer's price by the real transfer ratio (1:1 instant for UR→United vs 0.333:1 up_to_72 for Marriott→United)."
+      "description": "Given a transferable points program (Chase UR, Amex MR, etc.) and a route, list every redemption ranked by source-program points spent \u2014 multiplying each offer's price by the real transfer ratio (1:1 instant for UR\u2192United vs 0.333:1 up_to_72 for Marriott\u2192United)."
     },
     {
       "name": "Saved-route polling with delta exit code",
@@ -46,7 +46,7 @@
     {
       "name": "Top Deals matrix with persistence",
       "command": "top-deals-matrix",
-      "description": "Submit a multi-origin × multi-destination × month-range matrix search (e.g. SFO,LAX → LIS,FCO,LHR across Oct-Dec) and snapshot every result. Mirrors Pointhound's Premium Top Deals product but with offline access and cabin filtering."
+      "description": "Submit a multi-origin \u00d7 multi-destination \u00d7 month-range matrix search (e.g. SFO,LAX \u2192 LIS,FCO,LHR across Oct-Dec) and snapshot every result. Mirrors Pointhound's Premium Top Deals product but with offline access and cabin filtering."
     },
     {
       "name": "Cross-snapshot drift report",
@@ -67,6 +67,12 @@
       "name": "Transfer-source lookup",
       "command": "transferable-sources",
       "description": "Given an airline redeem program (e.g. United MileagePlus), list every transferable earn program that feeds it with the ratio and transfer time (instant vs up_to_72)."
+    }
+  ],
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
     }
   ]
 }

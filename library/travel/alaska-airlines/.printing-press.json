@@ -24,5 +24,11 @@
     }
   ],
   "printer": "mvanhorn",
-  "printer_name": "Matt Van Horn"
+  "printer_name": "Matt Van Horn",
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ]
 }

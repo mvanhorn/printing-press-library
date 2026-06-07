@@ -7,6 +7,7 @@ MyFitnessPal closed their API, gates per-food export behind premium, and ships p
 Learn more at [MyFitnessPal](https://www.myfitnesspal.com).
 
 Created by [@nickscarabosio](https://github.com/nickscarabosio) (Nick Scarabosio).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 

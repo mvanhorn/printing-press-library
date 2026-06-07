@@ -7,6 +7,7 @@ Browse stores and menus, build carts, view rewards, and one-shot reorders from t
 Learn more at [Jimmy John's](https://www.jimmyjohns.com).
 
 Created by [@omarshahine](https://github.com/omarshahine) (Omar Shahine).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 

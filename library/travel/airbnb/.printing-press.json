@@ -68,5 +68,11 @@
       "command": "fingerprint",
       "description": "Stable hash from photos + amenities + host + city; used by match for dedupe; exposed for power-user export workflows."
     }
+  ],
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
   ]
 }

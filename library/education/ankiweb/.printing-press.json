@@ -53,5 +53,11 @@
       "command": "brief",
       "description": "One digest for a topic: top decks by approval rate, audio coverage, the freshest deck, and how many are new since last sync."
     }
+  ],
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
   ]
 }

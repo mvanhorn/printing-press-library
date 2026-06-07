@@ -13,7 +13,7 @@
   "owner": "omar-shahine",
   "printer": "omarshahine",
   "printer_name": "Omar Shahine",
-  "description": "Order Jimmy John's from the terminal — Freaky Fast Rewards stacking, half-order builder, and one-shot reorder.",
+  "description": "Order Jimmy John's from the terminal \u2014 Freaky Fast Rewards stacking, half-order builder, and one-shot reorder.",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:a6cbc38fc56e4c289ed23a09ef88da8a678be7eec2a5e441a64c38231cf06b0e",
   "spec_source": "browser-sniff",
@@ -27,17 +27,23 @@
     {
       "name": "Unwich Converter",
       "command": "menu unwich-convert",
-      "description": "Convert a sandwich's modifier set to an Unwich (lettuce wrap) variant — pure-local computation, no live API call."
+      "description": "Convert a sandwich's modifier set to an Unwich (lettuce wrap) variant \u2014 pure-local computation, no live API call."
     },
     {
       "name": "Office Lunch Planner",
       "command": "order plan",
-      "description": "Suggest a sized cart for a group order — sandwiches + sides + cookies + drinks scaled to N people with dietary filters."
+      "description": "Suggest a sized cart for a group order \u2014 sandwiches + sides + cookies + drinks scaled to N people with dietary filters."
     },
     {
       "name": "Half-and-Half Composer",
       "command": "menu half-and-half",
       "description": "Compose a two-product share order with the agent-facing note that JJ doesn't natively support half-and-half slicing."
+    }
+  ],
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
     }
   ]
 }

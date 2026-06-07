@@ -7,6 +7,7 @@ GISIS is the IMO's canonical ship registry, gated by a login + Cloudflare Turnst
 Learn more at [GISIS](https://gisis.imo.org).
 
 Created by [@6myfzqx6bv-ctrl](https://github.com/6myfzqx6bv-ctrl) (ivory_elephant).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 

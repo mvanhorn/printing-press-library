@@ -7,6 +7,7 @@ Use eRank from a terminal to capture keyword stats, top listings, tags, related 
 Learn more at [eRank](https://members.erank.com).
 
 Created by [@horknfbr](https://github.com/horknfbr) (horknfbr).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 

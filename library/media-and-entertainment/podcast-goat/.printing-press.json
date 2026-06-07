@@ -73,5 +73,11 @@
   "printer_name": "Matt Van Horn",
   "category": "media-and-entertainment",
   "owner": "podcast-goat",
-  "owner_name": "Podcast GOAT"
+  "owner_name": "Podcast GOAT",
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ]
 }

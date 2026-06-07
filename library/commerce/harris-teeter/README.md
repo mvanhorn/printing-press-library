@@ -5,6 +5,7 @@ Harris Teeter grocery shopping API discovered from the logged-in web app
 Learn more at [Harris Teeter](https://www.harristeeter.com).
 
 Created by [@jwmoss](https://github.com/jwmoss) (Jonathan Moss).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 

@@ -60,5 +60,11 @@
       "command": "reply",
       "description": "Prepare and send a seller inbox reply only when `--write` and doctor gating both pass."
     }
+  ],
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
   ]
 }

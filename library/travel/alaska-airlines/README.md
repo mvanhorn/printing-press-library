@@ -7,6 +7,7 @@ Single static binary that talks to alaskaair.com's SvelteKit endpoints over a Ch
 Learn more at [Alaska Airlines](https://www.alaskaair.com).
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 

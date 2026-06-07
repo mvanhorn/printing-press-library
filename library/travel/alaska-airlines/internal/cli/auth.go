@@ -225,7 +225,7 @@ profile by name when the installed backend supports it.`,
 }
 func cookieToolSupportsProfiles(tool string) bool {
 	switch tool {
-	case "pycookiecheat", "cookie-scoop":
+	case "pycookiecheat", "pycookiecheat-cli", "cookie-scoop":
 		return true
 	default:
 		return false
@@ -654,6 +654,7 @@ func detectCookieTool() (string, error) {
 		check []string
 	}{
 		{"pycookiecheat", []string{"python3", "-c", "import pycookiecheat"}},
+		{"pycookiecheat-cli", []string{"pycookiecheat", "--help"}},
 		{"cookies", []string{"cookies", "--help"}},
 		{"cookie-scoop", []string{"cookie-scoop", "--help"}},
 	}
@@ -672,6 +673,8 @@ func extractCookies(tool, domain, profileDir string) (string, error) {
 	switch tool {
 	case "pycookiecheat":
 		return extractViaPycookiecheat(domain, profileDir)
+	case "pycookiecheat-cli":
+		return extractViaPycookiecheatCLI(domain, profileDir)
 	case "cookies":
 		return extractViaCookiesCLI(domain)
 	case "cookie-scoop":
@@ -724,6 +727,38 @@ func extractViaPycookiecheat(domain, profileDir string) (string, error) {
 	}
 	if err := cmd.Run(); err != nil {
 		return "", fmt.Errorf("pycookiecheat failed: %w", err)
+	}
+
+	var cookies map[string]string
+	if err := json.Unmarshal(out.Bytes(), &cookies); err != nil {
+		return "", fmt.Errorf("parsing pycookiecheat output: %w", err)
+	}
+
+	var parts []string
+	for name, value := range cookies {
+		parts = append(parts, name+"="+value)
+	}
+	return strings.Join(parts, "; "), nil
+}
+
+func extractViaPycookiecheatCLI(domain, profileDir string) (string, error) {
+	cleanDomain := strings.TrimPrefix(domain, ".")
+	args := []string{}
+	if profileDir != "" {
+		dataDir, err := chromeDataDir()
+		if err != nil {
+			return "", err
+		}
+		args = append(args, "-c", filepath.Join(dataDir, profileDir, "Cookies"))
+	}
+	args = append(args, "https://"+cleanDomain)
+
+	var out bytes.Buffer
+	cmd := exec.Command("pycookiecheat", args...)
+	cmd.Stdout = &out
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return "", fmt.Errorf("pycookiecheat cli failed: %w", err)
 	}
 
 	var cookies map[string]string

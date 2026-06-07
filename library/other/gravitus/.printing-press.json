@@ -28,27 +28,33 @@
     {
       "name": "Dashboard Sync",
       "command": "sync",
-      "description": "Sync all Gravitus workouts into your training dashboard's SQLite database — writes LiftingSession records in the exact Prisma schema format with auth, pagination, and incremental support."
+      "description": "Sync all Gravitus workouts into your training dashboard's SQLite database \u2014 writes LiftingSession records in the exact Prisma schema format with auth, pagination, and incremental support."
     },
     {
       "name": "Data Export",
       "command": "export",
-      "description": "Export your complete Gravitus training history to CSV or JSON — the first and only way to get your data out of Gravitus."
+      "description": "Export your complete Gravitus training history to CSV or JSON \u2014 the first and only way to get your data out of Gravitus."
     },
     {
       "name": "Plateau Detection",
       "command": "exercises plateau",
-      "description": "Identifies exercises where estimated 1RM hasn't improved in N weeks — alert-style output for the dashboard coaching panel."
+      "description": "Identifies exercises where estimated 1RM hasn't improved in N weeks \u2014 alert-style output for the dashboard coaching panel."
     },
     {
       "name": "Weekly Volume",
       "command": "stats volume",
-      "description": "Weekly total lifting volume (lbs) aggregated from all synced sessions — the same metric the dashboard LiftingSection displays."
+      "description": "Weekly total lifting volume (lbs) aggregated from all synced sessions \u2014 the same metric the dashboard LiftingSection displays."
     },
     {
       "name": "Personal Records",
       "command": "exercises prs",
       "description": "All-time PRs across every exercise, extracted from PR markers on workout pages."
+    }
+  ],
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
     }
   ]
 }

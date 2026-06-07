@@ -7,6 +7,7 @@ Pointhound's web search is great for one-off lookups but doesn't compound. This 
 Learn more at [Pointhound](https://www.pointhound.com).
 
 Created by [@salmonumbrella](https://github.com/salmonumbrella) (salmonumbrella).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 

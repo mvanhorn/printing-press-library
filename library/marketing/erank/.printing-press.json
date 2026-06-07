@@ -70,5 +70,11 @@
       "command": "angles",
       "description": "Extract product angles from related searches, near matches, tags, and current top listings."
     }
+  ],
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
   ]
 }
