@@ -1,0 +1,491 @@
+name: instagram
+description: "Instagram Graph API analytics CLI for multi-brand Business/Creator accounts"
+version: "0.1.0"
+base_url: "https://graph.facebook.com/v22.0"
+health_check_path: "/me"
+category: social-and-messaging
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  env_vars:
+    - INSTAGRAM_ACCESS_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/instagram-pp-cli/config.toml"
+
+resources:
+  accounts:
+    description: "Brand account profiles (Instagram Business/Creator users linked to your Pages)"
+    endpoints:
+      pages:
+        method: GET
+        path: "/me/accounts"
+        description: "List the Facebook Pages you manage and their linked Instagram Business account ids"
+        params:
+          - name: fields
+            type: string
+            default: "id,name,instagram_business_account"
+            description: "Comma-separated Page fields to return"
+        response:
+          type: array
+          item: Page
+      get:
+        method: GET
+        path: "/{ig_user_id}"
+        description: "Get a brand account profile (followers, follows, media counts, bio)"
+        params:
+          - name: ig_user_id
+            type: string
+            required: true
+            positional: true
+            description: "Instagram Business account id (from 'accounts pages')"
+          - name: fields
+            type: string
+            default: "id,username,name,biography,website,profile_picture_url,followers_count,follows_count,media_count"
+            description: "Comma-separated profile fields to return"
+        response:
+          type: object
+          item: Account
+
+  account-insights:
+    description: "Account-level insights (reach, views, interactions, demographics)"
+    endpoints:
+      list:
+        method: GET
+        path: "/{ig_user_id}/insights"
+        description: "Account insights over a window (reach, accounts_engaged, total_interactions, views)"
+        params:
+          - name: ig_user_id
+            type: string
+            required: true
+            positional: true
+            description: "Instagram Business account id"
+          - name: metric
+            type: string
+            default: "reach,accounts_engaged,total_interactions,views"
+            description: "Comma-separated metrics. Use 'views' (impressions was deprecated in 2025)."
+          - name: period
+            type: string
+            default: "day"
+            description: "Aggregation period: day, week, days_28, or lifetime"
+          - name: metric_type
+            type: string
+            default: "total_value"
+            description: "total_value (single aggregate) or time_series"
+          - name: since
+            type: int
+            description: "Range start as a Unix timestamp"
+          - name: until
+            type: int
+            description: "Range end as a Unix timestamp"
+          - name: breakdown
+            type: string
+            description: "Optional breakdown dimension (e.g. media_product_type, follow_type)"
+        response:
+          type: array
+          item: Insight
+      demographics:
+        method: GET
+        path: "/{ig_user_id}/insights"
+        description: "Lifetime follower demographics broken down by age, gender, city, or country"
+        params:
+          - name: ig_user_id
+            type: string
+            required: true
+            positional: true
+            description: "Instagram Business account id"
+          - name: metric
+            type: string
+            default: "follower_demographics"
+            description: "follower_demographics or engaged_audience_demographics"
+          - name: period
+            type: string
+            default: "lifetime"
+            description: "Must be lifetime for demographics"
+          - name: metric_type
+            type: string
+            default: "total_value"
+            description: "Demographics require total_value"
+          - name: breakdown
+            type: string
+            default: "age"
+            description: "Breakdown dimension: age, gender, city, or country"
+        response:
+          type: array
+          item: Insight
+
+  media:
+    description: "Posts, reels, and per-media insights"
+    endpoints:
+      list:
+        method: GET
+        path: "/{ig_user_id}/media"
+        description: "List a brand's media (posts, reels, carousels) newest-first"
+        params:
+          - name: ig_user_id
+            type: string
+            required: true
+            positional: true
+            description: "Instagram Business account id"
+          - name: fields
+            type: string
+            default: "id,caption,media_type,media_product_type,permalink,timestamp,like_count,comments_count,thumbnail_url,media_url"
+            description: "Comma-separated media fields to return"
+          - name: limit
+            type: int
+            default: 25
+            description: "Page size (max matters for rate limits)"
+          - name: after
+            type: string
+            description: "Pagination cursor (paging.cursors.after)"
+        response:
+          type: array
+          item: Media
+        pagination:
+          type: cursor
+          cursor_field: "paging.cursors.after"
+          has_more_field: "paging.next"
+      get:
+        method: GET
+        path: "/{ig_media_id}"
+        description: "Get a single media object by id"
+        params:
+          - name: ig_media_id
+            type: string
+            required: true
+            positional: true
+            description: "Instagram media id"
+          - name: fields
+            type: string
+            default: "id,caption,media_type,media_product_type,permalink,timestamp,like_count,comments_count,thumbnail_url,media_url"
+            description: "Comma-separated media fields to return"
+        response:
+          type: object
+          item: Media
+      insights:
+        method: GET
+        path: "/{ig_media_id}/insights"
+        description: "Per-media insights (reach, views, saved, shares, interactions; Reels watch-time)"
+        params:
+          - name: ig_media_id
+            type: string
+            required: true
+            positional: true
+            description: "Instagram media id"
+          - name: metric
+            type: string
+            default: "reach,views,saved,shares,total_interactions"
+            description: "Comma-separated metrics. For Reels add ig_reels_avg_watch_time,ig_reels_video_view_total_time."
+        response:
+          type: array
+          item: Insight
+      publish-limit:
+        method: GET
+        path: "/{ig_user_id}/content_publishing_limit"
+        description: "Check remaining content-publishing quota (rolling 24h)"
+        params:
+          - name: ig_user_id
+            type: string
+            required: true
+            positional: true
+            description: "Instagram Business account id"
+        response:
+          type: object
+          item: PublishLimit
+      create:
+        method: POST
+        path: "/{ig_user_id}/media"
+        description: "Create a media container (step 1 of publishing). Analytics-first CLI; use --dry-run."
+        params:
+          - name: ig_user_id
+            type: string
+            required: true
+            positional: true
+            description: "Instagram Business account id"
+        body:
+          - name: image_url
+            type: string
+            description: "Public image URL (for image/carousel-item)"
+          - name: video_url
+            type: string
+            description: "Public video URL (for video/reel)"
+          - name: caption
+            type: string
+            description: "Caption text"
+          - name: media_type
+            type: string
+            description: "REELS or STORIES (omit for a feed image)"
+        response:
+          type: object
+          item: Container
+      publish:
+        method: POST
+        path: "/{ig_user_id}/media_publish"
+        description: "Publish a previously created media container (step 2)."
+        params:
+          - name: ig_user_id
+            type: string
+            required: true
+            positional: true
+            description: "Instagram Business account id"
+        body:
+          - name: creation_id
+            type: string
+            required: true
+            description: "Container id returned by 'media create'"
+        response:
+          type: object
+          item: Media
+
+  stories:
+    description: "Active stories (24h window)"
+    endpoints:
+      list:
+        method: GET
+        path: "/{ig_user_id}/stories"
+        description: "List a brand's currently-active stories (expire after 24h)"
+        params:
+          - name: ig_user_id
+            type: string
+            required: true
+            positional: true
+            description: "Instagram Business account id"
+          - name: fields
+            type: string
+            default: "id,media_type,media_product_type,permalink,timestamp"
+            description: "Comma-separated story fields to return"
+        response:
+          type: array
+          item: Media
+
+  comments:
+    description: "Comments and replies on media"
+    endpoints:
+      list:
+        method: GET
+        path: "/{ig_media_id}/comments"
+        description: "List comments on a media object"
+        params:
+          - name: ig_media_id
+            type: string
+            required: true
+            positional: true
+            description: "Instagram media id"
+          - name: fields
+            type: string
+            default: "id,text,username,timestamp,like_count,replies"
+            description: "Comma-separated comment fields to return"
+        response:
+          type: array
+          item: Comment
+      replies:
+        method: GET
+        path: "/{ig_comment_id}/replies"
+        description: "List replies to a comment"
+        params:
+          - name: ig_comment_id
+            type: string
+            required: true
+            positional: true
+            description: "Instagram comment id"
+          - name: fields
+            type: string
+            default: "id,text,username,timestamp,like_count"
+            description: "Comma-separated reply fields to return"
+        response:
+          type: array
+          item: Comment
+
+  hashtags:
+    description: "Hashtag search and top/recent media"
+    endpoints:
+      search:
+        method: GET
+        path: "/ig_hashtag_search"
+        description: "Resolve a hashtag string to its id (limited to 30 unique tags per account / 7 days)"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            description: "Your Instagram Business account id (required by the API)"
+          - name: q
+            type: string
+            required: true
+            description: "Hashtag text without the # (e.g. coffee)"
+        response:
+          type: array
+          item: Hashtag
+      top-media:
+        method: GET
+        path: "/{hashtag_id}/top_media"
+        description: "Top-performing public media for a hashtag id"
+        params:
+          - name: hashtag_id
+            type: string
+            required: true
+            positional: true
+            description: "Hashtag id (from 'hashtags search')"
+          - name: user_id
+            type: string
+            required: true
+            description: "Your Instagram Business account id (required by the API)"
+          - name: fields
+            type: string
+            default: "id,caption,media_type,permalink,like_count,comments_count,timestamp"
+            description: "Comma-separated media fields to return"
+        response:
+          type: array
+          item: Media
+      recent-media:
+        method: GET
+        path: "/{hashtag_id}/recent_media"
+        description: "Recent public media for a hashtag id"
+        params:
+          - name: hashtag_id
+            type: string
+            required: true
+            positional: true
+            description: "Hashtag id (from 'hashtags search')"
+          - name: user_id
+            type: string
+            required: true
+            description: "Your Instagram Business account id (required by the API)"
+          - name: fields
+            type: string
+            default: "id,caption,media_type,permalink,like_count,comments_count,timestamp"
+            description: "Comma-separated media fields to return"
+        response:
+          type: array
+          item: Media
+
+  business-discovery:
+    description: "Public metrics for any business/creator account (competitor research)"
+    endpoints:
+      get:
+        method: GET
+        path: "/{ig_user_id}"
+        description: "Fetch a competitor's public data via a business_discovery field expression"
+        params:
+          - name: ig_user_id
+            type: string
+            required: true
+            positional: true
+            description: "Your Instagram Business account id (the requester)"
+          - name: fields
+            type: string
+            required: true
+            default: "business_discovery.username(nike){username,name,followers_count,media_count,media{caption,like_count,comments_count,timestamp,permalink}}"
+            description: "business_discovery.username(TARGET){...} expression; replace 'nike' with the competitor handle"
+        response:
+          type: object
+          item: BusinessDiscovery
+
+  tags:
+    description: "Media you have been tagged in"
+    endpoints:
+      list:
+        method: GET
+        path: "/{ig_user_id}/tags"
+        description: "List public media that tag your brand account"
+        params:
+          - name: ig_user_id
+            type: string
+            required: true
+            positional: true
+            description: "Instagram Business account id"
+          - name: fields
+            type: string
+            default: "id,caption,media_type,permalink,username,timestamp"
+            description: "Comma-separated media fields to return"
+        response:
+          type: array
+          item: Media
+
+types:
+  Page:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: instagram_business_account
+        type: string
+  Account:
+    fields:
+      - name: id
+        type: string
+      - name: username
+        type: string
+      - name: name
+        type: string
+      - name: biography
+        type: string
+      - name: website
+        type: string
+      - name: followers_count
+        type: int
+      - name: follows_count
+        type: int
+      - name: media_count
+        type: int
+  Media:
+    fields:
+      - name: id
+        type: string
+      - name: caption
+        type: string
+      - name: media_type
+        type: string
+      - name: media_product_type
+        type: string
+      - name: permalink
+        type: string
+      - name: timestamp
+        type: string
+      - name: like_count
+        type: int
+      - name: comments_count
+        type: int
+      - name: username
+        type: string
+  Insight:
+    fields:
+      - name: name
+        type: string
+      - name: period
+        type: string
+      - name: title
+        type: string
+      - name: description
+        type: string
+  Comment:
+    fields:
+      - name: id
+        type: string
+      - name: text
+        type: string
+      - name: username
+        type: string
+      - name: timestamp
+        type: string
+      - name: like_count
+        type: int
+  Hashtag:
+    fields:
+      - name: id
+        type: string
+  PublishLimit:
+    fields:
+      - name: quota_usage
+        type: int
+  Container:
+    fields:
+      - name: id
+        type: string
+  BusinessDiscovery:
+    fields:
+      - name: id
+        type: string

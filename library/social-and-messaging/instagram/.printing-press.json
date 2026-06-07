@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-07T12:38:22.016946Z",
+  "printing_press_version": "4.20.1",
+  "api_name": "instagram",
+  "cli_name": "instagram-pp-cli",
+  "creator": {
+    "handle": "alkhamis-80",
+    "name": "Mohammed Al Khamis"
+  },
+  "printer": "alkhamis-80",
+  "printer_name": "Mohammed Al Khamis",
+  "category": "social-and-messaging",
+  "run_id": "20260606-183021",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "INSTAGRAM_ACCESS_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-account engagement compare",
+      "command": "compare",
+      "description": "Rank all your brand accounts side by side by reach, interactions, and engagement rate over a window."
+    },
+    {
+      "name": "Follower-growth week-over-week",
+      "command": "growth",
+      "description": "Track follower-count growth over time per brand, week over week."
+    },
+    {
+      "name": "Best-time-to-post",
+      "command": "best-time",
+      "description": "Surface the weekday/hour slots where your posts historically earn the most engagement."
+    },
+    {
+      "name": "Top-posts ranking",
+      "command": "top-posts",
+      "description": "Rank individual posts across your brands by reach, interactions, saves, or shares over a window."
+    },
+    {
+      "name": "Format performance breakdown",
+      "command": "formats",
+      "description": "Compare Reels vs Feed vs Story vs Carousel by reach, engagement, and Reels watch-time."
+    },
+    {
+      "name": "Competitor delta over time",
+      "command": "rivals",
+      "description": "Track rival public accounts' follower and engagement growth across syncs, benchmarked against your brands."
+    },
+    {
+      "name": "Hashtag-performance ranking",
+      "command": "hashtag-perf",
+      "description": "Rank the hashtags you track by the reach and engagement of their top media."
+    }
+  ]
+}

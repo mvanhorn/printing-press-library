@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-06-07T12:16:10.916124Z",
+  "cli_dir": "\u003ccli-dir\u003e/instagram-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 328,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; 'Print version' is precise and agents understand it without elaboration"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-06-07T12:10:24.616703Z"
+  }
+}
