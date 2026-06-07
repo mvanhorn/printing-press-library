@@ -1164,6 +1164,45 @@
         "reno-goat-pp-cli sources --json",
         "jq empty .manuscripts/20260601-source-exploration/discovery/live-homewise-bloomreach-joesc330rm-response.json .manuscripts/20260601-source-exploration/discovery/live-homewise-bloomreach-dishwasher-response.json .manuscripts/20260601-source-exploration/discovery/product-search-homewise-joesc330rm-response.json .manuscripts/20260601-source-exploration/discovery/product-search-homewise-dishwasher-response.json .printing-press-patches.json"
       ]
+    },
+    {
+      "id": "reno-exact-sku-buying-workflow",
+      "kind": "novel-workflow",
+      "summary": "Added an exact manufacturer-SKU/model buying workflow for quantity price decisions.",
+      "reason": "Reno Goat already used model/SKU identity as the workaround for major appliances, but the printed CLI did not expose a first-class buying decision surface. Agents could still fall back to generic web search or broad product-search snippets for questions such as `best price for 6x Lutron DVRFW-6L-WH`. The `buy` command now normalizes exact model/SKU aliases, routes descriptive queries and appliance-like model numbers to relevant active source categories, probes known exact product pages for reachable retailers, rejects generic search pages as price evidence, merges duplicate active-source and exact-page evidence per source, ranks confirmed offers by subtotal, rounds currency math to cents, and keeps blocked/no-match sources as explicit failures. Lutron Caseta Diva `DVRFW-6L-WH` is covered as an electrical exact-SKU example, while the active-source exact-match path keeps the workflow model/SKU oriented rather than hardcoded to that one product.",
+      "files": [
+        "internal/cli/novel_buy.go",
+        "internal/cli/novel_buy_test.go",
+        "internal/cli/root.go",
+        "README.md",
+        "SKILL.md",
+        ".printing-press.json",
+        ".printing-press-patches.json"
+      ],
+      "verification": [
+        "go test ./internal/cli",
+        "go test ./...",
+        "reno-goat-pp-cli buy JOESC330RM --qty 1 --agent --select best.source,best.price,best.subtotal,offers.source,offers.price,offers.subtotal,offers.matched_by,failures.source,failures.reason,sources --timeout 20s",
+        "reno-goat-pp-cli buy \"6× Lutron Caseta Diva Smart Dimmer — DVRFW-6L-WH\" --qty 6 --agent --select best.source,best.price,best.subtotal,offers.source,offers.price,offers.subtotal,offers.matched_by,failures.source,failures.reason,sources --timeout 20s",
+        "cli-printing-press regen-merge /private/tmp/reno-goat-pr855/library/commerce/reno-goat --fresh /private/tmp/reno-goat-fresh-reprint --json"
+      ]
+    },
+    {
+      "id": "reno-superbrightleds-dynamic-algolia-key",
+      "kind": "source-fix",
+      "summary": "Fixed Super Bright LEDs search by sniffing the current public Algolia API key before querying.",
+      "reason": "The prior Super Bright LEDs Algolia source used a captured secured search key whose `validUntil` expired, causing exact-buy and product-search calls through that active electrical source to return HTTP 400 instead of a real no-match or product result. Reno Goat now fetches the public Super Bright LEDs search page, extracts the current `window.algoliaConfig.apiKey`, and uses the captured key only as a fallback. Live exact-buy evidence for Lutron `DVRF-6L-WH` now reports Super Bright LEDs as `no exact SKU matches` rather than failing on an expired key.",
+      "files": [
+        "internal/cli/novel_fanout_search.go",
+        "internal/cli/novel_fanout_search_test.go",
+        ".printing-press-patches.json"
+      ],
+      "verification": [
+        "go test ./internal/cli",
+        "go test ./...",
+        "reno-goat-pp-cli buy \"6× Lutron Caseta Diva Smart Dimmer — DVRFW-6L-WH\" --qty 6 --agent --select failures.source,failures.reason",
+        "jq empty .printing-press-patches.json .printing-press.json"
+      ]
     }
   ]
 }

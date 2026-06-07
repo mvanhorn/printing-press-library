@@ -33,6 +33,11 @@
       "description": "Compound model/SKU lookup for installed-selection decisions, including priced source rows, product-page enrichment, spec/install PDFs, and blocked model-page evidence."
     },
     {
+      "name": "Exact Buying",
+      "command": "buy",
+      "description": "Exact manufacturer-SKU/model buying workflow for quantity pricing: active-source exact matching, known product-page probes, de-duplicated confirmed offers, and explicit blocked/no-match failures."
+    },
+    {
       "name": "Source Probe",
       "command": "source-probe",
       "description": "Readable/blocked route triage for appliance, big-box, and bath-showroom source candidates before activation."

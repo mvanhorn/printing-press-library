@@ -25,6 +25,49 @@ func TestNormalizeBuySKUCanonicalizesRetailSuffixes(t *testing.T) {
 	}
 }
 
+func TestBuySearchSourcesRouteLutronToElectrical(t *testing.T) {
+	sources := buySearchSources("6x Lutron Caseta Diva Smart Dimmer DVRFW-6L-WH", "DVRF-6L-WH")
+	for _, want := range []string{"superbrightleds", "prolighting", "bees-lighting"} {
+		if !stringSliceContains(sources, want) {
+			t.Fatalf("buySearchSources missing electrical source %q in %#v", want, sources)
+		}
+	}
+	for _, unwanted := range []string{"abt", "bray-and-scarff", "west-elm"} {
+		if stringSliceContains(sources, unwanted) {
+			t.Fatalf("buySearchSources included unrelated source %q in %#v", unwanted, sources)
+		}
+	}
+}
+
+func TestBuySearchSourcesRouteExactApplianceModel(t *testing.T) {
+	sources := buySearchSources("JOESC330RM", "JOESC330RM")
+	for _, want := range []string{"abt", "appliance-factory", "bray-and-scarff", "pc-richard", "homewise-appliance"} {
+		if !stringSliceContains(sources, want) {
+			t.Fatalf("buySearchSources missing appliance source %q in %#v", want, sources)
+		}
+	}
+	for _, unwanted := range []string{"west-elm", "superbrightleds", "prolighting"} {
+		if stringSliceContains(sources, unwanted) {
+			t.Fatalf("buySearchSources included unrelated source %q in %#v", unwanted, sources)
+		}
+	}
+	if looksLikeApplianceModelSKU("BR30LED") {
+		t.Fatal("looksLikeApplianceModelSKU classified a short bulb-style SKU as an appliance model")
+	}
+}
+
+func TestBuySearchSourcesUseDescriptiveCategoryInference(t *testing.T) {
+	sources := buySearchSources("mini split heat pump WYS012GMFI22RL", "WYS012GMFI22RL")
+	for _, want := range []string{"pioneer-mini-split", "sylvane", "iwae"} {
+		if !stringSliceContains(sources, want) {
+			t.Fatalf("buySearchSources missing HVAC source %q in %#v", want, sources)
+		}
+	}
+	if stringSliceContains(sources, "abt") {
+		t.Fatalf("buySearchSources included appliance source for descriptive HVAC query: %#v", sources)
+	}
+}
+
 func TestExtractRetailPricePrefersExactProductWindow(t *testing.T) {
 	body := `
 		<html>
@@ -119,6 +162,12 @@ func TestProductMatchesBuySKUUsesNormalizedSourceFields(t *testing.T) {
 	}
 	if productMatchesBuySKU(adjacent, "DVRF-6L-WH") {
 		t.Fatal("productMatchesBuySKU matched an adjacent Lutron product")
+	}
+}
+
+func TestRoundBuyMoneyKeepsCurrencyToCents(t *testing.T) {
+	if got := roundBuyMoney(69.95 * 6); got != 419.70 {
+		t.Fatalf("roundBuyMoney = %.17g, want 419.70", got)
 	}
 }
 
