@@ -692,6 +692,13 @@ type cookieTool struct {
 	pyArgs []string
 }
 
+func runCookieToolProbe(name string, args ...string) error {
+	cmd := exec.Command(name, args...)
+	cmd.Stdout = io.Discard
+	cmd.Stderr = io.Discard
+	return cmd.Run()
+}
+
 // detectCookieTool checks for available cookie extraction tools in preference order.
 // pycookiecheat is skipped on Windows because upstream raises
 // `OSError("This script only works on MacOS or Linux.")` regardless of whether
@@ -700,20 +707,20 @@ func detectCookieTool() (cookieTool, error) {
 	if runtime.GOOS != "windows" {
 		if bin, args, ok := resolvePythonBinary(); ok {
 			probeArgs := append(append([]string{}, args...), "-c", "import pycookiecheat")
-			if err := exec.Command(bin, probeArgs...).Run(); err == nil {
+			if err := runCookieToolProbe(bin, probeArgs...); err == nil {
 				return cookieTool{name: "pycookiecheat", pyBin: bin, pyArgs: args}, nil
 			}
 		}
 		if path, err := exec.LookPath("pycookiecheat"); err == nil {
-			if err := exec.Command(path, "--help").Run(); err == nil {
+			if err := runCookieToolProbe(path, "--help"); err == nil {
 				return cookieTool{name: "pycookiecheat-cli", pyBin: path}, nil
 			}
 		}
 	}
-	if err := exec.Command("cookies", "--help").Run(); err == nil {
+	if err := runCookieToolProbe("cookies", "--help"); err == nil {
 		return cookieTool{name: "cookies"}, nil
 	}
-	if err := exec.Command("cookie-scoop", "--help").Run(); err == nil {
+	if err := runCookieToolProbe("cookie-scoop", "--help"); err == nil {
 		return cookieTool{name: "cookie-scoop"}, nil
 	}
 	if runtime.GOOS == "windows" {

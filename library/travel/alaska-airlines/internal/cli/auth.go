@@ -647,8 +647,18 @@ func resolveProfileByName(name string) (string, error) {
 
 // --- Cookie extraction tools ---
 
+var detectedPycookiecheatCLIPath string
+
+func runCookieToolProbe(name string, args ...string) error {
+	cmd := exec.Command(name, args...)
+	cmd.Stdout = io.Discard
+	cmd.Stderr = io.Discard
+	return cmd.Run()
+}
+
 // detectCookieTool checks for available cookie extraction tools in preference order.
 func detectCookieTool() (string, error) {
+	detectedPycookiecheatCLIPath = ""
 	tools := []struct {
 		name  string
 		check []string
@@ -660,7 +670,13 @@ func detectCookieTool() (string, error) {
 	}
 
 	for _, tool := range tools {
-		if err := exec.Command(tool.check[0], tool.check[1:]...).Run(); err == nil {
+		if err := runCookieToolProbe(tool.check[0], tool.check[1:]...); err == nil {
+			if tool.name == "pycookiecheat-cli" {
+				detectedPycookiecheatCLIPath = tool.check[0]
+				if path, err := exec.LookPath(tool.check[0]); err == nil {
+					detectedPycookiecheatCLIPath = path
+				}
+			}
 			return tool.name, nil
 		}
 	}
@@ -753,8 +769,13 @@ func extractViaPycookiecheatCLI(domain, profileDir string) (string, error) {
 	}
 	args = append(args, "https://"+cleanDomain)
 
+	pycookiecheatBin := detectedPycookiecheatCLIPath
+	if pycookiecheatBin == "" {
+		pycookiecheatBin = "pycookiecheat"
+	}
+
 	var out bytes.Buffer
-	cmd := exec.Command("pycookiecheat", args...)
+	cmd := exec.Command(pycookiecheatBin, args...)
 	cmd.Stdout = &out
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
