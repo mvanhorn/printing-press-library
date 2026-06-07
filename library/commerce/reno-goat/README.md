@@ -5,6 +5,7 @@ Search, compare, price-watch, and project-track renovation selections across 33 
 ## What It Does
 
 - **Fan-out search** — `product-search "pendant light"` hits every active source in parallel and returns normalized results. `--room kitchen` expands to plumbing + electrical + flooring + hardware + materials + appliances + decor; `--category electrical` targets Super Bright LEDs, PROLIGHTING, 1000Bulbs, Bees Lighting, Lighting New York, and Lightology.
+- **Exact buying** — `buy DVRF-6L-WH --qty 6` probes exact manufacturer-SKU product pages, ranks reachable current offers by subtotal, and reports blocked retailers as explicit failures instead of treating broad search snippets as confirmed prices.
 - **Model intelligence** — `model-intel "36 induction cooktop"` discovers model/SKU candidates, enriches returned rows from product pages for spec/install PDFs, and probes predictable model pages where that makes sense. Auto mode infers installed-selection categories from queries such as `mini split heat pump`, `thermostat`, `floor register`, `linear drain`, `shower niche`, `shower door`, `shower head`, `shower panel`, `medicine cabinet`, `bidet seat`, `pot filler`, `cabinet pull`, `door hinge`, `grab bar`, `robe hook`, `toilet paper holder`, `towel bar`, `towel ring`, `soap dispenser`, `towel warmer`, `lighted mirror`, `vanity light`, `picture light`, `ceiling fan`, `floor warming`, `recessed light`, or `bathroom faucet`, so the same compound lookup works beyond appliances without a manual category flag. Readable search-result pages can also contribute labeled category model candidates and exact-model price evidence when they expose product-price fields.
 - **Source probes** — `source-probe --candidate all` checks appliance and bath showroom routes with the current plain HTTP transport and reports readable pages, WAF interstitials, and redirects as explicit evidence before a source is promoted.
 - **Price watch** — track any product's price in a local SQLite database, poll on a schedule, get alerts when it drops past a threshold.
@@ -188,6 +189,9 @@ reno-goat-pp-cli product-search all "pendant light"
 # Compound model lookup with spec docs and model-page probes
 reno-goat-pp-cli model-intel "36 induction cooktop" --json
 
+# Exact-SKU buying comparison for a quantity
+reno-goat-pp-cli buy DVRF-6L-WH --qty 6 --json
+
 # Probe blocked/readable showroom routes
 reno-goat-pp-cli source-probe --candidate all --json
 
@@ -231,6 +235,16 @@ Fan-out search across sources, routed by category.
 - `product-search rejuvenation-search` — Rejuvenation (hardware, lighting)
 - `product-search article-search` — Article (furniture, decor)
 - `product-search shopify-search` — Shopify DTC stores
+
+### buy
+
+Exact-SKU buying comparison for purchase questions.
+
+- `buy <sku-or-query> --qty <n>` — normalize common retail SKU aliases, probe known exact product pages, and rank reachable offers by subtotal
+- `buy DVRFW-6L-WH --qty 6 --json` — compare current public product-page prices for six Lutron Caseta Diva smart dimmers
+- `buy DVRF-6L-WH --source supplyhouse,prolighting --qty 6` — restrict the comparison to named sources
+
+`buy` is deliberately stricter than broad `product-search`: it does not accept generic search result pages as price evidence, because many retailers echo the searched SKU next to unrelated products or ads. Retailers that block plain CLI HTTP, return interstitials, or expose no exact-page price are reported in `failures` so an agent can distinguish confirmed offers from missing coverage.
 
 ### model-intel
 

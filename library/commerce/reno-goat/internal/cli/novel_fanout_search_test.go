@@ -9,6 +9,13 @@ import (
 	"testing"
 )
 
+func TestExtractSuperBrightLEDsAlgoliaAPIKey(t *testing.T) {
+	body := `<script>window.algoliaConfig = {"applicationId":"VTAW7SB4LM","apiKey":"fresh-secured-key","indexName":"magento2_prod_default"};</script>`
+	if got := extractSuperBrightLEDsAlgoliaAPIKey(body); got != "fresh-secured-key" {
+		t.Fatalf("extractSuperBrightLEDsAlgoliaAPIKey = %q, want fresh-secured-key", got)
+	}
+}
+
 func TestNormalizeBrayAndScarffProductUsesDealerPriceAndSourceMetadata(t *testing.T) {
 	product := normalizeBrayAndScarffProduct(map[string]any{
 		"id":                          "dealer-row",

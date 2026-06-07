@@ -258,6 +258,7 @@ Run 'reno-goat-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newSourcesCmd(flags))
 	rootCmd.AddCommand(newSourceProbeCmd(flags))
 	rootCmd.AddCommand(newModelIntelCmd(flags))
+	rootCmd.AddCommand(newBuyCmd(flags))
 	rootCmd.AddCommand(newWatchCmd(flags))
 	rootCmd.AddCommand(newProjectCmd(flags))
 	rootCmd.AddCommand(newSaveCmd(flags))

@@ -3262,6 +3262,10 @@ func searchSuperBrightLEDs(ctx context.Context, httpClient *http.Client, query s
 	if perPage <= 0 {
 		perPage = 20
 	}
+	apiKey := superBrightLEDsFallbackAlgoliaAPIKey
+	if freshKey, err := fetchSuperBrightLEDsAlgoliaAPIKey(ctx, httpClient); err == nil && freshKey != "" {
+		apiKey = freshKey
+	}
 	payload := map[string]any{
 		"query":       query,
 		"hitsPerPage": perPage,
@@ -3275,7 +3279,7 @@ func searchSuperBrightLEDs(ctx context.Context, httpClient *http.Client, query s
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Algolia-Application-Id", "VTAW7SB4LM")
-	req.Header.Set("X-Algolia-API-Key", "YzY4OGY1YTE0ZjA3ODA4ZjRkNGM5ZjkzN2IxZjg4MTY0NjJkZTFlMThlNmE1MTNkYWIwODFiMzUxM2ViMDc1NXRhZ0ZpbHRlcnM9JnZhbGlkVW50aWw9MTc4MDcxODQxNA==")
+	req.Header.Set("X-Algolia-API-Key", apiKey)
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36")
 
 	resp, err := httpClient.Do(req)
@@ -3303,6 +3307,38 @@ func searchSuperBrightLEDs(ctx context.Context, httpClient *http.Client, query s
 		products = append(products, normalizeSuperBrightLEDs(hit))
 	}
 	return products, nil
+}
+
+const superBrightLEDsFallbackAlgoliaAPIKey = "YzY4OGY1YTE0ZjA3ODA4ZjRkNGM5ZjkzN2IxZjg4MTY0NjJkZTFlMThlNmE1MTNkYWIwODFiMzUxM2ViMDc1NXRhZ0ZpbHRlcnM9JnZhbGlkVW50aWw9MTc4MDcxODQxNA=="
+
+func fetchSuperBrightLEDsAlgoliaAPIKey(ctx context.Context, httpClient *http.Client) (string, error) {
+	req, err := http.NewRequestWithContext(ctx, "GET", "https://www.superbrightleds.com/search", nil)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Accept", "text/html,application/xhtml+xml")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36")
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+	if err != nil {
+		return "", err
+	}
+	if resp.StatusCode >= 400 {
+		return "", fmt.Errorf("HTTP %d", resp.StatusCode)
+	}
+	return extractSuperBrightLEDsAlgoliaAPIKey(string(body)), nil
+}
+
+func extractSuperBrightLEDsAlgoliaAPIKey(body string) string {
+	re := regexp.MustCompile(`(?s)"apiKey"\s*:\s*"([^"]+)"`)
+	if match := re.FindStringSubmatch(body); len(match) > 1 {
+		return match[1]
+	}
+	return ""
 }
 
 func normalizeSuperBrightLEDs(hit map[string]any) NormalizedProduct {

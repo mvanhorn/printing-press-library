@@ -91,6 +91,12 @@ Search, compare, price-watch, model-enrich, and project-track homeowner-visible 
 - `reno-goat-pp-cli product-search shopify-search` — Search products across Shopify DTC stores via Storefront API GraphQL.
 - `reno-goat-pp-cli product-search westelm-search` — Search products via West Elm Constructor.io API. Returns faceted results with product data, prices, and images.
 
+**buy** — Exact manufacturer-SKU buying comparison. Use this for "where should I buy this SKU" or "best price for quantity N" questions where broad product search could return adjacent products, search-page echoes, or snippet-only prices.
+
+- `reno-goat-pp-cli buy DVRF-6L-WH --qty 6 --json` — Probe known exact product pages, rank reachable offers by subtotal, and return blocked retailer failures.
+- `reno-goat-pp-cli buy DVRFW-6L-WH --qty 6 --source supplyhouse,prolighting --json` — Restrict exact-page probes to named sources.
+- Prefer `buy` over generic web search for exact-SKU price questions. Treat `offers` as confirmed product-page evidence and `failures` as coverage gaps or transport blockers.
+
 **model-intel** — Compound lookup for installed-selection decisions. Use this when the user needs model/SKU candidates, current prices, spec/install documents, or predictable model-page probes.
 
 - `reno-goat-pp-cli model-intel "36 induction cooktop" --json` — Discover appliance model candidates, prices, and linked spec/install documents.
