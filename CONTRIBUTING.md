@@ -37,7 +37,7 @@ If you prefer to submit manually:
    - `SKILL.md` and `.goreleaser.yaml`
    - `manifest.json` (only if the CLI ships an MCP server)
    - `.manuscripts/` directory with research and proof artifacts
-5. **Do not edit `registry.json` or `cli-skills/pp-*/SKILL.md` in the PR.** They are generated artifacts, regenerated after merge by `generate-registry.yml` and `generate-skills.yml`, and the generated-artifact guard in CI fails any PR that modifies them. Instead, make sure the source files under `library/<category>/<slug>/` are present: `registry.json` is generated from `.printing-press.json` + `manifest.json` + `.goreleaser.yaml`, and `cli-skills/pp-<slug>/SKILL.md` is mirrored from `library/<category>/<slug>/SKILL.md`.
+5. **Do not edit `registry.json` or `cli-skills/pp-*/SKILL.md` in the PR.** They are generated artifacts, regenerated after merge by `generate-registry.yml` and `generate-skills.yml`, and the generated-artifact guard in CI fails any PR that modifies them. Instead, make sure the source files under `library/<category>/<slug>/` are present: `registry.json` is generated from `.printing-press.json` + `.goreleaser.yaml` (plus `manifest.json` if the CLI ships an MCP server), and `cli-skills/pp-<slug>/SKILL.md` is mirrored from `library/<category>/<slug>/SKILL.md`.
 6. Open a PR
 
 ### Quality Expectations
