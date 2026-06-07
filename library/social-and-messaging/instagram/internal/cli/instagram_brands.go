@@ -60,6 +60,8 @@ func parseLooseDuration(s string) (time.Duration, error) {
 
 var slugifyRE = regexp.MustCompile(`[^a-z0-9]+`)
 
+var validIGUsername = regexp.MustCompile(`^[A-Za-z0-9._]+$`)
+
 // slugify lowercases and collapses non-alphanumeric runs to hyphens.
 func slugify(s string) string {
 	s = strings.ToLower(strings.TrimSpace(s))
@@ -123,7 +125,7 @@ func newBrandsAddCmd(flags *rootFlags) *cobra.Command {
 			defer db.Close()
 			_, err = db.DB().ExecContext(cmd.Context(),
 				`INSERT OR REPLACE INTO ig_brands(slug, ig_user_id, name, username, added_at) VALUES (?,?,?,?,?)`,
-				slug, igUserID, nameFlag, slug, nowRFC3339())
+				slug, igUserID, nameFlag, "", nowRFC3339())
 			if err != nil {
 				return apiErr(err)
 			}
@@ -365,6 +367,9 @@ func newBrandsTrackRivalCmd(flags *rootFlags) *cobra.Command {
 			username := strings.TrimPrefix(strings.TrimSpace(args[1]), "@")
 			if slug == "" || username == "" {
 				return usageErr(fmt.Errorf("slug and username must be non-empty"))
+			}
+			if !validIGUsername.MatchString(username) {
+				return usageErr(fmt.Errorf("invalid username %q: only letters, digits, '.' and '_' are allowed", username))
 			}
 			db, err := ensureAnalyticsSchema(cmd.Context(), resolveDBPath(dbFlag))
 			if err != nil {
