@@ -228,21 +228,37 @@ func TestParseOffersResponseNoFabricatedMidnight(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parseOffersResponse: %v", err)
 	}
+	// Count T00:00:00 occurrences rather than failing on each one.
+	// A jspb time array of [] with a present date is a *genuine* midnight and
+	// correctly produces T00:00:00 — that is not a bug. We only want to catch
+	// the pre-#1084 regression where a whole-hour time like [17] was silently
+	// truncated to T00:00:00.
+	//
+	// For this specific SEA-BKK fixture (2026-12-24) every leg has a real
+	// non-midnight time-of-day in the source, so the expected count is 0.
+	// A fixture that genuinely includes a midnight departure would require a
+	// different assertion strategy (e.g. cross-referencing the raw jspb array).
+	midnightDeps := 0
+	midnightArrs := 0
 	wholeHourDeps := 0
 	for _, f := range flights {
 		for _, leg := range f.Legs {
 			if strings.HasSuffix(leg.DepartureTime, "T00:00:00") {
-				t.Errorf("leg %s->%s has fabricated midnight departure %q",
-					leg.DepartureAirport.Code, leg.ArrivalAirport.Code, leg.DepartureTime)
+				midnightDeps++
 			}
 			if strings.HasSuffix(leg.ArrivalTime, "T00:00:00") {
-				t.Errorf("leg %s->%s has fabricated midnight arrival %q",
-					leg.DepartureAirport.Code, leg.ArrivalAirport.Code, leg.ArrivalTime)
+				midnightArrs++
 			}
 			if strings.HasSuffix(leg.DepartureTime, ":00:00") && leg.DepartureTime != "" {
 				wholeHourDeps++
 			}
 		}
+	}
+	if midnightDeps != 0 {
+		t.Errorf("got %d midnight departures (T00:00:00), want 0 — fabricated midnights still present in fixture", midnightDeps)
+	}
+	if midnightArrs != 0 {
+		t.Errorf("got %d midnight arrivals (T00:00:00), want 0 — fabricated midnights still present in fixture", midnightArrs)
 	}
 	// Sanity: the capture genuinely contains whole-hour departures (the [HH]
 	// truncated form), so this regression is actually exercising the fix.
