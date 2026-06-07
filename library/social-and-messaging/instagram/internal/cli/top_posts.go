@@ -102,6 +102,9 @@ Reads the local store. Run 'instagram-pp-cli pull' first to populate media.`,
 				r.Caption = truncateCaption(r.Caption, 60)
 				out = append(out, r)
 			}
+			if err := rows.Err(); err != nil {
+				return apiErr(err)
+			}
 
 			if flags.asJSON {
 				env := map[string]any{"posts": out, "count": len(out), "metric": metric}

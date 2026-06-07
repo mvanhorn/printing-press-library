@@ -101,6 +101,9 @@ historical series this command needs.`,
 				}
 				out = append(out, g)
 			}
+			if err := rows.Err(); err != nil {
+				return apiErr(err)
+			}
 
 			if flags.asJSON {
 				env := map[string]any{"brands": out, "count": len(out)}

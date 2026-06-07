@@ -70,6 +70,9 @@ Reads the local store. Run 'instagram-pp-cli pull' first to populate media.`,
 				}
 				out = append(out, r)
 			}
+			if err := rows.Err(); err != nil {
+				return apiErr(err)
+			}
 
 			if flags.asJSON {
 				env := map[string]any{"formats": out, "count": len(out)}

@@ -87,6 +87,9 @@ Reads the local store. Track rivals with 'brands track-rival <slug>
 					RecentAvgEngagement: recentEng,
 				})
 			}
+			if err := rows.Err(); err != nil {
+				return apiErr(err)
+			}
 
 			if flags.asJSON {
 				env := map[string]any{"rivals": out, "count": len(out)}

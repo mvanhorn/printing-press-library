@@ -83,6 +83,9 @@ Reads the local store. Track hashtags with 'brands track-hashtag <slug>
 				}
 				out = append(out, r)
 			}
+			if err := rows.Err(); err != nil {
+				return apiErr(err)
+			}
 
 			if flags.asJSON {
 				env := map[string]any{"hashtags": out, "count": len(out)}

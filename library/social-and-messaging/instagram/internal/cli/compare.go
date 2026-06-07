@@ -94,6 +94,9 @@ Reads the local store. Run 'instagram-pp-cli pull' first to populate it.`,
 				}
 				out = append(out, r)
 			}
+			if err := rows.Err(); err != nil {
+				return apiErr(err)
+			}
 
 			switch metric {
 			case "interactions":
