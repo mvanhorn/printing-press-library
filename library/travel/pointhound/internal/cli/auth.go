@@ -597,6 +597,9 @@ func detectCookieTool() (string, error) {
 	}
 
 	for _, tool := range tools {
+		if runtime.GOOS == "windows" && (tool.name == "pycookiecheat" || tool.name == "pycookiecheat-cli") {
+			continue
+		}
 		if err := runCookieToolProbe(tool.check[0], tool.check[1:]...); err == nil {
 			if tool.name == "pycookiecheat-cli" {
 				detectedPycookiecheatCLIPath = tool.check[0]
@@ -606,6 +609,9 @@ func detectCookieTool() (string, error) {
 			}
 			return tool.name, nil
 		}
+	}
+	if runtime.GOOS == "windows" {
+		return "", fmt.Errorf("no cookie extraction tool found; pycookiecheat does not support Windows. Use `auth login --browser` (live Chrome via CDP) or install cookie-scoop-cli")
 	}
 	return "", fmt.Errorf("no cookie extraction tool found; install one: pip install pycookiecheat")
 }
