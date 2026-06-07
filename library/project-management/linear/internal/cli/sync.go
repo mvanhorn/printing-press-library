@@ -12,6 +12,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const linearProjectsSyncPageSize = 25
+
 func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var full bool
 	var dbPath string
@@ -173,7 +175,7 @@ func syncLabels(c *client.Client, db *store.Store, maxPages int) (int, error) {
 }
 
 func syncProjects(c *client.Client, db *store.Store, maxPages int) (int, error) {
-	nodes, err := c.PaginatedQueryMax(client.ProjectsQuery, nil, "projects", 50, maxPages)
+	nodes, err := c.PaginatedQueryMax(client.ProjectsQuery, nil, "projects", linearProjectsSyncPageSize, maxPages)
 	if err != nil {
 		return 0, err
 	}
