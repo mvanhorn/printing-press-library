@@ -61,6 +61,34 @@ func TestNextReleaseVersionIsIdempotentForSameSourceCommit(t *testing.T) {
 	}
 }
 
+func TestIsRuntimeVersionPath(t *testing.T) {
+	tests := []struct {
+		name string
+		path string
+		want bool
+	}{
+		{"cli root.go", "library/social/x/internal/cli/root.go", true},
+		{"cli version.go", "library/social/x/internal/cli/version.go", true},
+		{"mcp main.go", "library/social/x/cmd/x-pp-mcp/main.go", true},
+		{"mcp main.go nested slug", "library/category/my-tool/cmd/my-tool-pp-mcp/main.go", true},
+		{"cli main.go", "library/social/x/cmd/x-pp-cli/main.go", false},
+		{"non-mcp main.go suffix", "library/social/x/cmd/x-pp-mcpd/main.go", false},
+		{"mcp main.go in subdir", "library/social/x/cmd/x-pp-mcp/subdir/main.go", false},
+		{"other go file", "library/social/x/internal/cli/other.go", false},
+		{"random file", "library/social/x/README.md", false},
+		{"release manifest", "library/social/x/.printing-press-release.json", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := isRuntimeVersionPath(tt.path)
+			if got != tt.want {
+				t.Errorf("isRuntimeVersionPath(%q) = %v, want %v", tt.path, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestChangedCLISlugsIgnoresReleaseLedgerFiles(t *testing.T) {
 	repo := t.TempDir()
 	runGit(t, repo, "init")
