@@ -40,7 +40,7 @@ func newDoctorCmd(app *app) *cobra.Command {
 			}
 
 			sub, err := app.activeSubscription(ctx, subscription)
-			add("azure_account", err == nil, "active subscription detected")
+			add("azure_account", err == nil, errorDetail(err, "active subscription detected"))
 			if err != nil {
 				if wantsJSON(flags) {
 					return writeFlaggedJSON(app.out, flags, checks)

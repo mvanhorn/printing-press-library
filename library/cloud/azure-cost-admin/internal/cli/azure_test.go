@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -171,6 +172,30 @@ func TestAnomaliesThresholdHelpDocumentsDollarFloor(t *testing.T) {
 	}
 }
 
+func TestDoctorJSONReportsAzureAccountErrorDetail(t *testing.T) {
+	var out bytes.Buffer
+	app := defaultApp()
+	app.out = &out
+	app.runner = failingRunner{err: fmt.Errorf("az failed: login required")}
+	cmd := newDoctorCmd(app)
+	cmd.SetArgs([]string{"--json"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("doctor failed: %v", err)
+	}
+
+	var checks []map[string]string
+	if decodeErr := json.Unmarshal(out.Bytes(), &checks); decodeErr != nil {
+		t.Fatalf("unmarshal doctor output: %v\n%s", decodeErr, out.String())
+	}
+	if len(checks) != 1 {
+		t.Fatalf("got %d checks, want 1: %+v", len(checks), checks)
+	}
+	if checks[0]["status"] != "failed" || !strings.Contains(checks[0]["detail"], "login required") {
+		t.Fatalf("doctor did not report auth failure detail: %+v", checks[0])
+	}
+}
+
 func TestQueryMissingTagsUsesResourceGraphQueryFlag(t *testing.T) {
 	runner := &recordingRunner{output: []byte(`{"data":[]}`)}
 	app := defaultApp()
@@ -305,6 +330,14 @@ type recordingRunner struct {
 func (r *recordingRunner) Run(ctx context.Context, name string, args ...string) ([]byte, error) {
 	r.args = append([]string{name}, args...)
 	return r.output, nil
+}
+
+type failingRunner struct {
+	err error
+}
+
+func (r failingRunner) Run(ctx context.Context, name string, args ...string) ([]byte, error) {
+	return nil, r.err
 }
 
 type costQueryRecordingRunner struct {
