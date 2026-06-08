@@ -5,6 +5,10 @@ follows [Keep a Changelog](https://keepachangelog.com/) with one section
 per released tag. Each entry summarizes what a user would notice on
 upgrade.
 
+## 2026.6.1 - 2026-06-08
+
+- Baseline release metadata added for this published CLI.
+
 ## v0.1.7 — 2026-06-02
 
 ### Fixed

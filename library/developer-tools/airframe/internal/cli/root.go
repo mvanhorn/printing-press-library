@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "0.1.0"
+var version = "2026.6.1"
 
 // Persistent flags shared by every subcommand. Empty strings/zero values
 // indicate "fall back to defaults" (see store.DefaultDBPath, etc.).

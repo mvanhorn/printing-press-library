@@ -22,7 +22,7 @@ The normal flow is:
 
 1. `cli-printing-press` generates or improves a printed CLI in the local working library (`~/printing-press/library/<api-slug>/`) and archives proofs/manuscripts.
 2. Publish tooling moves the finished CLI into this repo under `library/<category>/<cli-slug>/`, with provenance in `.printing-press.json`.
-3. This repo updates `registry.json` and `cli-skills/pp-*`, and the npm installer consumes the live catalog.
+3. This repo updates per-CLI release metadata, `registry.json`, and `cli-skills/pp-*`, and the npm installer consumes the live catalog.
 
 Use this distinction in your own language: **generator repo** or **Printing Press** for `cli-printing-press`; **published library** or **catalog repo** for this repo; **local library** for the generated working-copy library, commonly `~/printing-press/library`.
 
@@ -82,6 +82,7 @@ The following are **not** new CLI / reprint changes and are fine to land via a n
 - `tools/sweep-canonical/` runs that retrofit canonical shape across all entries.
 - CI changes under `.github/workflows/`, repo-root docs, or installer changes under `npm/`.
 - Manual edits to the generator-output files (`registry.json`, `cli-skills/pp-*/SKILL.md`) — don't; those are bot-regenerated post-merge.
+- Manual release-version bumps or changelog release entries — don't; `CHANGELOG.md`, `.printing-press-release.json`, and runtime `version` stamping are owned by the post-merge release-ledger workflow described below.
 
 ### What to do instead, when the change *is* a new CLI / reprint
 
@@ -170,6 +171,7 @@ npm/                                — @mvanhorn/printing-press npm installer w
 
 registry.json                       — top-level catalog: every CLI's name, category, description, path, MCP metadata
 tools/generate-skills/              — regenerates cli-skills/pp-*
+tools/release-ledger/               — assigns per-CLI release versions after merges
 .github/scripts/verify-skill/       — Python verifier that checks SKILL.md matches shipped Go source
 .github/workflows/                  — CI: verify-skills.yml, generate-skills.yml
 ```
@@ -194,6 +196,39 @@ Inside any published CLI directory, `.printing-press.json` is machine-readable p
 - `printing_press_version` — generator version that produced this CLI
 
 Some CLIs have no archived spec on disk (docs-driven, sniff-driven, plan-driven). Tooling that assumes `spec.json` exists breaks on those — check before reading.
+
+## Per-CLI release ledger: changelog, release manifest, runtime version
+
+Each published CLI has its own release history because users install one CLI at a time from this repo. The release identity is intentionally distinct from `.printing-press.json`'s `printing_press_version`: the former answers "which published version of this CLI do I have?", while the latter answers "which generator binary produced the base artifact?"
+
+Release versions use `YYYY.M.N`, where `N` is the release count for that CLI within the month. Example: if `x-twitter` gets three library releases in June 2026, the third is `2026.6.3`. The value is not a date and does not require a day component.
+
+Do not ask contributors or agents to manually bump release versions. After a PR lands on `main`, `.github/workflows/update-cli-release-ledger.yml` runs `tools/release-ledger/` against the changed CLI directories and commits:
+
+- `library/<category>/<slug>/.printing-press-release.json` — current release metadata, PR/source commit, generator provenance copied from `.printing-press.json`.
+- `library/<category>/<slug>/CHANGELOG.md` — topmost release note for the merge that changed the CLI.
+- The generated runtime version variable in `internal/cli/root.go` or `internal/cli/version.go` when present, plus `cmd/*-pp-mcp/main.go` for MCP server versions when present.
+
+This workflow is post-merge by design. It prevents open PRs from conflicting on shared changelog/version files and lets older PRs merge without being rebased solely to catch up release counters. In normal feature or fix PRs:
+
+- Do not edit `.printing-press-release.json`.
+- Do not add a new `CHANGELOG.md` release section.
+- Do not hand-edit `var version = ...` for release bookkeeping.
+- Do update the CLI's README/SKILL/patch metadata when your user-facing change needs documentation; the release workflow will summarize the merge after it lands.
+
+For new-CLI PRs, blank release-ledger skeletons are acceptable. For reprints or
+other PRs that replace an existing `library/<category>/<slug>/` tree, preserve
+the existing `.printing-press-release.json` and `CHANGELOG.md` from `main`
+instead of taking the freshly generated skeletons. The post-merge workflow uses
+those existing files to increment the next CalVer release and retain changelog
+history; deleting them in the replacement PR resets the ledger before automation
+can do the right thing.
+
+If the release ledger itself drifts or a historical CLI is missing these files, run the scoped repair from the repo root and commit only the intended release-ledger outputs:
+
+```bash
+go run ./tools/release-ledger/main.go --init-missing
+```
 
 ## Attribution: creator + contributors
 

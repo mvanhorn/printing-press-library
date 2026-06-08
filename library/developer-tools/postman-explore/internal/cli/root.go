@@ -19,7 +19,7 @@ import (
 )
 
 // PATCH: keep runtime --version aligned with the generated manifest version.
-var version = "3.0.1"
+var version = "2026.6.1"
 
 type rootFlags struct {
 	asJSON       bool

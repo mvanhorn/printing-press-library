@@ -23,7 +23,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "1.0.0"
+var version = "2026.6.1"
 
 var quotaPrintOnly bool
 var quotaPrintOnlyJSON bool

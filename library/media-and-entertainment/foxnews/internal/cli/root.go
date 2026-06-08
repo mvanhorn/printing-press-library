@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "1.0.0"
+var version = "2026.6.1"
 
 // noColor is set by --no-color and implied by --agent.
 var noColor bool
