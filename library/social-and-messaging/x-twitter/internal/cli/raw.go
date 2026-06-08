@@ -92,10 +92,7 @@ func validateRawPath(raw string) (string, error) {
 func parseRawHeaders(values []string) (map[string]string, error) {
 	out := map[string]string{}
 	for _, raw := range values {
-		key, value, ok := strings.Cut(raw, ":")
-		if !ok {
-			key, value, ok = strings.Cut(raw, "=")
-		}
+		key, value, ok := splitRawHeader(raw)
 		key = strings.TrimSpace(key)
 		if !ok || key == "" {
 			return nil, fmt.Errorf("--header must be Name=value or Name: value, got %q", raw)
@@ -109,6 +106,21 @@ func parseRawHeaders(values []string) (map[string]string, error) {
 		return nil, nil
 	}
 	return out, nil
+}
+
+func splitRawHeader(raw string) (string, string, bool) {
+	colon := strings.Index(raw, ":")
+	equal := strings.Index(raw, "=")
+	switch {
+	case colon < 0 && equal < 0:
+		return "", "", false
+	case colon >= 0 && (equal < 0 || colon < equal):
+		key, value, _ := strings.Cut(raw, ":")
+		return key, value, true
+	default:
+		key, value, _ := strings.Cut(raw, "=")
+		return key, value, true
+	}
 }
 
 func rawHeaderIsAuthSensitive(name string) bool {
