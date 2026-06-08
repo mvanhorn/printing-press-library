@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/store"
+	"continente-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -55,7 +55,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 			defer s.Close()
 
-			resources := []string{"on", "pesquisa"}
+			resources := []string{"on", "search"}
 			totalSynced := 0
 			syncEventWriter := cmd.OutOrStdout()
 			if flags.asJSON {

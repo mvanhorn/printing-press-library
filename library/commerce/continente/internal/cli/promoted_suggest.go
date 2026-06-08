@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/acquisition/storefront"
+	"continente-pp-cli/internal/acquisition/storefront"
 	"github.com/spf13/cobra"
 )
 
@@ -12,7 +12,7 @@ func newSuggestPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "suggest",
-		Aliases:     []string{"sugestoes", "autocomplete"},
+		Aliases:     []string{"autocomplete"},
 		Short:       "Get structured search suggestions",
 		Long:        "Get structured product suggestions parsed from the continente.pt suggestion endpoint.",
 		Example:     "  continente-pp-cli suggest --q leite",

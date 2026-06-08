@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/acquisition/storefront"
+	"continente-pp-cli/internal/acquisition/storefront"
 	"github.com/spf13/cobra"
 )
 

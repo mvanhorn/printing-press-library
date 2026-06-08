@@ -43,13 +43,13 @@ Do not activate this CLI for requests that require creating, updating, deleting,
 - `continente-pp-cli on get-search-fragment` — Get storefront search or category result fragment
 - `continente-pp-cli on get-suggestions` — Get storefront search suggestions
 
-**pesquisa** — Manage pesquisa
+**search** — Manage search
 
-- `continente-pp-cli pesquisa` — Get full storefront search page
+- `continente-pp-cli search` — Get full storefront search page
 
-**produto** — Manage produto
+**product** — Manage product
 
-- `continente-pp-cli produto <slugAndPid>` — Get full product detail page
+- `continente-pp-cli product <slugAndPid>` — Get full product detail page
 
 
 ### Finding the right command

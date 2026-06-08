@@ -12,8 +12,8 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/config"
+	"continente-pp-cli/internal/client"
+	"continente-pp-cli/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -247,11 +247,11 @@ Run 'continente-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
 	rootCmd.AddCommand(newSuggestPromotedCmd(flags))
-	rootCmd.AddCommand(newPesquisaPromotedCmd(flags))
+	rootCmd.AddCommand(newSearchPromotedCmd(flags))
 	rootCmd.AddCommand(newBrowseCmd(flags))
 	rootCmd.AddCommand(newAlternativesCmd(flags))
 	rootCmd.AddCommand(newCompareCmd(flags))
-	rootCmd.AddCommand(newProdutoPromotedCmd(flags))
+	rootCmd.AddCommand(newProductPromotedCmd(flags))
 	rootCmd.AddCommand(newCartCmd(flags))
 	rootCmd.AddCommand(newCheckoutCmd(flags))
 	rootCmd.AddCommand(newAuthCmd(flags))

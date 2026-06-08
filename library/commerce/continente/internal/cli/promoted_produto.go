@@ -6,19 +6,18 @@ package cli
 import (
 	"fmt"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/acquisition/storefront"
+	"continente-pp-cli/internal/acquisition/storefront"
 	"github.com/spf13/cobra"
 )
 
-func newProdutoPromotedCmd(flags *rootFlags) *cobra.Command {
+func newProductPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "produto <slugAndPid>",
-		Aliases:     []string{"product"},
+		Use:         "product <slugAndPid>",
 		Short:       "Get a structured product detail view",
 		Long:        "Get a structured product detail view parsed from a continente.pt product page.",
-		Example:     "  continente-pp-cli produto leite-uht-meio-gordo-mimosa-mimosa-7745833",
-		Annotations: map[string]string{"pp:endpoint": "produto.get-product-page", "pp:method": "GET", "pp:path": "/produto/{slugAndPid}.html", "mcp:read-only": "true"},
+		Example:     "  continente-pp-cli product leite-uht-meio-gordo-mimosa-mimosa-7745833",
+		Annotations: map[string]string{"pp:endpoint": "product.get-product-page", "pp:method": "GET", "pp:path": "/produto/{slugAndPid}.html", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

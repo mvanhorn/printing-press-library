@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/domain"
+	"continente-pp-cli/internal/domain"
 )
 
 type StorefrontProductRecord struct {

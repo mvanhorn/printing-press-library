@@ -1,4 +1,4 @@
-module github.com/mvanhorn/printing-press-library/library/commerce/continente
+module continente-pp-cli
 
 go 1.26.4
 

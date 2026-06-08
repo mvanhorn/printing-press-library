@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/client"
+	"continente-pp-cli/internal/client"
 	"github.com/spf13/cobra"
 )
 

@@ -4,23 +4,22 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/acquisition/storefront"
+	"continente-pp-cli/internal/acquisition/storefront"
 	"github.com/spf13/cobra"
 )
 
-func newPesquisaPromotedCmd(flags *rootFlags) *cobra.Command {
+func newSearchPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagQ string
 	var flagStart int
 	var flagSrule string
 	var flagCgid string
 
 	cmd := &cobra.Command{
-		Use:         "pesquisa",
-		Aliases:     []string{"search"},
+		Use:         "search",
 		Short:       "Search products on continente.pt",
 		Long:        "Search products on continente.pt and return structured product results parsed from the storefront.",
-		Example:     "  continente-pp-cli pesquisa --q leite",
-		Annotations: map[string]string{"pp:endpoint": "pesquisa.get-search-page", "pp:method": "GET", "pp:path": "/pesquisa/", "mcp:read-only": "true"},
+		Example:     "  continente-pp-cli search --q leite",
+		Annotations: map[string]string{"pp:endpoint": "search.get-search-page", "pp:method": "GET", "pp:path": "/pesquisa/", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

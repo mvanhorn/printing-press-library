@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/acquisition/storefront"
+	"continente-pp-cli/internal/acquisition/storefront"
 	"github.com/spf13/cobra"
 )
 
@@ -34,7 +34,7 @@ func newAlternativesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "alternatives <slugAndPid>",
-		Aliases:     []string{"alternativas"},
+		Aliases:     nil,
 		Short:       "Find comparable alternatives for a product",
 		Long:        "Fetch a product detail page, search the storefront for comparable products, and rank alternatives by similarity plus pricing signals.",
 		Example:     "  continente-pp-cli alternatives leite-uht-meio-gordo-mimosa-mimosa-7745833 --limit 5 --deal-sort unit-price",

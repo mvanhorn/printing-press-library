@@ -5,10 +5,10 @@ package cli
 
 import (
 	"context"
+	"continente-pp-cli/internal/cliutil"
+	"continente-pp-cli/internal/store"
 	"encoding/json"
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/store"
 	"github.com/spf13/cobra"
 	"io"
 	"net/url"
@@ -1180,7 +1180,7 @@ func parseSinceDuration(s string) (time.Time, error) {
 func defaultSyncResources() []string {
 	return []string{
 		"on",
-		"pesquisa",
+		"search",
 	}
 }
 
@@ -1190,7 +1190,7 @@ func defaultSyncResources() []string {
 func knownSyncResourceNames() []string {
 	names := []string{
 		"on",
-		"pesquisa",
+		"search",
 	}
 	return names
 }
@@ -1200,8 +1200,8 @@ func knownSyncResourceNames() []string {
 // this preserves the actual endpoint path like "/ISteamApps/GetAppList/v2".
 func syncResourcePath(resource string) (string, error) {
 	paths := map[string]string{
-		"on":       "/on/demandware.store/Sites-continente-Site/default/Search-ShowAjax",
-		"pesquisa": "/pesquisa/",
+		"on":     "/on/demandware.store/Sites-continente-Site/default/Search-ShowAjax",
+		"search": "/pesquisa/",
 	}
 	if p, ok := paths[resource]; ok {
 		return p, nil

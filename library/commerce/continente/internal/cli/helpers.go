@@ -6,11 +6,11 @@ package cli
 import (
 	"bytes"
 	"context"
+	"continente-pp-cli/internal/client"
+	"continente-pp-cli/internal/config"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/config"
+	"continente-pp-cli/internal/config"
 )
 
 func TestWrapWithProvenanceIncludesPreferredStore(t *testing.T) {

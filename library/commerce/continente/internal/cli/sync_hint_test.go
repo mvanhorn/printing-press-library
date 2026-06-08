@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/store"
+	"continente-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 

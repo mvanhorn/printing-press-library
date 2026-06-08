@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/acquisition/structured"
+	"continente-pp-cli/internal/acquisition/structured"
 )
 
 type Capability string

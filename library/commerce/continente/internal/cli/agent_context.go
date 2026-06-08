@@ -8,7 +8,7 @@ import (
 	"os"
 	"sort"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/config"
+	"continente-pp-cli/internal/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )

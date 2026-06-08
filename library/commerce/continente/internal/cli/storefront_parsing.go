@@ -11,8 +11,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/domain"
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/normalize"
+	"continente-pp-cli/internal/domain"
+	"continente-pp-cli/internal/normalize"
 	"github.com/spf13/cobra"
 )
 

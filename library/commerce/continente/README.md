@@ -136,7 +136,7 @@ This checks your configuration.
 ### 3. Try Your First Command
 
 ```bash
-continente-pp-cli pesquisa --q leite
+continente-pp-cli search --q leite
 ```
 
 ## Usage
@@ -151,36 +151,36 @@ Structured storefront suggestions
 
 - **`continente-pp-cli suggest --q leite`** - Get structured search suggestions
 
-### pesquisa
+### search
 
 Structured storefront product search
 
-- **`continente-pp-cli pesquisa --q leite`** - Search products and return parsed result items
+- **`continente-pp-cli search --q leite`** - Search products and return parsed result items
 
-### produto
+### product
 
 Structured product detail lookup
 
-- **`continente-pp-cli produto <slugAndPid>`** - Get parsed product details from a product page
+- **`continente-pp-cli product <slugAndPid>`** - Get parsed product details from a product page
 
 
 ## Output Formats
 
 ```bash
 # Human-readable table (default in terminal, JSON when piped)
-continente-pp-cli pesquisa --q leite
+continente-pp-cli search --q leite
 
 # JSON for scripting and agents
-continente-pp-cli pesquisa --q leite --json
+continente-pp-cli search --q leite --json
 
 # Filter to specific fields
-continente-pp-cli pesquisa --q leite --json --select items
+continente-pp-cli search --q leite --json --select items
 
 # Dry run — show the request without sending
 continente-pp-cli suggest --q leite --dry-run
 
 # Agent mode — JSON + compact + no prompts in one flag
-continente-pp-cli produto leite-uht-meio-gordo-mimosa-mimosa-7745833 --agent
+continente-pp-cli product leite-uht-meio-gordo-mimosa-mimosa-7745833 --agent
 
 # Agent mode with an even narrower subset
 continente-pp-cli checkout slots --agent --select results.slots.slot_ref,results.slots.date_label,results.slots.start,results.slots.end

@@ -3,12 +3,12 @@ package cli
 import (
 	"bytes"
 	"context"
+	"continente-pp-cli/internal/client"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/client"
 	"io"
 	"net/http"
 	"net/url"

@@ -13,13 +13,13 @@ import (
 	"strings"
 	"time"
 
+	"continente-pp-cli/internal/cli"
+	"continente-pp-cli/internal/client"
+	"continente-pp-cli/internal/config"
+	"continente-pp-cli/internal/mcp/cobratree"
+	"continente-pp-cli/internal/store"
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/cli"
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/mcp/cobratree"
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/store"
 )
 
 // RegisterTools registers all API operations as MCP tools.
@@ -54,7 +54,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/on/demandware.store/Sites-continente-Site/default/SearchServices-GetSuggestions", true, false, nil, []mcpParamBinding{{PublicName: "q", WireName: "q", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
-		mcplib.NewTool("pesquisa_get-search-page",
+		mcplib.NewTool("search_get-search-page",
 			mcplib.WithDescription("Get full storefront search page. Optional: q, start, srule (plus 1 more)."),
 			mcplib.WithString("q", mcplib.Description("Q")),
 			mcplib.WithNumber("start", mcplib.Description("Start")),
@@ -67,7 +67,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/pesquisa/", true, false, nil, []mcpParamBinding{{PublicName: "q", WireName: "q", Location: "query"}, {PublicName: "start", WireName: "start", Location: "query"}, {PublicName: "srule", WireName: "srule", Location: "query"}, {PublicName: "cgid", WireName: "cgid", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
-		mcplib.NewTool("produto_get-product-page",
+		mcplib.NewTool("product_get-product-page",
 			mcplib.WithDescription("Get full product detail page. Required: slugAndPid."),
 			mcplib.WithString("slugAndPid", mcplib.Required(), mcplib.Description("Product slug plus numeric pid, for example leite-uht-meio-gordo-mimosa-mimosa-7745833")),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -416,8 +416,8 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"store nearby",
 			"store set",
 			"suggest",
-			"pesquisa",
-			"produto",
+			"search",
+			"product",
 		},
 		"resources": []map[string]any{
 			{
@@ -456,23 +456,23 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"searchable":  true,
 			},
 			{
-				"name":        "pesquisa",
-				"description": "Manage pesquisa",
+				"name":        "search",
+				"description": "Manage search",
 				"endpoints":   []string{"get-search-page"},
 				"syncable":    true,
 				"searchable":  true,
 			},
 			{
-				"name":        "produto",
-				"description": "Manage produto",
+				"name":        "product",
+				"description": "Manage product",
 				"endpoints":   []string{"get-product-page"},
 				"searchable":  true,
 			},
 		},
 		"query_tips": []string{
 			"Prefer browse for category/filter discovery; it exposes total_count, sort_options, and refinements.",
-			"Use pesquisa for straightforward keyword search when you only need matching items.",
-			"Use suggest for autocomplete-like discovery and produto for full product detail.",
+			"Use search for straightforward keyword search when you only need matching items.",
+			"Use suggest for autocomplete-like discovery and product for full product detail.",
 			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",

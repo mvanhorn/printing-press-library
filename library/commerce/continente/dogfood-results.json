@@ -1,0 +1,99 @@
+{
+  "_note": "Hand-authored stub. The original publish run did not emit a dogfood-results.json artifact. This file records only structural observations from the shipped source and intentionally marks live command execution as skipped rather than fabricated. Replace it with a real dogfood artifact on the next full publish run.",
+  "dir": ".",
+  "spec_path": "openapi.yaml",
+  "verdict": "STUB",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "skipped: no preserved publish-run dogfood matrix was available in this checkout"
+  },
+  "auth_check": {
+    "spec_scheme": "none",
+    "generated_format": "session-optional",
+    "match": true,
+    "detail": "guest storefront reads are keyless; optional auth commands hydrate a local browser-backed cookie jar"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth is optional, not required for the default read-only storefront surface"
+  },
+  "dead_flags": {
+    "total": 0,
+    "dead": 0,
+    "skipped": true,
+    "detail": "skipped: this stub does not claim a full flag-reachability audit"
+  },
+  "dead_functions": {
+    "total": 0,
+    "dead": 0,
+    "skipped": true,
+    "detail": "skipped: real dead-code analysis belongs to a fresh dogfood pass"
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": true,
+    "domain_tables": 0,
+    "detail": "source contains live storefront commands plus local sync/search workflows; this stub does not re-run them"
+  },
+  "example_check": {
+    "tested": 0,
+    "with_examples": 0,
+    "valid_examples": 0,
+    "skipped": true,
+    "detail": "skipped: README and Cobra example blocks were not executed as part of this stub"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 50,
+      "registered": 48,
+      "detail": "grep-counted newXxxCmd constructors and AddCommand call sites under internal/cli"
+    },
+    "config_consistency": {
+      "consistent": true,
+      "detail": "single rootFlags surface drives shared persistent flags across the CLI"
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow verification artifact was regenerated for this stub"
+    }
+  },
+  "novel_features_check": {
+    "planned": 4,
+    "found": 4,
+    "detail": "publish metadata still advertises auth login, import-cookies, cart update, and checkout slots"
+  },
+  "mcp_surface_parity": {
+    "state": "stub",
+    "pass": true,
+    "detail": "typed MCP tools and the Cobra-tree mirror were updated to the English command surface in source, but not re-dogfooded here"
+  },
+  "reimplementation_check": {
+    "checked": 0,
+    "exempted_via_store": 0,
+    "skipped": true
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "test_presence": {
+    "checked": 0,
+    "detail": "see repo test suite; this stub does not encode a full per-command matrix"
+  },
+  "naming_check": {
+    "checked": 1,
+    "skipped": false,
+    "detail": "CLI and MCP command names were normalized to English in the published surface"
+  },
+  "issues": null
+}

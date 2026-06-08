@@ -3,7 +3,7 @@ package cli
 import (
 	"testing"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/acquisition/storefront"
+	"continente-pp-cli/internal/acquisition/storefront"
 )
 
 func TestEnrichSearchResponse_AddsPaginationAndFilters(t *testing.T) {

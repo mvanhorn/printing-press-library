@@ -95,7 +95,7 @@
       ]
     },
     {
-      "name": "pesquisa_get-search-page",
+      "name": "search_get-search-page",
       "description": "Get full storefront search page. Optional: q, start, srule (plus 1 more).",
       "method": "GET",
       "path": "/pesquisa/",
@@ -128,7 +128,7 @@
       ]
     },
     {
-      "name": "produto_get-product-page",
+      "name": "product_get-product-page",
       "description": "Get full product detail page. Required: slugAndPid.",
       "method": "GET",
       "path": "/produto/{slugAndPid}.html",

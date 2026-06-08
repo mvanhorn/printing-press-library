@@ -3,7 +3,7 @@ package normalize
 import (
 	"math"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/domain"
+	"continente-pp-cli/internal/domain"
 )
 
 func PriceSummary(product domain.Product) domain.Price {

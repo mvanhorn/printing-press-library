@@ -33,8 +33,8 @@ var whichIndex = []whichEntry{
 	{Command: "store nearby", Description: "Find nearby pickup stores from coordinates", Group: "store-context"},
 	{Command: "store set", Description: "Persist a preferred store for future agent workflows", Group: "store-context"},
 	{Command: "suggest", Description: "Get structured storefront search suggestions", Group: "shopping"},
-	{Command: "pesquisa", Description: "Search products across the storefront", Group: "shopping"},
-	{Command: "produto", Description: "Get structured product detail page", Group: "shopping"},
+	{Command: "search", Description: "Search products across the storefront", Group: "shopping"},
+	{Command: "product", Description: "Get structured product detail page", Group: "shopping"},
 	{Command: "on get-search-fragment", Description: "Get raw storefront search or category result fragment", Group: "raw-api"},
 }
 

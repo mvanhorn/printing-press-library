@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/client"
+	"continente-pp-cli/internal/client"
 	"github.com/spf13/cobra"
 )
 
@@ -171,7 +171,7 @@ func newCartUpdateCmd(flags *rootFlags) *cobra.Command {
 				"promotionData":         "null",
 				"taggstarPromotionData": "",
 			}
-			data, err := c.GetWithHeaders(cmd.Context(), cartUpdatePath, params, cartAJAXHeaders(c.RequestBaseURL()+authLoginCheckPath))
+			data, err := c.GetWithHeadersNoCache(cmd.Context(), cartUpdatePath, params, cartAJAXHeaders(c.RequestBaseURL()+authLoginCheckPath))
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -216,7 +216,7 @@ func newCartRemoveCmd(flags *rootFlags) *cobra.Command {
 				"gtmIndex":   "1",
 				"gtmList":    "CLI",
 			}
-			data, err := c.GetWithHeaders(cmd.Context(), cartRemovePath, params, cartAJAXHeaders(c.RequestBaseURL()+authLoginCheckPath))
+			data, err := c.GetWithHeadersNoCache(cmd.Context(), cartRemovePath, params, cartAJAXHeaders(c.RequestBaseURL()+authLoginCheckPath))
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

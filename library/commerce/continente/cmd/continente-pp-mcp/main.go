@@ -9,8 +9,8 @@ import (
 	"os"
 	"strings"
 
+	mcptools "continente-pp-cli/internal/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	mcptools "github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/mcp"
 )
 
 const (
