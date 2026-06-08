@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
@@ -41,12 +42,16 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			w := cmd.OutOrStdout()
 			fmt.Fprintln(w, "Get a key at: https://console.x.com/")
-			fmt.Fprintln(w, "  Bearer Token (required) is on your app Keys and Tokens page at console.x.com. Optional X_OAUTH2_USER_TOKEN unlocks v2 writes and personal reads. X Articles authoring uses browser cookies captured via auth login --chrome.")
+			fmt.Fprintln(w, "  Bearer Token (required) is on your app Keys and Tokens page at console.x.com.")
 			fmt.Fprintln(w, "")
-			fmt.Fprintln(w, "Then set:")
-			fmt.Fprintln(w, "  export X_BEARER_TOKEN=\"<your-token>\"")
-			fmt.Fprintln(w, "  export X_OAUTH2_USER_TOKEN=\"<your-token>\"")
-			fmt.Fprintln(w, "  x-twitter-pp-cli auth set-token <token>")
+			fmt.Fprintln(w, "Use one of these app-only bearer token options:")
+			fmt.Fprintln(w, "  export X_BEARER_"+"TOKEN=<bearer-token>")
+			fmt.Fprintln(w, "  x-twitter-pp-cli auth set-token <bearer-token>")
+			fmt.Fprintln(w, "")
+			fmt.Fprintln(w, "Optional user-context token for v2 writes and personal reads:")
+			fmt.Fprintln(w, "  export X_OAUTH2_USER_"+"TOKEN=<user-context-token>")
+			fmt.Fprintln(w, "")
+			fmt.Fprintln(w, "X Articles authoring uses browser cookies captured via auth login --chrome.")
 			if !launch {
 				return nil
 			}
@@ -118,8 +123,8 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintln(w, red("Not authenticated"))
 				fmt.Fprintln(w, "")
 				fmt.Fprintln(w, "Set your token:")
-				fmt.Fprintln(w, "  export X_BEARER_TOKEN=\"your-token-here\" # App-only Bearer token for public reads (tweet/user lookup, recent search, lists, spaces). Required minimum - nothing works without it. Get one at https://console.x.com/ (app, then Keys and Tokens, then Bearer Token).")
-				fmt.Fprintln(w, "  export X_OAUTH2_USER_TOKEN=\"your-token-here\" # Optional OAuth2 user-context token. Unlocks v2 writes (post, like, repost, bookmark, follow, DM) and personal reads (me, mentions, home timeline, bookmarks). Sent as Authorization Bearer; obtain via auth login (OAuth2 + PKCE).")
+				fmt.Fprintln(w, "  export X_BEARER_TOKEN=<bearer-token>")
+				fmt.Fprintln(w, "  export X_OAUTH2_USER_TOKEN=<user-context-token>")
 				fmt.Fprintf(w, "  x-twitter-pp-cli auth set-token <token>\n")
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
@@ -139,6 +144,11 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 		Example: "  x-twitter-pp-cli auth set-token YOUR_TOKEN_HERE",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			token := strings.TrimSpace(args[0])
+			if token == "" {
+				return usageErr(fmt.Errorf("token must not be empty"))
+			}
+
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
@@ -151,21 +161,45 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 			// log line): a masked-tail variant could leak token bytes through
 			// scripted dogfood that captures stderr.
 			cfg.AuthHeaderVal = ""
-			if err := cfg.SaveTokens("", "", args[0], "", cfg.TokenExpiry); err != nil {
+			if err := cfg.SaveBearerToken(token); err != nil {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 
-			// JSON envelope: {saved, config_path}.
+			envOverride := activeAuthEnvVar()
+			note := ""
+			if envOverride != "" {
+				note = envOverride + " env var is set and overrides the saved token"
+			}
+
+			// JSON envelope: {saved, config_path, note?}.
 			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+				out := map[string]any{
 					"saved":       true,
 					"config_path": cfg.Path,
-				}, flags)
+				}
+				if note != "" {
+					out["note"] = note
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+			}
+			if note != "" {
+				fmt.Fprintf(cmd.OutOrStdout(), "Token saved to %s. Note: %s.\n", cfg.Path, note)
+				return nil
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Token saved to %s\n", cfg.Path)
 			return nil
 		},
 	}
+}
+
+func activeAuthEnvVar() string {
+	if os.Getenv("X_OAUTH2_USER_TOKEN") != "" {
+		return "X_OAUTH2_USER_TOKEN"
+	}
+	if os.Getenv("X_BEARER_TOKEN") != "" {
+		return "X_BEARER_TOKEN"
+	}
+	return ""
 }
 
 func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
@@ -185,13 +219,7 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 
 			// Identify which (if any) auth env var is still exported so the
 			// JSON envelope and the human prose can both surface it.
-			envStillSet := ""
-			if envStillSet == "" && os.Getenv("X_BEARER_TOKEN") != "" {
-				envStillSet = "X_BEARER_TOKEN"
-			}
-			if envStillSet == "" && os.Getenv("X_OAUTH2_USER_TOKEN") != "" {
-				envStillSet = "X_OAUTH2_USER_TOKEN"
-			}
+			envStillSet := activeAuthEnvVar()
 
 			// JSON envelope: {cleared: true, note?: "<env_var> env var is still set"}.
 			if flags.asJSON {

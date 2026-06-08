@@ -5,10 +5,25 @@ package client
 
 import (
 	"bytes"
+	"context"
+	"fmt"
+	"io"
+	"net/http"
+	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
+	"time"
 	"unicode/utf8"
+
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/config"
 )
+
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req)
+}
 
 func TestTruncateBody(t *testing.T) {
 	t.Parallel()
@@ -68,5 +83,126 @@ func TestTruncateBody_UTF8RuneAtBoundary(t *testing.T) {
 	// Partial rune must be dropped, not replaced: 4094 valid bytes + "...".
 	if want := 4094 + 3; len(got) != want {
 		t.Fatalf("len = %d, want %d (partial rune should be dropped, not replaced)", len(got), want)
+	}
+}
+
+func TestAuthHeaderRefreshesExpiredLegacyOAuthToken(t *testing.T) {
+	t.Parallel()
+
+	var gotBody string
+	transport := roundTripFunc(func(r *http.Request) (*http.Response, error) {
+		if got, want := r.URL.String(), xOAuthTokenURL; got != want {
+			t.Fatalf("refresh URL = %q, want %q", got, want)
+		}
+		if r.Method != http.MethodPost {
+			t.Fatalf("refresh method = %s, want POST", r.Method)
+		}
+		body, _ := io.ReadAll(r.Body)
+		gotBody = string(body)
+		return &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     http.Header{"Content-Type": []string{"application/json"}},
+			Body:       io.NopCloser(strings.NewReader(`{"access_token":"refreshed-access-value","refresh_token":"refreshed-refresh-value","expires_in":3600}`)),
+		}, nil
+	})
+
+	cfg := &config.Config{
+		Path:         filepath.Join(t.TempDir(), "config.toml"),
+		AccessToken:  "old-access",
+		RefreshToken: "old-refresh",
+		TokenExpiry:  time.Now().Add(-time.Hour),
+		ClientID:     "client-id",
+	}
+	c := &Client{BaseURL: "https://example.invalid", HTTPClient: &http.Client{Transport: transport}, Config: cfg}
+
+	got, err := c.authHeader(context.Background())
+	if err != nil {
+		t.Fatalf("authHeader returned error: %v", err)
+	}
+	if got != "Bearer refreshed-access-value" {
+		t.Fatalf("authHeader = %q, want Bearer refreshed-access-value", got)
+	}
+	if !strings.Contains(gotBody, "grant_type=refresh_token") || !strings.Contains(gotBody, "refresh_token=old-refresh") || !strings.Contains(gotBody, "client_id=client-id") {
+		t.Fatalf("refresh body missing expected form values: %q", gotBody)
+	}
+	if cfg.AccessToken != "refreshed-access-value" || cfg.RefreshToken != "refreshed-refresh-value" {
+		t.Fatalf("config tokens = %q/%q, want refreshed-access-value/refreshed-refresh-value", cfg.AccessToken, cfg.RefreshToken)
+	}
+}
+
+func TestAuthHeaderRefreshesExpiredLegacyOAuthTokenOnceConcurrently(t *testing.T) {
+	var mu sync.Mutex
+	calls := 0
+	transport := roundTripFunc(func(r *http.Request) (*http.Response, error) {
+		mu.Lock()
+		calls++
+		mu.Unlock()
+		return &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     http.Header{"Content-Type": []string{"application/json"}},
+			Body:       io.NopCloser(strings.NewReader(`{"access_token":"concurrent-access","refresh_token":"concurrent-refresh","expires_in":3600}`)),
+		}, nil
+	})
+	cfg := &config.Config{
+		Path:         filepath.Join(t.TempDir(), "config.toml"),
+		AccessToken:  "old-access",
+		RefreshToken: "old-refresh",
+		TokenExpiry:  time.Now().Add(-time.Hour),
+		ClientID:     "client-id",
+	}
+	c := &Client{BaseURL: "https://example.invalid", HTTPClient: &http.Client{Transport: transport}, Config: cfg}
+
+	var wg sync.WaitGroup
+	errCh := make(chan error, 2)
+	for i := 0; i < 2; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			got, err := c.authHeader(context.Background())
+			if err != nil {
+				errCh <- err
+				return
+			}
+			if got != "Bearer concurrent-access" {
+				errCh <- fmt.Errorf("authHeader = %q, want Bearer concurrent-access", got)
+			}
+		}()
+	}
+	wg.Wait()
+	close(errCh)
+	for err := range errCh {
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	if calls != 1 {
+		t.Fatalf("refresh calls = %d, want 1", calls)
+	}
+}
+
+func TestRefreshHTTPClientDropsRedirectHook(t *testing.T) {
+	transport := http.DefaultTransport
+	original := &http.Client{
+		Transport: transport,
+		Timeout:   5 * time.Second,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return nil
+		},
+	}
+
+	got := refreshHTTPClient(original)
+	if got == original {
+		t.Fatal("refreshHTTPClient returned the original client, want shallow clone")
+	}
+	if got.CheckRedirect != nil {
+		t.Fatal("refreshHTTPClient retained CheckRedirect hook, would allow authHeader re-entry during refresh")
+	}
+	if got.Transport != transport || got.Timeout != original.Timeout {
+		t.Fatal("refreshHTTPClient did not preserve transport/timeout")
+	}
+	if original.CheckRedirect == nil {
+		t.Fatal("refreshHTTPClient mutated original client")
 	}
 }

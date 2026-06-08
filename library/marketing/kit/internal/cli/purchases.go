@@ -14,6 +14,7 @@ func newPurchasesCmd(flags *rootFlags) *cobra.Command {
 		RunE:  parentNoSubcommandRunE(flags),
 	}
 
+	cmd.AddCommand(newPurchasesLogCmd(flags))
 	cmd.AddCommand(newPurchasesCreateCmd(flags))
 	cmd.AddCommand(newPurchasesGetCmd(flags))
 	cmd.AddCommand(newPurchasesListCmd(flags))

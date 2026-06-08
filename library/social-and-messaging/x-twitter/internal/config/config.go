@@ -39,6 +39,9 @@ func Load(configPath string) (*Config, error) {
 		path = os.Getenv("X_TWITTER_CONFIG")
 	}
 	if path == "" {
+		path = os.Getenv("X_CONFIG")
+	}
+	if path == "" {
 		home, _ := os.UserHomeDir()
 		path = filepath.Join(home, ".config", "x-twitter-pp-cli", "config.toml")
 	}
@@ -98,6 +101,8 @@ func Load(configPath string) (*Config, error) {
 	// Base URL override (used by printing-press verify to point at mock/test servers)
 	if v := os.Getenv("X_TWITTER_BASE_URL"); v != "" {
 		cfg.BaseURL = v
+	} else if v := os.Getenv("X_BASE_URL"); v != "" {
+		cfg.BaseURL = v
 	}
 	return cfg, nil
 }
@@ -132,6 +137,20 @@ func (c *Config) AuthHeader() string {
 	return ""
 }
 
+// LegacyOAuthExpired reports whether the config only has a persisted OAuth2
+// access token whose expiry has passed. The current auth flow no longer
+// refreshes PKCE tokens, so surfacing this state prevents silent 401s for users
+// migrating from older x-twitter releases.
+func (c *Config) LegacyOAuthExpired(now time.Time) bool {
+	if c == nil || c.AccessToken == "" || c.TokenExpiry.IsZero() {
+		return false
+	}
+	if c.XOauth2UserToken != "" || c.XBearerToken != "" || c.AuthHeaderVal != "" {
+		return false
+	}
+	return !c.TokenExpiry.After(now)
+}
+
 func applyAuthFormat(format string, replacements map[string]string) string {
 	if format == "" {
 		return ""
@@ -151,6 +170,18 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 	c.AccessToken = accessToken
 	c.RefreshToken = refreshToken
 	c.TokenExpiry = expiry
+	return c.save()
+}
+
+func (c *Config) SaveBearerToken(token string) error {
+	c.AuthHeaderVal = ""
+	c.AccessToken = ""
+	c.RefreshToken = ""
+	c.TokenExpiry = time.Time{}
+	c.ClientID = ""
+	c.ClientSecret = ""
+	c.XOauth2UserToken = ""
+	c.XBearerToken = token
 	return c.save()
 }
 

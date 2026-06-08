@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "voice-budget",
+  "applied_at": "2026-06-03",
+  "base_run_id": "20260513T152516Z-e836a3fe",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Add a top-level voice-budget command that reports remaining character credits, tier limits, reset timing, and voice-slot headroom.",
+  "reason": "This read-only workflow composes GET /v1/user/subscription with GET /v2/voices, derives characters remaining / percent used / days-until-reset and voice slots locally. No new HTTP code; reuses the existing client GET and output plumbing.",
+  "files": [
+    "internal/cli/voice_budget.go",
+    "internal/cli/composite_commands_test.go",
+    "internal/cli/root.go",
+    ".printing-press.json",
+    "SKILL.md",
+    "README.md"
+  ]
+}

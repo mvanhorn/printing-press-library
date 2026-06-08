@@ -171,8 +171,13 @@ Resource scoping:
 							_ = db.SaveSyncState(resource, "", 0)
 						}
 					}
-				} else if humanFriendly {
-					fmt.Fprintln(os.Stderr, "warning: --latest-only ignored because --since is set; --since takes precedence")
+				} else {
+					msg := "--latest-only ignored because --since is set; --since takes precedence"
+					if humanFriendly {
+						fmt.Fprintln(os.Stderr, "warning: "+msg)
+					} else {
+						fmt.Fprintf(syncEventWriter, `{"event":"sync_warning","reason":"latest_only_ignored","message":"%s"}`+"\n", msg)
+					}
 				}
 			}
 			// effectiveLatestOnly drives the max_pages_cap_hit suppression
@@ -358,7 +363,7 @@ Resource scoping:
 	cmd.Flags().StringVar(&since, "since", "", "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)")
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/x-twitter-pp-cli/data.db)")
-	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
+	cmd.Flags().IntVar(&maxPages, "max-pages", 100, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
 	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
 	cmd.Flags().BoolVar(&strict, "strict", false, "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).")
 	cmd.Flags().StringArrayVar(&paramFlags, "param", nil, "Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=<id> does not double up on /parents/<id>/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.")
@@ -1485,7 +1490,7 @@ func dependentResourceDefs() []dependentResourceDef {
 		{Name: "blocking", ParentTable: "users", ParentIDParam: "id", PathTemplate: "/2/users/{id}/blocking", KeyField: "", PathParams: []dependentPathParamDef{
 			{Param: "id", Field: "id"},
 		}},
-		{Name: "bookmarks", ParentTable: "users", ParentIDParam: "id", PathTemplate: "/2/users/{id}/bookmarks/folders", KeyField: "", PathParams: []dependentPathParamDef{
+		{Name: "bookmark_folders", ParentTable: "users", ParentIDParam: "id", PathTemplate: "/2/users/{id}/bookmarks/folders", KeyField: "", PathParams: []dependentPathParamDef{
 			{Param: "id", Field: "id"},
 		}},
 		{Name: "bookmarks", ParentTable: "users", ParentIDParam: "id", PathTemplate: "/2/users/{id}/bookmarks", KeyField: "", PathParams: []dependentPathParamDef{
@@ -1880,6 +1885,7 @@ var resourceIDFieldOverrides = map[string]string{
 	"activity-subscriptions":            "subscription_id",
 	"affiliates":                        "id",
 	"blocking":                          "id",
+	"bookmark_folders":                  "id",
 	"bookmarks":                         "id",
 	"chat":                              "id",
 	"compliance":                        "id",

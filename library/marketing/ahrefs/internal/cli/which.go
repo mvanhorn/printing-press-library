@@ -28,6 +28,10 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
+	{Command: "keyword-gap", Description: "Find competitor keywords you do not rank for, or rank worse for", Group: "composite"},
+	{Command: "striking-distance", Description: "Find keywords ranking just off page-one wins", Group: "composite"},
+	{Command: "link-intersect", Description: "Find referring domains linking competitors but not you", Group: "composite"},
+	{Command: "snapshot", Description: "Build a Site Explorer report card for one target", Group: "composite"},
 	{Command: "keywords-explorer matching-terms", Description: "Matching terms", Group: "keywords-explorer"},
 	{Command: "keywords-explorer overview", Description: "Overview", Group: "keywords-explorer"},
 	{Command: "keywords-explorer related-terms", Description: "Related terms", Group: "keywords-explorer"},

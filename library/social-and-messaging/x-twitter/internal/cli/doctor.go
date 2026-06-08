@@ -107,6 +107,10 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					authConfigured = true
 					report["auth"] = "configured"
 					report["auth_source"] = cfg.AuthSource
+					if cfg.LegacyOAuthExpired(time.Now()) {
+						report["auth"] = "expired legacy OAuth2 token"
+						report["auth_hint"] = "run x-twitter-pp-cli auth set-token <token> or export X_BEARER_TOKEN / X_OAUTH2_USER_TOKEN"
+					}
 				}
 			}
 
@@ -114,9 +118,6 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			authEnvSet := []string{}
 			authEnvRequiredMissing := []string{}
 			authEnvInfo := []string{}
-			authEnvOptionalNames := []string{}
-			// Validation rejects multi-OR-group specs upstream, so the single optional-satisfied state is sufficient at runtime.
-			authEnvOptionalSatisfied := false
 			if os.Getenv("X_BEARER_TOKEN") != "" {
 				authEnvSet = append(authEnvSet, "X_BEARER_TOKEN")
 			} else if authConfigured {
@@ -128,13 +129,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				authEnvRequiredMissing = append(authEnvRequiredMissing, "X_BEARER_TOKEN")
 			}
-			if strings.Contains("Optional OAuth2 user-context token. Unlocks v2 writes (post, like, repost, bookmark, follow, DM) and personal reads (me, mentions, home timeline, bookmarks). Sent as Authorization Bearer; obtain via auth login (OAuth2 + PKCE).", " OR ") {
-				authEnvOptionalNames = append(authEnvOptionalNames, "X_OAUTH2_USER_TOKEN")
-				if os.Getenv("X_OAUTH2_USER_TOKEN") != "" {
-					authEnvSet = append(authEnvSet, "X_OAUTH2_USER_TOKEN")
-					authEnvOptionalSatisfied = true
-				}
-			} else if os.Getenv("X_OAUTH2_USER_TOKEN") != "" {
+			if os.Getenv("X_OAUTH2_USER_TOKEN") != "" {
 				authEnvSet = append(authEnvSet, "X_OAUTH2_USER_TOKEN")
 			} else {
 				authEnvInfo = append(authEnvInfo, "X_OAUTH2_USER_TOKEN optional")
@@ -142,8 +137,6 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			switch {
 			case len(authEnvRequiredMissing) > 0:
 				report["env_vars"] = "ERROR missing required: " + strings.Join(authEnvRequiredMissing, ", ")
-			case len(authEnvOptionalNames) > 1 && !authEnvOptionalSatisfied:
-				report["env_vars"] = "INFO set one of: " + strings.Join(authEnvOptionalNames, " or ")
 			case len(authEnvInfo) > 0 && authConfigured:
 				report["env_vars"] = "OK " + strings.Join(authEnvInfo, "; ")
 			case len(authEnvInfo) > 0:
@@ -168,10 +161,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					report["api"] = fmt.Sprintf("client init error: %s", clientErr)
 				} else {
 					// Step 1: Basic reachability via the configured transport.
-					healthPath := "/2/users/me"
-					if !strings.HasPrefix(healthPath, "/") {
-						healthPath = "/" + healthPath
-					}
+					healthPath := "/"
 					reachBody, reachErr := c.Get(cmd.Context(), healthPath, nil)
 					var reachAPIErr *client.APIError
 					switch {
@@ -218,10 +208,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 						authHeaders := map[string]string{}
 						authHeaders["Authorization"] = authHeader
 						authHeaders["User-Agent"] = "x-twitter-pp-cli"
-						verifyPath := "/2/users/me"
-						if !strings.HasPrefix(verifyPath, "/") {
-							verifyPath = "/" + verifyPath
-						}
+						verifyPath := doctorCredentialProbePath(cfg)
 						_, authErr := c.GetWithHeaders(cmd.Context(), verifyPath, authParams, authHeaders)
 						var authAPIErr *client.APIError
 						switch {
@@ -231,6 +218,8 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 							switch {
 							case authAPIErr.StatusCode == 401:
 								report["credentials"] = fmt.Sprintf("invalid (HTTP %d) — check your credentials", authAPIErr.StatusCode)
+							case authAPIErr.StatusCode == 403 && doctorUsesAppOnlyBearer(cfg):
+								report["credentials"] = fmt.Sprintf("valid app-only bearer (HTTP %d from %s) — user-context endpoints require X_OAUTH2_USER_TOKEN", authAPIErr.StatusCode, verifyPath)
 							case authAPIErr.StatusCode == 403:
 								report["credentials"] = fmt.Sprintf("scope-limited (HTTP %d) — credentials are valid but lack permission for this endpoint. Check your dashboard's API key scope.", authAPIErr.StatusCode)
 							default:
@@ -296,6 +285,8 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				case strings.HasPrefix(s, "INFO"):
 					indicator = yellow("INFO")
 				case strings.HasPrefix(s, "ERROR"):
+					indicator = red("FAIL")
+				case strings.Contains(s, "expired"):
 					indicator = red("FAIL")
 				case strings.HasPrefix(s, "optional"):
 					// Optional-auth CLI with no key set — informational, not a failure.
@@ -486,6 +477,17 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 		report["hint"] = "Some resources are older than stale_after; run 'x-twitter-pp-cli sync' to refresh."
 	}
 	return report
+}
+
+func doctorUsesAppOnlyBearer(cfg *config.Config) bool {
+	return cfg != nil && cfg.XBearerToken != "" && cfg.XOauth2UserToken == "" && cfg.AccessToken == "" && cfg.AuthHeaderVal == ""
+}
+
+func doctorCredentialProbePath(cfg *config.Config) string {
+	if doctorUsesAppOnlyBearer(cfg) {
+		return "/2/users/by/username/XDevelopers"
+	}
+	return "/2/users/me"
 }
 
 func renderCacheReport(w io.Writer, rep map[string]any) {

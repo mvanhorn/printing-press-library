@@ -1,0 +1,372 @@
+#!/usr/bin/env bash
+# pp-sync — Printing Press: PRIVATE library is the source of truth; public is upstream.
+#
+# What it does (BestSelf / knox):
+#   * Builds the agent-facing pp-* CLIs from our PRIVATE library checkout (never from
+#     the public @mvanhorn npm package / public GitHub).
+#   * Installs each CLI's skill from the PRIVATE repo's cli-skills/.
+#   * Fetches PUBLIC upstream only to DETECT new / changed CLIs, and reports them.
+#   * Imports a chosen upstream CLI into the private repo and pushes to PRIVATE only.
+#   * Keeps an agent "we need a CLI for X" backlog the daily report surfaces.
+#
+# HARD SAFETY: every push targets `origin`, and `origin` push URL must contain the
+# private owner (cathrynlavery). Any attempt to push to a public mvanhorn remote aborts.
+#
+# Subcommands:
+#   pp-sync update                 fetch + ff-pull private main, build installed CLIs
+#                                  from private, sync skills, smoke test, upstream diff,
+#                                  write + print the daily report.  (used by the cron)
+#   pp-sync upstream | diff        read-only: list NEW / CHANGED CLIs in public upstream
+#                                  vs our private main.
+#   pp-sync import <slug> [..]     bring an upstream CLI (library/<cat>/<slug> + its
+#                                  cli-skills/pp-<slug>) into private, commit, push PRIVATE.
+#   pp-sync build [name ..]        (re)build named CLIs (or all installed) from private.
+#   pp-sync backlog [add "text"]   show or append the agent CLI-request backlog.
+#   pp-sync report                 print the last report.
+#   pp-sync doctor                 print resolved paths, remotes, and safety status.
+set -euo pipefail
+
+# ---- config (override via env) ----------------------------------------------
+REPO="${PP_LIBRARY_REPO:-$HOME/Developer/PrintingPress/printing-press-library}"
+GOBIN_DIR="${PP_GOBIN:-$HOME/go/bin}"
+BINDIR="${PP_BINDIR:-$HOME/.local/bin}"
+SKILLS_DST="${PP_SKILLS_DST:-$HOME/.claude/skills}"
+STATE_DIR="${PP_STATE_DIR:-$HOME/.hermes/state}"
+PRIVATE_OWNER="${PP_PRIVATE_OWNER:-cathrynlavery}"
+SMOKE_TIMEOUT_SECONDS="${PP_SMOKE_TIMEOUT_SECONDS:-20}"
+REPORT="$STATE_DIR/pp-sync-report.md"
+BACKLOG="$STATE_DIR/pp-cli-backlog.md"
+
+export PATH="$HOME/go/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+# ---- helpers ----------------------------------------------------------------
+log()  { printf '%s\n' "$*" >&2; }
+die()  { printf 'pp-sync: %s\n' "$*" >&2; exit 1; }
+have() { command -v "$1" >/dev/null 2>&1; }
+
+git_repo() { git -C "$REPO" "$@"; }
+
+run_with_timeout() { # args: seconds command...
+  local seconds="$1" cmd_pid timer_pid rc
+  shift
+  "$@" &
+  cmd_pid=$!
+  (
+    sleep "$seconds"
+    kill "$cmd_pid" 2>/dev/null || true
+  ) &
+  timer_pid=$!
+  rc=0
+  wait "$cmd_pid" || rc=$?
+  kill "$timer_pid" 2>/dev/null || true
+  wait "$timer_pid" 2>/dev/null || true
+  return "$rc"
+}
+
+# Refuse to operate / push unless origin clearly points at our private fork.
+assert_private_origin() {
+  local push_url
+  push_url="$(git_repo remote get-url --push origin 2>/dev/null || true)"
+  [[ -n "$push_url" ]] || die "no 'origin' remote in $REPO"
+  case "$push_url" in
+    *"$PRIVATE_OWNER"/*) : ;;
+    *) die "origin push URL is not $PRIVATE_OWNER (got: $push_url) — refusing." ;;
+  esac
+  # Never allow a live mvanhorn push remote to masquerade as something we'd push to.
+  local up_push
+  up_push="$(git_repo remote get-url --push upstream 2>/dev/null || true)"
+  case "$up_push" in
+    *mvanhorn*) die "upstream push points at public mvanhorn ($up_push) — refusing to run." ;;
+  esac
+}
+
+# Map an installed binary name (e.g. clarity-pp-cli) to its private library dir.
+slug_of()      { echo "${1%-pp-cli}"; }
+find_cli_dir() { # arg: binary name -> prints library/<cat>/<slug> abs path or empty
+  local name="$1" slug d; slug="$(slug_of "$name")"
+  while IFS= read -r d; do
+    [[ -d "$d/cmd/$name" ]] && { echo "$d"; return 0; }
+  done < <(find "$REPO/library" -maxdepth 2 -type d -name "$slug" 2>/dev/null)
+}
+
+installed_clis() { # basenames of *-pp-cli in BINDIR
+  local f
+  for f in "$BINDIR"/*-pp-cli; do
+    [[ -e "$f" ]] || continue
+    basename "$f"
+  done
+}
+
+sync_skill() { # arg: binary name -> copy private cli-skills/pp-<slug> into SKILLS_DST
+  local name="$1" slug src dst; slug="$(slug_of "$name")"
+  src="$REPO/cli-skills/pp-$slug"
+  [[ -d "$src" ]] || return 0
+  dst="$SKILLS_DST/pp-$slug"
+  mkdir -p "$dst"
+  if have rsync; then rsync -a --delete "$src"/ "$dst"/ 2>/dev/null || true; else cp -f "$src"/* "$dst"/ 2>/dev/null || true; fi
+}
+
+# Build one CLI from the private checkout into GOBIN_DIR, refresh its symlink + skill.
+build_one() { # arg: binary name -> echoes "OK name" / "SKIP ..." / "FAIL ..."
+  local name="$1" dir build_err; dir="$(find_cli_dir "$name")"
+  if [[ -z "$dir" ]]; then echo "SKIP  $name (not in private repo — legacy/unpublished)"; return 0; fi
+  build_err="$(mktemp)"
+
+  # google-ads keeps a local OAuth-refresh wrapper at $GOBIN/google-ads-pp-cli; build the
+  # real binary it execs instead of clobbering the wrapper.
+  if [[ "$name" == "google-ads-pp-cli" && -f "$GOBIN_DIR/google-ads-pp-cli" ]] \
+     && file "$GOBIN_DIR/google-ads-pp-cli" | grep -qi 'shell script'; then
+    if ( cd "$dir" && go build -o "$GOBIN_DIR/google-ads-pp-cli-real" "./cmd/$name" ) 2>"$build_err"; then
+      rm -f "$build_err"
+      sync_skill "$name"; echo "OK    $name (wrapper preserved, -real rebuilt)"; return 0
+    fi
+    echo "FAIL  $name: $(tail -1 "$build_err" 2>/dev/null)"
+    rm -f "$build_err"
+    return 1
+  fi
+
+  if ( cd "$dir" && go build -o "$GOBIN_DIR/$name" "./cmd/$name" ) 2>"$build_err"; then
+    if ! ln -sfn "$GOBIN_DIR/$name" "$BINDIR/$name" 2>>"$build_err"; then
+      echo "FAIL  $name: symlink into $BINDIR failed: $(tail -1 "$build_err" 2>/dev/null)"
+      rm -f "$build_err"
+      return 1
+    fi
+    rm -f "$build_err"
+    sync_skill "$name"
+    echo "OK    $name"
+  else
+    echo "FAIL  $name: $(tail -1 "$build_err" 2>/dev/null)"
+    rm -f "$build_err"
+    return 1
+  fi
+}
+
+# List private (origin/main) and upstream (upstream/main) library slug dirs.
+slug_dirs() { # arg: ref -> lines like library/<cat>/<slug>
+  git_repo ls-tree -dr --name-only "$1" 2>/dev/null | awk '/^library\/[^/]+\/[^/]+$/ { print }' | sort
+}
+
+# ---- subcommands ------------------------------------------------------------
+cmd_doctor() {
+  echo "REPO           : $REPO"
+  echo "origin (fetch) : $(git_repo remote get-url origin 2>/dev/null)"
+  echo "origin (push)  : $(git_repo remote get-url --push origin 2>/dev/null)"
+  echo "upstream(fetch): $(git_repo remote get-url upstream 2>/dev/null || echo '(none)')"
+  echo "upstream(push) : $(git_repo remote get-url --push upstream 2>/dev/null || echo '(none)')"
+  echo "GOBIN          : $GOBIN_DIR"
+  echo "BINDIR         : $BINDIR"
+  echo "SKILLS_DST     : $SKILLS_DST"
+  echo "STATE_DIR      : $STATE_DIR"
+  echo "installed CLIs : $(installed_clis | wc -l | tr -d ' ')"
+  assert_private_origin && echo "safety         : OK (push -> $PRIVATE_OWNER only)"
+}
+
+cmd_upstream() {
+  assert_private_origin
+  git_repo fetch origin --prune --tags >/dev/null 2>&1 || true
+  git_repo fetch upstream --prune      >/dev/null 2>&1 || die "could not fetch upstream"
+
+  local tmp_priv tmp_up; tmp_priv="$(mktemp)"; tmp_up="$(mktemp)"
+  slug_dirs origin/main   >"$tmp_priv"
+  slug_dirs upstream/main >"$tmp_up"
+
+  local new_clis behind_clis ahead_clis
+  new_clis="$(comm -13 "$tmp_priv" "$tmp_up")"
+
+  # For CLIs present in both, classify by commit DIRECTION so we only flag the
+  # actionable case (upstream ahead of us). Dirs where only WE are ahead — our
+  # private work — are listed separately and need no action.
+  behind_clis=""   # upstream has commits we lack -> consider importing
+  ahead_clis=""    # we have commits upstream lacks -> our private work, FYI only
+  while read -r d; do
+    [[ -z "$d" ]] && continue
+    if [[ -n "$(git_repo rev-list origin/main..upstream/main -- "$d" 2>/dev/null | head -1)" ]]; then
+      behind_clis+="$d"$'\n'
+    elif [[ -n "$(git_repo rev-list upstream/main..origin/main -- "$d" 2>/dev/null | head -1)" ]]; then
+      ahead_clis+="$d"$'\n'
+    fi
+  done < <(comm -12 "$tmp_priv" "$tmp_up")
+  rm -f "$tmp_priv" "$tmp_up"
+
+  echo "### Upstream (public mvanhorn) vs private ($PRIVATE_OWNER) — $(git_repo rev-parse --short upstream/main)"
+  if [[ -n "$new_clis" ]]; then
+    echo
+    echo "NEW upstream CLIs not in private ($(echo "$new_clis" | grep -c .)):"
+    echo "$new_clis" | sed 's/^/  + /'
+    echo "  → import with: pp-sync import <slug>"
+  else
+    echo "No new upstream CLIs."
+  fi
+  if [[ -n "${behind_clis// /}" ]]; then
+    echo
+    echo "UPSTREAM AHEAD — new public commits we don't have ($(echo "$behind_clis" | sed '/^$/d' | wc -l | tr -d ' ')):"
+    echo "$behind_clis" | sed '/^$/d; s/^/  ~ /'
+    echo "  → review & import with: pp-sync import <slug>   (needs Cathryn's call)"
+  else
+    echo "No upstream-ahead CLIs — private is current with public."
+  fi
+  if [[ -n "${ahead_clis// /}" ]]; then
+    echo
+    echo "PRIVATE AHEAD — our own work, not in public (FYI, no action) ($(echo "$ahead_clis" | sed '/^$/d' | wc -l | tr -d ' ')):"
+    echo "$ahead_clis" | sed '/^$/d; s/^/  * /'
+  fi
+}
+
+cmd_import() {
+  [[ $# -ge 1 ]] || die "usage: pp-sync import <slug> [<slug> ...]"
+  assert_private_origin
+  git_repo fetch upstream --prune >/dev/null 2>&1 || die "could not fetch upstream"
+  [[ -z "$(git_repo status --porcelain --untracked-files=no)" ]] \
+    || die "tracked local changes exist in $REPO — commit/stash before import"
+  git_repo checkout main >/dev/null 2>&1
+  git_repo pull --ff-only origin main >/dev/null 2>&1 || die "ff-only pull from private origin/main failed"
+
+  local imported=()
+  for slug in "$@"; do
+    # locate the slug under upstream/main's library/<cat>/<slug>
+    local path candidate
+    path=""
+    while IFS= read -r candidate; do
+      [[ "${candidate##*/}" == "$slug" ]] && { path="$candidate"; break; }
+    done < <(slug_dirs upstream/main)
+    [[ -n "$path" ]] || { log "import: '$slug' not found in upstream/main — skipping"; continue; }
+    git_repo checkout upstream/main -- "$path" || { log "import: checkout failed for $path"; continue; }
+    [[ -d "$REPO/cli-skills/pp-$slug" ]] || \
+      git_repo checkout upstream/main -- "cli-skills/pp-$slug" 2>/dev/null || true
+    git_repo add -- "$path" "cli-skills/pp-$slug" 2>/dev/null || git_repo add -- "$path"
+    imported+=("$slug")
+    log "import: staged $path"
+  done
+  [[ ${#imported[@]} -gt 0 ]] || die "nothing imported"
+  git_repo commit -m "feat(library): import upstream CLI(s) into private — ${imported[*]}" >/dev/null
+  assert_private_origin   # re-check immediately before the only push
+  git_repo push origin HEAD:main
+  log "import: pushed ${imported[*]} to $PRIVATE_OWNER (private) main"
+}
+
+cmd_build() {
+  assert_private_origin
+  local -a names=()
+  local name
+  if [[ $# -ge 1 ]]; then
+    names=("$@")
+  else
+    while IFS= read -r name; do
+      [[ -n "$name" ]] && names+=("$name")
+    done < <(installed_clis)
+  fi
+  local n=0 ok=0 fail=0 skip=0 line
+  for name in "${names[@]}"; do
+    line="$(build_one "$name")" || true
+    echo "$line"
+    n=$((n+1))
+    case "$line" in OK*) ok=$((ok+1));; SKIP*) skip=$((skip+1));; FAIL*) fail=$((fail+1));; esac
+  done
+  echo "built: $ok ok, $skip skipped, $fail failed (of $n)"
+  return $(( fail > 0 ? 1 : 0 ))
+}
+
+cmd_backlog() {
+  mkdir -p "$STATE_DIR"
+  if [[ "${1:-}" == "add" ]]; then
+    shift
+    [[ $# -ge 1 ]] || die "usage: pp-sync backlog add \"<what you needed a CLI for>\""
+    [[ -f "$BACKLOG" ]] || printf '# Printing Press — agent CLI requests backlog\n\n' >"$BACKLOG"
+    printf -- '- [ ] %s  _(via %s)_\n' "$*" "${PP_REQUESTER:-${USER:-agent}}" >>"$BACKLOG"
+    log "backlog: noted \"$*\""
+  else
+    [[ -f "$BACKLOG" ]] && cat "$BACKLOG" || echo "(backlog empty)"
+  fi
+}
+
+cmd_report() { [[ -f "$REPORT" ]] && cat "$REPORT" || echo "(no report yet — run: pp-sync update)"; }
+
+cmd_update() {
+  assert_private_origin
+  mkdir -p "$STATE_DIR" "$BINDIR" "$GOBIN_DIR"
+
+  # Repair offloaded npm cache symlink if its target vanished (legacy guard).
+  if [[ -L "$HOME/.npm" && ! -e "$HOME/.npm" ]]; then
+    mkdir -p "$(readlink "$HOME/.npm")" || true
+  fi
+
+  # Do not trample real tracked work; untracked caches (.codegraph/, receipts/) are fine.
+  if [[ -n "$(git_repo status --porcelain --untracked-files=no)" ]]; then
+    die "refusing to sync: tracked local changes exist in $REPO"
+  fi
+
+  git_repo fetch origin --prune --tags >/dev/null 2>&1 || die "could not fetch private origin"
+  git_repo fetch upstream --prune       >/dev/null 2>&1 || true
+  git_repo checkout main >/dev/null 2>&1
+  local before after
+  before="$(git_repo rev-parse --short HEAD)"
+  git_repo pull --ff-only origin main >/dev/null 2>&1 || die "ff-only pull from private origin/main failed"
+  after="$(git_repo rev-parse --short HEAD)"
+
+  # Build the installed set from PRIVATE; capture results.
+  local build_out; build_out="$(cmd_build || true)"
+
+  # Smoke: each installed CLI resolves and renders --help without auth.
+  local smoke_fail=""
+  while read -r name; do
+    [[ -z "$name" ]] && continue
+    if ! ( command -v "$name" >/dev/null && run_with_timeout "$SMOKE_TIMEOUT_SECONDS" "$name" --help >/dev/null 2>&1 ); then
+      smoke_fail+="  ! $name failed --help"$'\n'
+    fi
+  done < <(installed_clis)
+
+  local upstream_out
+  if ! upstream_out="$(cmd_upstream 2>&1)"; then
+    upstream_out="### Upstream check failed"$'\n\n```'$'\n'"$upstream_out"$'\n```'
+  fi
+  local backlog_out
+  if [[ -f "$BACKLOG" ]]; then
+    backlog_out="$(grep -c '^- \[ \]' "$BACKLOG" 2>/dev/null || true)"
+    backlog_out="${backlog_out:-0}"
+  else
+    backlog_out="0"
+  fi
+
+  {
+    echo "# Printing Press daily sync"
+    echo "_private=$PRIVATE_OWNER (source of truth) · public=mvanhorn (upstream only)_"
+    echo
+    if [[ "$before" == "$after" ]]; then
+      echo "**Private main:** \`$after\` (no change)"
+    else
+      echo "**Private main:** \`$before\` → \`$after\` (pulled)"
+    fi
+    echo
+    echo "## CLI build (from private)"
+    echo '```'
+    echo "$build_out"
+    echo '```'
+    if [[ -n "$smoke_fail" ]]; then
+      echo
+      echo "## ⚠️ Smoke failures"
+      echo '```'; printf '%s' "$smoke_fail"; echo '```'
+    fi
+    echo
+    echo "## $upstream_out" | sed '1s/^## ### /## /'
+    echo
+    echo "## Agent CLI backlog"
+    echo "Open requests: $backlog_out  (\`pp-sync backlog\` to view, \`pp-sync backlog add \"...\"\` to add)"
+  } >"$REPORT"
+
+  cat "$REPORT"
+}
+
+# ---- dispatch ---------------------------------------------------------------
+[[ -d "$REPO/.git" ]] || die "private library repo not found at $REPO (set PP_LIBRARY_REPO)"
+sub="${1:-update}"; shift || true
+case "$sub" in
+  update)            cmd_update "$@" ;;
+  upstream|diff)     cmd_upstream "$@" ;;
+  import)            cmd_import "$@" ;;
+  build)             cmd_build "$@" ;;
+  backlog)           cmd_backlog "$@" ;;
+  report)            cmd_report "$@" ;;
+  doctor)            cmd_doctor "$@" ;;
+  -h|--help|help)    sed -n '2,40p' "$0" ;;
+  *)                 die "unknown subcommand: $sub (try: pp-sync help)" ;;
+esac

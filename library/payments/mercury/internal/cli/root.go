@@ -208,6 +208,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newTransactionsPromotedCmd(flags))
 	rootCmd.AddCommand(newTransferPromotedCmd(flags))
 	rootCmd.AddCommand(newTreasuryPromotedCmd(flags))
+	rootCmd.AddCommand(newCashRunwayCmd(flags))
+	rootCmd.AddCommand(newSpendByCategoryCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
 	return rootCmd

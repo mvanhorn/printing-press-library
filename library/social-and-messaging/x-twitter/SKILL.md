@@ -345,6 +345,18 @@ Entries are stored locally at `~/.local/share/x-twitter-pp-cli/feedback.jsonl`. 
 
 Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
 
+### Composite workflows
+
+Read-only commands that compose existing reads into a higher-value answer — no new HTTP surface, no writes.
+
+```bash
+# Rank recent posts for the authenticated user by engagement.
+x-twitter-pp-cli top-posts --limit 10
+x-twitter-pp-cli top-posts --metric likes --limit 20
+x-twitter-pp-cli top-posts --exclude replies,retweets   # original posts only
+x-twitter-pp-cli top-posts --user-id 2244994945 --json  # rank another user
+```
+
 ## Output Delivery
 
 Every command accepts `--deliver <sink>`. The output goes to the named sink in addition to (or instead of) stdout, so agents can route command results without hand-piping. Three sinks are supported:
