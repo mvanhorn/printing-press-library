@@ -63,6 +63,26 @@ The flag is only valid on Google Flights price commands: `flights`, `dates`,
 `compare`, `gf-search`, and `cheapest-longhaul`. Do not add it to AeroAPI or
 Kayak-only commands.
 
+## Delay Assessment
+
+Use `assess` first when the user asks whether a delay is systemic, whether to
+switch flights, or which same-route alternative is operationally safer.
+
+```bash
+flight-goat-pp-cli assess --origin SFO --destination DCA --delayed-flight UA123 --agent
+flight-goat-pp-cli assess --origin KSFO --destination KJFK --depart-after 18:00 --no-prices --agent
+```
+
+`assess` joins AeroAPI airport delays, disruption counts, weather, route
+alternatives, delayed-flight status, inbound-aircraft status, FAA NAS Status,
+and optional Google Flights prices. Read `decision.verdict`,
+`decision.systemic_signals`, `decision.flight_signals`, `alternatives`, and
+`sources` before recommending an action. Failed upstream calls remain visible in
+`sources` and `decision.missing_evidence`; do not treat a partial report as a
+complete all-clear. Use `--include-raw` only when the original AeroAPI JSON is
+needed for audit or custom scoring. FAA NOTAM data is not part of this command
+yet.
+
 ## Development Tools
 AeroAPI is defined using the OpenAPI Spec 3.0, which means it can be easily
 imported into tools like Postman. To get started try importing the API
@@ -90,6 +110,10 @@ Our AeroAPI push notification [testing interface](/commercial/aeroapi/send.rvt)
 provides a quick and easy way to test the delivery of customized alerts via AeroAPI push.
 
 ## Command Reference
+
+**transcendence** — Compound flight decisions
+
+- `flight-goat-pp-cli assess` — Classifies systemic vs flight-specific delay risk and ranks alternatives with AeroAPI, FAA NAS Status, inbound aircraft, and optional Google Flights price context.
 
 **aircraft** — Manage aircraft
 

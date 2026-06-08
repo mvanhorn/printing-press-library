@@ -195,6 +195,25 @@ flight-goat-pp-cli airports get mock-value
 
 Run `flight-goat-pp-cli --help` for the full command reference and flag list.
 
+### Delay Assessment
+
+Use `assess` when a user has a delayed flight or route and needs to decide
+whether the problem is airport-wide, destination-wide, or specific to one
+operator/aircraft.
+
+```bash
+flight-goat-pp-cli assess --origin SFO --destination DCA --delayed-flight UA123 --agent
+flight-goat-pp-cli assess --origin KSFO --destination KJFK --depart-after 18:00 --no-prices --agent
+```
+
+The report joins AeroAPI airport delays, disruption counts, weather, route
+alternatives, delayed-flight and inbound-aircraft status, FAA NAS Status, and
+optional Google Flights price context. Failed upstream calls are returned in
+`sources` and `decision.missing_evidence` so partial reports are explicit.
+Raw AeroAPI payloads are omitted by default; add `--include-raw` when an agent
+needs the original JSON for audit or custom scoring. FAA NOTAM data is not
+included yet.
+
 ### Google Flights Currency
 
 Google Flights price commands accept `--currency <ISO-4217-code>` for native
