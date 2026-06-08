@@ -793,7 +793,7 @@ func filterAssessDepartures(items []scheduledDeparture, departAfter time.Time, m
 func assessScheduledFlight(item scheduledDeparture, role string, inbound *assessedInbound, systemicNow bool) assessedFlight {
 	delayMin := secondsToMinutes(item.DepartureDelay)
 	arrivalDelayMin := secondsToMinutes(item.ArrivalDelay)
-	readiness := assessReadiness(item)
+	readiness := assessReadiness(item, inbound)
 	risk, reasons := assessFlightRisk(item, inbound, systemicNow)
 	sortTime := firstNonEmpty(item.EstimatedOut, item.ScheduledOut, item.ScheduledOff)
 	return assessedFlight{
@@ -826,7 +826,7 @@ func assessScheduledFlight(item scheduledDeparture, role string, inbound *assess
 	}
 }
 
-func assessReadiness(item scheduledDeparture) string {
+func assessReadiness(item scheduledDeparture, inbound *assessedInbound) string {
 	status := strings.ToLower(item.Status)
 	switch {
 	case item.Cancelled || strings.Contains(status, "cancel"):
@@ -837,6 +837,8 @@ func assessReadiness(item scheduledDeparture) string {
 		return "left_gate"
 	case item.Registration != "" && item.InboundFAID == "":
 		return "aircraft_assigned_at_origin"
+	case item.InboundFAID != "" && inbound != nil && inbound.ActualIn != "":
+		return "inbound_arrived_at_origin"
 	case item.InboundFAID != "":
 		return "inbound_aircraft"
 	case item.GateOrigin != "":
@@ -994,24 +996,27 @@ func collectFlightSignals(flight *assessedFlight) []string {
 
 func collectMissingEvidence(report *assessReport) []string {
 	var missing []string
+	sourceMissing := map[string]bool{}
 	for _, source := range report.Sources {
 		if source.Status == "error" {
 			missing = append(missing, source.Name+": "+source.Error)
+			sourceMissing[source.Name] = true
 		}
 		if source.Status == "empty" {
 			missing = append(missing, source.Name+": no result")
+			sourceMissing[source.Name] = true
 		}
 	}
-	if !report.Evidence.Origin.AirportDelays.Available {
+	if !report.Evidence.Origin.AirportDelays.Available && !sourceMissing["aeroapi.origin_delays"] {
 		missing = append(missing, "origin airport delay advisory unavailable or empty")
 	}
-	if !report.Evidence.Destination.AirportDelays.Available {
+	if !report.Evidence.Destination.AirportDelays.Available && !sourceMissing["aeroapi.destination_delays"] {
 		missing = append(missing, "destination airport delay advisory unavailable or empty")
 	}
-	if !report.Evidence.Origin.DisruptionCounts.Available {
+	if !report.Evidence.Origin.DisruptionCounts.Available && !sourceMissing["aeroapi.origin_disruptions"] {
 		missing = append(missing, "origin disruption counts unavailable or empty")
 	}
-	if !report.Evidence.Destination.DisruptionCounts.Available {
+	if !report.Evidence.Destination.DisruptionCounts.Available && !sourceMissing["aeroapi.destination_disruptions"] {
 		missing = append(missing, "destination disruption counts unavailable or empty")
 	}
 	return uniqueStrings(missing)

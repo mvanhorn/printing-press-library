@@ -227,6 +227,64 @@ func TestCollectMissingEvidenceIncludesDestinationDelayAvailability(t *testing.T
 	}
 }
 
+func TestCollectMissingEvidenceDoesNotDoubleCountFailedDelaySources(t *testing.T) {
+	report := &assessReport{
+		Evidence: assessEvidence{
+			Origin: assessAirportCondition{
+				Airport:          "KSFO",
+				Role:             "origin",
+				Weather:          weatherSummary{Available: true},
+				DisruptionCounts: disruptionCountsSummary{Available: true},
+			},
+			Destination: assessAirportCondition{
+				Airport:          "KDCA",
+				Role:             "destination",
+				Weather:          weatherSummary{Available: true},
+				DisruptionCounts: disruptionCountsSummary{Available: true},
+			},
+		},
+		Sources: []assessSource{
+			{Name: "aeroapi.origin_delays", Status: "error", Error: "origin unavailable"},
+			{Name: "aeroapi.destination_delays", Status: "error", Error: "destination unavailable"},
+		},
+	}
+
+	missing := collectMissingEvidence(report)
+	if len(missing) != 2 {
+		t.Fatalf("missing evidence len = %d, want 2: %+v", len(missing), missing)
+	}
+	for _, notWant := range []string{
+		"origin airport delay advisory unavailable or empty",
+		"destination airport delay advisory unavailable or empty",
+	} {
+		if containsString(missing, notWant) {
+			t.Fatalf("missing evidence double-counted %q: %+v", notWant, missing)
+		}
+	}
+
+	decision := buildAssessDecision(report)
+	if decision.Verdict == "insufficient_data" {
+		t.Fatalf("verdict = insufficient_data with only two failed sources; decision=%+v", decision)
+	}
+	if decision.Confidence == "low" {
+		t.Fatalf("confidence = low with only two failed sources; decision=%+v", decision)
+	}
+}
+
+func TestAssessReadinessUsesResolvedInboundArrival(t *testing.T) {
+	item := scheduledDeparture{
+		Ident:       "UAL456",
+		InboundFAID: "UAL455-1749400000-airline-0001",
+		Status:      "Scheduled",
+	}
+	inbound := &assessedInbound{Ident: "UAL455", ActualIn: "2026-06-08T19:30:00Z", Status: "Arrived"}
+
+	got := assessReadiness(item, inbound)
+	if got != "inbound_arrived_at_origin" {
+		t.Fatalf("readiness = %q, want inbound_arrived_at_origin", got)
+	}
+}
+
 func TestSummarizeWeatherOnlyMarksActualGustGroup(t *testing.T) {
 	noGust := summarizeWeather(json.RawMessage(`{"observations":[{"raw_data":"KBGR 081856Z 25012KT 10SM SKC"}]}`))
 	if containsString(noGust.Signals, "gusty wind marker") {
@@ -411,6 +469,9 @@ func TestAssessCommandReturnsProcessedPartialReport(t *testing.T) {
 	}
 	if len(report.Alternatives) != 1 || report.Alternatives[0].Ident != "UAL456" {
 		t.Fatalf("alternatives not parsed from route segments: %+v", report.Alternatives)
+	}
+	if report.Alternatives[0].Readiness != "inbound_arrived_at_origin" {
+		t.Fatalf("alternative readiness = %q, want inbound_arrived_at_origin", report.Alternatives[0].Readiness)
 	}
 	if report.Raw != nil {
 		t.Fatalf("raw payloads should be omitted unless --include-raw is set")
