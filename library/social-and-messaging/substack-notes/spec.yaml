@@ -1,0 +1,362 @@
+openapi: 3.0.3
+info:
+  title: Substack Notes
+  version: 0.1.0
+  description: Unofficial Substack Notes endpoints observed from the authenticated web app.
+servers:
+  - url: https://substack.com
+security:
+  - CookieAuth: []
+components:
+  securitySchemes:
+    CookieAuth:
+      type: apiKey
+      in: header
+      name: Cookie
+      description: Authenticated Substack browser cookies. Pass the Cookie header value with an environment variable or CLI auth option.
+  schemas:
+    AttachmentId:
+      oneOf:
+        - type: string
+        - type: integer
+      description: Substack attachment ids are usually UUID strings, though older API shapes may return numeric ids.
+    BodyJson:
+      type: object
+      additionalProperties: true
+      description: ProseMirror JSON document used by Substack's composer.
+    Draft:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: integer
+        body:
+          type: string
+        body_json:
+          $ref: '#/components/schemas/BodyJson'
+        trigger_at:
+          type: string
+          format: date-time
+          nullable: true
+        date:
+          type: string
+          format: date-time
+    DraftsResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        drafts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Draft'
+        hasMore:
+          type: boolean
+        nextCursor:
+          type: string
+          nullable: true
+    NoteComment:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: integer
+        body:
+          type: string
+        body_json:
+          $ref: '#/components/schemas/BodyJson'
+        status:
+          type: string
+    CreateDraftRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - bodyJson
+      properties:
+        bodyJson:
+          $ref: '#/components/schemas/BodyJson'
+        parent_id:
+          type: integer
+          nullable: true
+        publication_id:
+          type: integer
+          nullable: true
+        attachmentIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentId'
+        tabId:
+          type: string
+          nullable: true
+        surface:
+          type: string
+          nullable: true
+        replyMinimumRole:
+          type: string
+          enum:
+            - everyone
+            - free_subscriber
+            - paid_subscriber
+          nullable: true
+        postAsUserId:
+          type: integer
+          nullable: true
+        mediaClipId:
+          type: integer
+          nullable: true
+        trigger_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: When present, Substack treats the draft as scheduled.
+    PublishNoteRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - bodyJson
+      properties:
+        bodyJson:
+          $ref: '#/components/schemas/BodyJson'
+        parent_id:
+          type: integer
+          nullable: true
+        publication_id:
+          type: integer
+          nullable: true
+        attachmentIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentId'
+        tabId:
+          type: string
+          nullable: true
+        surface:
+          type: string
+          nullable: true
+        replyMinimumRole:
+          type: string
+          enum:
+            - everyone
+            - free_subscriber
+            - paid_subscriber
+          nullable: true
+        notifySubscribersPubId:
+          type: integer
+          nullable: true
+        postAsUserId:
+          type: integer
+          nullable: true
+        mediaClipId:
+          type: integer
+          nullable: true
+        draftCommentId:
+          type: integer
+          nullable: true
+    ImageUploadRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - image
+      properties:
+        image:
+          type: string
+          description: Data URL such as data:image/png;base64,...
+    ImageUploadResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        url:
+          type: string
+          format: uri
+        width:
+          type: integer
+        height:
+          type: integer
+    ImageAttachmentRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - url
+        - type
+      properties:
+        url:
+          type: string
+          format: uri
+        type:
+          type: string
+          enum:
+            - image
+    ImageAttachment:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          $ref: '#/components/schemas/AttachmentId'
+        type:
+          type: string
+        url:
+          type: string
+          format: uri
+        width:
+          type: integer
+        height:
+          type: integer
+    ProfileFeedResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        nextCursor:
+          type: string
+          nullable: true
+paths:
+  /api/v1/feed/drafts:
+    get:
+      operationId: listDrafts
+      summary: List note drafts and scheduled notes
+      tags:
+        - drafts
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Drafts page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DraftsResponse'
+  /api/v1/comment/draft:
+    post:
+      operationId: saveDraft
+      summary: Save or schedule a note draft
+      tags:
+        - drafts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDraftRequest'
+      responses:
+        '200':
+          description: Saved draft
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Draft'
+  /api/v1/comment/{commentId}:
+    delete:
+      operationId: deleteDraft
+      summary: Delete a note draft
+      tags:
+        - drafts
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted draft
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /api/v1/comment/feed:
+    post:
+      operationId: publishNote
+      summary: Publish a note immediately
+      tags:
+        - notes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublishNoteRequest'
+      responses:
+        '200':
+          description: Published note
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteComment'
+  /api/v1/image:
+    post:
+      operationId: uploadImage
+      summary: Upload an image for a note attachment
+      tags:
+        - media
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImageUploadRequest'
+      responses:
+        '200':
+          description: Uploaded image URL
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageUploadResponse'
+  /api/v1/comment/attachment:
+    post:
+      operationId: createImageAttachment
+      summary: Create a note image attachment from an uploaded image URL
+      tags:
+        - media
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImageAttachmentRequest'
+      responses:
+        '200':
+          description: Created attachment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageAttachment'
+  /api/v1/reader/feed/profile/{userId}:
+    get:
+      operationId: getProfileFeed
+      summary: Read recent published Notes from a Substack profile feed
+      tags:
+        - notes
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 5
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Profile feed page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileFeedResponse'

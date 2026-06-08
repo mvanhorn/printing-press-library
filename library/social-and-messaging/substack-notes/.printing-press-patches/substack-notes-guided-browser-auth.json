@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "substack-notes-guided-browser-auth",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260605-230950",
+  "base_printing_press_version": "4.22.1",
+  "summary": "Add guided local browser-session auth for Substack cookie discovery.",
+  "reason": "Substack Notes has no public OAuth or API-token flow, so users need a safer setup path than manually finding cookies.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/auth_browser.go",
+    "internal/cli/auth_test.go",
+    "internal/cli/doctor.go",
+    "internal/cli/helpers.go",
+    "internal/mcp/tools.go",
+    "README.md",
+    "SKILL.md",
+    "manifest.json"
+  ],
+  "validated_outcome": "go test ./... and publish validate passed; auth login test verifies secrets are saved but not printed."
+}

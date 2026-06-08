@@ -1,0 +1,270 @@
+{
+  "api_name": "substack-notes",
+  "base_url": "https://substack.com",
+  "description": "Unofficial Substack Notes endpoints observed from the authenticated web app.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "api_key",
+    "header": "Cookie",
+    "in": "header",
+    "env_vars": [
+      "SUBSTACK_NOTES_COOKIE_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SUBSTACK_NOTES_COOKIE_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "comment_delete-draft",
+      "description": "Delete a note draft. Required: commentId. Returns the CommentDeleteDraftResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/comment/{commentId}",
+      "params": [
+        {
+          "name": "commentId",
+          "type": "int",
+          "location": "path",
+          "description": "Comment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "comment_publish-note",
+      "description": "Publish a note immediately. Required: bodyJson. Optional: attachmentIds, draftCommentId, mediaClipId (plus 7 more). Returns the new NoteComment.",
+      "method": "POST",
+      "path": "/api/v1/comment/feed",
+      "params": [
+        {
+          "name": "attachmentIds",
+          "type": "array",
+          "location": "body",
+          "description": "Attachment ids"
+        },
+        {
+          "name": "bodyJson",
+          "type": "object",
+          "location": "body",
+          "description": "ProseMirror JSON document used by Substack's composer.",
+          "required": true
+        },
+        {
+          "name": "draftCommentId",
+          "type": "int",
+          "location": "body",
+          "description": "Draft comment id"
+        },
+        {
+          "name": "mediaClipId",
+          "type": "int",
+          "location": "body",
+          "description": "Media clip id"
+        },
+        {
+          "name": "notifySubscribersPubId",
+          "type": "int",
+          "location": "body",
+          "description": "Notify subscribers pub id"
+        },
+        {
+          "name": "parent_id",
+          "type": "int",
+          "location": "body",
+          "description": "Parent id"
+        },
+        {
+          "name": "postAsUserId",
+          "type": "int",
+          "location": "body",
+          "description": "Post as user id"
+        },
+        {
+          "name": "publication_id",
+          "type": "int",
+          "location": "body",
+          "description": "Publication id"
+        },
+        {
+          "name": "replyMinimumRole",
+          "type": "string",
+          "location": "body",
+          "description": "Reply minimum role"
+        },
+        {
+          "name": "surface",
+          "type": "string",
+          "location": "body",
+          "description": "Surface"
+        },
+        {
+          "name": "tabId",
+          "type": "string",
+          "location": "body",
+          "description": "Tab id"
+        }
+      ]
+    },
+    {
+      "name": "comment_save-draft",
+      "description": "Save or schedule a note draft. Required: bodyJson. Optional: attachmentIds, mediaClipId, parent_id (plus 6 more). Returns the new Draft.",
+      "method": "POST",
+      "path": "/api/v1/comment/draft",
+      "params": [
+        {
+          "name": "attachmentIds",
+          "type": "array",
+          "location": "body",
+          "description": "Attachment ids"
+        },
+        {
+          "name": "bodyJson",
+          "type": "object",
+          "location": "body",
+          "description": "ProseMirror JSON document used by Substack's composer.",
+          "required": true
+        },
+        {
+          "name": "mediaClipId",
+          "type": "int",
+          "location": "body",
+          "description": "Media clip id"
+        },
+        {
+          "name": "parent_id",
+          "type": "int",
+          "location": "body",
+          "description": "Parent id"
+        },
+        {
+          "name": "postAsUserId",
+          "type": "int",
+          "location": "body",
+          "description": "Post as user id"
+        },
+        {
+          "name": "publication_id",
+          "type": "int",
+          "location": "body",
+          "description": "Publication id"
+        },
+        {
+          "name": "replyMinimumRole",
+          "type": "string",
+          "location": "body",
+          "description": "Reply minimum role"
+        },
+        {
+          "name": "surface",
+          "type": "string",
+          "location": "body",
+          "description": "Surface"
+        },
+        {
+          "name": "tabId",
+          "type": "string",
+          "location": "body",
+          "description": "Tab id"
+        },
+        {
+          "name": "trigger_at",
+          "type": "string",
+          "location": "body",
+          "description": "When present, Substack treats the draft as scheduled."
+        }
+      ]
+    },
+    {
+      "name": "media_upload-image",
+      "description": "Upload an image for a note attachment. Required: image data URL. Returns an uploaded image URL.",
+      "method": "POST",
+      "path": "/api/v1/image",
+      "params": [
+        {
+          "name": "image",
+          "type": "string",
+          "location": "body",
+          "description": "Data URL such as data:image/png;base64,...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "media_create-image-attachment",
+      "description": "Create a note image attachment from an uploaded image URL. Required: url, type=image. Returns an attachment id.",
+      "method": "POST",
+      "path": "/api/v1/comment/attachment",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Uploaded image URL",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Attachment type; use image",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "notes_get-profile-feed",
+      "description": "Read recent published Notes from a Substack profile feed. Required: userId. Optional: limit, cursor.",
+      "method": "GET",
+      "path": "/api/v1/reader/feed/profile/{userId}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "Substack numeric user id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum items to return"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "feed_list-drafts",
+      "description": "List note drafts and scheduled notes. Optional: limit (default: 20), cursor. Returns array of Draft.",
+      "method": "GET",
+      "path": "/api/v1/feed/drafts",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        }
+      ]
+    }
+  ]
+}

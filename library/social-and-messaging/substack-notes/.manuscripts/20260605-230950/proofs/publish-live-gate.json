@@ -1,0 +1,999 @@
+{
+  "dir": "/Users/peteryang/printing-press/library/substack-notes",
+  "binary": "/Users/peteryang/printing-press/library/substack-notes/substack-notes-pp-cli-dogfood",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 60,
+  "passed": 60,
+  "failed": 0,
+  "skipped": 42,
+  "commands": [
+    "analytics",
+    "api",
+    "comment delete-draft",
+    "comment publish-note",
+    "comment save-draft",
+    "doctor",
+    "feed",
+    "feedback list",
+    "import",
+    "notes delete",
+    "notes draft",
+    "notes list",
+    "notes post",
+    "notes recent",
+    "notes schedule",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "sync",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  substack-notes-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  substack-notes-pp-cli analytics --type messages\n\n  # Group by a field\n  substack-notes-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  substack-notes-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         Database path\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\nhint: local store has not been synced yet. Run 'substack-notes-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\nhint: local store has not been synced yet. Run 'substack-notes-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  substack-notes-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  substack-notes-pp-cli api\n\n  # Show methods for a specific interface\n  substack-notes-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'substack-notes-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "comment delete-draft",
+      "kind": "help",
+      "args": [
+        "comment",
+        "delete-draft",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Delete a note draft\n\nUsage:\n  substack-notes-pp-cli comment delete-draft \u003ccommentId\u003e [flags]\n\nAliases:\n  delete-draft, delete\n\nExamples:\n  substack-notes-pp-cli comment delete-draft 42\n\nFlags:\n  -h, --help   help for delete-draft\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "comment delete-draft",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"commentid\""
+    },
+    {
+      "command": "comment delete-draft",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"commentid\""
+    },
+    {
+      "command": "comment delete-draft",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "comment delete-draft",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"commentid\""
+    },
+    {
+      "command": "comment publish-note",
+      "kind": "help",
+      "args": [
+        "comment",
+        "publish-note",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Publish a note immediately\n\nUsage:\n  substack-notes-pp-cli comment publish-note [flags]\n\nAliases:\n  publish-note, create\n\nExamples:\n  substack-notes-pp-cli comment publish-note\n\nFlags:\n      --attachment-ids string              Attachment ids\n      --body-json string                   ProseMirror JSON document used by Substack's composer.\n      --draft-comment-id string            Draft comment id\n  -h, --help                               help for publish-note\n      --media-clip-id string               Media clip id\n      --notify-subscribers-pub-id string   Notify subscribers pub id\n      --parent-id string                   Parent id\n      --post-as-user-id string             Post as user id\n      --publication-id string              Publication id\n      --reply-minimum-role string          Reply minimum role\n      --stdin                              Read request body as JSON from stdin\n      --surface string                     Surface\n      --tab-id string                      Tab id\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "comment publish-note",
+      "kind": "happy_path",
+      "args": [
+        "comment",
+        "publish-note",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/api/v1/comment/feed\",\n  \"resource\": \"comment\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://substack.com/api/v1/comment/feed\n  Body:\n{}\n  Cookie: \u003credacted\u003e\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "comment publish-note",
+      "kind": "json_fidelity",
+      "args": [
+        "comment",
+        "publish-note",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/api/v1/comment/feed\",\n  \"resource\": \"comment\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://substack.com/api/v1/comment/feed\n  Body:\n{}\n  Cookie: \u003credacted\u003e\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "comment publish-note",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "comment publish-note",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "comment save-draft",
+      "kind": "help",
+      "args": [
+        "comment",
+        "save-draft",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Save or schedule a note draft\n\nUsage:\n  substack-notes-pp-cli comment save-draft [flags]\n\nExamples:\n  substack-notes-pp-cli comment save-draft\n\nFlags:\n      --attachment-ids string       Attachment ids\n      --body-json string            ProseMirror JSON document used by Substack's composer.\n  -h, --help                        help for save-draft\n      --media-clip-id string        Media clip id\n      --parent-id string            Parent id\n      --post-as-user-id string      Post as user id\n      --publication-id string       Publication id\n      --reply-minimum-role string   Reply minimum role\n      --stdin                       Read request body as JSON from stdin\n      --surface string              Surface\n      --tab-id string               Tab id\n      --trigger-at string           When present, Substack treats the draft as scheduled.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "comment save-draft",
+      "kind": "happy_path",
+      "args": [
+        "comment",
+        "save-draft",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/api/v1/comment/draft\",\n  \"resource\": \"comment\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://substack.com/api/v1/comment/draft\n  Body:\n{}\n  Cookie: \u003credacted\u003e\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "comment save-draft",
+      "kind": "json_fidelity",
+      "args": [
+        "comment",
+        "save-draft",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/api/v1/comment/draft\",\n  \"resource\": \"comment\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://substack.com/api/v1/comment/draft\n  Body:\n{}\n  Cookie: \u003credacted\u003e\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "comment save-draft",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "comment save-draft",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  substack-notes-pp-cli doctor [flags]\n\nExamples:\n  substack-notes-pp-cli doctor\n  substack-notes-pp-cli doctor --json\n  substack-notes-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK credentials available from config\n  OK Verify Mode: normal operation\n  OK API: reachable\n  INFO Credentials: present, not verified. Run any read command to confirm the token works end-to-end.\n  config_path: /var/folders/41/m7tr6gqx1797btx1wkyh1gt00000gn/T/printing-press-subprocess-\u003credacted\u003e/.config/substack-notes-pp-cli/config.toml\n  base_url: https://substack.com\n  auth_source: config\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /var/folders/41/m7tr6gqx1797btx1wkyh1gt00000gn/T/printing-press-subprocess-\u003credacted\u003e/.local/share/substack-notes-pp-cli/data.db\n    schema_version: 3\n    db_bytes: 65536\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'substack-notes-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"agentcookie\":\"not detected (optional)\",\"api\":\"reachable\",\"auth\":\"configured\",\"auth_source\":\"config\",\"base_url\":\"https://substack.com\",\"cache\":{\"db_bytes\":65536,\"db_path\":\"/var/folders/41/m7tr6gqx1797btx1wkyh1gt00000gn/T/printing-press-subprocess-\u003credacted\u003e/.local/share/substack-notes-pp-cli/data.db\",\"hint\":\"sync_state is empty; run 'substack-notes-pp-cli sync' to hydrate.\",\"resources\":null,\"schema_version\":3,\"stale_after\":\"6h0m0s\",\"status\":\"unknown\"},\"config\":\"ok\",\"config_path\":\"/var/folders/41/m7tr6gqx1797btx1wkyh1gt00000gn/T/printing-press-subprocess-\u003credacted\u003e/.config/substack-notes-pp-cli/config.toml\",\"credentials\":\"present, not verified. Run any read command to confirm the token works end-to-end.\",\"env_vars\":\"OK credentials available from config\",\"verify_mode\":\"normal operation\",\"version\":\"1.0.0\"}"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feed",
+      "kind": "help",
+      "args": [
+        "feed",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List note drafts and scheduled notes\n\nUsage:\n  substack-notes-pp-cli feed [flags]\n\nExamples:\n  substack-notes-pp-cli feed\n\nFlags:\n      --all             Fetch all pages\n      --cursor string   Cursor\n  -h, --help            help for feed\n      --limit int       Limit (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feed",
+      "kind": "happy_path",
+      "args": [
+        "feed"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"drafts\": [\n      {\n        \"id\": 271871302,\n        \"body\": \"Tomorrow's note\",\n        \"body_json\": {\n          \"attrs\": {\n            \"schemaVersion\": \"v1\"\n          },\n          \"content\": [\n            {\n              \"content\": [\n                {\n                  \"text\": \"Tomorrow's note\",\n                  \"type\": \"text\"\n                }\n              ],\n              \"type\": \"paragraph\"\n            }\n          ],\n          \"type\": \"doc\"\n        },\n        \"publication_id\": null,\n        \"post_id\": null,\n        \"user_id\": 6052627,\n        \"type\": \"feed\",\n        \"date\": \"2026-06-06T23:49:19.449Z\",\n        \"edited_at\": null,\n        \"ancestor_path\": \"\",\n        \"reply_minimum_role\": \"everyone\",\n        \"media_clip_id\": null,\n        \"trigger_at\": null,\n        \"attachments\": []\n      },\n      {\n        \"id\": 271871299,\n        \"body\": \"Tomorrow's note\",\n        \"body_json\": {\n          \"attrs\": {\n            \"schemaVersion\": \"v1\"\n          },\n          \"content\": [\n            {\n              \"content\": [\n                {\n                  \"text\": \"Tomorrow's note\",\n                  \"type\": \"text\"\n                }\n              ],\n              \"type\": \"paragraph\"\n            }\n          ],\n          \"type\": \"doc\"\n        },\n        \"publication_id\": null,\n        \"post_id\": null,\n        \"user_id\": 6052627,\n        \"type\": \"feed\",\n        \"date\": \"2026-06-06T23:49:19.026Z\",\n        \"edited_at\": null,\n        \"ancestor_path\": \"\",\n        \"reply_minimum_role\": \"everyone\",\n        \"media_clip_id\": null,\n        \"trigger_at\": null,\n        \"attachments\": []\n      },\n      {\n        \"id\": 271871294,\n        \"body\": \"Keep this for later.\",\n        \"body_json\": {\n          \"attrs\": {\n            \"schemaVersion\": \"v1\"\n          },\n          \"content\": [\n            {\n              \"content\": [\n                {\n                  \"text\": \"Keep this for later.\",\n                  \"type\": \"text\"\n                }\n              ],\n              \"type\": \"paragraph\"\n            }\n          ],\n          \"type\": \"doc\"\n        },\n        \"publication_id\": null,\n        \"post_id\": null,\n        \"user_id\": 6052627,\n        \"type\": \"feed\",\n        \"date\": \"2026-06-06T23:49:17.696Z\",\n        \"edited_at\": null,\n        \"ancestor_path\": \"\",\n        \"reply_minimum_role\": \"everyone\",\n        \"media_clip_id\": null,\n        \"trigger_at\": null,\n        \"attachments\": []\n      },\n      {\n        \"id\": 271871292,\n        \"body\": \"Keep this for later.\",\n        \"body_json\": {\n          \"attrs\": {\n            \"schemaVersion\": \"v1\"\n          },\n          \"content\": [\n            {\n              \"content\": [\n                {\n                  \"text\": \"Keep this for later.\",\n                  \"type\": \"text\"\n                }\n              ],\n              \"type\": \"paragraph\"\n            }\n          ],\n          \"type\": \"doc\"\n        },\n        \"publication_id\": null,\n        \"post_id\": null,\n        \"user_id\": 6052627,\n        \"type\": \"feed\",\n        \"date\": \"2026-06-06T23:49:17.366Z\",\n        \"edited_at\": null,\n        \"ancestor_path\": \"\",\n        \"reply_minimum_role\": \"everyone\",\n        \"media_clip_id\": null,\n        \"trigger_at\": null,\n        \"attachments\": []\n      }\n    ],\n    \"hasMore\": false,\n    \"nextCursor\": null\n  }\n}\n"
+    },
+    {
+      "command": "feed",
+      "kind": "json_fidelity",
+      "args": [
+        "feed",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"drafts\": [\n      {\n        \"id\": 271871302,\n        \"body\": \"Tomorrow's note\",\n        \"body_json\": {\n          \"attrs\": {\n            \"schemaVersion\": \"v1\"\n          },\n          \"content\": [\n            {\n              \"content\": [\n                {\n                  \"text\": \"Tomorrow's note\",\n                  \"type\": \"text\"\n                }\n              ],\n              \"type\": \"paragraph\"\n            }\n          ],\n          \"type\": \"doc\"\n        },\n        \"publication_id\": null,\n        \"post_id\": null,\n        \"user_id\": 6052627,\n        \"type\": \"feed\",\n        \"date\": \"2026-06-06T23:49:19.449Z\",\n        \"edited_at\": null,\n        \"ancestor_path\": \"\",\n        \"reply_minimum_role\": \"everyone\",\n        \"media_clip_id\": null,\n        \"trigger_at\": null,\n        \"attachments\": []\n      },\n      {\n        \"id\": 271871299,\n        \"body\": \"Tomorrow's note\",\n        \"body_json\": {\n          \"attrs\": {\n            \"schemaVersion\": \"v1\"\n          },\n          \"content\": [\n            {\n              \"content\": [\n                {\n                  \"text\": \"Tomorrow's note\",\n                  \"type\": \"text\"\n                }\n              ],\n              \"type\": \"paragraph\"\n            }\n          ],\n          \"type\": \"doc\"\n        },\n        \"publication_id\": null,\n        \"post_id\": null,\n        \"user_id\": 6052627,\n        \"type\": \"feed\",\n        \"date\": \"2026-06-06T23:49:19.026Z\",\n        \"edited_at\": null,\n        \"ancestor_path\": \"\",\n        \"reply_minimum_role\": \"everyone\",\n        \"media_clip_id\": null,\n        \"trigger_at\": null,\n        \"attachments\": []\n      },\n      {\n        \"id\": 271871294,\n        \"body\": \"Keep this for later.\",\n        \"body_json\": {\n          \"attrs\": {\n            \"schemaVersion\": \"v1\"\n          },\n          \"content\": [\n            {\n              \"content\": [\n                {\n                  \"text\": \"Keep this for later.\",\n                  \"type\": \"text\"\n                }\n              ],\n              \"type\": \"paragraph\"\n            }\n          ],\n          \"type\": \"doc\"\n        },\n        \"publication_id\": null,\n        \"post_id\": null,\n        \"user_id\": 6052627,\n        \"type\": \"feed\",\n        \"date\": \"2026-06-06T23:49:17.696Z\",\n        \"edited_at\": null,\n        \"ancestor_path\": \"\",\n        \"reply_minimum_role\": \"everyone\",\n        \"media_clip_id\": null,\n        \"trigger_at\": null,\n        \"attachments\": []\n      },\n      {\n        \"id\": 271871292,\n        \"body\": \"Keep this for later.\",\n        \"body_json\": {\n          \"attrs\": {\n            \"schemaVersion\": \"v1\"\n          },\n          \"content\": [\n            {\n              \"content\": [\n                {\n                  \"text\": \"Keep this for later.\",\n                  \"type\": \"text\"\n                }\n              ],\n              \"type\": \"paragraph\"\n            }\n          ],\n          \"type\": \"doc\"\n        },\n        \"publication_id\": null,\n        \"post_id\": null,\n        \"user_id\": 6052627,\n        \"type\": \"feed\",\n        \"date\": \"2026-06-06T23:49:17.366Z\",\n        \"edited_at\": null,\n        \"ancestor_path\": \"\",\n        \"reply_minimum_role\": \"everyone\",\n        \"media_clip_id\": null,\n        \"trigger_at\": null,\n        \"attachments\": []\n      }\n    ],\n    \"hasMore\": false,\n    \"nextCursor\": null\n  }\n}\n"
+    },
+    {
+      "command": "feed",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  substack-notes-pp-cli feedback list [flags]\n\nExamples:\n  substack-notes-pp-cli feedback list\n  substack-notes-pp-cli feedback list --limit 5\n  substack-notes-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  substack-notes-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  substack-notes-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  substack-notes-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | substack-notes-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "notes delete",
+      "kind": "help",
+      "args": [
+        "notes",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Delete a note draft or scheduled note\n\nUsage:\n  substack-notes-pp-cli notes delete \u003cdraft-id\u003e [flags]\n\nExamples:\n  substack-notes-pp-cli notes delete \u003cdraft-id\u003e\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "notes delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "notes delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "notes delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "notes delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "notes draft",
+      "kind": "help",
+      "args": [
+        "notes",
+        "draft",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Save a note draft without scheduling it\n\nUsage:\n  substack-notes-pp-cli notes draft [flags]\n\nExamples:\n  substack-notes-pp-cli notes draft --text \"Keep this for later.\"\n  cat note.txt | substack-notes-pp-cli notes draft --stdin\n  substack-notes-pp-cli notes draft --file note.txt --image ./cover.jpg\n\nFlags:\n      --file string         Read plain text note body from a file\n  -h, --help                help for draft\n      --image stringArray   Attach an image file; repeat for multiple images\n      --reply-role string   Who can reply: everyone, free_subscriber, paid_subscriber (default \"everyone\")\n      --stdin               Read plain text note body from stdin\n      --surface string      Optional Substack surface value\n      --tab-id string       Optional Substack feed tab id\n      --text string         Plain text note body\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "notes draft",
+      "kind": "happy_path",
+      "args": [
+        "notes",
+        "draft",
+        "--text",
+        "Keep this for later."
+      ],
+      "status": "pass",
+      "output_sample": "{\"attachments\":[],\"autotranslate_to\":null,\"body\":\"Keep this for later.\",\"body_json\":{\"attrs\":{\"schemaVersion\":\"v1\"},\"content\":[{\"content\":[{\"text\":\"Keep this for later.\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"doc\"},\"children\":[],\"children_count\":0,\"date\":\"2026-06-06T23:50:14.451Z\",\"deleted\":false,\"id\":271871590,\"language\":null,\"media_clip_id\":null,\"name\":\"\u003credacted\u003e\",\"photo_url\":\"https://substack-post-media.s3.amazonaws.com/public/images/d2dbd75e-1c5a-48ab-94ef-b24caea63cdf_1024x1024.png\",\"post_id\":null,\"publication_id\":null,\"reaction_count\":0,\"reactions\":{\"❤\":0},\"reply_minimum_role\":\"everyone\",\"restacked\":false,\"restacks\":0,\"status\":\"draft\",\"type\":\"feed\",\"userStatus\":{\"badge\":{\"tier\":1000,\"type\":\"bestseller\"},\"bestsellerTier\":1000,\"leaderboard\":{\"categoryId\":\"4\",\"label\":\"Technology\",\"publicationId\":25792,\"publicationName\":\"Behind the Craft\",\"rank\":27,\"ranking\":\"paid\"},\"subscriber\":null,\"subscriberTier\":1,\"vip\":false},\"user_bestseller_tier\":1000,\"user_id\":6052627,\"user_primary_publication\":{\"author_id\":6052627,\"custom_domain\":\"creatoreconomy.so\",\"custom_domain_optional\":false,\"explicit\":false,\"handles_enabled\":false,\"has_reply_rules\":false,\"id\":25792,\"ios_app_payments_enabled\":true,\"is_personal_mode\":false,\"logo_url\":\"https://substack-post-media.s3.amazonaws.com/public/images/c944a891-b38f-40ba-a756-7ddd70824b7e_1024x1024.png\",\"name\":\"\u003credacted\u003e\",\"payments_state\":\"enabled\",\"pledges_enabled\":false,\"subdomain\":\"peteryang\",\"user_id\":6052627}}"
+    },
+    {
+      "command": "notes draft",
+      "kind": "json_fidelity",
+      "args": [
+        "notes",
+        "draft",
+        "--text",
+        "Keep this for later.",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"attachments\":[],\"autotranslate_to\":null,\"body\":\"Keep this for later.\",\"body_json\":{\"attrs\":{\"schemaVersion\":\"v1\"},\"content\":[{\"content\":[{\"text\":\"Keep this for later.\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"doc\"},\"children\":[],\"children_count\":0,\"date\":\"2026-06-06T23:50:14.814Z\",\"deleted\":false,\"id\":271871592,\"language\":null,\"media_clip_id\":null,\"name\":\"\u003credacted\u003e\",\"photo_url\":\"https://substack-post-media.s3.amazonaws.com/public/images/d2dbd75e-1c5a-48ab-94ef-b24caea63cdf_1024x1024.png\",\"post_id\":null,\"publication_id\":null,\"reaction_count\":0,\"reactions\":{\"❤\":0},\"reply_minimum_role\":\"everyone\",\"restacked\":false,\"restacks\":0,\"status\":\"draft\",\"type\":\"feed\",\"userStatus\":{\"badge\":{\"tier\":1000,\"type\":\"bestseller\"},\"bestsellerTier\":1000,\"leaderboard\":{\"categoryId\":\"4\",\"label\":\"Technology\",\"publicationId\":25792,\"publicationName\":\"Behind the Craft\",\"rank\":27,\"ranking\":\"paid\"},\"subscriber\":null,\"subscriberTier\":1,\"vip\":false},\"user_bestseller_tier\":1000,\"user_id\":6052627,\"user_primary_publication\":{\"author_id\":6052627,\"custom_domain\":\"creatoreconomy.so\",\"custom_domain_optional\":false,\"explicit\":false,\"handles_enabled\":false,\"has_reply_rules\":false,\"id\":25792,\"ios_app_payments_enabled\":true,\"is_personal_mode\":false,\"logo_url\":\"https://substack-post-media.s3.amazonaws.com/public/images/c944a891-b38f-40ba-a756-7ddd70824b7e_1024x1024.png\",\"name\":\"\u003credacted\u003e\",\"payments_state\":\"enabled\",\"pledges_enabled\":false,\"subdomain\":\"peteryang\",\"user_id\":6052627}}"
+    },
+    {
+      "command": "notes draft",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "notes list",
+      "kind": "help",
+      "args": [
+        "notes",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List note drafts and scheduled notes\n\nUsage:\n  substack-notes-pp-cli notes list [flags]\n\nAliases:\n  list, ls\n\nExamples:\n  substack-notes-pp-cli notes list --limit 20\n  substack-notes-pp-cli notes list --limit 20 --cursor \u003ccursor\u003e --json\n\nFlags:\n      --cursor string   Pagination cursor\n  -h, --help            help for list\n      --limit int       Maximum drafts to return (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "notes list",
+      "kind": "happy_path",
+      "args": [
+        "notes",
+        "list",
+        "--limit",
+        "20"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"drafts\": [\n    {\n      \"id\": 271871592,\n      \"body\": \"Keep this for later.\",\n      \"body_json\": {\n        \"attrs\": {\n          \"schemaVersion\": \"v1\"\n        },\n        \"content\": [\n          {\n            \"content\": [\n              {\n                \"text\": \"Keep this for later.\",\n                \"type\": \"text\"\n              }\n            ],\n            \"type\": \"paragraph\"\n          }\n        ],\n        \"type\": \"doc\"\n      },\n      \"publication_id\": null,\n      \"post_id\": null,\n      \"user_id\": 6052627,\n      \"type\": \"feed\",\n      \"date\": \"2026-06-06T23:50:14.814Z\",\n      \"edited_at\": null,\n      \"ancestor_path\": \"\",\n      \"reply_minimum_role\": \"everyone\",\n      \"media_clip_id\": null,\n      \"trigger_at\": null,\n      \"attachments\": []\n    },\n    {\n      \"id\": 271871590,\n      \"body\": \"Keep this for later.\",\n      \"body_json\": {\n        \"attrs\": {\n          \"schemaVersion\": \"v1\"\n        },\n        \"content\": [\n          {\n            \"content\": [\n              {\n                \"text\": \"Keep this for later.\",\n                \"type\": \"text\"\n              }\n            ],\n            \"type\": \"paragraph\"\n          }\n        ],\n        \"type\": \"doc\"\n      },\n      \"publication_id\": null,\n      \"post_id\": null,\n      \"user_id\": 6052627,\n      \"type\": \"feed\",\n      \"date\": \"2026-06-06T23:50:14.451Z\",\n      \"edited_at\": null,\n      \"ancestor_path\": \"\",\n      \"reply_minimum_role\": \"everyone\",\n      \"media_clip_id\": null,\n      \"trigger_at\": null,\n      \"attachments\": []\n    },\n    {\n      \"id\": 271871302,\n      \"body\": \"Tomorrow's note\",\n      \"body_json\": {\n        \"attrs\": {\n          \"schemaVersion\": \"v1\"\n        },\n        \"content\": [\n          {\n            \"content\": [\n              {\n                \"text\": \"Tomorrow's note\",\n                \"type\": \"text\"\n              }\n            ],\n            \"type\": \"paragraph\"\n          }\n        ],\n        \"type\": \"doc\"\n      },\n      \"publication_id\": null,\n      \"post_id\": null,\n      \"user_id\": 6052627,\n      \"type\": \"feed\",\n      \"date\": \"2026-06-06T23:49:19.449Z\",\n      \"edited_at\": null,\n      \"ancestor_path\": \"\",\n      \"reply_minimum_role\": \"everyone\",\n      \"media_clip_id\": null,\n      \"trigger_at\": null,\n      \"attachments\": []\n    },\n    {\n      \"id\": 271871299,\n      \"body\": \"Tomorrow's note\",\n      \"body_json\": {\n        \"attrs\": {\n          \"schemaVersion\": \"v1\"\n        },\n        \"content\": [\n          {\n            \"content\": [\n              {\n                \"text\": \"Tomorrow's note\",\n                \"type\": \"text\"\n              }\n            ],\n            \"type\": \"paragraph\"\n          }\n        ],\n        \"type\": \"doc\"\n      },\n      \"publication_id\": null,\n      \"post_id\": null,\n      \"user_id\": 6052627,\n      \"type\": \"feed\",\n      \"date\": \"2026-06-06T23:49:19.026Z\",\n      \"edited_at\": null,\n      \"ancestor_path\": \"\",\n      \"reply_minimum_role\": \"everyone\",\n      \"media_clip_id\": null,\n      \"trigger_at\": null,\n      \"attachments\": []\n    },\n    {\n      \"id\": 271871294,\n      \"body\": \"Keep this for later.\",\n      \"body_json\": {\n        \"attrs\": {\n          \"schemaVersion\": \"v1\"\n        },\n        \"content\": [\n          {\n            \"content\": [\n              {\n                \"text\": \"Keep this for later.\",\n                \"type\": \"text\"\n              }\n            ],\n            \"type\": \"paragraph\"\n          }\n        ],\n        \"type\": \"doc\"\n      },\n      \"publication_id\": null,\n      \"post_id\": null,\n      \"user_id\": 6052627,\n      \"type\": \"feed\",\n      \"date\": \"2026-06-06T23:49:17.696Z\",\n      \"edited_at\": null,\n      \"ancestor_path\": \"\",\n      \"reply_minimum_role\": \"everyone\",\n      \"media_clip_id\": null,\n      \"trigger_at\": null,\n      \"attachments\": []\n    },\n    {\n      \"id\": 271871292,\n      \"body\": \"Keep this for later.\",\n      \"body_json\": {\n        \"attrs\": {\n          \"schemaVersion\": \"v1\"\n        },\n        \"content\": [\n          {\n            \"content\": [\n              {\n                \"text\": \"Keep this for later.\",\n                \"type\": \"text\"\n              }\n            ],\n            \"type\": \"paragraph\"\n          }\n        ],\n      …[truncated]"
+    },
+    {
+      "command": "notes list",
+      "kind": "json_fidelity",
+      "args": [
+        "notes",
+        "list",
+        "--limit",
+        "20",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"drafts\": [\n    {\n      \"id\": 271871592,\n      \"body\": \"Keep this for later.\",\n      \"body_json\": {\n        \"attrs\": {\n          \"schemaVersion\": \"v1\"\n        },\n        \"content\": [\n          {\n            \"content\": [\n              {\n                \"text\": \"Keep this for later.\",\n                \"type\": \"text\"\n              }\n            ],\n            \"type\": \"paragraph\"\n          }\n        ],\n        \"type\": \"doc\"\n      },\n      \"publication_id\": null,\n      \"post_id\": null,\n      \"user_id\": 6052627,\n      \"type\": \"feed\",\n      \"date\": \"2026-06-06T23:50:14.814Z\",\n      \"edited_at\": null,\n      \"ancestor_path\": \"\",\n      \"reply_minimum_role\": \"everyone\",\n      \"media_clip_id\": null,\n      \"trigger_at\": null,\n      \"attachments\": []\n    },\n    {\n      \"id\": 271871590,\n      \"body\": \"Keep this for later.\",\n      \"body_json\": {\n        \"attrs\": {\n          \"schemaVersion\": \"v1\"\n        },\n        \"content\": [\n          {\n            \"content\": [\n              {\n                \"text\": \"Keep this for later.\",\n                \"type\": \"text\"\n              }\n            ],\n            \"type\": \"paragraph\"\n          }\n        ],\n        \"type\": \"doc\"\n      },\n      \"publication_id\": null,\n      \"post_id\": null,\n      \"user_id\": 6052627,\n      \"type\": \"feed\",\n      \"date\": \"2026-06-06T23:50:14.451Z\",\n      \"edited_at\": null,\n      \"ancestor_path\": \"\",\n      \"reply_minimum_role\": \"everyone\",\n      \"media_clip_id\": null,\n      \"trigger_at\": null,\n      \"attachments\": []\n    },\n    {\n      \"id\": 271871302,\n      \"body\": \"Tomorrow's note\",\n      \"body_json\": {\n        \"attrs\": {\n          \"schemaVersion\": \"v1\"\n        },\n        \"content\": [\n          {\n            \"content\": [\n              {\n                \"text\": \"Tomorrow's note\",\n                \"type\": \"text\"\n              }\n            ],\n            \"type\": \"paragraph\"\n          }\n        ],\n        \"type\": \"doc\"\n      },\n      \"publication_id\": null,\n      \"post_id\": null,\n      \"user_id\": 6052627,\n      \"type\": \"feed\",\n      \"date\": \"2026-06-06T23:49:19.449Z\",\n      \"edited_at\": null,\n      \"ancestor_path\": \"\",\n      \"reply_minimum_role\": \"everyone\",\n      \"media_clip_id\": null,\n      \"trigger_at\": null,\n      \"attachments\": []\n    },\n    {\n      \"id\": 271871299,\n      \"body\": \"Tomorrow's note\",\n      \"body_json\": {\n        \"attrs\": {\n          \"schemaVersion\": \"v1\"\n        },\n        \"content\": [\n          {\n            \"content\": [\n              {\n                \"text\": \"Tomorrow's note\",\n                \"type\": \"text\"\n              }\n            ],\n            \"type\": \"paragraph\"\n          }\n        ],\n        \"type\": \"doc\"\n      },\n      \"publication_id\": null,\n      \"post_id\": null,\n      \"user_id\": 6052627,\n      \"type\": \"feed\",\n      \"date\": \"2026-06-06T23:49:19.026Z\",\n      \"edited_at\": null,\n      \"ancestor_path\": \"\",\n      \"reply_minimum_role\": \"everyone\",\n      \"media_clip_id\": null,\n      \"trigger_at\": null,\n      \"attachments\": []\n    },\n    {\n      \"id\": 271871294,\n      \"body\": \"Keep this for later.\",\n      \"body_json\": {\n        \"attrs\": {\n          \"schemaVersion\": \"v1\"\n        },\n        \"content\": [\n          {\n            \"content\": [\n              {\n                \"text\": \"Keep this for later.\",\n                \"type\": \"text\"\n              }\n            ],\n            \"type\": \"paragraph\"\n          }\n        ],\n        \"type\": \"doc\"\n      },\n      \"publication_id\": null,\n      \"post_id\": null,\n      \"user_id\": 6052627,\n      \"type\": \"feed\",\n      \"date\": \"2026-06-06T23:49:17.696Z\",\n      \"edited_at\": null,\n      \"ancestor_path\": \"\",\n      \"reply_minimum_role\": \"everyone\",\n      \"media_clip_id\": null,\n      \"trigger_at\": null,\n      \"attachments\": []\n    },\n    {\n      \"id\": 271871292,\n      \"body\": \"Keep this for later.\",\n      \"body_json\": {\n        \"attrs\": {\n          \"schemaVersion\": \"v1\"\n        },\n        \"content\": [\n          {\n            \"content\": [\n              {\n                \"text\": \"Keep this for later.\",\n                \"type\": \"text\"\n              }\n            ],\n            \"type\": \"paragraph\"\n          }\n        ],\n      …[truncated]"
+    },
+    {
+      "command": "notes list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "notes post",
+      "kind": "help",
+      "args": [
+        "notes",
+        "post",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Publish a note immediately\n\nUsage:\n  substack-notes-pp-cli notes post [flags]\n\nExamples:\n  substack-notes-pp-cli notes post --text \"Shipping a tiny thing today.\"\n  substack-notes-pp-cli notes post --file note.txt\n  substack-notes-pp-cli notes post --text \"New demo\" --image ./demo.png\n\nFlags:\n      --file string         Read plain text note body from a file\n  -h, --help                help for post\n      --image stringArray   Attach an image file; repeat for multiple images\n      --reply-role string   Who can reply: everyone, free_subscriber, paid_subscriber (default \"everyone\")\n      --stdin               Read plain text note body from stdin\n      --surface string      Optional Substack surface value\n      --tab-id string       Optional Substack feed tab id\n      --text string         Plain text note body\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "notes post",
+      "kind": "happy_path",
+      "args": [
+        "notes",
+        "post",
+        "--text",
+        "Shipping a tiny thing today.",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"dry_run\": true\n}\nPOST https://substack.com/api/v1/comment/feed\n  Body:\n{\n    \"bodyJson\": {\n      \"attrs\": {\n        \"schemaVersion\": \"v1\"\n      },\n      \"content\": [\n        {\n          \"content\": [\n            {\n              \"text\": \"Shipping a tiny thing today.\",\n              \"type\": \"text\"\n            }\n          ],\n          \"type\": \"paragraph\"\n        }\n      ],\n      \"type\": \"doc\"\n    },\n    \"replyMinimumRole\": \"everyone\"\n  }\n  Cookie: \u003credacted\u003e\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "notes post",
+      "kind": "json_fidelity",
+      "args": [
+        "notes",
+        "post",
+        "--text",
+        "Shipping a tiny thing today.",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"dry_run\": true\n}\nPOST https://substack.com/api/v1/comment/feed\n  Body:\n{\n    \"bodyJson\": {\n      \"attrs\": {\n        \"schemaVersion\": \"v1\"\n      },\n      \"content\": [\n        {\n          \"content\": [\n            {\n              \"text\": \"Shipping a tiny thing today.\",\n              \"type\": \"text\"\n            }\n          ],\n          \"type\": \"paragraph\"\n        }\n      ],\n      \"type\": \"doc\"\n    },\n    \"replyMinimumRole\": \"everyone\"\n  }\n  Cookie: \u003credacted\u003e\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "notes post",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "notes post",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "notes recent",
+      "kind": "help",
+      "args": [
+        "notes",
+        "recent",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Read recent published notes from a Substack profile\n\nUsage:\n  substack-notes-pp-cli notes recent [flags]\n\nExamples:\n  substack-notes-pp-cli notes recent --limit 5\n  substack-notes-pp-cli notes recent --user-id \u003cnumeric-user-id\u003e --json\n\nFlags:\n      --cursor string    Pagination cursor\n  -h, --help             help for recent\n      --limit int        Maximum notes to return (default 5)\n      --user-id string   Substack user id; defaults to the authenticated user\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "notes recent",
+      "kind": "happy_path",
+      "args": [
+        "notes",
+        "recent",
+        "--limit",
+        "5"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"id\": 271798812,\n    \"date\": \"2026-06-06T20:40:23.303Z\",\n    \"type\": \"feed\",\n    \"body\": \"Weekends are for driving kids to activities and then hiding in a corner to dictate to codex on the phone 🙈\"\n  },\n  {\n    \"id\": 271654222,\n    \"date\": \"2026-06-06T15:28:01.185Z\",\n    \"type\": \"feed\",\n    \"body\": \"My next guest, Kun was an L8 principal engineer at Meta and Microsoft who recently quit to build AI products solo. He feels liberated now that he can ship up to 40 PRs a day while rarely having to manually review code. He walked me through his agentic engineering system that makes this possible: → Visual planning with HTML artifacts → Running 20-30 agents in parallel → No Mistakes, his tool for shipping without bugs 📌 Subscribe to get the full episode tmr: https://www.youtube.com/@PeterYangYT?sub_confirmation=1\",\n    \"attachments\": [\n      {\n        \"id\": \"414ef0e2-cd62-438d-b35f-d8cfa35a1851\",\n        \"type\": \"image\"\n      }\n    ]\n  },\n  {\n    \"id\": 271207368,\n    \"date\": \"2026-06-05T18:09:57.471Z\",\n    \"type\": \"feed\",\n    \"body\": \"Just interviewed Matt and I'm so inspired. I had no idea that he has no CS degree or real engineering background. Despite that, he has shipped so many awesome projects and contributed to repos like Python and Go. He does swear by Every's Compound Engineering for making good plans and shipping good code: https://github.com/everyinc/compound-engineering-plugin 📌 Will clean up the interview and share soon on my YouTube: https://www.youtube.com/@PeterYangYT?subscribe\",\n    \"attachments\": [\n      {\n        \"id\": \"b288c87a-ffae-4aa5-bfdb-7235d7654613\",\n        \"type\": \"image\"\n      },\n      {\n        \"id\": \"49eced94-9a82-4b21-878c-455696df6b8c\",\n        \"type\": \"link\"\n      }\n    ]\n  },\n  {\n    \"id\": 271073195,\n    \"date\": \"2026-06-05T14:09:56.574Z\",\n    \"type\": \"feed\",\n    \"body\": \"How to build AI skills that check their own work and improve over time: 1. Give it context Ask AI: \\\"Create a skill for this [repeated task]. Here are examples of good output so it knows what good looks like.\\\" 2. Make it easy to trigger “Write a clear skill description using this pattern: Use when the user wants to [do this].” 3. Add evals \\\"Create an evals md with 10 pass/fail checks for common errors in the skill's output.\\\" 4. Add memory \\\"Create a memory md to capture one-sentence learnings from past chats using this skill.\\\" 5. Build a skill to edit skills \\\"Create a skill that cleans up other skills by removing duplicate or stale instructions, vague rules, and AI slop.\\\" 📌 Watch my full walkthrough here: https://youtu.be/uT3EQPVIEb0\",\n    \"attachments\": [\n      {\n        \"id\": \"0548b261-1ac2-4460-97be-a9f5e5d27a3f\",\n        \"type\": \"image\"\n      },\n      {\n        \"id\": \"a6a56e02-0b2f-4ad8-91d4-07ffe61063db\",\n        \"type\": \"link\"\n      }\n    ]\n  },\n  {\n    \"id\": 270871706,\n    \"date\": \"2026-06-05T03:36:35.181Z\",\n    \"type\": \"feed\",\n    \"body\": \"I spent the whole day today setting up integrations and skills in Codex for my top creator workflows. Now I'm convinced that you can save at least 50% of your time on any type of knowledge work if you just set up the system upfront. Note that all my workflows have human checkpoints along the way so I can apply my \\\"taste.\\\" Anyway, it feels extremely liberating to have all this set up. If you want to do the same, just follow these three steps: 1. Reflect on your past week: - What work did you spend the most time on? - What work was the most repetitive? Pick your most painful, manual workflow to start. 2. List out every single step of that manual workflow. Be very detail oriented. 3. Open Codex (or Claude Code) and paste the list of steps from 2 and ask it \\\"What integrations and skills can I build to streamline this with your help?\\\"\"\n  }\n]\n"
+    },
+    {
+      "command": "notes recent",
+      "kind": "json_fidelity",
+      "args": [
+        "notes",
+        "recent",
+        "--limit",
+        "5",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"id\": 271798812,\n    \"date\": \"2026-06-06T20:40:23.303Z\",\n    \"type\": \"feed\",\n    \"body\": \"Weekends are for driving kids to activities and then hiding in a corner to dictate to codex on the phone 🙈\"\n  },\n  {\n    \"id\": 271654222,\n    \"date\": \"2026-06-06T15:28:01.185Z\",\n    \"type\": \"feed\",\n    \"body\": \"My next guest, Kun was an L8 principal engineer at Meta and Microsoft who recently quit to build AI products solo. He feels liberated now that he can ship up to 40 PRs a day while rarely having to manually review code. He walked me through his agentic engineering system that makes this possible: → Visual planning with HTML artifacts → Running 20-30 agents in parallel → No Mistakes, his tool for shipping without bugs 📌 Subscribe to get the full episode tmr: https://www.youtube.com/@PeterYangYT?sub_confirmation=1\",\n    \"attachments\": [\n      {\n        \"id\": \"414ef0e2-cd62-438d-b35f-d8cfa35a1851\",\n        \"type\": \"image\"\n      }\n    ]\n  },\n  {\n    \"id\": 271207368,\n    \"date\": \"2026-06-05T18:09:57.471Z\",\n    \"type\": \"feed\",\n    \"body\": \"Just interviewed Matt and I'm so inspired. I had no idea that he has no CS degree or real engineering background. Despite that, he has shipped so many awesome projects and contributed to repos like Python and Go. He does swear by Every's Compound Engineering for making good plans and shipping good code: https://github.com/everyinc/compound-engineering-plugin 📌 Will clean up the interview and share soon on my YouTube: https://www.youtube.com/@PeterYangYT?subscribe\",\n    \"attachments\": [\n      {\n        \"id\": \"b288c87a-ffae-4aa5-bfdb-7235d7654613\",\n        \"type\": \"image\"\n      },\n      {\n        \"id\": \"49eced94-9a82-4b21-878c-455696df6b8c\",\n        \"type\": \"link\"\n      }\n    ]\n  },\n  {\n    \"id\": 271073195,\n    \"date\": \"2026-06-05T14:09:56.574Z\",\n    \"type\": \"feed\",\n    \"body\": \"How to build AI skills that check their own work and improve over time: 1. Give it context Ask AI: \\\"Create a skill for this [repeated task]. Here are examples of good output so it knows what good looks like.\\\" 2. Make it easy to trigger “Write a clear skill description using this pattern: Use when the user wants to [do this].” 3. Add evals \\\"Create an evals md with 10 pass/fail checks for common errors in the skill's output.\\\" 4. Add memory \\\"Create a memory md to capture one-sentence learnings from past chats using this skill.\\\" 5. Build a skill to edit skills \\\"Create a skill that cleans up other skills by removing duplicate or stale instructions, vague rules, and AI slop.\\\" 📌 Watch my full walkthrough here: https://youtu.be/uT3EQPVIEb0\",\n    \"attachments\": [\n      {\n        \"id\": \"0548b261-1ac2-4460-97be-a9f5e5d27a3f\",\n        \"type\": \"image\"\n      },\n      {\n        \"id\": \"a6a56e02-0b2f-4ad8-91d4-07ffe61063db\",\n        \"type\": \"link\"\n      }\n    ]\n  },\n  {\n    \"id\": 270871706,\n    \"date\": \"2026-06-05T03:36:35.181Z\",\n    \"type\": \"feed\",\n    \"body\": \"I spent the whole day today setting up integrations and skills in Codex for my top creator workflows. Now I'm convinced that you can save at least 50% of your time on any type of knowledge work if you just set up the system upfront. Note that all my workflows have human checkpoints along the way so I can apply my \\\"taste.\\\" Anyway, it feels extremely liberating to have all this set up. If you want to do the same, just follow these three steps: 1. Reflect on your past week: - What work did you spend the most time on? - What work was the most repetitive? Pick your most painful, manual workflow to start. 2. List out every single step of that manual workflow. Be very detail oriented. 3. Open Codex (or Claude Code) and paste the list of steps from 2 and ask it \\\"What integrations and skills can I build to streamline this with your help?\\\"\"\n  }\n]\n"
+    },
+    {
+      "command": "notes recent",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "notes schedule",
+      "kind": "help",
+      "args": [
+        "notes",
+        "schedule",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Schedule a note\n\nUsage:\n  substack-notes-pp-cli notes schedule [flags]\n\nExamples:\n  substack-notes-pp-cli notes schedule --text \"Tomorrow's note\" --at \"2026-07-15 09:00\"\n  substack-notes-pp-cli notes schedule --file note.txt --at \"2026-07-15T09:00:00-07:00\"\n  substack-notes-pp-cli notes schedule --text \"Image note\" --image ./image.webp --at \"2026-07-15T09:00:00-07:00\"\n\nFlags:\n      --at string           Schedule time, e.g. 2026-07-15 09:00 or RFC3339\n      --file string         Read plain text note body from a file\n  -h, --help                help for schedule\n      --image stringArray   Attach an image file; repeat for multiple images\n      --reply-role string   Who can reply: everyone, free_subscriber, paid_subscriber (default \"everyone\")\n      --stdin               Read plain text note body from stdin\n      --surface string      Optional Substack surface value\n      --tab-id string       Optional Substack feed tab id\n      --text string         Plain text note body\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "notes schedule",
+      "kind": "happy_path",
+      "args": [
+        "notes",
+        "schedule",
+        "--text",
+        "Tomorrow's note",
+        "--at",
+        "2026-07-15 09:00"
+      ],
+      "status": "pass",
+      "output_sample": "{\"attachments\":[],\"autotranslate_to\":null,\"body\":\"Tomorrow's note\",\"body_json\":{\"attrs\":{\"schemaVersion\":\"v1\"},\"content\":[{\"content\":[{\"text\":\"Tomorrow's note\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"doc\"},\"children\":[],\"children_count\":0,\"date\":\"2026-06-06T23:50:16.464Z\",\"deleted\":false,\"id\":271871603,\"language\":null,\"media_clip_id\":null,\"name\":\"\u003credacted\u003e\",\"photo_url\":\"https://substack-post-media.s3.amazonaws.com/public/images/d2dbd75e-1c5a-48ab-94ef-b24caea63cdf_1024x1024.png\",\"post_id\":null,\"publication_id\":null,\"reaction_count\":0,\"reactions\":{\"❤\":0},\"reply_minimum_role\":\"everyone\",\"restacked\":false,\"restacks\":0,\"status\":\"draft\",\"trigger_at\":\"2026-07-15T16:00:00.000Z\",\"type\":\"feed\",\"userStatus\":{\"badge\":{\"tier\":1000,\"type\":\"bestseller\"},\"bestsellerTier\":1000,\"leaderboard\":{\"categoryId\":\"4\",\"label\":\"Technology\",\"publicationId\":25792,\"publicationName\":\"Behind the Craft\",\"rank\":27,\"ranking\":\"paid\"},\"subscriber\":null,\"subscriberTier\":1,\"vip\":false},\"user_bestseller_tier\":1000,\"user_id\":6052627,\"user_primary_publication\":{\"author_id\":6052627,\"custom_domain\":\"creatoreconomy.so\",\"custom_domain_optional\":false,\"explicit\":false,\"handles_enabled\":false,\"has_reply_rules\":false,\"id\":25792,\"ios_app_payments_enabled\":true,\"is_personal_mode\":false,\"logo_url\":\"https://substack-post-media.s3.amazonaws.com/public/images/c944a891-b38f-40ba-a756-7ddd70824b7e_1024x1024.png\",\"name\":\"\u003credacted\u003e\",\"payments_state\":\"enabled\",\"pledges_enabled\":false,\"subdomain\":\"peteryang\",\"user_id\":6052627}}"
+    },
+    {
+      "command": "notes schedule",
+      "kind": "json_fidelity",
+      "args": [
+        "notes",
+        "schedule",
+        "--text",
+        "Tomorrow's note",
+        "--at",
+        "2026-07-15 09:00",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"attachments\":[],\"autotranslate_to\":null,\"body\":\"Tomorrow's note\",\"body_json\":{\"attrs\":{\"schemaVersion\":\"v1\"},\"content\":[{\"content\":[{\"text\":\"Tomorrow's note\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"doc\"},\"children\":[],\"children_count\":0,\"date\":\"2026-06-06T23:50:16.851Z\",\"deleted\":false,\"id\":271871606,\"language\":null,\"media_clip_id\":null,\"name\":\"\u003credacted\u003e\",\"photo_url\":\"https://substack-post-media.s3.amazonaws.com/public/images/d2dbd75e-1c5a-48ab-94ef-b24caea63cdf_1024x1024.png\",\"post_id\":null,\"publication_id\":null,\"reaction_count\":0,\"reactions\":{\"❤\":0},\"reply_minimum_role\":\"everyone\",\"restacked\":false,\"restacks\":0,\"status\":\"draft\",\"trigger_at\":\"2026-07-15T16:00:00.000Z\",\"type\":\"feed\",\"userStatus\":{\"badge\":{\"tier\":1000,\"type\":\"bestseller\"},\"bestsellerTier\":1000,\"leaderboard\":{\"categoryId\":\"4\",\"label\":\"Technology\",\"publicationId\":25792,\"publicationName\":\"Behind the Craft\",\"rank\":27,\"ranking\":\"paid\"},\"subscriber\":null,\"subscriberTier\":1,\"vip\":false},\"user_bestseller_tier\":1000,\"user_id\":6052627,\"user_primary_publication\":{\"author_id\":6052627,\"custom_domain\":\"creatoreconomy.so\",\"custom_domain_optional\":false,\"explicit\":false,\"handles_enabled\":false,\"has_reply_rules\":false,\"id\":25792,\"ios_app_payments_enabled\":true,\"is_personal_mode\":false,\"logo_url\":\"https://substack-post-media.s3.amazonaws.com/public/images/c944a891-b38f-40ba-a756-7ddd70824b7e_1024x1024.png\",\"name\":\"\u003credacted\u003e\",\"payments_state\":\"enabled\",\"pledges_enabled\":false,\"subdomain\":\"peteryang\",\"user_id\":6052627}}"
+    },
+    {
+      "command": "notes schedule",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  substack-notes-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  substack-notes-pp-cli profile delete my-defaults --yes\n  substack-notes-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  substack-notes-pp-cli profile list [flags]\n\nExamples:\n  substack-notes-pp-cli profile list\n  substack-notes-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  substack-notes-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  substack-notes-pp-cli profile save my-defaults --json --compact\n  substack-notes-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  substack-notes-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  substack-notes-pp-cli profile show my-defaults\n  substack-notes-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  substack-notes-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  substack-notes-pp-cli profile use my-defaults\n  substack-notes-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  substack-notes-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  substack-notes-pp-cli sync\n\n  # Sync specific resources only\n  substack-notes-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  substack-notes-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  substack-notes-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  substack-notes-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  substack-notes-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/substack-notes-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailur…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"feed\"}\n{\"event\":\"sync_progress\",\"resource\":\"feed\",\"fetched\":8,\"rate_rps\":2.0}\n{\"event\":\"sync_complete\",\"resource\":\"feed\",\"total\":8,\"duration_ms\":308}\n{\"event\":\"sync_summary\",\"total_records\":8,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":308}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"feed\"}\n{\"event\":\"sync_warning\",\"resource\":\"feed\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"feed\",\"fetched\":8,\"rate_rps\":2.0}\n{\"event\":\"sync_complete\",\"resource\":\"feed\",\"total\":8,\"duration_ms\":223}\n{\"event\":\"sync_summary\",\"total_records\":8,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":223}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  substack-notes-pp-cli which [query] [flags]\n\nExamples:\n  substack-notes-pp-cli which \"stale tickets\"\n  substack-notes-pp-cli which \"bottleneck\"\n  substack-notes-pp-cli which --limit 1 \"send message\"\n  substack-notes-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  substack-notes-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  substack-notes-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  substack-notes-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/substack-notes-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"feed\"}\n{\"event\":\"sync_warning\",\"resource\":\"feed\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"feed\",\"fetched\":8,\"rate_rps\":2.0}\n{\"event\":\"sync_complete\",\"resource\":\"feed\",\"total\":8,\"duration_ms\":219}\nArchived 8 items across 1 resources to /var/folders/41/m7tr6gqx1797btx1wkyh1gt00000gn/T/printing-press-subprocess-\u003credacted\u003e/.local/share/substack-notes-pp-cli/data.db\n  feed: 8 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 1,\n  \"store_path\": \"/var/folders/41/m7tr6gqx1797btx1wkyh1gt00000gn/T/printing-press-subprocess-\u003credacted\u003e/.local/share/substack-notes-pp-cli/data.db\",\n  \"timestamp\": \"2026-06-06T23:50:18Z\",\n  \"total_items\": 8\n}\n{\"event\":\"sync_start\",\"resource\":\"feed\"}\n{\"event\":\"sync_warning\",\"resource\":\"feed\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"feed\",\"fetched\":8,\"rate_rps\":2.0}\n{\"event\":\"sync_complete\",\"resource\":\"feed\",\"total\":8,\"duration_ms\":219}\n  feed: 8 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  substack-notes-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  substack-notes-pp-cli workflow status\n\n  # Show status as JSON\n  substack-notes-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'substack-notes-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  feed                           8 items\n\n  Total: 8 items\n  Store: /var/folders/41/m7tr6gqx1797btx1wkyh1gt00000gn/T/printing-press-subprocess-\u003credacted\u003e/.local/share/substack-notes-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"feed\": 8\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-06T23:50:13.147567Z"
+}

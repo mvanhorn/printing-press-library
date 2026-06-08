@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "substack-notes-pp-cli"
+display_name = "Substack Notes"
+description = "Unofficial Substack Notes endpoints observed from the authenticated web app."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/substack-notes-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+SUBSTACK_NOTES_COOKIE_AUTH = true

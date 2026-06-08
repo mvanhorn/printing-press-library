@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-05T23:09:50.210358Z",
+  "printing_press_version": "4.22.1",
+  "api_name": "substack-notes",
+  "display_name": "Substack Notes",
+  "cli_name": "substack-notes-pp-cli",
+  "creator": {
+    "handle": "petergyang",
+    "name": "Peter Yang"
+  },
+  "owner": "petergyang",
+  "printer": "petergyang",
+  "printer_name": "Peter Yang",
+  "spec_path": "substack-notes.openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:31753292cc86f59ff16f7ddaa424b75477af5432635ca39dab8908c6f7a4df02",
+  "run_id": "20260605-230950",
+  "category": "social-and-messaging",
+  "description": "Unofficial Substack Notes endpoints observed from the authenticated web app.",
+  "mcp_binary": "substack-notes-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "SUBSTACK_NOTES_COOKIE_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Guided browser-session auth",
+      "command": "auth login --browser chrome",
+      "description": "Discovers a local signed-in Substack browser session and stores the cookie header without printing secret values."
+    },
+    {
+      "name": "Recent Notes reader",
+      "command": "notes recent --limit 5 --json",
+      "description": "Reads and normalizes recent published Notes from the authenticated profile or an explicit user id."
+    },
+    {
+      "name": "Image-backed Notes workflow",
+      "command": "notes post --text \"...\" --image ./image.png",
+      "description": "Uploads an image, creates an attachment, and publishes or drafts the Note only after media preparation succeeds."
+    }
+  ]
+}
