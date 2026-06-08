@@ -200,6 +200,7 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 
 func (c *Config) SaveOAuth2UserContext(accessToken, refreshToken string, expiry time.Time, scopes []string) error {
 	c.AuthHeaderVal = ""
+	c.XOauth2UserToken = ""
 	c.AccessToken = strings.TrimSpace(accessToken)
 	c.RefreshToken = strings.TrimSpace(refreshToken)
 	c.TokenExpiry = expiry

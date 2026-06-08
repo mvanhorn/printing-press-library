@@ -338,14 +338,18 @@ func mergedNonPublicMetrics(rec *resolvedPostRecord) map[string]any {
 func metricAvailability(rec *resolvedPostRecord) map[string]string {
 	availability := map[string]string{}
 	publicMetrics := map[string]any{}
+	missingStatus := "not_requested"
 	if rec != nil {
 		publicMetrics = rec.PublicMetrics
+		if performanceMetricSource(rec) != "local_resolved_post" {
+			missingStatus = "not_returned_or_plan_restricted"
+		}
 	}
 	for _, key := range []string{"like_count", "reply_count", "repost_count", "quote_count", "bookmark_count", "impression_count"} {
 		if _, ok := publicMetrics[key]; ok {
 			availability[key] = "available"
 		} else {
-			availability[key] = "not_returned_or_plan_restricted"
+			availability[key] = missingStatus
 		}
 	}
 	nonPublic := mergedNonPublicMetrics(rec)
@@ -353,7 +357,7 @@ func metricAvailability(rec *resolvedPostRecord) map[string]string {
 		if _, ok := nonPublic[key]; ok {
 			availability[key] = "available"
 		} else {
-			availability[key] = "not_returned_or_plan_restricted"
+			availability[key] = missingStatus
 		}
 	}
 	return availability

@@ -5,6 +5,7 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -15,6 +16,9 @@ func TestAuthImportOAuth2StoresUserContextMetadata(t *testing.T) {
 	t.Setenv("X_BEARER_TOKEN", "")
 	t.Setenv("X_OAUTH2_USER_TOKEN", "")
 	configPath := filepath.Join(t.TempDir(), "config.toml")
+	if err := os.WriteFile(configPath, []byte("oauth2_user_token = \"old-token\"\n"), 0o600); err != nil {
+		t.Fatalf("seed config: %v", err)
+	}
 
 	var flags rootFlags
 	cmd := newRootCmd(&flags)
@@ -48,6 +52,9 @@ func TestAuthImportOAuth2StoresUserContextMetadata(t *testing.T) {
 	}
 	if cfg.AccessToken != "user-token" || cfg.RefreshToken != "refresh-token" {
 		t.Fatalf("tokens not stored in user-context fields: %+v", cfg)
+	}
+	if cfg.XOauth2UserToken != "" || cfg.UserContextAuthHeader() != "Bearer user-token" {
+		t.Fatalf("imported token is shadowed: oauth2_user_token=%q header=%q", cfg.XOauth2UserToken, cfg.UserContextAuthHeader())
 	}
 	if len(cfg.Scopes) != 4 || cfg.Scopes[0] != "tweet.read" {
 		t.Fatalf("scopes = %#v", cfg.Scopes)
