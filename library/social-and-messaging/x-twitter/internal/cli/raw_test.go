@@ -29,11 +29,11 @@ func TestRawCommandRegistered(t *testing.T) {
 func TestParseRawHeaders(t *testing.T) {
 	t.Parallel()
 
-	got, err := parseRawHeaders([]string{"X-Test=one", "Accept: application/json"})
+	got, err := parseRawHeaders([]string{"X-Test=one", "Accept: application/json;q=0.9"})
 	if err != nil {
 		t.Fatalf("parse headers: %v", err)
 	}
-	if got["X-Test"] != "one" || got["Accept"] != "application/json" {
+	if got["X-Test"] != "one" || got["Accept"] != "application/json;q=0.9" {
 		t.Fatalf("headers = %#v", got)
 	}
 	if _, err := parseRawHeaders([]string{"bad-header"}); err == nil {
