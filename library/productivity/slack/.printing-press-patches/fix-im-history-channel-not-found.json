@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "fix-im-history-channel-not-found",
+  "applied_at": "2026-05-08",
+  "base_run_id": "20260409-073625",
+  "base_printing_press_version": "1.2.1",
+  "amend_run_id": "amend-2026-05-26",
+  "summary": "Route IM (D-prefixed) channel ids and a new --user flag through conversations.open before reading conversations.history.",
+  "reason": "conversations history --channel <D...> failed with channel_not_found even when the IM id had just been listed by conversations list --types im and a valid SLACK_USER_TOKEN was set. Raw IM ids from conversations.list are not directly accepted by conversations.history unless the DM is opened/resolved first with the user token. The fix detects D-prefixed channel ids and routes them through the DM helpers (conversations.open + user-token history fetch), adds a --user flag that resolves the DM from a user id, auto-retries channel_not_found by re-opening the DM from its peer, and improves the error message to point users to --user. It also activates the previously dead slack_dm_helpers.go helpers. The DM path returns the bare messages array (slackEnvelopeMessages) so its output matches the channel path, and --channel/--user are rejected as mutually exclusive.",
+  "files": [
+    "internal/cli/conversations_history.go",
+    "internal/cli/slack_dm_helpers.go"
+  ],
+  "findings_addressed": ["F1"],
+  "patch_count": 4,
+  "validated_outcome": "go build, go vet, and go test pass; conversations.open is called via POST (Slack documents it as a write method; GET would fail at runtime); --channel <D...> and --user resolve the DM via conversations.open instead of returning channel_not_found; DM output renders as a messages array (provenance count and table no longer silently empty); --channel + --user errors as mutually exclusive."
+}
