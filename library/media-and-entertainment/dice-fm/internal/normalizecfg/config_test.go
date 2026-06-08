@@ -71,6 +71,50 @@ entities:
 	}
 }
 
+// TestValidateRuleMatch verifies that a rule's match pattern is validated at
+// parse time: a valid pattern parses, an uncompilable pattern fails the load
+// (instead of silently disabling itself at classify time), and an empty match
+// is rejected.
+func TestValidateRuleMatch(t *testing.T) {
+	good := `version: 1
+entities:
+  ticket_type:
+    source: tickets.ticketType.name
+    shape: attributes
+    rules:
+      - match: '(?i)\bvip\b'
+        set: {access_class: vip}
+`
+	if _, err := Parse([]byte(good)); err != nil {
+		t.Fatalf("valid rule match should parse: %v", err)
+	}
+
+	badRegexp := `version: 1
+entities:
+  ticket_type:
+    source: tickets.ticketType.name
+    shape: attributes
+    rules:
+      - match: '([unclosed'
+        set: {access_class: vip}
+`
+	if _, err := Parse([]byte(badRegexp)); err == nil {
+		t.Fatal("expected error for uncompilable rule match")
+	}
+
+	emptyMatch := `version: 1
+entities:
+  ticket_type:
+    source: tickets.ticketType.name
+    shape: attributes
+    rules:
+      - set: {access_class: vip}
+`
+	if _, err := Parse([]byte(emptyMatch)); err == nil {
+		t.Fatal("expected error for empty rule match")
+	}
+}
+
 func mustParse(t *testing.T, b []byte) *Config {
 	t.Helper()
 	c, err := Parse(b)

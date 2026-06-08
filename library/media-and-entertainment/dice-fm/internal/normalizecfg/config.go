@@ -45,7 +45,11 @@ type Config struct {
 	Entities map[string]Entity `yaml:"entities"`
 }
 
-// validate checks that all entities in c have a known shape and a non-empty source.
+// validate checks that all entities in c have a known shape and a non-empty
+// source, and that every regexp in the entity (strip_pattern and each rule's
+// match) compiles. Validating rule.match at load time (alongside strip_pattern)
+// turns a typo'd promoted rule into a clear load-time error instead of a rule
+// that silently disables itself and matches nothing at classify time.
 func validate(c *Config) error {
 	for name, e := range c.Entities {
 		switch e.Shape {
@@ -59,6 +63,14 @@ func validate(c *Config) error {
 		if e.StripPattern != "" {
 			if _, err := regexp.Compile(e.StripPattern); err != nil {
 				return fmt.Errorf("entity %q: invalid strip_pattern %q: %w", name, e.StripPattern, err)
+			}
+		}
+		for i, r := range e.Rules {
+			if r.Match == "" {
+				return fmt.Errorf("entity %q: rule %d has an empty match pattern", name, i)
+			}
+			if _, err := regexp.Compile(r.Match); err != nil {
+				return fmt.Errorf("entity %q: invalid rule match %q: %w", name, r.Match, err)
 			}
 		}
 	}

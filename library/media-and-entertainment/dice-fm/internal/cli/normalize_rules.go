@@ -2,31 +2,69 @@
 package cli
 
 import (
+	"fmt"
+	"io"
 	"regexp"
 	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/normalizecfg"
 )
 
-// applyAttributeRules runs an ordered set of match→set rules over an
-// already-canonicalized value and returns the merged axis assignments. Rules
-// are applied in order; a later matching rule overrides an earlier one for the
-// same key. A rule whose Match does not compile is skipped (never panics). The
-// returned map may be empty when no rule matches.
-func applyAttributeRules(canon string, rules []normalizecfg.Rule) map[string]string {
-	out := map[string]string{}
-	for _, r := range rules {
+// compiledRule pairs an entity rule's match pattern, compiled once, with its
+// axis assignments so the regexp is not recompiled per source value in the
+// classify inner loop.
+type compiledRule struct {
+	re  *regexp.Regexp
+	set map[string]string
+}
+
+// compileRules compiles each rule's match pattern exactly once for reuse across
+// every source value. A rule whose Match does not compile is skipped with a
+// warning written to warn (never panics). Config-load validation
+// (normalizecfg.validate) already rejects an uncompilable rule, so a skip here
+// is a defense-in-depth diagnostic for any rule that reaches classify without
+// passing through Parse — it makes a silently-disabled rule visible instead of
+// matching nothing with no signal. Pass entityType for the warning context; a
+// nil warn writer silences the diagnostic.
+func compileRules(entityType string, rules []normalizecfg.Rule, warn io.Writer) []compiledRule {
+	out := make([]compiledRule, 0, len(rules))
+	for i, r := range rules {
 		re, err := regexp.Compile(r.Match)
 		if err != nil {
+			if warn != nil {
+				fmt.Fprintf(warn, "warning: %s rule %d: skipping uncompilable match %q: %v\n", entityType, i, r.Match, err)
+			}
 			continue
 		}
-		if re.MatchString(canon) {
-			for k, v := range r.Set {
+		out = append(out, compiledRule{re: re, set: r.Set})
+	}
+	return out
+}
+
+// applyCompiledRules runs an ordered set of precompiled match→set rules over an
+// already-canonicalized value and returns the merged axis assignments. Rules
+// are applied in order; a later matching rule overrides an earlier one for the
+// same key. The returned map may be empty when no rule matches.
+func applyCompiledRules(canon string, rules []compiledRule) map[string]string {
+	out := map[string]string{}
+	for _, r := range rules {
+		if r.re.MatchString(canon) {
+			for k, v := range r.set {
 				out[k] = v
 			}
 		}
 	}
 	return out
+}
+
+// applyAttributeRules compiles the rules and runs them over canon in a single
+// call. It is a convenience wrapper retained for callers (and tests) that do not
+// hold a precompiled rule set; the classify hot path uses compileRules +
+// applyCompiledRules so the patterns are compiled once per run, not per value.
+// Uncompilable rules are silently skipped here (the warn path lives in
+// compileRules); this preserves the original never-panics contract.
+func applyAttributeRules(canon string, rules []normalizecfg.Rule) map[string]string {
+	return applyCompiledRules(canon, compileRules("", rules, nil))
 }
 
 // validateRule checks a candidate rule against a cache of already-classified

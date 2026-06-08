@@ -15,6 +15,7 @@ import (
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // TestNormalizeCommandSummaryTiers verifies that runNormalize over a seeded
@@ -129,6 +130,29 @@ func TestNormalizeStatsCobraWiring(t *testing.T) {
 	}
 	if !found {
 		t.Error("normalize stats subcommand not registered")
+	}
+}
+
+func TestNormalizePromoteRulesCobraWiring(t *testing.T) {
+	flags := &rootFlags{}
+	cmd := newNormalizeCmd(flags)
+	var promote *cobra.Command
+	for _, sub := range cmd.Commands() {
+		if sub.Name() == "promote-rules" {
+			promote = sub
+			break
+		}
+	}
+	if promote == nil {
+		t.Fatal("normalize promote-rules subcommand not registered")
+	}
+	for _, flagName := range []string{"entity", "write", "min-support"} {
+		if promote.Flags().Lookup(flagName) == nil {
+			t.Errorf("normalize promote-rules: flag --%s not registered", flagName)
+		}
+	}
+	if promote.Annotations["mcp:read-only"] == "true" {
+		t.Error("normalize promote-rules must not advertise mcp:read-only because --write mutates the operator config")
 	}
 }
 

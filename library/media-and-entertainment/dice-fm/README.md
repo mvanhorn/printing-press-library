@@ -271,7 +271,7 @@ Run `dice-fm-pp-cli <command> --help` for the full flag list on any command.
 | Command | What it does |
 | --- | --- |
 | `sync` | Sync your DICE data to local SQLite — complete by default; `--since` bounds a window, `--latest-only` grabs the newest, plus `--full`, `--resources` |
-| `normalize` | Normalize raw ticket-type & venue names into canonical, structured axes; writes a parallel lookup and leaves raw data untouched (re-runnable). `--export-unmatched` + `--export-format prompt` (default) bundles the rubric + import schema + names for LLM classification; `--import` writes the result back with method=manual; `normalize stats` shows the distribution; `normalize recommend` profiles the store and emits a starter config |
+| `normalize` | Normalize raw ticket-type & venue names into canonical, structured axes; writes a parallel lookup and leaves raw data untouched (re-runnable). `--tiers`, `--venues`, `--all`, `--entity`, `--fuzzy`, and `--fuzzy-threshold` choose the scope and fuzzy clustering; `--export-unmatched` + `--export-format prompt` (default) bundles the rubric + import schema + names for LLM classification; `--import` writes the result back with method=manual; `normalize stats` shows the distribution; `normalize recommend` profiles the store and emits a starter config; `normalize promote-rules` graduates the method=manual corpus into validated regex rules (the learn step) |
 | `search <query>` | Full-text search across synced data or the live API |
 | `analytics` | Run analytics queries on locally synced data |
 | `tail` | Stream live changes by polling the API at intervals |
@@ -359,6 +359,9 @@ dice-fm-pp-cli normalize --tiers --venues --fuzzy
 # Preview a starter normalization config without writing it
 dice-fm-pp-cli normalize recommend --print
 
+# Graduate your manual classifications into reusable regex rules (the learn step)
+dice-fm-pp-cli normalize promote-rules --entity ticket_type --write
+
 # Verify normalized coverage before grouping a report by axis
 dice-fm-pp-cli normalize stats --entity ticket_type --json
 ```
@@ -375,7 +378,7 @@ Install `dice-fm-pp-mcp` (see **MCP Server Installation** in `SKILL.md`), then c
 | Price-tier sales mix | `tier_performance` | `{ "limit": 20 }` |
 | Normalized coverage by axis | `normalize_stats` | `{ "entity": "ticket_type" }` |
 
-`normalize` itself writes the local store, so it is exposed as a write tool (no read-only hint) — run it from the CLI or invoke it deliberately. Custom SQL is intentionally out of scope for this cookbook.
+`normalize` itself writes the local store, so it is exposed as a write tool (no read-only hint) — run it from the CLI or invoke it deliberately. `normalize_recommend` and `normalize_promote_rules` are likewise write tools; run them deliberately or from the CLI. Custom SQL is intentionally out of scope for this cookbook.
 
 ## Agent Usage
 

@@ -1,16 +1,13 @@
 // Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 package cli
 
-import (
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/normalizecfg"
-)
-
-// applyAttributesOverlay runs an entity's promoted attribute rules over an
+// applyAttributesOverlay runs an entity's precompiled attribute rules over an
 // already-canonicalized value and returns the resulting axis map. Axes left
 // unset by the rules are simply absent from the map, which is what marks them
-// as candidates for the LLM-tail classifier.
-func applyAttributesOverlay(canon string, ent normalizecfg.Entity) map[string]string {
-	return applyAttributeRules(canon, ent.Rules)
+// as candidates for the LLM-tail classifier. Rules are compiled once per run by
+// the caller (classifyEntity) so the regexps are not recompiled per value.
+func applyAttributesOverlay(canon string, rules []compiledRule) map[string]string {
+	return applyCompiledRules(canon, rules)
 }
 
 // mapVocab tests whether raw matches any member of set under Layer-A

@@ -22,10 +22,17 @@ const (
 // Crosswalk/attribute method labels. These are categorical strings stamped onto
 // crosswalk and typed-attribute rows to record how a row was classified.
 const (
-	// methodRule labels rows classified by a config-driven rule. The value is
-	// historically "regex"; the rule-based mechanism replaced the compiled regex
-	// but the stored label is kept to avoid churning existing fixtures/data.
-	// Change this single const to rename the label everywhere.
+	// methodRule labels rows classified by a config-driven rule. The Go-side
+	// name is methodRule (the accurate name for the rule-engine mechanism), but
+	// the STORED value is deliberately kept as "regex" for backward
+	// compatibility: that string is already persisted in every existing local
+	// store and is asserted by the analytics test fixtures, so changing it now
+	// would be a data migration, not a rename. The code never compares the raw
+	// literal — every read/write routes through this const — so the eventual
+	// value change to "rule" is a one-line edit here plus a store migration
+	// (rewrite existing method='regex' rows) whenever a schema-version bump
+	// lands. Until then, anyone reading method values in SQL should treat
+	// "regex" as "config-driven rule".
 	methodRule      = "regex"
 	methodUnmatched = "unmatched"
 	methodCanonical = "canonical"

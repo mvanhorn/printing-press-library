@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "dice-fm-promote-rules-f8-peer-review",
+  "applied_at": "2026-06-08",
+  "base_run_id": "20260511-193451",
+  "base_printing_press_version": "4.12.0",
+  "summary": "Preserve promote-rules safety guarantees by avoiding read-only MCP advertising, operator-config freezing, unstripped cache keys, single-example promotions, and non-atomic writes.",
+  "reason": "The normalize promote-rules command can write operator config and derives reusable rules from manual labels, so it must not be auto-approved as read-only, persist starter entities, learn from classify-inconsistent names, or promote fragile one-off tokens.",
+  "files": [
+    "internal/cli/normalize_promote.go",
+    "internal/cli/normalize_promote_test.go",
+    "internal/cli/normalize_cmd_test.go"
+  ],
+  "validated_outcome": "go build ./... && go vet ./... && go test ./..."
+}

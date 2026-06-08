@@ -253,6 +253,97 @@ func TestEntityAttributesRoundTrip(t *testing.T) {
 	}
 }
 
+// TestEntityAttributeTypeImmutableOnConflict verifies that re-upserting the same
+// (canonical_id, attr_key) with a different entity_type does NOT change the
+// stored entity_type (F4): the canonical_id is type-prefixed and owns exactly
+// one entity type for life, so the ON CONFLICT path must not relabel it.
+func TestEntityAttributeTypeImmutableOnConflict(t *testing.T) {
+	s := openTestStore(t)
+
+	if err := s.UpsertEntityAttribute("price_tier:aa", "price_tier", "price_band", "mid", "regex", 1); err != nil {
+		t.Fatalf("initial upsert: %v", err)
+	}
+	// Re-upsert the same key but with a (wrong) different entity_type. The value
+	// should update; the entity_type must stay price_tier.
+	if err := s.UpsertEntityAttribute("price_tier:aa", "genre", "price_band", "high", "manual", 2); err != nil {
+		t.Fatalf("conflicting-type upsert: %v", err)
+	}
+
+	rows, err := s.ListEntityAttributes("price_tier")
+	if err != nil {
+		t.Fatalf("list price_tier: %v", err)
+	}
+	if len(rows) != 1 {
+		t.Fatalf("want 1 price_tier row, got %d: %+v", len(rows), rows)
+	}
+	if rows[0].EntityType != "price_tier" {
+		t.Errorf("entity_type = %q, want price_tier (must be immutable on conflict)", rows[0].EntityType)
+	}
+	if rows[0].AttrValue != "high" {
+		t.Errorf("attr_value = %q, want high (value should still update)", rows[0].AttrValue)
+	}
+	// The row must NOT have moved into the "genre" listing.
+	genreRows, err := s.ListEntityAttributes("genre")
+	if err != nil {
+		t.Fatalf("list genre: %v", err)
+	}
+	if len(genreRows) != 0 {
+		t.Errorf("genre listing should be empty; the row must not have been relabeled: %+v", genreRows)
+	}
+}
+
+// TestClearNormalizationAtomicClearsAllTables verifies the transactional clear
+// (F3) removes non-manual rows from the crosswalk AND the typed/generic
+// attribute tables in one shot, leaving manual rows intact.
+func TestClearNormalizationAtomicClearsAllTables(t *testing.T) {
+	s := openTestStore(t)
+
+	// A non-manual ticket_type: crosswalk + tier_attributes.
+	if err := s.UpsertCrosswalk(CrosswalkRow{
+		EntityType: "ticket_type", SourceSystem: "dice", SourceValue: "vip lounge",
+		CanonicalID: "ticket_type:vip", Method: "regex", ClassifierVersion: 1,
+	}); err != nil {
+		t.Fatalf("upsert non-manual crosswalk: %v", err)
+	}
+	if err := s.UpsertTierAttributes("ticket_type:vip", TierAttributesRow{
+		CanonicalID: "ticket_type:vip", AccessClass: "vip", ClassifierVersion: 1, Method: "regex",
+	}); err != nil {
+		t.Fatalf("upsert tier attrs: %v", err)
+	}
+	// A manual ticket_type that must survive.
+	if err := s.UpsertCrosswalk(CrosswalkRow{
+		EntityType: "ticket_type", SourceSystem: "dice", SourceValue: "comp guest",
+		CanonicalID: "ticket_type:comp", Method: "manual", ClassifierVersion: 1,
+	}); err != nil {
+		t.Fatalf("upsert manual crosswalk: %v", err)
+	}
+	if err := s.UpsertTierAttributes("ticket_type:comp", TierAttributesRow{
+		CanonicalID: "ticket_type:comp", CompFlag: true, ClassifierVersion: 1, Method: "manual",
+	}); err != nil {
+		t.Fatalf("upsert manual tier attrs: %v", err)
+	}
+
+	if err := s.ClearNormalization("ticket_type"); err != nil {
+		t.Fatalf("ClearNormalization: %v", err)
+	}
+
+	cw, err := s.ListCrosswalk("ticket_type", "dice")
+	if err != nil {
+		t.Fatalf("list crosswalk: %v", err)
+	}
+	if len(cw) != 1 || cw[0].CanonicalID != "ticket_type:comp" {
+		t.Fatalf("want only the manual crosswalk row left, got %+v", cw)
+	}
+
+	tiers, err := s.ListTierAttributes("ticket_type")
+	if err != nil {
+		t.Fatalf("list tier attrs: %v", err)
+	}
+	if len(tiers) != 1 || tiers[0].CanonicalID != "ticket_type:comp" {
+		t.Fatalf("want only the manual tier_attributes row left, got %+v", tiers)
+	}
+}
+
 // TestClearNormalizationPreservesManualEntityAttributes verifies that
 // ClearNormalization deletes non-manual entity_attributes rows for the entity
 // type while preserving rows whose own method is "manual". Synthetic fixtures.

@@ -4,6 +4,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"os"
 	"regexp"
 	"sort"
 	"strconv"
@@ -88,6 +89,12 @@ func classifyEntity(ctx context.Context, s *store.Store, entityType string, ent 
 		}
 	}
 
+	// Compile the entity's attribute rules ONCE for reuse across every source
+	// value, rather than recompiling each rule's regexp per value in the inner
+	// loop. Uncompilable rules are warned-and-skipped (config-load validation
+	// already rejects them; this is the defense-in-depth diagnostic).
+	crules := compileRules(entityType, ent.Rules, os.Stderr)
+
 	for _, raw := range raws {
 		if manual[raw] {
 			continue
@@ -112,7 +119,7 @@ func classifyEntity(ctx context.Context, s *store.Store, entityType string, ent 
 			// attributes and the empty shape ("", alias-core) both run the
 			// attribute overlay; with empty rules every value resolves
 			// unmatched until rules are promoted or the LLM-tail fills them.
-			if err := classifyAttributesValue(s, entityType, ent, raw, cid, canon, opts, &res); err != nil {
+			if err := classifyAttributesValue(s, entityType, crules, raw, cid, canon, opts, &res); err != nil {
 				return classifyResult{}, err
 			}
 		}
@@ -156,11 +163,11 @@ func writeCrosswalk(s *store.Store, entityType, raw, cid, method string, opts cl
 	})
 }
 
-// classifyAttributesValue applies the entity's attribute rules to one
-// canonicalized value and writes the matched/unmatched outcome. On a match it
-// writes the typed attribute row routed by entityType.
-func classifyAttributesValue(s *store.Store, entityType string, ent normalizecfg.Entity, raw, cid, canon string, opts classifyOpts, res *classifyResult) error {
-	axisMap := applyAttributesOverlay(canon, ent)
+// classifyAttributesValue applies the entity's precompiled attribute rules to
+// one canonicalized value and writes the matched/unmatched outcome. On a match
+// it writes the typed attribute row routed by entityType.
+func classifyAttributesValue(s *store.Store, entityType string, rules []compiledRule, raw, cid, canon string, opts classifyOpts, res *classifyResult) error {
+	axisMap := applyAttributesOverlay(canon, rules)
 	if len(axisMap) == 0 {
 		if err := writeCrosswalk(s, entityType, raw, cid, methodUnmatched, opts); err != nil {
 			return fmt.Errorf("upsert crosswalk (unmatched): %w", err)
@@ -280,7 +287,7 @@ func fuzzyRemap(s *store.Store, entityType string, canonToID map[string]string, 
 	// Sort before clustering so the representative (cluster[0]) is chosen
 	// deterministically regardless of map iteration order.
 	sort.Strings(canonNames)
-	clusters := clusterNames(canonNames, 0.92)
+	clusters := clusterNames(canonNames, opts.fuzzyThreshold())
 
 	// Hoist a single ListCrosswalk call and build an index keyed by
 	// canonical_id so we remap in O(n) instead of O(k×n).

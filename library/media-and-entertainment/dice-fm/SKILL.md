@@ -115,7 +115,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   dice-fm-pp-cli tier-performance --limit 20 --json
   ```
-- **`normalize`** — Canonicalize free-text ticket-type and venue names into structured axes (parallel, re-runnable, local-only); `normalize recommend` emits a starter config and `normalize stats` shows coverage.
+- **`normalize`** — Canonicalize free-text ticket-type and venue names into structured axes (parallel, re-runnable, local-only); `normalize recommend` emits a starter config, `normalize stats` shows coverage, and `normalize promote-rules` learns reusable regex rules from manual classifications.
 
   ```bash
   dice-fm-pp-cli normalize --tiers --fuzzy
@@ -154,9 +154,10 @@ These capabilities aren't available in any other tool for this API.
 
 **normalize** — Canonicalize manually-entered ticket-type and venue names into structured axes (parallel and re-runnable; raw synced data is never modified)
 
-- `dice-fm-pp-cli normalize` — Resolve raw names → canonical entities + axes (`--tiers`, `--venues`, `--all`, `--entity`, `--fuzzy`, `--export-unmatched <file>`, `--export-format prompt|names`, `--import <file.csv|.json>`)
+- `dice-fm-pp-cli normalize` — Resolve raw names → canonical entities + axes (`--tiers`, `--venues`, `--all`, `--entity`, `--fuzzy`, `--fuzzy-threshold <float>`, `--export-unmatched <file>`, `--export-format prompt|names`, `--import <file.csv|.json>`)
 - `dice-fm-pp-cli normalize stats` — Show the normalized axis distribution (`--entity`)
 - `dice-fm-pp-cli normalize recommend` — Profile the store and emit a starter normalization config (`--print` previews without writing)
+- `dice-fm-pp-cli normalize promote-rules` — Graduate method=manual classifications into validated regex rules (`--entity <type>`, `--write`, `--min-support <int>` default `2`)
 
   Query the normalized view via `revenue summary --by-axis <access_class|sales_stage|entry_window_type|group_size|comp_flag>`. Raw is the default; `--by-axis` falls back to raw (with a warning) if `normalize` has not been run. Normalization is local-only — resolved name mappings never leave your machine.
 
@@ -244,10 +245,15 @@ Per price-tier redemptions and each tier's share of total sales — which price 
 
 ```bash
 dice-fm-pp-cli normalize --tiers --venues --fuzzy
+dice-fm-pp-cli normalize --export-unmatched unmatched.json
+# classify externally, then import the result as method=manual
+dice-fm-pp-cli normalize --import classified.json
+dice-fm-pp-cli normalize promote-rules --entity ticket_type --write
+dice-fm-pp-cli normalize --tiers --venues --fuzzy
 dice-fm-pp-cli revenue summary --from 2026-01-01 --by-axis access_class --json
 ```
 
-Canonicalizes free-text ticket-type and venue names into structured axes (parallel and local-only; raw data untouched), then groups a revenue report on a clean axis. Run `normalize recommend --print` first to preview a starter config.
+Canonicalizes free-text ticket-type and venue names into structured axes (parallel and local-only; raw data untouched), then groups a revenue report on a clean axis. Run `normalize recommend --print` first to preview a starter config; after importing manual classifications, `normalize promote-rules --entity <type> --write` promotes repeat tokens into deterministic regex rules.
 
 ### Via the MCP server
 
@@ -258,7 +264,7 @@ After installing `dice-fm-pp-mcp` (see **MCP Server Installation** below), call 
 - `tier_performance` with `{ "limit": 20 }` — price-tier sales mix
 - `normalize_stats` with `{ "entity": "ticket_type" }` — normalized coverage by axis
 
-These (plus the eight typed `*_list` / `events_get` resource tools) are read-only. `normalize` writes the local store, so call it from the CLI. Custom SQL is out of scope here.
+These (plus the eight typed `*_list` / `events_get` resource tools) are read-only. `normalize` writes the local store, and `normalize_promote_rules` is a write tool when writing promoted rules, so call them from the CLI or invoke them deliberately. Custom SQL is out of scope here.
 
 ## Auth Setup
 

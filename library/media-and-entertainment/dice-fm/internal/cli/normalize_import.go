@@ -145,7 +145,7 @@ func importMapping(s *store.Store, sourceSystem, entityType string, data []byte,
 			SourceSystem:      sourceSystem,
 			SourceValue:       r.SourceValue,
 			CanonicalID:       cid,
-			Method:            "manual",
+			Method:            methodManual,
 			ClassifierVersion: currentClassifierVersion,
 		}); err != nil {
 			return 0, fmt.Errorf("upsert crosswalk for %q: %w", r.SourceValue, err)
@@ -167,7 +167,7 @@ func importMapping(s *store.Store, sourceSystem, entityType string, data []byte,
 				GroupSize:         int(r.GroupSize),
 				CompFlag:          bool(r.CompFlag),
 				ClassifierVersion: currentClassifierVersion,
-				Method:            "manual",
+				Method:            methodManual,
 			}); err != nil {
 				return 0, fmt.Errorf("upsert tier attributes for %q: %w", r.SourceValue, err)
 			}
