@@ -331,7 +331,11 @@ func (a *app) queryMissingTags(ctx context.Context, subscription string, tag str
 	query := buildMissingTagQuery(tag, resourceGroup, limit)
 	args := []string{"graph", "query", "--graph-query", query, "--output", "json", "--only-show-errors"}
 	if subscription != "" {
-		args = append(args, "--subscriptions", subscription)
+		sub, err := a.activeSubscription(ctx, subscription)
+		if err != nil {
+			return nil, err
+		}
+		args = append(args, "--subscriptions", sub.ID)
 	}
 	out, err := a.runner.Run(ctx, "az", args...)
 	if err != nil {

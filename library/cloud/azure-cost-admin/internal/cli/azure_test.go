@@ -201,7 +201,7 @@ func TestQueryMissingTagsUsesResourceGraphQueryFlag(t *testing.T) {
 	app := defaultApp()
 	app.runner = runner
 
-	_, err := app.queryMissingTags(context.Background(), "sub-name", "owner", "", 5)
+	_, err := app.queryMissingTags(context.Background(), "", "owner", "", 5)
 	if err != nil {
 		t.Fatalf("queryMissingTags failed: %v", err)
 	}
@@ -212,6 +212,28 @@ func TestQueryMissingTagsUsesResourceGraphQueryFlag(t *testing.T) {
 	}
 	if strings.Contains(joined, " --query ") {
 		t.Fatalf("Resource Graph call used Azure CLI global --query flag: %s", joined)
+	}
+}
+
+func TestQueryMissingTagsResolvesSubscriptionNameBeforeGraphQuery(t *testing.T) {
+	runner := &graphSubscriptionRunner{}
+	app := defaultApp()
+	app.runner = runner
+
+	_, err := app.queryMissingTags(context.Background(), "Engineering Dev", "owner", "", 5)
+	if err != nil {
+		t.Fatalf("queryMissingTags failed: %v", err)
+	}
+
+	if !strings.Contains(strings.Join(runner.accountArgs, " "), "--subscription Engineering Dev") {
+		t.Fatalf("subscription name was not resolved through Azure CLI: %v", runner.accountArgs)
+	}
+	graphArgs := strings.Join(runner.graphArgs, " ")
+	if !strings.Contains(graphArgs, "--subscriptions 00000000-0000-0000-0000-000000000001") {
+		t.Fatalf("graph query did not use resolved subscription ID: %s", graphArgs)
+	}
+	if strings.Contains(graphArgs, "Engineering Dev") {
+		t.Fatalf("graph query used raw subscription name: %s", graphArgs)
 	}
 }
 
@@ -338,6 +360,23 @@ type failingRunner struct {
 
 func (r failingRunner) Run(ctx context.Context, name string, args ...string) ([]byte, error) {
 	return nil, r.err
+}
+
+type graphSubscriptionRunner struct {
+	accountArgs []string
+	graphArgs   []string
+}
+
+func (r *graphSubscriptionRunner) Run(ctx context.Context, name string, args ...string) ([]byte, error) {
+	if len(args) > 0 && args[0] == "account" {
+		r.accountArgs = append([]string{name}, args...)
+		return []byte(`{"id":"00000000-0000-0000-0000-000000000001","name":"Engineering Dev"}`), nil
+	}
+	if len(args) > 0 && args[0] == "graph" {
+		r.graphArgs = append([]string{name}, args...)
+		return []byte(`{"data":[]}`), nil
+	}
+	return nil, fmt.Errorf("unexpected command: %s %v", name, args)
 }
 
 type costQueryRecordingRunner struct {
