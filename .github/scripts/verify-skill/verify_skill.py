@@ -68,7 +68,7 @@ def read_utf8(path: Path) -> str:
 COMMON_FLAGS = {
     "help", "version", "json", "csv", "plain", "quiet", "agent", "bin-dir",
     "select", "compact", "dry-run", "no-cache", "yes", "no-input",
-    "no-color", "human-friendly", "config", "base-url", "rate-limit",
+    "no-color", "human-friendly", "config", "home", "base-url", "rate-limit",
     "timeout", "data-source", "stdin", "limit", "format", "output",
     "no-prompt", "days",
 }

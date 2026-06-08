@@ -1,4 +1,5 @@
-"""Tests for verify_skill.py's skill-guard-literals check.
+"""Tests for verify_skill.py's skill-guard-literals check and the
+COMMON_FLAGS allowlist honored by the flag-names/flag-commands checks.
 
 Run from this directory:
 
@@ -93,6 +94,41 @@ class SkillGuardLiteralsRunChecksTest(unittest.TestCase):
             report = verify_skill.run_checks(cli_dir, only={"skill-guard-literals"})
         self.assertEqual(report.checks_run, ["skill-guard-literals"])
         self.assertFalse(report.has_real_failures())
+
+
+class CommonFlagsAllowlistTest(unittest.TestCase):
+    """COMMON_FLAGS entries are root flags every printed CLI registers in
+    root.go, so they never appear as declarations in internal/cli/*.go.
+    Both flag checks must skip them — and must keep firing for flags
+    outside the allowlist, so the allowlist can't silently swallow real
+    undeclared-flag findings."""
+
+    def _check_flags(self, skill_text: str) -> verify_skill.Report:
+        with tempfile.TemporaryDirectory() as d:
+            cli_dir = Path(d)
+            (cli_dir / "internal" / "cli").mkdir(parents=True)
+            skill = cli_dir / "SKILL.md"
+            skill.write_text(skill_text, encoding="utf-8")
+            report = verify_skill.Report(cli_dir=str(cli_dir), skill_path=str(skill))
+            verify_skill.check_flag_names(cli_dir, skill, "thing-pp-cli", report)
+            verify_skill.check_flag_commands(cli_dir, skill, "thing-pp-cli", report)
+            return report
+
+    def test_home_recipe_produces_no_findings(self):
+        # --home is the paths-and-state relocation root flag documented in
+        # every generated SKILL.md (cli-printing-press#2633); without the
+        # allowlist entry this recipe fails both flag checks on regen.
+        report = self._check_flags(
+            "# Thing\n\n```bash\nthing-pp-cli doctor --home /srv/thing --json\n```\n"
+        )
+        self.assertEqual(report.findings, [])
+
+    def test_undeclared_flag_still_fails_both_checks(self):
+        report = self._check_flags(
+            "# Thing\n\n```bash\nthing-pp-cli doctor --not-a-real-flag x\n```\n"
+        )
+        self.assertTrue(any(f.check == "flag-names" for f in report.findings))
+        self.assertTrue(any(f.check == "flag-commands" for f in report.findings))
 
 
 if __name__ == "__main__":

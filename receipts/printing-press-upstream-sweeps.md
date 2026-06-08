@@ -25,3 +25,23 @@
   - `(cd library/media-and-entertainment/substack && go vet ./...)` — pass
   - `(cd library/project-management/linear && go vet ./...)` — pass
 - Policy: no public upstream push/PR; branch/PR targets private `cathrynlavery/printing-press-library` only.
+
+## 2026-06-08 — verify-skill `--home` allowlist
+
+- Base private branch: `origin/main`
+- Upstream range inspected: `origin/main..upstream/main` as of 2026-06-08
+- Candidate commits considered:
+  - `15b8e8765` chore(registry): regenerate from library/ [skip ci] — skipped; generated registry noise without selected source changes
+  - `1a76b03c4` feat(releases): add per-cli release ledger — deferred; broad release-ledger automation/metadata surface, better as its own PR if wanted
+  - `60d76d227` ci(releases): guard release ledger automation — deferred with release-ledger batch
+  - `63959b91e` fix(releases): compare ledger guard from merge base — deferred with release-ledger batch
+  - `ed0d6fc9e` through `0927177e9` x-twitter control-plane/OAuth fixes — skipped for this sweep; coherent x-twitter runtime batch but larger than the selected CI unblock
+  - `ce67a81a2` ci(verify-skill): allow home in COMMON_FLAGS for paths-and-state SKILLs — ported
+  - `38687d6bf` test(verify-skill): cover home allowlist entry in flag checks — ported
+  - `8f023142e` through `e9b5a989e` openart new CLI and follow-up fixes — skipped; new CLI/reprint surface, not a selective maintenance fix
+  - `ba648a997`, `c6d82ac98` generated skills/release ledger updates — skipped; generated automation noise
+- Validation run:
+  - `python3 verify_skill_test.py` from `.github/scripts/verify-skill/` — pass (`Ran 9 tests ... OK`)
+  - `python3 .github/scripts/verify-skill/verify_skill.py --dir library/project-management/linear/` — pass (`All checks passed`)
+  - `git diff --check origin/main...HEAD` — pass
+- Policy: no public upstream push/PR; branch/PR targets private `cathrynlavery/printing-press-library` only.
