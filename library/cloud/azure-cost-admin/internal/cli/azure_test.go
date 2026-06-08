@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"strings"
 	"testing"
 	"time"
@@ -139,6 +141,17 @@ func TestBuildMissingTagQueryEscapesKustoSingleQuotes(t *testing.T) {
 	}
 }
 
+func TestAnomaliesThresholdHelpDocumentsDollarFloor(t *testing.T) {
+	cmd := newAnomaliesCmd(defaultApp())
+	usage := cmd.Flags().Lookup("threshold-percent").Usage
+
+	for _, expected := range []string{"percent change", "absolute change", "$1"} {
+		if !strings.Contains(usage, expected) {
+			t.Fatalf("threshold help missing %q: %s", expected, usage)
+		}
+	}
+}
+
 func TestQueryMissingTagsUsesResourceGraphQueryFlag(t *testing.T) {
 	runner := &recordingRunner{output: []byte(`{"data":[]}`)}
 	app := defaultApp()
@@ -183,7 +196,7 @@ func TestSelectJSONFieldsProjectsSlices(t *testing.T) {
 }
 
 func TestParseRetailPriceRows(t *testing.T) {
-	rows, err := parseRetailPriceResponse([]byte(`{
+	response, err := parseRetailPriceResponse([]byte(`{
 	  "Items": [
 	    {
 	      "serviceName": "Virtual Machines",
@@ -199,11 +212,69 @@ func TestParseRetailPriceRows(t *testing.T) {
 		t.Fatalf("parseRetailPriceResponse failed: %v", err)
 	}
 
+	rows := response.Items
 	if len(rows) != 1 {
 		t.Fatalf("got %d rows, want 1", len(rows))
 	}
 	if rows[0].ServiceName != "Virtual Machines" || rows[0].RetailPrice != 0.096 {
 		t.Fatalf("unexpected row: %+v", rows[0])
+	}
+}
+
+func TestSearchRetailPricesFollowsNextPageLinkBeforeSkuFiltering(t *testing.T) {
+	requests := []string{}
+	app := defaultApp()
+	app.httpClient = &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		requests = append(requests, req.URL.String())
+		body := `{
+		  "Items": [
+		    {
+		      "serviceName": "Virtual Machines",
+		      "skuName": "D2s v5",
+		      "productName": "Virtual Machines D2s v5",
+		      "armRegionName": "eastus",
+		      "retailPrice": 0.096,
+		      "unitOfMeasure": "1 Hour",
+		      "currencyCode": "USD"
+		    }
+		  ],
+		  "NextPageLink": "https://prices.azure.com/api/retail/prices?$skip=50"
+		}`
+		if strings.Contains(req.URL.RawQuery, "$skip=50") {
+			body = `{
+			  "Items": [
+			    {
+			      "serviceName": "Virtual Machines",
+			      "skuName": "D64ds v5",
+			      "productName": "Virtual Machines D64ds v5",
+			      "armRegionName": "eastus",
+			      "retailPrice": 3.072,
+			      "unitOfMeasure": "1 Hour",
+			      "currencyCode": "USD"
+			    }
+			  ],
+			  "NextPageLink": ""
+			}`
+		}
+		return &http.Response{
+			StatusCode: http.StatusOK,
+			Status:     "200 OK",
+			Body:       io.NopCloser(strings.NewReader(body)),
+			Header:     make(http.Header),
+			Request:    req,
+		}, nil
+	})}
+
+	rows, err := app.searchRetailPrices(context.Background(), "Virtual Machines", "eastus", "D64ds v5", "USD")
+	if err != nil {
+		t.Fatalf("searchRetailPrices failed: %v", err)
+	}
+
+	if len(requests) != 2 {
+		t.Fatalf("got %d requests, want 2: %v", len(requests), requests)
+	}
+	if len(rows) != 1 || rows[0].SKUName != "D64ds v5" {
+		t.Fatalf("expected second-page SKU match, got %+v", rows)
 	}
 }
 
@@ -261,4 +332,10 @@ func requestWindow(t *testing.T, body string) (string, string) {
 		t.Fatalf("unmarshal Cost Management request body: %v", err)
 	}
 	return payload.TimePeriod.From, payload.TimePeriod.To
+}
+
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req)
 }

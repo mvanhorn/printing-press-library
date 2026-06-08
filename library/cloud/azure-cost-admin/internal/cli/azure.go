@@ -80,7 +80,9 @@ type costSummary struct {
 }
 
 type retailPriceResponse struct {
-	Items []retailPriceRow `json:"Items"`
+	Items        []retailPriceRow `json:"Items"`
+	NextPageLink string           `json:"NextPageLink"`
+	NextLink     string           `json:"nextLink"`
 }
 
 type retailPriceRow struct {
@@ -354,7 +356,7 @@ func buildRetailPriceURL(service string, region string, currency string) string 
 	}
 
 	params := url.Values{}
-	params.Set("$top", "50")
+	params.Set("$top", "1000")
 	if len(filters) > 0 {
 		params.Set("$filter", strings.Join(filters, " and "))
 	}
@@ -363,31 +365,26 @@ func buildRetailPriceURL(service string, region string, currency string) string 
 
 func (a *app) searchRetailPrices(ctx context.Context, service string, region string, sku string, currency string) ([]retailPriceRow, error) {
 	endpoint := buildRetailPriceURL(service, region, currency)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
-	if err != nil {
-		return nil, err
-	}
-	resp, err := a.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("query Azure Retail Prices: %w", err)
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("read Azure Retail Prices response: %w", err)
-	}
-	if resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("Azure Retail Prices returned %s: %s", resp.Status, redactAzureText(string(body)))
-	}
-	rows, err := parseRetailPriceResponse(body)
-	if err != nil {
-		return nil, err
+	seen := map[string]bool{}
+	var rows []retailPriceRow
+	for endpoint != "" {
+		if seen[endpoint] {
+			return nil, fmt.Errorf("Azure Retail Prices pagination repeated endpoint: %s", endpoint)
+		}
+		seen[endpoint] = true
+
+		page, err := a.fetchRetailPricePage(ctx, endpoint)
+		if err != nil {
+			return nil, err
+		}
+		rows = append(rows, page.Items...)
+		endpoint = strings.TrimSpace(page.nextPageLink())
 	}
 	if sku == "" {
 		return rows, nil
 	}
 	sku = strings.ToLower(sku)
-	filtered := rows[:0]
+	filtered := make([]retailPriceRow, 0, len(rows))
 	for _, row := range rows {
 		if strings.Contains(strings.ToLower(row.SKUName), sku) || strings.Contains(strings.ToLower(row.ProductName), sku) {
 			filtered = append(filtered, row)
@@ -396,12 +393,39 @@ func (a *app) searchRetailPrices(ctx context.Context, service string, region str
 	return filtered, nil
 }
 
-func parseRetailPriceResponse(body []byte) ([]retailPriceRow, error) {
+func (a *app) fetchRetailPricePage(ctx context.Context, endpoint string) (retailPriceResponse, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	if err != nil {
+		return retailPriceResponse{}, err
+	}
+	resp, err := a.httpClient.Do(req)
+	if err != nil {
+		return retailPriceResponse{}, fmt.Errorf("query Azure Retail Prices: %w", err)
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return retailPriceResponse{}, fmt.Errorf("read Azure Retail Prices response: %w", err)
+	}
+	if resp.StatusCode >= 300 {
+		return retailPriceResponse{}, fmt.Errorf("Azure Retail Prices returned %s: %s", resp.Status, redactAzureText(string(body)))
+	}
+	return parseRetailPriceResponse(body)
+}
+
+func parseRetailPriceResponse(body []byte) (retailPriceResponse, error) {
 	var response retailPriceResponse
 	if err := json.Unmarshal(body, &response); err != nil {
-		return nil, fmt.Errorf("parse Azure Retail Prices response: %w", err)
+		return retailPriceResponse{}, fmt.Errorf("parse Azure Retail Prices response: %w", err)
 	}
-	return response.Items, nil
+	return response, nil
+}
+
+func (r retailPriceResponse) nextPageLink() string {
+	if r.NextPageLink != "" {
+		return r.NextPageLink
+	}
+	return r.NextLink
 }
 
 func (a *app) findAnomalies(ctx context.Context, subscription string, days int, thresholdPercent float64) ([]anomalyRow, error) {

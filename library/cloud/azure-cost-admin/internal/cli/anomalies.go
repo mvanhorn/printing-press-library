@@ -45,7 +45,7 @@ func newAnomaliesCmd(app *app) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&subscription, "subscription", "", "Azure subscription ID or name to inspect")
 	cmd.Flags().IntVar(&days, "days", 7, "Window size to compare")
-	cmd.Flags().Float64Var(&threshold, "threshold-percent", 25, "Minimum percent change to include")
+	cmd.Flags().Float64Var(&threshold, "threshold-percent", 25, "Minimum percent change to report; services with an absolute change of $1 or more are always included")
 	cmd.Flags().IntVar(&limit, "limit", 10, "Maximum rows to print")
 	addOutputFlags(cmd, &flags)
 	return cmd
