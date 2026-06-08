@@ -57,7 +57,8 @@ Examples:
   ninjaone-pp-cli stale-devices
   ninjaone-pp-cli stale-devices --offline-days 14 --org Acme
   ninjaone-pp-cli stale-devices --reboot --apply`,
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		// No mcp:read-only annotation: --reboot --apply POSTs device reboots,
+		// so this command can mutate external state (matches patch-sweep/alert-clear).
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
