@@ -6,8 +6,8 @@ package cli
 import (
 	"bytes"
 	"context"
-	"continente-pp-cli/internal/client"
-	"continente-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/config"
 	"encoding/json"
 	"errors"
 	"fmt"

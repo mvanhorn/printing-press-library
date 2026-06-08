@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"continente-pp-cli/internal/acquisition/storefront"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/acquisition/storefront"
 	"github.com/spf13/cobra"
 )
 

@@ -6,8 +6,8 @@ package client
 import (
 	"bytes"
 	"context"
-	"continente-pp-cli/internal/cliutil"
-	"continente-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/config"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
@@ -405,7 +405,7 @@ func (c *Client) doForm(ctx context.Context, method, path string, form url.Value
 			req.Header.Set(k, v)
 		}
 		if req.Header.Get("User-Agent") == "" {
-			req.Header.Set("User-Agent", "continente-pp-cli/0.1.0")
+			req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/commerce/continente/0.1.0")
 		}
 		if req.Header.Get("Accept") == "" {
 			req.Header.Set("Accept", "application/json, text/html;q=0.9, */*;q=0.8")
@@ -647,7 +647,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			req.Header.Del(BinaryResponseHeader)
 		}
 		if req.Header.Get("User-Agent") == "" {
-			req.Header.Set("User-Agent", "continente-pp-cli/0.1.0")
+			req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/commerce/continente/0.1.0")
 		}
 		// Go's net/http omits Accept by default; browsers, curl, and other
 		// stdlibs always send it. Fingerprint-checking WAFs (Imperva, Akamai,

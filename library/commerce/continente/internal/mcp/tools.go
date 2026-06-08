@@ -13,11 +13,11 @@ import (
 	"strings"
 	"time"
 
-	"continente-pp-cli/internal/cli"
-	"continente-pp-cli/internal/client"
-	"continente-pp-cli/internal/config"
-	"continente-pp-cli/internal/mcp/cobratree"
-	"continente-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/store"
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )

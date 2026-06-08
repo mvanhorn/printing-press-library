@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"continente-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/store"
 )
 
 func TestSyncSingleObject_PreservesLargeIntegerResourceIDs(t *testing.T) {

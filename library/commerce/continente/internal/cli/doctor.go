@@ -13,11 +13,11 @@ import (
 	"strings"
 	"time"
 
-	"continente-pp-cli/internal/acquisition"
-	"continente-pp-cli/internal/client"
-	"continente-pp-cli/internal/cliutil"
-	"continente-pp-cli/internal/config"
-	"continente-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/acquisition"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/store"
 	"github.com/spf13/cobra"
 )
 

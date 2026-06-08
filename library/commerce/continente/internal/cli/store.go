@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"continente-pp-cli/internal/acquisition/storefront"
-	"continente-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/acquisition/storefront"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/config"
 	"github.com/spf13/cobra"
 )
 

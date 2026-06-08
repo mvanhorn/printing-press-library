@@ -3,7 +3,7 @@ package cli
 import (
 	"bytes"
 	"context"
-	"continente-pp-cli/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/client"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
@@ -431,7 +431,7 @@ func applyCommonClientHeaders(req *http.Request, c *client.Client) {
 		}
 	}
 	if req.Header.Get("User-Agent") == "" {
-		req.Header.Set("User-Agent", "continente-pp-cli/0.1.0")
+		req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/commerce/continente/0.1.0")
 	}
 	if req.Header.Get("Accept") == "" {
 		req.Header.Set("Accept", "text/html,application/json;q=0.9,*/*;q=0.8")

@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"continente-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/config"
 )
 
 func applyPreferredStoreProvenance(flags *rootFlags, prov DataProvenance) DataProvenance {

@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
-	"continente-pp-cli/internal/client"
-	"continente-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/store"
 )
 
 const networkFallbackReason = "api_unreachable"

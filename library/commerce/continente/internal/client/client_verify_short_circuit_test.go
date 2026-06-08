@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"continente-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/config"
 )
 
 // recordingRoundTripper counts how many times its RoundTrip method is

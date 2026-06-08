@@ -6,7 +6,7 @@ package main
 import (
 	"os"
 
-	"continente-pp-cli/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/cli"
 )
 
 func main() {
