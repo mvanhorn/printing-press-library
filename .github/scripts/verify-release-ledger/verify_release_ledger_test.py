@@ -19,6 +19,7 @@ class ReleaseLedgerVerifierTest(unittest.TestCase):
         run(["git", "init"], self.repo)
         run(["git", "config", "user.email", "test@example.com"], self.repo)
         run(["git", "config", "user.name", "Test User"], self.repo)
+        run(["git", "checkout", "-b", "main"], self.repo)
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -56,6 +57,9 @@ class ReleaseLedgerVerifierTest(unittest.TestCase):
 
     def verifier(self):
         return run(["python3", str(SCRIPT), "--base-ref", "HEAD~1"], self.repo, check=False)
+
+    def verifier_against(self, base_ref):
+        return run(["python3", str(SCRIPT), "--base-ref", base_ref], self.repo, check=False)
 
     def test_blocks_feature_pr_with_release_manifest_and_changelog_edits(self):
         self.seed_existing_cli()
@@ -143,6 +147,56 @@ class ReleaseLedgerVerifierTest(unittest.TestCase):
 
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("runtime version changed with normal CLI files", result.stderr)
+
+    def test_allows_stale_feature_branch_after_main_release_automation(self):
+        self.seed_existing_cli()
+        root = "library/social-and-messaging/x-twitter"
+        run(["git", "checkout", "-b", "feature"], self.repo)
+        self.write(f"{root}/README.md", "# X Twitter\n\nNew feature.\n")
+        run(["git", "add", "."], self.repo)
+        run(["git", "commit", "-m", "feature only"], self.repo)
+
+        run(["git", "checkout", "main"], self.repo)
+        self.write(
+            f"{root}/.printing-press-release.json",
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "slug": "x-twitter",
+                    "version": "2026.6.2",
+                    "released_at": "2026-06-08T01:00:00Z",
+                    "source_commit": "automation",
+                    "changes": [{"title": "Automated release", "commit": "automation"}],
+                },
+                indent=2,
+            )
+            + "\n",
+        )
+        self.write(f"{root}/CHANGELOG.md", "# Changelog\n\n## 2026.6.2 - 2026-06-08\n\n- Automated release.\n")
+        run(["git", "add", "."], self.repo)
+        run(["git", "commit", "-m", "automation release ledger"], self.repo)
+
+        run(["git", "checkout", "feature"], self.repo)
+        self.assertEqual(self.verifier_against("main").returncode, 0)
+
+    def test_allows_stale_feature_branch_when_main_bumped_runtime_version(self):
+        self.seed_existing_cli()
+        root = "library/social-and-messaging/x-twitter"
+        run(["git", "checkout", "-b", "feature"], self.repo)
+        self.write(
+            f"{root}/internal/cli/root.go",
+            'package cli\n\nvar version = "2026.6.1"\n\nfunc featureFlag() bool { return true }\n',
+        )
+        run(["git", "add", "."], self.repo)
+        run(["git", "commit", "-m", "feature root change"], self.repo)
+
+        run(["git", "checkout", "main"], self.repo)
+        self.write(f"{root}/internal/cli/root.go", 'package cli\n\nvar version = "2026.6.2"\n')
+        run(["git", "add", "."], self.repo)
+        run(["git", "commit", "-m", "automation version bump"], self.repo)
+
+        run(["git", "checkout", "feature"], self.repo)
+        self.assertEqual(self.verifier_against("main").returncode, 0)
 
 
 if __name__ == "__main__":

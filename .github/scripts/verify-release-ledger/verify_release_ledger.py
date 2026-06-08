@@ -29,7 +29,7 @@ def git(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
 
 
 def changed_files(base_ref: str) -> list[str]:
-    result = git("diff", "--name-only", base_ref, "HEAD")
+    result = git("diff", "--name-only", f"{base_ref}...HEAD")
     return [line for line in result.stdout.splitlines() if line]
 
 
@@ -59,7 +59,7 @@ def is_runtime_version_candidate(rel: str) -> bool:
 
 def diff_line_kinds(base_ref: str, path: str) -> tuple[bool, bool]:
     """Return (touches_version_var, touches_other_content)."""
-    result = git("diff", "--unified=0", base_ref, "HEAD", "--", path)
+    result = git("diff", "--unified=0", f"{base_ref}...HEAD", "--", path)
     version = False
     other = False
     for line in result.stdout.splitlines():
