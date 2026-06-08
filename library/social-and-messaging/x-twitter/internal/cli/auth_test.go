@@ -57,10 +57,10 @@ func TestAuthImportOAuth2StoresUserContextMetadata(t *testing.T) {
 	if err != nil {
 		t.Fatalf("load config: %v", err)
 	}
-	if cfg.AccessToken != "user-token" || cfg.RefreshToken != "refresh-token" {
+	if cfg.XOauth2UserToken != "user-token" || cfg.AccessToken != "" || cfg.RefreshToken != "refresh-token" {
 		t.Fatalf("tokens not stored in user-context fields: %+v", cfg)
 	}
-	if cfg.XOauth2UserToken != "" || cfg.UserContextAuthHeader() != "Bearer user-token" {
+	if cfg.UserContextAuthHeader() != "Bearer user-token" {
 		t.Fatalf("imported token is shadowed: oauth2_user_token=%q header=%q", cfg.XOauth2UserToken, cfg.UserContextAuthHeader())
 	}
 	if len(cfg.Scopes) != 9 || cfg.Scopes[0] != "tweet.read" {
@@ -101,6 +101,38 @@ func TestAuthImportOAuth2WarnsWhenEnvTokenWouldShadowImport(t *testing.T) {
 	}
 	if !strings.Contains(warning, "X_OAUTH2_USER_TOKEN") || !strings.Contains(warning, "shadow") {
 		t.Fatalf("warning does not explain shadowing: %q", warning)
+	}
+}
+
+func TestAuthImportOAuth2RuntimeHeaderBeatsBearerEnv(t *testing.T) {
+	t.Setenv("X_BEARER_TOKEN", "app-only-token")
+	t.Setenv("X_OAUTH2_USER_TOKEN", "")
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{
+		"--config", configPath,
+		"auth", "import-oauth2",
+		"--access-token", "imported-user-token",
+		"--json",
+	})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("auth import-oauth2 failed: %v\noutput: %s", err, out.String())
+	}
+
+	cfg, err := config.Load(configPath)
+	if err != nil {
+		t.Fatalf("load config: %v", err)
+	}
+	if got := cfg.AuthHeader(); got != "Bearer imported-user-token" {
+		t.Fatalf("AuthHeader() should prefer imported user-context token over app-only env token, got %q", got)
+	}
+	if source := cfg.UserContextAuthSource(); source != "config:oauth2_user_token" {
+		t.Fatalf("UserContextAuthSource() = %q", source)
 	}
 }
 

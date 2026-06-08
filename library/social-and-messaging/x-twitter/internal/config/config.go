@@ -114,8 +114,8 @@ func (c *Config) AuthHeader() string {
 	// app-only bearer is read-only. Checking it first means writes "just work"
 	// when a user has set both X_BEARER_TOKEN (reads) and X_OAUTH2_USER_TOKEN.
 	if c.XOauth2UserToken != "" {
-		if c.AuthSource == "" {
-			c.AuthSource = "env:X_OAUTH2_USER_TOKEN"
+		if c.AuthSource == "" || c.AuthSource == "env:X_BEARER_TOKEN" {
+			c.AuthSource = "config:oauth2_user_token"
 		}
 		return "Bearer " + c.XOauth2UserToken
 	}
@@ -163,10 +163,10 @@ func (c *Config) UserContextAuthSource() string {
 	}
 	switch {
 	case c.XOauth2UserToken != "":
-		if c.AuthSource != "" {
+		if c.AuthSource == "env:X_OAUTH2_USER_TOKEN" {
 			return c.AuthSource
 		}
-		return "config"
+		return "config:oauth2_user_token"
 	case c.AccessToken != "":
 		return "config:access_token"
 	case c.AuthHeaderVal != "":
@@ -200,8 +200,8 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 
 func (c *Config) SaveOAuth2UserContext(accessToken, refreshToken string, expiry time.Time, scopes []string) error {
 	c.AuthHeaderVal = ""
-	c.XOauth2UserToken = ""
-	c.AccessToken = strings.TrimSpace(accessToken)
+	c.XOauth2UserToken = strings.TrimSpace(accessToken)
+	c.AccessToken = ""
 	c.RefreshToken = strings.TrimSpace(refreshToken)
 	c.TokenExpiry = expiry
 	c.Scopes = normalizeScopes(scopes)
