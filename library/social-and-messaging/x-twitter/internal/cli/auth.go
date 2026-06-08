@@ -57,11 +57,18 @@ func newAuthImportOAuth2Cmd(flags *rootFlags) *cobra.Command {
 			if err := cfg.SaveOAuth2UserContext(accessToken, refreshToken, expiry, scopeList); err != nil {
 				return configErr(fmt.Errorf("saving OAuth2 user-context token: %w", err))
 			}
+			envOverrideWarning := ""
+			if os.Getenv("X_OAUTH2_USER_TOKEN") != "" {
+				envOverrideWarning = "X_OAUTH2_USER_TOKEN is set and will shadow the imported token on subsequent commands; unset it or update it to match the imported token."
+			}
 			out := map[string]any{
 				"saved":                 true,
 				"auth_lane":             "oauth2_user_context",
 				"config_path":           cfg.Path,
 				"refresh_token_present": strings.TrimSpace(refreshToken) != "",
+			}
+			if envOverrideWarning != "" {
+				out["env_override_warning"] = envOverrideWarning
 			}
 			if !expiry.IsZero() {
 				out["expires_at"] = expiry.UTC().Format(time.RFC3339)
@@ -74,6 +81,9 @@ func newAuthImportOAuth2Cmd(flags *rootFlags) *cobra.Command {
 				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "OAuth2 user-context token saved to %s\n", cfg.Path)
+			if envOverrideWarning != "" {
+				fmt.Fprintf(cmd.OutOrStdout(), "Warning: %s\n", envOverrideWarning)
+			}
 			if len(scopeList) > 0 {
 				fmt.Fprintf(cmd.OutOrStdout(), "Scopes: %s\n", strings.Join(scopeList, ", "))
 			}
