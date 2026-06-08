@@ -11,6 +11,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/client"
 	"github.com/spf13/cobra"
 )
 
@@ -82,6 +83,9 @@ func validateRawPath(raw string) (string, error) {
 		}
 		if u.Scheme != "https" {
 			return "", fmt.Errorf("raw absolute URLs must use https")
+		}
+		if !client.IsAllowedAbsoluteHost(u.Hostname()) {
+			return "", fmt.Errorf("raw absolute URL host %q is not in the x.com/api.x.com/upload.x.com allowlist", u.Hostname())
 		}
 		return raw, nil
 	default:
