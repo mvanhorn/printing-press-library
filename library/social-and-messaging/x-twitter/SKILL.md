@@ -385,6 +385,18 @@ Setup sequence:
 
 When X returns `Unsupported Authentication` with `Application-Only is forbidden`, the command requires OAuth2 user-context auth. Fix `auth_lanes.oauth2_user_context`; cookie auth and app-only bearer auth will not satisfy that endpoint.
 
+## Raw API Escape Hatch
+
+Use `raw` only for debugging new X endpoints, auth-lane behavior, or API errors when no generated command fits yet. It accepts relative API paths or allowlisted HTTPS X absolute URLs, repeatable query params and headers, and JSON bodies from `--body`, `--body-file`, or `--body @-`.
+
+```bash
+x-twitter-pp-cli raw GET /2/users/me --agent
+x-twitter-pp-cli raw GET /2/tweets --param ids=123,456 --json
+x-twitter-pp-cli raw POST /2/tweets --body '{"text":"hello"}' --dry-run --agent
+```
+
+Generated commands remain preferred for normal workflows because they include endpoint-specific validation, pagination, provenance, response envelopes, and workflow hints. `raw` preserves the upstream response body while using the same auth lanes as every other command: app-only public reads still need `X_BEARER_TOKEN`; user-context reads and writes still need `X_OAUTH2_USER_TOKEN` or an imported OAuth2 user-context token.
+
 ## Agent Mode
 
 Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color --yes`.

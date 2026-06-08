@@ -5,7 +5,12 @@ package client
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"io"
+	"net/http"
+	"net/url"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -111,4 +116,177 @@ func TestDryRunReturnsStructuredPublicMutationPreview(t *testing.T) {
 	if req["method"] != "POST" || req["path"] != "/2/tweets" {
 		t.Fatalf("request = %#v", req)
 	}
+}
+
+func TestRequestNormalizesMethodAndUsesDryRunPreview(t *testing.T) {
+	t.Parallel()
+
+	c := New(&config.Config{
+		BaseURL:         "https://api.x.com",
+		SelectedProfile: "debug",
+		XBearerToken:    "app-token",
+	}, time.Second, 0)
+	c.DryRun = true
+
+	raw, status, err := c.Request(context.Background(), "get", "/2/users/me", map[string]string{"user.fields": "verified"}, nil, nil)
+	if err != nil {
+		t.Fatalf("Request: %v", err)
+	}
+	if status != 0 {
+		t.Fatalf("status = %d, want 0", status)
+	}
+	var out map[string]any
+	if err := json.Unmarshal(raw, &out); err != nil {
+		t.Fatalf("dry-run output is not JSON: %v\n%s", err, raw)
+	}
+	req := out["request"].(map[string]any)
+	if req["method"] != "GET" || req["path"] != "/2/users/me" {
+		t.Fatalf("request = %#v", req)
+	}
+	meta := out["meta"].(map[string]any)
+	if meta["auth_lane"] != "app_only_api" || meta["selected_profile"] != "debug" {
+		t.Fatalf("meta = %#v", meta)
+	}
+}
+
+func TestRequestRejectsEmptyMethod(t *testing.T) {
+	t.Parallel()
+
+	c := New(&config.Config{BaseURL: "https://api.x.com"}, time.Second, 0)
+	if _, _, err := c.Request(context.Background(), "  ", "/2/users/me", nil, nil, nil); err == nil {
+		t.Fatal("expected empty method error")
+	}
+}
+
+func TestRequestRejectsPlainHTTPAbsoluteURL(t *testing.T) {
+	t.Parallel()
+
+	c := New(&config.Config{BaseURL: "https://api.x.com"}, time.Second, 0)
+	if _, _, err := c.Request(context.Background(), http.MethodGet, "http://api.x.com/2/users/me", nil, nil, nil); err == nil {
+		t.Fatal("expected plaintext absolute URL error")
+	}
+}
+
+func TestDryRunInfersPublicActionWithoutBody(t *testing.T) {
+	t.Parallel()
+
+	c := New(&config.Config{BaseURL: "https://api.x.com", XOauth2UserToken: "user-token"}, time.Second, 0)
+	cases := []struct {
+		name   string
+		method string
+		path   string
+		body   []byte
+		want   string
+	}{
+		{"delete post", http.MethodDelete, "/2/tweets/123", nil, "delete_post"},
+		{"like", http.MethodPost, "/2/users/1/likes", nil, "like"},
+		{"unlike", http.MethodDelete, "/2/users/1/likes/2", nil, "unlike"},
+		{"repost", http.MethodPost, "/2/users/1/retweets", nil, "repost"},
+		{"unrepost", http.MethodDelete, "/2/users/1/retweets/2", nil, "unrepost"},
+		{"follow", http.MethodPost, "/2/users/1/following", nil, "follow"},
+		{"unfollow", http.MethodDelete, "/2/users/1/following/2", nil, "unfollow"},
+		{"dm", http.MethodPost, "/2/dm_conversations/1/messages", nil, "dm"},
+		{"tweet no body", http.MethodPost, "/2/tweets", nil, "post"},
+		{"tweet reply body", http.MethodPost, "/2/tweets", []byte(`{"text":"hi","reply":{"in_reply_to_tweet_id":"1"}}`), "reply"},
+		{"get no action", http.MethodGet, "/2/tweets/123", nil, ""},
+		{"unknown post no action", http.MethodPost, "/2/unknown", nil, ""},
+	}
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			raw, _, err := c.dryRun(tc.method, "https://api.x.com"+tc.path, tc.path, nil, tc.body, nil, "Bearer user-token")
+			if err != nil {
+				t.Fatalf("dryRun: %v", err)
+			}
+			var out map[string]any
+			if err := json.Unmarshal(raw, &out); err != nil {
+				t.Fatalf("dry-run output is not JSON: %v\n%s", err, raw)
+			}
+			if got, _ := out["public_action"].(string); got != tc.want {
+				t.Fatalf("public_action = %q, want %q (out=%#v)", got, tc.want, out)
+			}
+			if tc.method != http.MethodGet && out["mutation"] != true {
+				t.Fatalf("mutation = %#v, want true", out["mutation"])
+			}
+		})
+	}
+}
+
+func TestDryRunRedactsBodySecrets(t *testing.T) {
+	c := New(&config.Config{
+		BaseURL:          "https://api.x.com",
+		XOauth2UserToken: "user-token",
+		RefreshToken:     "refresh-token",
+	}, time.Second, 0)
+	body := []byte(`{"text":"user-token","access_token":"user-token","nested":{"refresh_token":"refresh-token"}}`)
+	stderr := captureClientStderr(t, func() {
+		raw, _, err := c.dryRun(http.MethodPost, "https://api.x.com/2/tweets", "/2/tweets", nil, body, nil, "Bearer user-token")
+		if err != nil {
+			t.Fatalf("dryRun: %v", err)
+		}
+		if strings.Contains(string(raw), "user-token") || strings.Contains(string(raw), "refresh-token") {
+			t.Fatalf("dry-run JSON leaked credentials: %s", raw)
+		}
+		var out map[string]any
+		if err := json.Unmarshal(raw, &out); err != nil {
+			t.Fatalf("dry-run output is not JSON: %v\n%s", err, raw)
+		}
+		req := out["request"].(map[string]any)
+		bodyOut := req["body"].(map[string]any)
+		if bodyOut["access_token"] != "[REDACTED]" {
+			t.Fatalf("access_token was not redacted: %#v", bodyOut)
+		}
+		if bodyOut["text"] != "****oken" {
+			t.Fatalf("configured token value was not masked in non-secret field: %#v", bodyOut)
+		}
+	})
+	if strings.Contains(stderr, "user-token") || strings.Contains(stderr, "refresh-token") {
+		t.Fatalf("stderr leaked credentials: %s", stderr)
+	}
+}
+
+func TestRedirectRejectsHTTPDowngradeBeforeAuthReplay(t *testing.T) {
+	t.Parallel()
+
+	c := New(&config.Config{BaseURL: "https://api.x.com", XOauth2UserToken: "user-token"}, time.Second, 0)
+	nextURL, _ := url.Parse("http://api.x.com/2/users/me")
+	viaURL, _ := url.Parse("https://api.x.com/2/users/me")
+	req := &http.Request{URL: nextURL, Header: http.Header{
+		"Authorization": []string{"Bearer user-token"},
+		"Cookie":        []string{"auth_token=cookie"},
+	}}
+	via := &http.Request{URL: viaURL}
+	err := c.HTTPClient.CheckRedirect(req, []*http.Request{via})
+	if err == nil {
+		t.Fatal("expected HTTPS-to-HTTP redirect error")
+	}
+	if req.Header.Get("Authorization") != "" {
+		t.Fatalf("Authorization should be removed before returning downgrade error, got %q", req.Header.Get("Authorization"))
+	}
+	if req.Header.Get("Cookie") != "" {
+		t.Fatalf("Cookie should be removed before returning downgrade error, got %q", req.Header.Get("Cookie"))
+	}
+}
+
+func captureClientStderr(t *testing.T, fn func()) string {
+	t.Helper()
+	old := os.Stderr
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("pipe stderr: %v", err)
+	}
+	os.Stderr = writer
+	defer func() { os.Stderr = old }()
+
+	fn()
+
+	if err := writer.Close(); err != nil {
+		t.Fatalf("close stderr writer: %v", err)
+	}
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		t.Fatalf("read stderr: %v", err)
+	}
+	return string(data)
 }

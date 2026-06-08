@@ -89,6 +89,11 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			// "Moved Permanently" body back to the caller.
 			return errors.New("stopped after 10 redirects")
 		}
+		if via[0].URL.Scheme == "https" && req.URL.Scheme != "https" {
+			req.Header.Del("Authorization")
+			req.Header.Del("Cookie")
+			return fmt.Errorf("refusing HTTPS-to-%s redirect for %s", req.URL.Scheme, req.URL.Host)
+		}
 		// Same-host gate mirrors Go's shouldCopyHeaderOnRedirect: a
 		// cross-domain 3xx (open redirect or partner handoff) must not
 		// receive the auth credential, even though we are inside
@@ -355,6 +360,27 @@ func (c *Client) PatchWithHeaders(ctx context.Context, path string, body any, he
 
 func (c *Client) PatchWithParamsAndHeaders(ctx context.Context, path string, params map[string]string, body any, headers map[string]string) (json.RawMessage, int, error) {
 	return c.do(ctx, "PATCH", path, params, body, headers)
+}
+
+// Request issues an arbitrary HTTP method through the same transport path as
+// generated commands. Raw/debug CLI surfaces use this to keep auth selection,
+// host allowlisting, dry-run previews, retries, binary wrapping, and cache
+// invalidation consistent with the typed endpoint commands.
+func (c *Client) Request(ctx context.Context, method, path string, params map[string]string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	method = strings.ToUpper(strings.TrimSpace(method))
+	if method == "" {
+		return nil, 0, fmt.Errorf("method is required")
+	}
+	if strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://") {
+		parsed, err := url.Parse(path)
+		if err != nil {
+			return nil, 0, fmt.Errorf("invalid absolute URL: %w", err)
+		}
+		if parsed.Scheme != "https" {
+			return nil, 0, fmt.Errorf("absolute URL must use https")
+		}
+	}
+	return c.doInternal(ctx, method, path, params, body, headers, false)
 }
 
 // isMutatingVerb reports whether the HTTP method writes server state.
@@ -667,7 +693,10 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 	_ = queryPrinted
 	if body != nil {
 		var pretty json.RawMessage
-		if json.Unmarshal(body, &pretty) == nil {
+		var bodyValue any
+		if json.Unmarshal(body, &bodyValue) == nil {
+			redacted, _ := json.Marshal(c.redactDryRunBodyValue(bodyValue))
+			pretty = json.RawMessage(redacted)
 			enc := json.NewEncoder(os.Stderr)
 			enc.SetIndent("  ", "  ")
 			fmt.Fprintf(os.Stderr, "  Body:\n")
@@ -701,14 +730,14 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 			envelope["request"].(map[string]any)["params"] = cleanParams
 		}
 	}
+	var bodyValue any
 	if body != nil {
-		var bodyValue any
 		if json.Unmarshal(body, &bodyValue) == nil {
-			envelope["request"].(map[string]any)["body"] = bodyValue
-			if action := inferXPublicAction(method, path, bodyValue); action != "" {
-				envelope["public_action"] = action
-			}
+			envelope["request"].(map[string]any)["body"] = c.redactDryRunBodyValue(bodyValue)
 		}
+	}
+	if action := inferXPublicAction(method, path, bodyValue); action != "" {
+		envelope["public_action"] = action
 	}
 	if isMutatingVerb(method) {
 		envelope["mutation"] = true
@@ -773,6 +802,42 @@ func inferXPublicAction(method, path string, body any) string {
 		return "dm"
 	}
 	return ""
+}
+
+func (c *Client) redactDryRunBodyValue(value any) any {
+	switch typed := value.(type) {
+	case map[string]any:
+		out := make(map[string]any, len(typed))
+		for k, v := range typed {
+			if dryRunSecretBodyKey(k) {
+				out[k] = "[REDACTED]"
+				continue
+			}
+			out[k] = c.redactDryRunBodyValue(v)
+		}
+		return out
+	case []any:
+		out := make([]any, len(typed))
+		for i, v := range typed {
+			out[i] = c.redactDryRunBodyValue(v)
+		}
+		return out
+	case string:
+		return c.maskCredentialText(typed)
+	default:
+		return value
+	}
+}
+
+func dryRunSecretBodyKey(key string) bool {
+	normalized := strings.ToLower(strings.TrimSpace(key))
+	normalized = strings.ReplaceAll(normalized, "-", "_")
+	for _, marker := range []string{"authorization", "cookie", "token", "secret", "password"} {
+		if strings.Contains(normalized, marker) {
+			return true
+		}
+	}
+	return false
 }
 
 func (c *Client) ConfiguredTimeout() time.Duration {

@@ -149,6 +149,9 @@ A Development project does not limit the account; capability is set by app permi
 # Health check first: reports selected profile, auth lanes, scopes, token expiry, and what workflows are safe.
 x-twitter-pp-cli doctor --json
 
+# Debug an endpoint directly when no generated command fits yet. Generated and curated commands are preferred.
+x-twitter-pp-cli raw GET /2/users/me --dry-run --agent
+
 # Pull recent posts into the local SQLite store once, so later reads query locally instead of re-spending API credits.
 x-twitter-pp-cli sync --resources tweets --since 7d
 
@@ -587,6 +590,7 @@ This CLI is designed for AI agent consumption:
 - **Pipeable** - `--json` output to stdout, errors to stderr
 - **Filterable** - `--select id,name` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending. Under `--agent`, mutation dry-runs return JSON with `sent:false`, method/path/body, selected profile, auth lane, mutation classification, and public action when known.
+- **Debuggable** - `raw <method> <path-or-url>` calls an allowlisted X API path through the same auth, dry-run, retry, masking, and error-classification pipeline as generated commands while preserving the upstream response body. Use it only when no generated command fits yet.
 - **Explicit retries** - add `--idempotent` to create retries and `--ignore-missing` to delete retries when a no-op success is acceptable
 - **Confirmable** - `--yes` for explicit confirmation of destructive actions
 - **Piped input** - write commands can accept structured input when their help lists `--stdin`
@@ -597,11 +601,23 @@ Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API
 
 ## Health Check
 
+Verifies configuration, credentials, and connectivity to the API.
+
 ```bash
 x-twitter-pp-cli doctor
 ```
 
-Verifies configuration, credentials, and connectivity to the API.
+## Raw API Escape Hatch
+
+Use `raw` for debugging new X endpoints or reproducing auth/API failures before a generated command exists. It accepts relative API paths or allowlisted HTTPS X absolute URLs, repeatable query params and headers, and JSON bodies from `--body`, `--body-file`, or `--body @-`.
+
+```bash
+x-twitter-pp-cli raw GET /2/users/me --agent
+x-twitter-pp-cli raw GET /2/tweets --param ids=123,456 --json
+x-twitter-pp-cli raw POST /2/tweets --body '{"text":"hello"}' --dry-run --agent
+```
+
+Generated commands remain the default for normal workflows because they carry endpoint-specific validation, pagination, local-cache provenance, and workflow hints. `raw` uses the same auth lanes as the rest of the CLI: app-only public reads still need `X_BEARER_TOKEN`; user-context reads and writes still need `X_OAUTH2_USER_TOKEN` or an imported OAuth2 user-context token.
 
 ## Configuration
 

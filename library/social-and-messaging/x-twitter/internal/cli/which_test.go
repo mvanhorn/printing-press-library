@@ -107,6 +107,7 @@ func TestWhichIndexRoutesPRDQueries(t *testing.T) {
 		{"sync bookmarks", "users bookmarks get-users"},
 		{"oauth2 user-context auth", "auth import-oauth2"},
 		{"owned post metrics", "performance snapshot/backfill/analyze"},
+		{"raw api debug endpoint", "raw"},
 	}
 	for _, tc := range cases {
 		got := rankWhich(whichIndex, tc.query, 1)
