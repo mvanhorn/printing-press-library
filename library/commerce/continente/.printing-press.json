@@ -1,0 +1,48 @@
+{
+  "api_name": "continente",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "category": "commerce",
+  "cli_name": "continente-pp-cli",
+  "creator": {
+    "handle": "asantos00",
+    "name": "Alexandre Santos"
+  },
+  "description": "Read-oriented storefront endpoints observed on continente.pt.",
+  "display_name": "Continente Storefront Query",
+  "generated_at": "2026-06-04T22:30:45.40978Z",
+  "mcp_binary": "continente-pp-mcp",
+  "mcp_public_tool_count": 4,
+  "mcp_ready": "full",
+  "mcp_tool_count": 4,
+  "novel_features": [
+    {
+      "name": "Direct storefront session login",
+      "command": "auth login",
+      "description": "Establish a fresh Continente storefront session from the CLI using the observed PKCE login handoff."
+    },
+    {
+      "name": "Browser-session import",
+      "command": "auth import-cookies",
+      "description": "Hydrate the CLI cookie jar from an exported browser session so agents can reuse an operator-authenticated account safely."
+    },
+    {
+      "name": "Account-backed cart mutation",
+      "command": "cart update",
+      "description": "Inspect and mutate the authenticated cart through the live storefront session instead of a guest-only approximation."
+    },
+    {
+      "name": "Pickup-slot inspection",
+      "command": "checkout slots",
+      "description": "Read live pickup-slot availability for the preferred store from the authenticated checkout flow."
+    }
+  ],
+  "printer": "asantos00",
+  "printer_name": "Alexandre Santos",
+  "printing_press_version": "4.20.1",
+  "run_id": "20260604-223045",
+  "schema_version": 1,
+  "spec_checksum": "sha256:58ec90f15ae558cb1a5672d0caefd1652016ac3d6759fdcd73bac1b50db7bf3c",
+  "spec_format": "openapi3",
+  "spec_path": "openapi.yaml"
+}

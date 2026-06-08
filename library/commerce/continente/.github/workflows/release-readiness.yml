@@ -1,0 +1,37 @@
+name: Release Readiness
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.4"
+          cache: true
+
+      - name: Run tests
+        run: go test ./...
+
+      - name: Run vet
+        run: go vet ./...
+
+      - name: Build CLI binaries
+        run: make build-all
+
+      - name: Install Printing Press CLI
+        run: go install github.com/mvanhorn/cli-printing-press/v4/cmd/cli-printing-press@v4.20.1
+
+      - name: Run Printing Press publish validator
+        env:
+          GOTOOLCHAIN: local
+        run: make validate-publish

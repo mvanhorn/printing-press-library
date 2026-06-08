@@ -1,0 +1,142 @@
+openapi: 3.1.0
+info:
+  title: Continente Storefront Query Surface
+  version: 0.1.0
+  description: |
+    Read-oriented storefront endpoints observed on continente.pt.
+    These endpoints primarily return HTML fragments or HTML pages rather than a public JSON API.
+servers:
+  - url: https://www.continente.pt
+paths:
+  /on/demandware.store/Sites-continente-Site/default/SearchServices-GetSuggestions:
+    get:
+      operationId: getSuggestions
+      summary: Get storefront search suggestions
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: HTML suggestion fragment
+          content:
+            text/html:
+              schema:
+                type: string
+  /on/demandware.store/Sites-continente-Site/default/Search-ShowAjax:
+    get:
+      operationId: getSearchFragment
+      summary: Get storefront search or category result fragment
+      parameters:
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: cgid
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: start
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+        - name: sz
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: srule
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: pmin
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: prefn1
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: prefv1
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: prefn2
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: prefv2
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: HTML search result fragment
+          content:
+            text/html:
+              schema:
+                type: string
+  /pesquisa/:
+    get:
+      operationId: getSearchPage
+      summary: Get full storefront search page
+      parameters:
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: start
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+        - name: srule
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: cgid
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: HTML search page
+          content:
+            text/html:
+              schema:
+                type: string
+  /produto/{slugAndPid}.html:
+    get:
+      operationId: getProductPage
+      summary: Get full product detail page
+      parameters:
+        - name: slugAndPid
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Product slug plus numeric pid, for example leite-uht-meio-gordo-mimosa-mimosa-7745833
+      responses:
+        "200":
+          description: HTML product page
+          content:
+            text/html:
+              schema:
+                type: string

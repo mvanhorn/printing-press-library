@@ -1,0 +1,12 @@
+/continente-pp-cli
+/continente-pp-mcp
+/bin/
+.gocache/
+.tmp/
+.worktrees/
+.env
+.env.*
+!.env.example
+cookies.json
+*-cookies.json
+*.har

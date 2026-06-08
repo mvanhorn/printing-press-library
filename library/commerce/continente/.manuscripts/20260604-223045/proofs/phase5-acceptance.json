@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "api_name": "continente",
+  "run_id": "20260604-223045",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 4,
+  "tests_passed": 4,
+  "tests_skipped": 0,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "none",
+    "browser_session_available": true
+  }
+}

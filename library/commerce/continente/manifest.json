@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "continente-pp-mcp",
+  "display_name": "Continente Storefront Query",
+  "version": "4.20.1",
+  "description": "Read-oriented storefront endpoints observed on continente.pt.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/continente-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/continente-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

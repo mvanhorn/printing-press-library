@@ -1,0 +1,147 @@
+{
+  "api_name": "continente",
+  "base_url": "https://www.continente.pt",
+  "description": "Read-oriented storefront endpoints observed on continente.pt.\nThese endpoints primarily return HTML fragments or HTML pages rather than a public JSON API.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "on_get-search-fragment",
+      "description": "Get storefront search or category result fragment. Optional: q, cgid, start (plus 7 more).",
+      "method": "GET",
+      "path": "/on/demandware.store/Sites-continente-Site/default/Search-ShowAjax",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Q"
+        },
+        {
+          "name": "cgid",
+          "type": "string",
+          "location": "query",
+          "description": "Cgid"
+        },
+        {
+          "name": "start",
+          "type": "int",
+          "location": "query",
+          "description": "Start"
+        },
+        {
+          "name": "sz",
+          "type": "int",
+          "location": "query",
+          "description": "Sz"
+        },
+        {
+          "name": "srule",
+          "type": "string",
+          "location": "query",
+          "description": "Srule"
+        },
+        {
+          "name": "pmin",
+          "type": "float",
+          "location": "query",
+          "description": "Pmin"
+        },
+        {
+          "name": "prefn1",
+          "type": "string",
+          "location": "query",
+          "description": "Prefn1"
+        },
+        {
+          "name": "prefv1",
+          "type": "string",
+          "location": "query",
+          "description": "Prefv1"
+        },
+        {
+          "name": "prefn2",
+          "type": "string",
+          "location": "query",
+          "description": "Prefn2"
+        },
+        {
+          "name": "prefv2",
+          "type": "string",
+          "location": "query",
+          "description": "Prefv2"
+        }
+      ]
+    },
+    {
+      "name": "on_get-suggestions",
+      "description": "Get storefront search suggestions. Required: q.",
+      "method": "GET",
+      "path": "/on/demandware.store/Sites-continente-Site/default/SearchServices-GetSuggestions",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Q",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pesquisa_get-search-page",
+      "description": "Get full storefront search page. Optional: q, start, srule (plus 1 more).",
+      "method": "GET",
+      "path": "/pesquisa/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Q"
+        },
+        {
+          "name": "start",
+          "type": "int",
+          "location": "query",
+          "description": "Start"
+        },
+        {
+          "name": "srule",
+          "type": "string",
+          "location": "query",
+          "description": "Srule"
+        },
+        {
+          "name": "cgid",
+          "type": "string",
+          "location": "query",
+          "description": "Cgid"
+        }
+      ]
+    },
+    {
+      "name": "produto_get-product-page",
+      "description": "Get full product detail page. Required: slugAndPid.",
+      "method": "GET",
+      "path": "/produto/{slugAndPid}.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slugAndPid",
+          "type": "string",
+          "location": "path",
+          "description": "Product slug plus numeric pid, for example leite-uht-meio-gordo-mimosa-mimosa-7745833",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
