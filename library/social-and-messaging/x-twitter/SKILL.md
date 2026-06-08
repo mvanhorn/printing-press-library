@@ -369,17 +369,19 @@ Splits the markdown into a numbered 280-char-packed self-reply thread and prints
 
 X auth has three separate lanes. Do not infer one lane from another; run `x-twitter-pp-cli doctor --json` and inspect `auth_lanes` before choosing a command.
 
-- `auth_lanes.app_only_api`: `X_BEARER_TOKEN`, the app-only bearer token from the X developer console. Use this for public reads such as tweet/user lookup, recent search, lists, and spaces.
-- `auth_lanes.oauth2_user_context`: `X_OAUTH2_USER_TOKEN` or a stored OAuth2 access token. Required for `/2/users/me`, writes, bookmarks, personal reads, DMs, follows, likes, reposts, and user-context analytics. If this lane is `missing` or `invalid`, do not retry with `X_BEARER_TOKEN`; get a real OAuth2 authorization-code + PKCE user token and set/import it explicitly.
+- `auth_lanes.app_only_api`: an app-only X API Bearer token from the X developer console. Use this for public read-only API access such as tweet/user lookup, recent search, lists, and spaces. Store it with `x-twitter-pp-cli auth set-bearer-token <token>` or export `X_BEARER_TOKEN`.
+- `auth_lanes.oauth2_user_context`: `X_OAUTH2_USER_TOKEN` or a stored OAuth2 access token imported with `x-twitter-pp-cli auth import-oauth2`. Required for `/2/users/me`, writes, bookmarks, personal reads, DMs, follows, likes, reposts, and user-context analytics. If this lane is `missing` or `invalid`, do not retry with the app-only bearer token; get a real OAuth2 authorization-code + PKCE user token and import it explicitly.
 - `auth_lanes.x_articles_cookie`: browser cookies captured by `x-twitter-pp-cli auth login --chrome`. This lane is only for X Articles / x.com browser-session endpoints. It does not create `X_OAUTH2_USER_TOKEN` and does not authenticate v2 API user-context commands.
 
 Setup sequence:
 
 1. Attach the app to a Project in the X developer console.
 2. Set app permissions to Read and write when you need posting or other mutations.
-3. Copy the app Bearer Token into `X_BEARER_TOKEN` for app-only public reads.
-4. Enable OAuth2 with suitable scopes such as `tweet.read`, `tweet.write`, `users.read`, `offline.access`, and `bookmark.read` (required if you intend to sync or search bookmarks), complete the authorization-code + PKCE flow, and set the resulting user-context token in `X_OAUTH2_USER_TOKEN` or import it with `x-twitter-pp-cli auth import-oauth2 --access-token <token> --refresh-token <token> --scopes tweet.read,tweet.write,users.read,offline.access,bookmark.read`.
+3. Copy the app Bearer Token and run `x-twitter-pp-cli auth set-bearer-token <bearer-token>` for app-only public reads. Environment alternative: set `X_BEARER_TOKEN` in your shell or runtime secret manager.
+4. Enable OAuth2 with suitable scopes such as `tweet.read`, `tweet.write`, `users.read`, `offline.access`, `bookmark.read`, `like.read`, `like.write`, `follows.read`, and `follows.write`, complete the authorization-code + PKCE flow, and import the resulting user-context token with `x-twitter-pp-cli auth import-oauth2 --access-token <oauth2-access-token> --refresh-token <oauth2-refresh-token> --scopes tweet.read,tweet.write,users.read,offline.access,bookmark.read,like.read,like.write,follows.read,follows.write`. Environment alternative: set `X_OAUTH2_USER_TOKEN` in your shell or runtime secret manager.
 5. Separately run `x-twitter-pp-cli auth login --chrome` only when using `articles ...` commands.
+
+`auth set-token` is deprecated because “token” is ambiguous for X. It remains as a compatibility alias for `auth set-bearer-token` and must not be used for OAuth2 user-context tokens. Use `auth import-oauth2` for OAuth2.
 
 `doctor --json` is the machine-readable preflight. It reports `selected_profile`, per-lane status, `/2/users/me` probe results, authenticated user identity when returned, stored scopes, missing workflow scopes, token expiry, refresh-token presence, and X Articles cookie status without printing secrets.
 

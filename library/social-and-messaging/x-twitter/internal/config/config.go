@@ -208,6 +208,20 @@ func (c *Config) SaveOAuth2UserContext(accessToken, refreshToken string, expiry 
 	return c.save()
 }
 
+func (c *Config) SaveBearerToken(token string) error {
+	token = strings.TrimSpace(token)
+	if token == "" {
+		return fmt.Errorf("bearer token must not be empty")
+	}
+	c.AuthHeaderVal = ""
+	c.XBearerToken = token
+	// access_token is the legacy ambiguous field. Keep it empty so app-only
+	// doctor/status checks read the same bearer_token field AuthHeader() and
+	// AppOnlyAuthHeader() use for public app-only API reads.
+	c.AccessToken = ""
+	return c.save()
+}
+
 func (c *Config) ClearTokens() error {
 	// AuthHeader() falls back to the env-var-derived fields when AuthHeaderVal
 	// and AccessToken are empty, so dropping the working credential requires

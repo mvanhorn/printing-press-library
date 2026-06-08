@@ -26,6 +26,7 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newXAuthLoginCmd(flags))
 	cmd.AddCommand(newAuthSetupCmd(flags))
 	cmd.AddCommand(newAuthStatusCmd(flags))
+	cmd.AddCommand(newAuthSetBearerTokenCmd(flags))
 	cmd.AddCommand(newAuthSetTokenCmd(flags))
 	cmd.AddCommand(newAuthImportOAuth2Cmd(flags))
 	cmd.AddCommand(newAuthLogoutCmd(flags))
@@ -138,13 +139,20 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 		Example: "  x-twitter-pp-cli auth setup\n  x-twitter-pp-cli auth setup --launch",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			w := cmd.OutOrStdout()
-			fmt.Fprintln(w, "Get a key at: https://console.x.com/")
-			fmt.Fprintln(w, "  Bearer Token (required) is on your app Keys and Tokens page at console.x.com. Optional X_OAUTH2_USER_TOKEN unlocks v2 writes and personal reads. X Articles authoring uses browser cookies captured via auth login --chrome.")
+			fmt.Fprintln(w, "Get credentials at: https://console.x.com/")
 			fmt.Fprintln(w, "")
-			fmt.Fprintln(w, "Then set:")
-			fmt.Fprintln(w, "  export X_BEARER_TOKEN=\"<your-token>\"")
-			fmt.Fprintln(w, "  export X_OAUTH2_USER_TOKEN=\"<your-token>\"")
-			fmt.Fprintln(w, "  x-twitter-pp-cli auth set-token <token>")
+			fmt.Fprintln(w, "Auth lanes:")
+			fmt.Fprintln(w, "  1. App-only Bearer token: public read-only API access such as tweet/user lookup, recent search, lists, and spaces. Store it with `auth set-bearer-token` or set X_BEARER_TOKEN.")
+			fmt.Fprintln(w, "  2. OAuth2 user-context token: personal reads and writes such as /2/users/me, bookmarks, likes, follows, posting, replies, and owned metrics. Import it with `auth import-oauth2`.")
+			fmt.Fprintln(w, "  3. X Articles cookies: browser-cookie lane captured with `auth login --chrome` for article authoring workflows.")
+			fmt.Fprintln(w, "")
+			fmt.Fprintln(w, "Recommended setup order:")
+			fmt.Fprintln(w, "  x-twitter-pp-cli auth set-bearer-token <bearer-token>")
+			fmt.Fprintln(w, "  x-twitter-pp-cli auth import-oauth2 --access-token <oauth2-access-token> --refresh-token <oauth2-refresh-token> --scopes tweet.read,tweet.write,users.read,offline.access,bookmark.read,like.read,like.write,follows.read,follows.write")
+			fmt.Fprintln(w, "  x-twitter-pp-cli auth login --chrome")
+			fmt.Fprintln(w, "")
+			fmt.Fprintln(w, "Deprecated: `auth set-token` is kept as an alias for `auth set-bearer-token` only. Do not use it for OAuth2 user-context tokens.")
+			fmt.Fprintln(w, "Run `x-twitter-pp-cli doctor --json` to verify which lanes are configured and what each enables.")
 			if !launch {
 				return nil
 			}
@@ -215,10 +223,11 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			if !authed {
 				fmt.Fprintln(w, red("Not authenticated"))
 				fmt.Fprintln(w, "")
-				fmt.Fprintln(w, "Set your token:")
-				fmt.Fprintln(w, "  export X_BEARER_TOKEN=\"your-token-here\" # App-only Bearer token for public reads (tweet/user lookup, recent search, lists, spaces). Required minimum - nothing works without it. Get one at https://console.x.com/ (app, then Keys and Tokens, then Bearer Token).")
-				fmt.Fprintln(w, "  export X_OAUTH2_USER_TOKEN=\"your-token-here\" # OAuth2 user-context token for v2 writes and personal reads. Obtain via OAuth2 authorization-code + PKCE and set/import explicitly; auth login --chrome is cookie-only for X Articles.")
-				fmt.Fprintf(w, "  x-twitter-pp-cli auth set-token <token>\n")
+				fmt.Fprintln(w, "Set credentials:")
+				fmt.Fprintln(w, "  x-twitter-pp-cli auth set-bearer-token <bearer-token> # App-only Bearer token for public read-only API access: tweet/user lookup, recent search, lists, spaces. Alternative: export X_BEARER_TOKEN=\"your-token-here\".")
+				fmt.Fprintln(w, "  x-twitter-pp-cli auth import-oauth2 --access-token <oauth2-access-token> --refresh-token <oauth2-refresh-token> --scopes tweet.read,tweet.write,users.read,offline.access,bookmark.read,like.read,like.write,follows.read,follows.write # OAuth2 user-context for /2/users/me, bookmarks, likes, follows, writes, and owned metrics.")
+				fmt.Fprintln(w, "  x-twitter-pp-cli auth login --chrome # Optional browser-cookie lane for X Articles.")
+				fmt.Fprintln(w, "  x-twitter-pp-cli auth set-token <bearer-token> # Deprecated alias for set-bearer-token; do not use for OAuth2 user-context tokens.")
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
 
@@ -230,38 +239,54 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 	}
 }
 
+func saveBearerToken(cmd *cobra.Command, flags *rootFlags, token string, deprecatedAlias bool) error {
+	cfg, err := config.Load(flags.configPath)
+	if err != nil {
+		return configErr(err)
+	}
+	if err := cfg.SaveBearerToken(token); err != nil {
+		return configErr(fmt.Errorf("saving bearer token: %w", err))
+	}
+
+	out := map[string]any{
+		"saved":       true,
+		"auth_lane":   "app_only_bearer",
+		"config_path": cfg.Path,
+	}
+	if deprecatedAlias {
+		out["deprecated_alias"] = "auth set-token is deprecated; use auth set-bearer-token for app-only Bearer tokens and auth import-oauth2 for user-context tokens"
+	}
+	if flags.asJSON {
+		return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+	}
+	if deprecatedAlias {
+		fmt.Fprintln(cmd.OutOrStdout(), "Warning: `auth set-token` is deprecated. Use `auth set-bearer-token` for app-only Bearer tokens; use `auth import-oauth2` for OAuth2 user-context tokens.")
+	}
+	fmt.Fprintf(cmd.OutOrStdout(), "Bearer token saved to %s\n", cfg.Path)
+	fmt.Fprintln(cmd.OutOrStdout(), "Run `x-twitter-pp-cli doctor --json` to verify the app-only API lane.")
+	return nil
+}
+
+func newAuthSetBearerTokenCmd(flags *rootFlags) *cobra.Command {
+	return &cobra.Command{
+		Use:     "set-bearer-token <token>",
+		Short:   "Save an app-only X API Bearer token for public read-only API access",
+		Example: "  x-twitter-pp-cli auth set-bearer-token YOUR_BEARER_TOKEN_HERE",
+		Args:    cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return saveBearerToken(cmd, flags, args[0], false)
+		},
+	}
+}
+
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:     "set-token <token>",
-		Short:   "Save an API token to the config file",
-		Example: "  x-twitter-pp-cli auth set-token YOUR_TOKEN_HERE",
+		Short:   "Deprecated alias for set-bearer-token; do not use for OAuth2 user-context tokens",
+		Example: "  x-twitter-pp-cli auth set-token YOUR_BEARER_TOKEN_HERE\n  # Deprecated: prefer `x-twitter-pp-cli auth set-bearer-token YOUR_BEARER_TOKEN_HERE`",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := config.Load(flags.configPath)
-			if err != nil {
-				return configErr(err)
-			}
-
-			// Clear any legacy auth_header so AuthHeader() falls through to
-			// the newly-saved credential. Without this, a pre-existing
-			// auth_header value (common after regenerate) shadows the saved
-			// token and set-token silently has no effect. Silent clear (no
-			// log line): a masked-tail variant could leak token bytes through
-			// scripted dogfood that captures stderr.
-			cfg.AuthHeaderVal = ""
-			if err := cfg.SaveTokens("", "", args[0], "", cfg.TokenExpiry); err != nil {
-				return configErr(fmt.Errorf("saving token: %w", err))
-			}
-
-			// JSON envelope: {saved, config_path}.
-			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-					"saved":       true,
-					"config_path": cfg.Path,
-				}, flags)
-			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Token saved to %s\n", cfg.Path)
-			return nil
+			return saveBearerToken(cmd, flags, args[0], true)
 		},
 	}
 }

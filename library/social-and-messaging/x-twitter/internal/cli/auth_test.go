@@ -13,6 +13,117 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/config"
 )
 
+func TestAuthSetBearerTokenStoresAppOnlyBearerField(t *testing.T) {
+	t.Setenv("X_BEARER_TOKEN", "")
+	t.Setenv("X_OAUTH2_USER_TOKEN", "")
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	if err := os.WriteFile(configPath, []byte("access_token = \"old-ambiguous-token\"\noauth2_user_token = \"user-token\"\n"), 0o600); err != nil {
+		t.Fatalf("seed config: %v", err)
+	}
+
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{
+		"--config", configPath,
+		"auth", "set-bearer-token", "bearer-token",
+		"--json",
+	})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("auth set-bearer-token failed: %v\noutput: %s", err, out.String())
+	}
+
+	var payload map[string]any
+	if err := json.Unmarshal(out.Bytes(), &payload); err != nil {
+		t.Fatalf("output is not JSON: %v\n%s", err, out.String())
+	}
+	if payload["auth_lane"] != "app_only_bearer" || payload["saved"] != true {
+		t.Fatalf("payload = %#v", payload)
+	}
+
+	cfg, err := config.Load(configPath)
+	if err != nil {
+		t.Fatalf("load config: %v", err)
+	}
+	if cfg.XBearerToken != "bearer-token" {
+		t.Fatalf("bearer token not stored in bearer_token: %+v", cfg)
+	}
+	if cfg.AccessToken != "" {
+		t.Fatalf("ambiguous access_token should be cleared, got %q", cfg.AccessToken)
+	}
+	if cfg.XOauth2UserToken != "user-token" {
+		t.Fatalf("user-context token should be preserved, got %q", cfg.XOauth2UserToken)
+	}
+	if got := cfg.AppOnlyAuthHeader(); got != "Bearer bearer-token" {
+		t.Fatalf("AppOnlyAuthHeader() = %q", got)
+	}
+}
+
+func TestAuthSetTokenDeprecatedAliasStoresBearerField(t *testing.T) {
+	t.Setenv("X_BEARER_TOKEN", "")
+	t.Setenv("X_OAUTH2_USER_TOKEN", "")
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{
+		"--config", configPath,
+		"auth", "set-token", "bearer-token",
+		"--json",
+	})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("auth set-token alias failed: %v\noutput: %s", err, out.String())
+	}
+
+	var payload map[string]any
+	if err := json.Unmarshal(out.Bytes(), &payload); err != nil {
+		t.Fatalf("output is not JSON: %v\n%s", err, out.String())
+	}
+	msg, ok := payload["deprecated_alias"].(string)
+	if payload["auth_lane"] != "app_only_bearer" || !ok || msg == "" {
+		t.Fatalf("payload should identify app-only lane and deprecation: %#v", payload)
+	}
+	cfg, err := config.Load(configPath)
+	if err != nil {
+		t.Fatalf("load config: %v", err)
+	}
+	if cfg.XBearerToken != "bearer-token" || cfg.AccessToken != "" {
+		t.Fatalf("set-token alias should write bearer_token, not access_token: %+v", cfg)
+	}
+}
+
+func TestAuthSetBearerTokenRejectsEmptyToken(t *testing.T) {
+	t.Setenv("X_BEARER_TOKEN", "")
+	t.Setenv("X_OAUTH2_USER_TOKEN", "")
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var out bytes.Buffer
+	var errOut bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&errOut)
+	cmd.SetArgs([]string{
+		"--config", configPath,
+		"auth", "set-bearer-token", "   ",
+	})
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatalf("expected whitespace-only bearer token to fail")
+	}
+	if !strings.Contains(err.Error(), "bearer token must not be empty") {
+		t.Fatalf("expected empty-token error, got %v", err)
+	}
+	if _, statErr := os.Stat(configPath); !os.IsNotExist(statErr) {
+		t.Fatalf("empty token should not write config file, stat err = %v", statErr)
+	}
+}
+
 func TestAuthImportOAuth2StoresUserContextMetadata(t *testing.T) {
 	t.Setenv("X_BEARER_TOKEN", "")
 	t.Setenv("X_OAUTH2_USER_TOKEN", "")
