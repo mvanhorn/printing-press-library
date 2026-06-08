@@ -129,6 +129,44 @@ oauth2_user_token = "user"
 	}
 }
 
+func TestDoctorReportsProfileUserAndScopeMetadata(t *testing.T) {
+	server := testXAuthProbeServer()
+	defer server.Close()
+
+	home := t.TempDir()
+	configPath := writeDoctorConfig(t, t.TempDir(), server.URL, `access_token = "user"
+refresh_token = "refresh"
+token_expiry = 2026-06-08T12:00:00Z
+scopes = ["tweet.read", "tweet.write", "users.read", "offline.access"]
+`)
+
+	report := runDoctorJSON(t, home, configPath)
+	if got, _ := report["selected_profile"].(string); got != "default" {
+		t.Fatalf("selected_profile = %q, want default", got)
+	}
+	userLane := laneFromReport(t, report, "oauth2_user_context")
+	if got, _ := userLane["status"].(string); got != "ok" {
+		t.Fatalf("oauth2_user_context status = %q, want ok (lane=%#v)", got, userLane)
+	}
+	if got, _ := userLane["probe"].(string); got != "/2/users/me ok" {
+		t.Fatalf("probe = %q, want /2/users/me ok (lane=%#v)", got, userLane)
+	}
+	user, _ := userLane["user"].(map[string]any)
+	if user["handle"] != "@tester" {
+		t.Fatalf("user = %#v, want handle @tester", user)
+	}
+	if userLane["refresh_token_present"] != true {
+		t.Fatalf("refresh_token_present = %#v, want true", userLane["refresh_token_present"])
+	}
+	if got, _ := userLane["expires_at"].(string); got != "2026-06-08T12:00:00Z" {
+		t.Fatalf("expires_at = %q", got)
+	}
+	missing, _ := userLane["missing_for"].(map[string]any)
+	if _, ok := missing["bookmarks"]; !ok {
+		t.Fatalf("missing_for should include bookmarks because bookmark.read was not imported: %#v", missing)
+	}
+}
+
 func TestDoctorClassifiesAppOnlyTokenInUserContextLane(t *testing.T) {
 	server := testXAuthProbeServer()
 	defer server.Close()

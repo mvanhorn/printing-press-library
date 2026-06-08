@@ -37,6 +37,8 @@ type resolvedPostRecord struct {
 	ConversationID        string             `json:"conversation_id,omitempty"`
 	ReferencedTweets      []tweetReference   `json:"referenced_tweets,omitempty"`
 	PublicMetrics         map[string]any     `json:"public_metrics,omitempty"`
+	NonPublicMetrics      map[string]any     `json:"non_public_metrics,omitempty"`
+	OrganicMetrics        map[string]any     `json:"organic_metrics,omitempty"`
 	Entities              map[string]any     `json:"entities,omitempty"`
 	Media                 []map[string]any   `json:"media,omitempty"`
 	PostType              string             `json:"post_type,omitempty"`
@@ -337,6 +339,8 @@ func normalizeTweetRecord(input string, raw json.RawMessage, users map[string]*p
 	}
 	if include["metrics"] {
 		rec.PublicMetrics = mapField(obj, "public_metrics")
+		rec.NonPublicMetrics = mapField(obj, "non_public_metrics")
+		rec.OrganicMetrics = mapField(obj, "organic_metrics")
 	}
 	if include["links"] {
 		rec.Entities = mapField(obj, "entities")

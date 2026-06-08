@@ -150,7 +150,7 @@ func TestPerformanceSnapshotsAnalyzeAndGrouping(t *testing.T) {
 	defer db.Close()
 	cmd := testCommand()
 	records := []*resolvedPostRecord{
-		{TweetID: "11111", URL: "https://x.com/i/web/status/11111", CreatedAt: "2026-01-01T00:00:00Z", PostType: "original", PublicMetrics: map[string]any{"like_count": float64(4)}, Source: "local"},
+		{TweetID: "11111", URL: "https://x.com/i/web/status/11111", CreatedAt: "2026-01-01T00:00:00Z", PostType: "original", PublicMetrics: map[string]any{"like_count": float64(4), "impression_count": float64(100)}, NonPublicMetrics: map[string]any{"profile_clicks": float64(3)}, Source: "local"},
 		{TweetID: "22222", URL: "https://x.com/i/web/status/22222", CreatedAt: "2026-01-01T01:00:00Z", PostType: "original", PublicMetrics: map[string]any{"like_count": float64(8)}, Source: "local"},
 	}
 	snapshots, err := savePerformanceSnapshots(cmd, db, records, "24h")
@@ -159,6 +159,16 @@ func TestPerformanceSnapshotsAnalyzeAndGrouping(t *testing.T) {
 	}
 	if len(snapshots) != 2 || snapshots[0].Metrics["like_count"].(float64) != 4 {
 		t.Fatalf("snapshots = %+v", snapshots)
+	}
+	if snapshots[0].PublicMetrics["impression_count"].(float64) != 100 {
+		t.Fatalf("public metrics = %+v", snapshots[0].PublicMetrics)
+	}
+	if snapshots[0].NonPublicMetrics["profile_clicks"].(float64) != 3 {
+		t.Fatalf("non-public metrics = %+v", snapshots[0].NonPublicMetrics)
+	}
+	if snapshots[0].MetricAvailability["impression_count"] != "available" ||
+		snapshots[1].MetricAvailability["impression_count"] != "not_returned_or_plan_restricted" {
+		t.Fatalf("metric availability = %+v / %+v", snapshots[0].MetricAvailability, snapshots[1].MetricAvailability)
 	}
 	groups, err := analyzePerformanceSnapshots(cmd, db, "", "type,label")
 	if err != nil {

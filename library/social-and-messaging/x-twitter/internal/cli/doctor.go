@@ -6,6 +6,7 @@ package cli
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -83,9 +84,16 @@ func probeAuthLane(ctx context.Context, c *client.Client, header, source, path, 
 		"Authorization": header,
 		"User-Agent":    "x-twitter-pp-cli",
 	}
-	_, err := c.GetWithHeaders(ctx, path, nil, headers)
+	body, err := c.GetWithHeaders(ctx, path, nil, headers)
 	if err == nil {
-		return authLane("ok", source, "")
+		lane := authLane("ok", source, "")
+		if path == "/2/users/me" {
+			if user := userSummaryFromMeProbe(body); len(user) > 0 {
+				lane["probe"] = "/2/users/me ok"
+				lane["user"] = user
+			}
+		}
+		return lane
 	}
 	var apiErr *client.APIError
 	if errors.As(err, &apiErr) {
@@ -172,7 +180,96 @@ func buildAuthLaneReport(ctx context.Context, cfg *config.Config, c *client.Clie
 		result := <-results
 		lanes[result.key] = result.lane
 	}
+	attachUserContextTokenMetadata(lanes, cfg)
 	return lanes
+}
+
+func userSummaryFromMeProbe(body []byte) map[string]any {
+	var envelope struct {
+		Data struct {
+			ID       string `json:"id"`
+			Username string `json:"username"`
+			Name     string `json:"name"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(body, &envelope); err != nil {
+		return nil
+	}
+	user := map[string]any{}
+	if envelope.Data.ID != "" {
+		user["id"] = envelope.Data.ID
+	}
+	if envelope.Data.Username != "" {
+		user["username"] = envelope.Data.Username
+		user["handle"] = "@" + strings.TrimPrefix(envelope.Data.Username, "@")
+	}
+	if envelope.Data.Name != "" {
+		user["name"] = envelope.Data.Name
+	}
+	return user
+}
+
+func attachUserContextTokenMetadata(lanes map[string]any, cfg *config.Config) {
+	if cfg == nil {
+		return
+	}
+	lane, _ := lanes["oauth2_user_context"].(map[string]any)
+	if lane == nil {
+		return
+	}
+	if !cfg.TokenExpiry.IsZero() {
+		lane["expires_at"] = cfg.TokenExpiry.UTC().Format(time.RFC3339)
+	}
+	if cfg.RefreshToken != "" {
+		lane["refresh_token_present"] = true
+	} else if cfg.AccessToken != "" || cfg.XOauth2UserToken != "" || cfg.AuthHeaderVal != "" {
+		lane["refresh_token_present"] = false
+	}
+	if len(cfg.Scopes) > 0 {
+		lane["scopes"] = cfg.Scopes
+		if missing := missingScopesForWorkflows(cfg.Scopes); len(missing) > 0 {
+			lane["missing_for"] = missing
+		}
+	} else if cfg.AccessToken != "" || cfg.XOauth2UserToken != "" || cfg.AuthHeaderVal != "" {
+		lane["scopes_known"] = false
+		hint, _ := lane["hint"].(string)
+		if strings.TrimSpace(hint) == "" {
+			lane["hint"] = "scope metadata is not stored; import OAuth2 with --scopes so agents can preflight workflows"
+		}
+	}
+}
+
+func missingScopesForWorkflows(scopes []string) map[string][]string {
+	have := map[string]bool{}
+	for _, scope := range scopes {
+		scope = strings.TrimSpace(scope)
+		if scope != "" {
+			have[scope] = true
+		}
+	}
+	required := map[string][]string{
+		"identity":        {"users.read", "tweet.read"},
+		"personal_reads":  {"users.read", "tweet.read"},
+		"bookmarks":       {"bookmark.read", "tweet.read", "users.read"},
+		"likes":           {"like.read", "tweet.read", "users.read"},
+		"follows":         {"follows.read", "users.read"},
+		"public_writes":   {"tweet.write", "tweet.read", "users.read"},
+		"dm":              {"dm.read", "dm.write", "users.read"},
+		"offline_refresh": {"offline.access"},
+	}
+	missing := map[string][]string{}
+	for workflow, needed := range required {
+		var absent []string
+		for _, scope := range needed {
+			if !have[scope] {
+				absent = append(absent, scope)
+			}
+		}
+		if len(absent) > 0 {
+			missing[workflow] = absent
+		}
+	}
+	return missing
 }
 
 func laneStatus(lanes map[string]any, key string) string {
@@ -210,6 +307,11 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
   x-twitter-pp-cli doctor --fail-on warn`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			report := map[string]any{}
+			selectedProfile := flags.profileName
+			if selectedProfile == "" {
+				selectedProfile = "default"
+			}
+			report["selected_profile"] = selectedProfile
 
 			// Check config
 			cfg, err := config.Load(flags.configPath)

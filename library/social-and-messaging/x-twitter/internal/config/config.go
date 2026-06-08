@@ -18,9 +18,11 @@ type Config struct {
 	AuthHeaderVal    string            `toml:"auth_header"`
 	Headers          map[string]string `toml:"headers,omitempty"`
 	AuthSource       string            `toml:"-"`
+	SelectedProfile  string            `toml:"-"`
 	AccessToken      string            `toml:"access_token"`
 	RefreshToken     string            `toml:"refresh_token"`
 	TokenExpiry      time.Time         `toml:"token_expiry"`
+	Scopes           []string          `toml:"scopes,omitempty"`
 	ClientID         string            `toml:"client_id"`
 	ClientSecret     string            `toml:"client_secret"`
 	Path             string            `toml:"-"`
@@ -196,6 +198,15 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 	return c.save()
 }
 
+func (c *Config) SaveOAuth2UserContext(accessToken, refreshToken string, expiry time.Time, scopes []string) error {
+	c.AuthHeaderVal = ""
+	c.AccessToken = strings.TrimSpace(accessToken)
+	c.RefreshToken = strings.TrimSpace(refreshToken)
+	c.TokenExpiry = expiry
+	c.Scopes = normalizeScopes(scopes)
+	return c.save()
+}
+
 func (c *Config) ClearTokens() error {
 	// AuthHeader() falls back to the env-var-derived fields when AuthHeaderVal
 	// and AccessToken are empty, so dropping the working credential requires
@@ -207,6 +218,7 @@ func (c *Config) ClearTokens() error {
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.Scopes = nil
 	c.ClientID = ""
 	c.ClientSecret = ""
 	c.XBearerToken = ""
@@ -226,5 +238,16 @@ func (c *Config) save() error {
 	return os.WriteFile(c.Path, data, 0o600)
 }
 
-// Ensure strings import is used
-var _ = strings.ReplaceAll
+func normalizeScopes(scopes []string) []string {
+	seen := map[string]bool{}
+	out := make([]string, 0, len(scopes))
+	for _, scope := range scopes {
+		scope = strings.TrimSpace(scope)
+		if scope == "" || seen[scope] {
+			continue
+		}
+		seen[scope] = true
+		out = append(out, scope)
+	}
+	return out
+}

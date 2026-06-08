@@ -103,7 +103,7 @@ These capabilities aren't available in any other tool for this API.
   x-twitter-pp-cli url mentions https://example.com --since 7d --agent
   x-twitter-pp-cli url mentions github.com/org/repo --collection launch-feedback --monitor repo-links --agent
   ```
-- **`performance snapshot/backfill/analyze`** — Store timestamped post metrics locally, backfill recent account posts when auth allows, and analyze saved snapshots by type, hour, media, link presence, or label. Missing metrics stay nullable/absent; the CLI does not treat unavailable fields as zero.
+- **`performance snapshot/backfill/analyze`** — Store timestamped post metrics locally, backfill recent account posts when auth allows, and analyze saved snapshots by type, hour, media, link presence, or label. Missing metrics stay nullable/absent; the CLI does not treat unavailable fields as zero. Snapshot output includes `public_metrics`, available non-public/organic metrics, `metric_source`, and `metric_availability`.
 
   ```bash
   x-twitter-pp-cli performance snapshot --ids 123,456 --label 24h --agent
@@ -378,8 +378,10 @@ Setup sequence:
 1. Attach the app to a Project in the X developer console.
 2. Set app permissions to Read and write when you need posting or other mutations.
 3. Copy the app Bearer Token into `X_BEARER_TOKEN` for app-only public reads.
-4. Enable OAuth2 with suitable scopes such as `tweet.read`, `tweet.write`, `users.read`, `offline.access`, and `bookmark.read` (required if you intend to sync or search bookmarks), complete the authorization-code + PKCE flow, and set the resulting user-context token in `X_OAUTH2_USER_TOKEN`.
+4. Enable OAuth2 with suitable scopes such as `tweet.read`, `tweet.write`, `users.read`, `offline.access`, and `bookmark.read` (required if you intend to sync or search bookmarks), complete the authorization-code + PKCE flow, and set the resulting user-context token in `X_OAUTH2_USER_TOKEN` or import it with `x-twitter-pp-cli auth import-oauth2 --access-token <token> --refresh-token <token> --scopes tweet.read,tweet.write,users.read,offline.access,bookmark.read`.
 5. Separately run `x-twitter-pp-cli auth login --chrome` only when using `articles ...` commands.
+
+`doctor --json` is the machine-readable preflight. It reports `selected_profile`, per-lane status, `/2/users/me` probe results, authenticated user identity when returned, stored scopes, missing workflow scopes, token expiry, refresh-token presence, and X Articles cookie status without printing secrets.
 
 When X returns `Unsupported Authentication` with `Application-Only is forbidden`, the command requires OAuth2 user-context auth. Fix `auth_lanes.oauth2_user_context`; cookie auth and app-only bearer auth will not satisfy that endpoint.
 
@@ -393,7 +395,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
   ```bash
   x-twitter-pp-cli communities search --query example-value --agent --select id,name,status
   ```
-- **Previewable** — `--dry-run` shows the request without sending
+- **Previewable** — `--dry-run` shows the request without sending. Under `--agent`, mutation dry-runs return JSON with `sent:false`, method/path/body, selected profile, auth lane, mutation classification, and public action when known.
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
 - **Non-interactive** — never prompts, every input is a flag
 - **Explicit retries** — use `--idempotent` only when an already-existing create should count as success, and `--ignore-missing` only when a missing delete target should count as success

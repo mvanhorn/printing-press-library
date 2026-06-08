@@ -96,3 +96,58 @@ func TestWhichIndex_ExistsAndIsWellFormed(t *testing.T) {
 		}
 	}
 }
+
+func TestWhichIndexRoutesPRDQueries(t *testing.T) {
+	cases := []struct {
+		query string
+		want  string
+	}{
+		{"show my mentions", "users mentions get-users"},
+		{"post a reply", "tweets create-posts"},
+		{"sync bookmarks", "users bookmarks get-users"},
+		{"oauth2 user-context auth", "auth import-oauth2"},
+		{"owned post metrics", "performance snapshot/backfill/analyze"},
+	}
+	for _, tc := range cases {
+		got := rankWhich(whichIndex, tc.query, 1)
+		if len(got) == 0 {
+			t.Fatalf("%q returned no match", tc.query)
+		}
+		if got[0].Entry.Command != tc.want {
+			t.Fatalf("%q top command = %q, want %q (match=%+v)", tc.query, got[0].Entry.Command, tc.want, got[0])
+		}
+	}
+}
+
+func TestAgentContextAnnotatesPublicMutationAuthLane(t *testing.T) {
+	ctx := buildAgentContext(RootCmd())
+	entry := findAgentCommand(ctx.Commands, "tweets", "create-posts")
+	if entry == nil {
+		t.Fatal("agent-context missing tweets create-posts")
+	}
+	if entry.Annotations["pp:mutation"] != "true" {
+		t.Fatalf("annotations missing mutation: %#v", entry.Annotations)
+	}
+	if entry.Annotations["pp:auth-lane"] != "oauth2_user_context" {
+		t.Fatalf("auth lane = %#v, want oauth2_user_context", entry.Annotations["pp:auth-lane"])
+	}
+	if entry.Annotations["pp:public-action"] != "post_reply_or_quote" {
+		t.Fatalf("public action = %#v", entry.Annotations["pp:public-action"])
+	}
+}
+
+func findAgentCommand(commands []agentContextCommand, path ...string) *agentContextCommand {
+	if len(path) == 0 {
+		return nil
+	}
+	for i := range commands {
+		if commands[i].Name != path[0] {
+			continue
+		}
+		if len(path) == 1 {
+			return &commands[i]
+		}
+		return findAgentCommand(commands[i].Subcommands, path[1:]...)
+	}
+	return nil
+}

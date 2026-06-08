@@ -678,7 +678,101 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Authorization", maskToken(authHeader))
 	}
 	fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
-	return json.RawMessage(`{"dry_run": true}`), 0, nil
+	envelope := map[string]any{
+		"dry_run": true,
+		"sent":    false,
+		"request": map[string]any{
+			"method": method,
+			"path":   path,
+		},
+		"meta": map[string]any{
+			"auth_lane":        c.dryRunAuthLane(targetURL, authHeader),
+			"selected_profile": c.selectedProfile(),
+		},
+	}
+	if params != nil {
+		cleanParams := map[string]string{}
+		for k, v := range params {
+			if v != "" {
+				cleanParams[k] = c.maskCredentialText(v, authHeader)
+			}
+		}
+		if len(cleanParams) > 0 {
+			envelope["request"].(map[string]any)["params"] = cleanParams
+		}
+	}
+	if body != nil {
+		var bodyValue any
+		if json.Unmarshal(body, &bodyValue) == nil {
+			envelope["request"].(map[string]any)["body"] = bodyValue
+			if action := inferXPublicAction(method, path, bodyValue); action != "" {
+				envelope["public_action"] = action
+			}
+		}
+	}
+	if isMutatingVerb(method) {
+		envelope["mutation"] = true
+	}
+	data, err := json.Marshal(envelope)
+	if err != nil {
+		return nil, 0, err
+	}
+	return json.RawMessage(data), 0, nil
+}
+
+func (c *Client) selectedProfile() string {
+	if c != nil && c.Config != nil && c.Config.SelectedProfile != "" {
+		return c.Config.SelectedProfile
+	}
+	return "default"
+}
+
+func (c *Client) dryRunAuthLane(targetURL, authHeader string) string {
+	if hostUsesCookieAuth(hostFromURL(targetURL)) {
+		return "x_articles_cookie"
+	}
+	if c == nil || c.Config == nil || authHeader == "" {
+		return "none"
+	}
+	switch authHeader {
+	case c.Config.UserContextAuthHeader():
+		return "oauth2_user_context"
+	case c.Config.AppOnlyAuthHeader():
+		return "app_only_api"
+	default:
+		return "custom"
+	}
+}
+
+func inferXPublicAction(method, path string, body any) string {
+	switch {
+	case method == http.MethodPost && path == "/2/tweets":
+		bodyMap, _ := body.(map[string]any)
+		if _, ok := bodyMap["quote_tweet_id"]; ok {
+			return "quote"
+		}
+		if _, ok := bodyMap["reply"]; ok {
+			return "reply"
+		}
+		return "post"
+	case method == http.MethodDelete && strings.HasPrefix(path, "/2/tweets/"):
+		return "delete_post"
+	case method == http.MethodPost && strings.Contains(path, "/likes"):
+		return "like"
+	case method == http.MethodDelete && strings.Contains(path, "/likes/"):
+		return "unlike"
+	case method == http.MethodPost && strings.Contains(path, "/retweets"):
+		return "repost"
+	case method == http.MethodDelete && strings.Contains(path, "/retweets/"):
+		return "unrepost"
+	case method == http.MethodPost && strings.Contains(path, "/following"):
+		return "follow"
+	case method == http.MethodDelete && strings.Contains(path, "/following/"):
+		return "unfollow"
+	case method == http.MethodPost && strings.Contains(path, "/dm_"):
+		return "dm"
+	}
+	return ""
 }
 
 func (c *Client) ConfiguredTimeout() time.Duration {

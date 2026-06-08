@@ -136,16 +136,18 @@ Setup sequence:
 1. Attach the app to a Project in the X developer console (`console.x.com`). Any environment, including Development, unlocks v2 API access; standalone-app tokens are rejected.
 2. Set app permissions to Read and write when you need posting or other mutations.
 3. Copy the app Bearer Token into `X_BEARER_TOKEN` for app-only public reads.
-4. Enable OAuth2 with suitable scopes such as `tweet.read`, `tweet.write`, `users.read`, `offline.access`, and `bookmark.read` (required if you intend to sync or search bookmarks), complete the authorization-code + PKCE flow, and set the resulting user-context token in `X_OAUTH2_USER_TOKEN`.
+4. Enable OAuth2 with suitable scopes such as `tweet.read`, `tweet.write`, `users.read`, `offline.access`, and `bookmark.read` (required if you intend to sync or search bookmarks), complete the authorization-code + PKCE flow, and set the resulting user-context token in `X_OAUTH2_USER_TOKEN` or import it with `x-twitter-pp-cli auth import-oauth2 --access-token <token> --refresh-token <token> --scopes tweet.read,tweet.write,users.read,offline.access,bookmark.read`.
 5. Separately run `x-twitter-pp-cli auth login --chrome` only when using X Articles commands such as `articles-publish-md` or `articles ...` (needs `pycookiecheat` or `press-auth`; manual DevTools fallback is available).
+
+`doctor --json` is the machine-readable preflight. It reports `selected_profile`, per-lane status, `/2/users/me` probe results, authenticated user identity when returned, stored scopes, missing workflow scopes, token expiry, refresh-token presence, and X Articles cookie status without printing secrets.
 
 A Development project does not limit the account; capability is set by app permissions and the account API tier. As of Feb 2026 X bills reads/writes per-use and restricts programmatic replies/quotes/@mentions; self-reply threads (`thread compose`) still work.
 
 ## Quick Start
 
 ```bash
-# Health check first: confirms X_BEARER_TOKEN is set and reports what your token unlocks. One-time setup: export X_BEARER_TOKEN=... (get one at https://console.x.com/).
-x-twitter-pp-cli doctor --dry-run
+# Health check first: reports selected profile, auth lanes, scopes, token expiry, and what workflows are safe.
+x-twitter-pp-cli doctor --json
 
 # Pull recent posts into the local SQLite store once, so later reads query locally instead of re-spending API credits.
 x-twitter-pp-cli sync --resources tweets --since 7d
@@ -231,6 +233,7 @@ These capabilities aren't available in any other tool for this API.
   x-twitter-pp-cli url mentions github.com/org/repo --collection launch-feedback --monitor repo-links --agent
   ```
 - **`performance snapshot/backfill/analyze`** — Store timestamped post metrics locally, backfill recent account posts when auth allows, and analyze saved snapshots by type, hour, media, link presence, or label. Missing metrics stay nullable/absent; the CLI does not treat unavailable fields as zero.
+  Snapshot output includes `public_metrics`, available non-public/organic metrics, `metric_source`, and `metric_availability` so scorer pipelines can distinguish unavailable metrics from real zeroes.
 
   ```bash
   x-twitter-pp-cli performance snapshot --ids 123,456 --label 24h --agent
@@ -583,7 +586,7 @@ This CLI is designed for AI agent consumption:
 - **Non-interactive** - never prompts, every input is a flag
 - **Pipeable** - `--json` output to stdout, errors to stderr
 - **Filterable** - `--select id,name` returns only fields you need
-- **Previewable** - `--dry-run` shows the request without sending
+- **Previewable** - `--dry-run` shows the request without sending. Under `--agent`, mutation dry-runs return JSON with `sent:false`, method/path/body, selected profile, auth lane, mutation classification, and public action when known.
 - **Explicit retries** - add `--idempotent` to create retries and `--ignore-missing` to delete retries when a no-op success is acceptable
 - **Confirmable** - `--yes` for explicit confirmation of destructive actions
 - **Piped input** - write commands can accept structured input when their help lists `--stdin`
@@ -631,6 +634,7 @@ If you use agentcookie to sync secrets across machines, this CLI auto-adopts age
 - **403 on a reply, quote-tweet, or @mention post** — X's Feb-2026 restriction blocks programmatic replies/quotes/cold mentions; use self-reply threads (thread compose) instead, which still post.
 - **402 Payment Required** — Pay-per-use credit or spend limit exhausted; raise the limit or add credit in the Developer Console.
 - **403 on a write or personal read with only a bearer token set** — App-only bearer tokens can't write or read 'me' data; set X_OAUTH2_USER_TOKEN for user-context operations.
+- **Need to verify a user-context token non-interactively** — Run `x-twitter-pp-cli auth import-oauth2 --access-token <token> --scopes ... --json`, then `x-twitter-pp-cli users get-me --agent` and `x-twitter-pp-cli doctor --json`. Browser cookies from `auth login --chrome` do not satisfy these v2 API calls.
 
 ## Sources & Inspiration
 

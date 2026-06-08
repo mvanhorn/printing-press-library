@@ -317,6 +317,11 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	if err != nil {
 		return nil, configErr(err)
 	}
+	if f.profileName != "" {
+		cfg.SelectedProfile = f.profileName
+	} else {
+		cfg.SelectedProfile = "default"
+	}
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache

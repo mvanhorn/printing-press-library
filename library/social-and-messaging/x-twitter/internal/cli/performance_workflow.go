@@ -14,13 +14,17 @@ import (
 )
 
 type performanceSnapshot struct {
-	TweetID        string         `json:"tweet_id"`
-	URL            string         `json:"url"`
-	Label          string         `json:"label,omitempty"`
-	CapturedAt     string         `json:"captured_at"`
-	Metrics        map[string]any `json:"metrics,omitempty"`
-	PostAgeSeconds *int64         `json:"post_age_seconds,omitempty"`
-	Source         string         `json:"source"`
+	TweetID            string            `json:"tweet_id"`
+	URL                string            `json:"url"`
+	Label              string            `json:"label,omitempty"`
+	CapturedAt         string            `json:"captured_at"`
+	MetricSource       string            `json:"metric_source"`
+	Metrics            map[string]any    `json:"metrics,omitempty"`
+	PublicMetrics      map[string]any    `json:"public_metrics,omitempty"`
+	NonPublicMetrics   map[string]any    `json:"non_public_metrics,omitempty"`
+	MetricAvailability map[string]string `json:"metric_availability,omitempty"`
+	PostAgeSeconds     *int64            `json:"post_age_seconds,omitempty"`
+	Source             string            `json:"source"`
 }
 
 type performanceAnalyzeGroup struct {
@@ -288,19 +292,71 @@ func savePerformanceSnapshots(cmd *cobra.Command, db *store.Store, records []*re
 			return nil, err
 		}
 		snapshots = append(snapshots, performanceSnapshot{
-			TweetID:        rec.TweetID,
-			URL:            rec.URL,
-			Label:          label,
-			CapturedAt:     now,
-			Metrics:        rec.PublicMetrics,
-			PostAgeSeconds: age,
-			Source:         rec.Source,
+			TweetID:            rec.TweetID,
+			URL:                rec.URL,
+			Label:              label,
+			CapturedAt:         now,
+			MetricSource:       performanceMetricSource(rec),
+			Metrics:            rec.PublicMetrics,
+			PublicMetrics:      rec.PublicMetrics,
+			NonPublicMetrics:   mergedNonPublicMetrics(rec),
+			MetricAvailability: metricAvailability(rec),
+			PostAgeSeconds:     age,
+			Source:             rec.Source,
 		})
 	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
 	return snapshots, nil
+}
+
+func performanceMetricSource(rec *resolvedPostRecord) string {
+	if rec != nil && rec.Source == "live" {
+		return "x_api_owned_or_public_post"
+	}
+	return "local_resolved_post"
+}
+
+func mergedNonPublicMetrics(rec *resolvedPostRecord) map[string]any {
+	if rec == nil {
+		return nil
+	}
+	out := map[string]any{}
+	for k, v := range rec.NonPublicMetrics {
+		out[k] = v
+	}
+	for k, v := range rec.OrganicMetrics {
+		out[k] = v
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
+}
+
+func metricAvailability(rec *resolvedPostRecord) map[string]string {
+	availability := map[string]string{}
+	publicMetrics := map[string]any{}
+	if rec != nil {
+		publicMetrics = rec.PublicMetrics
+	}
+	for _, key := range []string{"like_count", "reply_count", "repost_count", "quote_count", "bookmark_count", "impression_count"} {
+		if _, ok := publicMetrics[key]; ok {
+			availability[key] = "available"
+		} else {
+			availability[key] = "not_returned_or_plan_restricted"
+		}
+	}
+	nonPublic := mergedNonPublicMetrics(rec)
+	for _, key := range []string{"profile_clicks", "user_profile_clicks", "url_link_clicks", "url_clicks", "detail_expands"} {
+		if _, ok := nonPublic[key]; ok {
+			availability[key] = "available"
+		} else {
+			availability[key] = "not_returned_or_plan_restricted"
+		}
+	}
+	return availability
 }
 
 func resolveMeAccount(cmd *cobra.Command, flags *rootFlags, dbPath string) (*accountSnapshotProfile, error) {

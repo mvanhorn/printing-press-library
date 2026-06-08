@@ -5,9 +5,13 @@ package client
 
 import (
 	"bytes"
+	"encoding/json"
 	"strings"
 	"testing"
+	"time"
 	"unicode/utf8"
+
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/config"
 )
 
 func TestTruncateBody(t *testing.T) {
@@ -68,5 +72,43 @@ func TestTruncateBody_UTF8RuneAtBoundary(t *testing.T) {
 	// Partial rune must be dropped, not replaced: 4094 valid bytes + "...".
 	if want := 4094 + 3; len(got) != want {
 		t.Fatalf("len = %d, want %d (partial rune should be dropped, not replaced)", len(got), want)
+	}
+}
+
+func TestDryRunReturnsStructuredPublicMutationPreview(t *testing.T) {
+	t.Parallel()
+
+	c := New(&config.Config{
+		BaseURL:          "https://api.x.com",
+		SelectedProfile:  "trevin",
+		AccessToken:      "user-token",
+		TokenExpiry:      time.Now().Add(time.Hour),
+		XOauth2UserToken: "user-token",
+	}, time.Second, 0)
+	body := []byte(`{"text":"reply draft","reply":{"in_reply_to_tweet_id":"123"}}`)
+	raw, status, err := c.dryRun("POST", "https://api.x.com/2/tweets", "/2/tweets", nil, body, nil, "Bearer user-token")
+	if err != nil {
+		t.Fatalf("dryRun: %v", err)
+	}
+	if status != 0 {
+		t.Fatalf("status = %d, want 0", status)
+	}
+	var out map[string]any
+	if err := json.Unmarshal(raw, &out); err != nil {
+		t.Fatalf("dry-run output is not JSON: %v\n%s", err, raw)
+	}
+	if out["dry_run"] != true || out["sent"] != false || out["mutation"] != true {
+		t.Fatalf("dry-run booleans = %#v", out)
+	}
+	if out["public_action"] != "reply" {
+		t.Fatalf("public_action = %#v, want reply", out["public_action"])
+	}
+	meta := out["meta"].(map[string]any)
+	if meta["auth_lane"] != "oauth2_user_context" || meta["selected_profile"] != "trevin" {
+		t.Fatalf("meta = %#v", meta)
+	}
+	req := out["request"].(map[string]any)
+	if req["method"] != "POST" || req["path"] != "/2/tweets" {
+		t.Fatalf("request = %#v", req)
 	}
 }

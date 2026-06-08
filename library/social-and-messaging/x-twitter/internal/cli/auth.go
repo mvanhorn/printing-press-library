@@ -5,6 +5,9 @@ package cli
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/config"
 	"github.com/spf13/cobra"
@@ -24,9 +27,92 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newAuthSetupCmd(flags))
 	cmd.AddCommand(newAuthStatusCmd(flags))
 	cmd.AddCommand(newAuthSetTokenCmd(flags))
+	cmd.AddCommand(newAuthImportOAuth2Cmd(flags))
 	cmd.AddCommand(newAuthLogoutCmd(flags))
 
 	return cmd
+}
+
+func newAuthImportOAuth2Cmd(flags *rootFlags) *cobra.Command {
+	var accessToken, refreshToken, scopes, expiresAt, expiresIn string
+	cmd := &cobra.Command{
+		Use:   "import-oauth2 --access-token <token>",
+		Short: "Import an OAuth2 user-context token for personal reads and writes",
+		Example: `  x-twitter-pp-cli auth import-oauth2 --access-token "$X_TOKEN" --scopes tweet.read,tweet.write,users.read,offline.access
+  x-twitter-pp-cli auth import-oauth2 --access-token "$X_TOKEN" --refresh-token "$X_REFRESH" --expires-in 2h`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			accessToken = strings.TrimSpace(accessToken)
+			if accessToken == "" {
+				return usageErr(fmt.Errorf("--access-token is required"))
+			}
+			expiry, err := parseOAuth2Expiry(expiresAt, expiresIn)
+			if err != nil {
+				return usageErr(err)
+			}
+			cfg, err := config.Load(flags.configPath)
+			if err != nil {
+				return configErr(err)
+			}
+			scopeList := cliutil.SplitCSV(scopes)
+			if err := cfg.SaveOAuth2UserContext(accessToken, refreshToken, expiry, scopeList); err != nil {
+				return configErr(fmt.Errorf("saving OAuth2 user-context token: %w", err))
+			}
+			out := map[string]any{
+				"saved":                 true,
+				"auth_lane":             "oauth2_user_context",
+				"config_path":           cfg.Path,
+				"refresh_token_present": strings.TrimSpace(refreshToken) != "",
+			}
+			if !expiry.IsZero() {
+				out["expires_at"] = expiry.UTC().Format(time.RFC3339)
+			}
+			if len(scopeList) > 0 {
+				out["scopes"] = scopeList
+				out["missing_for"] = missingScopesForWorkflows(scopeList)
+			}
+			if flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "OAuth2 user-context token saved to %s\n", cfg.Path)
+			if len(scopeList) > 0 {
+				fmt.Fprintf(cmd.OutOrStdout(), "Scopes: %s\n", strings.Join(scopeList, ", "))
+			}
+			if !expiry.IsZero() {
+				fmt.Fprintf(cmd.OutOrStdout(), "Expires: %s\n", expiry.UTC().Format(time.RFC3339))
+			}
+			fmt.Fprintln(cmd.OutOrStdout(), "Run `x-twitter-pp-cli users get-me --agent` or `x-twitter-pp-cli doctor --json` to verify the token against /2/users/me.")
+			return nil
+		},
+	}
+	cmd.Flags().StringVar(&accessToken, "access-token", "", "OAuth2 user-context access token")
+	cmd.Flags().StringVar(&refreshToken, "refresh-token", "", "OAuth2 refresh token, if available")
+	cmd.Flags().StringVar(&scopes, "scopes", "", "Comma-separated OAuth2 scopes granted to the token")
+	cmd.Flags().StringVar(&expiresAt, "expires-at", "", "Token expiry as RFC3339 timestamp")
+	cmd.Flags().StringVar(&expiresIn, "expires-in", "", "Token lifetime from now, such as 2h or 90m")
+	return cmd
+}
+
+func parseOAuth2Expiry(expiresAt, expiresIn string) (time.Time, error) {
+	expiresAt = strings.TrimSpace(expiresAt)
+	expiresIn = strings.TrimSpace(expiresIn)
+	if expiresAt != "" && expiresIn != "" {
+		return time.Time{}, fmt.Errorf("set only one of --expires-at or --expires-in")
+	}
+	if expiresAt != "" {
+		t, err := time.Parse(time.RFC3339, expiresAt)
+		if err != nil {
+			return time.Time{}, fmt.Errorf("invalid --expires-at %q: %w", expiresAt, err)
+		}
+		return t, nil
+	}
+	if expiresIn != "" {
+		d, err := time.ParseDuration(expiresIn)
+		if err != nil {
+			return time.Time{}, fmt.Errorf("invalid --expires-in %q: %w", expiresIn, err)
+		}
+		return time.Now().UTC().Add(d), nil
+	}
+	return time.Time{}, nil
 }
 
 // newAuthSetupCmd prints concrete steps for getting a credential. Side-effect
