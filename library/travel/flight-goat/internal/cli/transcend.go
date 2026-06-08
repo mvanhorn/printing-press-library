@@ -136,14 +136,24 @@ func (p *scheduledDeparturesPage) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
-	var routeFlights []struct {
-		Segments []scheduledDeparture `json:"segments"`
-	}
-	if err := json.Unmarshal(raw.Flights, &routeFlights); err == nil {
+	var routeFlights []map[string]json.RawMessage
+	if err := json.Unmarshal(raw.Flights, &routeFlights); err == nil && len(routeFlights) > 0 {
+		routeShape := false
+		var routeSegments []scheduledDeparture
 		for _, flight := range routeFlights {
-			p.Flights = append(p.Flights, flight.Segments...)
+			segmentsRaw, ok := flight["segments"]
+			if !ok {
+				continue
+			}
+			routeShape = true
+			var segments []scheduledDeparture
+			if err := json.Unmarshal(segmentsRaw, &segments); err != nil {
+				return err
+			}
+			routeSegments = append(routeSegments, segments...)
 		}
-		if len(p.Flights) > 0 {
+		if routeShape {
+			p.Flights = routeSegments
 			return nil
 		}
 	}

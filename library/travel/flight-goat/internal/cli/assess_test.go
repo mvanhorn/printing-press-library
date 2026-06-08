@@ -39,6 +39,18 @@ func TestScheduledDeparturesPageFlattensRouteSegments(t *testing.T) {
 	}
 }
 
+func TestScheduledDeparturesPageEmptyRouteSegmentsReturnNoItems(t *testing.T) {
+	raw := []byte(`{"flights": [{"segments": []}]}`)
+
+	var page scheduledDeparturesPage
+	if err := json.Unmarshal(raw, &page); err != nil {
+		t.Fatalf("unmarshal empty route page: %v", err)
+	}
+	if got := len(page.items()); got != 0 {
+		t.Fatalf("items len = %d, want 0; items=%+v", got, page.items())
+	}
+}
+
 func TestParseNASStatusFiltersRouteAirports(t *testing.T) {
 	body := []byte(`<?xml version="1.0" encoding="UTF-8"?>
 <AIRPORT_STATUS_INFORMATION>
@@ -153,6 +165,7 @@ func TestCollectMissingEvidenceIncludesEmptyRouteAlternatives(t *testing.T) {
 			Destination: assessAirportCondition{
 				Airport:          "KDCA",
 				Role:             "destination",
+				AirportDelays:    airportDelaySummary{Available: true},
 				DisruptionCounts: disruptionCountsSummary{Available: true},
 			},
 		},
@@ -189,6 +202,55 @@ func TestSelectAssessFlightCandidatePrefersRouteNearWindow(t *testing.T) {
 	}
 	if got.FAFlightID != "today" {
 		t.Fatalf("selected fa_flight_id = %q, want today", got.FAFlightID)
+	}
+}
+
+func TestCollectMissingEvidenceIncludesDestinationDelayAvailability(t *testing.T) {
+	report := &assessReport{
+		Evidence: assessEvidence{
+			Origin: assessAirportCondition{
+				Airport:          "KSFO",
+				Role:             "origin",
+				AirportDelays:    airportDelaySummary{Available: true},
+				DisruptionCounts: disruptionCountsSummary{Available: true},
+			},
+			Destination: assessAirportCondition{
+				Airport:          "KDCA",
+				Role:             "destination",
+				DisruptionCounts: disruptionCountsSummary{Available: true},
+			},
+		},
+	}
+	missing := collectMissingEvidence(report)
+	if len(missing) != 1 || missing[0] != "destination airport delay advisory unavailable or empty" {
+		t.Fatalf("missing evidence = %+v, want destination airport delay advisory only", missing)
+	}
+}
+
+func TestSummarizeWeatherOnlyMarksActualGustGroup(t *testing.T) {
+	noGust := summarizeWeather(json.RawMessage(`{"observations":[{"raw_data":"KBGR 081856Z 25012KT 10SM SKC"}]}`))
+	if containsString(noGust.Signals, "gusty wind marker") {
+		t.Fatalf("non-gusty KBGR METAR was marked gusty: %+v", noGust.Signals)
+	}
+
+	gusty := summarizeWeather(json.RawMessage(`{"observations":[{"raw_data":"KSFO 081856Z 28015G24KT 10SM FEW014"}]}`))
+	if !containsString(gusty.Signals, "gusty wind marker") {
+		t.Fatalf("gusty METAR did not get gusty signal: %+v", gusty.Signals)
+	}
+}
+
+func TestCollectStringsByKeysEnforcesLimitWithinMapLevel(t *testing.T) {
+	payload := map[string]any{
+		"reason":  "one",
+		"type":    "two",
+		"trend":   "three",
+		"color":   "four",
+		"message": "five",
+		"name":    "six",
+	}
+	got := collectStringsByKeys(payload, 3, "reason", "type", "trend", "color", "message", "name")
+	if len(got) > 3 {
+		t.Fatalf("collectStringsByKeys returned %d values, want <= 3: %+v", len(got), got)
 	}
 }
 
@@ -370,4 +432,13 @@ func mustParseTime(t *testing.T, value string) time.Time {
 		t.Fatalf("parse time %s: %v", value, err)
 	}
 	return parsed
+}
+
+func containsString(values []string, want string) bool {
+	for _, value := range values {
+		if value == want {
+			return true
+		}
+	}
+	return false
 }

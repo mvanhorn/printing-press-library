@@ -13,6 +13,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"sort"
 	"strings"
 	"text/tabwriter"
@@ -25,6 +26,8 @@ import (
 )
 
 const defaultNASStatusURL = "https://nasstatus.faa.gov/api/airport-status-information"
+
+var metarGustKTRE = regexp.MustCompile(`\b([0-9]{3}|VRB)[0-9]{2,3}G[0-9]{2,3}KT\b`)
 
 type assessOptions struct {
 	origin            string
@@ -1002,6 +1005,9 @@ func collectMissingEvidence(report *assessReport) []string {
 	if !report.Evidence.Origin.AirportDelays.Available {
 		missing = append(missing, "origin airport delay advisory unavailable or empty")
 	}
+	if !report.Evidence.Destination.AirportDelays.Available {
+		missing = append(missing, "destination airport delay advisory unavailable or empty")
+	}
 	if !report.Evidence.Origin.DisruptionCounts.Available {
 		missing = append(missing, "origin disruption counts unavailable or empty")
 	}
@@ -1085,7 +1091,7 @@ func summarizeWeather(raw json.RawMessage) weatherSummary {
 			summary.Signals = append(summary.Signals, signal)
 		}
 	}
-	if strings.Contains(upper, "G") && strings.Contains(upper, "KT") {
+	if metarGustKTRE.MatchString(upper) {
 		summary.Signals = append(summary.Signals, "gusty wind marker")
 	}
 	summary.Signals = uniqueStrings(summary.Signals)
@@ -1546,17 +1552,29 @@ func collectStringsByKeySet(value any, wanted map[string]bool, limit int, out *[
 	switch v := value.(type) {
 	case map[string]any:
 		for key, child := range v {
+			if limit > 0 && len(*out) >= limit {
+				return
+			}
 			if wanted[strings.ToLower(key)] {
 				if s, ok := child.(string); ok && strings.TrimSpace(s) != "" {
 					*out = append(*out, strings.TrimSpace(s))
+					if limit > 0 && len(*out) >= limit {
+						return
+					}
 				}
 			}
 		}
 		for _, child := range v {
+			if limit > 0 && len(*out) >= limit {
+				return
+			}
 			collectStringsByKeySet(child, wanted, limit, out)
 		}
 	case []any:
 		for _, child := range v {
+			if limit > 0 && len(*out) >= limit {
+				return
+			}
 			collectStringsByKeySet(child, wanted, limit, out)
 		}
 	}
