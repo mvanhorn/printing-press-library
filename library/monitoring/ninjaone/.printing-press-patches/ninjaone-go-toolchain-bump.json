@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "ninjaone-go-toolchain-bump",
+  "applied_at": "2026-06-08",
+  "base_run_id": "20260604-150538",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Bump go.mod go directive from 1.26.3 to 1.26.4.",
+  "reason": "govulncheck flagged reachable Go stdlib vulns GO-2026-5039 (net/textproto) and GO-2026-5037 (crypto/x509), both fixed in go1.26.4. Generator pinned 1.26.3.",
+  "files": ["go.mod"],
+  "validated_outcome": "govulncheck ./... exits 0 with no reachable findings after the bump.",
+  "upstream_issue": ""
+}

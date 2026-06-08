@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "ninjaone-pp-cli"
+display_name = "NinjaOne"
+description = "Every NinjaOne endpoint plus fleet-wide cross-org commands the org-scoped console can't give you."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/ninjaone-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+NINJAONE_CLIENT_ID = true
+NINJAONE_CLIENT_SECRET = true

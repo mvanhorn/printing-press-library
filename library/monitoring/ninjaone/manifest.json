@@ -1,0 +1,55 @@
+{
+  "manifest_version": "0.3",
+  "name": "ninjaone-pp-mcp",
+  "display_name": "NinjaOne",
+  "version": "4.20.1",
+  "description": "Every NinjaOne endpoint plus fleet-wide cross-org commands the org-scoped console can't give you.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ninjaone-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ninjaone-pp-mcp",
+      "args": [],
+      "env": {
+        "NINJAONE_CLIENT_ID": "${user_config.ninjaone_client_id}",
+        "NINJAONE_CLIENT_SECRET": "${user_config.ninjaone_client_secret}",
+        "NINJAONE_OAUTH_SCOPE": "${user_config.ninjaone_oauth_scope}"
+      }
+    }
+  },
+  "user_config": {
+    "ninjaone_client_id": {
+      "type": "string",
+      "title": "NINJAONE_CLIENT_ID",
+      "description": "Sets NINJAONE_CLIENT_ID for the NinjaOne MCP server. Get a credential from https://app.ninjarmm.com/#/administration/apps/api.",
+      "sensitive": true,
+      "required": true
+    },
+    "ninjaone_client_secret": {
+      "type": "string",
+      "title": "NINJAONE_CLIENT_SECRET",
+      "description": "Sets NINJAONE_CLIENT_SECRET for the NinjaOne MCP server. Get a credential from https://app.ninjarmm.com/#/administration/apps/api.",
+      "sensitive": true,
+      "required": true
+    },
+    "ninjaone_oauth_scope": {
+      "type": "string",
+      "title": "NINJAONE_OAUTH_SCOPE",
+      "description": "Sets NINJAONE_OAUTH_SCOPE for the NinjaOne MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

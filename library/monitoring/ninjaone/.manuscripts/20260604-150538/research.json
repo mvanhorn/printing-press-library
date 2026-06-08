@@ -1,0 +1,317 @@
+{
+  "api_name": "ninjaone",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "homotechsual/NinjaOne",
+      "url": "https://github.com/homotechsual/NinjaOne",
+      "language": "PowerShell",
+      "install_method": "",
+      "stars": 131,
+      "last_updated": "",
+      "command_count": 120,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Lungshot/NinjaOneMCP",
+      "url": "https://github.com/Lungshot/NinjaOneMCP",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 34,
+      "last_updated": "",
+      "command_count": 50,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "wyre-technology/ninjaone-mcp",
+      "url": "https://github.com/wyre-technology/ninjaone-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 17,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jasondsmith72/NinjaRMM-API-Gateway-MCP",
+      "url": "https://github.com/jasondsmith72/NinjaRMM-API-Gateway-MCP",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "fredriksknese/mcp-ninjaone",
+      "url": "https://github.com/fredriksknese/mcp-ninjaone",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 19,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "marsacom/NinjaOneToolKit",
+      "url": "https://github.com/marsacom/NinjaOneToolKit",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-04T19:15:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-org patch-gap report",
+      "command": "patch-gaps",
+      "description": "See every device still missing or failing a patch across all your client organizations in one fleet-wide view.",
+      "rationale": "The NinjaOne console and API are organization-scoped; only a local join across synced os_patches, software_patches, devices, and organizations produces a single fleet-wide gap report.",
+      "example": "ninjaone-pp-cli patch-gaps --severity critical --agent",
+      "why_it_matters": "Reach for this when an agent needs the org-by-org patch posture in one shot instead of paging the per-org dashboard.",
+      "group": "Cross-org fleet intelligence"
+    },
+    {
+      "name": "Throttled cross-org patch sweep",
+      "command": "patch-sweep",
+      "description": "Scan and apply patches across a device cohort, serialized through an adaptive Retry-After limiter so bulk runs survive NinjaOne's throttling.",
+      "rationale": "Competing tools apply patches naively and hit 429s almost immediately on large fleets; only the local cohort plus the adaptive limiter makes a fleet-wide sweep reliable.",
+      "example": "ninjaone-pp-cli patch-sweep --df \"status eq OFFLINE\" --dry-run --agent",
+      "why_it_matters": "Use when an agent must remediate a cohort of devices and naive bulk apply would melt the API.",
+      "group": "Cross-org fleet intelligence"
+    },
+    {
+      "name": "Alert-storm clustering",
+      "command": "alert-storms",
+      "description": "Collapse a flood of active alerts into ranked incidents grouped by organization, condition, and time window.",
+      "rationale": "Mechanical group-by over the local alert store turns 200 raw alerts into the handful of real incidents behind them; no single API call clusters alerts.",
+      "example": "ninjaone-pp-cli alert-storms --window 1h --agent",
+      "why_it_matters": "Reach for this during an alert flood to tell one site-wide incident from many unrelated alerts.",
+      "group": "Alert triage"
+    },
+    {
+      "name": "Patch-stuck detector",
+      "command": "patch-stuck",
+      "description": "Surface KBs that have been failing or pending across multiple consecutive syncs, not just at this moment.",
+      "rationale": "Requires a local time-series of patch state retained across syncs; the API exposes no patch history.",
+      "example": "ninjaone-pp-cli patch-stuck --cycles 3 --agent",
+      "why_it_matters": "Use when an agent needs the chronically-broken patches worth manual intervention, not the transient ones.",
+      "group": "Cross-org fleet intelligence"
+    },
+    {
+      "name": "Bulk alert reset by query",
+      "command": "alert-clear",
+      "description": "Reset every alert matching a predicate (condition, organization, or age) in one throttled, dry-run-first operation.",
+      "rationale": "Single-alert reset exists everywhere; reset-by-cohort resolved from a local-store predicate and serialized through the limiter does not.",
+      "example": "ninjaone-pp-cli alert-clear --where \"age\u003e72h\" --dry-run --agent",
+      "why_it_matters": "Use to clear a weekend's worth of accumulated or auto-resolved alerts without clicking each one.",
+      "group": "Alert triage"
+    },
+    {
+      "name": "Stale/offline device sweep",
+      "command": "stale-devices",
+      "description": "Find stale or offline devices with no contact in N days across every organization, grouped by org, with an optional throttled cohort reboot.",
+      "rationale": "A cross-org local query no org-scoped console view provides, joined with last-contact data from the synced store.",
+      "example": "ninjaone-pp-cli stale-devices --offline-days 30 --agent",
+      "why_it_matters": "Reach for this during fleet-hygiene sweeps to find decommission candidates fleet-wide.",
+      "group": "Fleet hygiene"
+    },
+    {
+      "name": "Flapping-alert detector",
+      "command": "alert-flappers",
+      "description": "Rank conditions that repeatedly fire and auto-resolve over a window, by cycle count per device and condition.",
+      "rationale": "Counts fire/resolve cycles from retained local alert history; the API has no flap history to query.",
+      "example": "ninjaone-pp-cli alert-flappers --window 7d --agent",
+      "why_it_matters": "Use to find noisy monitors worth tuning instead of resetting nightly.",
+      "group": "Alert triage"
+    },
+    {
+      "name": "Custom-field hygiene",
+      "command": "cf-hygiene",
+      "description": "Find devices and organizations missing required custom-field values (asset tag, warranty, owner) fleet-wide.",
+      "rationale": "Joins the local custom_field_definitions with per-entity custom-field values to flag SOP gaps no single API call surfaces.",
+      "example": "ninjaone-pp-cli cf-hygiene --require assetTag,warrantyEnd --agent",
+      "why_it_matters": "Use when an agent must enforce documentation SOPs across the whole fleet before an audit.",
+      "group": "Fleet hygiene"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-org patch-gap report",
+      "command": "patch-gaps",
+      "description": "See every device still missing or failing a patch across all your client organizations in one fleet-wide view.",
+      "rationale": "The NinjaOne console and API are organization-scoped; only a local join across synced os_patches, software_patches, devices, and organizations produces a single fleet-wide gap report.",
+      "example": "ninjaone-pp-cli patch-gaps --severity critical --agent",
+      "why_it_matters": "Reach for this when an agent needs the org-by-org patch posture in one shot instead of paging the per-org dashboard.",
+      "group": "Cross-org fleet intelligence"
+    },
+    {
+      "name": "Throttled cross-org patch sweep",
+      "command": "patch-sweep",
+      "description": "Scan and apply patches across a device cohort, serialized through an adaptive Retry-After limiter so bulk runs survive NinjaOne's throttling.",
+      "rationale": "Competing tools apply patches naively and hit 429s almost immediately on large fleets; only the local cohort plus the adaptive limiter makes a fleet-wide sweep reliable.",
+      "example": "ninjaone-pp-cli patch-sweep --df \"status eq OFFLINE\" --dry-run --agent",
+      "why_it_matters": "Use when an agent must remediate a cohort of devices and naive bulk apply would melt the API.",
+      "group": "Cross-org fleet intelligence"
+    },
+    {
+      "name": "Alert-storm clustering",
+      "command": "alert-storms",
+      "description": "Collapse a flood of active alerts into ranked incidents grouped by organization, condition, and time window.",
+      "rationale": "Mechanical group-by over the local alert store turns 200 raw alerts into the handful of real incidents behind them; no single API call clusters alerts.",
+      "example": "ninjaone-pp-cli alert-storms --window 1h --agent",
+      "why_it_matters": "Reach for this during an alert flood to tell one site-wide incident from many unrelated alerts.",
+      "group": "Alert triage"
+    },
+    {
+      "name": "Patch-stuck detector",
+      "command": "patch-stuck",
+      "description": "Surface KBs that have been failing or pending across multiple consecutive syncs, not just at this moment.",
+      "rationale": "Requires a local time-series of patch state retained across syncs; the API exposes no patch history.",
+      "example": "ninjaone-pp-cli patch-stuck --cycles 3 --agent",
+      "why_it_matters": "Use when an agent needs the chronically-broken patches worth manual intervention, not the transient ones.",
+      "group": "Cross-org fleet intelligence"
+    },
+    {
+      "name": "Bulk alert reset by query",
+      "command": "alert-clear",
+      "description": "Reset every alert matching a predicate (condition, organization, or age) in one throttled, dry-run-first operation.",
+      "rationale": "Single-alert reset exists everywhere; reset-by-cohort resolved from a local-store predicate and serialized through the limiter does not.",
+      "example": "ninjaone-pp-cli alert-clear --where \"age\u003e72h\" --dry-run --agent",
+      "why_it_matters": "Use to clear a weekend's worth of accumulated or auto-resolved alerts without clicking each one.",
+      "group": "Alert triage"
+    },
+    {
+      "name": "Stale/offline device sweep",
+      "command": "stale-devices",
+      "description": "Find stale or offline devices with no contact in N days across every organization, grouped by org, with an optional throttled cohort reboot.",
+      "rationale": "A cross-org local query no org-scoped console view provides, joined with last-contact data from the synced store.",
+      "example": "ninjaone-pp-cli stale-devices --offline-days 30 --agent",
+      "why_it_matters": "Reach for this during fleet-hygiene sweeps to find decommission candidates fleet-wide.",
+      "group": "Fleet hygiene"
+    },
+    {
+      "name": "Flapping-alert detector",
+      "command": "alert-flappers",
+      "description": "Rank conditions that repeatedly fire and auto-resolve over a window, by cycle count per device and condition.",
+      "rationale": "Counts fire/resolve cycles from retained local alert history; the API has no flap history to query.",
+      "example": "ninjaone-pp-cli alert-flappers --window 7d --agent",
+      "why_it_matters": "Use to find noisy monitors worth tuning instead of resetting nightly.",
+      "group": "Alert triage"
+    },
+    {
+      "name": "Custom-field hygiene",
+      "command": "cf-hygiene",
+      "description": "Find devices and organizations missing required custom-field values (asset tag, warranty, owner) fleet-wide.",
+      "rationale": "Joins the local custom_field_definitions with per-entity custom-field values to flag SOP gaps no single API call surfaces.",
+      "example": "ninjaone-pp-cli cf-hygiene --require assetTag,warrantyEnd --agent",
+      "why_it_matters": "Use when an agent must enforce documentation SOPs across the whole fleet before an audit.",
+      "group": "Fleet hygiene"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "NinjaOne",
+    "headline": "Every NinjaOne endpoint plus fleet-wide cross-org commands the org-scoped console can't give you.",
+    "value_prop": "A complete CLI and MCP for the NinjaOne RMM API: all 300+ endpoints reachable, the high-value ones promoted to ergonomic commands, and a local SQLite store that powers offline fleet-wide search and cross-org rollups. Commands like patch-gaps, alert-storms, and stale-devices answer questions the per-organization console and API cannot, and an adaptive Retry-After limiter keeps bulk operations alive under NinjaOne's throttling.",
+    "auth_narrative": "NinjaOne uses OAuth2 client-credentials. Create a Client App ID under Administration -\u003e Apps -\u003e API, then set NINJAONE_CLIENT_ID and NINJAONE_CLIENT_SECRET. The CLI exchanges them for a bearer token at /ws/oauth/token (scopes monitoring, management, control) and refreshes it automatically. Set NINJAONE_INSTANCE if you are not on the US region (app.ninjarmm.com).",
+    "quickstart": [
+      {
+        "command": "ninjaone-pp-cli doctor --dry-run",
+        "comment": "Confirm credentials, region, and API reachability before anything else."
+      },
+      {
+        "command": "ninjaone-pp-cli sync --resources organizations,devices,alerts,os-patches",
+        "comment": "Pull core fleet state into the local store so offline and cross-org commands work."
+      },
+      {
+        "command": "ninjaone-pp-cli patch-gaps --severity critical",
+        "comment": "See every device missing a critical patch across all organizations at once."
+      },
+      {
+        "command": "ninjaone-pp-cli alert-storms --window 1h",
+        "comment": "Collapse the active alert flood into the real incidents behind it."
+      },
+      {
+        "command": "ninjaone-pp-cli stale-devices --offline-days 30",
+        "comment": "Find devices gone quiet fleet-wide for a hygiene sweep."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 or missing_header on every call",
+        "fix": "Set NINJAONE_CLIENT_ID and NINJAONE_CLIENT_SECRET, then run `ninjaone-pp-cli doctor`."
+      },
+      {
+        "symptom": "403 forbidden on a write command (patch-sweep, alert-clear)",
+        "fix": "Your Client App ID lacks the management scope; recreate it with monitoring, management, and control."
+      },
+      {
+        "symptom": "429 Too Many Requests during a large sync or sweep",
+        "fix": "The adaptive limiter already honors Retry-After; lower --max-scan-pages or narrow the --df filter to reduce volume."
+      },
+      {
+        "symptom": "Commands return empty results",
+        "fix": "Run `ninjaone-pp-cli sync` first; cross-org commands read the local store."
+      },
+      {
+        "symptom": "Wrong region / 404 on token endpoint",
+        "fix": "Set NINJAONE_INSTANCE to your shard (eu.ninjarmm.com, ca.ninjarmm.com, or oc.ninjarmm.com)."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or technician needs to query, report on, or act across an entire NinjaOne fleet — especially across multiple client organizations at once. It is the right tool for patch-compliance reporting, alert-storm triage, stale-device hygiene, and any bulk device action that would otherwise require clicking through org-scoped dashboards. The local store makes fleet-wide questions cheap and keeps bulk operations from hitting rate limits.",
+    "anti_triggers": [
+      "Do not use this CLI for live remote-control sessions or screen sharing; that is the NinjaOne console's job.",
+      "Do not use it to configure agent installers or deployment packages; use the NinjaOne web UI.",
+      "Do not use it as a real-time monitoring dashboard; it is a query/report/act tool, not a live feed beyond `tail`."
+    ],
+    "recipes": [
+      {
+        "title": "Critical patch gaps as agent JSON, narrowed",
+        "command": "ninjaone-pp-cli patch-gaps --severity critical --agent --select results.organizationName,results.systemName,results.kb,results.failedCount",
+        "explanation": "Fleet-wide critical patch gaps with only the fields an agent needs, from the local store."
+      },
+      {
+        "title": "Cluster the current alert storm",
+        "command": "ninjaone-pp-cli alert-storms --window 1h --agent",
+        "explanation": "Group active alerts into ranked incidents to find the one outage behind 50 alerts."
+      },
+      {
+        "title": "Dry-run a cohort patch sweep",
+        "command": "ninjaone-pp-cli patch-sweep --df \"class eq WINDOWS_SERVER\" --dry-run",
+        "explanation": "Preview exactly which servers a patch sweep would scan and apply before mutating anything."
+      },
+      {
+        "title": "Stale device sweep for one client",
+        "command": "ninjaone-pp-cli stale-devices --offline-days 45 --org \"Acme Corp\"",
+        "explanation": "Decommission candidates for a single organization, offline 45+ days."
+      },
+      {
+        "title": "Find SOP custom-field gaps before an audit",
+        "command": "ninjaone-pp-cli cf-hygiene --require assetTag,warrantyEnd --agent",
+        "explanation": "List every device missing required documentation fields across the fleet."
+      }
+    ],
+    "trigger_phrases": [
+      "check patch compliance across all orgs",
+      "show me the alert storm",
+      "find stale devices in ninjaone",
+      "which devices are missing patches",
+      "triage today's ninjaone alerts",
+      "use ninjaone",
+      "run ninjaone"
+    ]
+  }
+}

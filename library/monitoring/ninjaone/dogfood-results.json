@@ -1,0 +1,4975 @@
+{
+  "dir": "\u003ccli-dir\u003e/ninjaone-pp-cli",
+  "spec_path": "\u003ccli-dir\u003e/spec.json",
+  "spec_source": "bundled",
+  "verdict": "FAIL",
+  "path_check": {
+    "tested": 2,
+    "valid": 2,
+    "valid_pct": 100
+  },
+  "auth_check": {
+    "spec_scheme": "bearer token format (expects \"Bearer \" prefix)",
+    "generated_format": "Bearer ",
+    "match": true,
+    "detail": "spec and generated client both use \"Bearer\""
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 306,
+    "covered": 0,
+    "violations": [
+      {
+        "endpoint": "GET /v2/activities",
+        "operation_id": "getActivities",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/alert/{uid}",
+        "operation_id": "resetAlert",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/alert/{uid}/reset",
+        "operation_id": "resetAlertSetActivityData",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/alerts",
+        "operation_id": "getAlerts",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/attachments/temp/upload",
+        "operation_id": "uploadTempAttachments",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/automation/scripts",
+        "operation_id": "getAutomationScripts",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/backup/bandwidth-throttle",
+        "operation_id": "setBandwidthThrottleForDevice",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/backup/integrity-check-jobs",
+        "operation_id": "getIntegrityCheckJobs",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/backup/integrity-check-jobs",
+        "operation_id": "submitIntegrityCheckJob",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/backup/jobs",
+        "operation_id": "getBackupJobs",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/billing/accounts",
+        "operation_id": "getAllAccounts",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/billing/accounts",
+        "operation_id": "createAccount",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/billing/accounts/{id}",
+        "operation_id": "deleteAccount",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/billing/accounts/{id}",
+        "operation_id": "getAccountById",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v2/billing/accounts/{id}",
+        "operation_id": "updateAccount",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/billing/agreements",
+        "operation_id": "findAgreements",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/billing/agreements",
+        "operation_id": "create_1",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/billing/agreements/{id}",
+        "operation_id": "findAgreementById",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v2/billing/agreements/{id}",
+        "operation_id": "update_1",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/billing/agreements/{id}/deactivate",
+        "operation_id": "deactivateAgreement",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/billing/invoices",
+        "operation_id": "getInvoices",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/billing/invoices",
+        "operation_id": "createInvoice",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/billing/invoices/approve",
+        "operation_id": "approveInvoices",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/billing/invoices/archive",
+        "operation_id": "archiveInvoices",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/billing/invoices/export",
+        "operation_id": "exportInvoices",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/billing/invoices/unarchive",
+        "operation_id": "unarchiveInvoices",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/billing/invoices/{id}",
+        "operation_id": "getInvoiceById",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v2/billing/invoices/{id}",
+        "operation_id": "updateInvoice",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/billing/invoices/{id}/note",
+        "operation_id": "updateInvoiceNote",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/billing/products",
+        "operation_id": "getProducts",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/billing/products",
+        "operation_id": "createProduct",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/billing/products/{id}",
+        "operation_id": "getProductById",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v2/billing/products/{id}",
+        "operation_id": "updateProduct",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/billing/products/{id}/activate",
+        "operation_id": "activateProduct",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/billing/products/{id}/deactivate",
+        "operation_id": "deactivateProduct",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/billing/ticket-products/adhoc",
+        "operation_id": "createAdhocTicketProducts",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/billing/ticket-products/catalog",
+        "operation_id": "createCatalogTicketProducts",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/billing/ticket-products/delete",
+        "operation_id": "removeTicketProducts",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/billing/ticket-products/ticket/{id}",
+        "operation_id": "getByTicketId",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v2/billing/ticket-products/{ticketProductId}",
+        "operation_id": "updateTicketProducts",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v2/billing/ticket-time-entry/{timeEntryId}",
+        "operation_id": "updatePsaProperties",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/checklist/archive",
+        "operation_id": "archiveChecklistTemplate",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/checklist/restore",
+        "operation_id": "restoreChecklistTemplate",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/checklist/template/{checklistTemplateId}",
+        "operation_id": "deleteChecklistTemplate",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/checklist/templates",
+        "operation_id": "getChecklistTemplates",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/checklist/templates",
+        "operation_id": "createChecklistTemplates",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v2/checklist/templates",
+        "operation_id": "updateChecklistTemplates",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/checklist/templates/delete",
+        "operation_id": "deleteChecklistTemplates",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/contact/{id}",
+        "operation_id": "deleteContact",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/contact/{id}",
+        "operation_id": "getContactById",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/contact/{id}",
+        "operation_id": "updateContact",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/contacts",
+        "operation_id": "getContacts",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/contacts",
+        "operation_id": "createContact",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/custom-fields",
+        "operation_id": "getAllNodeAttributes",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/custom-fields",
+        "operation_id": "createNodeAttribute",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/custom-fields/bulk",
+        "operation_id": "bulkDeleteNodeAttributes",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/custom-fields/bulk",
+        "operation_id": "bulkCreateNodeAttributes",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v2/custom-fields/bulk",
+        "operation_id": "bulkUpdateNodeAttributes",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/custom-fields/entity-type/{entityType}/{entityId}/signed-urls",
+        "operation_id": "getNodeAttributeSignedUrls",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/custom-fields/field-name/{fieldName}",
+        "operation_id": "deleteNodeAttributeByFieldName",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/custom-fields/field-name/{fieldName}",
+        "operation_id": "getNodeAttributeByFieldName",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v2/custom-fields/field-name/{fieldName}",
+        "operation_id": "updateNodeAttributeByFieldName",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/device-custom-fields",
+        "operation_id": "getDeviceGlobalCustomFields",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/device/{id}",
+        "operation_id": "getDevice",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/device/{id}",
+        "operation_id": "updateDevice",
+        "required_scopes": [
+          "management"
+        ],
+        "required_scope_alternatives": [
+          [
+            "management"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/device/{id}/activities",
+        "operation_id": "getDeviceActivities",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/device/{id}/alerts",
+        "operation_id": "getDeviceAlerts",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/device/{id}/custom-fields",
+        "operation_id": "getNodeCustomFields",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/device/{id}/custom-fields",
+        "operation_id": "updateNodeAttributeValues",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/device/{id}/dashboard-url",
+        "operation_id": "getDeviceLink",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/device/{id}/decommission",
+        "operation_id": "decommissionDevice",
+        "required_scopes": [
+          "management"
+        ],
+        "required_scope_alternatives": [
+          [
+            "management"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/device/{id}/disks",
+        "operation_id": "getDeviceDiskDrives",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/device/{id}/jobs",
+        "operation_id": "getDeviceActiveJobs",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/device/{id}/last-logged-on-user",
+        "operation_id": "getDeviceLastLoggedOnUser",
+        "required_scopes": [
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/device/{id}/maintenance",
+        "operation_id": "cancelDeviceMaintenance",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v2/device/{id}/maintenance",
+        "operation_id": "updateDeviceMaintenance",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/device/{id}/network-interfaces",
+        "operation_id": "getDeviceNetworkInterfaces",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/device/{id}/os-patch-installs",
+        "operation_id": "getDeviceInstalledOSPatches",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/device/{id}/os-patches",
+        "operation_id": "getDevicePendingFailedRejectedOSPatches",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/device/{id}/owner",
+        "operation_id": "removeDeviceOwner",
+        "required_scopes": [
+          "management"
+        ],
+        "required_scope_alternatives": [
+          [
+            "management"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/device/{id}/owner/{ownerUid}",
+        "operation_id": "setDeviceOwner",
+        "required_scopes": [
+          "management"
+        ],
+        "required_scope_alternatives": [
+          [
+            "management"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/device/{id}/patch/os/apply",
+        "operation_id": "submitOSPatchApply",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/device/{id}/patch/os/scan",
+        "operation_id": "submitOSPatchScan",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/device/{id}/patch/software/apply",
+        "operation_id": "submitSoftwarePatchApply",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/device/{id}/patch/software/scan",
+        "operation_id": "submitSoftwarePatchScan",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/device/{id}/policy/overrides",
+        "operation_id": "resetPolicyOverrides",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/device/{id}/policy/overrides",
+        "operation_id": "getPolicyOverrides",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/device/{id}/processors",
+        "operation_id": "getDeviceProcessors",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/device/{id}/reboot/{mode}",
+        "operation_id": "rebootDevices",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/device/{id}/script/run",
+        "operation_id": "runScriptOnDevice",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/device/{id}/scripting/options",
+        "operation_id": "requestScriptingOptions",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/device/{id}/software",
+        "operation_id": "getDeviceSoftware",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/device/{id}/software-patch-installs",
+        "operation_id": "getDeviceInstalledSoftwarePatches",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/device/{id}/software-patches",
+        "operation_id": "getDevicePendingFailedRejectedSoftwarePatches",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/device/{id}/volumes",
+        "operation_id": "getDeviceVolumes",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/device/{id}/windows-service/{serviceId}/configure",
+        "operation_id": "setWindowsServiceConfiguration",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/device/{id}/windows-service/{serviceId}/control",
+        "operation_id": "controlWindowsService",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/device/{id}/windows-services",
+        "operation_id": "getDeviceServices",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/devices",
+        "operation_id": "getDevices",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/devices-detailed",
+        "operation_id": "getDevicesDetailed",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/devices/approval/{mode}",
+        "operation_id": "nodeApprovalOperation",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/devices/search",
+        "operation_id": "search",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/document-templates",
+        "operation_id": "getDocumentTemplatesWithAttributes",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/document-templates",
+        "operation_id": "createDocumentTemplate",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/document-templates/archive",
+        "operation_id": "archiveDocumentTemplates",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/document-templates/restore",
+        "operation_id": "restoreDocumentTemplates",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/document-templates/{documentTemplateId}",
+        "operation_id": "deleteDocumentTemplate",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/document-templates/{documentTemplateId}",
+        "operation_id": "getDocumentTemplate",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v2/document-templates/{documentTemplateId}",
+        "operation_id": "updateDocumentTemplate",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/document-templates/{documentTemplateId}/archive",
+        "operation_id": "archiveDocumentTemplate",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/document-templates/{documentTemplateId}/restore",
+        "operation_id": "restoreDocumentTemplate",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/group/{id}/device-ids",
+        "operation_id": "getGroupDeviceIds",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/groups",
+        "operation_id": "getGroups",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/itam/asset-relationship",
+        "operation_id": "deleteAssetRelationships",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/itam/asset-relationship",
+        "operation_id": "createAssetRelationship",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/itam/asset-relationship/relations",
+        "operation_id": "getAllRelationships",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/itam/asset-relationship/types",
+        "operation_id": "getAllRelationshipTypes",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/itam/asset-relationship/types",
+        "operation_id": "createRelationshipType",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/itam/asset-relationship/{entityType}/{entityId}/relations",
+        "operation_id": "getEntityRelations",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/itam/unmanaged-device",
+        "operation_id": "createUnmanagedDevicePublicApi",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/itam/unmanaged-device/decommissionList",
+        "operation_id": "decommissionUnmanagedDevicePublicApiList",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/itam/unmanaged-device/{nodeId}",
+        "operation_id": "deleteUnmanagedDevicePublicApi",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v2/itam/unmanaged-device/{nodeId}",
+        "operation_id": "updateUnmanagedDevicePublicApi",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/itam/unmanaged-device/{nodeId}/decommission",
+        "operation_id": "decommissionUnmanagedDevicePublicApi",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/jobs",
+        "operation_id": "getActiveJobs",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/knowledgebase/article/{articleId}/download",
+        "operation_id": "downloadKnowledgeBaseArticle",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/knowledgebase/article/{articleId}/signed-urls",
+        "operation_id": "getKnowledgeBaseArticleSignedUrls",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/knowledgebase/articles",
+        "operation_id": "updateKnowledgeBaseArticles",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/knowledgebase/articles",
+        "operation_id": "createKnowledgeBaseArticles",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/knowledgebase/articles/archive",
+        "operation_id": "archiveKnowledgeBaseArticles",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/knowledgebase/articles/delete",
+        "operation_id": "deleteKnowledgeBaseArticles",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/knowledgebase/articles/restore",
+        "operation_id": "restoreKnowledgeBaseArticles",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/knowledgebase/articles/upload",
+        "operation_id": "uploadKnowledgeBaseArticles",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/knowledgebase/folder",
+        "operation_id": "getKnowledgeBaseFolderPathContent",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/knowledgebase/folder/{folderId}",
+        "operation_id": "getKnowledgeBaseFolderContent",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/knowledgebase/folders/archive",
+        "operation_id": "archiveKnowledgeBaseFolders",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/knowledgebase/folders/delete",
+        "operation_id": "deleteKnowledgeBaseFolders",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/knowledgebase/folders/move",
+        "operation_id": "move",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/knowledgebase/folders/restore",
+        "operation_id": "restoreKnowledgeBaseFolders",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/knowledgebase/global/articles",
+        "operation_id": "getGlobalKnowledgeBaseArticles",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/knowledgebase/organization/articles",
+        "operation_id": "getClientKnowledgeBaseArticles",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/locations",
+        "operation_id": "getLocations",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/noderole",
+        "operation_id": "updateNodeRoles",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/noderole",
+        "operation_id": "createNodeRoles",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/noderole/delete",
+        "operation_id": "deleteNodeRoles",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/noderole/list",
+        "operation_id": "getNodeRoles",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/notification-channels",
+        "operation_id": "getNotificationChannels",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/notification-channels/enabled",
+        "operation_id": "getEnabledNotificationChannels",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/organization/archive",
+        "operation_id": "archiveOrganizationChecklists",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/organization/checklist/{checklistId}",
+        "operation_id": "deleteClientChecklist",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/organization/checklist/{checklistId}",
+        "operation_id": "getClientChecklist",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/organization/checklist/{checklistId}/signed-urls",
+        "operation_id": "getClientChecklistSignedUrls",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/organization/checklists",
+        "operation_id": "getClientChecklists",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/organization/checklists",
+        "operation_id": "createOrganizationChecklists",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v2/organization/checklists",
+        "operation_id": "updateOrganizationChecklists",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/organization/checklists/delete",
+        "operation_id": "deleteClientChecklists",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/organization/checklists/promote",
+        "operation_id": "promoteClientChecklists_1",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/organization/checklists/promote-with-name",
+        "operation_id": "promoteClientChecklists",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/organization/document/{clientDocumentId}",
+        "operation_id": "deleteClientDocument",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/organization/document/{clientDocumentId}/archive",
+        "operation_id": "archiveClientDocument",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/organization/document/{clientDocumentId}/restore",
+        "operation_id": "restoreClientDocument",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/organization/document/{clientDocumentId}/signed-urls",
+        "operation_id": "getClientDocumentSignedUrls",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/organization/documents",
+        "operation_id": "getClientDocumentsWithAttributeValues",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/organization/documents",
+        "operation_id": "updateOrganizationDocuments",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/organization/documents",
+        "operation_id": "createOrganizationDocuments",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/organization/documents/archive",
+        "operation_id": "archiveMultiPageClientDocuments",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/organization/documents/restore",
+        "operation_id": "restoreMultiPageClientDocuments",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/organization/generate-installer",
+        "operation_id": "getInstaller",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/organization/restore",
+        "operation_id": "restoreOrganizationChecklists",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/organization/{id}",
+        "operation_id": "getOrganization",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/organization/{id}",
+        "operation_id": "updateOrganization",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/organization/{id}/custom-fields",
+        "operation_id": "getNodeCustomFields_1",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/organization/{id}/custom-fields",
+        "operation_id": "updateNodeAttributeValues_1",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/organization/{id}/devices",
+        "operation_id": "getOrganizationDevices",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/organization/{id}/end-users",
+        "operation_id": "getEndUsers",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/organization/{id}/location/{locationId}/custom-fields",
+        "operation_id": "getNodeCustomFields_2",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/organization/{id}/location/{locationId}/custom-fields",
+        "operation_id": "updateNodeAttributeValues_2",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/organization/{id}/location/{location_id}/installer/{installer_type}",
+        "operation_id": "getInstallerForLocation",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/organization/{id}/locations",
+        "operation_id": "getOrganizationLocations",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/organization/{id}/locations",
+        "operation_id": "createLocationForOrganization",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/organization/{id}/locations/backup/usage",
+        "operation_id": "getOrganizationLocationUsage",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/organization/{id}/locations/{locationId}",
+        "operation_id": "updateLocation",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/organization/{id}/locations/{locationId}/backup/usage",
+        "operation_id": "getLocationUsage",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v2/organization/{id}/policies",
+        "operation_id": "updateNodeRolePolicyAssignmentForOrganization",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/organization/{organizationId}/checklists-from-templates",
+        "operation_id": "createOrganizationChecklistsFromTemplates",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/organization/{organizationId}/document/{clientDocumentId}",
+        "operation_id": "updateOrganizationDocument",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/organization/{organizationId}/documents",
+        "operation_id": "getOrganizationDocuments",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/organization/{organizationId}/template/{documentTemplateId}/document",
+        "operation_id": "createOrganizationDocument",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/organizations",
+        "operation_id": "getOrganizations",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/organizations",
+        "operation_id": "createOrganization",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/organizations-detailed",
+        "operation_id": "getOrganizationsDetailed",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/policies",
+        "operation_id": "getPolicies",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/policies",
+        "operation_id": "createPolicy",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/policies/{policy_id}/condition/custom-fields",
+        "operation_id": "getCustomFieldsPolicyConditions",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/policies/{policy_id}/condition/custom-fields",
+        "operation_id": "createCustomFieldsPolicyCondition",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/policies/{policy_id}/condition/custom-fields/{condition_id}",
+        "operation_id": "getCustomFieldsPolicyCondition",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/policies/{policy_id}/condition/windows-event",
+        "operation_id": "getWindowsEventPolicyConditions",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/policies/{policy_id}/condition/windows-event",
+        "operation_id": "createWindowsEventPolicyCondition",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/policies/{policy_id}/condition/windows-event/{condition_id}",
+        "operation_id": "getWindowsEventPolicyCondition",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/policies/{policy_id}/condition/{condition_id}",
+        "operation_id": "deletePolicyCondition",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/antivirus-status",
+        "operation_id": "getAntivirusStatusReport",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/antivirus-threats",
+        "operation_id": "getAntivirusThreats",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/backup/usage",
+        "operation_id": "getDeviceUsage",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/computer-systems",
+        "operation_id": "getComputerSystems",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/custom-fields",
+        "operation_id": "getCustomFieldsReport",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/custom-fields-detailed",
+        "operation_id": "getCustomFieldsDetailedReport",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/device-health",
+        "operation_id": "getDeviceHealthReport",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/disks",
+        "operation_id": "getDiskDrives",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/logged-on-users",
+        "operation_id": "getLastLoggedOnUsersReport",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/network-interfaces",
+        "operation_id": "getNetworkInterfaces",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/operating-systems",
+        "operation_id": "getOperatingSystems",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/os-patch-installs",
+        "operation_id": "getInstalledOSPatches",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/os-patches",
+        "operation_id": "getPendingFailedRejectedOSPatches",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/policy-overrides",
+        "operation_id": "getPolicyOverrides_1",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/processors",
+        "operation_id": "getProcessors",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/raid-controllers",
+        "operation_id": "getRAIDControllerReport",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/raid-drives",
+        "operation_id": "getRAIDDriveReport",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/scoped-custom-fields",
+        "operation_id": "getScopedCustomFieldsReport",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/scoped-custom-fields-detailed",
+        "operation_id": "getScopedCustomFieldsDetailedReport",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/software",
+        "operation_id": "getSoftware",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/software-patch-installs",
+        "operation_id": "getInstalledSoftwarePatches",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/software-patches",
+        "operation_id": "getPendingFailedRejectedSoftwarePatches",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/volumes",
+        "operation_id": "getVolumes",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/queries/windows-services",
+        "operation_id": "getWindowsServicesReport",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/related-items",
+        "operation_id": "getAllRelatedItems",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/related-items/entity/{entityType}/{entityId}/attachment",
+        "operation_id": "createRelatedItem",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/related-items/entity/{entityType}/{entityId}/relation",
+        "operation_id": "createRelatedItemForEntity",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/related-items/entity/{entityType}/{entityId}/relations",
+        "operation_id": "createRelatedItemForEntity_1",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/related-items/entity/{entityType}/{entityId}/secure",
+        "operation_id": "createSecureRelatedItemForEntity",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/related-items/with-entity-type/{entityType}",
+        "operation_id": "getRelatedItemsWithHostEntityType",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/related-items/with-entity/{entityType}/{entityId}",
+        "operation_id": "getRelatedItemsForHostEntity",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/related-items/with-entity/{entityType}/{entityId}/attachments/signed-urls",
+        "operation_id": "getRelatedItemAttachmentsSignedUrls",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/related-items/with-related-entity-type/{relatedEntityType}",
+        "operation_id": "getRelatedItemsWithEntityType",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/related-items/with-related-entity/{relEntityType}/{relEntityId}",
+        "operation_id": "getRelatedItemsWithEntity",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/related-items/{entityType}/{entityId}",
+        "operation_id": "deleteRelatedItems",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/related-items/{relatedItemId}",
+        "operation_id": "deleteRelatedItem",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/related-items/{relatedItemId}/attachment/download",
+        "operation_id": "downloadRelatedItemAttachment",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/roles",
+        "operation_id": "getNodeRoles_1",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/software-license",
+        "operation_id": "create",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/software-license/licenses",
+        "operation_id": "getAll",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/software-license/upsert",
+        "operation_id": "upsert",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/software-license/{licenseId}",
+        "operation_id": "delete",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/software-license/{licenseId}",
+        "operation_id": "getById",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v2/software-license/{licenseId}",
+        "operation_id": "update",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/software-license/{licenseId}/assignments",
+        "operation_id": "getLicenseAssignments",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/software-products",
+        "operation_id": "getSoftwareProducts",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/staged-device",
+        "operation_id": "createStagedDevice",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/tab",
+        "operation_id": "createCustomTabPublicApi",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/tab/end-user/order",
+        "operation_id": "updateEndUserCustomTabsOrder",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/tab/organization/order",
+        "operation_id": "updateOrganizationCustomTabsOrder",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/tab/rename",
+        "operation_id": "renameCustomTabPublicApi",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/tab/role/{roleId}/order",
+        "operation_id": "updateRoleCustomTabsOrder",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/tab/role/{roleId}/visibility",
+        "operation_id": "updateCustomTabsDisplay",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/tab/summary/end-user",
+        "operation_id": "getTabSummaryForEndUser",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/tab/summary/organization",
+        "operation_id": "getTabSummaryForOrganization",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/tab/summary/role/{roleId}",
+        "operation_id": "getTabSummaryForRole",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/tab/{tabId}",
+        "operation_id": "deleteCustomTabPublicApi",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/tab/{tabId}",
+        "operation_id": "getCustomTabPublicApi",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/tab/{tabId}",
+        "operation_id": "updateCustomTabPublicApi",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/tab/{tabId}/end-user",
+        "operation_id": "getTabHierarchyForEndUser",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/tab/{tabId}/organization",
+        "operation_id": "getTabHierarchyForOrganization",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/tab/{tabId}/role/{roleId}",
+        "operation_id": "getTabHierarchyForRole",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/tag",
+        "operation_id": "getTags",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/tag",
+        "operation_id": "createTag",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/tag/delete",
+        "operation_id": "deleteTags",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/tag/merge",
+        "operation_id": "mergeTags",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/tag/{assetType}",
+        "operation_id": "batchUpdateTags",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v2/tag/{assetType}/{assetId}",
+        "operation_id": "setTagsForAsset",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/tag/{tagId}",
+        "operation_id": "deleteTag",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v2/tag/{tagId}",
+        "operation_id": "updateTag",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/tasks",
+        "operation_id": "getScheduledTasks",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/ticketing/app-user-contact",
+        "operation_id": "getAllUserAndContacts",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/ticketing/attributes",
+        "operation_id": "getTicketAttributes",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/ticketing/contact/contacts",
+        "operation_id": "getContacts_1",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/ticketing/statuses",
+        "operation_id": "getAllStatuses",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/ticketing/ticket",
+        "operation_id": "create_2",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/ticketing/ticket-form",
+        "operation_id": "getTicketForms",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/ticketing/ticket-form/{id}",
+        "operation_id": "getTicketFormById",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/ticketing/ticket/{ticketId}",
+        "operation_id": "getTicketById",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v2/ticketing/ticket/{ticketId}",
+        "operation_id": "update_2",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/ticketing/ticket/{ticketId}/comment",
+        "operation_id": "createComment",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/ticketing/ticket/{ticketId}/log-entry",
+        "operation_id": "getTicketLogEntriesByTicketId",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/ticketing/trigger/board/{boardId}/run",
+        "operation_id": "getTicketsByBoard",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/ticketing/trigger/boards",
+        "operation_id": "getBoards",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/user/end-user/{id}",
+        "operation_id": "deleteEndUser",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/user/end-user/{id}",
+        "operation_id": "getEndUser",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/user/end-user/{id}",
+        "operation_id": "patchEndUser",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/user/end-user/{id}/custom-fields",
+        "operation_id": "getNodeCustomFields_3",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/user/end-user/{id}/custom-fields",
+        "operation_id": "updateNodeAttributeValues_3",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/user/end-user/{id}/device-access",
+        "operation_id": "patchEndUserDeviceAccess",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/user/end-users",
+        "operation_id": "getEndUsers_1",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/user/end-users",
+        "operation_id": "createEndUser",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/user/role/{roleId}/add-members",
+        "operation_id": "addUserRoleMembers",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/user/role/{roleId}/remove-members",
+        "operation_id": "removeUserRoleMembers",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/user/roles",
+        "operation_id": "getUserRoles",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/user/technician/{id}",
+        "operation_id": "deleteTechnician",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/user/technician/{id}",
+        "operation_id": "getTechnician",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v2/user/technician/{id}",
+        "operation_id": "updateTechnician",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/user/technicians",
+        "operation_id": "getTechnicians",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/user/technicians",
+        "operation_id": "createTechnician",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/users",
+        "operation_id": "getUsers",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/vulnerability/scan-groups",
+        "operation_id": "fetchAllScanGroups",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v2/vulnerability/scan-groups/{scan-group-id}",
+        "operation_id": "fetchScanGroupById",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v2/vulnerability/scan-groups/{scan-group-id}/upload",
+        "operation_id": "updateScanGroup",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v2/webhook",
+        "operation_id": "disableWebhook",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v2/webhook",
+        "operation_id": "configureWebhook",
+        "required_scopes": [
+          "control",
+          "management",
+          "monitoring"
+        ],
+        "required_scope_alternatives": [
+          [
+            "control",
+            "management",
+            "monitoring"
+          ]
+        ]
+      }
+    ],
+    "detail": "generated auth.go declares no OAuth scopes"
+  },
+  "dead_flags": {
+    "total": 21,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 67,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": true,
+    "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 413,
+      "registered": 413
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 8,
+    "found": 8
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 8,
+    "exempted_via_store": 2
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 403
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 403
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "OAuth scope coverage missing for 306 endpoint(s)"
+  ]
+}

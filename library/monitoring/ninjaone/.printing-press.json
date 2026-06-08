@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-08T14:03:32.606712241Z",
+  "printing_press_version": "4.20.1",
+  "api_name": "ninjaone",
+  "display_name": "NinjaOne",
+  "cli_name": "ninjaone-pp-cli",
+  "creator": {
+    "handle": "sonofcar102",
+    "name": "\"Chris Carson\""
+  },
+  "owner": "sonofcar102",
+  "printer": "sonofcar102",
+  "printer_name": "\"Chris Carson\"",
+  "spec_path": "ninjaone-spec-enriched.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:3e7c6b8b19371929d83f0dc2053611f0075b9169151f10b936b8fb581a5cd597",
+  "run_id": "20260604-150538",
+  "category": "monitoring",
+  "description": "Every NinjaOne endpoint plus fleet-wide cross-org commands the org-scoped console can't give you.",
+  "mcp_binary": "ninjaone-pp-mcp",
+  "mcp_tool_count": 306,
+  "mcp_ready": "full",
+  "api_version": "2.0.9-draft",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "NINJAONE_CLIENT_ID",
+    "NINJAONE_CLIENT_SECRET"
+  ],
+  "auth_key_url": "https://app.ninjarmm.com/#/administration/apps/api",
+  "novel_features": [
+    {
+      "name": "Cross-org patch-gap report",
+      "command": "patch-gaps",
+      "description": "See every device still missing or failing a patch across all your client organizations in one fleet-wide view."
+    },
+    {
+      "name": "Throttled cross-org patch sweep",
+      "command": "patch-sweep",
+      "description": "Scan and apply patches across a device cohort, serialized through an adaptive Retry-After limiter so bulk runs survive NinjaOne's throttling."
+    },
+    {
+      "name": "Alert-storm clustering",
+      "command": "alert-storms",
+      "description": "Collapse a flood of active alerts into ranked incidents grouped by organization, condition, and time window."
+    },
+    {
+      "name": "Patch-stuck detector",
+      "command": "patch-stuck",
+      "description": "Surface KBs that have been failing or pending across multiple consecutive syncs, not just at this moment."
+    },
+    {
+      "name": "Bulk alert reset by query",
+      "command": "alert-clear",
+      "description": "Reset every alert matching a predicate (condition, organization, or age) in one throttled, dry-run-first operation."
+    },
+    {
+      "name": "Stale/offline device sweep",
+      "command": "stale-devices",
+      "description": "Find stale or offline devices with no contact in N days across every organization, grouped by org, with an optional throttled cohort reboot."
+    },
+    {
+      "name": "Flapping-alert detector",
+      "command": "alert-flappers",
+      "description": "Rank conditions that repeatedly fire and auto-resolve over a window, by cycle count per device and condition."
+    },
+    {
+      "name": "Custom-field hygiene",
+      "command": "cf-hygiene",
+      "description": "Find devices and organizations missing required custom-field values (asset tag, warranty, owner) fleet-wide."
+    }
+  ]
+}

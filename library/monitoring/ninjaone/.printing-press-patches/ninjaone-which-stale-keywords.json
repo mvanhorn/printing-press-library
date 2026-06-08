@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "ninjaone-which-stale-keywords",
+  "applied_at": "2026-06-08",
+  "base_run_id": "20260604-150538",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Add 'stale or offline' to the stale-devices entry description in the which capability index.",
+  "reason": "The which scorer substring-matches the full query against descriptions; the original 'List devices with no contact...' text lacked the words 'stale'/'offline' so 'which find stale devices' did not surface stale-devices.",
+  "files": ["internal/cli/which.go"],
+  "validated_outcome": "Description now contains stale/offline keywords; underlying per-token scorer gap filed for cli-printing-press retro.",
+  "upstream_issue": ""
+}

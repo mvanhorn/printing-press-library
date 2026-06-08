@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-06-08T14:00:46.828366475Z",
+  "cli_dir": "\u003ccli-dir\u003e/ninjaone-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 365,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; agents understand this without elaboration and it is framework-skipped from the MCP surface"
+    }
+  ]
+}
