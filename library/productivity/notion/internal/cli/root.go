@@ -198,6 +198,11 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newNotionSearchPromotedCmd(flags))
 	rootCmd.AddCommand(newStaleCmd(flags))
 	rootCmd.AddCommand(newChangedCmd(flags))
+	rootCmd.AddCommand(newNovelSqlCmd(flags))
+	rootCmd.AddCommand(newNovelSinceCmd(flags))
+	rootCmd.AddCommand(newNovelContextCmd(flags))
+	rootCmd.AddCommand(newNovelGraphCmd(flags))
+	rootCmd.AddCommand(newNovelBulkCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
 	return rootCmd
