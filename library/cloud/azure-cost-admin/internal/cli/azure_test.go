@@ -84,6 +84,25 @@ func TestBuildCostQuerySupportsActualCostGrouping(t *testing.T) {
 	}
 }
 
+func TestActiveSubscriptionResolvesRequestedName(t *testing.T) {
+	runner := &recordingRunner{output: []byte(`{"id":"00000000-0000-0000-0000-000000000001","name":"Engineering Dev"}`)}
+	app := defaultApp()
+	app.runner = runner
+
+	sub, err := app.activeSubscription(context.Background(), "Engineering Dev")
+	if err != nil {
+		t.Fatalf("activeSubscription failed: %v", err)
+	}
+
+	if sub.ID != "00000000-0000-0000-0000-000000000001" || sub.Name != "Engineering Dev" {
+		t.Fatalf("unexpected subscription: %+v", sub)
+	}
+	joined := strings.Join(runner.args, " ")
+	if !strings.Contains(joined, "--subscription Engineering Dev") {
+		t.Fatalf("requested subscription was not resolved through Azure CLI: %s", joined)
+	}
+}
+
 func TestFindAnomaliesUsesLastSettledDay(t *testing.T) {
 	runner := &costQueryRecordingRunner{}
 	app := defaultApp()

@@ -147,10 +147,11 @@ func maskID(id string) string {
 }
 
 func (a *app) activeSubscription(ctx context.Context, requested string) (subscriptionInfo, error) {
+	args := []string{"account", "show", "--output", "json"}
 	if requested != "" {
-		return subscriptionInfo{ID: requested, Name: requested}, nil
+		args = []string{"account", "show", "--subscription", requested, "--output", "json"}
 	}
-	out, err := a.runner.Run(ctx, "az", "account", "show", "--output", "json")
+	out, err := a.runner.Run(ctx, "az", args...)
 	if err != nil {
 		return subscriptionInfo{}, err
 	}
@@ -160,6 +161,9 @@ func (a *app) activeSubscription(ctx context.Context, requested string) (subscri
 	}
 	if sub.ID == "" {
 		return subscriptionInfo{}, fmt.Errorf("active Azure subscription is missing; run az login and az account set")
+	}
+	if sub.Name == "" && requested != "" {
+		sub.Name = requested
 	}
 	return sub, nil
 }
