@@ -75,7 +75,9 @@ func newAuthImportOAuth2Cmd(flags *rootFlags) *cobra.Command {
 			}
 			if len(scopeList) > 0 {
 				out["scopes"] = scopeList
-				out["missing_for"] = missingScopesForWorkflows(scopeList)
+				if missing := missingScopesForWorkflows(scopeList); len(missing) > 0 {
+					out["missing_for"] = missing
+				}
 			}
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
