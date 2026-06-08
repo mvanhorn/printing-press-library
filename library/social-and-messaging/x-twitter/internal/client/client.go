@@ -691,9 +691,9 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 		}
 	}
 	_ = queryPrinted
+	var bodyValue any
 	if body != nil {
 		var pretty json.RawMessage
-		var bodyValue any
 		if json.Unmarshal(body, &bodyValue) == nil {
 			redacted, _ := json.Marshal(c.redactDryRunBodyValue(bodyValue))
 			pretty = json.RawMessage(redacted)
@@ -730,11 +730,8 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 			envelope["request"].(map[string]any)["params"] = cleanParams
 		}
 	}
-	var bodyValue any
-	if body != nil {
-		if json.Unmarshal(body, &bodyValue) == nil {
-			envelope["request"].(map[string]any)["body"] = c.redactDryRunBodyValue(bodyValue)
-		}
+	if bodyValue != nil {
+		envelope["request"].(map[string]any)["body"] = c.redactDryRunBodyValue(bodyValue)
 	}
 	if action := inferXPublicAction(method, path, bodyValue); action != "" {
 		envelope["public_action"] = action

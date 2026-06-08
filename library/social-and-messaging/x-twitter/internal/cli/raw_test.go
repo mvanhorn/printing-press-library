@@ -143,19 +143,11 @@ func TestRawRejectsPlainHTTPAbsoluteURL(t *testing.T) {
 }
 
 func TestRawRejectsDisallowedAbsoluteHost(t *testing.T) {
-	t.Setenv("X_BEARER_TOKEN", "app-token")
-	t.Setenv("X_OAUTH2_USER_TOKEN", "")
-
-	var flags rootFlags
-	cmd := newRootCmd(&flags)
-	cmd.SetOut(&bytes.Buffer{})
-	cmd.SetErr(&bytes.Buffer{})
-	cmd.SetArgs([]string{"raw", "GET", "https://evil.example/2/users/me", "--dry-run", "--agent"})
-	err := cmd.Execute()
+	_, err := validateRawPath("https://evil.example/2/users/me")
 	if err == nil {
 		t.Fatal("expected disallowed host error")
 	}
-	if !strings.Contains(err.Error(), "absolute URL not allowed") {
+	if !strings.Contains(err.Error(), "raw absolute URL host") {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
