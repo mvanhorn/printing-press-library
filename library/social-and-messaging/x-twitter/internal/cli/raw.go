@@ -92,9 +92,9 @@ func validateRawPath(raw string) (string, error) {
 func parseRawHeaders(values []string) (map[string]string, error) {
 	out := map[string]string{}
 	for _, raw := range values {
-		key, value, ok := strings.Cut(raw, "=")
+		key, value, ok := strings.Cut(raw, ":")
 		if !ok {
-			key, value, ok = strings.Cut(raw, ":")
+			key, value, ok = strings.Cut(raw, "=")
 		}
 		key = strings.TrimSpace(key)
 		if !ok || key == "" {
