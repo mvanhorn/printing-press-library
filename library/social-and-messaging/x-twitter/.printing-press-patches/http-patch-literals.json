@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "http-patch-literals",
+  "applied_at": "2026-06-04",
+  "base_run_id": "20260603-230951",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Generated code contains HTTP PATCH method literals.",
+  "reason": "The published-library package verifier currently treats any Go file containing the string PATCH as a patch marker. These files are generated HTTP method handling, not local customizations.",
+  "files": [
+    "internal/client/client.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "Package verifier accepts the explicit ledger entry; no hand-authored behavior change is recorded."
+}

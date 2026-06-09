@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "post-print-drop-sqlite3-lookpath",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260510-105710",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Remove exec.LookPath(\"sqlite3\") guard from discoverChromeProfiles.",
+  "reason": "Follow-up to greptile-countcookies-sql-injection: countCookiesForDomain no longer shells out to sqlite3, so the pre-flight guard is spurious and silently broke profile auto-detection on hosts without sqlite3 in PATH.",
+  "files": [
+    "internal/cli/auth.go"
+  ]
+}

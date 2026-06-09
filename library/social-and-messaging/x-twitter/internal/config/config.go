@@ -18,9 +18,11 @@ type Config struct {
 	AuthHeaderVal    string            `toml:"auth_header"`
 	Headers          map[string]string `toml:"headers,omitempty"`
 	AuthSource       string            `toml:"-"`
+	SelectedProfile  string            `toml:"-"`
 	AccessToken      string            `toml:"access_token"`
 	RefreshToken     string            `toml:"refresh_token"`
 	TokenExpiry      time.Time         `toml:"token_expiry"`
+	Scopes           []string          `toml:"scopes,omitempty"`
 	ClientID         string            `toml:"client_id"`
 	ClientSecret     string            `toml:"client_secret"`
 	Path             string            `toml:"-"`
@@ -112,8 +114,8 @@ func (c *Config) AuthHeader() string {
 	// app-only bearer is read-only. Checking it first means writes "just work"
 	// when a user has set both X_BEARER_TOKEN (reads) and X_OAUTH2_USER_TOKEN.
 	if c.XOauth2UserToken != "" {
-		if c.AuthSource == "" {
-			c.AuthSource = "env:X_OAUTH2_USER_TOKEN"
+		if c.AuthSource == "" || c.AuthSource == "env:X_BEARER_TOKEN" {
+			c.AuthSource = "config:oauth2_user_token"
 		}
 		return "Bearer " + c.XOauth2UserToken
 	}
@@ -130,6 +132,48 @@ func (c *Config) AuthHeader() string {
 		return "Bearer " + c.AccessToken
 	}
 	return ""
+}
+
+func (c *Config) AppOnlyAuthHeader() string {
+	if c == nil || c.XBearerToken == "" {
+		return ""
+	}
+	return "Bearer " + c.XBearerToken
+}
+
+func (c *Config) UserContextAuthHeader() string {
+	if c == nil {
+		return ""
+	}
+	if c.XOauth2UserToken != "" {
+		return "Bearer " + c.XOauth2UserToken
+	}
+	if c.AccessToken != "" {
+		return "Bearer " + c.AccessToken
+	}
+	if c.AuthHeaderVal != "" {
+		return c.AuthHeaderVal
+	}
+	return ""
+}
+
+func (c *Config) UserContextAuthSource() string {
+	if c == nil {
+		return ""
+	}
+	switch {
+	case c.XOauth2UserToken != "":
+		if c.AuthSource == "env:X_OAUTH2_USER_TOKEN" {
+			return c.AuthSource
+		}
+		return "config:oauth2_user_token"
+	case c.AccessToken != "":
+		return "config:access_token"
+	case c.AuthHeaderVal != "":
+		return "config:auth_header"
+	default:
+		return ""
+	}
 }
 
 func applyAuthFormat(format string, replacements map[string]string) string {
@@ -154,6 +198,38 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 	return c.save()
 }
 
+func (c *Config) SaveOAuth2UserContext(clientID, clientSecret, accessToken, refreshToken string, expiry time.Time, scopes []string) error {
+	clientID = strings.TrimSpace(clientID)
+	clientSecret = strings.TrimSpace(clientSecret)
+	c.AuthHeaderVal = ""
+	if clientID != "" {
+		c.ClientID = clientID
+	}
+	if clientSecret != "" {
+		c.ClientSecret = clientSecret
+	}
+	c.XOauth2UserToken = strings.TrimSpace(accessToken)
+	c.AccessToken = ""
+	c.RefreshToken = strings.TrimSpace(refreshToken)
+	c.TokenExpiry = expiry
+	c.Scopes = normalizeScopes(scopes)
+	return c.save()
+}
+
+func (c *Config) SaveBearerToken(token string) error {
+	token = strings.TrimSpace(token)
+	if token == "" {
+		return fmt.Errorf("bearer token must not be empty")
+	}
+	c.AuthHeaderVal = ""
+	c.XBearerToken = token
+	// access_token is the legacy ambiguous field. Keep it empty so app-only
+	// doctor/status checks read the same bearer_token field AuthHeader() and
+	// AppOnlyAuthHeader() use for public app-only API reads.
+	c.AccessToken = ""
+	return c.save()
+}
+
 func (c *Config) ClearTokens() error {
 	// AuthHeader() falls back to the env-var-derived fields when AuthHeaderVal
 	// and AccessToken are empty, so dropping the working credential requires
@@ -165,6 +241,7 @@ func (c *Config) ClearTokens() error {
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.Scopes = nil
 	c.ClientID = ""
 	c.ClientSecret = ""
 	c.XBearerToken = ""
@@ -184,5 +261,16 @@ func (c *Config) save() error {
 	return os.WriteFile(c.Path, data, 0o600)
 }
 
-// Ensure strings import is used
-var _ = strings.ReplaceAll
+func normalizeScopes(scopes []string) []string {
+	seen := map[string]bool{}
+	out := make([]string, 0, len(scopes))
+	for _, scope := range scopes {
+		scope = strings.TrimSpace(scope)
+		if scope == "" || seen[scope] {
+			continue
+		}
+		seen[scope] = true
+		out = append(out, scope)
+	}
+	return out
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "x-twitter-auth-command-clarity",
+  "applied_at": "2026-06-08",
+  "base_run_id": "20260603-230951",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Add explicit auth set-bearer-token command, deprecate ambiguous auth set-token, add OAuth2 PKCE browser login, and clarify X auth lanes in README/SKILL.",
+  "reason": "X has three distinct auth lanes: app-only Bearer token, OAuth2 user-context token, and X Articles browser cookies. The prior auth set-token command wrote to access_token while app-only diagnostics expected bearer_token, and OAuth2 user-context setup required an awkward externally-acquired token import instead of a CLI-run authorization-code + PKCE flow.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "manifest.json",
+    "internal/config/config.go",
+    "internal/client/client.go",
+    "internal/cli/auth.go",
+    "internal/cli/auth_test.go",
+    "internal/cli/auth_oauth2_login.go",
+    "internal/cli/auth_oauth2_login_test.go",
+    "internal/cli/helpers.go",
+    "internal/cli/which.go",
+    "internal/cli/which_test.go"
+  ],
+  "validated_outcome": "Focused auth tests cover set-bearer-token storing bearer_token, deprecated set-token alias storing the same app-only field, preservation of OAuth2 user-context tokens, JSON lane reporting, empty bearer-token rejection, PKCE authorize URL construction, state validation, loopback callback handling, token exchange, and config save."
+}

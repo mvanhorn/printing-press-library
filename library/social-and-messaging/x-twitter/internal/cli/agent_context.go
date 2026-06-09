@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"os"
 	"sort"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -184,6 +185,7 @@ func collectAgentCommands(c *cobra.Command) []agentContextCommand {
 				entry.Annotations[k] = v
 			}
 		}
+		enrichAgentAnnotations(entry.Annotations, sub)
 		sub.Flags().VisitAll(func(f *pflag.Flag) {
 			entry.Flags = append(entry.Flags, agentContextFlag{
 				Name:    f.Name,
@@ -201,4 +203,85 @@ func collectAgentCommands(c *cobra.Command) []agentContextCommand {
 		out = append(out, entry)
 	}
 	return out
+}
+
+func enrichAgentAnnotations(annotations map[string]string, cmd *cobra.Command) map[string]string {
+	if len(annotations) == 0 {
+		return annotations
+	}
+	method := strings.ToUpper(annotations["pp:method"])
+	path := annotations["pp:path"]
+	if method == "" && path == "" {
+		return annotations
+	}
+	if method != "" && method != "GET" && annotations["mcp:read-only"] != "true" {
+		annotations["pp:mutation"] = "true"
+	}
+	if lane := authLaneForEndpoint(method, path); lane != "" {
+		annotations["pp:auth-lane"] = lane
+	}
+	if action := publicActionForEndpoint(method, path); action != "" {
+		annotations["pp:public-action"] = action
+	}
+	if posture := dataPostureForCommand(cmd); posture != "" {
+		annotations["pp:data-posture"] = posture
+	}
+	return annotations
+}
+
+func authLaneForEndpoint(method, path string) string {
+	switch {
+	case strings.HasPrefix(path, "/i/api/") || strings.HasPrefix(path, "/i/media/"):
+		return "x_articles_cookie"
+	case method != "" && method != "GET":
+		return "oauth2_user_context"
+	case strings.Contains(path, "/bookmarks") ||
+		strings.Contains(path, "/liked_tweets") ||
+		strings.Contains(path, "/mentions") ||
+		strings.Contains(path, "/timelines/reverse_chronological") ||
+		strings.Contains(path, "/following") ||
+		strings.Contains(path, "/followers") ||
+		path == "/2/users/me":
+		return "oauth2_user_context"
+	case strings.HasPrefix(path, "/2/"):
+		return "app_only_api_or_oauth2_user_context"
+	}
+	return ""
+}
+
+func publicActionForEndpoint(method, path string) string {
+	switch {
+	case method == "POST" && path == "/2/tweets":
+		return "post_reply_or_quote"
+	case method == "DELETE" && strings.HasPrefix(path, "/2/tweets/"):
+		return "delete_post"
+	case method == "POST" && strings.Contains(path, "/likes"):
+		return "like"
+	case method == "DELETE" && strings.Contains(path, "/likes/"):
+		return "unlike"
+	case method == "POST" && strings.Contains(path, "/retweets"):
+		return "repost"
+	case method == "DELETE" && strings.Contains(path, "/retweets/"):
+		return "unrepost"
+	case method == "POST" && strings.Contains(path, "/following"):
+		return "follow"
+	case method == "DELETE" && strings.Contains(path, "/following/"):
+		return "unfollow"
+	case method == "POST" && strings.Contains(path, "/dm_"):
+		return "dm"
+	}
+	return ""
+}
+
+func dataPostureForCommand(cmd *cobra.Command) string {
+	if cmd == nil {
+		return ""
+	}
+	switch cmd.Name() {
+	case "save", "create", "run", "snapshot", "backfill":
+		return "local_state_or_remote_read"
+	case "analyze", "list", "export", "show":
+		return "local_read"
+	}
+	return ""
 }

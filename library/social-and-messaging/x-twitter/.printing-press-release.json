@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "x-twitter",
+  "cli_name": "x-twitter-pp-cli",
+  "version": "2026.6.5",
+  "released_at": "2026-06-09T15:56:55Z",
+  "source_commit": "9694e97bb5aecdab31217c138aae18e5b48402fc",
+  "printing_press_version": "4.20.1",
+  "run_id": "20260603-230951",
+  "changes": [
+    {
+      "title": "fix(x-twitter): require client id for OAuth2 refresh imports",
+      "pr": 1124,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1124",
+      "commit": "9694e97bb5aecdab31217c138aae18e5b48402fc"
+    }
+  ]
+}

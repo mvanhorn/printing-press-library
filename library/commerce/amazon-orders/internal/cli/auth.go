@@ -418,7 +418,7 @@ func refreshStoredBrowserCookies(cfg *config.Config, w io.Writer) error {
 }
 func cookieToolSupportsProfiles(tool string) bool {
 	switch tool {
-	case "pycookiecheat", "cookie-scoop":
+	case "pycookiecheat", "pycookiecheat-cli", "cookie-scoop":
 		return true
 	default:
 		return false
@@ -868,21 +868,44 @@ func resolveProfileByName(name string) (string, error) {
 
 // --- Cookie extraction tools ---
 
+var detectedPycookiecheatCLIPath string
+
+func runCookieToolProbe(name string, args ...string) error {
+	cmd := exec.Command(name, args...)
+	cmd.Stdout = io.Discard
+	cmd.Stderr = io.Discard
+	return cmd.Run()
+}
+
 // detectCookieTool checks for available cookie extraction tools in preference order.
 func detectCookieTool() (string, error) {
+	detectedPycookiecheatCLIPath = ""
 	tools := []struct {
 		name  string
 		check []string
 	}{
 		{"pycookiecheat", []string{"python3", "-c", "import pycookiecheat"}},
+		{"pycookiecheat-cli", []string{"pycookiecheat", "--help"}},
 		{"cookies", []string{"cookies", "--help"}},
 		{"cookie-scoop", []string{"cookie-scoop", "--help"}},
 	}
 
 	for _, tool := range tools {
-		if err := exec.Command(tool.check[0], tool.check[1:]...).Run(); err == nil {
+		if runtime.GOOS == "windows" && (tool.name == "pycookiecheat" || tool.name == "pycookiecheat-cli") {
+			continue
+		}
+		if err := runCookieToolProbe(tool.check[0], tool.check[1:]...); err == nil {
+			if tool.name == "pycookiecheat-cli" {
+				detectedPycookiecheatCLIPath = tool.check[0]
+				if path, err := exec.LookPath(tool.check[0]); err == nil {
+					detectedPycookiecheatCLIPath = path
+				}
+			}
 			return tool.name, nil
 		}
+	}
+	if runtime.GOOS == "windows" {
+		return "", fmt.Errorf("no cookie extraction tool found; pycookiecheat does not support Windows. Use `auth login --browser` (live Chrome via CDP) or install cookie-scoop-cli")
 	}
 	return "", fmt.Errorf("no cookie extraction tool found; install one: pip install pycookiecheat")
 }
@@ -893,6 +916,8 @@ func extractCookies(tool, domain, profileDir string) (string, error) {
 	switch tool {
 	case "pycookiecheat":
 		return extractViaPycookiecheat(domain, profileDir)
+	case "pycookiecheat-cli":
+		return extractViaPycookiecheatCLI(domain, profileDir)
 	case "cookies":
 		return extractViaCookiesCLI(domain)
 	case "cookie-scoop":
@@ -937,6 +962,43 @@ func extractViaPycookiecheat(domain, profileDir string) (string, error) {
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		return "", fmt.Errorf("pycookiecheat failed: %w", err)
+	}
+
+	var cookies map[string]string
+	if err := json.Unmarshal(out.Bytes(), &cookies); err != nil {
+		return "", fmt.Errorf("parsing pycookiecheat output: %w", err)
+	}
+
+	var parts []string
+	for name, value := range cookies {
+		parts = append(parts, name+"="+value)
+	}
+	return strings.Join(parts, "; "), nil
+}
+
+func extractViaPycookiecheatCLI(domain, profileDir string) (string, error) {
+	cleanDomain := strings.TrimPrefix(domain, ".")
+	var args []string
+	if profileDir != "" {
+		dataDir, err := chromeDataDir()
+		if err != nil {
+			return "", err
+		}
+		args = append(args, "-c", filepath.Join(dataDir, profileDir, "Cookies"))
+	}
+	args = append(args, "https://"+cleanDomain)
+
+	pycookiecheatBin := detectedPycookiecheatCLIPath
+	if pycookiecheatBin == "" {
+		pycookiecheatBin = "pycookiecheat"
+	}
+
+	var out bytes.Buffer
+	cmd := exec.Command(pycookiecheatBin, args...)
+	cmd.Stdout = &out
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return "", fmt.Errorf("pycookiecheat cli failed: %w", err)
 	}
 
 	var cookies map[string]string

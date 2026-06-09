@@ -46,11 +46,56 @@
       "kind": "per_call",
       "required": false,
       "sensitive": true,
-      "description": "Optional OAuth2 user-context token. Unlocks v2 writes (post, like, repost, bookmark, follow, DM) and personal reads (me, mentions, home timeline, bookmarks). Sent as Authorization Bearer; obtain via auth login (OAuth2 + PKCE)."
+      "description": "Optional OAuth2 user-context token. Unlocks v2 writes (post, like, repost, bookmark, follow, DM) and personal reads (me, mentions, home timeline, bookmarks). Sent as Authorization Bearer; obtain from an OAuth2 authorization-code + PKCE flow and set/import explicitly. auth login --chrome is cookie-only for X Articles."
     }
   ],
   "auth_key_url": "https://console.x.com/",
   "novel_features": [
+    {
+      "name": "Post URL resolver",
+      "command": "post resolve",
+      "description": "Normalize any X post URL or raw post ID into a canonical structured post record with provenance, author context, metrics, local-state reuse, and suggested next workflow commands."
+    },
+    {
+      "name": "Conversation context resolver",
+      "command": "thread context",
+      "description": "Resolve a post URL or ID, include parent and quote context when available, and optionally pull bounded replies from local store or recent search."
+    },
+    {
+      "name": "Durable post collections",
+      "command": "collection save/list/export",
+      "description": "Save resolved X posts into local named collections, list saved source material, and export it as markdown, JSON, JSONL, or CSV."
+    },
+    {
+      "name": "Watermarked X monitors",
+      "command": "monitor create/run/list",
+      "description": "Create named query, URL, or account monitors, run them with local watermarks and dedupe, and reuse saved results for later briefing."
+    },
+    {
+      "name": "Source-backed X briefs",
+      "command": "brief",
+      "description": "Package monitor results, collections, or explicit posts into deterministic JSON or markdown briefs with source links and metrics."
+    },
+    {
+      "name": "Account snapshots",
+      "command": "account snapshot",
+      "description": "Capture profile basics, public metrics, pinned post, and recent posts for an account by username or user ID."
+    },
+    {
+      "name": "URL mention tracking",
+      "command": "url mentions",
+      "description": "Find recent posts mentioning a URL, domain, repo, article, or product page and optionally save them into a collection or monitor."
+    },
+    {
+      "name": "Post performance tracking",
+      "command": "performance snapshot/backfill/analyze",
+      "description": "Store timestamped post metrics locally, backfill recent account posts when auth allows, and analyze saved snapshots by useful dimensions."
+    },
+    {
+      "name": "Timeline export",
+      "command": "timeline export",
+      "description": "Export an account or query timeline as markdown, JSON, or JSONL for research, notes, archives, or downstream analysis."
+    },
     {
       "name": "Offline thread reconstruction",
       "command": "thread show",

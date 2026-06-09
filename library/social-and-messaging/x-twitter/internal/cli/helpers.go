@@ -528,11 +528,17 @@ func classifyAPIError(err error, flags *rootFlags) error {
 			"\n      Run 'x-twitter-pp-cli doctor' to check auth status."+
 			"\n      Response: "+cliutil.SanitizeErrorBody(msg), err))
 	case strings.Contains(msg, "HTTP 401"):
-		return authErr(fmt.Errorf("%w\nhint: check your token. Set it with: x-twitter-pp-cli auth set-token <token>"+
+		return authErr(fmt.Errorf("%w\nhint: check your token. Set an app-only bearer with: x-twitter-pp-cli auth set-bearer-token <token>"+
 			"\n      or: export X_BEARER_TOKEN=<your-token>"+
 			"\n      Get a key at: https://console.x.com/"+
 			"\n      Bearer Token (required) is on your app Keys and Tokens page at console.x.com. Optional X_OAUTH2_USER_TOKEN unlocks v2 writes and personal reads. X Articles authoring uses browser cookies captured via auth login --chrome."+
 			"\n      Run 'x-twitter-pp-cli doctor' to check auth status.", err))
+	case xAppOnlyUnsupportedAuth(msg):
+		return authErr(fmt.Errorf("%w\nhint: this endpoint requires OAuth2 user-context auth; the current credential appears to be app-only."+
+			"\n      Run `x-twitter-pp-cli auth oauth2-login --client-id <client-id>` or set/import a real user-context token: export X_OAUTH2_USER_TOKEN=<user-context-token>"+
+			"\n      App-only X_BEARER_TOKEN is only valid for public reads and cannot call /2/users/me, bookmarks, personal reads, writes, or analytics endpoints that require user context."+
+			"\n      Browser cookies from `x-twitter-pp-cli auth login --chrome` are only for X Articles, not v2 API user-context auth."+
+			"\n      Run 'x-twitter-pp-cli doctor --json' to see app-only, user-context, and cookie auth lanes separately.", err))
 	case strings.Contains(msg, "HTTP 403"):
 		return authErr(fmt.Errorf("%w\nhint: permission denied. Your credentials are valid but lack access to this resource."+
 			"\n      Check that your API key has the required permissions."+
@@ -547,6 +553,13 @@ func classifyAPIError(err error, flags *rootFlags) error {
 	default:
 		return apiErr(err)
 	}
+}
+
+func xAppOnlyUnsupportedAuth(msg string) bool {
+	lower := strings.ToLower(msg)
+	return strings.Contains(lower, "unsupported authentication") &&
+		(strings.Contains(lower, "application-only") || strings.Contains(lower, "app-only")) &&
+		strings.Contains(lower, "user context")
 }
 
 // classifyDeleteError maps DELETE errors and supports explicit idempotent no-op handling.

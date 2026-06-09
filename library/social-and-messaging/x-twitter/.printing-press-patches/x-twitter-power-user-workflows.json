@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "x-twitter-power-user-workflows",
+  "applied_at": "2026-06-07",
+  "base_run_id": "20260603-230951",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Novel power-user workflow layer: post resolve, thread context, and durable post collections.",
+  "reason": "The generated X API surface exposes endpoint primitives, but agents and power users start from pasted URLs and need stable workflows: resolve a post, understand conversation context, save source material locally, and export it without reassembling URL parsing, local-store lookup, live fallback, dedupe, and formatting glue each time.",
+  "files": [
+    ".printing-press.json",
+    "internal/cli/post_workflow.go",
+    "internal/cli/post_workflow_test.go",
+    "internal/cli/thread_context.go",
+    "internal/cli/thread_context_test.go",
+    "internal/cli/collection_workflow.go",
+    "internal/cli/collection_workflow_test.go",
+    "internal/cli/root.go",
+    "internal/cli/thread.go",
+    "internal/cli/which.go",
+    "internal/store/store.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "go test ./... covers URL parsing, post normalization, collection argument forms/export formats, thread participant aggregation, and the existing x-twitter package tests."
+}

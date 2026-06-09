@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "wavespeed-novel-platform-specs",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260527-214905",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Added the IG/TikTok/Facebook/X platform request-shape table (dimensions, duration caps, manifest slots).",
+  "reason": "pack, qa preflight, and the image-dimension validator need a single source of truth for per-platform output shapes.",
+  "files": [
+    "internal/cli/platform_specs.go"
+  ]
+}

@@ -7,6 +7,7 @@ Sync once and ask cross-cutting questions forever. Where is my stuff right now, 
 Learn more at [Amazon Orders](https://www.amazon.com).
 
 Created by [@bwishan](https://github.com/bwishan) (Brian Wishan).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 

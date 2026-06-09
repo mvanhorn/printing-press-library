@@ -1,6 +1,6 @@
 ---
 name: pp-x-twitter
-description: "The only X CLI with an offline Trigger phrases: `search X for`, `archive tweets about`, `show me the X thread for`, `monitor my X mentions`, `post a thread to X`, `use x-twitter`, `run x-twitter-pp-cli`."
+description: "Offline-searchable X/Twitter CLI and MCP surface for archiving posts, resolving links, monitoring mentions, composing threads, publishing Articles, and searching synced bookmarks. Trigger phrases: `search X for`, `archive tweets about`, `show me the X thread for`, `monitor my X mentions`, `post a thread to X`, `use x-twitter`, `run x-twitter-pp-cli`."
 author: "Cathryn Lavery"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -37,7 +37,7 @@ go install github.com/mvanhorn/printing-press-library/library/social-and-messagi
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-Mirrors the official X v2 API and adds what no other X tool has: a local SQLite store you can sync once and query many times with FTS5 search and group-by analytics, agent-native --json/--select output, and an MCP server that exposes the whole surface to AI agents through token-efficient orchestration plus named multi-step intents. Reconstruct conversation threads offline with `thread show`, compose self-reply threads from markdown with `thread compose`, author long-form X Articles from markdown with `articles-publish-md`, and rescue your bookmark graveyard with `users bookmarks find` — keyword and author search over your synced bookmarks, which X itself gives you no way to search.
+Mirrors the official X v2 API and adds what no other X tool has: a local SQLite store you can sync once and query many times with FTS5 search and group-by analytics, agent-native --json/--select output, and an MCP server that exposes the whole surface to AI agents through token-efficient orchestration plus named multi-step intents. Start pasted-link workflows with `post resolve`, use `thread context` when a post needs parent/quote/reply context, save durable source material with `collection save/list/export`, track ongoing searches with `monitor create/run/list`, package saved activity with `brief`, snapshot accounts with `account snapshot`, find launch or repo links with `url mentions`, track post metrics with `performance snapshot/backfill/analyze`, export account/query timelines with `timeline export`, reconstruct synced conversation threads offline with `thread show`, compose self-reply threads from markdown with `thread compose`, author long-form X Articles from markdown with `articles-publish-md`, and rescue your bookmark graveyard with `users bookmarks find` — keyword and author search over your synced bookmarks, which X itself gives you no way to search.
 
 ## When to Use This CLI
 
@@ -48,6 +48,74 @@ Reach for this CLI when a task involves reading, searching, or archiving X (Twit
 These capabilities aren't available in any other tool for this API.
 
 ### Local state that compounds
+- **`post resolve`** — Normalize any X post URL or raw post ID into a canonical structured record. It prefers local data in auto mode, falls back to public v2 reads when needed, includes provenance (`live`, `local`, or `mixed`), and emits suggested next workflow commands.
+
+  _Use this as the first command when an agent starts from a pasted X link. It avoids brittle URL parsing and returns stable fields for downstream workflows._
+
+  ```bash
+  x-twitter-pp-cli post resolve https://x.com/user/status/123 --agent
+  x-twitter-pp-cli post resolve 123 --include author,media,links,refs,metrics --agent
+  ```
+- **`thread context`** — Resolve a post URL or ID, include parent and quoted posts when available, and optionally include bounded replies from the local store and/or recent search.
+
+  _Use this before summarizing or drafting around a post. `thread show` is still the pure offline conversation reconstruction command; `thread context` is the URL-first workflow that can mix local and live data._
+
+  ```bash
+  x-twitter-pp-cli thread context https://x.com/user/status/123 --agent
+  x-twitter-pp-cli thread context 123 --replies --depth 3 --limit 100 --agent
+  ```
+- **`collection save/list/export`** — Save resolved X posts into durable named local collections, then list or export them as markdown, JSON, JSONL, or CSV. This never writes to X; it only writes the local SQLite store.
+
+  _Use collections for research libraries, launch mentions, examples, recruiting/source material, and anything an agent should reuse offline after the first API read._
+
+  ```bash
+  x-twitter-pp-cli collection save https://x.com/user/status/123 --collection ai-agents --note "Good framing" --agent
+  x-twitter-pp-cli collection list ai-agents --agent
+  x-twitter-pp-cli collection export ai-agents --format markdown
+  ```
+- **`monitor create/run/list`** — Create named query, URL, or account monitors, then run them repeatedly with local watermarks and dedupe. `monitor create` and `monitor run` write only local SQLite state; they never post, like, reply, follow, or mutate X.
+
+  _Use monitors for launch mentions, product/customer feedback, account tracking, and recurring agent jobs. `--since last` uses the saved watermark; `--preview` fetches without updating local state._
+
+  ```bash
+  x-twitter-pp-cli monitor create ai-labs --query 'from:openai OR from:anthropic' --agent
+  x-twitter-pp-cli monitor create product-mentions --url https://example.com --agent
+  x-twitter-pp-cli monitor run ai-labs --since last --agent
+  x-twitter-pp-cli monitor list --agent
+  ```
+- **`brief`** — Build a deterministic source-backed JSON or markdown brief from monitor results, collections, or explicit post IDs. It packages links, authors, text, and available metrics; it does not invent conclusions or run LLM summarization.
+
+  _Use this when an agent needs a daily/weekly X activity packet or a collection summary that can be pasted into notes, docs, or a CRM._
+
+  ```bash
+  x-twitter-pp-cli brief --monitor ai-labs --since 24h --agent
+  x-twitter-pp-cli brief --collection launch-feedback --format markdown
+  ```
+- **`account snapshot`** — Capture profile basics, public metrics, pinned post, and recent posts for a username or user ID. It is read-only toward X and uses local data first unless `--live` or `--data-source live` is set.
+
+  ```bash
+  x-twitter-pp-cli account snapshot @username --recent 20 --agent
+  x-twitter-pp-cli account snapshot 12345 --include recent,profile,metrics,pinned --format markdown
+  ```
+- **`url mentions`** — Search for recent posts mentioning a URL, domain, repo, article, or product page. It can optionally save results into a local collection or create/update a local monitor for future runs.
+
+  ```bash
+  x-twitter-pp-cli url mentions https://example.com --since 7d --agent
+  x-twitter-pp-cli url mentions github.com/org/repo --collection launch-feedback --monitor repo-links --agent
+  ```
+- **`performance snapshot/backfill/analyze`** — Store timestamped post metrics locally, backfill recent account posts when auth allows, and analyze saved snapshots by type, hour, media, link presence, or label. Missing metrics stay nullable/absent; the CLI does not treat unavailable fields as zero. Snapshot output includes `public_metrics`, available non-public/organic metrics, `metric_source`, and `metric_availability`.
+
+  ```bash
+  x-twitter-pp-cli performance snapshot --ids 123,456 --label 24h --agent
+  x-twitter-pp-cli performance backfill --mine --days 90 --agent
+  x-twitter-pp-cli performance analyze --since 90d --group-by type,hour,has_media,has_link --agent
+  ```
+- **`timeline export`** — Export an account or query timeline as markdown, JSON, or JSONL. Account exports use local synced tweets when available and fetch live only when needed or requested.
+
+  ```bash
+  x-twitter-pp-cli timeline export @username --since 30d --format markdown
+  x-twitter-pp-cli timeline export --query 'ai agents' --since 7d --format jsonl
+  ```
 - **`thread show`** — Rebuild a full conversation thread from your locally synced posts — ordered and depth-tagged — without re-spending API read credits.
 
   _When an agent needs the shape of a discussion (who replied to whom, in order), reach for this instead of paginating the search API and re-assembling the tree by hand._
@@ -159,9 +227,6 @@ These capabilities aren't available in any other tool for this API.
 - `x-twitter-pp-cli insights get-historical` — Retrieves historical engagement metrics for specified Posts within a defined time range.
 - `x-twitter-pp-cli insights get-insights28-hr` — Retrieves engagement metrics for specified Posts over the last 28 hours.
 
-**likes** — Manage likes
-
-
 **lists** — Endpoints related to retrieving, managing Lists
 
 - `x-twitter-pp-cli lists create` — Creates a new List for the authenticated user.
@@ -242,6 +307,9 @@ These capabilities aren't available in any other tool for this API.
 - `x-twitter-pp-cli users get-public-keys` — Returns the public keys and Juicebox configuration for the specified users.
 - `x-twitter-pp-cli users get-reposts-of-me` — Retrieves a list of Posts that repost content from the authenticated user.
 - `x-twitter-pp-cli users get-trends-personalized-trends` — Retrieves personalized trending topics for the authenticated user.
+- `x-twitter-pp-cli users bookmarks find [query]` — Searches locally synced bookmarks by keyword and/or author without another API read.
+- `x-twitter-pp-cli users likes post <user_id> --tweet-id <tweet_id>` — Likes a post on behalf of the authenticated user.
+- `x-twitter-pp-cli users likes unlike-post <user_id> <tweet_id>` — Unlikes a post on behalf of the authenticated user.
 - `x-twitter-pp-cli users search` — Retrieves a list of Users matching a search query.
 
 **webhooks** — Manage webhooks
@@ -299,9 +367,25 @@ Splits the markdown into a numbered 280-char-packed self-reply thread and prints
 
 ## Auth Setup
 
-X auth is layered; the configured credential decides what works, and the CLI prefers X_OAUTH2_USER_TOKEN when set (reads + writes) over X_BEARER_TOKEN (reads only). Run doctor to see what is configured and what it unlocks. Credentials: X_BEARER_TOKEN (app-only Bearer) for public reads (tweet/user lookup, recent search, lists, spaces); X_OAUTH2_USER_TOKEN (OAuth 2.0 user-context) for v2 writes (post, like, repost, bookmark, follow, DM) and personal reads (me, mentions, home timeline, bookmarks); logged-in x.com browser cookies for X Articles (articles-publish-md, articles ...), captured via 'auth login --chrome' (X Articles has no v2 API). Setup in the X developer console (console.x.com) - a person can do this or an agent with console access can automate it; none of it is manual-only: (1) attach the app to a Project (any environment, incl. Development) - this unlocks v2 API access, standalone-app tokens are rejected; (2) set app permissions to Read and write (needed for posting); (3) copy the app Bearer Token into X_BEARER_TOKEN for reads; (4) enable OAuth 2.0 (Native/public app, callback URL, scopes tweet.read tweet.write users.read offline.access), complete the authorization-code + PKCE flow, set the resulting opaque user token in X_OAUTH2_USER_TOKEN for writes; (5) run 'auth login --chrome' to capture x.com cookies for Articles (needs pycookiecheat or press-auth; manual DevTools fallback). A Development project does not limit the account - capability is set by app permissions and the account API tier. As of Feb 2026 X bills reads/writes per-use and restricts programmatic replies/quotes/@mentions; self-reply threads (thread compose) still work.
+X auth has three separate lanes. Do not infer one lane from another; run `x-twitter-pp-cli doctor --json` and inspect `auth_lanes` before choosing a command.
 
-Run `x-twitter-pp-cli doctor` to verify setup.
+- `auth_lanes.app_only_api`: an app-only X API Bearer token from the X developer console. Use this for public read-only API access such as tweet/user lookup, recent search, lists, and spaces. Store it with `x-twitter-pp-cli auth set-bearer-token <token>` or export `X_BEARER_TOKEN`.
+- `auth_lanes.oauth2_user_context`: `X_OAUTH2_USER_TOKEN` or a stored OAuth2 access token from `x-twitter-pp-cli auth oauth2-login` / `auth import-oauth2`. Required for `/2/users/me`, writes, bookmarks, personal reads, DMs, follows, likes, reposts, and user-context analytics. If this lane is `missing` or `invalid`, do not retry with the app-only bearer token; run the OAuth2 authorization-code + PKCE flow or import a real user-context token explicitly.
+- `auth_lanes.x_articles_cookie`: browser cookies captured by `x-twitter-pp-cli auth login --chrome`. This lane is only for X Articles / x.com browser-session endpoints. It does not create `X_OAUTH2_USER_TOKEN` and does not authenticate v2 API user-context commands.
+
+Setup sequence:
+
+1. Attach the app to a Project in the X developer console.
+2. Set app permissions to Read and write when you need posting or other mutations.
+3. Copy the app Bearer Token and run `x-twitter-pp-cli auth set-bearer-token <bearer-token>` for app-only public reads. Environment alternative: set `X_BEARER_TOKEN` in your shell or runtime secret manager.
+4. Enable OAuth2 with suitable scopes such as `tweet.read`, `tweet.write`, `users.read`, `offline.access`, `bookmark.read`, `like.read`, `like.write`, `follows.read`, and `follows.write`. Add `http://127.0.0.1:8787/callback` as an OAuth2 redirect URI in the X developer app, then run `x-twitter-pp-cli auth oauth2-login --client-id <oauth2-client-id>` to complete the authorization-code + PKCE browser flow. Non-interactive fallback when you already have tokens: `x-twitter-pp-cli auth import-oauth2 --client-id <oauth2-client-id> --access-token <oauth2-access-token> --refresh-token <oauth2-refresh-token> --scopes tweet.read,tweet.write,users.read,offline.access,bookmark.read,like.read,like.write,follows.read,follows.write`. Environment alternative: set `X_OAUTH2_USER_TOKEN` in your shell or runtime secret manager.
+5. Separately run `x-twitter-pp-cli auth login --chrome` only when using `articles ...` commands.
+
+`auth set-token` is deprecated because “token” is ambiguous for X. It remains as a compatibility alias for `auth set-bearer-token` and must not be used for OAuth2 user-context tokens. Use `auth oauth2-login` for the interactive OAuth2 browser flow or `auth import-oauth2` when you already have tokens.
+
+`doctor --json` is the machine-readable preflight. It reports `selected_profile`, per-lane status, `/2/users/me` probe results, authenticated user identity when returned, stored scopes, missing workflow scopes, token expiry, refresh-token presence, and X Articles cookie status without printing secrets.
+
+When X returns `Unsupported Authentication` with `Application-Only is forbidden`, the command requires OAuth2 user-context auth. Fix `auth_lanes.oauth2_user_context`; cookie auth and app-only bearer auth will not satisfy that endpoint.
 
 ## Raw API Escape Hatch
 
@@ -325,7 +409,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
   ```bash
   x-twitter-pp-cli communities search --query example-value --agent --select id,name,status
   ```
-- **Previewable** — `--dry-run` shows the request without sending
+- **Previewable** — `--dry-run` shows the request without sending. Under `--agent`, mutation dry-runs return JSON with `sent:false`, method/path/body, selected profile, auth lane, mutation classification, and public action when known.
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
 - **Non-interactive** — never prompts, every input is a flag
 - **Explicit retries** — use `--idempotent` only when an already-existing create should count as success, and `--ignore-missing` only when a missing delete target should count as success

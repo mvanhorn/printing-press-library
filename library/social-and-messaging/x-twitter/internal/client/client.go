@@ -747,6 +747,9 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 }
 
 func (c *Client) selectedProfile() string {
+	if c != nil && c.Config != nil && c.Config.SelectedProfile != "" {
+		return c.Config.SelectedProfile
+	}
 	return "default"
 }
 
@@ -757,19 +760,14 @@ func (c *Client) dryRunAuthLane(targetURL, authHeader string) string {
 	if c == nil || c.Config == nil || authHeader == "" {
 		return "none"
 	}
-	if c.Config.XOauth2UserToken != "" && authHeader == "Bearer "+c.Config.XOauth2UserToken {
+	switch authHeader {
+	case c.Config.UserContextAuthHeader():
 		return "oauth2_user_context"
-	}
-	if c.Config.XBearerToken != "" && authHeader == "Bearer "+c.Config.XBearerToken {
+	case c.Config.AppOnlyAuthHeader():
 		return "app_only_api"
+	default:
+		return "custom"
 	}
-	if c.Config.AccessToken != "" && authHeader == "Bearer "+c.Config.AccessToken {
-		return "oauth2"
-	}
-	if c.Config.AuthHeaderVal != "" && authHeader == c.Config.AuthHeaderVal {
-		return "configured_auth_header"
-	}
-	return "custom"
 }
 
 func inferXPublicAction(method, path string, body any) string {
@@ -903,7 +901,7 @@ func looksLikeCredentialPlaceholder(value string) bool {
 }
 
 func authPlaceholderCredentialError(cfg *config.Config) error {
-	return authPlaceholderCredentialErrorWithSetup(cfg, "export X_BEARER_TOKEN=<your-token> or x-twitter-pp-cli auth set-token <token>")
+	return authPlaceholderCredentialErrorWithSetup(cfg, "export X_BEARER_TOKEN=<your-token> or x-twitter-pp-cli auth set-bearer-token <token>")
 }
 
 func authPlaceholderCredentialErrorWithSetup(cfg *config.Config, setup string) error {

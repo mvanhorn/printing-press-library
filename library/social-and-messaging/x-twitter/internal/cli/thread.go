@@ -17,5 +17,6 @@ func newNovelThreadCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.AddCommand(newNovelThreadComposeCmd(flags))
 	cmd.AddCommand(newNovelThreadShowCmd(flags))
+	cmd.AddCommand(newNovelThreadContextCmd(flags))
 	return cmd
 }

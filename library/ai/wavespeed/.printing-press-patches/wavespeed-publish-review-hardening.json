@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "wavespeed-publish-review-hardening",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260527-214905",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Hardened custom run input aliases and raw media transfer paths after public-library review.",
+  "reason": "The hand-authored run surface needed separate --set backing storage and custom upload/download requests needed to honor configured client rate limiting, timeout, and credential-validation policy.",
+  "files": [
+    "internal/cli/run.go",
+    "internal/cli/run_test.go",
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "go test ./... passed after the publish-review fixes, including mixed --set/--input-kv and echoed-input URL filtering."
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "wavespeed-media-workflows",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260527-214905",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Added media upload/download helpers and media input shorthands for image and video generation workflows.",
+  "reason": "Nano Banana edit, Seedance, Kling, and Veo workflows commonly require local reference images or videos to be uploaded and passed as model input URLs.",
+  "files": [
+    "internal/cli/run.go",
+    "internal/cli/run_test.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "Dry-run Seedance image-to-video upload coercion and Kling element_list JSON file parsing passed."
+}
