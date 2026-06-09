@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -133,5 +134,44 @@ func TestReserveSubmitMissingFields(t *testing.T) {
 	_, err := runCmd(t, newReserveCmd(g), args...)
 	if err == nil || !strings.Contains(err.Error(), "missing required fields") {
 		t.Errorf("expected missing fields error, got: %v", err)
+	}
+}
+
+// TestReserveMalformedConfigFails ensures a corrupt config file surfaces a
+// clear error instead of being silently ignored (which would skip saved-profile
+// defaults and configured credentials).
+func TestReserveMalformedConfigFails(t *testing.T) {
+	dir := t.TempDir()
+	cfgPath := filepath.Join(dir, "config.json")
+	if err := os.WriteFile(cfgPath, []byte("{not valid json"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	g := &globalOpts{timeout: 5 * time.Second, configPath: cfgPath}
+	// Dry-run is enough: config load happens before the submit branch.
+	_, err := runCmd(t, newReserveCmd(g), reserveArgs()...)
+	if err == nil || !strings.Contains(err.Error(), "load config") {
+		t.Errorf("expected load config error, got: %v", err)
+	}
+}
+
+// TestReserveSubmitCredentialFailureAborts ensures a failing credential command
+// aborts the booking instead of silently continuing unauthenticated.
+func TestReserveSubmitCredentialFailureAborts(t *testing.T) {
+	var hits int32
+	srv := recordingServer(t, &hits)
+	defer srv.Close()
+	t.Setenv("MASTERPARK_BASE_URL", srv.URL)
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+
+	g := &globalOpts{timeout: 5 * time.Second, configPath: filepath.Join(t.TempDir(), "missing.json")}
+	// `false` exits non-zero, so credential resolution must fail.
+	out, err := runCmd(t, newReserveCmd(g),
+		reserveArgs("--submit", "--yes", "--username", "alice", "--password-command", "false")...)
+	if err == nil || !strings.Contains(err.Error(), "resolve credentials") {
+		t.Errorf("expected resolve credentials error, got: %v (out=%s)", err, out)
+	}
+	if atomic.LoadInt32(&hits) != 0 {
+		t.Errorf("booking must not proceed when credential resolution fails, got %d hits", hits)
 	}
 }

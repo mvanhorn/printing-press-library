@@ -54,7 +54,14 @@ func newReserveCmd(g *globalOpts) *cobra.Command {
 			}
 
 			// Load config once; used for saved-profile defaults and login.
-			f, _ := g.loadConfig()
+			// A missing file yields an empty File with no error; only a real
+			// read/parse failure surfaces here and must not be swallowed, or
+			// saved-profile defaults and configured credentials are silently
+			// skipped.
+			f, err := g.loadConfig()
+			if err != nil {
+				return fmt.Errorf("load config: %w", err)
+			}
 			if rf.useSavedProfile && f != nil && f.Profile != nil {
 				rf.applySavedProfile(f.Profile)
 			}
@@ -120,8 +127,13 @@ func newReserveCmd(g *globalOpts) *cobra.Command {
 			defer cancel()
 
 			// Authenticate if credentials are available; saveReservation may
-			// require a session.
-			creds, _ := config.Resolve(ctx, f, config.OnePassword{}, rf.creds.input())
+			// require a session. A failing --username-command/--password-command
+			// (or a configured command ref) must abort instead of silently
+			// continuing unauthenticated.
+			creds, err := config.Resolve(ctx, f, config.OnePassword{}, rf.creds.input())
+			if err != nil {
+				return fmt.Errorf("resolve credentials: %w", err)
+			}
 			c := g.newClient()
 			if creds.Username != "" && creds.Password != "" {
 				ok, lerr := verifyLoginWithClient(ctx, c, creds.Username, creds.Password, codeID)
