@@ -118,7 +118,7 @@ func newAuthOAuth2LoginCmd(flags *rootFlags) *cobra.Command {
 			if token.ExpiresIn > 0 {
 				expiry = time.Now().UTC().Add(time.Duration(token.ExpiresIn) * time.Second)
 			}
-			if err := cfg.SaveOAuth2UserContext(token.AccessToken, token.RefreshToken, expiry, scopeList); err != nil {
+			if err := cfg.SaveOAuth2UserContext(opts.ClientID, opts.ClientSecret, token.AccessToken, token.RefreshToken, expiry, scopeList); err != nil {
 				return configErr(fmt.Errorf("saving OAuth2 user-context token: %w", err))
 			}
 			out := map[string]any{

@@ -124,6 +124,45 @@ func TestAuthSetBearerTokenRejectsEmptyToken(t *testing.T) {
 	}
 }
 
+func TestAuthSetupAndStatusHelpIncludeClientIDForOAuth2Import(t *testing.T) {
+	t.Setenv("X_BEARER_TOKEN", "")
+	t.Setenv("X_OAUTH2_USER_TOKEN", "")
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+
+	for _, tc := range []struct {
+		name      string
+		args      []string
+		wantError bool
+	}{
+		{name: "setup", args: []string{"--config", configPath, "auth", "setup"}},
+		{name: "status unauthenticated", args: []string{"--config", configPath, "auth", "status"}, wantError: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var flags rootFlags
+			cmd := newRootCmd(&flags)
+			var out bytes.Buffer
+			cmd.SetOut(&out)
+			cmd.SetErr(&bytes.Buffer{})
+			cmd.SetArgs(tc.args)
+			err := cmd.Execute()
+			if tc.wantError {
+				if err == nil {
+					t.Fatalf("expected auth status to fail without credentials")
+				}
+			} else if err != nil {
+				t.Fatalf("command failed: %v\noutput: %s", err, out.String())
+			}
+			output := out.String()
+			if !strings.Contains(output, "auth import-oauth2 --client-id <oauth2-client-id> --access-token") {
+				t.Fatalf("OAuth2 import guidance should include --client-id, output:\n%s", output)
+			}
+			if strings.Contains(output, "auth import-oauth2 --access-token") {
+				t.Fatalf("OAuth2 import guidance still shows stale command without --client-id, output:\n%s", output)
+			}
+		})
+	}
+}
+
 func TestAuthImportOAuth2StoresUserContextMetadata(t *testing.T) {
 	t.Setenv("X_BEARER_TOKEN", "")
 	t.Setenv("X_OAUTH2_USER_TOKEN", "")
@@ -141,6 +180,7 @@ func TestAuthImportOAuth2StoresUserContextMetadata(t *testing.T) {
 		"--config", configPath,
 		"auth", "import-oauth2",
 		"--access-token", "user-token",
+		"--client-id", "client-id",
 		"--refresh-token", "refresh-token",
 		"--scopes", "tweet.read,tweet.write,users.read,bookmark.read,dm.read,dm.write,follows.read,like.read,offline.access",
 		"--expires-at", "2026-06-08T12:00:00Z",
@@ -154,7 +194,7 @@ func TestAuthImportOAuth2StoresUserContextMetadata(t *testing.T) {
 	if err := json.Unmarshal(out.Bytes(), &payload); err != nil {
 		t.Fatalf("output is not JSON: %v\n%s", err, out.String())
 	}
-	if payload["auth_lane"] != "oauth2_user_context" || payload["refresh_token_present"] != true {
+	if payload["auth_lane"] != "oauth2_user_context" || payload["refresh_token_present"] != true || payload["client_id_present"] != true {
 		t.Fatalf("payload = %#v", payload)
 	}
 	if _, ok := payload["env_override_warning"]; ok {
@@ -168,7 +208,7 @@ func TestAuthImportOAuth2StoresUserContextMetadata(t *testing.T) {
 	if err != nil {
 		t.Fatalf("load config: %v", err)
 	}
-	if cfg.XOauth2UserToken != "user-token" || cfg.AccessToken != "" || cfg.RefreshToken != "refresh-token" {
+	if cfg.XOauth2UserToken != "user-token" || cfg.AccessToken != "" || cfg.RefreshToken != "refresh-token" || cfg.ClientID != "client-id" {
 		t.Fatalf("tokens not stored in user-context fields: %+v", cfg)
 	}
 	if cfg.UserContextAuthHeader() != "Bearer user-token" {
@@ -278,5 +318,59 @@ func TestAuthImportOAuth2ReportsMissingScopeWorkflowsOnlyWhenPresent(t *testing.
 	}
 	if _, ok := missing["public_writes"]; !ok {
 		t.Fatalf("missing_for should include public_writes: %#v", missing)
+	}
+}
+
+func TestAuthImportOAuth2RequiresClientIDWithRefreshToken(t *testing.T) {
+	t.Setenv("X_BEARER_TOKEN", "")
+	t.Setenv("X_OAUTH2_USER_TOKEN", "")
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{
+		"--config", configPath,
+		"auth", "import-oauth2",
+		"--access-token", "user-token",
+		"--refresh-token", "refresh-token",
+		"--json",
+	})
+	if err := cmd.Execute(); err == nil || !strings.Contains(err.Error(), "--client-id is required") {
+		t.Fatalf("expected client-id usage error, got %v\noutput: %s", err, out.String())
+	}
+}
+
+func TestAuthImportOAuth2PreservesStoredClientID(t *testing.T) {
+	t.Setenv("X_BEARER_TOKEN", "")
+	t.Setenv("X_OAUTH2_USER_TOKEN", "")
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	if err := os.WriteFile(configPath, []byte("client_id = \"existing-client\"\nclient_secret = \"existing-secret\"\n"), 0o600); err != nil {
+		t.Fatalf("seed config: %v", err)
+	}
+
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{
+		"--config", configPath,
+		"auth", "import-oauth2",
+		"--access-token", "user-token",
+		"--refresh-token", "refresh-token",
+		"--json",
+	})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("auth import-oauth2 failed: %v\noutput: %s", err, out.String())
+	}
+	cfg, err := config.Load(configPath)
+	if err != nil {
+		t.Fatalf("load config: %v", err)
+	}
+	if cfg.ClientID != "existing-client" || cfg.ClientSecret != "existing-secret" {
+		t.Fatalf("client credentials not preserved: %+v", cfg)
 	}
 }

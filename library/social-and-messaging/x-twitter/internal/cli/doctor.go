@@ -220,8 +220,24 @@ func attachUserContextTokenMetadata(lanes map[string]any, cfg *config.Config) {
 	if !cfg.TokenExpiry.IsZero() {
 		lane["expires_at"] = cfg.TokenExpiry.UTC().Format(time.RFC3339)
 	}
+	if cfg.ClientID != "" {
+		lane["client_id_present"] = true
+	}
+	if cfg.ClientSecret != "" {
+		lane["client_secret_present"] = true
+	}
 	if cfg.RefreshToken != "" {
 		lane["refresh_token_present"] = true
+		if cfg.ClientID == "" {
+			lane["refresh_client_id_present"] = false
+			hint, _ := lane["hint"].(string)
+			refreshHint := "refresh token is stored but OAuth2 client_id is missing; re-import with --client-id or run auth oauth2-login --client-id <id>"
+			if strings.TrimSpace(hint) == "" {
+				lane["hint"] = refreshHint
+			} else if !strings.Contains(hint, "client_id") {
+				lane["hint"] = hint + "; " + refreshHint
+			}
+		}
 	} else if cfg.AccessToken != "" || cfg.XOauth2UserToken != "" || cfg.AuthHeaderVal != "" {
 		lane["refresh_token_present"] = false
 	}

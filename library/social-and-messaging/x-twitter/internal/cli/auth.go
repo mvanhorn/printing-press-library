@@ -36,12 +36,12 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newAuthImportOAuth2Cmd(flags *rootFlags) *cobra.Command {
-	var accessToken, refreshToken, scopes, expiresAt, expiresIn string
+	var accessToken, refreshToken, scopes, expiresAt, expiresIn, clientID, clientSecret string
 	cmd := &cobra.Command{
-		Use:   "import-oauth2 --access-token <token>",
+		Use:   "import-oauth2 --access-token <token> [--client-id <id>]",
 		Short: "Import an OAuth2 user-context token for personal reads and writes",
 		Example: `  x-twitter-pp-cli auth import-oauth2 --access-token "$X_TOKEN" --scopes tweet.read,tweet.write,users.read,offline.access
-  x-twitter-pp-cli auth import-oauth2 --access-token "$X_TOKEN" --refresh-token "$X_REFRESH" --expires-in 2h`,
+  x-twitter-pp-cli auth import-oauth2 --client-id "$X_CLIENT_ID" --access-token "$X_TOKEN" --refresh-token "$X_REFRESH" --expires-in 2h`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			accessToken = strings.TrimSpace(accessToken)
 			if accessToken == "" {
@@ -55,8 +55,14 @@ func newAuthImportOAuth2Cmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return configErr(err)
 			}
+			clientID = strings.TrimSpace(clientID)
+			clientSecret = strings.TrimSpace(clientSecret)
+			refreshToken = strings.TrimSpace(refreshToken)
+			if refreshToken != "" && clientID == "" && strings.TrimSpace(cfg.ClientID) == "" {
+				return usageErr(fmt.Errorf("--client-id is required when importing a refresh token; token refresh needs the OAuth2 app client ID"))
+			}
 			scopeList := cliutil.SplitCSV(scopes)
-			if err := cfg.SaveOAuth2UserContext(accessToken, refreshToken, expiry, scopeList); err != nil {
+			if err := cfg.SaveOAuth2UserContext(clientID, clientSecret, accessToken, refreshToken, expiry, scopeList); err != nil {
 				return configErr(fmt.Errorf("saving OAuth2 user-context token: %w", err))
 			}
 			envOverrideWarning := ""
@@ -67,7 +73,11 @@ func newAuthImportOAuth2Cmd(flags *rootFlags) *cobra.Command {
 				"saved":                 true,
 				"auth_lane":             "oauth2_user_context",
 				"config_path":           cfg.Path,
-				"refresh_token_present": strings.TrimSpace(refreshToken) != "",
+				"refresh_token_present": refreshToken != "",
+				"client_id_present":     clientID != "" || strings.TrimSpace(cfg.ClientID) != "",
+			}
+			if clientSecret != "" || strings.TrimSpace(cfg.ClientSecret) != "" {
+				out["client_secret_present"] = true
 			}
 			if envOverrideWarning != "" {
 				out["env_override_warning"] = envOverrideWarning
@@ -99,6 +109,8 @@ func newAuthImportOAuth2Cmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&accessToken, "access-token", "", "OAuth2 user-context access token")
+	cmd.Flags().StringVar(&clientID, "client-id", "", "OAuth2 client ID used to refresh the token")
+	cmd.Flags().StringVar(&clientSecret, "client-secret", "", "OAuth2 client secret used to refresh the token, if required")
 	cmd.Flags().StringVar(&refreshToken, "refresh-token", "", "OAuth2 refresh token, if available")
 	cmd.Flags().StringVar(&scopes, "scopes", "", "Comma-separated OAuth2 scopes granted to the token")
 	cmd.Flags().StringVar(&expiresAt, "expires-at", "", "Token expiry as RFC3339 timestamp")
@@ -152,7 +164,7 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 			fmt.Fprintln(w, "  # Add http://127.0.0.1:8787/callback as an OAuth2 redirect URI in the X developer app first.")
 			fmt.Fprintln(w, "  x-twitter-pp-cli auth oauth2-login --client-id <oauth2-client-id>")
 			fmt.Fprintln(w, "  # Non-interactive fallback when you already have tokens:")
-			fmt.Fprintln(w, "  x-twitter-pp-cli auth import-oauth2 --access-token <oauth2-access-token> --refresh-token <oauth2-refresh-token> --scopes tweet.read,tweet.write,users.read,offline.access,bookmark.read,like.read,like.write,follows.read,follows.write")
+			fmt.Fprintln(w, "  x-twitter-pp-cli auth import-oauth2 --client-id <oauth2-client-id> --access-token <oauth2-access-token> --refresh-token <oauth2-refresh-token> --scopes tweet.read,tweet.write,users.read,offline.access,bookmark.read,like.read,like.write,follows.read,follows.write")
 			fmt.Fprintln(w, "  x-twitter-pp-cli auth login --chrome")
 			fmt.Fprintln(w, "")
 			fmt.Fprintln(w, "Deprecated: `auth set-token` is kept as an alias for `auth set-bearer-token` only. Do not use it for OAuth2 user-context tokens.")
@@ -230,7 +242,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintln(w, "Set credentials:")
 				fmt.Fprintln(w, "  x-twitter-pp-cli auth set-bearer-token <bearer-token> # App-only Bearer token for public read-only API access: tweet/user lookup, recent search, lists, spaces. Alternative: export X_BEARER_TOKEN=\"your-token-here\".")
 				fmt.Fprintln(w, "  x-twitter-pp-cli auth oauth2-login --client-id <oauth2-client-id> # OAuth2 user-context browser flow for /2/users/me, bookmarks, likes, follows, writes, and owned metrics. Add http://127.0.0.1:8787/callback to your X app redirect URIs first.")
-				fmt.Fprintln(w, "  x-twitter-pp-cli auth import-oauth2 --access-token <oauth2-access-token> --refresh-token <oauth2-refresh-token> --scopes tweet.read,tweet.write,users.read,offline.access,bookmark.read,like.read,like.write,follows.read,follows.write # Non-interactive fallback when you already have OAuth2 tokens.")
+				fmt.Fprintln(w, "  x-twitter-pp-cli auth import-oauth2 --client-id <oauth2-client-id> --access-token <oauth2-access-token> --refresh-token <oauth2-refresh-token> --scopes tweet.read,tweet.write,users.read,offline.access,bookmark.read,like.read,like.write,follows.read,follows.write # Non-interactive fallback when you already have OAuth2 tokens.")
 				fmt.Fprintln(w, "  x-twitter-pp-cli auth login --chrome # Optional browser-cookie lane for X Articles.")
 				fmt.Fprintln(w, "  x-twitter-pp-cli auth set-token <bearer-token> # Deprecated alias for set-bearer-token; do not use for OAuth2 user-context tokens.")
 				return authErr(fmt.Errorf("no credentials configured"))
