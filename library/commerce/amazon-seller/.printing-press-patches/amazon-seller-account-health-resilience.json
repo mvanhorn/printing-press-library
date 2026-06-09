@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "amazon-seller-account-health-resilience",
+  "applied_at": "2026-06-09",
+  "base_run_id": "2026-05-06T17:12:38.566433Z",
+  "base_printing_press_version": "3.10.0",
+  "summary": "Make the Amazon Seller account-health dashboard resolve a default marketplace and tolerate unavailable optional report slices.",
+  "reason": "Amazon Health should work for agents without hand-supplying marketplaceIds, and one CANCELLED or otherwise unavailable SP-API report should not fail the whole dashboard when cached or partial health data can still be returned.",
+  "files": [
+    "internal/cli/novel_account.go",
+    "internal/cli/novel_report_helpers.go",
+    "internal/cli/novel_amazon_seller_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli -run 'Test(PreferredMarketplaceIDPrefersParticipatingAmazonUS|EnsureReportsResolvesMarketplaceFromSellerParticipations|OptionalReportCancellationDoesNotFailBatch)' -count=1; go test ./internal/cli -count=1"
+}

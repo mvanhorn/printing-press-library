@@ -18,15 +18,23 @@ import (
 )
 
 type mockReportAPI struct {
-	postResponse json.RawMessage
-	getResponses []json.RawMessage
-	getErr       error
-	postErr      error
+	postResponse  json.RawMessage
+	postResponses []json.RawMessage
+	postBodies    []any
+	getResponses  []json.RawMessage
+	getErr        error
+	postErr       error
 }
 
 func (m *mockReportAPI) Post(path string, body any) (json.RawMessage, int, error) {
+	m.postBodies = append(m.postBodies, body)
 	if m.postErr != nil {
 		return nil, 0, m.postErr
+	}
+	if len(m.postResponses) > 0 {
+		raw := m.postResponses[0]
+		m.postResponses = m.postResponses[1:]
+		return raw, http.StatusAccepted, nil
 	}
 	if len(m.postResponse) == 0 {
 		return json.RawMessage(`{"reportId":"r1"}`), http.StatusAccepted, nil
@@ -258,6 +266,69 @@ func TestPollReportStatus(t *testing.T) {
 	}
 	if doc != "d1" {
 		t.Fatalf("doc = %q", doc)
+	}
+}
+
+func TestPreferredMarketplaceIDPrefersParticipatingAmazonUS(t *testing.T) {
+	raw := json.RawMessage(`{"payload":[
+		{"marketplace":{"id":"A2ZV50J4W1RKNI","countryCode":"US","domainName":"sim1.stores.amazon.com","name":"Non-Amazon US"},"participation":{"isParticipating":true}},
+		{"marketplace":{"id":"ATVPDKIKX0DER","countryCode":"US","domainName":"www.amazon.com","name":"Amazon.com"},"participation":{"isParticipating":true}},
+		{"marketplace":{"id":"A2EUQ1WTGCTBG2","countryCode":"CA","domainName":"www.amazon.ca","name":"Amazon.ca"},"participation":{"isParticipating":true}}
+	]}`)
+	if got := preferredMarketplaceID(raw); got != defaultAmazonSellerMarketplaceID {
+		t.Fatalf("marketplace = %q, want %q", got, defaultAmazonSellerMarketplaceID)
+	}
+}
+
+func TestEnsureReportsResolvesMarketplaceFromSellerParticipations(t *testing.T) {
+	db := openNovelTestDB(t)
+	api := &mockReportAPI{
+		getResponses: []json.RawMessage{
+			json.RawMessage(`{"payload":[{"marketplace":{"id":"ATVPDKIKX0DER","countryCode":"US","domainName":"www.amazon.com","name":"Amazon.com"},"participation":{"isParticipating":true}}]}`),
+			json.RawMessage(`{"processingStatus":"CANCELLED"}`),
+			json.RawMessage(`{"reports":[]}`),
+		},
+	}
+	o := newReportOrchestrator(api, nil, nil)
+	o.createMinGap = 0
+	o.pollInterval = 0
+	o.sleep = func(context.Context, time.Duration) error { return nil }
+	runner := &novelCommandRunner{
+		flags:        &rootFlags{dataSource: "live"},
+		sqlDB:        db,
+		orchestrator: o,
+		timeout:      time.Minute,
+	}
+	if err := runner.ensureReports(context.Background(), optionalMarketSpec("GET_FBA_REIMBURSEMENTS_DATA", "", 30)); err != nil {
+		t.Fatal(err)
+	}
+	if len(api.postBodies) != 1 {
+		t.Fatalf("post bodies = %d, want 1", len(api.postBodies))
+	}
+	body, ok := api.postBodies[0].(map[string]any)
+	if !ok {
+		t.Fatalf("unexpected body type %T", api.postBodies[0])
+	}
+	marketplaces, ok := body["marketplaceIds"].([]string)
+	if !ok || len(marketplaces) != 1 || marketplaces[0] != defaultAmazonSellerMarketplaceID {
+		t.Fatalf("marketplaceIds = %#v, want [%s]", body["marketplaceIds"], defaultAmazonSellerMarketplaceID)
+	}
+}
+
+func TestOptionalReportCancellationDoesNotFailBatch(t *testing.T) {
+	api := &mockReportAPI{getResponses: []json.RawMessage{
+		json.RawMessage(`{"processingStatus":"CANCELLED"}`),
+		json.RawMessage(`{"reports":[]}`),
+	}}
+	o := newReportOrchestrator(api, nil, nil)
+	o.pollInterval = 0
+	o.sleep = func(context.Context, time.Duration) error { return nil }
+	results, err := o.RequestBatchAndDownload(context.Background(), []reportSpec{{Type: "GET_FBA_REIMBURSEMENTS_DATA", MarketplaceID: "ATVPDKIKX0DER", Optional: true}}, time.Minute)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(results) != 1 || results[0] != nil {
+		t.Fatalf("optional cancelled report should produce nil partial result, got %#v", results)
 	}
 }
 
