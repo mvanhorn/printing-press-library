@@ -85,7 +85,6 @@ func TestDryRunReturnsStructuredPublicMutationPreview(t *testing.T) {
 
 	c := New(&config.Config{
 		BaseURL:          "https://api.x.com",
-		SelectedProfile:  "trevin",
 		AccessToken:      "user-token",
 		TokenExpiry:      time.Now().Add(time.Hour),
 		XOauth2UserToken: "user-token",
@@ -109,7 +108,7 @@ func TestDryRunReturnsStructuredPublicMutationPreview(t *testing.T) {
 		t.Fatalf("public_action = %#v, want reply", out["public_action"])
 	}
 	meta := out["meta"].(map[string]any)
-	if meta["auth_lane"] != "oauth2_user_context" || meta["selected_profile"] != "trevin" {
+	if meta["auth_lane"] != "oauth2_user_context" || meta["selected_profile"] != "default" {
 		t.Fatalf("meta = %#v", meta)
 	}
 	req := out["request"].(map[string]any)
@@ -122,9 +121,8 @@ func TestRequestNormalizesMethodAndUsesDryRunPreview(t *testing.T) {
 	t.Parallel()
 
 	c := New(&config.Config{
-		BaseURL:         "https://api.x.com",
-		SelectedProfile: "debug",
-		XBearerToken:    "app-token",
+		BaseURL:      "https://api.x.com",
+		XBearerToken: "app-token",
 	}, time.Second, 0)
 	c.DryRun = true
 
@@ -144,7 +142,7 @@ func TestRequestNormalizesMethodAndUsesDryRunPreview(t *testing.T) {
 		t.Fatalf("request = %#v", req)
 	}
 	meta := out["meta"].(map[string]any)
-	if meta["auth_lane"] != "app_only_api" || meta["selected_profile"] != "debug" {
+	if meta["auth_lane"] != "app_only_api" || meta["selected_profile"] != "default" {
 		t.Fatalf("meta = %#v", meta)
 	}
 }

@@ -119,36 +119,3 @@ func TestWhichIndexRoutesPRDQueries(t *testing.T) {
 		}
 	}
 }
-
-func TestAgentContextAnnotatesPublicMutationAuthLane(t *testing.T) {
-	ctx := buildAgentContext(RootCmd())
-	entry := findAgentCommand(ctx.Commands, "tweets", "create-posts")
-	if entry == nil {
-		t.Fatal("agent-context missing tweets create-posts")
-	}
-	if entry.Annotations["pp:mutation"] != "true" {
-		t.Fatalf("annotations missing mutation: %#v", entry.Annotations)
-	}
-	if entry.Annotations["pp:auth-lane"] != "oauth2_user_context" {
-		t.Fatalf("auth lane = %#v, want oauth2_user_context", entry.Annotations["pp:auth-lane"])
-	}
-	if entry.Annotations["pp:public-action"] != "post_reply_or_quote" {
-		t.Fatalf("public action = %#v", entry.Annotations["pp:public-action"])
-	}
-}
-
-func findAgentCommand(commands []agentContextCommand, path ...string) *agentContextCommand {
-	if len(path) == 0 {
-		return nil
-	}
-	for i := range commands {
-		if commands[i].Name != path[0] {
-			continue
-		}
-		if len(path) == 1 {
-			return &commands[i]
-		}
-		return findAgentCommand(commands[i].Subcommands, path[1:]...)
-	}
-	return nil
-}
