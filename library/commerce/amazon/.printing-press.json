@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-19T12:25:42Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "amazon",
+  "display_name": "Amazon",
+  "cli_name": "amazon-pp-cli",
+  "owner": "sophie-davis",
+  "printer": "sophiealula",
+  "printer_name": "Sophie Davis",
+  "creator": {
+    "handle": "sophiealula",
+    "name": "Sophie Davis"
+  },
+  "spec_format": "internal",
+  "run_id": "20260519-122542",
+  "category": "commerce",
+  "description": "History-first Amazon repurchases: add-to-cart, cart inspection, and full checkout, but only for items you've bought before. Refuses anything outside your purchase history — that's the safety feature. Multi-account via --profile, dry-run on every mutating command, checkout gated on explicit --yes.",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "auth_title": "Amazon buyer session",
+  "auth_description": "Amazon does not publish a buyer-side API. This CLI imports cookies from\nyour logged-in browser session (Chrome via kooky, or paste a Cookie header\nfrom DevTools), then talks to the same pages you see on amazon.com.\nCart writes and checkout run through a bundled Playwright helper because\nAmazon's checkout endpoints reject static-POST automation.\n\n  amazon-pp-cli profiles add personal --label \"Personal account\"\n  amazon-pp-cli --profile personal auth login\n",
+  "novel_features": [
+    {
+      "name": "Repurchase-Only Gate",
+      "command": "add",
+      "description": "Refuses to add anything not matched in the user's purchase history (local SQLite FTS mirror). An agent with this CLI cannot impulse-buy."
+    },
+    {
+      "name": "Match Quality Gate",
+      "command": "add --dry-run",
+      "description": "Reports strict vs loose token matches; loose matches require an explicit --allow-loose after the user confirms the resolved title."
+    },
+    {
+      "name": "Reorder Last Order",
+      "command": "reorder-last",
+      "description": "Re-adds every line item from the most recent order, with a dry-run preview of the planned items first."
+    },
+    {
+      "name": "Confirmation-Gated Checkout",
+      "command": "checkout",
+      "description": "Places a real order with the account's default address and payment method. Exits 10 without --yes; consent is per-cart-state."
+    },
+    {
+      "name": "Manual Handoff Deeplinks",
+      "command": "cart show",
+      "description": "When Amazon raises a CAPTCHA or sign-in gate, exits 9 with a deeplink so the human finishes the step in their own browser instead of the CLI fighting bot detection."
+    },
+    {
+      "name": "Multi-Account Profiles",
+      "command": "profiles",
+      "description": "Per-profile cookie jars, history databases, and defaults so personal and work Amazon accounts never cross-contaminate."
+    },
+    {
+      "name": "History Sync & Search",
+      "command": "history sync",
+      "description": "Walks /your-orders across recent years into a local SQLite store with FTS5 search, purchase counts, and last-purchased timestamps."
+    }
+  ]
+}

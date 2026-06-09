@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-06-09",
+  "base_run_id": "20260519-122542",
+  "base_printing_press_version": "4.2",
+  "patches": [
+    {
+      "id": "hand-evolution-2026-05",
+      "applied_at": "2026-06-09",
+      "summary": "Hand-evolved after the original 2026-05-19 print through three weeks of real-account daily use",
+      "details": [
+        "Added match_quality (strict/loose) reporting to add --json, with exit 11 and --allow-loose gate for loose FTS matches",
+        "Added Playwright checkout helper (checkout-helper/amazon-checkout.mjs) for cart writes and full checkout; static POSTs are rejected by Amazon's bot detection",
+        "Added exit 9 manual_required path with deeplink JSON field for CAPTCHA/sign-in gates",
+        "Added defaults set/show for card label + last-4 surfaced in checkout confirmations",
+        "Added history sync (walks /your-orders), auth paste fallback when Keychain denies kooky, and doctor reachability report",
+        "Hardened cart parsing against silently-dropped items-of-interest adds (add_failed reason surfaces instead of false success)"
+      ]
+    }
+  ]
+}

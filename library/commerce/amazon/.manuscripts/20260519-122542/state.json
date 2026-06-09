@@ -1,0 +1,14 @@
+{
+  "api_name": "amazon",
+  "run_id": "20260519-122542",
+  "working_dir": "/Users/user/printing-press/.runstate/cli-printing-press-3beda1f1/runs/20260519-122542/working/amazon-pp-cli",
+  "output_dir": "/Users/user/printing-press/.runstate/cli-printing-press-3beda1f1/runs/20260519-122542/working/amazon-pp-cli",
+  "spec_path": "",
+  "browser_sniff_target_url": "https://www.amazon.com",
+  "implementation": {
+    "library": "hand-written-with-instacart-pattern",
+    "url": "https://github.com/mvanhorn/printing-press-library/library/commerce/instacart",
+    "integration_mode": "native",
+    "next_step": "hand-written-module"
+  }
+}

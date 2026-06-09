@@ -1,0 +1,90 @@
+{
+  "api_name": "amazon",
+  "novelty_score": 8,
+  "alternatives": [],
+  "novel_features": [
+    {
+      "name": "Repurchase last order",
+      "command": "reorder-last",
+      "description": "Re-add every line item from your most recent order in one call.",
+      "rationale": "Amazon's UI offers buy-again per-item but not as a batched single-action; only a local-history join across orders + order_items can do it as one command.",
+      "example": "amazon-pp-cli reorder-last --profile personal --dry-run",
+      "why_it_matters": "When an agent needs to restock the exact same household basket the user ordered last week, this is the one-shot path.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Dry-run history match preview",
+      "command": "add",
+      "description": "Show the ASIN, title, purchase count, and last-purchased date for a query without writing to the cart.",
+      "rationale": "Local FTS resolution lets us answer 'what would `add X` do?' without touching amazon.com.",
+      "example": "amazon-pp-cli add 'bath tissue' --dry-run --profile personal",
+      "why_it_matters": "Agents can validate a planned reorder before committing — and the user can see why a particular ASIN was picked.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Most-frequent purchase tiebreak",
+      "command": "add",
+      "description": "When multiple history items match a query, pick the one purchased most frequently (not most recently).",
+      "rationale": "Frequency is a stronger signal than recency for repurchases — the household-stable SKU wins over the one-off experiment.",
+      "example": "amazon-pp-cli add 'detergent' --profile personal",
+      "why_it_matters": "Deterministic, explainable choice between repeated buys — agents don't surprise the user with a one-off SKU.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "History-only repurchase refusal",
+      "command": "add",
+      "description": "Refuses to add anything that isn't already in your local order history.",
+      "rationale": "Repurchase-only is the safety rail. Every other shopping CLI falls back to 'first search result' when the name is ambiguous — exactly the failure mode this CLI prevents.",
+      "example": "amazon-pp-cli add 'random-new-thing' --profile personal  # exits non-zero",
+      "why_it_matters": "Critical for agentic shopping — the LLM can't accidentally buy a brand-new item it picked from search.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Per-profile DB isolation",
+      "command": "profiles",
+      "description": "Each Amazon account profile gets its own SQLite history database.",
+      "rationale": "Work history and personal history must never cross-contaminate; per-profile DB is the structural guarantee.",
+      "example": "amazon-pp-cli profiles add work --label 'Work account' && amazon-pp-cli --profile work history import work-orders.jsonl",
+      "why_it_matters": "the user has personal and work Amazon accounts — they have totally different purchase patterns and must not be searched together.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Amazon",
+    "headline": "History-first Amazon reorders from the command line — refuses to buy anything you haven't bought before.",
+    "value_prop": "Talks directly to amazon.com using your Chrome session cookies. Sub-second add-to-cart, no Playwright running at runtime. Repurchase-only by design — the LLM can't invent a new SKU. Multi-account support via --profile for personal + work.",
+    "auth_narrative": "Amazon has no public buyer API. amazon-pp-cli imports your Chrome session cookies (via kooky, or a Cookie-header paste, or a Chrome cookies.json export) and replays HTTP against amazon.com.",
+    "quickstart": [
+      {"command": "amazon-pp-cli profiles add personal --label 'Personal account'", "comment": "Create a profile so per-account history stays isolated."},
+      {"command": "amazon-pp-cli --profile personal auth login", "comment": "Import cookies from Chrome via kooky."},
+      {"command": "amazon-pp-cli --profile personal doctor", "comment": "Verify auth, DB, and amazon.com reachability."},
+      {"command": "amazon-pp-cli --profile personal history import ~/Downloads/amazon-orders.jsonl", "comment": "Backfill order history from the browser-side dumper."},
+      {"command": "amazon-pp-cli --profile personal add 'bath tissue' --dry-run", "comment": "Preview which past purchase a query would resolve to."},
+      {"command": "amazon-pp-cli --profile personal add 'bath tissue'", "comment": "Actually add the resolved ASIN to the cart."}
+    ],
+    "troubleshoots": [
+      {"symptom": "auth login: keychain access denied", "fix": "Fall back to `amazon-pp-cli auth paste` and paste a Cookie header copied from DevTools."},
+      {"symptom": "add refuses with 'no match in history'", "fix": "Run `amazon-pp-cli history search '<query>'` to see what's actually in the local history; if nothing relevant, run `history import` first."},
+      {"symptom": "checkout returns 'not confirmed'", "fix": "Re-run with `--yes` — this CLI never places an order without an explicit confirmation flag."},
+      {"symptom": "history search returns empty", "fix": "Use the companion browser-side dumper to produce a JSONL from /your-orders, then `amazon-pp-cli history import <path>`."}
+    ],
+    "when_to_use": "Reach for this when an agent or human user wants to restock a previously-purchased item from Amazon and you want a guarantee the agent cannot drift into a new SKU. Not for new-item discovery, not for digital downloads, not for returns — only repurchase.",
+    "recipes": [
+      {"title": "Restock the household basket", "command": "amazon-pp-cli reorder-last --profile personal --yes", "explanation": "One-shot repurchase of every line from the most recent order."},
+      {"title": "Audit what 'add X' would resolve to", "command": "amazon-pp-cli add 'detergent' --dry-run --profile personal --json --select asin,title,purchase_count", "explanation": "JSON preview of the matched ASIN with `--select` to keep the payload tiny for agent consumption."},
+      {"title": "Check both accounts for the same item", "command": "for p in personal work; do amazon-pp-cli --profile $p history search 'sticky notes' --json; done", "explanation": "Each profile has an isolated DB — the loop is the right shape for cross-profile reads."}
+    ],
+    "trigger_phrases": [
+      "reorder X from Amazon",
+      "add bath tissue to my Amazon cart",
+      "buy that thing I always get from Amazon",
+      "restock my last Amazon order",
+      "use amazon-pp-cli",
+      "run amazon-pp-cli"
+    ]
+  },
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-19T12:25:42Z"
+}

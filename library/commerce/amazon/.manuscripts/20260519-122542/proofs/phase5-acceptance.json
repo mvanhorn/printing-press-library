@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "api_name": "amazon",
+  "run_id": "20260519-122542",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 27,
+  "tests_passed": 27,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "cookie",
+    "api_key_available": false,
+    "browser_session_available": true
+  },
+  "notes": [
+    "Hand-built CLI; printing-press shipcheck/dogfood not invoked (no generator spec source).",
+    "Behavioral dogfood: 27 scenarios across CLI surfaces in an isolated AMAZON_PP_CLI_HOME, all passed.",
+    "Live-fire smoke test (real amazon.com) deferred to Phase E with the user's real session cookies."
+  ]
+}
