@@ -7,7 +7,7 @@ Sync once and ask cross-cutting questions forever. Where is my stuff right now, 
 Learn more at [Amazon Orders](https://www.amazon.com).
 
 Created by [@bwishan](https://github.com/bwishan) (Brian Wishan).
-Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow), [@cmedianu](https://github.com/cmedianu) (C Medianu).
 
 ## Install
 
@@ -130,6 +130,26 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 Amazon publishes no buyer API. The CLI imports cookies from your logged-in Chrome / Firefox / Safari / Brave session via `auth login --chrome`. Those cookies persist locally, refresh automatically, and authenticate every subsequent fetch — no API key, no OAuth, no resident browser at runtime.
 
+### Paste a session from browser DevTools
+
+No cookie-extraction tool, or a non-US marketplace? Open DevTools → Network on your Amazon **Your Orders** page, right-click the order-history request → **Copy → Copy as cURL**, and paste it into `auth import --curl`. The Cookie header becomes your session and the request URL pins the marketplace automatically:
+
+```bash
+pbpaste | amazon-orders-pp-cli auth import --stdin --curl     # macOS
+amazon-orders-pp-cli auth import --input ./orders.curl --curl  # from a file
+```
+
+Both the bash and Windows-cmd "Copy as cURL" forms are accepted.
+
+### Non-US marketplaces (amazon.ca, amazon.co.uk, …)
+
+Set `base_url` and the cookie domain, fetch host, and parsed links all follow it (`auth import --curl` sets it for you):
+
+```bash
+AMAZON_ORDERS_BASE_URL=https://www.amazon.ca amazon-orders-pp-cli orders list
+# or persist in ~/.config/amazon-orders-pp-cli/config.toml:  base_url = 'https://www.amazon.ca'
+```
+
 ### Headless agents (1Password / Vault / Bitwarden)
 
 For CI, dev containers, and remote hosts where `auth login --chrome` is not viable, capture the session once on a logged-in machine and inject it on every other host via your secrets manager. The cookie value never enters an LLM's context window because the bytes flow `op → stdin → CLI` without a shell variable in the middle.
@@ -142,7 +162,7 @@ amazon-orders-pp-cli auth export | op document create - --title amazon-orders-se
 op read "op://Agent/amazon-orders-session/file" | amazon-orders-pp-cli auth import --stdin
 ```
 
-The exported JSON shape is `amazon-orders-session/v1`. `auth import` also accepts `--input <file>`, the `AMAZON_COOKIES` env var, or a raw `"k=v; k=v"` cookie string with `--raw-cookies`. See `SKILL.md` ("Headless agent setup with 1Password") for the refresh recipe and substitutes for `vault kv get`, `aws secretsmanager`, `pass`, and `bw`.
+The exported JSON shape is `amazon-orders-session/v1`. `auth import` also accepts `--input <file>`, the `AMAZON_COOKIES` env var, a raw `"k=v; k=v"` cookie string with `--raw-cookies`, or a DevTools "Copy as cURL" command with `--curl`. See `SKILL.md` ("Headless agent setup with 1Password") for the refresh recipe and substitutes for `vault kv get`, `aws secretsmanager`, `pass`, and `bw`.
 
 ## Quick Start
 

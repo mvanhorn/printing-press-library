@@ -103,7 +103,14 @@ profile by name when the installed backend supports it.`,
 			}
 
 			w := cmd.OutOrStdout()
-			domain := ".amazon.com"
+
+			// Load config up front so the cookie domain tracks the configured
+			// marketplace (base_url) — e.g. .amazon.ca instead of .amazon.com.
+			cfg, err := config.Load(flags.configPath)
+			if err != nil {
+				return configErr(err)
+			}
+			domain := cfg.CookieDomain()
 
 			// Step 1: Detect cookie extraction tool
 			tool, err := detectCookieTool()
@@ -154,11 +161,6 @@ profile by name when the installed backend supports it.`,
 				return authErr(fmt.Errorf("cookie tool returned no cookies for %s", domain))
 			}
 			// Step 4: Save to config
-			cfg, err := config.Load(flags.configPath)
-			if err != nil {
-				return configErr(err)
-			}
-
 			if err := cfg.SaveTokens("", "", cookies, "", time.Time{}); err != nil {
 				return configErr(fmt.Errorf("saving cookies: %w", err))
 			}
@@ -387,7 +389,7 @@ func waitForCookieRefreshBrowser(cmd *cobra.Command, flags *rootFlags, targetURL
 	fmt.Fprintln(w)
 }
 func refreshStoredBrowserCookies(cfg *config.Config, w io.Writer) error {
-	domain := ".amazon.com"
+	domain := cfg.CookieDomain()
 	if domain == "" {
 		return fmt.Errorf("no cookie domain configured")
 	}
@@ -453,7 +455,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 			fmt.Fprintln(w, green("Authenticated"))
 			fmt.Fprintf(w, "  Source: %s\n", cfg.AuthSource)
-			fmt.Fprintf(w, "  Domain: .amazon.com\n")
+			fmt.Fprintf(w, "  Domain: %s\n", cfg.CookieDomain())
 			fmt.Fprintf(w, "  Config: %s\n", cfg.Path)
 			return nil
 		},
@@ -1123,7 +1125,7 @@ func browserSessionProofStatusForAuth(cfg *config.Config, authHeader string) (bo
 	if err := json.Unmarshal(data, &proof); err != nil {
 		return false, "proof is not valid JSON; re-run amazon-orders-pp-cli auth login --chrome"
 	}
-	if proof.APIName != "amazon-orders" || proof.CookieDomain != ".amazon.com" || proof.ValidationPath != "/gp/your-account/order-history" {
+	if proof.APIName != "amazon-orders" || proof.CookieDomain != cfg.CookieDomain() || proof.ValidationPath != "/gp/your-account/order-history" {
 		return false, "proof does not match this CLI"
 	}
 	if authHeader != "" && proof.CredentialFingerprint != fingerprintCredential(authHeader) {
@@ -1165,7 +1167,7 @@ func validateAndWriteBrowserSessionProof(cfg *config.Config, flags *rootFlags) e
 
 	proof := browserSessionProof{
 		APIName:               "amazon-orders",
-		CookieDomain:          ".amazon.com",
+		CookieDomain:          cfg.CookieDomain(),
 		ValidationMethod:      method,
 		ValidationPath:        validationPath,
 		StatusCode:            status,

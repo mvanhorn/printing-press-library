@@ -42,7 +42,7 @@ func fetchOrderListPages(ctx context.Context, c *client.Client, timeFilter strin
 			}
 			break
 		}
-		listPage, perr := parser.ParseOrderList(raw)
+		listPage, perr := parser.ParseOrderList(raw, c.BaseURL)
 		if perr != nil {
 			return nil, perr
 		}

@@ -51,7 +51,7 @@ func newOrdersListCmd(flags *rootFlags) *cobra.Command {
 				// We skip the generic extractHTMLResponse helper because Amazon does not
 				// embed a __NEXT_DATA__ blob; the order data lives in .order-card divs.
 				_ = htmlRequestParams // silence unused-warning while we keep the variable for parity with sibling endpoints
-				page, perr := parser.ParseOrderList(data)
+				page, perr := parser.ParseOrderList(data, c.BaseURL)
 				if perr != nil {
 					return fmt.Errorf("parsing Amazon order list HTML: %w", perr)
 				}

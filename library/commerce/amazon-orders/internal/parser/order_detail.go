@@ -44,8 +44,10 @@ type OrderDetail struct {
 }
 
 // ParseOrderDetail walks an order-details HTML page and returns a structured
-// OrderDetail. Fields not present in the input are left zero / empty.
-func ParseOrderDetail(htmlBytes []byte) (*OrderDetail, error) {
+// OrderDetail. Fields not present in the input are left zero / empty. baseURL is
+// the configured marketplace origin used to resolve relative product/track
+// links; pass "" to default to the US storefront.
+func ParseOrderDetail(htmlBytes []byte, baseURL string) (*OrderDetail, error) {
 	doc, err := Parse(htmlBytes)
 	if err != nil {
 		return nil, err
@@ -132,7 +134,7 @@ func ParseOrderDetail(htmlBytes []byte) (*OrderDetail, error) {
 		od.Items = append(od.Items, OrderItem{
 			ASIN:       asin,
 			Title:      title,
-			ProductURL: abs(href),
+			ProductURL: abs(baseURL, href),
 		})
 		return true
 	})
@@ -177,7 +179,7 @@ func ParseOrderDetail(htmlBytes []byte) (*OrderDetail, error) {
 			if n.Type == html.ElementNode && n.Data == "a" {
 				href := Attr(n, "href")
 				if strings.Contains(href, "ship-track") {
-					ship.TrackURL = abs(href)
+					ship.TrackURL = abs(baseURL, href)
 				}
 			}
 			return true

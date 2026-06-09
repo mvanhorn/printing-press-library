@@ -42,7 +42,7 @@ func newOrdersGetCmd(flags *rootFlags) *cobra.Command {
 			}
 			if !flags.dryRun {
 				_ = htmlRequestParams
-				detail, perr := parser.ParseOrderDetail(data)
+				detail, perr := parser.ParseOrderDetail(data, c.BaseURL)
 				if perr != nil {
 					return fmt.Errorf("parsing Amazon order-detail HTML: %w", perr)
 				}

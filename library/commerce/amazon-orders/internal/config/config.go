@@ -5,6 +5,7 @@ package config
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -102,6 +103,35 @@ func (c *Config) AuthHeader() string {
 		return c.AccessToken
 	}
 	return ""
+}
+
+// CookieDomain returns the registrable cookie domain for the configured
+// marketplace, derived from BaseURL. E.g. https://www.amazon.ca -> ".amazon.ca",
+// https://www.amazon.com -> ".amazon.com". The leading "www." label is stripped
+// so the cookie scope covers the whole storefront. Defaults to ".amazon.com"
+// when BaseURL is empty or unparseable.
+func (c *Config) CookieDomain() string {
+	return cookieDomainFromBaseURL(c.BaseURL)
+}
+
+func cookieDomainFromBaseURL(baseURL string) string {
+	const fallback = ".amazon.com"
+	if baseURL == "" {
+		return fallback
+	}
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		return fallback
+	}
+	host := u.Hostname()
+	if host == "" {
+		return fallback
+	}
+	host = strings.TrimPrefix(host, "www.")
+	if host == "" {
+		return fallback
+	}
+	return "." + host
 }
 
 func applyAuthFormat(format string, replacements map[string]string) string {

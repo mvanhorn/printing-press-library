@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "order-card-id-from-slot-attribute",
+  "applied_at": "2026-06-08",
+  "base_run_id": "20260510-105710",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Resolve each order-card's ID from its data-csa-c-slot-id attribute (amzn1.yourorders.order-card.<ID>) when the card body carries no visible ID; never scrape generic hrefs for an order-ID shape.",
+  "reason": "Amazon now ships order cards with a client-side-encrypted body (csd-encrypted-sensitive), so the order ID is absent from the card's visible text and ExtractOrderID(cardText) returns empty, dropping every order. The stable identifier moved to the card's data-csa-c-slot-id attribute. The 'Buy it again' recommendation links inside every card embed the session token (ue_sid), which is itself order-ID-shaped — scraping hrefs for an order-ID regex would assign every card that one token and collapse the whole page onto a single order, so only the slot attribute and unambiguous order-details/orderID= links are trusted.",
+  "files": [
+    "internal/parser/orders_list.go",
+    "internal/cli/helpers.go"
+  ],
+  "validated_outcome": "Against a real logged-in amazon.ca Your Orders page (10 encrypted cards) the parser recovers all 10 distinct order IDs; previously it returned 0. The --agent compact allowlist (compactListFields) keys off 'id', so orderId/placedDate/total/status are added there too — otherwise --agent order rows come back as {} with the ID stripped.",
+  "upstream_issue": ""
+}

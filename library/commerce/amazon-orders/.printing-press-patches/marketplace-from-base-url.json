@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "marketplace-from-base-url",
+  "applied_at": "2026-06-08",
+  "base_run_id": "20260510-105710",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Derive the cookie domain (auth) and the relative-URL origin (parser abs()) from the configured base_url so non-US marketplaces like amazon.ca work, instead of hardcoding www.amazon.com / .amazon.com.",
+  "reason": "base_url / AMAZON_ORDERS_BASE_URL already route fetches to the configured storefront, but the auth login/refresh/status cookie domain and the browser-session proof were pinned to .amazon.com, and the parser resolved relative order/track/invoice links against https://www.amazon.com. On amazon.ca that reads cookies for the wrong domain and emits .com detail links. Config.CookieDomain() and parser.originFromBaseURL() now both follow base_url's host.",
+  "files": [
+    "internal/config/config.go",
+    "internal/cli/auth.go",
+    "internal/parser/orders_list.go",
+    "internal/parser/order_detail.go"
+  ],
+  "validated_outcome": "auth import --curl from an amazon.ca request sets base_url=https://www.amazon.ca and reports cookie domain .amazon.ca; parsed detail URLs resolve to amazon.ca.",
+  "upstream_issue": ""
+}

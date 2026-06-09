@@ -585,6 +585,11 @@ func compactListFields(items []map[string]any) json.RawMessage {
 		"status": true, "state": true, "type": true, "priority": true,
 		"url": true, "email": true, "key": true,
 		"created_at": true, "updated_at": true, "createdAt": true, "updatedAt": true,
+		// Amazon order high-gravity fields: the generic allowlist above keys off
+		// "id", but orders are identified by "orderId" — without these an --agent
+		// order listing comes back as rows of {} / {status}, useless to an agent.
+		"orderId": true, "placedDate": true, "total": true, "currency": true,
+		"deliveredOn": true, "etaDate": true, "detailUrl": true, "trackUrl": true,
 	}
 
 	filtered := make([]map[string]any, 0, len(items))

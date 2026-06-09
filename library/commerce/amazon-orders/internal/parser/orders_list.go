@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"net/url"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -35,8 +36,10 @@ type OrderListPage struct {
 }
 
 // ParseOrderList walks an order-history HTML page and returns one summary per
-// .order-card container.
-func ParseOrderList(htmlBytes []byte) (*OrderListPage, error) {
+// .order-card container. baseURL is the configured marketplace origin (e.g.
+// https://www.amazon.ca); relative detail/track/invoice links are resolved
+// against it. Pass "" to default to the US storefront.
+func ParseOrderList(htmlBytes []byte, baseURL string) (*OrderListPage, error) {
 	doc, err := Parse(htmlBytes)
 	if err != nil {
 		return nil, err
@@ -53,7 +56,7 @@ func ParseOrderList(htmlBytes []byte) (*OrderListPage, error) {
 
 	seen := map[string]bool{}
 	for _, c := range cards {
-		s := parseOrderCard(c)
+		s := parseOrderCard(c, baseURL)
 		if s.OrderID == "" || seen[s.OrderID] {
 			continue
 		}
@@ -80,12 +83,12 @@ func ParseOrderList(htmlBytes []byte) (*OrderListPage, error) {
 	return page, nil
 }
 
-func parseOrderCard(card *html.Node) OrderSummary {
+func parseOrderCard(card *html.Node, baseURL string) OrderSummary {
 	s := OrderSummary{Currency: "USD"}
 	cardText := Text(card)
 
 	// Order ID — most reliable signal.
-	s.OrderID = ExtractOrderID(cardText)
+	s.OrderID = cardOrderID(card, cardText)
 
 	// Placed date: look for "ORDER PLACED <date>" pair.
 	if i := strings.Index(strings.ToUpper(cardText), "ORDER PLACED"); i >= 0 {
@@ -126,9 +129,49 @@ func parseOrderCard(card *html.Node) OrderSummary {
 	s.Status, s.ETADate, s.DeliveredOn = extractStatus(cardText)
 
 	// Detail URL, invoice URL, track URL, ASINs/titles.
-	s.DetailURL, s.InvoiceURL, s.TrackURL, s.ASINs, s.ItemTitles = extractCardLinks(card)
+	s.DetailURL, s.InvoiceURL, s.TrackURL, s.ASINs, s.ItemTitles = extractCardLinks(card, baseURL)
 
 	return s
+}
+
+// cardOrderID resolves the order ID for a card. Amazon stopped rendering the
+// order ID in the card's visible text — on current markup the card body is
+// client-side encrypted and the only stable per-order identifier is the
+// card's data-csa-c-slot-id attribute (amzn1.yourorders.order-card.<ID>).
+//
+// We deliberately do NOT scrape generic <a href> attributes for an order-ID
+// shape: the "Buy it again" recommendation links rendered inside every card
+// embed the session token (ue_sid), which is itself order-ID-shaped. Scraping
+// those would assign every card the same ID and collapse the whole page onto a
+// single order. Only unambiguous per-order links (order-details, orderID=) are
+// used as a last-resort fallback.
+func cardOrderID(card *html.Node, cardText string) string {
+	if id := ExtractOrderID(cardText); id != "" {
+		return id
+	}
+	if slot := Attr(card, "data-csa-c-slot-id"); strings.Contains(slot, "order-card.") {
+		if id := ExtractOrderID(slot); id != "" {
+			return id
+		}
+	}
+	var found string
+	FindAll(card, func(n *html.Node) bool {
+		if found != "" {
+			return false
+		}
+		if n.Type != html.ElementNode || n.Data != "a" {
+			return true
+		}
+		href := Attr(n, "href")
+		if strings.Contains(href, "order-details") || strings.Contains(href, "orderID=") {
+			if id := ExtractOrderID(href); id != "" {
+				found = id
+				return false
+			}
+		}
+		return true
+	})
+	return found
 }
 
 // extractStatus searches a card's text for status keywords and resolves a
@@ -176,7 +219,7 @@ func extractStatus(cardText string) (status, eta, delivered string) {
 	return
 }
 
-func extractCardLinks(card *html.Node) (detailURL, invoiceURL, trackURL string, asins, titles []string) {
+func extractCardLinks(card *html.Node, baseURL string) (detailURL, invoiceURL, trackURL string, asins, titles []string) {
 	asinSeen := map[string]bool{}
 	titleSeen := map[string]bool{}
 
@@ -190,11 +233,11 @@ func extractCardLinks(card *html.Node) (detailURL, invoiceURL, trackURL string, 
 		}
 		switch {
 		case strings.Contains(href, "order-details") && detailURL == "":
-			detailURL = abs(href)
+			detailURL = abs(baseURL, href)
 		case strings.Contains(href, "/gp/css/summary/print.html") && invoiceURL == "":
-			invoiceURL = abs(href)
+			invoiceURL = abs(baseURL, href)
 		case strings.Contains(href, "ship-track") && trackURL == "":
-			trackURL = abs(href)
+			trackURL = abs(baseURL, href)
 		case strings.Contains(href, "/dp/") || strings.Contains(href, "/gp/product/"):
 			a := ExtractASIN(href)
 			if a != "" && !asinSeen[a] {
@@ -212,8 +255,10 @@ func extractCardLinks(card *html.Node) (detailURL, invoiceURL, trackURL string, 
 	return
 }
 
-// abs prepends https://www.amazon.com to a relative URL when needed.
-func abs(href string) string {
+// abs resolves a relative Amazon URL against the configured marketplace origin
+// derived from baseURL (e.g. https://www.amazon.ca). Absolute and
+// protocol-relative URLs are returned unchanged.
+func abs(baseURL, href string) string {
 	if href == "" {
 		return ""
 	}
@@ -223,10 +268,31 @@ func abs(href string) string {
 	if strings.HasPrefix(href, "//") {
 		return "https:" + href
 	}
+	origin := originFromBaseURL(baseURL)
 	if strings.HasPrefix(href, "/") {
-		return "https://www.amazon.com" + href
+		return origin + href
 	}
-	return "https://www.amazon.com/" + href
+	return origin + "/" + href
+}
+
+// originFromBaseURL returns scheme://host for the configured base URL, defaulting
+// to https://www.amazon.com when baseURL is empty or unparseable. This keeps
+// relative order/track/invoice links on the marketplace the CLI is configured
+// for instead of hardcoding the US storefront.
+func originFromBaseURL(baseURL string) string {
+	const fallback = "https://www.amazon.com"
+	if baseURL == "" {
+		return fallback
+	}
+	u, err := url.Parse(baseURL)
+	if err != nil || u.Host == "" {
+		return fallback
+	}
+	scheme := u.Scheme
+	if scheme == "" {
+		scheme = "https"
+	}
+	return scheme + "://" + u.Host
 }
 
 func min(a, b int) int {

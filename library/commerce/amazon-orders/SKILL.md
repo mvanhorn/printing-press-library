@@ -231,6 +231,30 @@ Amazon publishes no buyer API. The CLI imports cookies from your logged-in Chrom
 
 Run `amazon-orders-pp-cli doctor` to verify setup.
 
+### Paste a session from browser DevTools (`auth import --curl`)
+
+If you can't run `auth login --chrome` (no cookie-extraction tool installed, or a marketplace other than amazon.com), grab the session straight from the browser: open DevTools → Network tab on your Amazon **Your Orders** page, right-click the order-history request → **Copy → Copy as cURL**, then paste it into `auth import --curl`. The Cookie header becomes the session, and the request URL pins the marketplace (e.g. `https://www.amazon.ca` → cookie domain `.amazon.ca`, and all subsequent fetches target amazon.ca):
+
+```bash
+# macOS clipboard:
+pbpaste | amazon-orders-pp-cli auth import --stdin --curl
+# Linux clipboard:
+xclip -selection clipboard -o | amazon-orders-pp-cli auth import --stdin --curl
+# Or from a saved file:
+amazon-orders-pp-cli auth import --input ./orders.curl --curl
+```
+
+The parser tolerates both the bash and Windows-cmd "Copy as cURL" forms. Validate with `amazon-orders-pp-cli auth status` (it prints the detected cookie domain).
+
+### Non-US marketplaces (amazon.ca, amazon.co.uk, …)
+
+Set `base_url` once and the cookie domain, fetch host, and parsed links all follow it. `auth import --curl` sets it for you from the pasted request; otherwise set it explicitly:
+
+```bash
+AMAZON_ORDERS_BASE_URL=https://www.amazon.ca amazon-orders-pp-cli orders list
+# or persist it in ~/.config/amazon-orders-pp-cli/config.toml:  base_url = 'https://www.amazon.ca'
+```
+
 ### Headless agent setup with 1Password (LLM-free roundtrip)
 
 For a headless host (CI, dev container, remote agent) where you cannot run `auth login --chrome`, capture the session once on a logged-in machine, stash it in 1Password (or any other secrets manager), and inject it on the headless host. **The cookie value never enters an LLM's context window** because the bytes flow `op → stdin → CLI` without crossing a shell variable the LLM can read.

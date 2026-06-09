@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "auth-import-curl",
+  "applied_at": "2026-06-08",
+  "base_run_id": "20260510-105710",
+  "base_printing_press_version": "4.2.2",
+  "summary": "auth import gains a --curl mode that ingests a browser DevTools \"Copy as cURL\" command: the Cookie header becomes the session and the request URL pins the marketplace base_url.",
+  "reason": "The fastest hands-on way for a user to hand the CLI a logged-in session is to right-click the order-history request in DevTools and Copy as cURL. Parsing that paste (tolerant of bash \\ and Windows ^ line continuations, single/double and bash $'...' quoting, and -H cookie / -b forms) extracts both the cookies and, from the URL host, the correct storefront — removing the need for a cookie-extraction tool or manual base_url config.",
+  "files": [
+    "internal/cli/auth_portable.go"
+  ],
+  "validated_outcome": "Pasting a real amazon.ca Copy-as-cURL imports the full cookie jar and sets base_url=https://www.amazon.ca; the imported session then drives a successful live orders fetch.",
+  "upstream_issue": ""
+}

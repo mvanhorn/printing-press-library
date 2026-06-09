@@ -117,7 +117,7 @@ func TestParseOrderListMinimal(t *testing.T) {
   </div>
 </div>
 </body></html>`
-	page, err := ParseOrderList([]byte(html))
+	page, err := ParseOrderList([]byte(html), "")
 	if err != nil {
 		t.Fatalf("ParseOrderList: %v", err)
 	}
@@ -145,6 +145,74 @@ func TestParseOrderListMinimal(t *testing.T) {
 	}
 	if len(o.ASINs) != 1 || o.ASINs[0] != "B0EXAMPLE1" {
 		t.Errorf("ASINs = %v, want [B0EXAMPLE1]", o.ASINs)
+	}
+}
+
+// TestParseOrderListEncryptedSlotID covers current Amazon markup where the card
+// body is client-side encrypted and the order ID survives only in the card's
+// data-csa-c-slot-id attribute. The "Buy it again" link embeds the session
+// token (ue_sid), which is itself order-ID-shaped — a naive href scrape would
+// assign every card that token and collapse the page onto one order, so this
+// guards against that regression too. Two cards on amazon.ca; relative detail
+// links must resolve against the .ca origin.
+func TestParseOrderListEncryptedSlotID(t *testing.T) {
+	html := `<html><body>
+<div class="order-card js-order-card" data-csa-c-slot-id="amzn1.yourorders.order-card.701-2026192-0189867">
+  <div class="a-box-group">
+    <div class="csd-encrypted-sensitive"><script>/* encrypted blob */</script></div>
+    <a href="/gp/buyagain/ref=pd_yo_rr/143-8440915-8787300?pd_rd_i=B00AE22A02">Buy it again</a>
+    <a href="/your-orders/order-details?orderID=701-2026192-0189867">View order details</a>
+  </div>
+</div>
+<div class="order-card js-order-card" data-csa-c-slot-id="amzn1.yourorders.order-card.D01-3983926-7024267">
+  <div class="a-box-group">
+    <div class="csd-encrypted-sensitive"><script>/* encrypted blob */</script></div>
+    <a href="/gp/buyagain/ref=pd_yo_rr/143-8440915-8787300?pd_rd_i=B009H17ODE">Buy it again</a>
+  </div>
+</div>
+</body></html>`
+	page, err := ParseOrderList([]byte(html), "https://www.amazon.ca")
+	if err != nil {
+		t.Fatalf("ParseOrderList: %v", err)
+	}
+	if len(page.Orders) != 2 {
+		t.Fatalf("got %d orders, want 2 (session-id trap may have collapsed cards)", len(page.Orders))
+	}
+	wantIDs := map[string]bool{"701-2026192-0189867": true, "D01-3983926-7024267": true}
+	for _, o := range page.Orders {
+		if !wantIDs[o.OrderID] {
+			t.Errorf("unexpected OrderID %q (session id 143-8440915-8787300 must not be picked up)", o.OrderID)
+		}
+	}
+	// Marketplace-aware abs(): the order-details link must resolve to .ca, not .com.
+	var withDetail *OrderSummary
+	for i := range page.Orders {
+		if page.Orders[i].DetailURL != "" {
+			withDetail = &page.Orders[i]
+		}
+	}
+	if withDetail == nil {
+		t.Fatal("expected one order with a detail URL")
+	}
+	if got := withDetail.DetailURL; got != "https://www.amazon.ca/your-orders/order-details?orderID=701-2026192-0189867" {
+		t.Errorf("DetailURL = %q, want amazon.ca-resolved URL", got)
+	}
+}
+
+func TestAbsMarketplace(t *testing.T) {
+	tests := []struct {
+		baseURL, href, want string
+	}{
+		{"https://www.amazon.ca", "/your-orders/x", "https://www.amazon.ca/your-orders/x"},
+		{"", "/your-orders/x", "https://www.amazon.com/your-orders/x"},
+		{"https://www.amazon.co.uk", "/dp/B0", "https://www.amazon.co.uk/dp/B0"},
+		{"https://www.amazon.ca", "https://other.example/abs", "https://other.example/abs"},
+		{"https://www.amazon.ca", "", ""},
+	}
+	for _, tt := range tests {
+		if got := abs(tt.baseURL, tt.href); got != tt.want {
+			t.Errorf("abs(%q, %q) = %q, want %q", tt.baseURL, tt.href, got, tt.want)
+		}
 	}
 }
 

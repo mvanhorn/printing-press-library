@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	neturl "net/url"
 	"os"
 	"strings"
 	"time"
@@ -149,17 +150,21 @@ func newAuthImportCmd(flags *rootFlags) *cobra.Command {
 	var input string
 	var fromStdin bool
 	var rawCookies bool
+	var fromCurl bool
 
 	cmd := &cobra.Command{
 		Use:   "import",
 		Short: "Import a portable session JSON (or raw cookie string) into the local config",
 		Long: `Reads cookies into the local config so subsequent commands can authenticate.
 
-Three modes:
+Four modes:
 
   --input <file>    — read JSON from a file
   --stdin           — read JSON from standard input (use with 'op read', curl, etc.)
   --raw-cookies     — treat input as a raw "k=v; k=v" cookie string instead of JSON
+  --curl            — treat input as a DevTools "Copy as cURL" command; the
+                      Cookie header is extracted as the session, and the request
+                      URL pins the marketplace (e.g. https://www.amazon.ca)
 
 The accepted JSON schema is "amazon-orders-session/v1" produced by
 'auth export'. Older / handwritten payloads with just a "cookies" key
@@ -183,7 +188,13 @@ setup with 1Password" for the full roundtrip and refresh recipe.`,
   AMAZON_COOKIES="$(op read 'op://Agent/amazon-orders-session/file')" amazon-orders-pp-cli auth import
 
   # From a raw "k=v; k=v" cookie string (e.g. browser DevTools):
-  amazon-orders-pp-cli auth import --stdin --raw-cookies <<< "session-id=...; ubid-main=..."`,
+  amazon-orders-pp-cli auth import --stdin --raw-cookies <<< "session-id=...; ubid-main=..."
+
+  # From a DevTools "Copy as cURL" command (right-click the order-history
+  # request in the Network tab → Copy → Copy as cURL). The cookie AND the
+  # marketplace (amazon.ca vs amazon.com) are detected from the request:
+  pbpaste | amazon-orders-pp-cli auth import --stdin --curl
+  amazon-orders-pp-cli auth import --input ./orders.curl --curl`,
 		Annotations: map[string]string{"mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
@@ -217,10 +228,30 @@ setup with 1Password" for the full roundtrip and refresh recipe.`,
 				return fmt.Errorf("empty input")
 			}
 
+			cfg, err := config.Load(flags.configPath)
+			if err != nil {
+				return configErr(err)
+			}
+
 			var cookies string
-			if rawCookies || (blob[0] != '{' && blob[0] != '[') {
+			var marketplace string
+			switch {
+			case fromCurl:
+				c, origin, perr := parseCurlSession(string(blob))
+				if perr != nil {
+					return perr
+				}
+				cookies = c
+				// Pin the marketplace from the request URL so subsequent fetches
+				// (and the cookie domain) target the same storefront the cURL was
+				// copied from — unless an explicit base URL override is in effect.
+				if origin != "" && os.Getenv("AMAZON_ORDERS_BASE_URL") == "" {
+					cfg.BaseURL = origin
+					marketplace = origin
+				}
+			case rawCookies || (blob[0] != '{' && blob[0] != '['):
 				cookies = string(blob)
-			} else {
+			default:
 				var session PortableSession
 				if err := json.Unmarshal(blob, &session); err != nil {
 					return fmt.Errorf("parsing session JSON: %w", err)
@@ -230,14 +261,13 @@ setup with 1Password" for the full roundtrip and refresh recipe.`,
 				}
 				cookies = session.Cookies
 			}
-			cfg, err := config.Load(flags.configPath)
-			if err != nil {
-				return configErr(err)
-			}
 			if err := cfg.SaveTokens("", "", cookies, "", time.Time{}); err != nil {
 				return configErr(fmt.Errorf("saving cookies: %w", err))
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Imported session into %s\n", cfg.Path)
+			if marketplace != "" {
+				fmt.Fprintf(cmd.OutOrStdout(), "Marketplace set to %s (cookie domain %s).\n", marketplace, cfg.CookieDomain())
+			}
 			fmt.Fprintln(cmd.OutOrStdout(), "Run 'auth status' to validate, or any other command to use the new session.")
 			return nil
 		},
@@ -245,5 +275,130 @@ setup with 1Password" for the full roundtrip and refresh recipe.`,
 	cmd.Flags().StringVar(&input, "input", "", "File to read JSON from (default: stdin or AMAZON_COOKIES env var).")
 	cmd.Flags().BoolVar(&fromStdin, "stdin", false, "Read JSON from standard input.")
 	cmd.Flags().BoolVar(&rawCookies, "raw-cookies", false, "Treat input as a raw 'k=v; k=v' cookie string instead of session JSON.")
+	cmd.Flags().BoolVar(&fromCurl, "curl", false, "Treat input as a DevTools \"Copy as cURL\" command; extract the Cookie header and marketplace URL.")
 	return cmd
+}
+
+// parseCurlSession extracts the Cookie header value (and the request origin) from
+// a browser DevTools "Copy as cURL" command. It tolerates bash (`\`) and Windows
+// cmd (`^`) line continuations, single/double quoting, and bash ANSI-C `$'...'`
+// quoting. Returns the semicolon-joined cookie string and, when the request URL
+// is an http(s) URL, its scheme://host origin so the caller can pin the
+// marketplace (e.g. https://www.amazon.ca).
+func parseCurlSession(raw string) (cookies, origin string, err error) {
+	tokens := tokenizeCurl(raw)
+	var reqURL string
+	for i := 0; i < len(tokens); i++ {
+		t := tokens[i]
+		switch {
+		case t == "-H" || t == "--header":
+			if i+1 < len(tokens) {
+				i++
+				if name, val, ok := splitHeader(tokens[i]); ok && strings.EqualFold(name, "cookie") {
+					cookies = val
+				}
+			}
+		case strings.HasPrefix(t, "--header="):
+			if name, val, ok := splitHeader(strings.TrimPrefix(t, "--header=")); ok && strings.EqualFold(name, "cookie") {
+				cookies = val
+			}
+		case t == "-b" || t == "--cookie":
+			// -b accepts either an inline "k=v; k=v" string or a cookie-jar file;
+			// only the inline form (contains "=") is a session we can import.
+			if i+1 < len(tokens) {
+				i++
+				if strings.Contains(tokens[i], "=") {
+					cookies = tokens[i]
+				}
+			}
+		case strings.HasPrefix(t, "http://") || strings.HasPrefix(t, "https://"):
+			if reqURL == "" {
+				reqURL = t
+			}
+		}
+	}
+
+	cookies = strings.TrimSpace(cookies)
+	if cookies == "" {
+		return "", "", fmt.Errorf("no Cookie header found in cURL command (expected -H 'cookie: ...' or -b 'k=v; ...')")
+	}
+	if reqURL != "" {
+		if u, perr := neturl.Parse(reqURL); perr == nil && u.Host != "" {
+			scheme := u.Scheme
+			if scheme == "" {
+				scheme = "https"
+			}
+			origin = scheme + "://" + u.Host
+		}
+	}
+	return cookies, origin, nil
+}
+
+// splitHeader splits an HTTP header token "Name: value" on the first colon.
+func splitHeader(h string) (name, value string, ok bool) {
+	idx := strings.IndexByte(h, ':')
+	if idx < 0 {
+		return "", "", false
+	}
+	return strings.TrimSpace(h[:idx]), strings.TrimSpace(h[idx+1:]), true
+}
+
+// tokenizeCurl splits a shell-quoted cURL command into argv-style tokens,
+// honoring single quotes, double quotes (with backslash escapes), and dropping
+// bash `\`/Windows `^` line continuations. It is deliberately lenient: the goal
+// is to recover the Cookie header and URL from a pasted command, not to be a
+// faithful POSIX shell lexer.
+func tokenizeCurl(raw string) []string {
+	// Collapse line continuations and normalize bash ANSI-C quoting ($'...' -> '...').
+	replacer := strings.NewReplacer("\\\n", " ", "^\n", " ", "\r", " ", "$'", "'")
+	raw = replacer.Replace(raw)
+
+	var tokens []string
+	var cur strings.Builder
+	started := false
+	inSingle, inDouble := false, false
+	flush := func() {
+		if started {
+			tokens = append(tokens, cur.String())
+			cur.Reset()
+			started = false
+		}
+	}
+	for i := 0; i < len(raw); i++ {
+		ch := raw[i]
+		switch {
+		case inSingle:
+			if ch == '\'' {
+				inSingle = false
+			} else {
+				cur.WriteByte(ch)
+			}
+		case inDouble:
+			if ch == '"' {
+				inDouble = false
+			} else if ch == '\\' && i+1 < len(raw) {
+				i++
+				cur.WriteByte(raw[i])
+			} else {
+				cur.WriteByte(ch)
+			}
+		case ch == '\'':
+			inSingle = true
+			started = true
+		case ch == '"':
+			inDouble = true
+			started = true
+		case ch == ' ' || ch == '\t' || ch == '\n':
+			flush()
+		case ch == '\\' && i+1 < len(raw):
+			i++
+			cur.WriteByte(raw[i])
+			started = true
+		default:
+			cur.WriteByte(ch)
+			started = true
+		}
+	}
+	flush()
+	return tokens
 }
