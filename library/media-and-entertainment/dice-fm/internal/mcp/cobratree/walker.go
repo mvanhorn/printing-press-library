@@ -4,6 +4,8 @@
 package cobratree
 
 import (
+	"strings"
+
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/spf13/cobra"
@@ -30,7 +32,11 @@ func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (strin
 		if toolName == "" {
 			return
 		}
-		options := []mcplib.ToolOption{mcplib.WithDescription(descriptionFor(cmd))}
+		desc := descriptionFor(cmd)
+		if suffix := lookupDescriptionSuffix(pathKey(path)); suffix != "" {
+			desc = strings.TrimRight(desc, " ") + " " + suffix
+		}
+		options := []mcplib.ToolOption{mcplib.WithDescription(desc)}
 		options = append(options, toolOptionsForFlags(cmd)...)
 		if commandTakesArgs(cmd) {
 			options = append(options, mcplib.WithString("args", mcplib.Description("Additional positional arguments or raw CLI flags to append to the command.")))
@@ -38,6 +44,9 @@ func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (strin
 		if isMCPReadOnly(cmd) {
 			options = append(options, mcplib.WithReadOnlyHintAnnotation(true), mcplib.WithDestructiveHintAnnotation(false))
 		}
+		// Application-registered extra options (e.g. an include_pii bool on
+		// PII-bearing mirrored commands like `fans top` / `door list`).
+		options = append(options, lookupExtraToolOptions(pathKey(path))...)
 		s.AddTool(mcplib.NewTool(toolName, options...), shellOutToCLI(cliPath, path))
 	})
 }

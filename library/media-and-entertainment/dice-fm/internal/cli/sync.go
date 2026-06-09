@@ -116,7 +116,7 @@ Exit codes & warnings:
 			// --dry-run: report the sync plan without hitting the network or
 			// writing the store. Keeps `sync --dry-run` verify-green.
 			if dryRunOK(flags) {
-				if humanFriendly {
+				if humanFriendlyEnabled() {
 					fmt.Fprintf(os.Stderr, "dry-run: would sync resources: %s\n", strings.Join(resources, ", "))
 				} else {
 					// json.Marshal escapes quotes/backslashes/newlines in resource
@@ -143,7 +143,7 @@ Exit codes & warnings:
 			if latestOnly {
 				if since == "" {
 					maxPages = 1
-				} else if humanFriendly {
+				} else if humanFriendlyEnabled() {
 					fmt.Fprintln(os.Stderr, "warning: --latest-only ignored because --since is set; --since takes precedence")
 				}
 			}
@@ -244,7 +244,7 @@ Exit codes & warnings:
 			for res := range results {
 				switch {
 				case res.Err != nil:
-					if humanFriendly {
+					if humanFriendlyEnabled() {
 						fmt.Fprintf(os.Stderr, "  %s: error: %v\n", res.Resource, res.Err)
 					}
 					errCount++
@@ -255,12 +255,12 @@ Exit codes & warnings:
 						firstPlaceholderErr = res.Err
 					}
 				case res.Warn != nil:
-					if humanFriendly {
+					if humanFriendlyEnabled() {
 						fmt.Fprintf(os.Stderr, "  %s: warning: %v\n", res.Resource, res.Warn)
 					}
 					warnCount++
 				default:
-					if humanFriendly {
+					if humanFriendlyEnabled() {
 						fmt.Fprintf(os.Stderr, "  %s: %d synced (done)\n", res.Resource, res.Count)
 					}
 					totalSynced += res.Count
@@ -270,7 +270,7 @@ Exit codes & warnings:
 
 			elapsed := time.Since(started)
 			totalResources := successCount + warnCount + errCount
-			if humanFriendly {
+			if humanFriendlyEnabled() {
 				if warnCount > 0 {
 					fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%d warned, %.1fs)\n",
 						totalSynced, totalResources, warnCount, elapsed.Seconds())
@@ -310,7 +310,7 @@ Exit codes & warnings:
 	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
 	cmd.Flags().BoolVar(&orderTickets, "order-tickets", false, "Also fetch each order's tickets (enables date/event-scoped `revenue --by-axis`; slower — heavier payload, opt-in).")
 	cmd.Flags().StringVar(&eventsFrom, "events-from", "", "Inclusive lower bound of the event date window (RFC3339 or YYYY-MM-DD); scopes the events resource.")
-	cmd.Flags().StringVar(&eventsTo, "events-to", "", "Exclusive upper bound of the event date window (RFC3339 or YYYY-MM-DD); scopes the events resource.")
+	cmd.Flags().StringVar(&eventsTo, "events-to", "", "Exclusive upper bound of the event date window (RFC3339 or YYYY-MM-DD); scopes the events resource. NOTE: exclusive here, unlike the inclusive --to on analytics commands (revenue/capacity/etc.).")
 	cmd.Flags().StringVar(&eventsDateField, "events-date-field", defaultEventsDateField, "Event date field the window scopes: startDatetime|onSaleDatetime|updatedAt.")
 	cmd.Flags().StringVar(&eventIDs, "event-ids", "", "Scope tickets & orders by eventId. Either 'auto' (use the events already in the local store) or a comma-separated list of event IDs.")
 
@@ -329,7 +329,7 @@ Exit codes & warnings:
 // cross-resource scoping (e.g. --event-ids auto) once before dispatch.
 func syncResource(ctx context.Context, c *client.Client, db *store.Store, resource string, where map[string]any, full bool, maxPages int, latest bool, enrichOrders bool) syncResult {
 	started := time.Now()
-	if !humanFriendly {
+	if !humanFriendlyEnabled() {
 		// json.Marshal escapes the resource name so a value containing a quote,
 		// backslash, or newline can't produce a malformed sync_start event.
 		resJSON, _ := json.Marshal(resource)
@@ -340,9 +340,17 @@ func syncResource(ctx context.Context, c *client.Client, db *store.Store, resour
 	}
 
 	// Under live-dogfood, curtail to a single page so the matrix's flat 30s
-	// per-command timeout is not tripped by a full historical backfill.
+	// per-command timeout is not tripped by a full historical backfill. Emit a
+	// one-line stderr notice so the truncation is never silent (an observer must
+	// not mistake a 1-page dogfood sync for a complete backfill).
 	if cliutil.IsDogfoodEnv() && (maxPages == 0 || maxPages > 1) {
 		maxPages = 1
+		if !humanFriendlyEnabled() {
+			resJSON, _ := json.Marshal(resource)
+			fmt.Fprintf(os.Stderr, `{"event":"sync_dogfood_cap","resource":%s,"max_pages":1,"reason":"dogfood env caps sync to 1 page"}`+"\n", resJSON)
+		} else {
+			fmt.Fprintf(os.Stderr, "note: dogfood mode caps %s sync to 1 page (not a full backfill)\n", resource)
+		}
 	}
 
 	startCursor := ""
@@ -361,30 +369,18 @@ func syncResource(ctx context.Context, c *client.Client, db *store.Store, resour
 
 	_, err := fetchConnectionStream(ctx, c, resource, where, dicePerPage, max, startCursor, latest, enrichOrders,
 		func(pageNodes []json.RawMessage, endCursor string, totalFetched int) error {
-			pageStored, _, upsertErr := db.UpsertBatch(resource, pageNodes)
-			if upsertErr != nil {
-				return fmt.Errorf("upserting %s: %w", resource, upsertErr)
+			pageStored, pageFans, persistErr := persistSyncPage(db, resource, pageNodes, endCursor, latest, stored)
+			if persistErr != nil {
+				return persistErr
 			}
 			stored += pageStored
-
-			if resource == "orders" || resource == "tickets" {
-				fanCount += extractFans(db, pageNodes)
-			}
-
-			// Advance the resume cursor after each successfully stored page so
-			// an interrupted sync resumes from this point on the next run. Skip
-			// on the --latest-only backward path: it fetches the newest page and
-			// carries an empty endCursor, so saving it would clobber the
-			// forward-resume checkpoint a later default sync depends on.
-			if !latest {
-				_ = db.SaveSyncState(resource, endCursor, stored)
-			}
+			fanCount += pageFans
 
 			// Emit a time-throttled heartbeat (~every 5s) so observers can
 			// distinguish a long fetch from a stuck one.
 			if time.Since(lastHeartbeat) >= 5*time.Second {
 				lastHeartbeat = time.Now()
-				if !humanFriendly {
+				if !humanFriendlyEnabled() {
 					resJSON, _ := json.Marshal(resource)
 					fmt.Fprintf(os.Stderr, `{"event":"sync_progress","resource":%s,"fetched":%d}`+"\n", resJSON, totalFetched)
 				} else {
@@ -396,7 +392,7 @@ func syncResource(ctx context.Context, c *client.Client, db *store.Store, resour
 	)
 	if err != nil {
 		if w, ok := isSyncAccessWarning(err); ok {
-			if !humanFriendly {
+			if !humanFriendlyEnabled() {
 				// json.Marshal escapes backslashes, newlines, and control bytes
 				// that raw API bodies carry; a bare quote-only replace would
 				// emit invalid JSON and break `sync --json 2>&1 | jq`.
@@ -406,14 +402,14 @@ func syncResource(ctx context.Context, c *client.Client, db *store.Store, resour
 			}
 			return syncResult{Resource: resource, Warn: fmt.Errorf("skipped %s: %s", resource, w.Reason), Duration: time.Since(started)}
 		}
-		if !humanFriendly {
+		if !humanFriendlyEnabled() {
 			errJSON, _ := json.Marshal(err.Error())
 			fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":%s}`+"\n", resource, errJSON)
 		}
 		return syncResult{Resource: resource, Err: fmt.Errorf("fetching %s: %w", resource, err), Duration: time.Since(started)}
 	}
 
-	if !humanFriendly {
+	if !humanFriendlyEnabled() {
 		fmt.Fprintf(os.Stderr, `{"event":"sync_complete","resource":"%s","total":%d,"fans":%d,"duration_ms":%d}`+"\n",
 			resource, stored, fanCount, time.Since(started).Milliseconds())
 	} else {
@@ -535,7 +531,52 @@ func buildWhere(resource string, f syncFilters) map[string]any {
 // extractFans pulls unique fan objects from order/ticket nodes (orders carry
 // `fan`, tickets carry `holder`) and upserts them as resource_type='fans'.
 // Returns the number of fans stored.
-func extractFans(db *store.Store, nodes []json.RawMessage) int {
+// persistSyncPage stores one fetched page of a resource, derives + persists its
+// fans (for orders/tickets), and advances the resume cursor — IN THAT ORDER.
+//
+// Ordering is load-bearing: the cursor is advanced only after BOTH the resource
+// page and its derived fans persist. A fan-write failure returns an error
+// (failing the page) so the cursor is NOT advanced and the next sync re-fetches
+// this page and re-derives the fans. Previously the fan-derivation error was
+// swallowed and the cursor advanced anyway, silently and permanently losing
+// those fan rows.
+//
+// priorStored is the cumulative resource-row count stored across all earlier
+// pages of this sync run; it is summed with this page's count before the cursor
+// checkpoint so sync_state.total_count stays cumulative (matching the prior
+// behavior). Returns this page's stored count and fan count. Cursor advance is
+// skipped when latest is true (the --latest-only backward path carries an empty
+// endCursor that would clobber the forward checkpoint).
+func persistSyncPage(db *store.Store, resource string, pageNodes []json.RawMessage, endCursor string, latest bool, priorStored int) (stored int, fans int, err error) {
+	pageStored, _, upsertErr := db.UpsertBatch(resource, pageNodes)
+	if upsertErr != nil {
+		return 0, 0, fmt.Errorf("upserting %s: %w", resource, upsertErr)
+	}
+
+	if resource == "orders" || resource == "tickets" {
+		pageFans, fanErr := extractFans(db, pageNodes)
+		if fanErr != nil {
+			// Fail the page before advancing the cursor; re-sync re-derives.
+			return 0, 0, fmt.Errorf("deriving fans from %s: %w", resource, fanErr)
+		}
+		fans = pageFans
+	}
+
+	if !latest {
+		_ = db.SaveSyncState(resource, endCursor, priorStored+pageStored)
+	}
+	return pageStored, fans, nil
+}
+
+// extractFans derives fan rows from a page of orders/tickets and upserts them
+// into the fans table. It returns the count persisted and any write error.
+//
+// The error MUST be surfaced by the caller: previously this swallowed the
+// UpsertBatch error and returned 0, so a fan-write failure was invisible AND
+// the resume cursor advanced past the page (sync.go callback), meaning a
+// re-sync never re-derived the lost fans. The sync callback now fails the page
+// on a non-nil error so the cursor is not advanced and re-sync re-derives.
+func extractFans(db *store.Store, nodes []json.RawMessage) (int, error) {
 	seen := map[string]bool{}
 	var fans []json.RawMessage
 	for _, n := range nodes {
@@ -559,13 +600,13 @@ func extractFans(db *store.Store, nodes []json.RawMessage) int {
 		fans = append(fans, raw)
 	}
 	if len(fans) == 0 {
-		return 0
+		return 0, nil
 	}
 	stored, _, err := db.UpsertBatch("fans", fans)
 	if err != nil {
-		return 0
+		return 0, fmt.Errorf("upserting derived fans: %w", err)
 	}
-	return stored
+	return stored, nil
 }
 
 // containsResource reports whether resource is present in list.

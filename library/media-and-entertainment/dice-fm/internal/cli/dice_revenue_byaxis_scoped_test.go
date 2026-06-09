@@ -204,6 +204,13 @@ func TestRevenueSummaryByAxisAcceptsFilters(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
+			// Isolate from the operator's real default-path store: the --dry-run
+			// flag is never actually passed in tc.args, so without a $HOME
+			// override the command resolves openStoreForRead -> defaultDBPath ->
+			// the real ~/.local/share store. A temp $HOME yields no data.db, so
+			// openStoreForRead returns (nil, nil) and the command exercises the
+			// scoped by-axis routing path without touching real data.
+			t.Setenv("HOME", t.TempDir())
 			flags := &rootFlags{dryRun: true} // dry-run: don't need a real store
 			root := newRootCmd(flags)
 			root.SetArgs(tc.args)

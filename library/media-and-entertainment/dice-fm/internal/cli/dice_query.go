@@ -30,7 +30,10 @@ const (
 		ticketPools { id name allocation }
 		socialLinks { campaign default url }`
 
-	fanSelection = `id firstName lastName email dob phoneNumber optInPartners`
+	// dob intentionally NOT selected: it was collected + stored but never read
+	// by any command/analytic/MCP tool (data minimization — GDPR Art. 5(1)(c)).
+	// Existing stores keep stale dob in resources.data until re-sync ages it out.
+	fanSelection = `id firstName lastName email phoneNumber optInPartners`
 
 	ticketSelection = `id code fullPrice commission diceCommission total claimedAt
 		holder { ` + fanSelection + ` }
@@ -123,11 +126,14 @@ func buildConnectionQuery(cs connectionSpec, latest bool) string {
 		whereArg = ", where: $where"
 	}
 	if latest {
+		// No pageInfo selection: viewerConnectionPage only parses the forward
+		// hasNextPage/endCursor fields, and --latest-only caps at a single
+		// backward page, so a backward pageInfo { hasPreviousPage startCursor }
+		// was dead — selected but never read. Drop it.
 		return fmt.Sprintf(`query($last: Int!, $before: String%s) {
   viewer {
     %s(last: $last, before: $before%s) {
       edges { node { %s } }
-      pageInfo { hasPreviousPage startCursor }
     }
   }
 }`, whereDecl, cs.field, whereArg, cs.selection)

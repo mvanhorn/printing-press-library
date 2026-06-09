@@ -6,7 +6,9 @@ package cli
 import (
 	"bytes"
 	"fmt"
+	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -45,8 +47,12 @@ func ParseDeliverSink(spec string) (DeliverSink, error) {
 			return DeliverSink{}, fmt.Errorf("--deliver file:<path> requires a path")
 		}
 	case "webhook":
-		if !strings.HasPrefix(target, "http://") && !strings.HasPrefix(target, "https://") {
-			return DeliverSink{}, fmt.Errorf("--deliver webhook:<url> requires an http:// or https:// URL, got %q", target)
+		// https-only: command output may carry fan PII; refuse cleartext.
+		if strings.HasPrefix(target, "http://") {
+			return DeliverSink{}, fmt.Errorf("--deliver webhook:<url> requires https:// (cleartext http:// is refused — command output may contain personal data), got %q", target)
+		}
+		if !strings.HasPrefix(target, "https://") {
+			return DeliverSink{}, fmt.Errorf("--deliver webhook:<url> requires an https:// URL, got %q", target)
 		}
 	default:
 		return DeliverSink{}, fmt.Errorf("unknown --deliver scheme %q (supported: stdout, file, webhook)", scheme)
@@ -57,14 +63,19 @@ func ParseDeliverSink(spec string) (DeliverSink, error) {
 // Deliver routes a captured output buffer to the configured sink. stdout
 // is a no-op because the buffer has already been streamed to stdout via
 // the MultiWriter set up in root.go.
-func Deliver(sink DeliverSink, body []byte, compact bool) error {
+//
+// allowPrivate gates the webhook SSRF guard: when false (default), a webhook
+// host that resolves to a private/loopback/link-local/metadata address is
+// refused. The operator opts in with --allow-private-webhook for a trusted
+// internal endpoint.
+func Deliver(sink DeliverSink, body []byte, compact bool, allowPrivate bool) error {
 	switch sink.Scheme {
 	case "", "stdout":
 		return nil
 	case "file":
 		return deliverFile(sink.Target, body)
 	case "webhook":
-		return deliverWebhook(sink.Target, body, compact)
+		return deliverWebhook(sink.Target, body, compact, allowPrivate)
 	default:
 		return fmt.Errorf("unsupported deliver sink %q", sink.Scheme)
 	}
@@ -75,7 +86,9 @@ func deliverFile(path string, body []byte) error {
 	// file if the process is interrupted mid-write.
 	dir := filepath.Dir(path)
 	if dir != "" && dir != "." {
-		if err := os.MkdirAll(dir, 0o755); err != nil {
+		// 0700: delivered output may contain personal data — don't create
+		// world/group-traversable directories.
+		if err := os.MkdirAll(dir, 0o700); err != nil {
 			return fmt.Errorf("creating deliver dir: %w", err)
 		}
 	}
@@ -89,12 +102,29 @@ func deliverFile(path string, body []byte) error {
 	return nil
 }
 
-func deliverWebhook(url string, body []byte, compact bool) error {
+func deliverWebhook(rawURL string, body []byte, compact bool, allowPrivate bool) error {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return fmt.Errorf("parsing webhook URL: %w", err)
+	}
+	if u.Scheme != "https" {
+		return fmt.Errorf("webhook requires https:// (got %q)", u.Scheme)
+	}
+	host := u.Hostname()
+	if host == "" {
+		return fmt.Errorf("webhook URL has no host")
+	}
+	if !allowPrivate {
+		if err := denyPrivateWebhookHost(host); err != nil {
+			return err
+		}
+	}
+
 	contentType := "application/json"
 	if compact {
 		contentType = "application/x-ndjson"
 	}
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
+	req, err := http.NewRequest(http.MethodPost, rawURL, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("building webhook request: %w", err)
 	}
@@ -110,5 +140,47 @@ func deliverWebhook(url string, body []byte, compact bool) error {
 	if resp.StatusCode >= 400 {
 		return fmt.Errorf("webhook returned %s", resp.Status)
 	}
+	// One-line stderr audit so an exfil to an unexpected host is observable.
+	fmt.Fprintf(os.Stderr, "delivered %d bytes to %s\n", len(body), host)
 	return nil
+}
+
+// denyPrivateWebhookHost resolves host and rejects it if ANY resolved IP is
+// private (RFC-1918), loopback, link-local (incl. the 169.254.169.254 cloud
+// metadata endpoint), unique-local IPv6, or unspecified. This is an SSRF guard:
+// command output may carry fan PII, so a webhook must not be coaxed into POSTing
+// it to an internal service or the metadata API. Rejecting on ANY private IP
+// (not just the first) blocks DNS-rebinding-style multi-record tricks at
+// validation time. (Note: a TOCTOU window remains between this resolve and the
+// client's own resolve; a full fix would pin the dialer to the validated IP —
+// out of scope here, and --deliver is human-surface only, MCP-blocked.)
+func denyPrivateWebhookHost(host string) error {
+	// A bare IP literal is checked directly.
+	if ip := net.ParseIP(host); ip != nil {
+		if isDisallowedIP(ip) {
+			return fmt.Errorf("webhook host %q resolves to a private/loopback/link-local/metadata address; pass --allow-private-webhook to override", host)
+		}
+		return nil
+	}
+	ips, err := net.LookupIP(host)
+	if err != nil {
+		return fmt.Errorf("resolving webhook host %q: %w", host, err)
+	}
+	for _, ip := range ips {
+		if isDisallowedIP(ip) {
+			return fmt.Errorf("webhook host %q resolves to a private/loopback/link-local/metadata address (%s); pass --allow-private-webhook to override", host, ip)
+		}
+	}
+	return nil
+}
+
+// isDisallowedIP reports whether ip is in a range a webhook must not reach by
+// default: loopback, private (RFC-1918 / ULA), link-local (incl. the cloud
+// metadata 169.254.169.254), or the unspecified address.
+func isDisallowedIP(ip net.IP) bool {
+	return ip.IsLoopback() ||
+		ip.IsPrivate() ||
+		ip.IsLinkLocalUnicast() ||
+		ip.IsLinkLocalMulticast() ||
+		ip.IsUnspecified()
 }

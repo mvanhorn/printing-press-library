@@ -266,6 +266,8 @@ After installing `dice-fm-pp-mcp` (see **MCP Server Installation** below), call 
 
 These (plus the eight typed `*_list` / `events_get` resource tools) are read-only. `normalize` writes the local store, and `normalize_promote_rules` is a write tool when writing promoted rules, so call them from the CLI or invoke them deliberately. Custom SQL is out of scope here.
 
+**Personal data is pseudonymized by default.** Tools that can return fan/holder PII — `tickets_list`, `orders_list`, `returns_list`, `transfers_list`, `extras_list`, `search`, `sql`, and the mirrored `fans_top` / `fans_profile` / `fans_optin` / `fans_repeat` / `fans_segment` / `door_list` — replace buyer/holder `email`, `phone`, and name with a stable `fan_ref` token (e.g. `fan:1a2b3c4d5e6f708192`) and omit `dob`. The token is deterministic per fan, so you can dedup/correlate the same person across calls without raw identifiers entering the model context. Pass `include_pii: true` on any of these to get raw values **plus** the token. The plain CLI is unaffected — it always emits raw output to the operator's terminal. `sql` redaction is best-effort (known PII columns + nested JSON `data` cells); a column alias or computed expression can slip past it, so prefer the typed tools or `search` when you need a guarantee.
+
 ## Auth Setup
 
 Requires a Bearer token from MIO (DICE.FM AMP). Set DICE_FM_TOKEN in your environment. All commands are read-only — no writes to the DICE platform.
@@ -310,7 +312,7 @@ dice-fm-pp-cli feedback --stdin < notes.txt
 dice-fm-pp-cli feedback list --json --limit 10
 ```
 
-Entries are stored locally at `~/.dice-fm-pp-cli/feedback.jsonl`. They are never POSTed unless `DICE_FM_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `DICE_FM_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+Entries are stored locally at `~/.dice-fm-pp-cli/feedback.jsonl`. They are never POSTed unless `DICE_FM_FEEDBACK_ENDPOINT` is set (must be `https://`) AND either `--send` is passed or `DICE_FM_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
 Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
 
@@ -321,10 +323,18 @@ Every command accepts `--deliver <sink>`. The output goes to the named sink in a
 | Sink | Effect |
 |------|--------|
 | `stdout` | Default; write to stdout only |
-| `file:<path>` | Atomically write output to `<path>` (tmp + rename) |
+| `file:<path>` | Atomically write output to `<path>` (tmp + rename; created dirs `0700`, file `0600`) |
 | `webhook:<url>` | POST the output body to the URL (`application/json` or `application/x-ndjson` when `--compact`) |
 
 Unknown schemes are refused with a structured error naming the supported set. Webhook failures return non-zero and log the URL + HTTP status on stderr.
+
+Webhook delivery is hardened because command output can carry personal data:
+
+- **https only** — cleartext `http://` is refused.
+- **SSRF guard** — a host that resolves to a private (RFC-1918), loopback, link-local, or cloud-metadata (`169.254.169.254`) address is refused unless you pass `--allow-private-webhook` (opt-in for a trusted internal endpoint).
+- **Audit** — a `delivered N bytes to <host>` line is written to stderr on success.
+
+`--deliver` is blocked on the MCP surface, so an agent cannot use it to exfiltrate output; it is a human/CLI feature.
 
 ## Named Profiles
 

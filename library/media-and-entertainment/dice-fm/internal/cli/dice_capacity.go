@@ -50,6 +50,11 @@ type storeTicketPool struct {
 // the [from, to] inclusive show-date window (YYYY-MM-DD). The second return is
 // false when no window is set (both bounds empty), meaning "do not filter by
 // date". Comparison is on the date prefix, correct for ISO-8601 timestamps.
+//
+// NOTE — bound semantics differ from sync by design: the analytics --to here is
+// INCLUSIVE ("shows on or before <to>"), whereas sync's --events-to is EXCLUSIVE
+// (it maps to the API's date filter). Both are documented in their respective
+// --help; keep them in sync if either changes.
 func eligibleEventsByDate(ctx context.Context, db *sql.DB, from, to string) (map[string]bool, bool, error) {
 	if from == "" && to == "" {
 		return nil, false, nil

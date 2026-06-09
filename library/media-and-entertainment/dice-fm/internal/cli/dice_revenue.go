@@ -309,7 +309,7 @@ func newRevenueSummaryCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&event, "event", "", "Limit to a single event ID")
 	cmd.Flags().StringVar(&from, "from", "", "Only include shows on or after this date (YYYY-MM-DD, by show date)")
 	cmd.Flags().StringVar(&to, "to", "", "Only include shows on or before this date (YYYY-MM-DD, by show date)")
-	cmd.Flags().StringVar(&byAxis, "by-axis", "", "Group ticket revenue by a normalized tier axis (access_class|sales_stage|entry_window_type|group_size|comp_flag); falls back to raw ticketType.name if normalize has not been run")
+	cmd.Flags().StringVar(&byAxis, "by-axis", "", "Group ticket revenue (by amount paid, ticket $.total) by a normalized tier axis (access_class|sales_stage|entry_window_type|group_size|comp_flag); falls back to raw ticketType.name if normalize has not been run")
 	return cmd
 }
 
@@ -405,14 +405,16 @@ func computeRevenueByAxis(ctx context.Context, db *sql.DB, axis string) (*revenu
 	}, nil
 }
 
-// groupTicketRevenueByRaw groups ticket counts and ticketType.price sums by the
-// raw ticketType.name. Used as the fallback when no crosswalk rows exist.
+// groupTicketRevenueByRaw groups ticket counts and paid-total sums by the raw
+// ticketType.name. Used as the fallback when no crosswalk rows exist. Sums paid
+// $.total (not list $.ticketType.price) to match the scoped raw fallback
+// (scopedFallbackByRaw) and the normalized path.
 func groupTicketRevenueByRaw(ctx context.Context, db *sql.DB) ([]revenueByAxisRow, error) {
 	sqlRows, err := db.QueryContext(ctx, `
 		SELECT
 			json_extract(data, '$.ticketType.name') AS axis_value,
 			COUNT(*)                                  AS ticket_count,
-			COALESCE(SUM(json_extract(data, '$.ticketType.price')), 0) AS total_cents
+			COALESCE(SUM(json_extract(data, '$.total')), 0) AS total_cents
 		FROM resources
 		WHERE resource_type = 'tickets'
 		  AND json_extract(data, '$.ticketType.name') IS NOT NULL
@@ -462,7 +464,11 @@ func groupTicketRevenueByAxis(ctx context.Context, db *sql.DB, axis string) ([]r
 				ELSE %s
 			END AS axis_value,
 			COUNT(*)                        AS ticket_count,
-			COALESCE(SUM(json_extract(r.data, '$.ticketType.price')), 0) AS total_cents
+			-- Monetary basis: paid ticket $.total (the amount the buyer paid),
+			-- to match the scoped path (loadLocalTicketMap, which sums $.total).
+			-- Previously summed $.ticketType.price (list price), so the same axis
+			-- reported different money scoped vs unscoped.
+			COALESCE(SUM(json_extract(r.data, '$.total')), 0) AS total_cents
 		FROM resources r
 		LEFT JOIN entity_crosswalk ec
 			ON ec.entity_type   = 'ticket_type'

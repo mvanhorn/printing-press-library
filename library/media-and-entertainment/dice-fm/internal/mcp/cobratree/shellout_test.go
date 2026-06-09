@@ -11,6 +11,8 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+
+	mcplib "github.com/mark3labs/mcp-go/mcp"
 )
 
 // TestSplitShellArgs pins the whitespace + double-quote splitting used by
@@ -185,6 +187,37 @@ func TestRunCLICommandFallsBackToStdoutOnFailureWithoutStderr(t *testing.T) {
 	}
 }
 
+func TestShellOutForcesJSONForPostProcessedCommand(t *testing.T) {
+	bin := writeShelloutHelper(t, "json-switch")
+	RegisterOutputPostProcessor("fans optin", func(stdout string, args map[string]any) (string, error) {
+		return stdout, nil
+	})
+	RegisterForcedCLIArgs("fans optin", "--json")
+
+	handler := shellOutToCLI(func() (string, error) { return bin, nil }, []string{"fans", "optin"})
+	res, err := handler(context.Background(), mcplib.CallToolRequest{
+		Params: mcplib.CallToolParams{
+			Arguments: map[string]any{"csv": true},
+		},
+	})
+	if err != nil {
+		t.Fatalf("handler: %v", err)
+	}
+	if res == nil || len(res.Content) != 1 {
+		t.Fatalf("unexpected result: %#v", res)
+	}
+	text, ok := res.Content[0].(mcplib.TextContent)
+	if !ok {
+		t.Fatalf("content type = %T, want TextContent", res.Content[0])
+	}
+	if strings.Contains(text.Text, "first_name,last_name,email") {
+		t.Fatalf("post-processed command emitted CSV instead of forced JSON: %q", text.Text)
+	}
+	if !strings.Contains(text.Text, `"email":"fan@example.com"`) {
+		t.Fatalf("post-processed command did not emit JSON fixture: %q", text.Text)
+	}
+}
+
 func writeShelloutHelper(t *testing.T, mode string) string {
 	t.Helper()
 	dir := t.TempDir()
@@ -198,6 +231,8 @@ func writeShelloutHelper(t *testing.T, mode string) string {
 			body = "@echo off\r\necho boom from stderr 1>&2\r\nexit /b 7\r\n"
 		case "fail-stdout":
 			body = "@echo off\r\necho stdout failure\r\nexit /b 7\r\n"
+		case "json-switch":
+			body = "@echo off\r\nset args=%*\r\necho %args% | findstr /C:\"--json\" >nul\r\nif errorlevel 1 (echo first_name,last_name,email,phone&echo Olive,Optin,fan@example.com,5550100) else (echo [{\"email\":\"fan@example.com\"}])\r\n"
 		default:
 			t.Fatalf("unknown mode %q", mode)
 		}
@@ -215,6 +250,8 @@ func writeShelloutHelper(t *testing.T, mode string) string {
 		body = "#!/bin/sh\necho boom from stderr >&2\nexit 7\n"
 	case "fail-stdout":
 		body = "#!/bin/sh\necho stdout failure\nexit 7\n"
+	case "json-switch":
+		body = "#!/bin/sh\ncase \" $* \" in *\" --json \"*) printf '[{\"email\":\"fan@example.com\"}]\\n' ;; *) printf 'first_name,last_name,email,phone\\nOlive,Optin,fan@example.com,5550100\\n' ;; esac\n"
 	default:
 		t.Fatalf("unknown mode %q", mode)
 	}

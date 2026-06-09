@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "dice-fm-greptile-pseudonymization-followups",
+  "applied_at": "2026-06-09",
+  "base_run_id": "20260511-193451",
+  "base_printing_press_version": "4.12.0",
+  "summary": "MCP pseudonymization tokens use 64 bits of HMAC output, flat person-name redaction is documented accurately, and salt lookup reads the sidecar without opening or migrating SQLite.",
+  "reason": "DICE-scale fan bases need a wider ephemeral fan_ref token to avoid collisions, and pseudonymized MCP read paths should not pay store migration cost just to resolve the per-store salt.",
+  "files": [
+    "internal/mcp/pseudonymize.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/pseudonymize_test.go",
+    "internal/mcp/tools_test.go",
+    "internal/mcp/mirrored_pii_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go build ./... && go vet ./... && go test ./... && go test -race ./... all pass."
+}

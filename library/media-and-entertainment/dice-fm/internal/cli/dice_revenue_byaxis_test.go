@@ -27,6 +27,15 @@ func TestRevenueSummaryByAxisWithFiltersSucceeds(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
+			// Isolate from the operator's real default-path store. The command
+			// resolves its store via openStoreForRead -> defaultDBPath ->
+			// os.UserHomeDir(); without this override it opens
+			// ~/.local/share/dice-fm-pp-cli/data.db (which under -race made the
+			// suite scan a real ~70k-ticket store and time out). Pointing $HOME
+			// at a temp dir means openStoreForRead sees no data.db and returns
+			// (nil, nil) gracefully — the command still exercises the scoped
+			// by-axis routing path and must not error.
+			t.Setenv("HOME", t.TempDir())
 			flags := &rootFlags{dryRun: true}
 			root := newRootCmd(flags)
 			var outBuf, errBuf bytes.Buffer
@@ -99,10 +108,12 @@ func TestGroupTicketRevenueByAxisUnsupportedAxis(t *testing.T) {
 // requested axis with Normalized=true.
 func TestRevenueByAxisNormalized(t *testing.T) {
 	s := seedStore(t, map[string]map[string]string{
+		// Revenue --by-axis sums paid ticket $.total (not list price); set total
+		// == price here so the per-bucket revenue assertions below are unchanged.
 		"tickets": {
-			"t1": `{"id":"t1","ticketType":{"name":"General Admission","price":2500}}`,
-			"t2": `{"id":"t2","ticketType":{"name":"VIP Experience","price":7500}}`,
-			"t3": `{"id":"t3","ticketType":{"name":"General Admission","price":2500}}`,
+			"t1": `{"id":"t1","total":2500,"ticketType":{"name":"General Admission","price":2500}}`,
+			"t2": `{"id":"t2","total":7500,"ticketType":{"name":"VIP Experience","price":7500}}`,
+			"t3": `{"id":"t3","total":2500,"ticketType":{"name":"General Admission","price":2500}}`,
 		},
 	})
 

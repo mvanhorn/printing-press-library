@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "dice-fm-greptile-pseudonymize-review-fixes",
+  "applied_at": "2026-06-09",
+  "base_run_id": "20260511-193451",
+  "base_printing_press_version": "4.12.0",
+  "summary": "Keep MCP pseudonymization fan_ref tokens stable across nested fan/holder containers and flat rows, and refuse malformed salt sidecars instead of silently rotating tokens.",
+  "reason": "Greptile found that nested fan containers could seed fan_ref from a different key than flat PII rows and that wrong-length salt files were overwritten without warning. Both failures break the MCP privacy boundary's stable-linking guarantee for DICE fan data.",
+  "files": [
+    "internal/mcp/pseudonymize.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/pseudonymize_test.go"
+  ],
+  "validated_outcome": "go build ./..., go vet ./..., go test ./..., and go test -race ./... all pass locally."
+}

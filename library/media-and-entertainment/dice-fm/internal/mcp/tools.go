@@ -10,17 +10,19 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
+	"sync"
 	"time"
 
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/store"
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterTools registers all API operations as MCP tools.
@@ -47,14 +49,15 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("extras_list",
-			mcplib.WithDescription("List extras (filter by event). Optional: event, separate-barcode. Returns array of Extra."),
+			mcplib.WithDescription("List extras (filter by event). Optional: event, separate-barcode. Returns array of Extra. "+piiToolNotice),
 			mcplib.WithString("event", mcplib.Description("Filter by event ID")),
 			mcplib.WithBoolean("separate-barcode", mcplib.Description("Filter to extras that have a separate access barcode")),
+			mcplib.WithBoolean("include_pii", mcplib.Description(includePIIArgDescription)),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/graphql", true, false, nil, []mcpParamBinding{{PublicName: "event", WireName: "event", Location: "body"}, {PublicName: "separate-barcode", WireName: "separate-barcode", Location: "body"}}, []string{}),
+		pseudonymizeHandler(makeAPIHandler("POST", "/graphql", true, false, nil, []mcpParamBinding{{PublicName: "event", WireName: "event", Location: "body"}, {PublicName: "separate-barcode", WireName: "separate-barcode", Location: "body"}}, []string{})),
 	)
 	s.AddTool(
 		mcplib.NewTool("genres_list",
@@ -67,51 +70,56 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("orders_list",
-			mcplib.WithDescription("List orders (filter by event). Optional: event. Returns array of Order."),
+			mcplib.WithDescription("List orders (filter by event). Optional: event. "+piiToolNotice),
 			mcplib.WithString("event", mcplib.Description("Filter by event ID")),
+			mcplib.WithBoolean("include_pii", mcplib.Description(includePIIArgDescription)),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/graphql", true, false, nil, []mcpParamBinding{{PublicName: "event", WireName: "event", Location: "body"}}, []string{}),
+		pseudonymizeHandler(makeAPIHandler("POST", "/graphql", true, false, nil, []mcpParamBinding{{PublicName: "event", WireName: "event", Location: "body"}}, []string{})),
 	)
 	s.AddTool(
 		mcplib.NewTool("returns_list",
-			mcplib.WithDescription("List ticket returns and refunds across your DICE events. Optional: event (a DICE event ID) to scope the results to one show. Returns an array of returns, each with id, ticketId, returnedAt, reason, and the linked ticket, order, and event. Use this to investigate refund activity; pair with returns anomalies to flag events with unusually high return rates."),
+			mcplib.WithDescription("List ticket returns and refunds across your DICE events. Optional: event (a DICE event ID) to scope the results to one show. Returns an array of returns, each with id, ticketId, returnedAt, reason, and the linked ticket, order, and event. Use this to investigate refund activity; pair with returns anomalies to flag events with unusually high return rates. "+piiToolNotice),
 			mcplib.WithString("event", mcplib.Description("Filter by event ID")),
+			mcplib.WithBoolean("include_pii", mcplib.Description(includePIIArgDescription)),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/graphql", true, false, nil, []mcpParamBinding{{PublicName: "event", WireName: "event", Location: "body"}}, []string{}),
+		pseudonymizeHandler(makeAPIHandler("POST", "/graphql", true, false, nil, []mcpParamBinding{{PublicName: "event", WireName: "event", Location: "body"}}, []string{})),
 	)
 	s.AddTool(
 		mcplib.NewTool("tickets_list",
-			mcplib.WithDescription("List sold tickets (filter by event). Optional: event, fan-phone. Returns array of Ticket."),
+			mcplib.WithDescription("List sold tickets (filter by event). Optional: event, fan-phone. "+piiToolNotice),
 			mcplib.WithString("event", mcplib.Description("Filter by event ID")),
 			mcplib.WithString("fan-phone", mcplib.Description("Filter by fan phone number")),
+			mcplib.WithBoolean("include_pii", mcplib.Description(includePIIArgDescription)),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/graphql", true, false, nil, []mcpParamBinding{{PublicName: "event", WireName: "event", Location: "body"}, {PublicName: "fan-phone", WireName: "fan-phone", Location: "body"}}, []string{}),
+		pseudonymizeHandler(makeAPIHandler("POST", "/graphql", true, false, nil, []mcpParamBinding{{PublicName: "event", WireName: "event", Location: "body"}, {PublicName: "fan-phone", WireName: "fan-phone", Location: "body"}}, []string{})),
 	)
 	s.AddTool(
 		mcplib.NewTool("transfers_list",
-			mcplib.WithDescription("List ticket transfers (filter by event). Optional: event. Returns array of TicketTransfer."),
+			mcplib.WithDescription("List ticket transfers (filter by event). Optional: event. Returns array of TicketTransfer. "+piiToolNotice),
 			mcplib.WithString("event", mcplib.Description("Filter by event ID")),
+			mcplib.WithBoolean("include_pii", mcplib.Description(includePIIArgDescription)),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/graphql", true, false, nil, []mcpParamBinding{{PublicName: "event", WireName: "event", Location: "body"}}, []string{}),
+		pseudonymizeHandler(makeAPIHandler("POST", "/graphql", true, false, nil, []mcpParamBinding{{PublicName: "event", WireName: "event", Location: "body"}}, []string{})),
 	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
 		mcplib.NewTool("search",
-			mcplib.WithDescription("Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first."),
+			mcplib.WithDescription("Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first. "+piiToolNotice),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)")),
 			mcplib.WithNumber("limit", mcplib.Description("Max results (default 25)")),
+			mcplib.WithBoolean("include_pii", mcplib.Description(includePIIArgDescription)),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
@@ -120,8 +128,9 @@ func RegisterTools(s *server.MCPServer) {
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
-			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
+			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first. "+piiToolNotice+" Scrubbing is best-effort for sql: PII in plainly-named columns (email, holder_email, phone, phoneNumber, firstName, first_name, lastName, last_name, name, holder_name, dob) and in JSON cells (e.g. SELECT data FROM resources) is redacted, but PII surfaced through a column ALIAS or a computed expression may slip through — prefer search/typed tools, or pass include_pii only when you accept raw output."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Tables match resource names.")),
+			mcplib.WithBoolean("include_pii", mcplib.Description(includePIIArgDescription)),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
@@ -139,15 +148,172 @@ func RegisterTools(s *server.MCPServer) {
 		handleContext,
 	)
 
+	// Register PII post-processors for the cobratree-mirrored commands that emit
+	// personal data, BEFORE RegisterAll so the include_pii arg appears in their
+	// schemas. The human CLI stays raw; redaction is an MCP-boundary concern.
+	registerMirroredPIIScrubbers()
+
 	// Runtime Cobra-tree mirror — exposes every user-facing command that is
 	// not already covered by a typed endpoint or framework MCP tool.
 	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
+}
+
+// mirroredPIICommands are the cobratree-mirrored command paths whose JSON output
+// carries fan/holder personal data and must be pseudonymized at the MCP
+// boundary by default.
+var mirroredPIICommands = []string{
+	"fans top",
+	"fans profile",
+	"fans optin",
+	"fans repeat",
+	"fans segment",
+	"door list",
+}
+
+// registerMirroredPIIScrubbers wires a pseudonymizing post-processor + an
+// include_pii arg + the PII notice onto each PII-bearing mirrored command.
+func registerMirroredPIIScrubbers() {
+	for _, cmd := range mirroredPIICommands {
+		cobratree.RegisterExtraToolOption(cmd, mcplib.WithBoolean("include_pii", mcplib.Description(includePIIArgDescription)))
+		cobratree.RegisterOutputPostProcessor(cmd, mirroredPIIPostProcessor)
+		cobratree.RegisterForcedCLIArgs(cmd, "--json")
+		cobratree.RegisterDescriptionSuffix(cmd, piiToolNotice)
+	}
+}
+
+// mirroredPIIPostProcessor pseudonymizes a mirrored command's JSON stdout unless
+// include_pii was passed. PII-bearing mirrored commands must produce JSON; if a
+// format override or CLI regression returns non-JSON, fail closed instead of
+// passing possibly raw identifiers into model context.
+func mirroredPIIPostProcessor(stdout string, args map[string]any) (string, error) {
+	salt, err := saltFromStore()
+	if err != nil {
+		return "", fmt.Errorf("pseudonymization unavailable: %w", err)
+	}
+	scrubbed, changed := scrubJSONText(stdout, Opts{Salt: salt, IncludePII: argIsTrue(args["include_pii"])})
+	if !changed {
+		return "", fmt.Errorf("PII post-processing expected JSON output, got non-JSON")
+	}
+	return scrubbed, nil
 }
 
 type mcpParamBinding struct {
 	PublicName string
 	WireName   string
 	Location   string
+}
+
+// piiToolNotice is appended to every PII-bearing MCP tool description so an MCP
+// host can gate auto-approval. include_pii defaults false.
+const piiToolNotice = "Returns array of results. NOTE: returns personal data (pseudonymized by default — buyer/holder email, phone, and name are replaced with a stable fan_ref token and dob is omitted; pass include_pii:true for raw values plus the token)."
+
+// includePIIArgDescription documents the per-tool include_pii opt-in.
+const includePIIArgDescription = "Return raw personal data (email, phone, name) instead of pseudonymized fan_ref tokens. dob is always omitted. Default false. Only set true when the operator explicitly needs raw identifiers — raw PII enters the model/host context."
+
+// pseudonymizeHandler wraps a tool handler so its JSON result is run through the
+// pseudonymizer at the MCP output boundary. By default buyer/holder identifiers
+// are replaced with a stable fan_ref token (ScrubJSONBlob); include_pii:true
+// bypasses. The include_pii arg is consumed here and never forwarded to the
+// inner handler (so it can't leak into a GraphQL body).
+func pseudonymizeHandler(inner server.ToolHandlerFunc) server.ToolHandlerFunc {
+	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+		includePII := argIsTrue(req.GetArguments()["include_pii"])
+
+		// Strip include_pii from the args the inner handler sees.
+		stripIncludePIIArg(&req)
+
+		res, err := inner(ctx, req)
+		if err != nil || res == nil {
+			return res, err
+		}
+		// Resolve the salt from the local store; if unavailable, fail closed by
+		// redacting with a zero salt would still tokenize but be unstable — so
+		// instead surface an error rather than risk emitting raw PII.
+		salt, serr := saltFromStore()
+		if serr != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("pseudonymization unavailable: %v", serr)), nil
+		}
+		return scrubToolResult(res, Opts{Salt: salt, IncludePII: includePII}), nil
+	}
+}
+
+// stripIncludePIIArg removes include_pii from the request arguments map so it is
+// not forwarded downstream. mcp-go exposes Arguments as `any`; only the
+// map[string]any shape is mutated.
+func stripIncludePIIArg(req *mcplib.CallToolRequest) {
+	if m, ok := req.Params.Arguments.(map[string]any); ok {
+		delete(m, "include_pii")
+	}
+}
+
+// argIsTrue interprets an MCP bool-ish argument (bool or "true"/"1" string).
+func argIsTrue(v any) bool {
+	switch t := v.(type) {
+	case bool:
+		return t
+	case string:
+		return t == "true" || t == "1"
+	default:
+		return false
+	}
+}
+
+// scrubToolResult applies ScrubJSONBlob to every text-content block of a tool
+// result whose body parses as JSON. Non-JSON text (error strings, etc.) passes
+// through unchanged.
+func scrubToolResult(res *mcplib.CallToolResult, opts Opts) *mcplib.CallToolResult {
+	for i, c := range res.Content {
+		tc, ok := c.(mcplib.TextContent)
+		if !ok {
+			continue
+		}
+		scrubbed, changed := scrubJSONText(tc.Text, opts)
+		if changed {
+			tc.Text = scrubbed
+			res.Content[i] = tc
+		}
+	}
+	return res
+}
+
+// scrubJSONText parses text as JSON, scrubs it, and re-serializes. Returns the
+// original text + false when it is not valid JSON.
+func scrubJSONText(text string, opts Opts) (string, bool) {
+	var v any
+	if err := json.Unmarshal([]byte(text), &v); err != nil {
+		return text, false
+	}
+	scrubbed := ScrubJSONBlob(v, opts)
+	out, err := json.MarshalIndent(scrubbed, "", "  ")
+	if err != nil {
+		return text, false
+	}
+	return string(out), true
+}
+
+var (
+	saltCacheOnce sync.Once
+	saltCache     []byte
+	saltCacheErr  error
+)
+
+// saltFromStore resolves the per-store pseudonymization salt from the sidecar
+// next to the canonical SQLite path. It must not open SQLite: store.Open runs
+// migrations, and this helper is on every pseudonymized MCP read path.
+func saltFromStore() ([]byte, error) {
+	saltCacheOnce.Do(func() {
+		saltCache, saltCacheErr = readOrCreateSalt(saltPathForDB(dbPath()))
+	})
+	if saltCacheErr != nil {
+		return nil, saltCacheErr
+	}
+	return append([]byte(nil), saltCache...), nil
+}
+
+func resetSaltCacheForTest() {
+	saltCacheOnce = sync.Once{}
+	saltCache = nil
+	saltCacheErr = nil
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
@@ -328,9 +494,12 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 }
 
 func newMCPClient() (*client.Client, error) {
-	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "dice-fm-pp-cli", "config.toml")
-	cfg, err := config.Load(cfgPath)
+	// Use the CLI's own config resolver (empty path -> DICE_FM_CONFIG env, then
+	// the canonical ~/.config/dice-fm-pp-cli/config.json). The previous
+	// hardcoded "config.toml" never matched config.Load's default, so a token
+	// stored in the config file was invisible to the MCP server (it only worked
+	// via the env var).
+	cfg, err := config.Load("")
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
@@ -375,7 +544,24 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 		return mcplib.NewToolResultError(fmt.Sprintf("search failed: %v", err)), nil
 	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
+	// search returns full resource blobs (which still carry buyer/holder PII —
+	// the FTS index is minimized, but the returned `data` is the raw row).
+	// Pseudonymize at the MCP boundary; include_pii preserves raw identifiers
+	// except dob, which is always omitted.
+	salt, serr := saltFromStore()
+	if serr != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("pseudonymization unavailable: %v", serr)), nil
+	}
+	scrubbed := make([]any, 0, len(results))
+	for _, raw := range results {
+		var v any
+		if err := json.Unmarshal(raw, &v); err != nil {
+			// Unparseable blob: fail closed — drop it rather than emit raw.
+			continue
+		}
+		scrubbed = append(scrubbed, ScrubJSONBlob(v, Opts{Salt: salt, IncludePII: argIsTrue(req.GetArguments()["include_pii"])}))
+	}
+	data, _ := json.MarshalIndent(scrubbed, "", "  ")
 	return mcplib.NewToolResultText(string(data)), nil
 }
 
@@ -399,11 +585,21 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 // caught by OpenReadOnly's mode=ro one layer down. PRAGMA, ATTACH, VACUUM,
 // and every other DDL/DML keyword fail at this gate before reaching SQLite.
 func validateReadOnlyQuery(query string) error {
-	upper := strings.ToUpper(stripLeadingSQLNoise(query))
+	stripped := stripLeadingSQLNoise(query)
+	upper := strings.ToUpper(stripped)
 	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") {
 		return fmt.Errorf("only SELECT queries are allowed")
 	}
+	if referencesDeniedSQLObject(stripped) {
+		return fmt.Errorf("query references internal SQLite metadata tables, which are not available through the sql tool")
+	}
 	return nil
+}
+
+var deniedSQLObjectRE = regexp.MustCompile(`(?i)\b(meta|sqlite_master|sqlite_schema|pragma_[A-Za-z0-9_]*|pragma)\b`)
+
+func referencesDeniedSQLObject(query string) bool {
+	return deniedSQLObjectRE.MatchString(query)
 }
 
 // stripLeadingSQLNoise removes leading whitespace, SQL line comments
@@ -472,8 +668,130 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		results = append(results, row)
 	}
 
+	salt, serr := saltFromStore()
+	if serr != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("pseudonymization unavailable: %v", serr)), nil
+	}
+	for i := range results {
+		results[i] = scrubSQLRow(results[i], Opts{Salt: salt, IncludePII: argIsTrue(req.GetArguments()["include_pii"])})
+	}
+
 	data, _ := json.MarshalIndent(results, "", "  ")
 	return mcplib.NewToolResultText(string(data)), nil
+}
+
+// scrubSQLRow applies best-effort pseudonymization to one sql result row:
+//   - flat columns whose name is a known direct identifier are redacted
+//     (email/phone/phoneNumber/dob/firstName/lastName/name), with a fan_ref
+//     derived from an id/email column when present;
+//   - any cell whose value is (or parses as) JSON is recursed through
+//     ScrubJSONBlob so the `data` blob's nested fan/holder PII is scrubbed.
+//
+// Best-effort: PII surfaced through a column ALIAS or a computed expression is
+// not detectable by name and may slip through — documented in the tool
+// description. The input map is not mutated.
+func scrubSQLRow(row map[string]any, opts Opts) map[string]any {
+	out := make(map[string]any, len(row)+1)
+	for k, v := range row {
+		out[k] = v
+	}
+
+	// Recurse into JSON-valued cells (covers SELECT data FROM resources).
+	for k, v := range out {
+		switch cell := v.(type) {
+		case string:
+			if looksLikeJSON(cell) {
+				var parsed any
+				if err := json.Unmarshal([]byte(cell), &parsed); err == nil {
+					scrubbed := ScrubJSONBlob(parsed, opts)
+					if b, err := json.Marshal(scrubbed); err == nil {
+						out[k] = json.RawMessage(b)
+					}
+				}
+			}
+		case []byte:
+			if looksLikeJSON(string(cell)) {
+				var parsed any
+				if err := json.Unmarshal(cell, &parsed); err == nil {
+					scrubbed := ScrubJSONBlob(parsed, opts)
+					if b, err := json.Marshal(scrubbed); err == nil {
+						out[k] = json.RawMessage(b)
+					}
+				}
+			}
+		}
+	}
+
+	hasFlatPII := rowHasFlatPII(row)
+
+	// Only attach a token when the row actually carries a flat PII column;
+	// a plain analytics row (e.g. SELECT id,total) shouldn't grow a spurious
+	// fan_ref. Seed the token from a flat email/id column on the ORIGINAL row.
+	if hasFlatPII {
+		if seed := flatIdentitySeed(row); seed != "" {
+			out["fan_ref"] = Token(opts.Salt, seed)
+		}
+	}
+
+	// Redact flat direct-identifier columns by name (unambiguous set only).
+	for k := range row {
+		canon := canonicalPIIKey(k)
+		if canon == "dob" || (!opts.IncludePII && hasFlatPII && shouldRedactFlatPIIKey(canon)) {
+			delete(out, k)
+		}
+	}
+	return out
+}
+
+// rowHasFlatPII reports whether the row has any flat column whose name is an
+// direct identifier. This guards against corrupting non-PII analytics rows such
+// as event/venue name output without requiring an email/id seed to be present.
+func rowHasFlatPII(row map[string]any) bool {
+	for k := range row {
+		if isFlatPersonIdentifierKey(k) {
+			return true
+		}
+	}
+	return false
+}
+
+// flatIdentitySeed picks a token seed from a flat row: email columns first
+// (most stable cross-row fan identity), then explicit fan/holder id columns,
+// then name/phone fallbacks for person rows that lack email/id.
+func flatIdentitySeed(row map[string]any) string {
+	return identitySeed(row)
+}
+
+func isFanHolderIDKey(k string) bool {
+	canon := canonicalPIIKey(k)
+	return canon == "fan_id" || canon == "fanid" || canon == "holder_id" || canon == "holderid"
+}
+
+func isFlatPersonIdentifierKey(k string) bool {
+	canon := canonicalPIIKey(k)
+	return isFanHolderIDKey(k) ||
+		canon == "email" ||
+		canon == "holder_email" ||
+		canon == "phone" ||
+		canon == "phonenumber" ||
+		canon == "firstname" ||
+		canon == "first_name" ||
+		canon == "lastname" ||
+		canon == "last_name" ||
+		canon == "holder_name"
+}
+
+func shouldRedactFlatPIIKey(canon string) bool {
+	return flatPIIColumns[canon]
+}
+
+// looksLikeJSON reports whether s plausibly holds a JSON object or array.
+func looksLikeJSON(s string) bool {
+	s = strings.TrimSpace(s)
+	if len(s) < 2 {
+		return false
+	}
+	return (s[0] == '{' && s[len(s)-1] == '}') || (s[0] == '[' && s[len(s)-1] == ']')
 }
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {

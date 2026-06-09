@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "id": "dice-fm-review-hardening",
+  "date": "2026-06-08",
+  "amend_run_id": "amend-2026-06-08-review-hardening",
+  "summary": "fix(dice-fm): consolidated 2026-06-08 whole-project review hardening — correctness (race-safe test isolation + output flags, revenue paid-total basis, sync fan-loss gate), an FTS rework (content minimization + collision-free key + v3 rebuild), data minimization (drop dob), an MCP-boundary pseudonymization layer (salted HMAC fan_ref token with include_pii opt-in), and egress/perms hardening (deliver webhook https-only + SSRF deny, least-privilege file/db/cache perms, feedback https-only, MCP canonical config path), plus nits",
+  "reason": "An all-three (code/security/privacy) whole-project peer review of dice-fm at post-#1109 main surfaced a P0 test-integrity issue, several correctness defects, a privacy gap (raw fan PII reaching the MCP/model context — dice-fm is frequently agent-driven), and egress/perms hardening items. These are CLI-specific hardening of an API-specific value-add (DICE fan/ticket/revenue analytics + the local store + the MCP surface), not generator gaps. The headline is a pseudonymization layer applied at the MCP output boundary only: the human CLI stays raw, but agent/MCP use replaces buyer/holder email/phone/name with a deterministic salted HMAC fan_ref token (include_pii opts back in to raw).",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/helpers.go",
+    "internal/cli/sync.go",
+    "internal/cli/dice_revenue.go",
+    "internal/cli/dice_query.go",
+    "internal/cli/dice_capacity.go",
+    "internal/cli/analytics.go",
+    "internal/cli/deliver.go",
+    "internal/cli/feedback.go",
+    "internal/cli/import.go",
+    "internal/store/store.go",
+    "internal/client/client.go",
+    "internal/cache/cache.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/pseudonymize.go",
+    "internal/mcp/cobratree/postprocess.go",
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/walker.go",
+    "scripts/test-race.sh",
+    "README.md",
+    "SKILL.md"
+  ],
+  "findings_addressed": ["P0-1", "P1-2", "P1-3", "P1-4", "P1-5", "P1-6", "P1-7", "P2-8", "P2-10", "P3-12", "P3-13", "P3-14", "P3-15", "P3-16", "P3-17", "P3-18", "P3-19"],
+  "validated_outcome": "go build ./... && go vet ./... clean; full go test ./... green; FULL go test -race ./... green across all packages in ~12s (was a 600s timeout on origin/main — the P0). The -race timeout was diagnosed (verify-the-reviewer) NOT as a literal data race but as a test (TestRevenueSummaryByAxisWithFiltersSucceeds) opening the operator's real ~70k-row default-path store; isolated to a temp store. The package-global output flags (--no-color/--human-friendly) were additionally moved off mutable package state onto rootFlags + atomics as defense against a latent race. New tests cover: store isolation, parallel-Execute output-flag race regression, revenue paid-total basis (scoped == unscoped), sync fan-write error surfacing + cursor gating, meta table round-trip, FTS content-PII exclusion + collision-free key + v2->v3 rebuild, the pseudonymizer (token determinism/salt isolation/scrub default+include_pii/nested/blob), tickets_list/orders_list/search/sql/mirrored-fans scrubbing, deliver webhook https+SSRF+perms, feedback https, MCP config.json resolution, import hidden, analytics dotted group-by. `publish validate` in-scope checks pass (manifest, transcendence, phase5, go mod tidy, go vet, go build, --help, --version, manuscripts); two failing checks are PRE-EXISTING on pristine origin/main and unrelated to this diff: (1) govulncheck flags two go1.26.3 stdlib advisories (net/textproto GO-2026-5039, crypto/x509 GO-2026-5037, both fixed in go1.26.4) reached via cliutil/probe.go + store.ResolveByName — neither file/line is in this diff; (2) verify-skill reports SKILL.md install-section drift in a GENERATOR-OWNED section this diff does not touch (this diff edits only the MCP cookbook, Output Delivery, and feedback sections). Both are repo-level toolchain-bump + SKILL-regen items, out of scope for this PR (trust CI per the #1109 lesson).",
+  "notes": "Schema bumped to v3 (meta table + FTS rebuild) in the existing pinned-conn BEGIN IMMEDIATE migration. Pseudonymization is MCP-boundary only (cobratree gained a generic output post-processor + extra-tool-option + description-suffix registry so the mcp package can register the scrubber without cobratree importing it); the CLI command surface is unchanged (no redaction flag added to commands — redaction is an MCP-output concern). dob removed from fanSelection (existing stores keep stale dob in resources.data until re-sync; the v3 FTS rebuild drops it from the index immediately). sql scrubbing is best-effort (flat known-PII columns + recursive JSON-cell scrub) with a description warning that aliased/computed PII may slip through. --deliver webhook is https-only + denies RFC-1918/loopback/link-local/metadata IPs unless --allow-private-webhook, with a stderr audit; deliver is MCP-blocked (added allow-private-webhook to cobratree blockedRootFlags too). OUT OF SCOPE by design: #9 erasure/retention (fans forget / age-out) — a feature, deliberately deferred. Source findings: docs/agent-reviews/2026-06-08-dice-fm-whole-project-peer-reviews.md; spec: dice-fm-review-hardening-design.md (foundry 0eccf2eb); plan: 2026-06-08-dice-fm-review-hardening.md.",
+  "deferred_to_upstream": [
+    {
+      "feature": "A `go test -race ./...` CI gate for printed CLIs (and a test convention that command-executing tests must use an isolated --db/$HOME, never the real default-path store).",
+      "reason": "The public library CI is generator/library-owned; a per-CLI -race step can't be added, so this CLI ships a local scripts/test-race.sh as the equivalent. The default-path-store test-isolation pitfall is a generator-template-shaped issue (the transcendence-command test scaffold should isolate the store)."
+    }
+  ]
+}

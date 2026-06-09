@@ -276,7 +276,6 @@ Run `dice-fm-pp-cli <command> --help` for the full flag list on any command.
 | `analytics` | Run analytics queries on locally synced data |
 | `tail` | Stream live changes by polling the API at intervals |
 | `doctor` | Check auth, config, and connectivity |
-| `import` | Import data from a JSONL file via API create/upsert calls |
 
 ## Output Formats
 
@@ -305,6 +304,24 @@ dice-fm-pp-cli events list --dry-run
 # Agent mode — JSON + compact + no prompts in one flag
 dice-fm-pp-cli events list --agent
 ```
+
+### Routing output with `--deliver`
+
+Any command's output can be routed to a sink instead of (alongside) stdout:
+
+```bash
+# Write to a file (atomically; created dirs are 0700, file 0600)
+dice-fm-pp-cli revenue summary --json --deliver file:/tmp/revenue.json
+
+# POST to a webhook (https only)
+dice-fm-pp-cli revenue summary --json --deliver webhook:https://hooks.example.com/dice
+```
+
+Webhook delivery is hardened because command output can contain personal data:
+
+- **https only** — cleartext `http://` is refused.
+- **SSRF guard** — a webhook host that resolves to a private (RFC-1918), loopback, link-local, or cloud-metadata (`169.254.169.254`) address is refused. Pass **`--allow-private-webhook`** to opt in for a trusted internal endpoint.
+- **Audit** — a one-line `delivered N bytes to <host>` is written to stderr on success.
 
 ## Cookbook
 
@@ -379,6 +396,12 @@ Install `dice-fm-pp-mcp` (see **MCP Server Installation** in `SKILL.md`), then c
 | Normalized coverage by axis | `normalize_stats` | `{ "entity": "ticket_type" }` |
 
 `normalize` itself writes the local store, so it is exposed as a write tool (no read-only hint) — run it from the CLI or invoke it deliberately. `normalize_recommend` and `normalize_promote_rules` are likewise write tools; run them deliberately or from the CLI. Custom SQL is intentionally out of scope for this cookbook.
+
+#### Personal data is pseudonymized in MCP output
+
+The MCP surface is privacy-aware. Tools that can return fan/holder personal data — `tickets_list`, `orders_list`, `returns_list`, `transfers_list`, `extras_list`, `search`, `sql`, and the mirrored `fans *` / `door list` tools — **pseudonymize by default**: buyer/holder `email`, `phone`, and name fields are replaced with a stable `fan_ref` token (e.g. `"fan_ref": "fan:1a2b3c4d5e6f708192"`) and `dob` is omitted. The token is deterministic per fan, so an agent can still dedup and correlate the same person across calls without ever pulling a raw identifier into the model context. Each of these tools accepts **`include_pii: true`** to return the raw values *and* the token when an operator explicitly needs them. Each tool's description carries a "returns personal data" notice so an MCP host can gate auto-approval.
+
+> The **CLI stays raw** — this is your own terminal. Pseudonymization applies only at the MCP boundary, where output flows into an agent/model context. `sql` scrubbing is best-effort (known PII columns + JSON `data` cells); PII surfaced through a column alias or computed expression may slip through — prefer the typed tools or `search`.
 
 ## Agent Usage
 

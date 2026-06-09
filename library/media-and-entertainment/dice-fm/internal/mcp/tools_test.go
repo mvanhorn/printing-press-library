@@ -4,8 +4,14 @@
 package mcp
 
 import (
+	"context"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/store"
 )
 
 // TestValidateReadOnlyQuery_AllowsSelectAndWITH pins the contract: the MCP
@@ -79,6 +85,22 @@ func TestValidateReadOnlyQuery_RejectsBypassVectors(t *testing.T) {
 	}
 }
 
+func TestValidateReadOnlyQuery_RejectsSecretMetadataTables(t *testing.T) {
+	rejected := []string{
+		"SELECT value FROM meta WHERE key = 'mcp_pseudonymize_salt_v1'",
+		"SELECT * FROM meta",
+		"SELECT * FROM sqlite_master",
+		"SELECT * FROM sqlite_schema",
+		"SELECT * FROM pragma_table_info('resources')",
+		"PRAGMA table_info(resources)",
+	}
+	for _, q := range rejected {
+		if err := validateReadOnlyQuery(q); err == nil {
+			t.Errorf("validateReadOnlyQuery(%q) = nil, want metadata denylist error", q)
+		}
+	}
+}
+
 // TestStripLeadingSQLNoise checks the helper directly so a regression in the
 // stripping logic (off-by-one on /* */ length, missing newline handling on
 // --) surfaces close to the source rather than only via the integration
@@ -106,5 +128,102 @@ func TestStripLeadingSQLNoise(t *testing.T) {
 		if !strings.EqualFold(got, c.want) {
 			t.Errorf("stripLeadingSQLNoise(%q) = %q, want %q", c.in, got, c.want)
 		}
+	}
+}
+
+func TestSaltForStoreUsesSidecarNotMeta(t *testing.T) {
+	resetSaltCacheForTest()
+	t.Cleanup(resetSaltCacheForTest)
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	p := filepath.Join(home, ".local", "share", "dice-fm-pp-cli", "data.db")
+	s, err := store.Open(p)
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	defer s.Close()
+
+	salt1, err := SaltForStore(s)
+	if err != nil {
+		t.Fatalf("SaltForStore first: %v", err)
+	}
+	salt2, err := SaltForStore(s)
+	if err != nil {
+		t.Fatalf("SaltForStore second: %v", err)
+	}
+	if string(salt1) != string(salt2) {
+		t.Fatalf("salt was not stable across calls")
+	}
+	info, err := os.Stat(saltPathForStore(s))
+	if err != nil {
+		t.Fatalf("salt sidecar stat: %v", err)
+	}
+	if got := info.Mode().Perm(); got != 0o600 {
+		t.Fatalf("salt sidecar mode = %o, want 0600", got)
+	}
+	if got := info.Size(); got != saltLen {
+		t.Fatalf("salt sidecar size = %d, want %d", got, saltLen)
+	}
+	if _, ok, err := s.GetMeta("mcp_pseudonymize_salt_v1"); err != nil || ok {
+		t.Fatalf("salt should not be stored in meta: ok=%v err=%v", ok, err)
+	}
+}
+
+func TestSaltFromStoreUsesSidecarWithoutOpeningStore(t *testing.T) {
+	resetSaltCacheForTest()
+	t.Cleanup(resetSaltCacheForTest)
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+
+	db := dbPath()
+	sidecar := saltPathForDB(db)
+	salt1, err := saltFromStore()
+	if err != nil {
+		t.Fatalf("saltFromStore first: %v", err)
+	}
+	if len(salt1) != saltLen {
+		t.Fatalf("salt length = %d, want %d", len(salt1), saltLen)
+	}
+	if _, err := os.Stat(db); !os.IsNotExist(err) {
+		t.Fatalf("saltFromStore opened or created SQLite db: stat err=%v", err)
+	}
+	info, err := os.Stat(sidecar)
+	if err != nil {
+		t.Fatalf("salt sidecar stat: %v", err)
+	}
+	if got := info.Mode().Perm(); got != 0o600 {
+		t.Fatalf("salt sidecar mode = %o, want 0600", got)
+	}
+
+	if err := os.Remove(sidecar); err != nil {
+		t.Fatalf("remove sidecar to prove cache: %v", err)
+	}
+	salt2, err := saltFromStore()
+	if err != nil {
+		t.Fatalf("saltFromStore second: %v", err)
+	}
+	if string(salt1) != string(salt2) {
+		t.Fatalf("cached salt changed across calls")
+	}
+	if _, err := os.Stat(sidecar); !os.IsNotExist(err) {
+		t.Fatalf("second saltFromStore re-read or recreated sidecar instead of using cache: stat err=%v", err)
+	}
+	if Token(salt1, "fan-123") != Token(salt2, "fan-123") {
+		t.Fatalf("token changed across cached salt calls")
+	}
+}
+
+func TestSQLToolRejectsSaltExfiltration(t *testing.T) {
+	withTempStore(t)
+	res, err := handleSQL(context.Background(), mcplib.CallToolRequest{
+		Params: mcplib.CallToolParams{
+			Arguments: map[string]any{"query": "SELECT value FROM meta WHERE key = 'mcp_pseudonymize_salt_v1'"},
+		},
+	})
+	if err != nil {
+		t.Fatalf("handleSQL: %v", err)
+	}
+	if res == nil || !res.IsError {
+		t.Fatalf("salt exfiltration query was not rejected: %#v", res)
 	}
 }

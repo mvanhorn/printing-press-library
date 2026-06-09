@@ -20,26 +20,29 @@ import (
 var version = "2026.6.2"
 
 type rootFlags struct {
-	asJSON        bool
-	compact       bool
-	csv           bool
-	plain         bool
-	quiet         bool
-	dryRun        bool
-	noCache       bool
-	noInput       bool
-	idempotent    bool
-	yes           bool
-	agent         bool
-	selectFields  string
-	configPath    string
-	profileName   string
-	deliverSpec   string
-	timeout       time.Duration
-	rateLimit     float64
-	maxAge        time.Duration
-	dataSource    string
-	freshnessMeta any
+	asJSON              bool
+	compact             bool
+	csv                 bool
+	plain               bool
+	quiet               bool
+	dryRun              bool
+	noCache             bool
+	noInput             bool
+	idempotent          bool
+	yes                 bool
+	agent               bool
+	noColor             bool
+	humanFriendly       bool
+	selectFields        string
+	configPath          string
+	profileName         string
+	deliverSpec         string
+	allowPrivateWebhook bool
+	timeout             time.Duration
+	rateLimit           float64
+	maxAge              time.Duration
+	dataSource          string
+	freshnessMeta       any
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
@@ -78,7 +81,7 @@ func Execute() error {
 		}
 	}
 	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
+		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact, flags.allowPrivateWebhook); derr != nil {
 			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
 			return derr
 		}
@@ -172,13 +175,14 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().BoolVar(&flags.idempotent, "idempotent", false, "Treat already-existing create results as a successful no-op")
 	rootCmd.PersistentFlags().StringVar(&flags.selectFields, "select", "", "Comma-separated fields to include in output (e.g. --select id,name,status)")
 	rootCmd.PersistentFlags().BoolVar(&flags.yes, "yes", false, "Skip confirmation prompts (for agents and scripts)")
-	rootCmd.PersistentFlags().BoolVar(&noColor, "no-color", false, "Disable colored output")
-	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
+	rootCmd.PersistentFlags().BoolVar(&flags.noColor, "no-color", false, "Disable colored output")
+	rootCmd.PersistentFlags().BoolVar(&flags.humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
 	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'dice-fm-pp-cli profile list')")
-	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
+	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url> (https only)")
+	rootCmd.PersistentFlags().BoolVar(&flags.allowPrivateWebhook, "allow-private-webhook", false, "Allow --deliver webhook to POST to a private/loopback/link-local host (off by default to block SSRF/metadata-endpoint exfiltration)")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
@@ -223,7 +227,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 				flags.yes = true
 			}
 			if !cmd.Flags().Changed("no-color") {
-				noColor = true
+				flags.noColor = true
 			}
 		}
 		switch flags.dataSource {
@@ -232,6 +236,10 @@ See README.md or the bundled SKILL.md for recipes.`,
 		default:
 			return fmt.Errorf("invalid --data-source value %q: must be auto, live, or local", flags.dataSource)
 		}
+		// Publish the resolved per-invocation output toggles to the process-wide
+		// atomics the leaf color/warning helpers read. This is the single write
+		// site (formerly the racy global BoolVar/agent-branch writes).
+		setOutputStyle(flags.noColor, flags.humanFriendly)
 		return nil
 	}
 	rootCmd.AddCommand(newEventsCmd(flags))

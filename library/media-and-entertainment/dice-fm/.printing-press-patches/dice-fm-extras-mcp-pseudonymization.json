@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "dice-fm-extras-mcp-pseudonymization",
+  "applied_at": "2026-06-09",
+  "base_run_id": "20260511-193451",
+  "base_printing_press_version": "4.12.0",
+  "summary": "extras_list must use MCP-boundary pseudonymization by default with an include_pii opt-in because its GraphQL selection includes holder PII.",
+  "reason": "DICE extra payloads embed holder firstName, lastName, email, and phoneNumber via extraSelection; without wrapping this typed MCP tool, raw holder PII can enter MCP host/model context by default.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/scrub_handler_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "extras_list GraphQL-shaped fixtures are scrubbed by default through pseudonymizeHandler, retain fan_ref tokens and non-PII extra fields, and return raw identifiers only with include_pii:true."
+}

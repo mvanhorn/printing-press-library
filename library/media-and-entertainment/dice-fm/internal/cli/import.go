@@ -25,6 +25,12 @@ func newImportCmd(flags *rootFlags) *cobra.Command {
 		Long: `Import data from a JSONL file by issuing POST requests for each record.
 Each line must be a valid JSON object. Failed records are logged to stderr
 but do not stop the import.`,
+		// DICE is a GraphQL-only API; this generated REST import POSTs to
+		// /<resource>, which does not exist on the DICE endpoint. Hide it from
+		// the CLI help and from the MCP mirror (mcp:hidden) so neither a human
+		// nor an agent invokes a command that cannot work.
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:hidden": "true"},
 		Example: `  # Import from a JSONL file
   dice-fm-pp-cli import <resource> --input data.jsonl
 
