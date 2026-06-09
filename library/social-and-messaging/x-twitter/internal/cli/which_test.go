@@ -105,7 +105,7 @@ func TestWhichIndexRoutesPRDQueries(t *testing.T) {
 		{"show my mentions", "users mentions get-users"},
 		{"post a reply", "tweets create-posts"},
 		{"sync bookmarks", "users bookmarks get-users"},
-		{"oauth2 user-context auth", "auth import-oauth2"},
+		{"oauth2 user-context auth", "auth oauth2-login"},
 		{"owned post metrics", "performance snapshot/backfill/analyze"},
 		{"raw api debug endpoint", "raw"},
 	}
