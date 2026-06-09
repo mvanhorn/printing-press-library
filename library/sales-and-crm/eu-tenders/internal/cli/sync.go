@@ -283,19 +283,19 @@ func extractNotice(raw map[string]interface{}, syncedAt string) store.Notice {
 	if v, ok := raw["deadline-receipt-tender-date-lot"]; ok {
 		n.SubmissionDeadline = store.ResolveMultilingual(v)
 	}
-	// title-lot is the most reliable title field in TED v3 (works for both
-	// cn-standard and can-standard). Fall back through title-proc then the
-	// legacy contract-title field for older eForms notices.
-	if v, ok := raw["title-lot"]; ok {
-		n.Title = store.ResolveMultilingual(v)
-	}
-	if n.Title == "" {
-		if v, ok := raw["title-proc"]; ok {
-			n.Title = store.ResolveMultilingual(v)
+	// PATCH(amend-2026-06-09: prefer title-proc over title-lot) — many buyers
+	// (notably BE/Wallonia/Brussels) fill title-lot with the lot reference code
+	// plus lot number (e.g. "EPV/2026/03/TP - 1"), not a human-readable subject.
+	// title-proc carries the descriptive procedure title in those cases, so it is
+	// the more reliable first choice. Fall back to title-lot (still descriptive
+	// for notices that omit title-proc), then the legacy contract-title field for
+	// older eForms notices. Reference-shaped lot titles are dropped in favor of a
+	// real subject when one exists.
+	for _, field := range []string{"title-proc", "title-lot", "contract-title"} {
+		if n.Title != "" {
+			break
 		}
-	}
-	if n.Title == "" {
-		if v, ok := raw["contract-title"]; ok {
+		if v, ok := raw[field]; ok {
 			n.Title = store.ResolveMultilingual(v)
 		}
 	}

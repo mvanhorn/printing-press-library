@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "bel-descriptive-title-fallback",
+  "applied_at": "2026-06-09",
+  "base_run_id": "20260508-143927",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Resolve descriptive notice titles for buyers whose title-lot holds only a lot reference code.",
+  "reason": "Two compounding bugs produced reference-shaped titles like 'EPV/2026/03/TP - 1' for many BE notices: (1) extractNotice preferred title-lot over title-proc, and many buyers fill title-lot with '<reference> - <lotnum>' instead of a subject; (2) ResolveMultilingual only unwrapped map[lang] -> []string and silently returned '' for map[lang] -> string fields like title-proc, so even reordering the chain would skip title-proc. Fix reorders the fallback to title-proc > title-lot > contract-title and teaches ResolveMultilingual to handle scalar-string language values.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/store/store.go",
+    "internal/store/multilingual_test.go"
+  ],
+  "validated_outcome": "go test ./... passes (new TestResolveMultilingual covers both shapes). Live re-sync of BE notices 375174-2026, 350076-2026, 339972-2026, 339994-2026 now stores descriptive titles (e.g. 'Installation temporaire de signalisation routière verticale') instead of '<reference> - 1'.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Generator title-extraction template should prefer the descriptive procedure title over the lot-reference title field, and the multilingual resolver should handle both scalar-string and array language-value shapes for any TED-style API.",
+      "reason": "Both fixes generalize to every printed CLI over the TED v3 API (and any API returning per-language scalar strings), not just eu-tenders-pp-cli."
+    }
+  ]
+}
