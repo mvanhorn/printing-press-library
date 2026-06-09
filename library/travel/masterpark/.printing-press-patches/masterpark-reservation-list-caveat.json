@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "masterpark-reservation-list-caveat",
+  "applied_at": "2026-06-09",
+  "base_run_id": "manual-masterpark-20260609T023930Z",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Document that listReservations is not authoritative immediately after saveReservation.",
+  "reason": "Live booking returned an active reservation and email confirmation, while listReservations did not show the new booking immediately.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "AGENTS.md",
+    "internal/cli/reservations.go"
+  ],
+  "validated_outcome": "reservations list --help now includes the caveat; README and skill docs mirror it."
+}

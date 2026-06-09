@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "masterpark",
+  "run_id": "manual-masterpark-20260609T023930Z",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 6,
+  "tests_passed": 6,
+  "tests_skipped": 2,
+  "auth_context": {
+    "type": "session_handshake"
+  }
+}

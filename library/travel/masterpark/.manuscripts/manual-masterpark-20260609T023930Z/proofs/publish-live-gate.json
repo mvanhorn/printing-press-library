@@ -1,0 +1,101 @@
+{
+  "dir": "/Users/bwishan/printing-press/library/masterpark",
+  "binary": "/Users/bwishan/printing-press/library/masterpark/masterpark-pp-cli-dogfood",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 6,
+  "passed": 6,
+  "failed": 0,
+  "skipped": 2,
+  "commands": [
+    "locations",
+    "quote"
+  ],
+  "tests": [
+    {
+      "command": "locations",
+      "kind": "help",
+      "args": [
+        "locations",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List MasterPark parking locations (Lot B / Lot G)\n\nUsage:\n  masterpark-pp-cli locations [flags]\n\nExamples:\n  masterpark-pp-cli locations\n  masterpark-pp-cli locations --json\n\nFlags:\n  -h, --help   help for locations\n\nGlobal Flags:\n      --config string      config file path (default ~/.config/masterpark-pp-cli/config.json)\n      --json               output JSON\n      --timeout duration   HTTP timeout (default 30s)\n"
+    },
+    {
+      "command": "locations",
+      "kind": "happy_path",
+      "args": [
+        "locations"
+      ],
+      "status": "pass",
+      "output_sample": "NAME              CODE_ID\nMasterPark Lot B  2515-1-889\nMasterPark Lot G  2525-1-893\n"
+    },
+    {
+      "command": "locations",
+      "kind": "json_fidelity",
+      "args": [
+        "locations",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[{\"codeID\":\"2515-1-889\",\"name\":\"\u003credacted\u003e\"},{\"codeID\":\"2525-1-893\",\"name\":\"\u003credacted\u003e\"}]"
+    },
+    {
+      "command": "locations",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "quote",
+      "kind": "help",
+      "args": [
+        "quote",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get parking price quotes for a date range\n\nUsage:\n  masterpark-pp-cli quote [flags]\n\nExamples:\n  masterpark-pp-cli quote --lot B --dropoff \"2026-06-11 07:00\" --pickup \"2026-06-13 18:30\"\n  masterpark-pp-cli quote --lot G --dropoff \"2026-06-11 07:00\" --pickup \"2026-06-13 18:30\" --vehicle-type oversize --json\n\nFlags:\n      --dropoff string        drop-off date/time \"YYYY-MM-DD HH:MM\"\n  -h, --help                  help for quote\n      --lot string            lot to quote: B, G, or a codeID (e.g. 2515-1-889)\n      --pickup string         pick-up date/time \"YYYY-MM-DD HH:MM\"\n      --promo-code string     optional promo code\n      --vehicle-type string   vehicle type: standard or oversize (default \"standard\")\n\nGlobal Flags:\n      --config string      config file path (default ~/.config/masterpark-pp-cli/config.json)\n      --json               output JSON\n      --timeout duration   HTTP timeout (default 30s)\n"
+    },
+    {
+      "command": "quote",
+      "kind": "happy_path",
+      "args": [
+        "quote",
+        "--lot",
+        "B",
+        "--dropoff",
+        "2026-06-11 07:00",
+        "--pickup",
+        "2026-06-13 18:30"
+      ],
+      "status": "pass",
+      "output_sample": "INDEX  NAME                    SUBTOTAL  TOTAL   DUE_AT_LOT\n0      Standard Rate           98.54     98.55   98.55\n1      Truck/Oversize Vehicle  111.82    111.80  111.80\n"
+    },
+    {
+      "command": "quote",
+      "kind": "json_fidelity",
+      "args": [
+        "quote",
+        "--lot",
+        "B",
+        "--dropoff",
+        "2026-06-11 07:00",
+        "--pickup",
+        "2026-06-13 18:30",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[{\"airport_taxes_subtotal\":0,\"balance_due\":98.55,\"costs\":{\"days\":77.97,\"hours\":0,\"minutes\":0,\"months\":0,\"weeks\":0},\"coupon_savings\":0,\"coupons\":[],\"days_redeemed\":0,\"details\":{\"breakdown\":[{\"fee\":25.99,\"fpp\":0,\"quantity\":1,\"start_date\":1781186400,\"unit\":\"day\"},{\"fee\":25.99,\"fpp\":0,\"quantity\":1,\"start_date\":1781272800,\"unit\":\"day\"},{\"fee\":25.99,\"fpp\":0,\"quantity\":1,\"start_date\":1781359200,\"unit\":\"day\"}],\"calendar_day\":false,\"days\":3,\"discount\":null,\"discount_rate\":null,\"fpp_per_day\":230,\"fpp_per_dollar\":null,\"hours\":0,\"months\":0,\"no_coupons\":false,\"no_discounts\":false,\"no_fpp_earnings\":false,\"no_mandatory\":false,\"no_services\":false,\"rate\":1,\"rate_history_id\":407,\"rate_type\":\"advanced\",\"require_services\":false,\"taxes\":[{\"free_day\":\"charge\",\"name\":\"\u003credacted\u003e\",\"partial_day\":\"none\",\"rounding\":\"half_up\",\"tax_rate\":null,\"taxable\":false,\"type\":\"fee\",\"unit\":null},{\"free_day\":null,\"name\":\"\u003credacted\u003e\",\"partial_day\":null,\"rounding\":\"half_up\",\"tax_rate\":10.4,\"taxable\":null,\"type\":\"tax\",\"unit\":\"percent\"}],\"weeks\":0},\"discount_savings\":0,\"due_at_lot\":98.55,\"event_dates\":[],\"fpp\":null,\"grand_total\":98.55,\"gratuity_total\":0,\"index\":0,\"is_event\":false,\"is_prepay\":true,\"location_information\":{\"address\":\"\u003credacted\u003e\",\"email\":\"\u003credacted\u003e\",\"location\":\"2515-1\",\"name\":\"\u003credacted\u003e\",\"phone\":\"\u003credacted\u003e\"},\"mandatory_options\":true,\"name\":\"\u003credacted\u003e\",\"notes\":\"\",\"options\":[{\"amount_charged\":3,\"coupon_override\":0,\"created_user\":null,\"days_charged\":1,\"description\":\"Airport Access Fee\",\"gratuity\":\"none\",\"hash\":\"H468cad93b1f\",\"id\":null,\"location\":null,\"option\":1,\"price\":3,\"reservation_id\":null,\"ticket\":0,\"timestamp\":\"2026-06-08 23:33:20\",\"type\":\"inventory\",\"valet_user\":null},{\"amount_charged\":4.05,\"coupon_override\":0,\"created_user\":null,\"days_charged\":3,\"description\":\"Living Wage Fee\",\"gratuity\":\"none\",\"hash\":\"Hd9fc82e98b9\",\"id\":null,\"location\":null,\"option\":2,\"price\":1.35,\"reservation_id\":null,\"ticket\":0,\"timestamp\":\"2026-06-08 23:33:20\",\"type\":\"inventory\",\"valet_user\":null},{\"amount_charged\":4.24,\"coupon_override\":0,\"created_user\":null,\"days_charged\":1,\"description\":\"City of Seatac Fee\",\"gratuity\":\"none\",\"hash\":\"H140ec8e78a8\",\"id\":null,\"location\":null,\"option\":3,\"price\":4.24,\"reservation_id\":null,\"ticket\":0,\"timestamp\":\"2026-06-08 23:33:20\",\"type\":\"inventory\",\"valet_user\":null}],\"options_subtotal\":11.29,\"parking_airport_tax\":0,\"parking_net\":89.26,\"parking_rate_subtotal\":77.97,\"parking_sales_tax\":9.28,\"parking_subtotal\":98.54,\"parking_taxes_subtotal\":9.28,\"prepaid\":0,\"prepay_amount\":0,\"promo_code\":\"\",\"requires_validation\":null,\"revision_id\":30,\"sales_taxes_subtotal\":9.28,\"savings\":0,\"services_airport_tax\":0,\"services_net\":0,\"services_sales_tax\":0,\"services_subtotal\":0,\"services_taxes_subtotal\":0,\"taxes_subtotal\":9.28,\"validation_checkbox\":false,\"validation_message\":\"\",\"validation_message_html\":\"\"},{\"airport_taxes_subtotal\":0,\"balance_due\":111.8,\"costs\":{\"days\":90,\"hours\":0,\"minutes\":0,\"months\":0,\"weeks\":0},\"coupon_savings\":0,\"coupons\":[],\"days_redeemed\":0,\"details\":{\"breakdown\":[{\"fee\":30,\"fpp\":0,\"quantity\":1,\"start_date\":1781186400,\"unit\":\"day\"},{\"fee\":30,\"fpp\":0,\"quantity\":1,\"start_date\":1781272800,\"unit\":\"day\"},{\"fee\":30,\"fpp\":0,\"quantity\":1,\"start_date\":1781359200,\"unit\":\"day\"}],\"calendar_day\":false,\"days\":3,\"discount\":null,\"discount_rate\":null,\"fpp_per_day\":230,\"fpp_per_dollar\":null,\"hours\":0,\"months\":0,\"no_coupons\":false,\"no_discounts\":false,\"no_fpp_earnings\":false,\"no_mandatory\":false,\"no_services\":false,\"rate\":131,\"rate_history_id\":400,\"rate_type\":\"advanced\",\"require_services\":false,\"taxes\":[{\"free_day\":\"charge\",\"name\":\"\u003credacted\u003e\",\"partial_day\":\"none\",\"rounding\":\"half_up\",\"tax_rate\":null,\"taxable\":false,\"type\":\"fee\",\"unit\":null},{\"free_day\":null,\"name\":\"\u003credacted\u003e\",\"partial_day\":null,\"rounding\":\"half_up\",\"tax_rate\":10.4,\"taxable\":null,\"type\":\"tax\",\"unit\":\"percent\"}],\"weeks\":0},\"discount_savings\":0,\"due_at_lot\":111.8,\"event_dates\":[],\"fpp\":null,\"grand_total\":111.8,\"gratuity_total\":0,\"index\":1,\"is_event\":false,\"is_prepay\":true,\"location_information\":{\"address\":\"\u003credacted\u003e\",\"email\":\"\u003credacted\u003e\",\"location\":\"2515-1\",\"name\":\"\u003credacted\u003e\",\"phone\":\"\u003cre…[truncated]"
+    },
+    {
+      "command": "quote",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-09T06:33:16.745214Z"
+}

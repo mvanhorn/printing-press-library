@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "masterpark-netparkv2-client",
+  "applied_at": "2026-06-09",
+  "base_run_id": "manual-masterpark-20260609T023930Z",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Implement MasterPark netParkV2 client and reservation workflow.",
+  "reason": "MasterPark exposes a WordPress AJAX flow rather than a published OpenAPI spec; this CLI wraps the real browser-observed endpoints.",
+  "files": [
+    "internal/client/client.go",
+    "internal/cli/locations.go",
+    "internal/cli/quote.go",
+    "internal/cli/reserve.go",
+    "internal/cli/reservations.go",
+    "internal/cli/agent_context.go"
+  ],
+  "validated_outcome": "go fmt ./..., go test ./..., go vet ./..., go build ./cmd/masterpark-pp-cli, live locations/quote smoke tests, verify-mode reservation no-op."
+}
