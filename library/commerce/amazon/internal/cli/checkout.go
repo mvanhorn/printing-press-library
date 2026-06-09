@@ -78,7 +78,6 @@ the agent can hand the user back to her browser for the final tap.`,
 				fmt.Fprintln(cmd.OutOrStdout(), "dry-run (legacy): would GET checkout page and POST place-order.")
 				return nil
 			}
-			client.DryRun = false
 			ctx, cancel := contextWithTimeout(app.Ctx, 60*time.Second)
 			defer cancel()
 			result, err := client.PlaceOrder(ctx, yes)

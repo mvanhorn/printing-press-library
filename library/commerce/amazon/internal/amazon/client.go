@@ -125,7 +125,13 @@ func classify(resp *http.Response, body []byte) (error, error) {
 		return nil, fmt.Errorf("amazon: HTTP %d", resp.StatusCode)
 	}
 	lower := strings.ToLower(string(body[:min(2048, len(body))]))
-	if strings.Contains(lower, "/ap/signin") || strings.Contains(lower, "sign in") && resp.Request != nil && strings.Contains(resp.Request.URL.Path, "/ap/signin") {
+	// Auth walls redirect to /ap/signin; inline re-auth interstitials embed
+	// the signin form action. A bare "/ap/signin" substring is NOT a signal
+	// on its own — authenticated pages carry it in nav-link JS blobs.
+	if resp.Request != nil && strings.Contains(resp.Request.URL.Path, "/ap/signin") {
+		return ErrAuthExpired, nil
+	}
+	if strings.Contains(lower, `action="/ap/signin"`) {
 		return ErrAuthExpired, nil
 	}
 	if strings.Contains(lower, "to discuss automated access to amazon data") || strings.Contains(lower, "robot check") || strings.Contains(lower, "captcha") {

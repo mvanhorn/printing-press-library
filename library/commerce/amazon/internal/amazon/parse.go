@@ -88,17 +88,32 @@ func parseSPCTokens(body string) (map[string]string, error) {
 		return nil, errors.New("checkout page did not contain the place-order form; the cart may be empty or your account needs attention on amazon.com")
 	}
 	tokens := make(map[string]string)
-	for _, m := range hiddenInputRe.FindAllStringSubmatch(body, -1) {
-		name := m[1]
-		val := m[2]
-		if isInterestingToken(name) {
-			tokens[name] = html2text(val)
+	for _, tag := range inputTagRe.FindAllString(body, -1) {
+		if !typeHiddenRe.MatchString(tag) {
+			continue
 		}
+		nm := nameAttrRe.FindStringSubmatch(tag)
+		if nm == nil || !isInterestingToken(nm[1]) {
+			continue
+		}
+		val := ""
+		if vm := valueAttrRe.FindStringSubmatch(tag); vm != nil {
+			val = vm[1]
+		}
+		tokens[nm[1]] = html2text(val)
 	}
 	return tokens, nil
 }
 
-var hiddenInputRe = regexp.MustCompile(`(?i)<input[^>]*type="hidden"[^>]*name="([^"]+)"[^>]*value="([^"]*)"`)
+// Hidden inputs are matched per-tag with separate attribute regexes so the
+// attribute order Amazon renders (type/name/value vs name/type/value) doesn't
+// matter.
+var (
+	inputTagRe   = regexp.MustCompile(`(?i)<input\b[^>]*>`)
+	typeHiddenRe = regexp.MustCompile(`(?i)\btype\s*=\s*"hidden"`)
+	nameAttrRe   = regexp.MustCompile(`(?i)\bname\s*=\s*"([^"]+)"`)
+	valueAttrRe  = regexp.MustCompile(`(?i)\bvalue\s*=\s*"([^"]*)"`)
+)
 
 func isInterestingToken(name string) bool {
 	switch name {

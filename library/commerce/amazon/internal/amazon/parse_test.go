@@ -95,3 +95,27 @@ func TestExtractThankYouOrderID(t *testing.T) {
 		}
 	}
 }
+
+func TestParseSPCTokensAttributeOrderAgnostic(t *testing.T) {
+	page := `
+		<form id="spc-place-order-form">
+			<input name="purchase_id" type="hidden" value="amzn1.spc.purchase.def"/>
+			<input value="csrf-5678" name="anti-csrftoken-a2z" type="hidden"/>
+			<input name="not-hidden-token" value="X" type="text"/>
+			<button id="spc-place-order-button">Place your order</button>
+		</form>
+	`
+	tokens, err := parseSPCTokens(page)
+	if err != nil {
+		t.Fatalf("parseSPCTokens: %v", err)
+	}
+	if tokens["purchase_id"] != "amzn1.spc.purchase.def" {
+		t.Errorf("purchase_id missing with name-first attribute order: %#v", tokens)
+	}
+	if tokens["anti-csrftoken-a2z"] != "csrf-5678" {
+		t.Errorf("anti-csrftoken-a2z missing with value-first attribute order: %#v", tokens)
+	}
+	if _, leaked := tokens["not-hidden-token"]; leaked {
+		t.Errorf("non-hidden input leaked through: %#v", tokens)
+	}
+}
