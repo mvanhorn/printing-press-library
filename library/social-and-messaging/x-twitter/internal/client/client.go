@@ -89,6 +89,11 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			// "Moved Permanently" body back to the caller.
 			return errors.New("stopped after 10 redirects")
 		}
+		if via[0].URL.Scheme == "https" && req.URL.Scheme != "https" {
+			req.Header.Del("Authorization")
+			req.Header.Del("Cookie")
+			return fmt.Errorf("refusing HTTPS-to-%s redirect for %s", req.URL.Scheme, req.URL.Host)
+		}
 		// Same-host gate mirrors Go's shouldCopyHeaderOnRedirect: a
 		// cross-domain 3xx (open redirect or partner handoff) must not
 		// receive the auth credential, even though we are inside
@@ -355,6 +360,27 @@ func (c *Client) PatchWithHeaders(ctx context.Context, path string, body any, he
 
 func (c *Client) PatchWithParamsAndHeaders(ctx context.Context, path string, params map[string]string, body any, headers map[string]string) (json.RawMessage, int, error) {
 	return c.do(ctx, "PATCH", path, params, body, headers)
+}
+
+// Request issues an arbitrary HTTP method through the same transport path as
+// generated commands. Raw/debug CLI surfaces use this to keep auth selection,
+// host allowlisting, dry-run previews, retries, binary wrapping, and cache
+// invalidation consistent with the typed endpoint commands.
+func (c *Client) Request(ctx context.Context, method, path string, params map[string]string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	method = strings.ToUpper(strings.TrimSpace(method))
+	if method == "" {
+		return nil, 0, fmt.Errorf("method is required")
+	}
+	if strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://") {
+		parsed, err := url.Parse(path)
+		if err != nil {
+			return nil, 0, fmt.Errorf("invalid absolute URL: %w", err)
+		}
+		if parsed.Scheme != "https" {
+			return nil, 0, fmt.Errorf("absolute URL must use https")
+		}
+	}
+	return c.doInternal(ctx, method, path, params, body, headers, false)
 }
 
 // isMutatingVerb reports whether the HTTP method writes server state.
@@ -665,9 +691,12 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 		}
 	}
 	_ = queryPrinted
+	var bodyValue any
 	if body != nil {
 		var pretty json.RawMessage
-		if json.Unmarshal(body, &pretty) == nil {
+		if json.Unmarshal(body, &bodyValue) == nil {
+			redacted, _ := json.Marshal(c.redactDryRunBodyValue(bodyValue))
+			pretty = json.RawMessage(redacted)
 			enc := json.NewEncoder(os.Stderr)
 			enc.SetIndent("  ", "  ")
 			fmt.Fprintf(os.Stderr, "  Body:\n")
@@ -678,7 +707,136 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Authorization", maskToken(authHeader))
 	}
 	fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
-	return json.RawMessage(`{"dry_run": true}`), 0, nil
+	envelope := map[string]any{
+		"dry_run": true,
+		"sent":    false,
+		"request": map[string]any{
+			"method": method,
+			"path":   path,
+		},
+		"meta": map[string]any{
+			"auth_lane":        c.dryRunAuthLane(targetURL, authHeader),
+			"selected_profile": c.selectedProfile(),
+		},
+	}
+	if params != nil {
+		cleanParams := map[string]string{}
+		for k, v := range params {
+			if v != "" {
+				cleanParams[k] = c.maskCredentialText(v, authHeader)
+			}
+		}
+		if len(cleanParams) > 0 {
+			envelope["request"].(map[string]any)["params"] = cleanParams
+		}
+	}
+	if bodyValue != nil {
+		envelope["request"].(map[string]any)["body"] = c.redactDryRunBodyValue(bodyValue)
+	}
+	if action := inferXPublicAction(method, path, bodyValue); action != "" {
+		envelope["public_action"] = action
+	}
+	if isMutatingVerb(method) {
+		envelope["mutation"] = true
+	}
+	data, err := json.Marshal(envelope)
+	if err != nil {
+		return nil, 0, err
+	}
+	return json.RawMessage(data), 0, nil
+}
+
+func (c *Client) selectedProfile() string {
+	return "default"
+}
+
+func (c *Client) dryRunAuthLane(targetURL, authHeader string) string {
+	if hostUsesCookieAuth(hostFromURL(targetURL)) {
+		return "x_articles_cookie"
+	}
+	if c == nil || c.Config == nil || authHeader == "" {
+		return "none"
+	}
+	if c.Config.XOauth2UserToken != "" && authHeader == "Bearer "+c.Config.XOauth2UserToken {
+		return "oauth2_user_context"
+	}
+	if c.Config.XBearerToken != "" && authHeader == "Bearer "+c.Config.XBearerToken {
+		return "app_only_api"
+	}
+	if c.Config.AccessToken != "" && authHeader == "Bearer "+c.Config.AccessToken {
+		return "oauth2"
+	}
+	if c.Config.AuthHeaderVal != "" && authHeader == c.Config.AuthHeaderVal {
+		return "configured_auth_header"
+	}
+	return "custom"
+}
+
+func inferXPublicAction(method, path string, body any) string {
+	switch {
+	case method == http.MethodPost && path == "/2/tweets":
+		bodyMap, _ := body.(map[string]any)
+		if _, ok := bodyMap["quote_tweet_id"]; ok {
+			return "quote"
+		}
+		if _, ok := bodyMap["reply"]; ok {
+			return "reply"
+		}
+		return "post"
+	case method == http.MethodDelete && strings.HasPrefix(path, "/2/tweets/"):
+		return "delete_post"
+	case method == http.MethodPost && strings.Contains(path, "/likes"):
+		return "like"
+	case method == http.MethodDelete && strings.Contains(path, "/likes/"):
+		return "unlike"
+	case method == http.MethodPost && strings.Contains(path, "/retweets"):
+		return "repost"
+	case method == http.MethodDelete && strings.Contains(path, "/retweets/"):
+		return "unrepost"
+	case method == http.MethodPost && strings.Contains(path, "/following"):
+		return "follow"
+	case method == http.MethodDelete && strings.Contains(path, "/following/"):
+		return "unfollow"
+	case method == http.MethodPost && strings.Contains(path, "/dm_"):
+		return "dm"
+	}
+	return ""
+}
+
+func (c *Client) redactDryRunBodyValue(value any) any {
+	switch typed := value.(type) {
+	case map[string]any:
+		out := make(map[string]any, len(typed))
+		for k, v := range typed {
+			if dryRunSecretBodyKey(k) {
+				out[k] = "[REDACTED]"
+				continue
+			}
+			out[k] = c.redactDryRunBodyValue(v)
+		}
+		return out
+	case []any:
+		out := make([]any, len(typed))
+		for i, v := range typed {
+			out[i] = c.redactDryRunBodyValue(v)
+		}
+		return out
+	case string:
+		return c.maskCredentialText(typed)
+	default:
+		return value
+	}
+}
+
+func dryRunSecretBodyKey(key string) bool {
+	normalized := strings.ToLower(strings.TrimSpace(key))
+	normalized = strings.ReplaceAll(normalized, "-", "_")
+	for _, marker := range []string{"authorization", "cookie", "token", "secret", "password"} {
+		if strings.Contains(normalized, marker) {
+			return true
+		}
+	}
+	return false
 }
 
 func (c *Client) ConfiguredTimeout() time.Duration {

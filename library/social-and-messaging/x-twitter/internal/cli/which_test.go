@@ -96,3 +96,26 @@ func TestWhichIndex_ExistsAndIsWellFormed(t *testing.T) {
 		}
 	}
 }
+
+func TestWhichIndexRoutesPRDQueries(t *testing.T) {
+	cases := []struct {
+		query string
+		want  string
+	}{
+		{"show my mentions", "users mentions get-users"},
+		{"post a reply", "tweets create-posts"},
+		{"sync bookmarks", "users bookmarks get-users"},
+		{"oauth2 user-context auth", "auth import-oauth2"},
+		{"owned post metrics", "performance snapshot/backfill/analyze"},
+		{"raw api debug endpoint", "raw"},
+	}
+	for _, tc := range cases {
+		got := rankWhich(whichIndex, tc.query, 1)
+		if len(got) == 0 {
+			t.Fatalf("%q returned no match", tc.query)
+		}
+		if got[0].Entry.Command != tc.want {
+			t.Fatalf("%q top command = %q, want %q (match=%+v)", tc.query, got[0].Entry.Command, tc.want, got[0])
+		}
+	}
+}

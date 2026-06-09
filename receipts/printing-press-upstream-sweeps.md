@@ -45,3 +45,19 @@
   - `python3 .github/scripts/verify-skill/verify_skill.py --dir library/project-management/linear/` — pass (`All checks passed`)
   - `git diff --check origin/main...HEAD` — pass
 - Policy: no public upstream push/PR; branch/PR targets private `cathrynlavery/printing-press-library` only.
+
+## 2026-06-09 — x-twitter raw API escape hatch
+
+- Base private branch: `origin/main`
+- Upstream range inspected: `origin/main..upstream/main` as of 2026-06-09 preflight (`da8a7ac9e` public HEAD), with no bulk merge/rebase from `mvanhorn/*`.
+- Candidate commits considered:
+  - `ea3b20f46` feat(x-twitter): add raw API escape hatch — ported; conflicts resolved to preserve the private fork's existing thread/articles capability index while adding upstream `raw`, structured dry-run previews, docs, tests, and patch manifest.
+  - `8266a14ff` fix(x-twitter): parse raw headers by colon first — ported.
+  - `5e1ec9cd9` fix(x-twitter): disambiguate raw header separators — ported.
+  - `ab4bd6fff` fix(x-twitter): tighten raw validation — ported.
+  - `b8f294951` fix(x-twitter): clarify bearer token auth — deferred; separate auth-surface cleanup, not mixed into the raw-command PR.
+  - `92cbb07bb` feat(x-twitter): add OAuth2 PKCE login command — deferred; larger auth feature needing its own focused validation.
+  - OpenArt/1Password/XAI/new CLI and generated registry/skills/release-ledger commits — skipped; catalog/reprint-sized or generated noise, not a narrow daily maintenance port.
+  - Flight Goat and Dice FM changes — skipped; unrelated product surfaces for this sweep.
+- Validation run on branch `upstream-sweep/20260609-x-twitter-raw`: `git diff --check origin/main...HEAD`, `python3 .github/scripts/verify-skill/verify_skill.py --dir library/social-and-messaging/x-twitter/`, `(cd library/social-and-messaging/x-twitter && go test ./...)`, `(cd library/social-and-messaging/x-twitter && go build ./...)`, `(cd library/social-and-messaging/x-twitter && go vet ./...)`, and `(cd library/social-and-messaging/x-twitter && go run golang.org/x/vuln/cmd/govulncheck@latest ./...)`.
+- Policy: no public upstream push/PR; branch/PR targets private `cathrynlavery/printing-press-library` only.
