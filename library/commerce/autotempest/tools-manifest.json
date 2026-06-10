@@ -1,0 +1,69 @@
+{
+  "api_name": "autotempest",
+  "base_url": "https://www.autotempest.com",
+  "description": "Every AutoTempest car-search source in your terminal, with a local store, cross-source VIN dedupe, and price-drop tracking no AutoTempest tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0 Safari/537.36"
+    },
+    {
+      "name": "X-Requested-With",
+      "value": "XMLHttpRequest"
+    },
+    {
+      "name": "Referer",
+      "value": "https://www.autotempest.com/"
+    },
+    {
+      "name": "Accept",
+      "value": "application/json, text/javascript, */*; q=0.01"
+    }
+  ],
+  "tools": [
+    {
+      "name": "makes_list",
+      "description": "List makes. Use the returned slug (e.g. 'honda') as the --make value for find. Optional: popular (default: true). Returns the MakesResponse.",
+      "method": "GET",
+      "path": "/api/get-makes",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "popular",
+          "wire_name": "popularMakes",
+          "type": "bool",
+          "location": "query",
+          "description": "Return the popular-makes subset."
+        }
+      ]
+    },
+    {
+      "name": "models_list",
+      "description": "List models for a make. Pass the make slug (e.g. 'honda'); use the returned model slug as --model for find. Required: make. Optional: popular (default: true). Returns the ModelsResponse.",
+      "method": "GET",
+      "path": "/api/get-models/{make}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "make",
+          "type": "string",
+          "location": "path",
+          "description": "Make slug, e.g. honda.",
+          "required": true
+        },
+        {
+          "name": "popular",
+          "wire_name": "popularModels",
+          "type": "bool",
+          "location": "query",
+          "description": "Return the popular-models subset."
+        }
+      ]
+    }
+  ]
+}

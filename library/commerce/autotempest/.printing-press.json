@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-10T20:40:16.2258481Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "autotempest",
+  "display_name": "AutoTempest",
+  "cli_name": "autotempest-pp-cli",
+  "creator": {
+    "handle": "richardadonnell",
+    "name": "richardadonnell"
+  },
+  "owner": "richardadonnell",
+  "printer": "richardadonnell",
+  "printer_name": "richardadonnell",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:b717a083c4037c0083ad45b590be236afedb3e677b53f08022f22d8c466b8d33",
+  "run_id": "20260610-145059-888b2895",
+  "category": "commerce",
+  "description": "Every AutoTempest car-search source in your terminal, with a local store, cross-source VIN dedupe, and price-drop tracking no AutoTempest tool has.",
+  "mcp_binary": "autotempest-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Price-drop watch",
+      "command": "drops",
+      "description": "Surface listings whose price fell since a prior find or watch run, biggest drop first."
+    },
+    {
+      "name": "Cross-source VIN dedupe",
+      "command": "dedupe",
+      "description": "Collapse the same physical VIN listed on multiple marketplaces into one row with every source and price, cheapest first."
+    },
+    {
+      "name": "Deal-vs-market score",
+      "command": "deal",
+      "description": "Rank listings by mechanical price delta from the median of comparable cars (same model, year, mileage band) in your local store."
+    },
+    {
+      "name": "Cross-source price spread",
+      "command": "spread",
+      "description": "Report min, median, and max price per marketplace for a model so you see which sources run cheap or expensive."
+    },
+    {
+      "name": "Saved-search registry and replay",
+      "command": "watch",
+      "description": "Register named searches with their filters, then replay them through run so drops and diff have snapshots to compare."
+    },
+    {
+      "name": "Live auction slice",
+      "command": "auctions",
+      "description": "Filter to eBay auction listings with live current bid and bid count, sortable by bid."
+    }
+  ]
+}

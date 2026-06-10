@@ -1,0 +1,974 @@
+{
+  "dir": "C:/Users/richa/printing-press/library/autotempest",
+  "binary": "C:\\Users\\richa\\printing-press\\library\\autotempest\\autotempest-pp-cli.exe",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 56,
+  "passed": 56,
+  "failed": 0,
+  "skipped": 49,
+  "commands": [
+    "api",
+    "auctions",
+    "deal",
+    "dedupe",
+    "doctor",
+    "drops",
+    "feedback list",
+    "find",
+    "import",
+    "makes",
+    "models",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "sources",
+    "spread",
+    "sync",
+    "watch add",
+    "watch list",
+    "watch rm",
+    "watch run",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  autotempest-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  autotempest-pp-cli api\n\n  # Show methods for a specific interface\n  autotempest-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'autotempest-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "auctions",
+      "kind": "help",
+      "args": [
+        "auctions",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Filter to eBay auction listings with live current bid and bid count, sortable by bid.\n\nUsage:\n  autotempest-pp-cli auctions [flags]\n\nExamples:\n  autotempest-pp-cli auctions --select title,current_bid,bids,url --json\n  autotempest-pp-cli auctions --sort bid --limit 25 --json\n\nFlags:\n      --db string     Local store path\n  -h, --help          help for auctions\n      --limit int     Max rows to emit (default 50)\n      --sort string   Sort order: bid|end (default \"bid\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "auctions",
+      "kind": "happy_path",
+      "args": [
+        "auctions",
+        "--select",
+        "title,current_bid,bids,url",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\nno local listings; run: autotempest-pp-cli find \"honda civic\" --zip 33701\n"
+    },
+    {
+      "command": "auctions",
+      "kind": "json_fidelity",
+      "args": [
+        "auctions",
+        "--select",
+        "title,current_bid,bids,url",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\nno local listings; run: autotempest-pp-cli find \"honda civic\" --zip 33701\n"
+    },
+    {
+      "command": "auctions",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "deal",
+      "kind": "help",
+      "args": [
+        "deal",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Rank listings by mechanical price delta from the median of comparable cars (same model, year, mileage band)\n\nUsage:\n  autotempest-pp-cli deal [model] [flags]\n\nExamples:\n  autotempest-pp-cli deal \"camry\" --json\n  autotempest-pp-cli deal --make toyota --model tacoma --select title,price,deal_score --json\n\nFlags:\n      --db string      Local store path\n  -h, --help           help for deal\n      --limit int      Max rows to emit (default 50)\n      --make string    Filter by make\n      --model string   Filter by model\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "deal",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [deal] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "deal",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [deal] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "deal",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "dedupe",
+      "kind": "help",
+      "args": [
+        "dedupe",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Collapse the same physical VIN listed on multiple marketplaces into one row with every source and price, cheapest first.\n\nUsage:\n  autotempest-pp-cli dedupe [flags]\n\nExamples:\n  autotempest-pp-cli dedupe --json\n  autotempest-pp-cli dedupe --make honda --model civic --select vin,min_price,sources.source,sources.price --json\n\nFlags:\n      --db string      Local store path\n  -h, --help           help for dedupe\n      --limit int      Max rows to emit (default 50)\n      --make string    Filter by make\n      --model string   Filter by model\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "dedupe",
+      "kind": "happy_path",
+      "args": [
+        "dedupe",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\nno local listings; run: autotempest-pp-cli find \"honda civic\" --zip 33701\n"
+    },
+    {
+      "command": "dedupe",
+      "kind": "json_fidelity",
+      "args": [
+        "dedupe",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\nno local listings; run: autotempest-pp-cli find \"honda civic\" --zip 33701\n"
+    },
+    {
+      "command": "dedupe",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  autotempest-pp-cli doctor [flags]\n\nExamples:\n  autotempest-pp-cli doctor\n  autotempest-pp-cli doctor --json\n  autotempest-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: C:\\Users\\richa\\AppData\\Local\\Temp\\printing-press-subprocess-1620106802\\.config\\autotempest-pp-cli\\config.toml\n  base_url: https://www.autotempest.com\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: C:\\Users\\richa\\AppData\\Local\\Temp\\printing-press-subprocess-1620106802\\.local\\share\\autotempest-pp-cli\\data.db\n    schema_version: 4\n    db_bytes: 98304\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'autotempest-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://www.autotempest.com\",\n  \"cache\": {\n    \"db_bytes\": 98304,\n    \"db_path\": \"C:\\\\Users\\\\richa\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-1620106802\\\\.local\\\\share\\\\autotempest-pp-cli\\\\data.db\",\n    \"hint\": \"sync_state is empty; run 'autotempest-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 4,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"C:\\\\Users\\\\richa\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-1620106802\\\\.config\\\\autotempest-pp-cli\\\\config.toml\",\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "drops",
+      "kind": "help",
+      "args": [
+        "drops",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Surface listings whose price fell since a prior sync, biggest drop first.\n\nUsage:\n  autotempest-pp-cli drops [name] [flags]\n\nExamples:\n  autotempest-pp-cli drops --since 7d --min-drop 500 --json\n  autotempest-pp-cli drops mysearch --since 14d --json\n\nFlags:\n      --db string      Local store path\n  -h, --help           help for drops\n      --limit int      Max rows to emit (default 50)\n      --min-drop int   Minimum price drop in dollars\n      --since string   Only compare snapshots within this window (e.g. 7d, 24h, 1w)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "drops",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [drops] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "drops",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [drops] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "drops",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  autotempest-pp-cli feedback list [flags]\n\nExamples:\n  autotempest-pp-cli feedback list\n  autotempest-pp-cli feedback list --limit 5\n  autotempest-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "find",
+      "kind": "help",
+      "args": [
+        "find",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search every AutoTempest source live, persist results to the local store,\nsnapshot prices, and emit a JSON envelope.\n\nThe positional argument is free text: when --make/--model are not set, the first\nword becomes the make and the rest the model (e.g. \"honda civic\"). The full text\nis also passed as keywords to the SearchTempest source.\n\nUsage:\n  autotempest-pp-cli find [keywords] [flags]\n\nExamples:\n  autotempest-pp-cli find \"honda civic\" --zip 33701 --radius 200 --json\n  autotempest-pp-cli find \"ford f-150\" --zip 33701 --max-price 25000 --title clean --json\n  autotempest-pp-cli find --make toyota --model tacoma --zip 33701 --drive 4wd --json\n\nFlags:\n      --body string           Body style filter\n      --color string          Exterior color filter\n      --db string             Local store path (default: per-user data dir)\n      --drive string          Drivetrain filter\n      --fuel string           Fuel type filter\n  -h, --help                  help for find\n      --limit int             Max total listings to emit (default 50)\n      --make string           Make slug (overrides positional)\n      --max-miles int         Maximum mileage (-1 = any) (default -1)\n      --max-pages int         Max pages to fetch per source (default 1)\n      --max-price int         Maximum price (-1 = any) (default -1)\n      --max-year int          Maximum year (-1 = any) (default -1)\n      --min-miles int         Minimum mileage (-1 = any) (default -1)\n      --min-price int         Minimum price (-1 = any) (default -1)\n      --min-year int          Minimum year (-1 = any) (default -1)\n      --model string          Model slug\n      --radius int            Search radius in miles (-1 = national) (default -1)\n      --rpp int               Results per page per source (default 50)\n      --save string           Persist this search under a name\n      --seller string         Seller type filter (dealer/private/any)\n      --sites string          Comma-separated source codes (default \"te,hem,cs,cv,cm,eb,ot\")\n      --sort string           Sort order (default \"best_match\")\n      --title string          Title status filter (clean/salvage/any)\n      --transmission string   Transmission filter\n      --zip string            ZIP code to center the search\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "find",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [find] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "find",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [find] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "find",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  autotempest-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  autotempest-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  autotempest-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | autotempest-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "makes",
+      "kind": "help",
+      "args": [
+        "makes",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List makes. Use the returned slug (e.g. 'honda') as the --make value for find.\n\nUsage:\n  autotempest-pp-cli makes [flags]\n\nExamples:\n  autotempest-pp-cli makes\n\nFlags:\n  -h, --help      help for makes\n      --popular   Return the popular-makes subset. (default true)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "makes",
+      "kind": "happy_path",
+      "args": [
+        "makes"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"popularMakes\": [\n      [\n        \"acura\",\n        \"Acura\"\n      ],\n      [\n        \"alfaromeo\",\n        \"Alfa Romeo\"\n      ],\n      [\n        \"astonmartin\",\n        \"Aston Martin\"\n      ],\n      [\n        \"audi\",\n        \"Audi\"\n      ],\n      [\n        \"bentley\",\n        \"Bentley\"\n      ],\n      [\n        \"bmw\",\n        \"BMW\"\n      ],\n      [\n        \"buick\",\n        \"Buick\"\n      ],\n      [\n        \"cadillac\",\n        \"Cadillac\"\n      ],\n      [\n        \"chevrolet\",\n        \"Chevrolet\"\n      ],\n      [\n        \"chrysler\",\n        \"Chrysler\"\n      ],\n      [\n        \"dodge\",\n        \"Dodge\"\n      ],\n      [\n        \"ferrari\",\n        \"Ferrari\"\n      ],\n      [\n        \"fiat\",\n        \"Fiat\"\n      ],\n      [\n        \"ford\",\n        \"Ford\"\n      ],\n      [\n        \"genesis\",\n        \"Genesis\"\n      ],\n      [\n        \"gmc\",\n        \"GMC\"\n      ],\n      [\n        \"honda\",\n        \"Honda\"\n      ],\n      [\n        \"hummer\",\n        \"HUMMER\"\n      ],\n      [\n        \"hyundai\",\n        \"Hyundai\"\n      ],\n      [\n        \"infiniti\",\n        \"Infiniti\"\n      ],\n      [\n        \"jaguar\",\n        \"Jaguar\"\n      ],\n      [\n        \"jeep\",\n        \"Jeep\"\n      ],\n      [\n        \"kia\",\n        \"Kia\"\n      ],\n      [\n        \"lamborghini\",\n        \"Lamborghini\"\n      ],\n      [\n        \"landrover\",\n        \"Land Rover\"\n      ],\n      [\n        \"lexus\",\n        \"Lexus\"\n      ],\n      [\n        \"lincoln\",\n        \"Lincoln\"\n      ],\n      [\n        \"lotus\",\n        \"Lotus\"\n      ],\n      [\n        \"maserati\",\n        \"Maserati\"\n      ],\n      [\n        \"mazda\",\n        \"Mazda\"\n      ],\n      [\n        \"mclaren\",\n        \"McLaren\"\n      ],\n      [\n        \"mercedesbenz\",\n        \"Mercedes-Benz\"\n      ],\n      [\n        \"mercury\",\n        \"Mercury\"\n      ],\n      [\n        \"mini\",\n        \"MINI\"\n      ],\n      [\n        \"mitsubishi\",\n        \"Mitsubishi\"\n      ],\n      [\n        \"nissan\",\n        \"Nissan\"\n      ],\n      [\n        \"oldsmobile\",\n        \"Oldsmobile\"\n      ],\n      [\n        \"plymouth\",\n        \"Plymouth\"\n      ],\n      [\n        \"polestar\",\n        \"Polestar\"\n      ],\n      [\n        \"pontiac\",\n        \"Pontiac\"\n      ],\n      [\n        \"porsche\",\n        \"Porsche\"\n      ],\n      [\n        \"ram\",\n        \"RAM\"\n      ],\n      [\n        \"rivian\",\n        \"Rivian\"\n      ],\n      [\n        \"rollsroyce\",\n        \"Rolls-Royce\"\n      ],\n      [\n        \"scion\",\n        \"Scion\"\n      ],\n      [\n        \"subaru\",\n        \"Subaru\"\n      ],\n      [\n        \"tesla\",\n        \"Tesla\"\n      ],\n      [\n        \"toyota\",\n        \"Toyota\"\n      ],\n      [\n        \"volkswagen\",\n        \"Volkswagen\"\n      ],\n      [\n        \"volvo\",\n        \"Volvo\"\n      ]\n    ],\n    \"allMakes\": [\n      [\n        \"ac\",\n        \"AC\"\n      ],\n      [\n        \"acura\",\n        \"Acura\"\n      ],\n      [\n        \"alfaromeo\",\n        \"Alfa Romeo\"\n      ],\n      [\n        \"allard\",\n        \"Allard\"\n      ],\n      [\n        \"amc\",\n        \"AMC\"\n      ],\n      [\n        \"amgeneral\",\n        \"AM General\"\n      ],\n      [\n        \"ariel\",\n        \"Ariel\"\n      ],\n      [\n        \"astonmartin\",\n        \"Aston Martin\"\n      ],\n      [\n        \"auburn\",\n        \"Auburn\"\n      ],\n      [\n        \"audi\",\n        \"Audi\"\n      ],\n      [\n        \"austin\",\n        \"Austin\"\n      ],\n      [\n        \"austinhealey\",\n        \"Austin-Healey\"\n      ],\n      [\n        \"avantimotors\",\n        \"Avanti Motors\"\n      ],\n      [\n        \"bentley\",\n        \"Bentley\"\n      ],\n      [\n        \"bmw\",\n        \"BMW\"\n      ],\n      [\n        \"bugatti\",\n        \"Bugatti\"\n      ],\n      [\n        \"buick\",\n        \"Buick\"\n      ],\n      [\n        \"cadillac\",\n        \"Cadillac\"\n      ],\n      [\n        \"caterham\",\n        \"Caterham\"\n      ],\n      [\n        \"checker\",\n        \"Checker\"\n      ],\n      [\n        \"chevrolet\",\n        \"Chevrolet\"\n      ],\n      [\n        \"chrysler\",\n        \"Chrysler\"\n      ],\n      [\n        \"citroen\",\n        \"Citroen\"\n      ],\n      [\n        \"daewoo\",\n        \"Daewoo\"\n      ],\n      [\n        \"daihatsu\",\n       …[truncated]"
+    },
+    {
+      "command": "makes",
+      "kind": "json_fidelity",
+      "args": [
+        "makes",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"popularMakes\": [\n      [\n        \"acura\",\n        \"Acura\"\n      ],\n      [\n        \"alfaromeo\",\n        \"Alfa Romeo\"\n      ],\n      [\n        \"astonmartin\",\n        \"Aston Martin\"\n      ],\n      [\n        \"audi\",\n        \"Audi\"\n      ],\n      [\n        \"bentley\",\n        \"Bentley\"\n      ],\n      [\n        \"bmw\",\n        \"BMW\"\n      ],\n      [\n        \"buick\",\n        \"Buick\"\n      ],\n      [\n        \"cadillac\",\n        \"Cadillac\"\n      ],\n      [\n        \"chevrolet\",\n        \"Chevrolet\"\n      ],\n      [\n        \"chrysler\",\n        \"Chrysler\"\n      ],\n      [\n        \"dodge\",\n        \"Dodge\"\n      ],\n      [\n        \"ferrari\",\n        \"Ferrari\"\n      ],\n      [\n        \"fiat\",\n        \"Fiat\"\n      ],\n      [\n        \"ford\",\n        \"Ford\"\n      ],\n      [\n        \"genesis\",\n        \"Genesis\"\n      ],\n      [\n        \"gmc\",\n        \"GMC\"\n      ],\n      [\n        \"honda\",\n        \"Honda\"\n      ],\n      [\n        \"hummer\",\n        \"HUMMER\"\n      ],\n      [\n        \"hyundai\",\n        \"Hyundai\"\n      ],\n      [\n        \"infiniti\",\n        \"Infiniti\"\n      ],\n      [\n        \"jaguar\",\n        \"Jaguar\"\n      ],\n      [\n        \"jeep\",\n        \"Jeep\"\n      ],\n      [\n        \"kia\",\n        \"Kia\"\n      ],\n      [\n        \"lamborghini\",\n        \"Lamborghini\"\n      ],\n      [\n        \"landrover\",\n        \"Land Rover\"\n      ],\n      [\n        \"lexus\",\n        \"Lexus\"\n      ],\n      [\n        \"lincoln\",\n        \"Lincoln\"\n      ],\n      [\n        \"lotus\",\n        \"Lotus\"\n      ],\n      [\n        \"maserati\",\n        \"Maserati\"\n      ],\n      [\n        \"mazda\",\n        \"Mazda\"\n      ],\n      [\n        \"mclaren\",\n        \"McLaren\"\n      ],\n      [\n        \"mercedesbenz\",\n        \"Mercedes-Benz\"\n      ],\n      [\n        \"mercury\",\n        \"Mercury\"\n      ],\n      [\n        \"mini\",\n        \"MINI\"\n      ],\n      [\n        \"mitsubishi\",\n        \"Mitsubishi\"\n      ],\n      [\n        \"nissan\",\n        \"Nissan\"\n      ],\n      [\n        \"oldsmobile\",\n        \"Oldsmobile\"\n      ],\n      [\n        \"plymouth\",\n        \"Plymouth\"\n      ],\n      [\n        \"polestar\",\n        \"Polestar\"\n      ],\n      [\n        \"pontiac\",\n        \"Pontiac\"\n      ],\n      [\n        \"porsche\",\n        \"Porsche\"\n      ],\n      [\n        \"ram\",\n        \"RAM\"\n      ],\n      [\n        \"rivian\",\n        \"Rivian\"\n      ],\n      [\n        \"rollsroyce\",\n        \"Rolls-Royce\"\n      ],\n      [\n        \"scion\",\n        \"Scion\"\n      ],\n      [\n        \"subaru\",\n        \"Subaru\"\n      ],\n      [\n        \"tesla\",\n        \"Tesla\"\n      ],\n      [\n        \"toyota\",\n        \"Toyota\"\n      ],\n      [\n        \"volkswagen\",\n        \"Volkswagen\"\n      ],\n      [\n        \"volvo\",\n        \"Volvo\"\n      ]\n    ],\n    \"allMakes\": [\n      [\n        \"ac\",\n        \"AC\"\n      ],\n      [\n        \"acura\",\n        \"Acura\"\n      ],\n      [\n        \"alfaromeo\",\n        \"Alfa Romeo\"\n      ],\n      [\n        \"allard\",\n        \"Allard\"\n      ],\n      [\n        \"amc\",\n        \"AMC\"\n      ],\n      [\n        \"amgeneral\",\n        \"AM General\"\n      ],\n      [\n        \"ariel\",\n        \"Ariel\"\n      ],\n      [\n        \"astonmartin\",\n        \"Aston Martin\"\n      ],\n      [\n        \"auburn\",\n        \"Auburn\"\n      ],\n      [\n        \"audi\",\n        \"Audi\"\n      ],\n      [\n        \"austin\",\n        \"Austin\"\n      ],\n      [\n        \"austinhealey\",\n        \"Austin-Healey\"\n      ],\n      [\n        \"avantimotors\",\n        \"Avanti Motors\"\n      ],\n      [\n        \"bentley\",\n        \"Bentley\"\n      ],\n      [\n        \"bmw\",\n        \"BMW\"\n      ],\n      [\n        \"bugatti\",\n        \"Bugatti\"\n      ],\n      [\n        \"buick\",\n        \"Buick\"\n      ],\n      [\n        \"cadillac\",\n        \"Cadillac\"\n      ],\n      [\n        \"caterham\",\n        \"Caterham\"\n      ],\n      [\n        \"checker\",\n        \"Checker\"\n      ],\n      [\n        \"chevrolet\",\n        \"Chevrolet\"\n      ],\n      [\n        \"chrysler\",\n        \"Chrysler\"\n      ],\n      [\n        \"citroen\",\n        \"Citroen\"\n      ],\n      [\n        \"daewoo\",\n        \"Daewoo\"\n      ],\n      [\n        \"daihatsu\",\n       …[truncated]"
+    },
+    {
+      "command": "makes",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "models",
+      "kind": "help",
+      "args": [
+        "models",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List models for a make. Pass the make slug (e.g. 'honda'); use the returned model slug as --model for find.\n\nUsage:\n  autotempest-pp-cli models \u003cmake\u003e [flags]\n\nExamples:\n  autotempest-pp-cli models example-value\n\nFlags:\n  -h, --help      help for models\n      --popular   Return the popular-models subset. (default true)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "models",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [models] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "models",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [models] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "models",
+      "kind": "error_path",
+      "args": [
+        "models",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /api/get-models/__printing_press_invalid__ returned HTTP 400: [\"__printing_press_invalid__ is not a valid make.\"]\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  autotempest-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  autotempest-pp-cli profile delete my-defaults --yes\n  autotempest-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  autotempest-pp-cli profile list [flags]\n\nExamples:\n  autotempest-pp-cli profile list\n  autotempest-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  autotempest-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  autotempest-pp-cli profile save my-defaults --json --compact\n  autotempest-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  autotempest-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  autotempest-pp-cli profile show my-defaults\n  autotempest-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  autotempest-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  autotempest-pp-cli profile use my-defaults\n  autotempest-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "sources",
+      "kind": "help",
+      "args": [
+        "sources",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List the AutoTempest search sources (codes, names, country, kind)\n\nUsage:\n  autotempest-pp-cli sources [flags]\n\nExamples:\n  autotempest-pp-cli sources --json\n\nFlags:\n  -h, --help   help for sources\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sources",
+      "kind": "happy_path",
+      "args": [
+        "sources",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[{\"code\":\"te\",\"country\":\"US\",\"kind\":\"inline\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"hem\",\"country\":\"US\",\"kind\":\"inline\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"cs\",\"country\":\"US\",\"kind\":\"inline\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"cv\",\"country\":\"US\",\"kind\":\"inline\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"cm\",\"country\":\"US\",\"kind\":\"inline\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"eb\",\"country\":\"US\",\"kind\":\"inline\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"ot\",\"country\":\"US\",\"kind\":\"inline\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"fbm\",\"country\":\"US\",\"kind\":\"link\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"st\",\"country\":\"US\",\"kind\":\"link\",\"name\":\"\u003credacted\u003e\"}]"
+    },
+    {
+      "command": "sources",
+      "kind": "json_fidelity",
+      "args": [
+        "sources",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[{\"code\":\"te\",\"country\":\"US\",\"kind\":\"inline\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"hem\",\"country\":\"US\",\"kind\":\"inline\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"cs\",\"country\":\"US\",\"kind\":\"inline\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"cv\",\"country\":\"US\",\"kind\":\"inline\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"cm\",\"country\":\"US\",\"kind\":\"inline\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"eb\",\"country\":\"US\",\"kind\":\"inline\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"ot\",\"country\":\"US\",\"kind\":\"inline\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"fbm\",\"country\":\"US\",\"kind\":\"link\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"st\",\"country\":\"US\",\"kind\":\"link\",\"name\":\"\u003credacted\u003e\"}]"
+    },
+    {
+      "command": "sources",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "spread",
+      "kind": "help",
+      "args": [
+        "spread",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Report min, median, and max price per marketplace for a model so you see which sources run cheap or expensive.\n\nUsage:\n  autotempest-pp-cli spread [make-or-model] [flags]\n\nExamples:\n  autotempest-pp-cli spread \"f-150\" --json\n  autotempest-pp-cli spread --make honda --model civic --json\n\nFlags:\n      --db string      Local store path\n  -h, --help           help for spread\n      --make string    Filter by make\n      --model string   Filter by model\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "spread",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [spread] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "spread",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [spread] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "spread",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  autotempest-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  autotempest-pp-cli sync\n\n  # Sync specific resources only\n  autotempest-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  autotempest-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  autotempest-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  autotempest-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  autotempest-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/autotempest-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Outp…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_warning\",\"reason\":\"no_bulk_list_endpoints\",\"detail\":\"no default sync resources in spec; use --resources for explicit sync targets or populate the store via single-fetch commands\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_warning\",\"reason\":\"no_bulk_list_endpoints\",\"detail\":\"no default sync resources in spec; use --resources for explicit sync targets or populate the store via single-fetch commands\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "watch add",
+      "kind": "help",
+      "args": [
+        "watch",
+        "add",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Register a saved search by name (does not run it)\n\nUsage:\n  autotempest-pp-cli watch add \u003cname\u003e [query] [flags]\n\nExamples:\n  autotempest-pp-cli watch add mysearch \"honda civic\" --zip 33701 --max-price 25000\n\nFlags:\n      --body string           Body style filter\n      --color string          Exterior color filter\n      --db string             Local store path\n      --drive string          Drivetrain filter\n      --fuel string           Fuel type filter\n  -h, --help                  help for add\n      --limit int             Max total listings (default 50)\n      --make string           Make slug\n      --max-miles int         Maximum mileage (default -1)\n      --max-pages int         Max pages per source (default 1)\n      --max-price int         Maximum price (default -1)\n      --max-year int          Maximum year (default -1)\n      --min-miles int         Minimum mileage (default -1)\n      --min-price int         Minimum price (default -1)\n      --min-year int          Minimum year (default -1)\n      --model string          Model slug\n      --radius int            Search radius in miles (-1 = national) (default -1)\n      --rpp int               Results per page (default 50)\n      --seller string         Seller type filter\n      --sites string          Comma-separated source codes (default \"te,hem,cs,cv,cm,eb,ot\")\n      --sort string           Sort order (default \"best_match\")\n      --title string          Title status filter\n      --transmission string   Transmission filter\n      --zip string            ZIP code\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch add",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [watch add] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "watch add",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [watch add] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "watch add",
+      "kind": "error_path",
+      "args": [
+        "watch",
+        "add",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[{\"name\":\"\u003credacted\u003e\",\"query\":\"\",\"saved\":true}]"
+    },
+    {
+      "command": "watch list",
+      "kind": "help",
+      "args": [
+        "watch",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved searches with their query, filters, and last-run time\n\nUsage:\n  autotempest-pp-cli watch list [flags]\n\nAliases:\n  list, ls\n\nExamples:\n  autotempest-pp-cli watch list --json\n\nFlags:\n      --db string   Local store path\n  -h, --help        help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch list",
+      "kind": "happy_path",
+      "args": [
+        "watch",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[{\"created\":\"2026-06-10T20:47:24Z\",\"last_run\":\"\",\"name\":\"\u003credacted\u003e\",\"query\":\"\"}]"
+    },
+    {
+      "command": "watch list",
+      "kind": "json_fidelity",
+      "args": [
+        "watch",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[{\"created\":\"2026-06-10T20:47:24Z\",\"last_run\":\"\",\"name\":\"\u003credacted\u003e\",\"query\":\"\"}]"
+    },
+    {
+      "command": "watch list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "watch rm",
+      "kind": "help",
+      "args": [
+        "watch",
+        "rm",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a saved search\n\nUsage:\n  autotempest-pp-cli watch rm \u003cname\u003e [flags]\n\nExamples:\n  autotempest-pp-cli watch rm mysearch\n\nFlags:\n      --db string   Local store path\n  -h, --help        help for rm\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch rm",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "watch rm",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "watch rm",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "watch run",
+      "kind": "help",
+      "args": [
+        "watch",
+        "run",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Replay saved searches live, persisting listings and price snapshots\n\nUsage:\n  autotempest-pp-cli watch run [name] [flags]\n\nExamples:\n  autotempest-pp-cli watch run mysearch --json\n  autotempest-pp-cli watch run --json\n\nFlags:\n      --db string   Local store path\n  -h, --help        help for run\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch run",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "watch run",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "watch run",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  autotempest-pp-cli which [query] [flags]\n\nExamples:\n  autotempest-pp-cli which \"stale tickets\"\n  autotempest-pp-cli which \"bottleneck\"\n  autotempest-pp-cli which --limit 1 \"send message\"\n  autotempest-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  autotempest-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  autotempest-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  autotempest-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/autotempest-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "Archived 0 items across 0 resources to C:\\Users\\richa\\AppData\\Local\\Temp\\printing-press-subprocess-1620106802\\.local\\share\\autotempest-pp-cli\\data.db\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 0,\n  \"store_path\": \"C:\\\\Users\\\\richa\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-1620106802\\\\.local\\\\share\\\\autotempest-pp-cli\\\\data.db\",\n  \"timestamp\": \"2026-06-10T20:47:25Z\",\n  \"total_items\": 0\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  autotempest-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  autotempest-pp-cli workflow status\n\n  # Show status as JSON\n  autotempest-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'autotempest-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "No archived data. Run 'workflow archive' to sync.\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-10T20:47:20.9755841Z"
+}

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "autotempest-pp-mcp",
+  "display_name": "AutoTempest",
+  "version": "0.0.0",
+  "description": "Every AutoTempest car-search source in your terminal, with a local store, cross-source VIN dedupe, and price-drop tracking no AutoTempest tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/autotempest-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/autotempest-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

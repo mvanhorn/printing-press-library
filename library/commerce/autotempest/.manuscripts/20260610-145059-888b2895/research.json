@@ -1,0 +1,208 @@
+{
+  "api_name": "autotempest",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "AutoTempest-Scraper",
+      "url": "https://github.com/Coder-Boiiiiiii/AutoTempest-Scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-10T18:55:00Z",
+  "novel_features": [
+    {
+      "name": "Price-drop watch",
+      "command": "drops",
+      "description": "Surface listings whose price fell since a prior find or watch run, biggest drop first.",
+      "rationale": "Cross-snapshot price delta lives only in the local store; AutoTempest gives anonymous users no saved-search diff.",
+      "example": "autotempest-pp-cli drops \"civic-fl\" --since 7d --min-drop 500 --agent",
+      "why_it_matters": "Reach for this when an agent or shopper needs price movement over time, not a fresh listing dump.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-source VIN dedupe",
+      "command": "dedupe",
+      "description": "Collapse the same physical VIN listed on multiple marketplaces into one row with every source and price, cheapest first.",
+      "rationale": "Requires a GROUP BY vin across sources that only exists once listings are persisted locally.",
+      "example": "autotempest-pp-cli dedupe --select vin,min_price,sources.source,sources.price --agent",
+      "why_it_matters": "Use when the same car appears on eBay and Cars.com and a dealer feed and you need the cheapest source for that exact VIN.",
+      "group": "Cross-source intelligence"
+    },
+    {
+      "name": "Deal-vs-market score",
+      "command": "deal",
+      "description": "Rank listings by mechanical price delta from the median of comparable cars (same model, year, mileage band) in your local store.",
+      "rationale": "Needs a median over comparable local rows; the site's per-listing dealGauge is opaque and not sortable across the set.",
+      "example": "autotempest-pp-cli deal \"Camry\" --select title,price,deal_score --agent",
+      "why_it_matters": "Pick this to answer 'is this price actually good vs comparable cars' with a number, not an opinion.",
+      "group": "Cross-source intelligence"
+    },
+    {
+      "name": "Cross-source price spread",
+      "command": "spread",
+      "description": "Report min, median, and max price per marketplace for a model so you see which sources run cheap or expensive.",
+      "rationale": "Per-source price distribution is a GROUP BY sitecode aggregation that only the local store can answer.",
+      "example": "autotempest-pp-cli spread \"F-150\" --agent",
+      "why_it_matters": "Use when deciding which marketplace to shop for a given model.",
+      "group": "Cross-source intelligence"
+    },
+    {
+      "name": "Saved-search registry and replay",
+      "command": "watch",
+      "description": "Register named searches with their filters, then replay them through run so drops and diff have snapshots to compare.",
+      "rationale": "A persisted search entity replayed by watch run is the local state that makes price-drop tracking possible for anonymous users.",
+      "example": "autotempest-pp-cli watch run --agent",
+      "why_it_matters": "Reach for this to set up recurring searches an agent can poll; one-off queries use search instead.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Live auction slice",
+      "command": "auctions",
+      "description": "Filter to eBay auction listings with live current bid and bid count, sortable by bid.",
+      "rationale": "Exposes native currentBid and bids fields as a dedicated auction-only slice over the local store.",
+      "example": "autotempest-pp-cli auctions --select title,current_bid,bids,url --agent",
+      "why_it_matters": "Use when hunting auction listings rather than fixed-price inventory.",
+      "group": "Cross-source intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Price-drop watch",
+      "command": "drops",
+      "description": "Surface listings whose price fell since a prior find or watch run, biggest drop first.",
+      "rationale": "Cross-snapshot price delta lives only in the local store; AutoTempest gives anonymous users no saved-search diff.",
+      "example": "autotempest-pp-cli drops \"civic-fl\" --since 7d --min-drop 500 --agent",
+      "why_it_matters": "Reach for this when an agent or shopper needs price movement over time, not a fresh listing dump.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-source VIN dedupe",
+      "command": "dedupe",
+      "description": "Collapse the same physical VIN listed on multiple marketplaces into one row with every source and price, cheapest first.",
+      "rationale": "Requires a GROUP BY vin across sources that only exists once listings are persisted locally.",
+      "example": "autotempest-pp-cli dedupe --select vin,min_price,sources.source,sources.price --agent",
+      "why_it_matters": "Use when the same car appears on eBay and Cars.com and a dealer feed and you need the cheapest source for that exact VIN.",
+      "group": "Cross-source intelligence"
+    },
+    {
+      "name": "Deal-vs-market score",
+      "command": "deal",
+      "description": "Rank listings by mechanical price delta from the median of comparable cars (same model, year, mileage band) in your local store.",
+      "rationale": "Needs a median over comparable local rows; the site's per-listing dealGauge is opaque and not sortable across the set.",
+      "example": "autotempest-pp-cli deal \"Camry\" --select title,price,deal_score --agent",
+      "why_it_matters": "Pick this to answer 'is this price actually good vs comparable cars' with a number, not an opinion.",
+      "group": "Cross-source intelligence"
+    },
+    {
+      "name": "Cross-source price spread",
+      "command": "spread",
+      "description": "Report min, median, and max price per marketplace for a model so you see which sources run cheap or expensive.",
+      "rationale": "Per-source price distribution is a GROUP BY sitecode aggregation that only the local store can answer.",
+      "example": "autotempest-pp-cli spread \"F-150\" --agent",
+      "why_it_matters": "Use when deciding which marketplace to shop for a given model.",
+      "group": "Cross-source intelligence"
+    },
+    {
+      "name": "Saved-search registry and replay",
+      "command": "watch",
+      "description": "Register named searches with their filters, then replay them through run so drops and diff have snapshots to compare.",
+      "rationale": "A persisted search entity replayed by watch run is the local state that makes price-drop tracking possible for anonymous users.",
+      "example": "autotempest-pp-cli watch run --agent",
+      "why_it_matters": "Reach for this to set up recurring searches an agent can poll; one-off queries use search instead.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Live auction slice",
+      "command": "auctions",
+      "description": "Filter to eBay auction listings with live current bid and bid count, sortable by bid.",
+      "rationale": "Exposes native currentBid and bids fields as a dedicated auction-only slice over the local store.",
+      "example": "autotempest-pp-cli auctions --select title,current_bid,bids,url --agent",
+      "why_it_matters": "Use when hunting auction listings rather than fixed-price inventory.",
+      "group": "Cross-source intelligence"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "AutoTempest",
+    "headline": "Every AutoTempest car-search source in your terminal, with a local store, cross-source VIN dedupe, and price-drop tracking no AutoTempest tool has.",
+    "value_prop": "AutoTempest already unifies the major used-car marketplaces into one search, but only in a browser. This CLI hits the same aggregated search over plain HTTP, persists listings to a local SQLite store, dedupes the same VIN across sources, and tracks price drops over time. Commands like drops, dedupe, deal, and spread turn one-shot browsing into queryable, compounding car-search state for shoppers and agents.",
+    "quickstart": [
+      {
+        "command": "autotempest-pp-cli doctor --dry-run",
+        "comment": "Health check; confirms the search endpoint is reachable before you search."
+      },
+      {
+        "command": "autotempest-pp-cli find \"honda civic\" --zip 33701 --radius 200 --json",
+        "comment": "Aggregated live search across every source, structured output."
+      },
+      {
+        "command": "autotempest-pp-cli find \"honda civic\" --zip 33701 --max-price 25000 --title clean --json",
+        "comment": "Filtered live search: clean title under twenty-five thousand."
+      },
+      {
+        "command": "autotempest-pp-cli dedupe --select vin,min_price,sources.source,sources.price --json",
+        "comment": "Collapse the same VIN across sources, cheapest first."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Search returns no results for a valid make/model",
+        "fix": "Check the make/model slugs with 'autotempest-pp-cli makes' and 'autotempest-pp-cli models honda'; AutoTempest uses slugs like 'chevrolet' and 'civic'."
+      },
+      {
+        "symptom": "Invalid token or empty results from a source",
+        "fix": "The per-request token is computed automatically; re-run the command. If it persists, run 'doctor' to confirm the endpoint contract has not changed."
+      },
+      {
+        "symptom": "drops or diff returns nothing",
+        "fix": "Those read local price snapshots. Run 'autotempest-pp-cli watch run' (or re-run the same 'find') at least twice over time so there are two snapshots to compare."
+      }
+    ],
+    "when_to_use": "Use this CLI to search used-car listings across every AutoTempest source from the terminal or an agent, persist them locally, and answer questions the website cannot: what dropped in price, which source lists a VIN cheapest, and whether a price is good versus comparable cars. It is ideal for recurring searches an agent polls and for piping car data as JSON into downstream workflows.",
+    "anti_triggers": [
+      "Do not use this CLI to buy, bid on, finance, or contact a seller; it is read-only car search.",
+      "Do not use it for new-car MSRP or dealer-invoice pricing; it surfaces existing used-car listings only.",
+      "Do not use it for VIN history or accident reports; it reports listing data, not Carfax-style records."
+    ],
+    "recipes": [
+      {
+        "title": "Clean-title AWD under budget near me",
+        "command": "autotempest-pp-cli find \"subaru outback\" --zip 33701 --radius 150 --max-price 28000 --title clean --drive awd --json --select title,price_cents,mileage,location,sitecode",
+        "explanation": "Narrows a deeply nested multi-source live result to the fields that matter using --select."
+      },
+      {
+        "title": "Cheapest source for a specific VIN",
+        "command": "autotempest-pp-cli dedupe --select vin,min_price,sources.source,sources.price --json",
+        "explanation": "Shows each physical car once with every marketplace and price it appears at."
+      },
+      {
+        "title": "What dropped in price this week",
+        "command": "autotempest-pp-cli drops \"my-search\" --since 7d --min-drop 500 --json",
+        "explanation": "Compares local price snapshots to surface motivated sellers."
+      },
+      {
+        "title": "Is this price good",
+        "command": "autotempest-pp-cli deal \"tacoma\" --select title,price,deal_score --json",
+        "explanation": "Scores each listing against the median of comparable cars in your store."
+      }
+    ],
+    "trigger_phrases": [
+      "search used cars",
+      "find a honda civic near me",
+      "compare car prices across sites",
+      "what cars dropped in price",
+      "cheapest source for this VIN",
+      "use autotempest",
+      "run autotempest"
+    ]
+  }
+}
