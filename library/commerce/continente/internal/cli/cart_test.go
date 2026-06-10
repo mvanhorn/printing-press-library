@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"continente-pp-cli/internal/client"
-	"continente-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/config"
 	"github.com/spf13/cobra"
 )
 
