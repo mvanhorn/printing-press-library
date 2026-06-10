@@ -24,7 +24,11 @@
   "api_version": "1.12.1",
   "auth_type": "api_key",
   "auth_env_vars": [
-    "PODCASTINDEX_API_KEY"
+    "PODCASTINDEX_KEY",
+    "PODCASTINDEX_ORG_API_KEY",
+    "PODCASTINDEX_ORG_AUTHORIZATION",
+    "PODCASTINDEX_ORG_DATE",
+    "PODCASTINDEX_ORG_USER_AGENT"
   ],
   "auth_env_var_specs": [
     {
