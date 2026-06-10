@@ -110,6 +110,24 @@ func newAuthFrom1PasswordCmd(g *globalOpts) *cobra.Command {
 				return fmt.Errorf("1Password item %q is missing username or password fields", item)
 			}
 
+			// Verifier guard: when a login/profile check is requested, never hit
+			// the live verifyLogin endpoint under PRINTING_PRESS_VERIFY. Match
+			// `auth sync-profile`: return a verify no-op and write nothing.
+			if (loginCheck || syncProfile) && IsVerifyEnv() {
+				result := map[string]interface{}{
+					"status":      "verify-noop",
+					"verify_noop": true,
+					"username":    username,
+				}
+				if g.json {
+					return printJSON(result)
+				}
+				fmt.Printf("Loaded credentials for %s from 1Password (vault=%s, item=%s).\n", username, vault, item)
+				fmt.Println("Password loaded into memory only; not printed or stored.")
+				fmt.Println("VERIFY NO-OP (PRINTING_PRESS_VERIFY=1): not contacting MasterPark; login not validated and profile not synced.")
+				return nil
+			}
+
 			loginValidated := false
 			var profile *config.Profile
 			if loginCheck || syncProfile {

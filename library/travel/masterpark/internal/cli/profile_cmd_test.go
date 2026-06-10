@@ -222,6 +222,86 @@ func TestAuthFrom1PasswordSaveSyncProfilePersists(t *testing.T) {
 	}
 }
 
+// TestAuthFrom1PasswordSyncProfileVerifyNoop verifies that under
+// PRINTING_PRESS_VERIFY=1, `auth from-1password --sync-profile` returns a
+// verify no-op, never contacts the live verifyLogin endpoint, and writes
+// nothing to config. This mirrors the standalone `auth sync-profile` guard.
+func TestAuthFrom1PasswordSyncProfileVerifyNoop(t *testing.T) {
+	fakeOpOnPath(t)
+	contacted := false
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		contacted = true
+		t.Errorf("MasterPark must not be contacted under PRINTING_PRESS_VERIFY: %s", r.URL.Path)
+		w.WriteHeader(http.StatusInternalServerError)
+	})
+	srv := httptest.NewServer(mux)
+	t.Cleanup(srv.Close)
+
+	t.Setenv("MASTERPARK_BASE_URL", srv.URL)
+	t.Setenv("PRINTING_PRESS_VERIFY", "1")
+
+	dir := t.TempDir()
+	cfgPath := filepath.Join(dir, "config.json")
+
+	g := &globalOpts{timeout: 5 * time.Second, configPath: cfgPath, json: true}
+	out, err := runCmd(t, newAuthCmd(g), "from-1password", "--save", "--sync-profile", "--lot", "B")
+	if err != nil {
+		t.Fatalf("from-1password --sync-profile under verify: %v", err)
+	}
+	if contacted {
+		t.Fatalf("verifyLogin endpoint was contacted under verify env")
+	}
+
+	var res map[string]interface{}
+	if uerr := json.Unmarshal([]byte(out), &res); uerr != nil {
+		t.Fatalf("parse json output %q: %v", out, uerr)
+	}
+	if res["verify_noop"] != true {
+		t.Errorf("expected verify_noop=true, got %v", res["verify_noop"])
+	}
+	if strings.Contains(out, fakeOpPasswordSentinel) {
+		t.Errorf("output must not leak the password: %s", out)
+	}
+
+	// Nothing must be persisted even with --save in the verify-noop branch.
+	if _, statErr := os.Stat(cfgPath); statErr == nil {
+		t.Errorf("config file must not be written in verify-noop branch")
+	}
+}
+
+// TestAuthFrom1PasswordLoginCheckVerifyNoop verifies the `--login-check` path is
+// equally guarded under PRINTING_PRESS_VERIFY=1.
+func TestAuthFrom1PasswordLoginCheckVerifyNoop(t *testing.T) {
+	fakeOpOnPath(t)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		t.Errorf("MasterPark must not be contacted under PRINTING_PRESS_VERIFY: %s", r.URL.Path)
+		w.WriteHeader(http.StatusInternalServerError)
+	})
+	srv := httptest.NewServer(mux)
+	t.Cleanup(srv.Close)
+
+	t.Setenv("MASTERPARK_BASE_URL", srv.URL)
+	t.Setenv("PRINTING_PRESS_VERIFY", "1")
+
+	dir := t.TempDir()
+	cfgPath := filepath.Join(dir, "config.json")
+
+	g := &globalOpts{timeout: 5 * time.Second, configPath: cfgPath, json: true}
+	out, err := runCmd(t, newAuthCmd(g), "from-1password", "--login-check", "--lot", "B")
+	if err != nil {
+		t.Fatalf("from-1password --login-check under verify: %v", err)
+	}
+	var res map[string]interface{}
+	if uerr := json.Unmarshal([]byte(out), &res); uerr != nil {
+		t.Fatalf("parse json output %q: %v", out, uerr)
+	}
+	if res["verify_noop"] != true {
+		t.Errorf("expected verify_noop=true, got %v", res["verify_noop"])
+	}
+}
+
 func TestReserveUsesSavedProfileDefaults(t *testing.T) {
 	t.Setenv("PRINTING_PRESS_VERIFY", "1")
 
