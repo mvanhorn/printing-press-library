@@ -18,8 +18,8 @@ import (
 // workspace UUID discovered during the enrollment probe (best-effort, may be
 // empty). PATCH(workspace-registry): hand-added; re-apply after regen.
 type WorkspaceEntry struct {
-	Slug string `toml:"slug"`
-	ID   string `toml:"id,omitempty"`
+	Slug string `toml:"slug" json:"slug"`
+	ID   string `toml:"id,omitempty" json:"id,omitempty"`
 }
 
 type Config struct {
