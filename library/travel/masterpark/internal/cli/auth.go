@@ -148,13 +148,21 @@ func newAuthFrom1PasswordCmd(g *globalOpts) *cobra.Command {
 			if profile != nil {
 				vehicleCount = len(profile.Vehicles)
 			}
+			// profileFetched: --sync-profile logged in and parsed a profile, but
+			// this alone does not mean anything was written to disk.
+			// profilePersisted: the profile was actually saved to config and is
+			// available to later `reserve --use-saved-profile` calls. Only this
+			// reports as profile_synced so agents don't assume persistence.
+			profileFetched := syncProfile && profile != nil
+			profilePersisted := save && profileFetched
 			result := map[string]interface{}{
 				"status":          "ok",
 				"username":        username,
 				"password_loaded": true,
 				"login_validated": loginValidated,
 				"saved_metadata":  save,
-				"profile_synced":  syncProfile && profile != nil,
+				"profile_fetched": profileFetched,
+				"profile_synced":  profilePersisted,
 				"vehicles":        vehicleCount,
 			}
 			if g.json {
@@ -168,8 +176,10 @@ func newAuthFrom1PasswordCmd(g *globalOpts) *cobra.Command {
 			if save {
 				fmt.Println("Saved non-secret 1Password reference to config.")
 			}
-			if syncProfile && profile != nil {
+			if profilePersisted {
 				fmt.Printf("Saved non-secret profile (%d vehicle(s)).\n", vehicleCount)
+			} else if profileFetched {
+				fmt.Printf("Fetched non-secret profile (%d vehicle(s)) but did not save it; re-run with --save to persist it for `reserve --use-saved-profile`.\n", vehicleCount)
 			}
 			return nil
 		},

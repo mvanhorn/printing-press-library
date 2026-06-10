@@ -77,6 +77,151 @@ func TestAuthSyncProfileSavesNonSecretProfile(t *testing.T) {
 	}
 }
 
+// fakeOpOnPath installs a stub `op` executable on PATH that returns a
+// username/password for the `op item get ... --fields label=<field>` calls the
+// from-1password command makes, so the command can run without the real 1Password
+// CLI. The password value it returns is a distinctive sentinel so tests can
+// assert it never leaks into output or config.
+func fakeOpOnPath(t *testing.T) {
+	t.Helper()
+	dir := t.TempDir()
+	script := "#!/bin/sh\n" +
+		"for a in \"$@\"; do\n" +
+		"  case \"$a\" in\n" +
+		"    label=username) echo alice@example.com; exit 0;;\n" +
+		"    label=password) echo " + fakeOpPasswordSentinel + "; exit 0;;\n" +
+		"  esac\n" +
+		"done\n" +
+		"echo unknown-field 1>&2\n" +
+		"exit 1\n"
+	opPath := filepath.Join(dir, "op")
+	if err := os.WriteFile(opPath, []byte(script), 0o755); err != nil {
+		t.Fatalf("write fake op: %v", err)
+	}
+	t.Setenv("PATH", dir+string(os.PathListSeparator)+os.Getenv("PATH"))
+}
+
+// fakeOpPasswordSentinel is the password value the stub `op` returns. It is
+// chosen to not be a substring of any benign output token (e.g. "non-secret")
+// so leak assertions are precise.
+const fakeOpPasswordSentinel = "PWVAL-do-not-leak-7Z"
+
+// TestAuthFrom1PasswordSyncProfileWithoutSaveDoesNotPersist verifies that
+// `auth from-1password --sync-profile` without `--save` reports the profile as
+// fetched-but-not-synced and writes nothing to config. Agents must not read
+// profile_synced=true as confirmation that a later `reserve --use-saved-profile`
+// can rely on a saved profile.
+func TestAuthFrom1PasswordSyncProfileWithoutSaveDoesNotPersist(t *testing.T) {
+	fakeOpOnPath(t)
+	srv := profileServer(t)
+	t.Setenv("MASTERPARK_BASE_URL", srv.URL)
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+
+	dir := t.TempDir()
+	cfgPath := filepath.Join(dir, "config.json")
+
+	g := &globalOpts{timeout: 5 * time.Second, configPath: cfgPath, json: true}
+	out, err := runCmd(t, newAuthCmd(g), "from-1password", "--sync-profile", "--lot", "B")
+	if err != nil {
+		t.Fatalf("from-1password --sync-profile: %v", err)
+	}
+
+	var res map[string]interface{}
+	if uerr := json.Unmarshal([]byte(out), &res); uerr != nil {
+		t.Fatalf("parse json output %q: %v", out, uerr)
+	}
+	if res["profile_synced"] != false {
+		t.Errorf("profile_synced must be false without --save, got %v", res["profile_synced"])
+	}
+	if res["profile_fetched"] != true {
+		t.Errorf("profile_fetched should be true after --sync-profile, got %v", res["profile_fetched"])
+	}
+	if res["saved_metadata"] != false {
+		t.Errorf("saved_metadata must be false without --save, got %v", res["saved_metadata"])
+	}
+
+	// Nothing must be persisted to disk.
+	if _, statErr := os.Stat(cfgPath); statErr == nil {
+		t.Errorf("config file must not be written without --save")
+	}
+	f, lerr := config.Load(cfgPath)
+	if lerr != nil {
+		t.Fatalf("load config: %v", lerr)
+	}
+	if f.Profile != nil {
+		t.Errorf("profile must not be saved without --save, got %+v", f.Profile)
+	}
+}
+
+// TestAuthFrom1PasswordSyncProfileWithoutSaveTextOutput verifies the plain-text
+// output does not claim the profile was saved when --save is omitted, and that
+// the password never leaks.
+func TestAuthFrom1PasswordSyncProfileWithoutSaveTextOutput(t *testing.T) {
+	fakeOpOnPath(t)
+	srv := profileServer(t)
+	t.Setenv("MASTERPARK_BASE_URL", srv.URL)
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+
+	dir := t.TempDir()
+	cfgPath := filepath.Join(dir, "config.json")
+
+	g := &globalOpts{timeout: 5 * time.Second, configPath: cfgPath}
+	out, err := runCmd(t, newAuthCmd(g), "from-1password", "--sync-profile", "--lot", "B")
+	if err != nil {
+		t.Fatalf("from-1password --sync-profile: %v", err)
+	}
+	if strings.Contains(out, "Saved non-secret profile") {
+		t.Errorf("must not claim profile saved without --save: %s", out)
+	}
+	if !strings.Contains(out, "did not save it") || !strings.Contains(out, "--save") {
+		t.Errorf("expected fetched-but-not-saved notice mentioning --save, got: %s", out)
+	}
+	if strings.Contains(out, fakeOpPasswordSentinel) {
+		t.Errorf("output must not leak the password: %s", out)
+	}
+}
+
+// TestAuthFrom1PasswordSaveSyncProfilePersists verifies that with both --save and
+// --sync-profile the profile is persisted and reported as profile_synced=true.
+func TestAuthFrom1PasswordSaveSyncProfilePersists(t *testing.T) {
+	fakeOpOnPath(t)
+	srv := profileServer(t)
+	t.Setenv("MASTERPARK_BASE_URL", srv.URL)
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+
+	dir := t.TempDir()
+	cfgPath := filepath.Join(dir, "config.json")
+
+	g := &globalOpts{timeout: 5 * time.Second, configPath: cfgPath, json: true}
+	out, err := runCmd(t, newAuthCmd(g), "from-1password", "--save", "--sync-profile", "--lot", "B")
+	if err != nil {
+		t.Fatalf("from-1password --save --sync-profile: %v", err)
+	}
+
+	var res map[string]interface{}
+	if uerr := json.Unmarshal([]byte(out), &res); uerr != nil {
+		t.Fatalf("parse json output %q: %v", out, uerr)
+	}
+	if res["profile_synced"] != true {
+		t.Errorf("profile_synced must be true with --save --sync-profile, got %v", res["profile_synced"])
+	}
+	if res["profile_fetched"] != true {
+		t.Errorf("profile_fetched should be true, got %v", res["profile_fetched"])
+	}
+
+	f, lerr := config.Load(cfgPath)
+	if lerr != nil {
+		t.Fatalf("load config: %v", lerr)
+	}
+	if f.Profile == nil || len(f.Profile.Vehicles) != 1 {
+		t.Fatalf("profile must be saved with --save --sync-profile, got %+v", f.Profile)
+	}
+	raw, _ := os.ReadFile(cfgPath)
+	if strings.Contains(string(raw), fakeOpPasswordSentinel) {
+		t.Errorf("config file must never contain the password value: %s", raw)
+	}
+}
+
 func TestReserveUsesSavedProfileDefaults(t *testing.T) {
 	t.Setenv("PRINTING_PRESS_VERIFY", "1")
 
