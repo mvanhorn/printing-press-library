@@ -61,9 +61,10 @@ requires FRAMER_API_KEY (not yet implemented).`, "\n"),
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if dryRunOK(flags) {
-				return nil
-			}
+			// NOTE: no early dryRunOK() guard here — cms-sync implements its own
+			// dry-run by computing and printing the diff below and gating only the
+			// live push on `!flags.dryRun`. An early return would make --dry-run
+			// (the documented preview mode) emit nothing.
 			if collection == "" {
 				return usageErr(fmt.Errorf("--collection is required"))
 			}

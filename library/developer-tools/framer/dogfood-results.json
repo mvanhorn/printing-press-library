@@ -1,5 +1,5 @@
 {
-  "dir": "\u003ccli-dir\u003e",
+  "dir": "\u003ccli-dir\u003e/framer",
   "spec_path": "\u003ccli-dir\u003e/spec.yaml",
   "spec_source": "bundled",
   "verdict": "PASS",

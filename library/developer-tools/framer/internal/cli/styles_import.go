@@ -64,9 +64,9 @@ Live push requires FRAMER_API_KEY to be set.`, "\n"),
 			if fromFile == "" {
 				return usageErr(fmt.Errorf("required flag \"from\" not set"))
 			}
-			if dryRunOK(flags) {
-				return nil
-			}
+			// NOTE: no early dryRunOK() guard — styles-import previews via the
+			// table + the `if flags.dryRun` summary below, gating only the live
+			// push on the flag. An early return would make --dry-run emit nothing.
 
 			// Read the source file.
 			data, err := os.ReadFile(fromFile)
@@ -270,18 +270,12 @@ func loadExistingColorStyles(cmd *cobra.Command, dbPath string) map[string]strin
 	}
 	defer db.Close()
 
-	rows, err := db.List("cms-collections", 0)
+	// Existing color styles live in the styles-colors resource. (This previously
+	// loaded cms-collections — unrelated CMS data — which never matched a token.)
+	rows, err := db.List("styles-colors", 0)
 	if err != nil {
-		// Try the styles-colors resource type instead.
-		rows, err = db.List("styles-colors", 0)
-		if err != nil {
-			return existing
-		}
+		return existing
 	}
-
-	// Also try styles-colors directly.
-	colorRows, _ := db.List("styles-colors", 0)
-	rows = append(rows, colorRows...)
 
 	for _, raw := range rows {
 		var obj map[string]any

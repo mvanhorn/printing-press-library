@@ -90,7 +90,10 @@ command diffs it against the actual state to surface drift.`, "\n"),
 			}
 
 			// Load existing collection fields from the local store.
-			liveCollections := loadLiveCollections(cmd, dbPath)
+			liveCollections, err := loadLiveCollections(cmd, dbPath)
+			if err != nil {
+				return err
+			}
 
 			// Compute the diff.
 			diffs := computeSchemaDiff(schema, liveCollections)
@@ -154,7 +157,7 @@ type liveCollection struct {
 
 // loadLiveCollections reads CMS collection data from the local SQLite store
 // and extracts field definitions. Returns a map of collection name → fields.
-func loadLiveCollections(cmd *cobra.Command, dbPath string) map[string]*liveCollection {
+func loadLiveCollections(cmd *cobra.Command, dbPath string) (map[string]*liveCollection, error) {
 	if dbPath == "" {
 		dbPath = defaultDBPath("framer-pp-cli")
 	}
@@ -162,13 +165,13 @@ func loadLiveCollections(cmd *cobra.Command, dbPath string) map[string]*liveColl
 
 	db, err := store.OpenWithContext(cmd.Context(), dbPath)
 	if err != nil {
-		return collections
+		return nil, fmt.Errorf("opening local store for the live baseline: %w\nRun 'framer-pp-cli sync' first — without it every field is reported as new.", err)
 	}
 	defer db.Close()
 
 	rows, err := db.List("cms-collections", 0)
 	if err != nil {
-		return collections
+		return nil, fmt.Errorf("reading collections from local store: %w", err)
 	}
 
 	for _, raw := range rows {
@@ -206,7 +209,7 @@ func loadLiveCollections(cmd *cobra.Command, dbPath string) map[string]*liveColl
 		collections[name] = coll
 	}
 
-	return collections
+	return collections, nil
 }
 
 // computeSchemaDiff compares the desired schema against live collections.
