@@ -133,11 +133,22 @@ func (s *Store) DeleteWatch(name string) (bool, error) {
 	}
 	s.writeMu.Lock()
 	defer s.writeMu.Unlock()
-	res, err := s.db.Exec(`DELETE FROM watches WHERE name = ?`, name)
+	tx, err := s.db.Begin()
 	if err != nil {
 		return false, err
 	}
-	_, _ = s.db.Exec(`DELETE FROM watch_snapshots WHERE watch_name = ?`, name)
+	res, err := tx.Exec(`DELETE FROM watches WHERE name = ?`, name)
+	if err != nil {
+		_ = tx.Rollback()
+		return false, err
+	}
+	if _, err := tx.Exec(`DELETE FROM watch_snapshots WHERE watch_name = ?`, name); err != nil {
+		_ = tx.Rollback()
+		return false, err
+	}
+	if err := tx.Commit(); err != nil {
+		return false, err
+	}
 	n, _ := res.RowsAffected()
 	return n > 0, nil
 }

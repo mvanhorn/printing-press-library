@@ -254,6 +254,13 @@ func runWatch(ctx context.Context, client *motohunt.Client, db *store.Store, w s
 		}
 	}
 
+	// A zero-card result almost always means a transient challenge/maintenance
+	// page (HTTP 200, no matching DOM) rather than "every listing vanished".
+	// Replacing the snapshot with an empty set would flood the next run with
+	// false "new" listings, so preserve the prior snapshot instead.
+	if len(collected) == 0 {
+		return res, nil
+	}
 	if err := db.ReplaceSnapshot(w.Name, newSnap); err != nil {
 		return watchRunResult{}, fmt.Errorf("saving snapshot: %w", err)
 	}

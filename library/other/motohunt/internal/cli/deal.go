@@ -5,6 +5,7 @@ package cli
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"sort"
 	"strconv"
@@ -165,7 +166,11 @@ Mirrors 'search' facet/sort/paging flags.`,
 				d := motohunt.ParseDetail(doc, site, deals[i].ID)
 				deals[i].BaseMSRP = d.BaseMSRP
 				deals[i].ALP = d.ALP
-				deals[i].Enriched = true
+				// Only mark enriched when price-research data was actually present;
+				// MotoHunt omits the block on some listings. A truthful flag keeps
+				// `enriched == true` consumers from getting false positives and keeps
+				// data-less rows out of the gap-based re-rank.
+				deals[i].Enriched = d.ALP != "" || d.BaseMSRP != ""
 				if deals[i].Price == "" && d.Price != "" {
 					deals[i].Price = d.Price
 				}
@@ -237,5 +242,7 @@ func roundTo(v float64, places int) float64 {
 	for i := 0; i < places; i++ {
 		p *= 10
 	}
-	return float64(int64(v*p+0.5)) / p
+	// math.Round rounds half away from zero, so negative gaps (ask above ALP)
+	// round correctly; the old int64(v*p+0.5) truncated negatives toward zero.
+	return math.Round(v*p) / p
 }
