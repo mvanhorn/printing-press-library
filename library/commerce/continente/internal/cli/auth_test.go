@@ -1,9 +1,14 @@
 package cli
 
 import (
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/config"
 	"errors"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestParseContinuenteHARCookieSets(t *testing.T) {
@@ -202,6 +207,43 @@ func TestReadSecretFromStdinPropagatesReadErrors(t *testing.T) {
 	_, err := readSecretFromStdin()
 	if err == nil {
 		t.Fatal("expected error")
+	}
+}
+
+func TestPersistSessionModeSavesConfigAndClearsCache(t *testing.T) {
+	tmpDir := t.TempDir()
+	t.Setenv("HOME", tmpDir)
+
+	cfg := &config.Config{
+		BaseURL:       "https://www.continente.pt",
+		CookieJarPath: filepath.Join(tmpDir, "cookies.json"),
+		Path:          filepath.Join(tmpDir, "config.toml"),
+		SessionMode:   "guest",
+	}
+	c := client.New(cfg, time.Second, 0)
+	cacheFile := filepath.Join(tmpDir, ".cache", "continente-pp-cli", "http", "stale.json")
+	if err := os.MkdirAll(filepath.Dir(cacheFile), 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	if err := os.WriteFile(cacheFile, []byte(`{"stale":true}`), 0o644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+
+	if err := persistSessionMode(c, "imported"); err != nil {
+		t.Fatalf("persistSessionMode: %v", err)
+	}
+	if cfg.SessionMode != "imported" {
+		t.Fatalf("session mode = %q, want imported", cfg.SessionMode)
+	}
+	if _, err := os.Stat(cacheFile); !os.IsNotExist(err) {
+		t.Fatalf("expected cache file removal, stat err = %v", err)
+	}
+	saved, err := config.Load(cfg.Path)
+	if err != nil {
+		t.Fatalf("config.Load: %v", err)
+	}
+	if saved.SessionMode != "imported" {
+		t.Fatalf("saved session mode = %q, want imported", saved.SessionMode)
 	}
 }
 
