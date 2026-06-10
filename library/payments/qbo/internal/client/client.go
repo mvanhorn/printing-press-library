@@ -356,7 +356,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	resolvedPath := path
 	if c.Config != nil && c.Config.QboRealmId != "" && !strings.Contains(path, "oauth") && !strings.Contains(path, "tokens") {
 		prefix := "/v3/company/" + c.Config.QboRealmId
-		if !strings.HasPrefix(path, prefix) {
+		if !strings.Contains(c.BaseURL, "/v3/company/") && !strings.HasPrefix(path, prefix) {
 			resolvedPath = prefix + path
 		}
 	}

@@ -55,4 +55,19 @@ func TestConfigEnvironment(t *testing.T) {
 			t.Errorf("expected BaseURL %q, got %q", expected, cfg.BaseURL)
 		}
 	})
+
+	t.Run("with realm ID", func(t *testing.T) {
+		os.Setenv("QBO_ENVIRONMENT", "production")
+		os.Setenv("QBO_REALM_ID", "123456789")
+		os.Unsetenv("QBO_BASE_URL")
+		defer os.Unsetenv("QBO_REALM_ID")
+		cfg, err := Load("")
+		if err != nil {
+			t.Fatalf("failed to load config: %v", err)
+		}
+		expected := "https://quickbooks.api.intuit.com/v3/company/123456789"
+		if cfg.BaseURL != expected {
+			t.Errorf("expected BaseURL %q, got %q", expected, cfg.BaseURL)
+		}
+	})
 }

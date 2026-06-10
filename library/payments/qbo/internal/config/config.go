@@ -123,6 +123,9 @@ func Load(configPath string) (*Config, error) {
 	if v := os.Getenv("QBO_TOKEN_URL"); v != "" {
 		cfg.TokenURL = v
 	}
+	if cfg.QboRealmId != "" && !strings.Contains(cfg.BaseURL, "/v3/company/") {
+		cfg.BaseURL = strings.TrimRight(cfg.BaseURL, "/") + "/v3/company/" + cfg.QboRealmId
+	}
 	return cfg, nil
 }
 
