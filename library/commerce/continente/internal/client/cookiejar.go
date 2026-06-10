@@ -1,11 +1,14 @@
 package client
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -107,6 +110,37 @@ func (j *persistedCookieJar) ClearDomainSuffix(domainSuffix string) error {
 	}
 	j.cookies = filtered
 	return j.saveLocked()
+}
+
+func (j *persistedCookieJar) Fingerprint(u *url.URL) string {
+	if u == nil {
+		return ""
+	}
+
+	j.mu.Lock()
+	defer j.mu.Unlock()
+
+	now := j.nowFunc()
+	j.compactLocked(now)
+
+	parts := make([]string, 0, len(j.cookies))
+	for _, cookie := range j.cookies {
+		if !cookieMatchesURL(cookie, u, now) {
+			continue
+		}
+		parts = append(parts, strings.Join([]string{
+			strings.ToLower(cookie.Name),
+			cookie.Value,
+			strings.ToLower(strings.TrimPrefix(cookie.Domain, ".")),
+			cookie.Path,
+		}, "\x00"))
+	}
+	if len(parts) == 0 {
+		return ""
+	}
+	sort.Strings(parts)
+	sum := sha256.Sum256([]byte(strings.Join(parts, "\x01")))
+	return hex.EncodeToString(sum[:8])
 }
 
 func (j *persistedCookieJar) load() error {
