@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"continente-pp-cli/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/client"
 	"github.com/spf13/cobra"
 )
 
