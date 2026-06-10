@@ -61,3 +61,23 @@
   - Flight Goat and Dice FM changes — skipped; unrelated product surfaces for this sweep.
 - Validation run on branch `upstream-sweep/20260609-x-twitter-raw`: `git diff --check origin/main...HEAD`, `python3 .github/scripts/verify-skill/verify_skill.py --dir library/social-and-messaging/x-twitter/`, `(cd library/social-and-messaging/x-twitter && go test ./...)`, `(cd library/social-and-messaging/x-twitter && go build ./...)`, `(cd library/social-and-messaging/x-twitter && go vet ./...)`, and `(cd library/social-and-messaging/x-twitter && go run golang.org/x/vuln/cmd/govulncheck@latest ./...)`.
 - Policy: no public upstream push/PR; branch/PR targets private `cathrynlavery/printing-press-library` only.
+
+## 2026-06-10 — Flight Goat whole-hour Google Flights times
+
+- Base private branch: `origin/main`
+- Upstream range inspected: `origin/main..upstream/main` as of 2026-06-10 preflight (`4d925c2e6` public HEAD), with no bulk merge/rebase from `mvanhorn/*`.
+- Candidate commits considered:
+  - `43f1f5a58` fix(flight-goat): parse whole-hour departure times instead of defaulting to midnight — ported; narrow data-correctness fix for Google Flights jspb time arrays.
+  - `84d0c753c` fix(flight-goat): allow genuine midnight in fabricated-midnight regression test — ported with the parser regression test refinement.
+  - `8266a14ff`, `5e1ec9cd9`, `ab4bd6fff`, `b8f294951`, `92cbb07bb`, `9694e97bb` x-twitter raw/auth/OAuth2 fixes — skipped this sweep; the private fork already has prior x-twitter raw work in flight and the remaining auth/OAuth surface should stay separate.
+  - `59bab1464`/`75a122f65` 1Password, `dfac5568f` Cloudflare, `8f023142e` OpenArt, `ee8d0dfd7` XAI, and other new-CLI/reprint-sized commits — skipped; not a narrow private-fork maintenance port.
+  - Generated registry/skills/release-ledger commits — skipped; automation noise unless paired with selected source changes.
+  - `2c2db1093` standalone pycookiecheat multi-CLI support and broad patch-layout/release-ledger changes — deferred; useful, but too broad for the Flight Goat runtime PR.
+- Validation run on branch `upstream-sweep/20260610-flight-goat-time`:
+  - `git diff --check origin/main...HEAD` — pass.
+  - `python3 .github/scripts/verify-skill/verify_skill.py --dir library/travel/flight-goat/` — pass (`All checks passed`).
+  - `(cd library/travel/flight-goat && go test ./internal/gflights/...)` — pass.
+  - `(cd library/travel/flight-goat && go build ./...)` — pass.
+  - `(cd library/travel/flight-goat && go vet ./...)` — pass.
+  - `(cd library/travel/flight-goat && go run golang.org/x/vuln/cmd/govulncheck@latest ./...)` — blocked by Go toolchain standard-library findings in local `go1.26.3` (`GO-2026-5039`, `GO-2026-5037`; fixed in Go 1.26.4), unrelated to the touched Flight Goat parser/test code.
+- Policy: no public upstream push/PR; branch/PR targets private `cathrynlavery/printing-press-library` only.

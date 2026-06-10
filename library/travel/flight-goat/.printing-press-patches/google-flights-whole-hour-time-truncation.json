@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "google-flights-whole-hour-time-truncation",
+  "applied_at": "2026-06-07",
+  "base_run_id": "2026-05-02T22:09:06.820184Z",
+  "base_printing_press_version": "3.6.0",
+  "files": [
+    "internal/gflights/flights_native.go",
+    "internal/gflights/flights_native_test.go"
+  ],
+  "summary": "Google Flights' batchexecute payload is jspb-style and drops trailing zero-valued array elements, so a whole-hour leg time (e.g. 17:00 or 05:00) arrives as a single-element array [17] rather than [17,0]. The leg date/time decoder must read the hour from element 0 even when the minute element is absent (minute defaults to 0); it must NOT require a two-element array, and it must NOT fabricate 00:00 when the hour is present.",
+  "reason": "The original decoder required len(time) >= 2 before reading the hour, so every whole-hour departure/arrival fell through to hour=0,min=0 and was emitted as a fabricated T00:00:00. This silently corrupted ~10-14% of legs (confirmed in the dense SEA-BKK fixture: 26 of 251 departure-time arrays and 21 arrival-time arrays are single-element). A genuinely-absent time (empty/missing array) still returns an empty string rather than a fabricated midnight, so downstream consumers can distinguish 'no data' from a real midnight departure.",
+  "validated_outcome": "go test ./internal/gflights/... -run 'TestFormatLegDateTime|TestParseOfferLegWholeHour|TestParseOffersResponseNoFabricatedMidnight'; the dense SEA-BKK fixture now yields zero fabricated T00:00:00 departures/arrivals, and [17]->17:00, [5]->05:00 decode correctly while [15,5]->15:05 is unchanged."
+}
