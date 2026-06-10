@@ -1,0 +1,14 @@
+{
+  "id": "podcastindex-tgrep",
+  "summary": "Implemented the tgrep novel command (downloads transcripts[] files and full-text searches them).",
+  "reason": "Generator emitted a TODO stub for the novel feature; transcript search is hand-authored.",
+  "files": [
+    "internal/cli/tgrep.go",
+    "internal/cli/tgrep_test.go"
+  ],
+  "validated_outcome": "Live: scanned Podcasting 2.0 (feed 920666), 4/4 episodes matched 'value' with snippets; unit tests pass.",
+  "schema_version": 2,
+  "applied_at": "2026-06-10",
+  "base_run_id": "20260610-113323-a453895b",
+  "base_printing_press_version": "4.24.0"
+}

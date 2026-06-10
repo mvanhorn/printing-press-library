@@ -1,0 +1,51 @@
+version: 2
+project_name: podcastindex-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: podcastindex-pp-cli
+    main: ./cmd/podcastindex-pp-cli
+    binary: podcastindex-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/podcastindex/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: podcastindex-pp-mcp
+    main: ./cmd/podcastindex-pp-mcp
+    binary: podcastindex-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: podcastindex-pp-cli
+    repository:
+      owner: adbonnet
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The only PodcastIndex tool that is agent-native and works offline: search, resolve"
+    install: |
+      bin.install "podcastindex-pp-cli"
+      bin.install "podcastindex-pp-mcp"

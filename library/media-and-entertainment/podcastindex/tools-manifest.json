@@ -1,0 +1,1363 @@
+{
+  "api_name": "podcastindex",
+  "base_url": "https://api.podcastindex.org/api/1.0",
+  "description": "The only PodcastIndex tool that is agent-native and works offline: search, resolve, and analyse any podcast from one signed binary with a local mirror you can FTS and SQL.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "X-Auth-Key",
+    "in": "header",
+    "env_vars": [
+      "PODCASTINDEX_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "PODCASTINDEX_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://github.com/tbowers/python-podcastindex-org-lambda"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "add_byfeedurl-get",
+      "description": "This call adds a podcast to the index using its feed url. If a feed already exists, you will get its existing Feed ID returned. **NOTE**: this endpoint requires an API Key with the **write** permission. Example: https://api.podcastindex.org/api/1.0/add/byfeedurl?url=https://feeds.theincomparable.com/batmanuniversity\u0026pretty. Required: url, chash. Optional: itunesid, pretty. Returns the AddByfeedurlGetResponse.",
+      "method": "GET",
+      "path": "/add/byfeedurl",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Podcast feed URL",
+          "required": true
+        },
+        {
+          "name": "chash",
+          "type": "string",
+          "location": "query",
+          "description": "The md5 hash of the following feed items in hex format. If known, allows for easier duplicate checking. - `title` - `link` - `feedLanguage` - `generator` - `author` - `ownerName` - `ownerEmail` (note: not exposed via the API) Pseudo-code: chash = md5(title+link+feedLanguage+generator+author+ownerName+ownerEmail)",
+          "required": true
+        },
+        {
+          "name": "itunesid",
+          "type": "int",
+          "location": "query",
+          "description": "If this parameter is given, and the existing feed has no associated iTunes ID, it will be associated with this ID. If an existing iTunes ID is already associated with this feed it will **NOT** be changed."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "add_byfeedurl-post",
+      "description": "This call adds a podcast to the index using its feed url. If a feed already exists, you will get its existing Feed ID returned. **NOTE**: this endpoint requires an API Key with the **write** permission. Example: https://api.podcastindex.org/api/1.0/add/byfeedurl?url=https://feeds.theincomparable.com/batmanuniversity\u0026pretty. Required: url. Optional: itunesid, pretty. Returns the new AddByfeedurlPostResponse.",
+      "method": "POST",
+      "path": "/add/byfeedurl",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Podcast feed URL",
+          "required": true
+        },
+        {
+          "name": "itunesid",
+          "type": "int",
+          "location": "query",
+          "description": "If this parameter is given, and the existing feed has no associated iTunes ID, it will be associated with this ID. If an existing iTunes ID is already associated with this feed it will **NOT** be changed."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "add_byitunesid-get",
+      "description": "This call adds a podcast to the index using its iTunes ID. If a feed already exists, it will be noted in the response. **NOTE**: this endpoint requires an API Key with the **write** permission. Example: https://api.podcastindex.org/api/1.0/add/byitunesid?id=1441923632\u0026pretty. Optional: id, pretty. Returns the AddByitunesidGetResponse.",
+      "method": "GET",
+      "path": "/add/byitunesid",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "The iTunes ID to add"
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "add_byitunesid-post",
+      "description": "This call adds a podcast to the index using its iTunes ID. If a feed already exists, it will be noted in the response. **NOTE**: this endpoint requires an API Key with the **write** permission. Example: https://api.podcastindex.org/api/1.0/add/byitunesid?id=1441923632\u0026pretty. Optional: id, pretty. Returns the new AddByitunesidPostResponse.",
+      "method": "POST",
+      "path": "/add/byitunesid",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "The iTunes ID to add"
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "categories_list",
+      "description": "Return all the possible categories supported by the index. Example: https://api.podcastindex.org/api/1.0/categories/list?pretty. Optional: pretty. Returns array of FeedCategories.",
+      "method": "GET",
+      "path": "/categories/list",
+      "params": [
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "episodes_byfeedid",
+      "description": "This call returns all the episodes we know about for this feed from the PodcastIndex ID. Episodes are in reverse chronological order. When using the `enclosure` parameter, only the episode matching the URL is returned. Examples: - https://api.podcastindex.org/api/1.0/episodes/byfeedid?id=75075\u0026pretty - https://api.podcastindex.org/api/1.0/episodes/byfeedid?id=41504,920666\u0026pretty - https://api.podcastindex.org/api/1.0/episodes/byfeedid?id=75075\u0026newest\u0026pretty - https://api.podcastindex.org/api/1.0/episodes/byfeedid?id=41504,920666\u0026newest\u0026pretty - Includes `persons`: https://api.podcastindex.org/api/1.0/episodes/byfeedid?id=169991\u0026pretty - Includes `value`: https://api.podcastindex.org/api/1.0/episodes/byfeedid?id=4058673\u0026pretty - Using `enclosure`: https://api.podcastindex.org/api/1.0/episodes/byfeedid?id=41504\u0026enclosure=https://op3.dev/e/mp3s.nashownotes.com/NA-1551-2023-04-30-Final.mp3\u0026pretty. Required: id. Optional: since, max, enclosure (plus 3 more).",
+      "method": "GET",
+      "path": "/episodes/byfeedid",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "The PodcastIndex Feed ID or IDs to search for. If searching for multiple IDs, separate values with a comma. A maximum of 200 IDs can be provided.",
+          "required": true
+        },
+        {
+          "name": "since",
+          "type": "int",
+          "location": "query",
+          "description": "Return items since the specified epoch timestamp."
+        },
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "enclosure",
+          "type": "string",
+          "location": "query",
+          "description": "The URL for the episode enclosure to get the information for."
+        },
+        {
+          "name": "fulltext",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, return the full text value of any text fields (ex: `description`)."
+        },
+        {
+          "name": "newest",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, returns only the most recent (newest) episode for each specified feed id. Parameter shall not have a value"
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "episodes_byfeedurl",
+      "description": "This call returns all the episodes we know about for this feed from the feed URL. Episodes are in reverse chronological order. Examples: - https://api.podcastindex.org/api/1.0/episodes/byfeedurl?url=https://feeds.theincomparable.com/batmanuniversity\u0026pretty - Includes `persons`: https://api.podcastindex.org/api/1.0/episodes/byfeedurl?url=https://engineered.network/pragmatic/feed/index.xml\u0026pretty - Includes `value`: https://api.podcastindex.org/api/1.0/episodes/byfeedurl?url=https://closing-the-loop.github.io/feed.xml\u0026pretty. Required: url. Optional: since, max, fulltext (plus 1 more).",
+      "method": "GET",
+      "path": "/episodes/byfeedurl",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Podcast feed URL",
+          "required": true
+        },
+        {
+          "name": "since",
+          "type": "int",
+          "location": "query",
+          "description": "Return items since the specified epoch timestamp."
+        },
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "fulltext",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, return the full text value of any text fields (ex: `description`)."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "episodes_byguid",
+      "description": "Get all the metadata for a single episode by passing its guid and the feed id or URL. The `feedid`, `feedurl`, or `podcastguid` is required. Examples: - Search using Podcast Index feed ID: https://api.podcastindex.org/api/1.0/episodes/byguid?guid=PC2084\u0026feedid=920666\u0026pretty - Search using feed URL: https://api.podcastindex.org/api/1.0/episodes/byguid?guid=PC2084\u0026feedurl=http://mp3s.nashownotes.com/pc20rss.xml\u0026pretty. Required: guid. Optional: feedurl, feedid, podcastguid (plus 2 more). Returns the EpisodesByguidResponse.",
+      "method": "GET",
+      "path": "/episodes/byguid",
+      "params": [
+        {
+          "name": "guid",
+          "type": "string",
+          "location": "query",
+          "description": "The guid value for the episode to retrieve. This value is the value specified in the feed's `\u003cguid\u003e` field.",
+          "required": true
+        },
+        {
+          "name": "feedurl",
+          "type": "string",
+          "location": "query",
+          "description": "The Feed URL"
+        },
+        {
+          "name": "feedid",
+          "type": "string",
+          "location": "query",
+          "description": "The PodcastIndex Feed ID"
+        },
+        {
+          "name": "podcastguid",
+          "type": "string",
+          "location": "query",
+          "description": "The GUID from the `podcast:guid` tag in the feed. This value is a unique, global identifier for the podcast. See the namespace spec for [guid](https://github.com/Podcastindex-org/podcast-namespace/blob/main/docs/1.0.md#guid) for details."
+        },
+        {
+          "name": "fulltext",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, return the full text value of any text fields (ex: `description`)."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "episodes_byid",
+      "description": "Get all the metadata for a single episode by passing its id. Example: https://api.podcastindex.org/api/1.0/episodes/byid?id=16795090\u0026pretty. Required: id. Optional: fulltext, pretty. Returns the EpisodesByidResponse.",
+      "method": "GET",
+      "path": "/episodes/byid",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "The PodcastIndex episode ID to search for.",
+          "required": true
+        },
+        {
+          "name": "fulltext",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, return the full text value of any text fields (ex: `description`)."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "episodes_byitunesid",
+      "description": "This call returns all the episodes we know about for this feed from the iTunes ID. Episodes are in reverse chronological order. When using the `enclosure` parameter, only the episode matching the URL is returned. Examples: - https://api.podcastindex.org/api/1.0/episodes/byitunesid?id=1441923632\u0026pretty - Using `enclosure`: https://api.podcastindex.org/api/1.0/episodes/byitunesid?id=269169796\u0026enclosure=https://op3.dev/e/mp3s.nashownotes.com/NA-1551-2023-04-30-Final.mp3\u0026pretty. Required: id. Optional: since, max, enclosure (plus 2 more).",
+      "method": "GET",
+      "path": "/episodes/byitunesid",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "The iTunes Feed ID to search for",
+          "required": true
+        },
+        {
+          "name": "since",
+          "type": "int",
+          "location": "query",
+          "description": "Return items since the specified epoch timestamp."
+        },
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "enclosure",
+          "type": "string",
+          "location": "query",
+          "description": "The URL for the episode enclosure to get the information for."
+        },
+        {
+          "name": "fulltext",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, return the full text value of any text fields (ex: `description`)."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "episodes_bypodcastguid",
+      "description": "This call returns all the episodes we know about for this feed from the [Podcast GUID](https://github.com/Podcastindex-org/podcast-namespace/blob/main/docs/1.0.md#guid). Episodes are in reverse chronological order. Example: https://api.podcastindex.org/api/1.0/episodes/bypodcastguid?guid=856cd618-7f34-57ea-9b84-3600f1f65e7f\u0026pretty. Required: guid. Optional: since, max, fulltext (plus 1 more).",
+      "method": "GET",
+      "path": "/episodes/bypodcastguid",
+      "params": [
+        {
+          "name": "guid",
+          "type": "string",
+          "location": "query",
+          "description": "The GUID from the `podcast:guid` tag in the feed.",
+          "required": true
+        },
+        {
+          "name": "since",
+          "type": "int",
+          "location": "query",
+          "description": "Return items since the specified epoch timestamp."
+        },
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "fulltext",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, return the full text value of any text fields (ex: `description`)."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "episodes_live",
+      "description": "Get all episodes that have been found in the [podcast:liveitem](https://github.com/Podcastindex-org/podcast-namespace/blob/main/docs/1.0.md#live-item) from the feeds. Examples: - https://api.podcastindex.org/api/1.0/episodes/live?pretty. Optional: max, pretty. Returns array of ItemPodcastLive.",
+      "method": "GET",
+      "path": "/episodes/live",
+      "params": [
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "episodes_random",
+      "description": "This call returns a random batch of episodes, in no specific order. Examples: - https://api.podcastindex.org/api/1.0/episodes/random?notcat=News,Religion\u0026lang=en,es\u0026pretty - https://api.podcastindex.org/api/1.0/episodes/random?max=2\u0026pretty. Optional: max (default: 1), lang, cat (plus 3 more).",
+      "method": "GET",
+      "path": "/episodes/random",
+      "params": [
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Specifying a language code (like 'en') will return only episodes having that specific language."
+        },
+        {
+          "name": "cat",
+          "type": "string",
+          "location": "query",
+          "description": "Use this argument to specify that you **ONLY** want episodes with these categories in the..."
+        },
+        {
+          "name": "notcat",
+          "type": "string",
+          "location": "query",
+          "description": "Use this argument to specify categories of episodes to **NOT** show in the results."
+        },
+        {
+          "name": "fulltext",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, return the full text value of any text fields (ex: `description`)."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "find_search",
+      "description": "Replaces the Apple search API but returns data from the Podcast Index database. Note: No API key needed for this endpoint. Example: - Apple: https://itunes.apple.com/search?media=podcast\u0026entity=podcast\u0026term=batman - PodcastIndex: https://api.podcastindex.org/search?term=batman. Required: term. Optional: pretty. (public)",
+      "method": "GET",
+      "path": "/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "term",
+          "type": "string",
+          "location": "query",
+          "description": "The term to search for",
+          "required": true
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "find_search-byperson",
+      "description": "This call returns all of the episodes where the specified person is mentioned. It searches the following fields: - Person tags - Episode title - Episode description - Feed owner - Feed author Examples: - https://api.podcastindex.org/api/1.0/search/byperson?q=adam%20curry\u0026pretty - https://api.podcastindex.org/api/1.0/search/byperson?q=Martin+Mouritzen\u0026pretty - https://api.podcastindex.org/api/1.0/search/byperson?q=Klaus+Schwab\u0026pretty. Required: q. Optional: max, fulltext, pretty.",
+      "method": "GET",
+      "path": "/search/byperson",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Person search for",
+          "required": true
+        },
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "fulltext",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, return the full text value of any text fields (ex: `description`)."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "find_search-byterm",
+      "description": "This call returns all of the feeds that match the search terms in the `title`, `author` or `owner` of the feed. Example: https://api.podcastindex.org/api/1.0/search/byterm?q=batman+university\u0026pretty. Required: q. Optional: val, max, aponly (plus 4 more).",
+      "method": "GET",
+      "path": "/search/byterm",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Terms to search for",
+          "required": true
+        },
+        {
+          "name": "val",
+          "type": "string",
+          "location": "query",
+          "description": "Only returns feeds with a `value` block of the specified type."
+        },
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "aponly",
+          "type": "bool",
+          "location": "query",
+          "description": "Only returns feeds with an `itunesId`."
+        },
+        {
+          "name": "clean",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, only non-explicit feeds will be returned."
+        },
+        {
+          "name": "similar",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, include similar matches in search response. For `search/byterm`, prioritizes title matches."
+        },
+        {
+          "name": "fulltext",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, return the full text value of any text fields (ex: `description`)."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "find_search-bytitle",
+      "description": "This call returns all of the feeds where the `title` of the feed matches the search term (ignores case). Example 'everything everywhere daily' will match the podcast [Everything Everywhere Daily](https://podcastindex.org/podcast/437685) by 'everything everywhere' will not. Example: https://api.podcastindex.org/api/1.0/search/bytitle?q=everything+everywhere+daily\u0026pretty. Required: q. Optional: val, max, clean (plus 3 more).",
+      "method": "GET",
+      "path": "/search/bytitle",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Terms to search for",
+          "required": true
+        },
+        {
+          "name": "val",
+          "type": "string",
+          "location": "query",
+          "description": "Only returns feeds with a `value` block of the specified type."
+        },
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "clean",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, only non-explicit feeds will be returned."
+        },
+        {
+          "name": "fulltext",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, return the full text value of any text fields (ex: `description`)."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        },
+        {
+          "name": "similar",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, include similar matches in search response. For `search/byterm`, prioritizes title matches."
+        }
+      ]
+    },
+    {
+      "name": "find_search-music-byterm",
+      "description": "This call returns all of the feeds that match the search terms in the `title`, `author` or `owner` of the \u003cfeed\u003e\u003c/feed\u003e where the [medium](https://github.com/Podcastindex-org/podcast-namespace/blob/main/docs/1.0.md#medium) is `music`. Example: https://api.podcastindex.org/api/1.0/search/music/byterm?q=able+kirby\u0026pretty. Required: q. Optional: val, aponly, max (plus 3 more).",
+      "method": "GET",
+      "path": "/search/music/byterm",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Terms to search for",
+          "required": true
+        },
+        {
+          "name": "val",
+          "type": "string",
+          "location": "query",
+          "description": "Only returns feeds with a `value` block of the specified type."
+        },
+        {
+          "name": "aponly",
+          "type": "bool",
+          "location": "query",
+          "description": "Only returns feeds with an `itunesId`."
+        },
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "clean",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, only non-explicit feeds will be returned."
+        },
+        {
+          "name": "fulltext",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, return the full text value of any text fields (ex: `description`)."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "hub_pubnotify",
+      "description": "Notify the index that a feed has changed Note: No API key needed for this endpoint. Examples: - https://api.podcastindex.org/api/1.0/hub/pubnotify?id=920666\u0026pretty - https://api.podcastindex.org/api/1.0/hub/pubnotify?url=https://feeds.theincomparable.com/batmanuniversity\u0026pretty. Optional: id, url, pretty. Returns the HubPubnotifyResponse. (public)",
+      "method": "GET",
+      "path": "/hub/pubnotify",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "The PodcastIndex Feed ID The `id` or the `url` is required."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Podcast feed URL The `id` or the `url` is required."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "lookup_lookup",
+      "description": "Replaces the Apple podcast lookup API but returns data from the Podcast Index database. Note: No API key needed for this endpoint. Example: - Apple: https://itunes.apple.com/lookup?media=podcast\u0026entity=podcast\u0026id=1636765656 - PodcastIndex: https://api.podcastindex.org/lookup?entity=podcast\u0026id=1636765656. Required: id, entity. Optional: pretty. (public)",
+      "method": "GET",
+      "path": "/lookup",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "The iTunes Feed ID to search for",
+          "required": true
+        },
+        {
+          "name": "entity",
+          "type": "string",
+          "location": "query",
+          "description": "The iTunes entity type to look in",
+          "required": true
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "podcasts_batch-byguid",
+      "description": "This call returns everything we know about the feed from the feed's GUID provided in JSON array in the body of the request. The GUID is a unique, global identifier for the podcast. See the namespace spec for [guid](https://github.com/Podcastindex-org/podcast-namespace/blob/main/docs/1.0.md#guid) for details. Optional: pretty.",
+      "method": "POST",
+      "path": "/podcasts/batch/byguid",
+      "params": [
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "podcasts_byfeedid",
+      "description": "This call returns everything we know about the feed from the PodcastIndex ID Examples: - https://api.podcastindex.org/api/1.0/podcasts/byfeedid?id=75075\u0026pretty - Includes `value` and `funding`: https://api.podcastindex.org/api/1.0/podcasts/byfeedid?id=169991\u0026pretty. Required: id. Optional: pretty.",
+      "method": "GET",
+      "path": "/podcasts/byfeedid",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "The PodcastIndex Feed ID",
+          "required": true
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "podcasts_byfeedurl",
+      "description": "This call returns everything we know about the feed from the feed URL Examples: - https://api.podcastindex.org/api/1.0/podcasts/byfeedurl?url=https://feeds.theincomparable.com/batmanuniversity\u0026pretty - Includes `value` and `funding`: https://api.podcastindex.org/api/1.0/podcasts/byfeedurl?url=https://engineered.network/pragmatic/feed/index.xml\u0026pretty. Required: url. Optional: pretty.",
+      "method": "GET",
+      "path": "/podcasts/byfeedurl",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Podcast feed URL",
+          "required": true
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "podcasts_byguid",
+      "description": "This call returns everything we know about the feed from the feed's GUID. The GUID is a unique, global identifier for the podcast. See the namespace spec for [guid](https://github.com/Podcastindex-org/podcast-namespace/blob/main/docs/1.0.md#guid) for details. Examples: - https://api.podcastindex.org/api/1.0/podcasts/byguid?guid=9b024349-ccf0-5f69-a609-6b82873eab3c\u0026pretty - Includes `value` and `funding`: https://api.podcastindex.org/api/1.0/podcasts/byguid?guid=9b024349-ccf0-5f69-a609-6b82873eab3c\u0026pretty. Required: guid. Optional: pretty.",
+      "method": "GET",
+      "path": "/podcasts/byguid",
+      "params": [
+        {
+          "name": "guid",
+          "type": "string",
+          "location": "query",
+          "description": "The GUID from the `podcast:guid` tag in the feed.",
+          "required": true
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "podcasts_byitunesid",
+      "description": "This call returns everything we know about the feed from the iTunes ID Example: https://api.podcastindex.org/api/1.0/podcasts/byitunesid?id=1441923632\u0026pretty. Required: id. Optional: pretty.",
+      "method": "GET",
+      "path": "/podcasts/byitunesid",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "The iTunes Feed ID to search for",
+          "required": true
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "podcasts_bymedium",
+      "description": "This call returns all feeds marked with the specified [medium](https://github.com/Podcastindex-org/podcast-namespace/blob/main/docs/1.0.md#medium) tag value. Example: https://api.podcastindex.org/api/1.0/podcasts/bymedium?medium=music\u0026pretty. Optional: medium, max, pretty.",
+      "method": "GET",
+      "path": "/podcasts/bymedium",
+      "params": [
+        {
+          "name": "medium",
+          "type": "string",
+          "location": "query",
+          "description": "The medium value to search for. Full list of possible values documented in [medium](https://github.com/Podcastindex-org/podcast-namespace/blob/main/docs/1.0.md#medium) tag spec."
+        },
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "podcasts_bytag",
+      "description": "This call returns all feeds that support the specified [podcast namespace](https://github.com/Podcastindex-org/podcast-namespace/blob/main/docs/1.0.md) tag. The only supported tags are: - `podcast:value` using the `podcast-value` parameter - `podcast:valueTimeSplit` using the `podcast-valueTimeSplit` parameter Only the `podcast-value` or `podcast-valueTimeSplit` parameter should be used. If multiple are specified, the first parameter is used and the others are ignored. When called without a `start_at` value, the top 500 feeds sorted by popularity are returned in descending order. When called with a `start_at` value, the feeds are returned sorted by the `feedId` starting with the specified value up to the max number of feeds to return. The `nextStartAt` specifies the value to pass to the next `start_at`. Repeat this sequence until no items are returned. Examples: - https://api.podcastindex.org/api/1.0/podcasts/bytag?podcast-value\u0026max=200\u0026pretty - https://api.podcastindex.org/api/1.0/podcasts/bytag?podcast-value\u0026max=200\u0026start_at=1\u0026pretty - https://api.podcastindex.org/api/1.0/podcasts/bytag?podcast-valueTimeSplit\u0026pretty. Optional: podcast-value, podcast-valueTimeSplit, max (plus 2 more).",
+      "method": "GET",
+      "path": "/podcasts/bytag",
+      "params": [
+        {
+          "name": "podcast-value",
+          "type": "bool",
+          "location": "query",
+          "description": "Get feeds supporting the [`podcast:value`](https://github.com/Podcastindex-org/podcast-namespace/blob/main/docs/1.0.md#value) tag. Parameter shall not have a value"
+        },
+        {
+          "name": "podcast-valueTimeSplit",
+          "type": "bool",
+          "location": "query",
+          "description": "Get feeds supporting the [`podcast:valueTimeSplit`](https://github.com/Podcastindex-org/podcast-namespace/blob/main/docs/1.0.md#value-time-split) tag. Parameter shall not have a value"
+        },
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "start_at",
+          "type": "int",
+          "location": "query",
+          "description": "Feed ID to start at for request"
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "podcasts_dead",
+      "description": "This call returns all feeds that have been marked dead (`dead` == 1) Hourly statistics can also be access at https://public.podcastindex.org/podcastindex_dead_feeds.csv For details, see [Dead Feeds](#get-/static/public/podcastindex_dead_feeds.csv). Example: https://api.podcastindex.org/api/1.0/podcasts/dead?pretty. Optional: pretty.",
+      "method": "GET",
+      "path": "/podcasts/dead",
+      "params": [
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "podcasts_trending",
+      "description": "This call returns the podcasts/feeds that in the index that are trending. Example: https://api.podcastindex.org/api/1.0/podcasts/trending?pretty. Optional: max, since, lang (plus 3 more).",
+      "method": "GET",
+      "path": "/podcasts/trending",
+      "params": [
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "since",
+          "type": "int",
+          "location": "query",
+          "description": "Return items since the specified epoch timestamp."
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Specifying a language code (like 'en') will return only episodes having that specific language."
+        },
+        {
+          "name": "cat",
+          "type": "string",
+          "location": "query",
+          "description": "Use this argument to specify that you **ONLY** want episodes with these categories in the..."
+        },
+        {
+          "name": "notcat",
+          "type": "string",
+          "location": "query",
+          "description": "Use this argument to specify categories of episodes to **NOT** show in the results."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "recent_data",
+      "description": "This call returns every new feed and episode added to the index over the past 24 hours in reverse chronological order. This is similar to `/recent/feeds` but uses the date the feed was found by the index rather than the feed's internal timestamp. Similar data can also be accessed using object storage root url https://tracking.podcastindex.org/current For details, see [Current](#get-/static/tracking/current). Examples: - https://api.podcastindex.org/api/1.0/recent/data?pretty - https://api.podcastindex.org/api/1.0/recent/data?pretty\u0026max=10 - https://api.podcastindex.org/api/1.0/recent/data?pretty\u0026max=10\u0026since=1671164867. Optional: max (default: 1000), since, pretty.",
+      "method": "GET",
+      "path": "/recent/data",
+      "params": [
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return (includes both `feeds` and `items`)."
+        },
+        {
+          "name": "since",
+          "type": "int",
+          "location": "query",
+          "description": "Return items since the specified epoch timestamp."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "recent_episodes",
+      "description": "This call returns the most recent `max` number of episodes globally across the whole index, in reverse chronological order. Example: https://api.podcastindex.org/api/1.0/recent/episodes?max=7\u0026pretty. Optional: max (default: 10), excludeString, before (plus 2 more).",
+      "method": "GET",
+      "path": "/recent/episodes",
+      "params": [
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "excludeString",
+          "type": "string",
+          "location": "query",
+          "description": "Any item containing this string will be discarded from the result set. This may, in certain cases, reduce your set size below your `max` value. Matches against the `title` and URL properties."
+        },
+        {
+          "name": "before",
+          "type": "int",
+          "location": "query",
+          "description": "If you pass a PodcastIndex Episode ID, you will get recent episodes before that ID, allowing you to walk back through the episode history sequentially."
+        },
+        {
+          "name": "fulltext",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, return the full text value of any text fields (ex: `description`)."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "recent_feeds",
+      "description": "This call returns the most recent `max` feeds, in reverse chronological order. Examples: - https://api.podcastindex.org/api/1.0/recent/feeds?pretty - https://api.podcastindex.org/api/1.0/recent/feeds?max=20\u0026cat=102,health\u0026lang=de,ja\u0026pretty. Optional: max (default: 40), since, lang (plus 3 more).",
+      "method": "GET",
+      "path": "/recent/feeds",
+      "params": [
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "since",
+          "type": "int",
+          "location": "query",
+          "description": "Return items since the specified epoch timestamp."
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Specifying a language code (like 'en') will return only episodes having that specific language."
+        },
+        {
+          "name": "cat",
+          "type": "string",
+          "location": "query",
+          "description": "Use this argument to specify that you **ONLY** want episodes with these categories in the..."
+        },
+        {
+          "name": "notcat",
+          "type": "string",
+          "location": "query",
+          "description": "Use this argument to specify categories of episodes to **NOT** show in the results."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "recent_newfeeds",
+      "description": "This call returns every new feed added to the index over the past 24 hours in reverse chronological order. Examples: - https://api.podcastindex.org/api/1.0/recent/newfeeds?pretty - https://api.podcastindex.org/api/1.0/recent/newfeeds?pretty\u0026since=1613805000 - https://api.podcastindex.org/api/1.0/recent/newfeeds?feedid=2653471\u0026pretty - https://api.podcastindex.org/api/1.0/recent/newfeeds?feedid=2653471\u0026desc\u0026pretty. Optional: max (default: 40), since, feedid (plus 2 more).",
+      "method": "GET",
+      "path": "/recent/newfeeds",
+      "params": [
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "since",
+          "type": "int",
+          "location": "query",
+          "description": "Return items since the specified epoch timestamp."
+        },
+        {
+          "name": "feedid",
+          "type": "string",
+          "location": "query",
+          "description": "The PodcastIndex Feed ID to start from (or go to if `desc` specified). If `since` parameter also specified, value of `since` is ignored."
+        },
+        {
+          "name": "desc",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, display feeds in descending order. Only applicable when using `feedid` parameter. Parameter shall not have a value"
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "recent_newvaluefeeds",
+      "description": "This call returns feeds that have added a `value` tag in reverse chronological order. Example: https://api.podcastindex.org/api/1.0/recent/newvaluefeeds?pretty. Optional: max (default: 40), since, pretty.",
+      "method": "GET",
+      "path": "/recent/newvaluefeeds",
+      "params": [
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "since",
+          "type": "int",
+          "location": "query",
+          "description": "Return items since the specified epoch timestamp."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "recent_soundbites",
+      "description": "This call returns the most recent `max` soundbites that the index has discovered. A soundbite consists of an enclosure url, a start time and a duration. It is documented in the [podcast namespace](https://github.com/Podcastindex-org/podcast-namespace/blob/main/docs/1.0.md#soundbite). Example: https://api.podcastindex.org/api/1.0/recent/soundbites?pretty. Optional: max (default: 60), pretty.",
+      "method": "GET",
+      "path": "/recent/soundbites",
+      "params": [
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of soundbites to return."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "static_chart-data-json",
+      "description": "Contains the raw data used to populate the graphs at https://stats.podcastindex.org/v4v. This is a look at the total [sats](https://www.investopedia.com/terms/s/satoshi.asp) flowing through the Value4Value Lightning podcasting economy over various periods of time. We calculate this data based on our visibility as a one percent voluntary split on Podcastindex.org api calls. Therefore, the true numbers could be higher, but they cannot be lower than listed here. This represents our best approximation of how many sats are flowing across the entire ecosystem from listeners to creators, guests (via episode splits), platforms, services and apps. View at: https://stats.podcastindex.org/chart-data.json. Returns the StaticChartDataJsonResponse. (public)",
+      "method": "GET",
+      "path": "/static/stats/chart-data.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "static_current",
+      "description": "This call returns every new feed and episode added to the index over the past 24 hours in reverse chronological order. This is similar to `/recent/feeds` but uses the date the feed was found by the index rather than the feed's internal timestamp. Similar data can also be retrieved using the API endpoint [recent/data](#get-/recent/data). Access at: https://tracking.podcastindex.org/current The prior 24 hours of data (going backwards until all tracked data is received) can be accessed using the timestamp of the previous data set. This is found in the `previousTrackingUrl`. The format of these prior data sets follows the format described below. (public)",
+      "method": "GET",
+      "path": "/static/tracking/current",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "static_daily-counts-json",
+      "description": "Report a number of statistics about the feeds in Podcast Index's database. Updated daily. A subset of stats can be retrieved using the API endpoint [stats/current](#get-/stats/current). View at: https://stats.podcastindex.org/daily_counts.json. Returns the StaticDailyCountsJsonResponse. (public)",
+      "method": "GET",
+      "path": "/static/stats/daily_counts.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "static_episode-value-blocks-json",
+      "description": "Get all episodes with value blocks. Access at: https://tracking.podcastindex.org/episodeValueBlocks.json. Returns array of StaticEpisodeValueBlocksJsonItem. (public)",
+      "method": "GET",
+      "path": "/static/tracking/episodeValueBlocks",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "static_feed-value-blocks-json",
+      "description": "Get all feeds with value blocks. Access at: https://tracking.podcastindex.org/feedValueBlocks.json. Returns array of StaticFeedValueBlocksJsonItem. (public)",
+      "method": "GET",
+      "path": "/static/tracking/feedValueBlocks",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "static_hourly-counts-json",
+      "description": "Report a number of statistics about the feeds in Podcast Index's database. Updated hourly. A subset of stats can be retrieved using the API endpoint [stats/current](#get-/stats/current). View at: https://stats.podcastindex.org/hourly_counts.json. Returns the StaticHourlyCountsJsonResponse. (public)",
+      "method": "GET",
+      "path": "/static/stats/hourly_counts.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "static_podcastindex-dead-feeds-csv",
+      "description": "Lists all feed Ids that have been marked dead in the Podcast Index database. The list is updated every X hours. A subset of stats can be retrieved using the API endpoint [podcasts/dead](#get-/podcasts/dead). Download from: https://public.podcastindex.org/podcastindex_dead_feeds.csv. Returns the StaticPodcastindexDeadFeedsCsvResponse. (public)",
+      "method": "GET",
+      "path": "/static/public/podcastindex_dead_feeds.csv",
+      "no_auth": true,
+      "params": [],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/csv"
+        }
+      ]
+    },
+    {
+      "name": "static_podcastindex-feeds-db-tgz",
+      "description": "Compressed database of all non-dead feeds in the Podcast Index database. Updated daily. Some attributes excluded. No episodes included. Download from: https://public.podcastindex.org/podcastindex_feeds.db.tgz. Returns the StaticPodcastindexFeedsDbTgzResponse. (public)",
+      "method": "GET",
+      "path": "/static/public/podcastindex_feeds.db.tgz",
+      "no_auth": true,
+      "params": [],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/gzip"
+        }
+      ]
+    },
+    {
+      "name": "static_v4vmusic-json",
+      "description": "Contains the ranking of the music tracks played on podcasts that have been boosted the most over the last 7 days. Each entry shows the number of listener boosts sent over this time period. The chart is updated hourly. Can be viewed in a browser at https://podcastindex.top/ (https://stats.podcastindex.org/v4vmusic.html). View at: https://stats.podcastindex.org/v4vmusic.json Also available in [OPML](#get-/static/stats/v4vmusic.opml) and [RSS](#get-/static/stats/v4vmusic.rss). Returns the StaticV4vmusicJsonResponse. (public)",
+      "method": "GET",
+      "path": "/static/stats/v4vmusic.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "static_v4vmusic-opml",
+      "description": "Contains the ranking of the music tracks played on podcasts that have been boosted the most over the last 7 days. Each entry shows the number of listener boosts sent over this time period. The chart is updated hourly. Can be viewed in a browser at https://podcastindex.top/ (https://stats.podcastindex.org/v4vmusic.html). View at: https://stats.podcastindex.org/v4vmusic.opml Also available in [JSON](#get-/static/stats/v4vmusic.json) and [RSS](#get-/static/stats/v4vmusic.rss). Returns the StaticV4vmusicOpmlResponse. (public)",
+      "method": "GET",
+      "path": "/static/stats/v4vmusic.opml",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "static_v4vmusic-rss",
+      "description": "Contains the ranking of the music tracks played on podcasts that have been boosted the most over the last 7 days. Each entry shows the number of listener boosts sent over this time period. The chart is updated hourly. Can be viewed in a browser at https://podcastindex.top/ (https://stats.podcastindex.org/v4vmusic.html). View at: https://stats.podcastindex.org/v4vmusic.rss Also available in [JSON](#get-/static/stats/v4vmusic.json) and [OPML](#get-/static/stats/v4vmusic.opml). Returns the StaticV4vmusicRssResponse. (public)",
+      "method": "GET",
+      "path": "/static/stats/v4vmusic.rss",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "stats_current",
+      "description": "Return the most recent index statistics. Hourly statistics can also be access at https://stats.podcastindex.org/hourly_counts.json For details, see [Stats Hourly Counts](#get-/static/stats/hourly_counts.json). Daily statistics can also be access at https://stats.podcastindex.org/daily_counts.json. For details, see [Stats Daily Counts](#get-/static/stats/daily_counts.json). Example: https://api.podcastindex.org/api/1.0/stats/current?pretty. Optional: pretty. Returns the StatsCurrentResponse.",
+      "method": "GET",
+      "path": "/stats/current",
+      "params": [
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "value_batch-byepisodeguid",
+      "description": "This call returns the information for supporting the podcast episode via one of the 'Value for Value' methods from a JSON object containing one or more podcast GUID and one or more episode GUID for the podcast. The JSON object key shall be the `podcastguid` from the `podcast:guid` tag in the feed. This value is a unique, global identifier for the podcast. See the namespace spec for [guid](https://github.com/Podcastindex-org/podcast-namespace/blob/main/docs/1.0.md#guid) for details. The value of the `podcastguid` shall be an array of `episodeguid` values. This is the unique guid specified for the `\u003citem\u003e` in the feed but may not be globally unique. Note: No API key needed for this endpoint. Optional: pretty. (public)",
+      "method": "POST",
+      "path": "/value/batch/byepisodeguid",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "value_byepisodeguid",
+      "description": "This call returns the information for supporting the podcast episode via one of the 'Value for Value' methods from podcast GUID and the episode GUID. The `podcastguid` is the GUID from the `podcast:guid` tag in the feed. This value is a unique, global identifier for the podcast. See the namespace spec for [guid](https://github.com/Podcastindex-org/podcast-namespace/blob/main/docs/1.0.md#guid) for details. The `episodeguid` is the unique guid specified for the `\u003citem\u003e` in the feed but may not be globally unique. Note: No API key needed for this endpoint. Examples: - https://api.podcastindex.org/api/1.0/value/byepisodeguid?podcastguid=917393e3-1b1e-5cef-ace4-edaa54e1f810\u0026episodeguid=PC20143\u0026pretty - https://api.podcastindex.org/api/1.0/value/byepisodeguid?podcastguid=c73b1a23-1c28-5edb-94c3-10d1745d0877\u0026episodeguid=bdea6759-a7b6-4c0d-9d1e-acca3133f4a9\u0026pretty. Required: podcastguid, episodeguid. Optional: pretty. (public)",
+      "method": "GET",
+      "path": "/value/byepisodeguid",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "podcastguid",
+          "type": "string",
+          "location": "query",
+          "description": "The GUID from the `podcast:guid` tag in the feed. This value is a unique, global identifier for the podcast. See the namespace spec for [guid](https://github.com/Podcastindex-org/podcast-namespace/blob/main/docs/1.0.md#guid) for details.",
+          "required": true
+        },
+        {
+          "name": "episodeguid",
+          "type": "string",
+          "location": "query",
+          "description": "The guid specified by the `\u003cguid\u003e` in the episode `\u003citem\u003e`.",
+          "required": true
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "value_byfeedid",
+      "description": "This call returns the information for supporting the podcast via one of the 'Value for Value' methods from the PodcastIndex ID. Additionally, the value block data can be accessed using static JSON files (updated every 15 minutes). - Feeds: https://tracking.podcastindex.org/feedValueBlocks.json - Episodes: https://tracking.podcastindex.org/episodeValueBlocks.json Note: No API key needed for this endpoint. Examples: - https://api.podcastindex.org/api/1.0/value/byfeedid?id=920666\u0026pretty - https://api.podcastindex.org/api/1.0/value/byfeedid?id=779873\u0026pretty. Required: id. Optional: pretty. (public)",
+      "method": "GET",
+      "path": "/value/byfeedid",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "The PodcastIndex Feed ID to search for.",
+          "required": true
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "value_byfeedurl",
+      "description": "This call returns the information for supporting the podcast via one of the 'Value for Value' methods from feed URL. Additionally, the value block data can be accessed using static JSON files (updated every 15 minutes). - Feeds: https://tracking.podcastindex.org/feedValueBlocks.json - Episodes: https://tracking.podcastindex.org/episodeValueBlocks.json Note: No API key needed for this endpoint. Examples: - https://api.podcastindex.org/api/1.0/value/byfeedurl?url=https://mp3s.nashownotes.com/pc20rss.xml\u0026pretty - https://api.podcastindex.org/api/1.0/value/byfeedurl?url=https://lespoesiesdheloise.fr/@heloise/feed.xml\u0026pretty. Required: url. Optional: pretty. (public)",
+      "method": "GET",
+      "path": "/value/byfeedurl",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Podcast feed URL",
+          "required": true
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    },
+    {
+      "name": "value_bypodcastguid",
+      "description": "This call returns the information for supporting the podcast via one of the 'Value for Value' methods from podcast GUID. Note: No API key needed for this endpoint. Example: https://api.podcastindex.org/api/1.0/value/bypodcastguid?guid=917393e3-1b1e-5cef-ace4-edaa54e1f810\u0026pretty. Required: guid. Optional: pretty. (public)",
+      "method": "GET",
+      "path": "/value/bypodcastguid",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "guid",
+          "type": "string",
+          "location": "query",
+          "description": "The GUID from the `podcast:guid` tag in the feed.",
+          "required": true
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If present, makes the output “pretty” to help with debugging. Parameter shall not have a value"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "id": "podcastindex-scope-trim-and-fixtures",
+  "summary": "Removed out-of-scope/broken commands (static/*, add/*, hub, tail) and added pp:happy-args dogfood fixtures to identifier-lookup commands.",
+  "reason": "static/* hit a different host (400), add/* and hub need publisher auth, tail GETs /<resource> which has no PodcastIndex endpoint; lookup-by-id commands needed real fixture identifiers to pass live dogfood.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/episodes_byfeedurl.go",
+    "internal/cli/episodes_byguid.go",
+    "internal/cli/episodes_byitunesid.go",
+    "internal/cli/podcasts_byfeedurl.go",
+    "internal/cli/podcasts_byitunesid.go",
+    "internal/cli/podcasts_bymedium.go",
+    "internal/cli/value_byfeedid.go",
+    "internal/cli/value_byfeedurl.go"
+  ],
+  "validated_outcome": "Live full dogfood 148/148 after trim + fixtures.",
+  "schema_version": 2,
+  "applied_at": "2026-06-10",
+  "base_run_id": "20260610-113323-a453895b",
+  "base_printing_press_version": "4.24.0"
+}
