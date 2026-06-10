@@ -13,6 +13,15 @@ import (
 	"github.com/pelletier/go-toml/v2"
 )
 
+// WorkspaceEntry is one enrolled workspace in the local registry. Slug is the
+// user-supplied workspace identifier (from the browser URL); ID caches the
+// workspace UUID discovered during the enrollment probe (best-effort, may be
+// empty). PATCH(workspace-registry): hand-added; re-apply after regen.
+type WorkspaceEntry struct {
+	Slug string `toml:"slug"`
+	ID   string `toml:"id,omitempty"`
+}
+
 type Config struct {
 	BaseURL                   string            `toml:"base_url"`
 	AuthHeaderVal             string            `toml:"auth_header"`
@@ -30,6 +39,11 @@ type Config struct {
 	// at Load() time from env vars; consumed by the client's buildURL helper.
 	// Stored as a serializable map so non-default values survive a config save.
 	TemplateVars map[string]string `toml:"template_vars,omitempty"`
+	// PATCH(workspace-registry): default_workspace seeds {slug} when PLANE_SLUG
+	// is unset; workspaces is the locally-enrolled registry shown by
+	// `workspaces list` (the public API cannot enumerate workspaces by key).
+	DefaultWorkspace string           `toml:"default_workspace,omitempty"`
+	Workspaces       []WorkspaceEntry `toml:"workspaces,omitempty"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -111,8 +125,13 @@ func Load(configPath string) (*Config, error) {
 	if cfg.TemplateVars == nil {
 		cfg.TemplateVars = map[string]string{}
 	}
+	// PATCH(workspace-registry): precedence PLANE_SLUG env > default_workspace
+	// (persisted) > "my-workspace" sentinel. The flag layer (--workspace) sits
+	// above this and overrides TemplateVars["slug"] in rootFlags.newClient().
 	if v := strings.TrimSpace(os.Getenv("PLANE_SLUG")); v != "" {
 		cfg.TemplateVars["slug"] = normalizeEndpointTemplateValue(v)
+	} else if cfg.DefaultWorkspace != "" {
+		cfg.TemplateVars["slug"] = cfg.DefaultWorkspace
 	} else {
 		cfg.TemplateVars["slug"] = "my-workspace"
 	}
@@ -218,6 +237,11 @@ func (c *Config) save() error {
 	}
 	return os.WriteFile(c.Path, data, 0o600)
 }
+
+// Save persists the config to disk. PATCH(workspace-registry): exposes the
+// private save() so novel workspace commands can mutate DefaultWorkspace /
+// Workspaces and write back without duplicating the toml round-trip.
+func (c *Config) Save() error { return c.save() }
 
 // Ensure strings import is used
 var _ = strings.ReplaceAll
