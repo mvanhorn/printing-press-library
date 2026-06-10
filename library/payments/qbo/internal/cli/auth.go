@@ -10,6 +10,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/payments/qbo/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/payments/qbo/internal/config"
 	"io"
 	"net/http"
@@ -284,7 +285,11 @@ func exchangeAuthCode(cfg *config.Config, code, realmId, redirectURI string, out
 
 	if resp.StatusCode >= 400 {
 		body, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("token exchange failed: HTTP %d: %s", resp.StatusCode, string(body))
+		bodyStr := string(body)
+		if len(bodyStr) > 4096 {
+			bodyStr = bodyStr[:4096] + "..."
+		}
+		return fmt.Errorf("token exchange failed: HTTP %d: %s", resp.StatusCode, cliutil.SanitizeErrorBody(bodyStr))
 	}
 
 	var tokenResp struct {
