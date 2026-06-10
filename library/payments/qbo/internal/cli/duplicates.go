@@ -40,7 +40,7 @@ func newDuplicatesCmd(flags *rootFlags) *cobra.Command {
 			var duplicates []duplicateGroup
 
 			// 1. Check Purchases duplicates
-			purchaseQuery := fmt.Sprintf(`
+			purchaseQuery := `
 				SELECT 
 					json_extract(p1.raw_json, '$.EntityRef.name') AS vendor_name,
 					CAST(json_extract(p1.raw_json, '$.TotalAmt') AS REAL) AS amount,
@@ -50,8 +50,8 @@ func newDuplicatesCmd(flags *rootFlags) *cobra.Command {
 				JOIN purchases p2 ON p1.id < p2.id
 				  AND json_extract(p1.raw_json, '$.EntityRef.value') = json_extract(p2.raw_json, '$.EntityRef.value')
 				  AND abs(CAST(json_extract(p1.raw_json, '$.TotalAmt') AS REAL) - CAST(json_extract(p2.raw_json, '$.TotalAmt') AS REAL)) < 0.01
-				  AND abs(strftime('%%s', json_extract(p1.raw_json, '$.TxnDate')) - strftime('%%s', json_extract(p2.raw_json, '$.TxnDate'))) <= ?
-			`)
+				  AND abs(strftime('%s', json_extract(p1.raw_json, '$.TxnDate')) - strftime('%s', json_extract(p2.raw_json, '$.TxnDate'))) <= ?
+			`
 
 			rows, err := s.DB().Query(purchaseQuery, windowSeconds)
 			if err != nil {
@@ -75,7 +75,7 @@ func newDuplicatesCmd(flags *rootFlags) *cobra.Command {
 			rows.Close()
 
 			// 2. Check Bills duplicates
-			billQuery := fmt.Sprintf(`
+			billQuery := `
 				SELECT 
 					json_extract(b1.raw_json, '$.VendorRef.name') AS vendor_name,
 					CAST(json_extract(b1.raw_json, '$.TotalAmt') AS REAL) AS amount,
@@ -85,8 +85,8 @@ func newDuplicatesCmd(flags *rootFlags) *cobra.Command {
 				JOIN bills b2 ON b1.id < b2.id
 				  AND json_extract(b1.raw_json, '$.VendorRef.value') = json_extract(b2.raw_json, '$.VendorRef.value')
 				  AND abs(CAST(json_extract(b1.raw_json, '$.TotalAmt') AS REAL) - CAST(json_extract(b2.raw_json, '$.TotalAmt') AS REAL)) < 0.01
-				  AND abs(strftime('%%s', json_extract(b1.raw_json, '$.TxnDate')) - strftime('%%s', json_extract(b2.raw_json, '$.TxnDate'))) <= ?
-			`)
+				  AND abs(strftime('%s', json_extract(b1.raw_json, '$.TxnDate')) - strftime('%s', json_extract(b2.raw_json, '$.TxnDate'))) <= ?
+			`
 
 			rows, err = s.DB().Query(billQuery, windowSeconds)
 			if err != nil {

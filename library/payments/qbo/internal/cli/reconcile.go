@@ -33,10 +33,6 @@ func newReconcileCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Find ledger candidates matching a bank transaction for reconciliation",
 		Example: "  qbo-pp-cli reconcile --amount 1250.00 --date 2026-06-01\n  qbo-pp-cli reconcile --amount 45.90",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if amountFlag == 0.0 && !cmd.Flags().Changed("amount") {
-				return fmt.Errorf("required flag --amount must be specified")
-			}
-
 			s, err := store.Open()
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
