@@ -266,7 +266,7 @@ func exchangeAuthCode(cfg *config.Config, code, realmId, redirectURI string, out
 		"redirect_uri": {redirectURI},
 	}
 
-	req, err := http.NewRequest(http.MethodPost, tokenURL, strings.NewReader(params.Encode()))
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, tokenURL, strings.NewReader(params.Encode()))
 	if err != nil {
 		return fmt.Errorf("building token request: %w", err)
 	}

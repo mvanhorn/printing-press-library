@@ -9,14 +9,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/payments/qbo/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/payments/qbo/internal/config"
 	"io"
 	"math"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
-	"github.com/mvanhorn/printing-press-library/library/payments/qbo/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/payments/qbo/internal/config"
 	"sort"
 	"strings"
 	"time"
@@ -615,8 +615,6 @@ func (c *Client) authHeader(ctx context.Context) (string, error) {
 	return authHeader, nil
 }
 
-
-
 // refreshAccessToken exchanges the current refresh token for a new access
 // token and persists the result via config.SaveTokens.
 //
@@ -699,10 +697,6 @@ func (c *Client) refreshAccessToken(ctx context.Context, forceRefresh bool) erro
 	params := url.Values{
 		"grant_type":    {"refresh_token"},
 		"refresh_token": {c.Config.RefreshToken},
-		"client_id":     {c.Config.ClientID},
-	}
-	if c.Config.ClientSecret != "" {
-		params.Set("client_secret", c.Config.ClientSecret)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, tokenURL, strings.NewReader(params.Encode()))
@@ -755,5 +749,3 @@ func (c *Client) refreshAccessToken(ctx context.Context, forceRefresh bool) erro
 
 	return nil
 }
-
-
