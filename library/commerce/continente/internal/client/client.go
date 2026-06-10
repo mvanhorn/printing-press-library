@@ -211,6 +211,31 @@ func (c *Client) ClearCookieDomainSuffix(domainSuffix string) error {
 	return nil
 }
 
+func (c *Client) sessionCacheScope() string {
+	if c == nil || c.Config == nil {
+		return ""
+	}
+
+	scope := ""
+	if c.Config.CookieJarPath != "" {
+		jarPathHash := sha256.Sum256([]byte(c.Config.CookieJarPath))
+		scope += "|cookie_jar_path=" + hex.EncodeToString(jarPathHash[:8])
+	}
+	if c.HTTPClient == nil || c.HTTPClient.Jar == nil {
+		return scope
+	}
+	u, err := url.Parse(c.BaseURL)
+	if err != nil {
+		return scope
+	}
+	if jar, ok := c.HTTPClient.Jar.(interface{ Fingerprint(*url.URL) string }); ok {
+		if fingerprint := jar.Fingerprint(u); fingerprint != "" {
+			scope += "|session=" + fingerprint
+		}
+	}
+	return scope
+}
+
 func (c *Client) cacheKey(path string, params map[string]string) string {
 	key := path
 	key += "|base_url=" + c.BaseURL
@@ -224,6 +249,7 @@ func (c *Client) cacheKey(path string, params map[string]string) string {
 			key += "|config_path=" + c.Config.Path
 		}
 	}
+	key += c.sessionCacheScope()
 	paramKeys := make([]string, 0, len(params))
 	for k := range params {
 		paramKeys = append(paramKeys, k)
@@ -263,6 +289,10 @@ func (c *Client) invalidateCache() {
 		return
 	}
 	_ = os.RemoveAll(c.cacheDir)
+}
+
+func (c *Client) InvalidateCache() {
+	c.invalidateCache()
 }
 
 func (c *Client) Post(ctx context.Context, path string, body any) (json.RawMessage, int, error) {
