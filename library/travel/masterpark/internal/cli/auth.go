@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 
@@ -32,9 +33,22 @@ func newAuthCheckCmd(g *globalOpts) *cobra.Command {
 			ctx, cancel := g.ctx()
 			defer cancel()
 			creds, err := config.Resolve(ctx, f, config.OnePassword{}, cf.input())
+			var credErr string
 			if err != nil {
-				// A credential-fetch failure shouldn't make `auth check` fail; report it.
-				creds.PasswordSource = config.SourceNone
+				// A credential-fetch failure shouldn't make `auth check` fail;
+				// report it as diagnostic output and continue with partial state.
+				// The resolution error never carries the secret stdout, only the
+				// command's exit status, so it is safe to surface.
+				credErr = err.Error()
+				// Resolve may return early before defaulting unset sources, so
+				// normalize both to "none" instead of leaving them empty.
+				if creds.UsernameSource == "" {
+					creds.UsernameSource = config.SourceNone
+				}
+				if creds.PasswordSource == "" {
+					creds.PasswordSource = config.SourceNone
+				}
+				fmt.Fprintf(os.Stderr, "credential resolution failed: %s\n", credErr)
 			}
 			result := map[string]interface{}{
 				"username_present": creds.Username != "",
@@ -42,6 +56,9 @@ func newAuthCheckCmd(g *globalOpts) *cobra.Command {
 				"password_present": creds.Password != "",
 				"password_source":  creds.PasswordSource,
 				"username":         creds.Username,
+			}
+			if credErr != "" {
+				result["credential_error"] = credErr
 			}
 			if g.json {
 				return printJSON(result)
