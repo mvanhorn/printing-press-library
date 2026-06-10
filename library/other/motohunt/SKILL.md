@@ -1,6 +1,6 @@
 ---
 name: pp-motohunt
-description: "Search motorcycle and ATV listings from the terminal — with MotoHunt's MSRP/average-price/deal-rating data exposed... Trigger phrases: `search motohunt`, `find a motorcycle for sale`, `is this bike a good deal`, `search atvhunt`, `watch motorcycle listings`, `use motohunt`, `run motohunt`."
+description: "Search motorcycle and ATV listings from the terminal — with MotoHunt's MSRP/average-price/deal-rating data exposed as Trigger phrases: `search motohunt`, `find a motorcycle for sale`, `is this bike a good deal`, `search atvhunt`, `watch motorcycle listings`, `use motohunt`, `run motohunt`."
 author: "richardadonnell"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -22,20 +22,20 @@ metadata:
 
 This skill drives the `motohunt-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
    ```bash
-   npx -y @mvanhorn/printing-press install motohunt --cli-only
+   npx -y @mvanhorn/printing-press-library install motohunt --cli-only
    ```
 2. Verify: `motohunt-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/motohunt/cmd/motohunt-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 MotoHunt has no public API; this CLI scrapes its server-rendered HTML with one HTTP GET per page and returns clean JSON. It surfaces the price-research data (base MSRP, average listing price, deal rating) that makes 'is this a good deal?' answerable, ranks synced inventory by under-market gap with `deal`, watches saved searches for new listings and price drops, and covers the ATV sister site via `--site atv`.
 
@@ -57,7 +57,7 @@ These capabilities aren't available in any other tool for this API.
   _Reach for this to answer 'is this listing actually a good price?' without reading the page._
 
   ```bash
-  motohunt-pp-cli get 13153926 --agent --select base_msrp,alp,deal_rating
+  motohunt-pp-cli get 13256655 --agent --select base_msrp,alp,deal_rating
   ```
 - **`deal`** — Rank synced listings by how far the asking price sits below the average listing price.
 
@@ -105,7 +105,6 @@ motohunt-pp-cli which "<capability in your own words>"
 
 ## Recipes
 
-
 ### Best-deal Harleys near me
 
 ```bash
@@ -117,7 +116,7 @@ Top under-market Harleys, slimmed to the fields that matter.
 ### Is this listing a good price?
 
 ```bash
-motohunt-pp-cli get 13153926 --agent --select price,base_msrp,alp,deal_rating
+motohunt-pp-cli get 13256655 --agent --select price,base_msrp,alp,deal_rating
 ```
 
 Compare the ask against MSRP and the average listing price.
@@ -162,7 +161,7 @@ Commands that read from the local store or the API wrap output in a provenance e
 }
 ```
 
-Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal — piped/agent consumers get pure JSON on stdout.
+Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal AND no machine-format flag (`--json`, `--csv`, `--compact`, `--quiet`, `--plain`, `--select`) is set — piped/agent consumers and explicit-format runs get pure JSON on stdout.
 
 ## Agent Feedback
 
@@ -174,7 +173,7 @@ motohunt-pp-cli feedback --stdin < notes.txt
 motohunt-pp-cli feedback list --json --limit 10
 ```
 
-Entries are stored locally at `~/.motohunt-pp-cli/feedback.jsonl`. They are never POSTed unless `MOTOHUNT_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `MOTOHUNT_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+Entries are stored locally at `~/.local/share/motohunt-pp-cli/feedback.jsonl`. They are never POSTed unless `MOTOHUNT_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `MOTOHUNT_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
 Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
 

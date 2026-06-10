@@ -1,9 +1,9 @@
 {
   "manifest_version": "0.3",
   "name": "motohunt-pp-mcp",
-  "display_name": "Motohunt",
-  "version": "4.2.2",
-  "description": "Search motorcycle and ATV listings with MotoHunt price research (MSRP/ALP/deal rating) — no API, scrapes server-rendered HTML",
+  "display_name": "MotoHunt",
+  "version": "0.0.0",
+  "description": "Search motorcycle and ATV listings from the terminal — with MotoHunt's MSRP/average-price/deal-rating data exposed as structured fields no other tool gives you.",
   "author": {
     "name": "CLI Printing Press"
   },

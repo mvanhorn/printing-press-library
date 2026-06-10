@@ -1,7 +1,7 @@
 {
   "api_name": "motohunt",
   "base_url": "https://motohunt.com",
-  "description": "Search motorcycle and ATV listings with MotoHunt price research (MSRP/ALP/deal rating) — no API, scrapes server-rendered HTML",
+  "description": "Search motorcycle and ATV listings from the terminal — with MotoHunt's MSRP/average-price/deal-rating data exposed as structured fields no other tool gives you.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {

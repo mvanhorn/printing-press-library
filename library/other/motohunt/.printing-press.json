@@ -1,17 +1,27 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-06-10T18:06:24.5979123Z",
-  "printing_press_version": "4.2.2",
+  "generated_at": "2026-06-10T19:03:25.4917487Z",
+  "printing_press_version": "4.24.0",
   "api_name": "motohunt",
-  "display_name": "Motohunt",
+  "display_name": "MotoHunt",
   "cli_name": "motohunt-pp-cli",
+  "creator": {
+    "handle": "richardadonnell",
+    "name": "richardadonnell"
+  },
+  "owner": "richardadonnell",
+  "printer": "richardadonnell",
+  "printer_name": "richardadonnell",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:52ba3d23ba55f25db1ee08d382cd9a8f131322d84920f755adeb8dfbb7b38e84",
   "run_id": "20260610-132752-motohunt",
   "category": "other",
-  "description": "Search motorcycle and ATV listings with MotoHunt price research (MSRP/ALP/deal rating) \u2014 no API, scrapes server-rendered HTML",
+  "description": "Search motorcycle and ATV listings from the terminal — with MotoHunt's MSRP/average-price/deal-rating data exposed as structured fields no other tool gives you.",
   "mcp_binary": "motohunt-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,
   "mcp_ready": "full",
+  "api_version": "0.1.0",
   "auth_type": "none",
   "novel_features": [
     {
@@ -34,7 +44,5 @@
       "command": "search",
       "description": "Search motorcycles (motohunt.com) or ATV/UTV/SxS (atvhunt.com) from one binary via --site."
     }
-  ],
-  "printer": "richardadonnell",
-  "printer_name": "richardadonnell"
+  ]
 }

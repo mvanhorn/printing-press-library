@@ -4,7 +4,6 @@
 package cli
 
 import (
-	"context"
 	"io"
 	"net/http"
 	"time"
@@ -12,16 +11,10 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/other/motohunt/internal/motohunt"
 )
 
-// boundCtx wraps a parent context with the root --timeout so long scrapes are
-// cancelable. Callers must `defer cancel()`. When --timeout is unset/zero a
-// conservative default keeps a hung host from blocking forever.
-func boundCtx(parent context.Context, flags *rootFlags) (context.Context, context.CancelFunc) {
-	d := 30 * time.Second
-	if flags != nil && flags.timeout > 0 {
-		d = flags.timeout
-	}
-	return context.WithTimeout(parent, d)
-}
+// NOTE: boundCtx lives in helpers.go (provided by the v4.24.0 scaffold). The
+// hand-written commands call it for the root --timeout boundary; the duplicate
+// that shipped in the v4.2.2 source tree was dropped here to avoid a
+// redeclaration against the generated helper.
 
 // siteConfigFor resolves the active --site into a SiteConfig. The
 // MOTOHUNT_BASE_URL env override is intentionally NOT honored here: these
