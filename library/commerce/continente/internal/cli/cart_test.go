@@ -1,8 +1,18 @@
 package cli
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
+	"io"
+	"net/http"
+	"path/filepath"
 	"testing"
+	"time"
+
+	"continente-pp-cli/internal/client"
+	"continente-pp-cli/internal/config"
+	"github.com/spf13/cobra"
 )
 
 func TestParseMiniCartHTML(t *testing.T) {
@@ -170,4 +180,151 @@ func TestCartMutationSummaryCompactShape(t *testing.T) {
 	if _, ok := decoded["cart"]; !ok {
 		t.Fatalf("compact mutation summary missing cart: %#v", decoded)
 	}
+}
+
+func TestEmitCartMutationJSONRefreshesStaleMiniCartCache(t *testing.T) {
+	var miniCartBody = []byte(`{
+  "quantityTotal": 1,
+  "basket": {
+    "itemsSortedByBrand": [
+      {
+        "items": [
+          {
+            "id": "8061027",
+            "productName": "Agua",
+            "brand": "Pedras",
+            "uuid": "entry-1",
+            "UUID": "line-1",
+            "selectedDimension": "un",
+            "secondaryQuantity": 1,
+            "productURL": "https://www.continente.pt/produto/agua.html",
+            "price": {
+              "sales": {
+                "formatted": "2,19€"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}`)
+	var freshMiniCartBody = []byte(`{
+  "quantityTotal": 2,
+  "basket": {
+    "itemsSortedByBrand": [
+      {
+        "items": [
+          {
+            "id": "8061027",
+            "productName": "Agua",
+            "brand": "Pedras",
+            "uuid": "entry-1",
+            "UUID": "line-1",
+            "selectedDimension": "un",
+            "secondaryQuantity": 2,
+            "productURL": "https://www.continente.pt/produto/agua.html",
+            "price": {
+              "sales": {
+                "formatted": "4,39€"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}`)
+
+	currentMiniCart := miniCartBody
+
+	tmpDir := t.TempDir()
+	t.Setenv("HOME", tmpDir)
+
+	cfg := &config.Config{
+		BaseURL:       "https://www.continente.pt",
+		CookieJarPath: filepath.Join(tmpDir, "cookies.json"),
+		Path:          filepath.Join(tmpDir, "config.toml"),
+	}
+	c := client.New(cfg, time.Second, 0)
+	c.NoCache = false
+	c.HTTPClient.Transport = roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		switch req.URL.Path {
+		case cartMiniShowPath:
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Header:     http.Header{"Content-Type": []string{"application/json"}},
+				Body:       io.NopCloser(bytes.NewReader(currentMiniCart)),
+				Request:    req,
+			}, nil
+		default:
+			return &http.Response{
+				StatusCode: http.StatusNotFound,
+				Header:     http.Header{"Content-Type": []string{"text/plain"}},
+				Body:       io.NopCloser(bytes.NewBufferString("not found")),
+				Request:    req,
+			}, nil
+		}
+	})
+
+	if _, err := c.Get(context.Background(), cartMiniShowPath, nil); err != nil {
+		t.Fatalf("seed mini-cart cache: %v", err)
+	}
+	currentMiniCart = freshMiniCartBody
+	c.InvalidateCache()
+	mini, err := fetchMiniCart(context.Background(), c)
+	if err != nil {
+		t.Fatalf("fetchMiniCart after invalidation: %v", err)
+	}
+	if mini.Quantity != 2 {
+		t.Fatalf("fetchMiniCart quantity = %d, want 2", mini.Quantity)
+	}
+	c.InvalidateCache()
+
+	flags := &rootFlags{
+		asJSON:   true,
+		compact:  true,
+		metaMode: "none",
+	}
+	cmd := &cobra.Command{}
+	cmd.SetContext(context.Background())
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+
+	if err := emitCartMutationJSON(cmd, flags, c, json.RawMessage(`{"ok":true}`), cartMutationSummary{
+		Action:    "update",
+		ProductID: "8061027",
+		UUID:      "line-1",
+		Quantity:  2,
+	}); err != nil {
+		t.Fatalf("emitCartMutationJSON: %v", err)
+	}
+
+	var got struct {
+		Action string `json:"action"`
+		Cart   struct {
+			Quantity int `json:"quantity"`
+			Items    []struct {
+				Price string `json:"price"`
+			} `json:"items"`
+		} `json:"cart"`
+	}
+	if err := json.Unmarshal(out.Bytes(), &got); err != nil {
+		t.Fatalf("json.Unmarshal(output): %v\noutput=%s", err, out.String())
+	}
+	if got.Action != "update" {
+		t.Fatalf("action = %q, want update", got.Action)
+	}
+	if got.Cart.Quantity != 2 {
+		t.Fatalf("cart quantity = %d, want 2\noutput=%s", got.Cart.Quantity, out.String())
+	}
+	if len(got.Cart.Items) != 1 || got.Cart.Items[0].Price != "4,39€" {
+		t.Fatalf("cart price = %#v, want 4,39€\noutput=%s", got.Cart.Items, out.String())
+	}
+}
+
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req)
 }
