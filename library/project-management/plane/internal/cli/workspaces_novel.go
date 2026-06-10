@@ -123,7 +123,7 @@ func warnEnvShadow(w io.Writer, slug string) {
 		fmt.Fprintf(w, "warning: PLANE_BASE_URL=%s pins a literal workspace and OVERRIDES config; unset it or set it to a host with /workspaces/{slug}.\n", v)
 	}
 	if v := strings.TrimSpace(os.Getenv(envWorkspaceSlug)); v != "" && v != slug {
-		fmt.Fprintf(w, "warning: %s=%s is set and overrides default_workspace; this session still targets %q. Unset %s to use the saved default.\n", envWorkspaceSlug, v, v, envWorkspaceSlug)
+		fmt.Fprintf(w, "warning: %s=%s is set and overrides default_workspace=%q; this session targets %q. Unset %s to use the saved default.\n", envWorkspaceSlug, v, slug, v, envWorkspaceSlug)
 	}
 }
 
@@ -357,6 +357,12 @@ each is access-probed before being saved. Use flags for non-interactive setup.`,
 				return configErr(err)
 			}
 			cfg.BaseURL = normalizeHost(host) + "/api/v1/workspaces/{slug}"
+			// Persist base_url (and the already-saved key) BEFORE probing: probeWorkspace
+			// builds its client via newClient()->config.Load(), which reads from disk, so
+			// the custom --host must be on disk or probes hit the default endpoint.
+			if err := cfg.Save(); err != nil {
+				return configErr(err)
+			}
 			var enrolled []string
 			for _, slug := range slugs {
 				id, perr := probeWorkspace(cmd.Context(), flags, slug)

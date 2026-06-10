@@ -48,6 +48,24 @@ func TestBaseURLHasLiteralSlug(t *testing.T) {
 	}
 }
 
+func TestNormalizeHost(t *testing.T) {
+	cases := map[string]string{
+		"https://api.plane.so":                 "https://api.plane.so",
+		"https://api.plane.so/":                "https://api.plane.so",
+		"https://plane.acme.com/":              "https://plane.acme.com",
+		"https://plane.acme.com/api/v1/workspaces/{slug}": "https://plane.acme.com",
+		// TrimRight strips the trailing slash before the /api/ check, so
+		// "  https://plane.acme.com/api/  " → TrimSpace → TrimRight("/") →
+		// "https://plane.acme.com/api" (no trailing slash, so /api/ not found).
+		"  https://plane.acme.com/api/  ": "https://plane.acme.com/api",
+	}
+	for in, want := range cases {
+		if got := normalizeHost(in); got != want {
+			t.Errorf("normalizeHost(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
+
 func TestWorkspacesListBanner(t *testing.T) {
 	var b strings.Builder
 	cfg := &config.Config{
