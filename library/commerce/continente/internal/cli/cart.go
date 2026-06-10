@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/client"
+	"continente-pp-cli/internal/client"
 	"github.com/spf13/cobra"
 )
 
@@ -268,6 +268,10 @@ func emitCartMutationJSON(cmd *cobra.Command, flags *rootFlags, c *client.Client
 		return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 	}
 	if flags.compact && flags.selectFields == "" {
+		// GET-based cart mutations still refresh the mini-cart summary; clear
+		// any cached mini-cart snapshot first so the compact payload reflects
+		// the post-mutation state rather than a stale pre-mutation entry.
+		c.InvalidateCache()
 		if mini, err := fetchMiniCart(cmd.Context(), c); err == nil {
 			summary.Cart = compactMiniCartPayload(mini)
 		}
