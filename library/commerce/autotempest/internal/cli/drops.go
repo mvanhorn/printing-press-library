@@ -139,40 +139,87 @@ func dropRows(ctx context.Context, sqlDB *sql.DB, since time.Duration, minDropCe
 	}
 	sort.SliceStable(drops, func(i, j int) bool { return drops[i].drop > drops[j].drop })
 
+	// Batch-fetch listing metadata for all drop IDs in ONE query (avoids the
+	// prior N+1: one QueryRow per drop). The savedName scope is applied in the
+	// same query; IDs absent from the result are filtered out.
+	ids := make([]string, 0, len(drops))
+	for _, d := range drops {
+		ids = append(ids, d.id)
+	}
+	meta, err := fetchListingMeta(ctx, sqlDB, ids, savedName)
+	if err != nil {
+		return nil, err
+	}
+
 	rows := make([]map[string]any, 0, len(drops))
 	for _, d := range drops {
-		// Join listing display fields; scope by saved search name if provided.
-		var vin, title, mk, model, source, url sql.NullString
-		var year sql.NullInt64
-		q := `SELECT vin, title, make, model, year, source, url FROM at_listings WHERE listing_id = ?`
-		qargs := []any{d.id}
-		if savedName != "" {
-			q += ` AND search_name = ?`
-			qargs = append(qargs, savedName)
-		}
-		err := sqlDB.QueryRowContext(ctx, q, qargs...).Scan(&vin, &title, &mk, &model, &year, &source, &url)
-		if err == sql.ErrNoRows {
-			continue // filtered out by saved-search scope
-		}
-		if err != nil {
-			return nil, err
+		m, ok := meta[d.id]
+		if !ok {
+			continue // filtered out by saved-search scope (or absent)
 		}
 		rows = append(rows, map[string]any{
 			"listing_id": d.id,
-			"vin":        vin.String,
-			"title":      title.String,
-			"make":       mk.String,
-			"model":      model.String,
-			"year":       int(year.Int64),
+			"vin":        m.vin,
+			"title":      m.title,
+			"make":       m.make,
+			"model":      m.model,
+			"year":       m.year,
 			"old_price":  centsDisplay(d.old),
 			"new_price":  centsDisplay(d.new),
 			"drop":       centsDisplay(d.drop),
-			"source":     source.String,
-			"url":        url.String,
+			"source":     m.source,
+			"url":        m.url,
 		})
 		if limit > 0 && len(rows) >= limit {
 			break
 		}
 	}
 	return rows, nil
+}
+
+// listingMeta holds the display fields drops joins onto each price-drop row.
+type listingMeta struct {
+	vin, title, make, model, source, url string
+	year                                 int
+}
+
+// fetchListingMeta loads listing display fields for the given listing IDs in a
+// single query (one IN-list, not per-id). When savedName is non-empty, only
+// listings tagged with that saved search are returned, so callers scope by
+// presence in the returned map. Returns an empty map for no ids.
+func fetchListingMeta(ctx context.Context, sqlDB *sql.DB, ids []string, savedName string) (map[string]listingMeta, error) {
+	out := make(map[string]listingMeta, len(ids))
+	if len(ids) == 0 {
+		return out, nil
+	}
+	placeholders := make([]string, len(ids))
+	args := make([]any, 0, len(ids)+1)
+	for i, id := range ids {
+		placeholders[i] = "?"
+		args = append(args, id)
+	}
+	q := `SELECT listing_id, vin, title, make, model, year, source, url
+		FROM at_listings WHERE listing_id IN (` + strings.Join(placeholders, ",") + `)`
+	if savedName != "" {
+		q += ` AND search_name = ?`
+		args = append(args, savedName)
+	}
+	dbRows, err := sqlDB.QueryContext(ctx, q, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer dbRows.Close()
+	for dbRows.Next() {
+		var id string
+		var vin, title, mk, model, source, url sql.NullString
+		var year sql.NullInt64
+		if err := dbRows.Scan(&id, &vin, &title, &mk, &model, &year, &source, &url); err != nil {
+			return nil, err
+		}
+		out[id] = listingMeta{
+			vin: vin.String, title: title.String, make: mk.String, model: model.String,
+			source: source.String, url: url.String, year: int(year.Int64),
+		}
+	}
+	return out, dbRows.Err()
 }

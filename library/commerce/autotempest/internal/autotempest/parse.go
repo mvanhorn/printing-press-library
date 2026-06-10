@@ -74,3 +74,36 @@ func ParseYear(s string) int {
 	}
 	return n
 }
+
+// FormatCents renders integer cents as a whole-dollar display string with a
+// leading "$" and thousands separators, e.g. 3049700 -> "$30,497". Cents are
+// truncated to whole dollars (display convention; the precise value stays in
+// the store). Returns "" for a negative/unknown value so callers can render
+// blanks for missing prices.
+func FormatCents(cents int64) string {
+	if cents < 0 {
+		return ""
+	}
+	return "$" + groupThousands(cents/100)
+}
+
+// groupThousands formats a non-negative integer with commas every three digits:
+// 30497 -> "30,497", 1234567 -> "1,234,567", 0 -> "0".
+func groupThousands(n int64) string {
+	s := strconv.FormatInt(n, 10)
+	if len(s) <= 3 {
+		return s
+	}
+	var b strings.Builder
+	// Number of leading digits before the first comma group.
+	first := len(s) % 3
+	if first == 0 {
+		first = 3
+	}
+	b.WriteString(s[:first])
+	for i := first; i < len(s); i += 3 {
+		b.WriteByte(',')
+		b.WriteString(s[i : i+3])
+	}
+	return b.String()
+}

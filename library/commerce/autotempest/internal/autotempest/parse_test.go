@@ -121,3 +121,24 @@ func TestParseListingAuctionBid(t *testing.T) {
 		t.Errorf("Bids = %d, want 14", l.Bids)
 	}
 }
+
+func TestFormatCents(t *testing.T) {
+	cases := []struct {
+		in   int64
+		want string
+	}{
+		{3049700, "$30,497"},
+		{120000, "$1,200"},
+		{99900, "$999"},
+		{100000, "$1,000"},
+		{0, "$0"},
+		{123456700, "$1,234,567"},
+		{-1, ""},
+		{-100, ""},
+	}
+	for _, c := range cases {
+		if got := FormatCents(c.in); got != c.want {
+			t.Errorf("FormatCents(%d) = %q, want %q", c.in, got, c.want)
+		}
+	}
+}

@@ -199,31 +199,32 @@ is also passed as keywords to the SearchTempest source.`,
 		},
 	}
 
-	f := cmd.Flags()
-	f.StringVar(&mk, "make", "", "Make slug (overrides positional)")
-	f.StringVar(&model, "model", "", "Model slug")
-	f.StringVar(&zip, "zip", "", "ZIP code to center the search")
-	f.IntVar(&radius, "radius", -1, "Search radius in miles (-1 = national)")
-	f.IntVar(&minPrice, "min-price", -1, "Minimum price (-1 = any)")
-	f.IntVar(&maxPrice, "max-price", -1, "Maximum price (-1 = any)")
-	f.IntVar(&minYear, "min-year", -1, "Minimum year (-1 = any)")
-	f.IntVar(&maxYear, "max-year", -1, "Maximum year (-1 = any)")
-	f.IntVar(&minMiles, "min-miles", -1, "Minimum mileage (-1 = any)")
-	f.IntVar(&maxMiles, "max-miles", -1, "Maximum mileage (-1 = any)")
-	f.StringVar(&body, "body", "", "Body style filter")
-	f.StringVar(&drive, "drive", "", "Drivetrain filter")
-	f.StringVar(&fuel, "fuel", "", "Fuel type filter")
-	f.StringVar(&transmission, "transmission", "", "Transmission filter")
-	f.StringVar(&color, "color", "", "Exterior color filter")
-	f.StringVar(&title, "title", "", "Title status filter (clean/salvage/any)")
-	f.StringVar(&seller, "seller", "", "Seller type filter (dealer/private/any)")
-	f.StringVar(&sortBy, "sort", "best_match", "Sort order")
-	f.StringVar(&sitesCSV, "sites", strings.Join(defaultSites(), ","), "Comma-separated source codes")
-	f.IntVar(&rpp, "rpp", 50, "Results per page per source")
-	f.IntVar(&maxPages, "max-pages", 1, "Max pages to fetch per source")
-	f.IntVar(&limit, "limit", 50, "Max total listings to emit")
-	f.StringVar(&saveName, "save", "", "Persist this search under a name")
-	f.StringVar(&dbPath, "db", "", "Local store path (default: per-user data dir)")
+	// Register flags via cmd.Flags() directly (not an `f :=` alias) so the
+	// library's verify_skill.py static tracer can see each declaration.
+	cmd.Flags().StringVar(&mk, "make", "", "Make slug (overrides positional)")
+	cmd.Flags().StringVar(&model, "model", "", "Model slug")
+	cmd.Flags().StringVar(&zip, "zip", "", "ZIP code to center the search")
+	cmd.Flags().IntVar(&radius, "radius", -1, "Search radius in miles (-1 = national)")
+	cmd.Flags().IntVar(&minPrice, "min-price", -1, "Minimum price (-1 = any)")
+	cmd.Flags().IntVar(&maxPrice, "max-price", -1, "Maximum price (-1 = any)")
+	cmd.Flags().IntVar(&minYear, "min-year", -1, "Minimum year (-1 = any)")
+	cmd.Flags().IntVar(&maxYear, "max-year", -1, "Maximum year (-1 = any)")
+	cmd.Flags().IntVar(&minMiles, "min-miles", -1, "Minimum mileage (-1 = any)")
+	cmd.Flags().IntVar(&maxMiles, "max-miles", -1, "Maximum mileage (-1 = any)")
+	cmd.Flags().StringVar(&body, "body", "", "Body style filter")
+	cmd.Flags().StringVar(&drive, "drive", "", "Drivetrain filter")
+	cmd.Flags().StringVar(&fuel, "fuel", "", "Fuel type filter")
+	cmd.Flags().StringVar(&transmission, "transmission", "", "Transmission filter")
+	cmd.Flags().StringVar(&color, "color", "", "Exterior color filter")
+	cmd.Flags().StringVar(&title, "title", "", "Title status filter (clean/salvage/any)")
+	cmd.Flags().StringVar(&seller, "seller", "", "Seller type filter (dealer/private/any)")
+	cmd.Flags().StringVar(&sortBy, "sort", "best_match", "Sort order")
+	cmd.Flags().StringVar(&sitesCSV, "sites", strings.Join(defaultSites(), ","), "Comma-separated source codes")
+	cmd.Flags().IntVar(&rpp, "rpp", 50, "Results per page per source")
+	cmd.Flags().IntVar(&maxPages, "max-pages", 1, "Max pages to fetch per source")
+	cmd.Flags().IntVar(&limit, "limit", 50, "Max total listings to emit")
+	cmd.Flags().StringVar(&saveName, "save", "", "Persist this search under a name")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Local store path (default: per-user data dir)")
 
 	return cmd
 }
@@ -649,7 +650,11 @@ func persistListings(ctx context.Context, dbPath, searchName string, listings []
 			return fmt.Errorf("upserting listing %s: %w", l.ID, err)
 		}
 
-		// Snapshot only when the price differs from the last recorded snapshot.
+		// Record a snapshot only when the price differs from the listing's MOST
+		// RECENT snapshot (not any historical value). This captures every price
+		// CHANGE — including a recovery back to a prior value — while leaving
+		// unchanged re-syncs as no-ops. The table's UNIQUE(listing_id, ts) makes
+		// two writes in the same second a harmless no-op (INSERT OR IGNORE).
 		if l.PriceCents >= 0 {
 			var lastPrice sql.NullInt64
 			row := tx.QueryRowContext(ctx, `
@@ -835,11 +840,12 @@ func listingRow(l autotempest.Listing) map[string]any {
 	}
 }
 
+// centsDisplay renders integer cents as "$30,497" (with thousands separators)
+// or "" for an unknown/negative value. Used across find/drops/deal/spread/
+// auctions output. Delegates to autotempest.FormatCents so all price formatting
+// shares one implementation.
 func centsDisplay(cents int64) string {
-	if cents < 0 {
-		return ""
-	}
-	return "$" + strconv.FormatInt(cents/100, 10)
+	return autotempest.FormatCents(cents)
 }
 
 func milesDisplay(m int64) string {
