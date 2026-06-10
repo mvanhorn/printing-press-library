@@ -298,6 +298,11 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					indicator = yellow("INFO")
 				case strings.HasPrefix(s, "ERROR"):
 					indicator = red("FAIL")
+				// PATCH(workspace-nudge): render WARN-prefixed verdicts (e.g. the
+				// workspace base_url migration warning) with the WARN indicator
+				// rather than falling through to the default OK. Re-apply after regen.
+				case strings.HasPrefix(s, "WARN"):
+					indicator = yellow("WARN")
 				case strings.HasPrefix(s, "optional"):
 					// Optional-auth CLI with no key set — informational, not a failure.
 					indicator = yellow("INFO")

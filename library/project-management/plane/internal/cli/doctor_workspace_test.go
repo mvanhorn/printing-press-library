@@ -16,4 +16,8 @@ func TestWorkspaceDoctorVerdict(t *testing.T) {
 	if got := workspaceDoctorVerdict("acme", "https://h/api/v1/workspaces/acme", cfg); got == "" {
 		t.Fatal("expected a migration warning for literal-slug base_url")
 	}
+	// sentinel slug but workspaces already enrolled + templated base -> OK (empty)
+	if got := workspaceDoctorVerdict("my-workspace", "https://api.plane.so/api/v1/workspaces/{slug}", []string{"acme"}); got != "" {
+		t.Fatalf("sentinel slug with enrolled workspaces should be OK, got %q", got)
+	}
 }
