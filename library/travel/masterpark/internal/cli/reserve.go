@@ -214,6 +214,7 @@ func (rf *reserveFlags) missingBookingFields() []string {
 		{"--phone", rf.phone},
 		{"--vehicle-make", rf.vehMake},
 		{"--vehicle-model", rf.vehModel},
+		{"--vehicle-color", rf.vehColor},
 		{"--plate", rf.plate},
 	}
 	var missing []string

@@ -82,7 +82,7 @@ func newReservationsListCmd(g *globalOpts) *cobra.Command {
 				"method": "listReservations",
 			})
 			if err != nil {
-				return fmt.Errorf("listReservations is not reachable without an authenticated browser session: %w", err)
+				return fmt.Errorf("listReservations failed: %w", err)
 			}
 			if len(resp.Errors) > 0 {
 				return fmt.Errorf("listReservations returned errors (endpoint likely needs a captured browser session): %v", resp.Errors)

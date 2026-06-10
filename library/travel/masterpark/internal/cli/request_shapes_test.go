@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -142,6 +143,46 @@ func TestReservationsListVerifyNoopSkipsLiveEndpoints(t *testing.T) {
 	}
 	if got["command"] != "reservations list" {
 		t.Fatalf("expected command marker, got %v", got)
+	}
+}
+
+func TestReservationsListTransportErrorDoesNotBlameAuthSession(t *testing.T) {
+	cap := &ajaxCapture{}
+	mux := http.NewServeMux()
+	mux.HandleFunc("/reservation/book/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+		_, _ = io.WriteString(w, `<html><script>window._wpnonce = "shape-nonce";</script></html>`)
+	})
+	mux.HandleFunc("/wp-content/plugins/netParkV2/ajax.php", func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		var parsed map[string]interface{}
+		_ = json.Unmarshal(body, &parsed)
+		method, _ := parsed["method"].(string)
+		cap.Methods = append(cap.Methods, method)
+		cap.Bodies = append(cap.Bodies, parsed)
+		w.Header().Set("Content-Type", "application/json")
+		if method == "verifyLogin" {
+			_, _ = io.WriteString(w, `{"errors":[],"data":{"customer":123}}`)
+			return
+		}
+		http.Error(w, "upstream unavailable", http.StatusServiceUnavailable)
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	t.Setenv("MASTERPARK_BASE_URL", srv.URL)
+	t.Setenv(config.EnvUsername, "alice@example.com")
+	t.Setenv(config.EnvPassword, "secret")
+
+	g := &globalOpts{timeout: 5 * time.Second, json: true}
+	_, err := runCmd(t, newReservationsListCmd(g), "--lot", "G")
+	if err == nil {
+		t.Fatalf("expected listReservations error")
+	}
+	if strings.Contains(err.Error(), "authenticated browser session") {
+		t.Fatalf("transport error should not blame auth session: %v", err)
+	}
+	if !strings.Contains(err.Error(), "listReservations failed") {
+		t.Fatalf("expected neutral listReservations failure, got: %v", err)
 	}
 }
 

@@ -68,6 +68,7 @@ func reserveArgs(extra ...string) []string {
 		"--phone", "phone-test",
 		"--vehicle-make", "Honda",
 		"--vehicle-model", "Civic",
+		"--vehicle-color", "Blue",
 		"--plate", "ABC123",
 	}
 	return append(base, extra...)
@@ -134,6 +135,30 @@ func TestReserveSubmitMissingFields(t *testing.T) {
 	_, err := runCmd(t, newReserveCmd(g), args...)
 	if err == nil || !strings.Contains(err.Error(), "missing required fields") {
 		t.Errorf("expected missing fields error, got: %v", err)
+	}
+}
+
+func TestReserveSubmitRequiresVehicleColor(t *testing.T) {
+	t.Setenv("PRINTING_PRESS_VERIFY", "1")
+	g := &globalOpts{timeout: 5 * time.Second}
+	args := []string{
+		"--lot", "B",
+		"--dropoff", "2026-06-11 07:00",
+		"--pickup", "2026-06-13 18:30",
+		"--quote", "1",
+		"--first-name", "Alice",
+		"--last-name", "Smith",
+		"--email", "alice@example.com",
+		"--phone", "phone-test",
+		"--vehicle-make", "Honda",
+		"--vehicle-model", "Civic",
+		"--plate", "ABC123",
+		"--use-saved-profile=false",
+		"--submit", "--yes",
+	}
+	_, err := runCmd(t, newReserveCmd(g), args...)
+	if err == nil || !strings.Contains(err.Error(), "--vehicle-color") {
+		t.Errorf("expected missing --vehicle-color error, got: %v", err)
 	}
 }
 
