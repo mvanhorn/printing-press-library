@@ -1,25 +1,24 @@
 {
-  "_note": "Hand-authored stub. The original publish run did not emit a dogfood-results.json artifact. This file records only structural observations from the shipped source and intentionally marks live command execution as skipped rather than fabricated. Replace it with a real dogfood artifact on the next full publish run.",
+  "_note": "Hand-authored dogfood summary from a live guest-surface smoke on 2026-06-10 plus targeted local Go verification. The original publish run did not emit a committed dogfood artifact, so authenticated cart and checkout mutations remain explicitly unexecuted here instead of fabricated.",
   "dir": ".",
   "spec_path": "openapi.yaml",
-  "verdict": "STUB",
+  "verdict": "PASS",
   "path_check": {
-    "tested": 0,
-    "valid": 0,
-    "valid_pct": 0,
-    "skipped": true,
-    "detail": "skipped: no preserved publish-run dogfood matrix was available in this checkout"
+    "tested": 3,
+    "valid": 3,
+    "valid_pct": 100,
+    "detail": "live guest smoke passed for suggest --q leite, search --q leite, and product leite-uht-meio-gordo-continente-continente-6879912"
   },
   "auth_check": {
     "spec_scheme": "none",
     "generated_format": "session-optional",
     "match": true,
-    "detail": "guest storefront reads are keyless; optional auth commands hydrate a local browser-backed cookie jar"
+    "detail": "guest storefront reads are keyless; doctor confirmed session-backed auth remains optional and the local imported browser session was incomplete or expired during this smoke"
   },
   "browser_session_check": {
     "required": false,
     "pass": true,
-    "detail": "browser-session auth is optional, not required for the default read-only storefront surface"
+    "detail": "browser-session auth is optional and was not required for the verified guest storefront surface"
   },
   "dead_flags": {
     "total": 0,
@@ -40,11 +39,10 @@
     "detail": "source contains live storefront commands plus local sync/search workflows; this stub does not re-run them"
   },
   "example_check": {
-    "tested": 0,
-    "with_examples": 0,
-    "valid_examples": 0,
-    "skipped": true,
-    "detail": "skipped: README and Cobra example blocks were not executed as part of this stub"
+    "tested": 3,
+    "with_examples": 3,
+    "valid_examples": 3,
+    "detail": "README-aligned guest examples for suggest, search, and product were executed live on 2026-06-10"
   },
   "wiring_check": {
     "command_tree": {
@@ -64,14 +62,14 @@
     }
   },
   "novel_features_check": {
-    "planned": 4,
-    "found": 4,
-    "detail": "publish metadata still advertises auth login, import-cookies, cart update, and checkout slots"
+    "planned": 5,
+    "found": 5,
+    "detail": "publish metadata now advertises auth login, import-cookies, cart update, checkout slots, and checkout select-slot"
   },
   "mcp_surface_parity": {
-    "state": "stub",
+    "state": "source-verified",
     "pass": true,
-    "detail": "typed MCP tools and the Cobra-tree mirror were updated to the English command surface in source, but not re-dogfooded here"
+    "detail": "typed MCP tools and the Cobra command tree still mirror the same source-defined command surface; runtime MCP execution was not re-dogfooded in this checkout"
   },
   "reimplementation_check": {
     "checked": 0,
@@ -87,8 +85,8 @@
     "skipped": true
   },
   "test_presence": {
-    "checked": 0,
-    "detail": "see repo test suite; this stub does not encode a full per-command matrix"
+    "checked": 2,
+    "detail": "go test ./internal/client ./internal/cli passed locally on 2026-06-10, including the compact cart cache regression path"
   },
   "naming_check": {
     "checked": 1,
