@@ -73,14 +73,7 @@ func newIncentiveProgramsPromotedCmd(flags *rootFlags) *cobra.Command {
 			data = extractResponseData(data)
 
 			// Print provenance to stderr
-			{
-				var countItems []json.RawMessage
-				if json.Unmarshal(data, &countItems) != nil {
-					// Single object, not an array
-					countItems = []json.RawMessage{data}
-				}
-				printProvenance(cmd, len(countItems), prov)
-			}
+			printProvenance(cmd, countResultItems(data), prov)
 			// CSV bypasses JSON pipe path so --csv works when piped
 			if flags.csv {
 				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)

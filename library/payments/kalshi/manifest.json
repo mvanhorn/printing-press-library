@@ -15,16 +15,24 @@
       "command": "${__dirname}/bin/kalshi-pp-mcp",
       "args": [],
       "env": {
-        "KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY": "${user_config.kalshi_trade_manual_kalshi_access_key}"
+        "KALSHI_API_KEY": "${user_config.kalshi_api_key}",
+        "KALSHI_PRIVATE_KEY_PATH": "${user_config.kalshi_private_key_path}"
       }
     }
   },
   "user_config": {
-    "kalshi_trade_manual_kalshi_access_key": {
+    "kalshi_api_key": {
       "type": "string",
-      "title": "KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY",
-      "description": "Sets KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY for the Kalshi Trade Manual MCP server.",
+      "title": "KALSHI_API_KEY",
+      "description": "Kalshi access key id (from kalshi.com account settings). Requests are RSA-PSS signed with the private key below.",
       "sensitive": true,
+      "required": true
+    },
+    "kalshi_private_key_path": {
+      "type": "string",
+      "title": "KALSHI_PRIVATE_KEY_PATH",
+      "description": "Filesystem path to the RSA private key (.pem) that pairs with the access key id.",
+      "sensitive": false,
       "required": true
     }
   },

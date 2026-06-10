@@ -111,6 +111,9 @@ func newWatchListCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if flags.asJSON {
+				if entries == nil {
+					entries = []entry{} // emit [], never null (same guard as movers/calendar)
+				}
 				return printJSONFiltered(cmd.OutOrStdout(), entries, flags)
 			}
 			if len(entries) == 0 {
@@ -210,6 +213,9 @@ func newWatchDiffCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if flags.asJSON {
+				if rows == nil {
+					rows = []watchDiffRow{} // emit [], never null (same guard as movers/calendar)
+				}
 				return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
 			}
 			if len(rows) == 0 {
@@ -239,7 +245,7 @@ func newWatchDiffCmd(flags *rootFlags) *cobra.Command {
 			return flags.printTable(cmd, headers, tableRows)
 		},
 	}
-	cmd.Flags().StringVar(&since, "since", "24h", "Lookback window (e.g., 1h, 24h, 7d)")
+	cmd.Flags().StringVar(&since, "since", "24h", "Lookback window (e.g., 1h, 24h, 7d) or absolute date (e.g., 2026-04-01)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	return cmd
 }

@@ -1176,22 +1176,26 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 		if err != nil {
 			msg := err.Error()
 			switch {
-			case strings.Contains(msg, "HTTP 409"):
+			case strings.Contains(msg, "HTTP 409") && method != "GET":
+				// Creates retried by agents: already-exists is success. A 409
+				// on a GET must surface as an error, not an empty success
+				// (audit 2026-06-09).
 				return mcplib.NewToolResultText("already exists (no-op)"), nil
 			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
 				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
-					"\n      Set your API key: export KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY=<your-key>" +
+					"\n      Set credentials: export KALSHI_API_KEY=<access-key-id> KALSHI_PRIVATE_KEY_PATH=<path-to.pem>" +
 					"\n      Run 'kalshi-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
 				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
-					"\nhint: check your API key." +
-					"\n      Set it with: export KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY=<your-key>" +
+					"\nhint: check your credentials." +
+					"\n      Set them with: export KALSHI_API_KEY=<access-key-id> KALSHI_PRIVATE_KEY_PATH=<path-to.pem>" +
+					"\n      INCORRECT_API_KEY_SIGNATURE = the private key doesn't match the access key id." +
 					"\n      Run 'kalshi-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource." +
-					"\n      Set it with: export KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY=<your-key>" +
+					"\n      Credentials come from KALSHI_API_KEY + KALSHI_PRIVATE_KEY_PATH (or config.toml)." +
 					"\n      Run 'kalshi-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
@@ -1332,8 +1336,8 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion kalshi-pp-cli binary.",
 		"auth": map[string]any{
-			"type":     "api_key",
-			"env_vars": []string{"KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY"},
+			"type":     "rsa_pss_signed",
+			"env_vars": []string{"KALSHI_API_KEY", "KALSHI_PRIVATE_KEY_PATH", "KALSHI_PRIVATE_KEY"},
 		},
 		"resources": []map[string]any{
 			{

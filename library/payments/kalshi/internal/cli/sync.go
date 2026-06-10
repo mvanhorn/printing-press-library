@@ -250,7 +250,7 @@ Exit codes & warnings:
 
 	cmd.Flags().StringSliceVar(&resources, "resources", nil, "Comma-separated resource types to sync")
 	cmd.Flags().BoolVar(&full, "full", false, "Full resync (ignore previous checkpoint)")
-	cmd.Flags().StringVar(&since, "since", "", "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)")
+	cmd.Flags().StringVar(&since, "since", "", "Incremental sync threshold: duration (e.g. 7d, 24h, 1w, 30m) or absolute date (e.g. 2026-04-01)")
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/kalshi-pp-cli/data.db)")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 100, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
@@ -319,9 +319,9 @@ func syncResource(c interface {
 			params[pageSize.cursorParam] = cursor
 		}
 
-		// Set since filter
-		if effectiveSince != "" {
-			params[sinceParam] = effectiveSince
+		// Set since filter (converted to the wire format — Unix seconds)
+		if wire := sinceParamValue(effectiveSince); wire != "" {
+			params[sinceParam] = wire
 		}
 
 		data, err := c.Get(path, params)
@@ -506,8 +506,33 @@ func determinePaginationDefaults() paginationDefaults {
 }
 
 // determineSinceParam returns the query parameter name for incremental sync filtering.
+// Kalshi's endpoints take min_ts (Unix SECONDS), not a generic "since" — the old
+// param was silently ignored upstream, so every "incremental" sync re-fetched
+// the full history (audit 2026-06-09). The RFC3339 value from sync_state is
+// converted in sinceParamValue.
 func determineSinceParam() string {
-	return "since"
+	return "min_ts"
+}
+
+// sinceParamValue converts a since timestamp (RFC3339 from sync_state, or a
+// user-passed value) into the wire format for determineSinceParam. Accepts
+// raw Unix seconds and YYYY-MM-DD as conveniences; returns "" (= no filter,
+// full fetch) when the value can't be parsed — better a slow correct sync
+// than a silently-ignored filter.
+func sinceParamValue(v string) string {
+	if v == "" {
+		return ""
+	}
+	if _, err := strconv.ParseInt(v, 10, 64); err == nil {
+		return v // already Unix seconds
+	}
+	if t, err := time.Parse(time.RFC3339, v); err == nil {
+		return strconv.FormatInt(t.Unix(), 10)
+	}
+	if t, err := time.Parse("2006-01-02", v); err == nil {
+		return strconv.FormatInt(t.UTC().Unix(), 10)
+	}
+	return ""
 }
 
 // extractPageItems attempts to extract an array of items and pagination cursor from a response.
@@ -793,12 +818,19 @@ func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) 
 }
 
 // parseSinceDuration converts human-friendly duration strings into a time.Time.
-// Supported formats: "7d" (days), "24h" (hours), "30m" (minutes), "1w" (weeks).
+// Supported formats: "7d" (days), "24h" (hours), "30m" (minutes), "1w" (weeks),
+// plus absolute "YYYY-MM-DD" dates (UTC midnight), matching the --since
+// semantics of portfolio attribution/winrate so every --since flag accepts
+// both shapes. (polish 2026-06-09)
 func parseSinceDuration(s string) (time.Time, error) {
+	s = strings.TrimSpace(s)
+	if t, err := time.Parse("2006-01-02", s); err == nil {
+		return t, nil
+	}
 	re := regexp.MustCompile(`^(\d+)([dhwm])$`)
-	matches := re.FindStringSubmatch(strings.TrimSpace(s))
+	matches := re.FindStringSubmatch(s)
 	if matches == nil {
-		return time.Time{}, fmt.Errorf("expected format like 7d, 24h, 1w, or 30m")
+		return time.Time{}, fmt.Errorf("expected a duration like 7d, 24h, 1w, or 30m, or a date like 2026-04-01")
 	}
 
 	n, err := strconv.Atoi(matches[1])
@@ -844,6 +876,7 @@ func defaultSyncResources() []string {
 		"milestones",
 		"multivariate-event-collections",
 		"portfolio",
+		"portfolio-positions",
 		"portfolio-settlements",
 		"series",
 		"structured-targets",
@@ -875,8 +908,12 @@ func syncResourcePath(resource string) (string, error) {
 		// multi-endpoint-per-resource generator fix lands and this CLI is
 		// regenerated.
 		"portfolio-settlements": "/portfolio/settlements",
-		"series":                "/series",
-		"structured-targets":    "/structured_targets",
+		// PATCH (audit 2026-06-09): positions were never synced, so portfolio
+		// exposure/calendar/stale always reported an empty book — a false
+		// flat-book signal if used as a risk cross-check.
+		"portfolio-positions": "/portfolio/positions",
+		"series":              "/series",
+		"structured-targets":  "/structured_targets",
 	}
 	if p, ok := paths[resource]; ok {
 		return p, nil
@@ -909,6 +946,7 @@ var resourceIDFieldOverrides = map[string]string{
 	"historical":            "fill_id",
 	"markets":               "ticker",
 	"portfolio":             "fill_id",
+	"portfolio-positions":   "ticker",
 	"portfolio-settlements": "ticker",
 	"series":                "series_ticker",
 }

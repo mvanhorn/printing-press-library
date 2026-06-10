@@ -20,6 +20,7 @@ import (
 func newPortfolioAttributionCmd(flags *rootFlags) *cobra.Command {
 	var byField string
 	var period string
+	var sinceDate string
 	var dbPath string
 
 	cmd := &cobra.Command{
@@ -53,6 +54,15 @@ func newPortfolioAttributionCmd(flags *rootFlags) *cobra.Command {
 				}
 				sinceTS = ts.Format(time.RFC3339)
 			}
+			// --since takes priority over --period when both are given:
+			// it anchors the window at an absolute date.
+			if sinceDate != "" {
+				t, err := time.Parse("2006-01-02", sinceDate)
+				if err != nil {
+					return fmt.Errorf("invalid --since (want YYYY-MM-DD): %w", err)
+				}
+				sinceTS = t.UTC().Format(time.RFC3339)
+			}
 
 			rows, err := queryAttribution(db.DB(), byField, sinceTS)
 			if err != nil {
@@ -60,6 +70,9 @@ func newPortfolioAttributionCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if flags.asJSON {
+				if rows == nil {
+					rows = []attributionRow{} // emit [], never null (same guard as movers/calendar)
+				}
 				return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
 			}
 
@@ -90,11 +103,9 @@ func newPortfolioAttributionCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(&byField, "by", "category", "Group by: category, series, or event")
-	cmd.Flags().StringVar(&period, "period", "", "Time period (e.g., 7d, 30d, 90d)")
-	var sinceDate string
-	cmd.Flags().StringVar(&sinceDate, "since", "", "Filter to fills/settlements on or after this date (YYYY-MM-DD; alias for --period anchored to this date)")
+	cmd.Flags().StringVar(&period, "period", "", "Time period (e.g., 7d, 30d, 90d), filtered on each settlement's settled_time")
+	cmd.Flags().StringVar(&sinceDate, "since", "", "Filter to settlements on or after this date (YYYY-MM-DD; takes priority over --period)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
-	_ = sinceDate
 	return cmd
 }
 
@@ -142,13 +153,18 @@ func queryAttribution(db *sql.DB, byField, sinceTS string) ([]attributionRow, er
 		WHERE p.resource_type = 'portfolio-settlements'
 	`, groupExpr)
 
+	// Filter on the settlement's OWN settled_time, not synced_at: every
+	// re-sync re-stamps synced_at on all rows, which made --period return
+	// all-time data labeled as the window (audit 2026-06-09).
+	var args []any
 	if sinceTS != "" {
-		query += fmt.Sprintf(` AND p.synced_at >= '%s'`, sinceTS)
+		query += ` AND COALESCE(json_extract(p.data, '$.settled_time'), '') >= ?`
+		args = append(args, sinceTS)
 	}
 
 	query += ` GROUP BY grp ORDER BY net_pnl DESC`
 
-	rows, err := db.Query(query)
+	rows, err := db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -169,6 +185,7 @@ func queryAttribution(db *sql.DB, byField, sinceTS string) ([]attributionRow, er
 
 func newPortfolioWinrateCmd(flags *rootFlags) *cobra.Command {
 	var byField string
+	var sinceDate, categoryFilter string
 	var dbPath string
 
 	cmd := &cobra.Command{
@@ -190,12 +207,24 @@ func newPortfolioWinrateCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer db.Close()
 
-			rows, err := queryWinRate(db.DB(), byField)
+			sinceTS := ""
+			if sinceDate != "" {
+				t, err := time.Parse("2006-01-02", sinceDate)
+				if err != nil {
+					return fmt.Errorf("invalid --since (want YYYY-MM-DD): %w", err)
+				}
+				sinceTS = t.UTC().Format(time.RFC3339)
+			}
+
+			rows, err := queryWinRate(db.DB(), byField, sinceTS, categoryFilter)
 			if err != nil {
 				return fmt.Errorf("querying win rate: %w", err)
 			}
 
 			if flags.asJSON {
+				if rows == nil {
+					rows = []winRateRow{} // emit [], never null (same guard as movers/calendar)
+				}
 				return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
 			}
 
@@ -228,12 +257,9 @@ func newPortfolioWinrateCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(&byField, "by", "all", "Group by: all, category, series")
-	var sinceDate, categoryFilter string
-	cmd.Flags().StringVar(&sinceDate, "since", "", "Filter to settlements on or after this date (YYYY-MM-DD)")
+	cmd.Flags().StringVar(&sinceDate, "since", "", "Filter to settlements on or after this date (YYYY-MM-DD), on settled_time")
 	cmd.Flags().StringVar(&categoryFilter, "category", "", "Filter to a single market category (e.g., politics, sports, weather)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
-	_ = sinceDate
-	_ = categoryFilter
 	return cmd
 }
 
@@ -247,7 +273,7 @@ type winRateRow struct {
 	TotalRevenue float64 `json:"total_revenue"`
 }
 
-func queryWinRate(db *sql.DB, byField string) ([]winRateRow, error) {
+func queryWinRate(db *sql.DB, byField, sinceTS, category string) ([]winRateRow, error) {
 	groupExpr := "'all'"
 	if byField == "category" {
 		groupExpr = "COALESCE(COALESCE(json_extract(m.data, '$.category'), SUBSTR(m.id, 1, INSTR(m.id, '-')-1)), 'unknown')"
@@ -277,11 +303,25 @@ func queryWinRate(db *sql.DB, byField string) ([]winRateRow, error) {
 		FROM resources p
 		LEFT JOIN resources m ON m.resource_type = 'markets' AND p.id = m.id
 		WHERE p.resource_type = 'portfolio-settlements'
-		GROUP BY grp
-		ORDER BY win_rate DESC
 	`, groupExpr)
 
-	rows, err := db.Query(query)
+	// --since / --category were parsed-then-discarded before (audit
+	// 2026-06-09): filtered-looking answers were silently all-time/all-category.
+	var args []any
+	if sinceTS != "" {
+		query += ` AND COALESCE(json_extract(p.data, '$.settled_time'), '') >= ?`
+		args = append(args, sinceTS)
+	}
+	if category != "" {
+		query += ` AND LOWER(COALESCE(json_extract(m.data, '$.category'), SUBSTR(m.id, 1, INSTR(m.id, '-')-1), '')) = LOWER(?)`
+		args = append(args, category)
+	}
+	query += `
+		GROUP BY grp
+		ORDER BY win_rate DESC
+	`
+
+	rows, err := db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -302,6 +342,7 @@ func queryWinRate(db *sql.DB, byField string) ([]winRateRow, error) {
 
 func newMarketsMoversCmd(flags *rootFlags) *cobra.Command {
 	var limit int
+	var categoryFilter string
 	var dbPath string
 
 	cmd := &cobra.Command{
@@ -323,7 +364,7 @@ func newMarketsMoversCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer db.Close()
 
-			movers, err := queryMovers(db.DB(), limit)
+			movers, err := queryMovers(db.DB(), limit, categoryFilter)
 			if err != nil {
 				return fmt.Errorf("querying movers: %w", err)
 			}
@@ -362,12 +403,11 @@ func newMarketsMoversCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.Flags().IntVar(&limit, "limit", 10, "Number of movers to show")
-	var window, categoryFilter string
+	var window string
 	cmd.Flags().StringVar(&window, "window", "24h", "Time window for the price-change comparison (informational; the underlying delta uses Kalshi's reported previous_yes_bid)")
 	cmd.Flags().StringVar(&categoryFilter, "category", "", "Filter to a single market category (e.g., politics, sports, weather)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	_ = window
-	_ = categoryFilter
 	return cmd
 }
 
@@ -379,7 +419,7 @@ type moverRow struct {
 	Volume   int     `json:"volume"`
 }
 
-func queryMovers(db *sql.DB, limit int) ([]moverRow, error) {
+func queryMovers(db *sql.DB, limit int, category string) ([]moverRow, error) {
 	query := `
 		SELECT
 			m.id as ticker,
@@ -390,14 +430,22 @@ func queryMovers(db *sql.DB, limit int) ([]moverRow, error) {
 		FROM resources m
 		WHERE m.resource_type = 'markets'
 			AND json_extract(m.data, '$.status') IN ('open', 'active')
+	`
+	var args []any
+	if category != "" {
+		query += ` AND LOWER(COALESCE(json_extract(m.data, '$.category'), SUBSTR(m.id, 1, INSTR(m.id, '-')-1), '')) = LOWER(?)`
+		args = append(args, category)
+	}
+	query += `
 		ORDER BY ABS(
 			COALESCE(json_extract(m.data, '$.yes_bid'), json_extract(m.data, '$.last_price'), 0)
 			- COALESCE(json_extract(m.data, '$.previous_yes_bid'), json_extract(m.data, '$.previous_price'), 0)
 		) DESC
 		LIMIT ?
 	`
+	args = append(args, limit)
 
-	rows, err := db.Query(query, limit)
+	rows, err := db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -499,18 +547,34 @@ type calendarEntry struct {
 func queryCalendar(db *sql.DB, days int) ([]calendarEntry, error) {
 	cutoff := time.Now().Add(time.Duration(days) * 24 * time.Hour).Format(time.RFC3339)
 
+	// PATCH (audit 2026-06-09): this queried fields positions WOULD have on
+	// rows that were never synced (no positions resource existed), so it
+	// always returned empty — and its field model was wrong besides: side is
+	// the SIGN of $.position (negative = NO; there is no $.side on a
+	// position), $.average_price doesn't exist (derive avg cost from
+	// market_exposure / |position|), money fields prefer the *_dollars
+	// strings with the legacy centi-cents integer as fallback, and the
+	// un-parenthesized AND/OR join condition self-joined across types.
 	query := `
 		SELECT
 			p.id,
 			COALESCE(json_extract(m.data, '$.title'), p.id) as title,
 			COALESCE(json_extract(m.data, '$.close_time'), json_extract(m.data, '$.expiration_time'), '') as close_time,
-			COALESCE(json_extract(p.data, '$.side'), 'yes') as side,
-			COALESCE(json_extract(p.data, '$.total_traded'), json_extract(p.data, '$.position'), 0) as contracts,
-			COALESCE(json_extract(p.data, '$.average_price'), 0) / 100.0 as avg_cost,
-			COALESCE(json_extract(m.data, '$.yes_bid'), json_extract(m.data, '$.last_price'), 0) / 100.0 as current_price
+			CASE WHEN COALESCE(json_extract(p.data, '$.position'), 0) < 0 THEN 'no' ELSE 'yes' END as side,
+			CAST(ABS(COALESCE(json_extract(p.data, '$.position'), 0)) AS INTEGER) as contracts,
+			COALESCE(
+				CAST(json_extract(p.data, '$.market_exposure_dollars') AS REAL),
+				COALESCE(json_extract(p.data, '$.market_exposure'), 0) / 10000.0
+			) / MAX(ABS(COALESCE(json_extract(p.data, '$.position'), 0)), 1) as avg_cost,
+			COALESCE(
+				CAST(json_extract(m.data, '$.yes_bid_dollars') AS REAL),
+				COALESCE(json_extract(m.data, '$.yes_bid'), json_extract(m.data, '$.last_price'), 0) / 100.0
+			) as current_price
 		FROM resources p
-		LEFT JOIN resources m ON m.resource_type = 'markets' AND json_extract(p.data, '$.market_ticker') = m.id OR json_extract(p.data, '$.ticker') = m.id
-		WHERE (json_extract(p.data, '$.total_traded') > 0 OR json_extract(p.data, '$.position') > 0)
+		LEFT JOIN resources m ON m.resource_type = 'markets'
+			AND (json_extract(p.data, '$.ticker') = m.id OR json_extract(p.data, '$.market_ticker') = m.id)
+		WHERE p.resource_type = 'portfolio-positions'
+			AND ABS(COALESCE(json_extract(p.data, '$.position'), 0)) > 0
 			AND json_extract(m.data, '$.status') IN ('open', 'active')
 			AND COALESCE(json_extract(m.data, '$.close_time'), json_extract(m.data, '$.expiration_time'), '') <= ?
 			AND COALESCE(json_extract(m.data, '$.close_time'), json_extract(m.data, '$.expiration_time'), '') >= datetime('now')
@@ -543,6 +607,8 @@ func queryCalendar(db *sql.DB, days int) ([]calendarEntry, error) {
 
 func newPortfolioExposureCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
+	var byField string
+	var warnThreshold float64
 
 	cmd := &cobra.Command{
 		Use:         "exposure",
@@ -563,18 +629,21 @@ func newPortfolioExposureCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer db.Close()
 
-			exposure, err := queryExposure(db.DB())
+			exposure, err := queryExposure(db.DB(), byField)
 			if err != nil {
 				return fmt.Errorf("querying exposure: %w", err)
 			}
 
-			if len(exposure.Categories) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No open positions found. Run 'sync' first.")
-				return nil
+			if flags.asJSON {
+				if exposure.Categories == nil {
+					exposure.Categories = []categoryExposure{} // emit [], never null or prose, in JSON mode
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), exposure, flags)
 			}
 
-			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), exposure, flags)
+			if len(exposure.Categories) == 0 {
+				fmt.Fprintln(cmd.OutOrStdout(), "No open positions found. Run 'sync --resources portfolio-positions' first.")
+				return nil
 			}
 
 			w := cmd.OutOrStdout()
@@ -582,12 +651,17 @@ func newPortfolioExposureCmd(flags *rootFlags) *cobra.Command {
 
 			headers := []string{"Category", "Positions", "Exposure ($)", "% of Total", "Risk"}
 			var tableRows [][]string
+			// --warn-threshold drives the risk coloring (it was parsed and
+			// discarded before; audit 2026-06-09). HIGH at the threshold,
+			// MEDIUM within 25% below it.
+			highPct := warnThreshold * 100
+			mediumPct := highPct * 0.75
 			for _, c := range exposure.Categories {
 				pctStr := fmt.Sprintf("%.0f%%", c.PctOfTotal)
 				risk := ""
-				if c.PctOfTotal > 50 {
+				if c.PctOfTotal >= highPct {
 					risk = red("HIGH")
-				} else if c.PctOfTotal > 30 {
+				} else if c.PctOfTotal >= mediumPct {
 					risk = yellow("MEDIUM")
 				} else {
 					risk = green("LOW")
@@ -605,12 +679,8 @@ func newPortfolioExposureCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
-	var byField string
-	var warnThreshold float64
 	cmd.Flags().StringVar(&byField, "by", "category", "Group exposure by: category (default), series")
 	cmd.Flags().Float64Var(&warnThreshold, "warn-threshold", 0.40, "Highlight buckets exceeding this fraction of total exposure (e.g., 0.40 = 40%)")
-	_ = byField
-	_ = warnThreshold
 	return cmd
 }
 
@@ -627,19 +697,31 @@ type categoryExposure struct {
 	PctOfTotal float64 `json:"pct_of_total"`
 }
 
-func queryExposure(db *sql.DB) (exposureResult, error) {
-	query := `
+func queryExposure(db *sql.DB, byField string) (exposureResult, error) {
+	groupExpr := "COALESCE(COALESCE(json_extract(m.data, '$.category'), SUBSTR(m.id, 1, INSTR(m.id, '-')-1)), 'unknown')"
+	if byField == "series" {
+		groupExpr = "COALESCE(json_extract(m.data, '$.series_ticker'), 'unknown')"
+	}
+
+	// PATCH (audit 2026-06-09): see queryCalendar — positions resource filter,
+	// *_dollars-first money fields (legacy integer market_exposure is
+	// CENTI-cents: /10000, not /100), parenthesized join.
+	query := fmt.Sprintf(`
 		SELECT
-			COALESCE(COALESCE(json_extract(m.data, '$.category'), SUBSTR(m.id, 1, INSTR(m.id, '-')-1)), 'unknown') as category,
+			%s as grp,
 			COUNT(*) as positions,
-			SUM(ABS(COALESCE(json_extract(p.data, '$.market_exposure'),
-				json_extract(p.data, '$.total_traded'), 0))) / 100.0 as exposure
+			SUM(ABS(COALESCE(
+				CAST(json_extract(p.data, '$.market_exposure_dollars') AS REAL),
+				COALESCE(json_extract(p.data, '$.market_exposure'), 0) / 10000.0
+			))) as exposure
 		FROM resources p
-		LEFT JOIN resources m ON m.resource_type = 'markets' AND json_extract(p.data, '$.market_ticker') = m.id OR json_extract(p.data, '$.ticker') = m.id
-		WHERE (json_extract(p.data, '$.total_traded') > 0 OR json_extract(p.data, '$.position') > 0)
-		GROUP BY category
+		LEFT JOIN resources m ON m.resource_type = 'markets'
+			AND (json_extract(p.data, '$.ticker') = m.id OR json_extract(p.data, '$.market_ticker') = m.id)
+		WHERE p.resource_type = 'portfolio-positions'
+			AND ABS(COALESCE(json_extract(p.data, '$.position'), 0)) > 0
+		GROUP BY grp
 		ORDER BY exposure DESC
-	`
+	`, groupExpr)
 
 	rows, err := db.Query(query)
 	if err != nil {
@@ -698,13 +780,16 @@ func newPortfolioStalePositionsCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("querying stale positions: %w", err)
 			}
 
+			if flags.asJSON {
+				if positions == nil {
+					positions = []stalePosition{} // emit [], never null or prose, in JSON mode
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), positions, flags)
+			}
+
 			if len(positions) == 0 {
 				fmt.Fprintln(cmd.OutOrStdout(), "No positions approaching expiry.")
 				return nil
-			}
-
-			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), positions, flags)
 			}
 
 			headers := []string{"Expires In", "Market", "Side", "Contracts", "Current"}
@@ -745,17 +830,24 @@ type stalePosition struct {
 func queryStalePositions(db *sql.DB, days int) ([]stalePosition, error) {
 	cutoff := time.Now().Add(time.Duration(days) * 24 * time.Hour).Format(time.RFC3339)
 
+	// PATCH (audit 2026-06-09): see queryCalendar — same positions-resource,
+	// sign-derived side, and parenthesized-join fixes.
 	query := `
 		SELECT
 			p.id,
 			COALESCE(json_extract(m.data, '$.title'), p.id) as title,
 			COALESCE(json_extract(m.data, '$.close_time'), json_extract(m.data, '$.expiration_time'), '') as expires_at,
-			COALESCE(json_extract(p.data, '$.side'), 'yes') as side,
-			COALESCE(json_extract(p.data, '$.total_traded'), json_extract(p.data, '$.position'), 0) as contracts,
-			COALESCE(json_extract(m.data, '$.yes_bid'), json_extract(m.data, '$.last_price'), 0) / 100.0 as current_price
+			CASE WHEN COALESCE(json_extract(p.data, '$.position'), 0) < 0 THEN 'no' ELSE 'yes' END as side,
+			CAST(ABS(COALESCE(json_extract(p.data, '$.position'), 0)) AS INTEGER) as contracts,
+			COALESCE(
+				CAST(json_extract(m.data, '$.yes_bid_dollars') AS REAL),
+				COALESCE(json_extract(m.data, '$.yes_bid'), json_extract(m.data, '$.last_price'), 0) / 100.0
+			) as current_price
 		FROM resources p
-		LEFT JOIN resources m ON m.resource_type = 'markets' AND json_extract(p.data, '$.market_ticker') = m.id OR json_extract(p.data, '$.ticker') = m.id
-		WHERE (json_extract(p.data, '$.total_traded') > 0 OR json_extract(p.data, '$.position') > 0)
+		LEFT JOIN resources m ON m.resource_type = 'markets'
+			AND (json_extract(p.data, '$.ticker') = m.id OR json_extract(p.data, '$.market_ticker') = m.id)
+		WHERE p.resource_type = 'portfolio-positions'
+			AND ABS(COALESCE(json_extract(p.data, '$.position'), 0)) > 0
 			AND COALESCE(json_extract(m.data, '$.close_time'), json_extract(m.data, '$.expiration_time'), '') <= ?
 			AND COALESCE(json_extract(m.data, '$.close_time'), json_extract(m.data, '$.expiration_time'), '') >= datetime('now')
 		ORDER BY expires_at ASC
