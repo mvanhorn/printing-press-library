@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "publish-gate-readiness",
+  "applied_at": "2026-06-10",
+  "base_run_id": "20260604-224205",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Added manifest novel-feature metadata, a phase5 proof marker, and a current Go toolchain pin for publish validation.",
+  "reason": "The printed CLI was close to publishable but still lacked the proof and metadata that Printing Press publication enforces. These repo-local fixes make the generated tree satisfy the publish contract without changing the underlying product behavior.",
+  "files": [
+    ".printing-press.json",
+    "go.mod",
+    ".manuscripts/20260604-224205/proofs/phase5-acceptance.json"
+  ],
+  "validated_outcome": "cli-printing-press publish validate --dir . --json returned passed=true after the manifest, phase5, and toolchain updates."
+}

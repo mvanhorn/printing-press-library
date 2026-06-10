@@ -1,0 +1,144 @@
+{
+  "api_name": "worten",
+  "base_url": "https://www.worten.pt",
+  "description": "Local OpenAPI seed extracted from the working housebuy Worten CLI.\nThis does not claim to describe the full Worten platform.\nIt only captures the load-bearing endpoints currently used by the housebuy operator.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "worten-api_get-offer-stock",
+      "description": "Fetch nearby store pickup stock for an offer. Required: offerId, searchQuery, radius. Returns the UntypedObject.",
+      "method": "GET",
+      "path": "/worten-api/offers/get-offer-stock",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "offerId",
+          "type": "string",
+          "location": "query",
+          "description": "Offer id",
+          "required": true
+        },
+        {
+          "name": "searchQuery",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        },
+        {
+          "name": "radius",
+          "type": "int",
+          "location": "query",
+          "description": "Radius",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "worten-api_get-product-details",
+      "description": "Fetch product details by Worten product identifier. Required: id, ref. Returns the UntypedObject.",
+      "method": "GET",
+      "path": "/worten-api/products/details",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "query",
+          "description": "Ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "worten-api_get-search-suggestions",
+      "description": "Fetch search suggestions for a text query. Required: q, max. Returns the UntypedObject.",
+      "method": "GET",
+      "path": "/worten-api/search-suggestions",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Q",
+          "required": true
+        },
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Max",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "worten-api_get-technical-specifications",
+      "description": "Fetch technical specifications for a Worten product. Required: id, ref. Returns the UntypedObject.",
+      "method": "GET",
+      "path": "/worten-api/products/technical-specifications",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "query",
+          "description": "Ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "worten-api_search-products",
+      "description": "Search Worten products by query and context. Required: contexts, params. Returns the new UntypedObject.",
+      "method": "POST",
+      "path": "/worten-api/search-products",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "contexts",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Contexts",
+          "required": true
+        },
+        {
+          "name": "params-page",
+          "wire_name": "params.page",
+          "type": "int",
+          "location": "body",
+          "description": "Page",
+          "required": true
+        },
+        {
+          "name": "params-query",
+          "wire_name": "params.query",
+          "type": "string",
+          "location": "body",
+          "description": "Query",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

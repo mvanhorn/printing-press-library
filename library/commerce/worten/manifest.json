@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "worten-pp-mcp",
+  "display_name": "Worten Reverse Engineered",
+  "version": "4.20.1",
+  "description": "Local OpenAPI seed extracted from the working housebuy Worten CLI.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/worten-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/worten-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
