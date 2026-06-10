@@ -185,8 +185,11 @@ type listingMeta struct {
 
 // fetchListingMeta loads listing display fields for the given listing IDs in a
 // single query (one IN-list, not per-id). When savedName is non-empty, only
-// listings tagged with that saved search are returned, so callers scope by
-// presence in the returned map. Returns an empty map for no ids.
+// listings whose membership in that saved search is recorded in
+// at_search_members are returned (the many-to-many scoping source of truth, not
+// the single at_listings.search_name column, which a later run of a different
+// search would have overwritten). Callers scope by presence in the returned map.
+// Returns an empty map for no ids.
 func fetchListingMeta(ctx context.Context, sqlDB *sql.DB, ids []string, savedName string) (map[string]listingMeta, error) {
 	out := make(map[string]listingMeta, len(ids))
 	if len(ids) == 0 {
@@ -198,10 +201,12 @@ func fetchListingMeta(ctx context.Context, sqlDB *sql.DB, ids []string, savedNam
 		placeholders[i] = "?"
 		args = append(args, id)
 	}
-	q := `SELECT listing_id, vin, title, make, model, year, source, url
-		FROM at_listings WHERE listing_id IN (` + strings.Join(placeholders, ",") + `)`
+	q := `SELECT l.listing_id, l.vin, l.title, l.make, l.model, l.year, l.source, l.url
+		FROM at_listings l WHERE l.listing_id IN (` + strings.Join(placeholders, ",") + `)`
 	if savedName != "" {
-		q += ` AND search_name = ?`
+		q += ` AND EXISTS (
+			SELECT 1 FROM at_search_members m
+			WHERE m.listing_id = l.listing_id AND m.search_name = ?)`
 		args = append(args, savedName)
 	}
 	dbRows, err := sqlDB.QueryContext(ctx, q, args...)

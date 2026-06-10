@@ -174,3 +174,79 @@ func TestSnapshotWritePathDedupesUnchanged(t *testing.T) {
 		t.Fatalf("expected 1 snapshot after two same-price syncs, got %d", n)
 	}
 }
+
+// TestDropsMembershipSurvivesSecondSearchRun proves the many-to-many membership
+// fix: a listing found under BOTH "cheap-civics" and "any-civics" must remain
+// scoped to BOTH after a later run of the OTHER search. Under the old single
+// at_listings.search_name column, the second run's COALESCE overwrote
+// search_name, silently dropping the listing from the first search's `drops`.
+func TestDropsMembershipSurvivesSecondSearchRun(t *testing.T) {
+	ctx := context.Background()
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	l := autotempest.Listing{
+		ID: "te-civic-1", VIN: "VINCIVIC", Title: "2018 Honda Civic",
+		Make: "Honda", Model: "Civic", Year: 2018,
+		PriceCents: 3000000, Mileage: 50000, Source: "te", URL: "https://example.com/civic",
+	}
+
+	// Run 1: the listing is found under "cheap-civics".
+	if err := persistListings(ctx, dbPath, "cheap-civics", []autotempest.Listing{l}); err != nil {
+		t.Fatalf("persist run 1 (cheap-civics): %v", err)
+	}
+	// Run 2: the SAME listing is found under a DIFFERENT search, "any-civics".
+	// (Old bug: this overwrote search_name, removing it from cheap-civics.)
+	if err := persistListings(ctx, dbPath, "any-civics", []autotempest.Listing{l}); err != nil {
+		t.Fatalf("persist run 2 (any-civics): %v", err)
+	}
+
+	db, err := store.OpenWithContext(ctx, dbPath)
+	if err != nil {
+		t.Fatalf("reopen: %v", err)
+	}
+	defer db.Close()
+	sqlDB := db.DB()
+
+	// Membership must exist in BOTH searches.
+	for _, name := range []string{"cheap-civics", "any-civics"} {
+		var c int
+		if err := sqlDB.QueryRow(
+			`SELECT COUNT(*) FROM at_search_members WHERE search_name = ? AND listing_id = ?`,
+			name, l.ID).Scan(&c); err != nil {
+			t.Fatalf("membership count for %s: %v", name, err)
+		}
+		if c != 1 {
+			t.Fatalf("listing missing from search %q after second run (membership lost)", name)
+		}
+	}
+
+	// Simulate a price drop with two snapshots at distinct timestamps so drops
+	// reports a current 30000 -> 28000 move (persistListings collapses to the
+	// current second, so seed the timeline directly).
+	if _, err := sqlDB.Exec(`DELETE FROM at_price_snapshots WHERE listing_id = ?`, l.ID); err != nil {
+		t.Fatalf("clear snapshots: %v", err)
+	}
+	insertSnapshot(t, sqlDB, l.ID, 1000, 3000000) // $30,000
+	insertSnapshot(t, sqlDB, l.ID, 2000, 2800000) // $28,000 (current)
+
+	// The drop must appear under BOTH searches — the listing was NOT lost from
+	// the first search by the second run.
+	for _, name := range []string{"cheap-civics", "any-civics"} {
+		rows, err := dropRows(ctx, sqlDB, 0, 0, name, 0)
+		if err != nil {
+			t.Fatalf("dropRows %q: %v", name, err)
+		}
+		if len(rows) != 1 || rows[0]["listing_id"] != l.ID {
+			t.Errorf("drops %q: expected 1 row for %s, got %d: %+v", name, l.ID, len(rows), rows)
+		}
+	}
+
+	// A search that never saw this listing must NOT include it.
+	rows, err := dropRows(ctx, sqlDB, 0, 0, "trucks", 0)
+	if err != nil {
+		t.Fatalf("dropRows trucks: %v", err)
+	}
+	if len(rows) != 0 {
+		t.Errorf("drops trucks: expected 0 rows (no membership), got %d: %+v", len(rows), rows)
+	}
+}

@@ -597,8 +597,11 @@ func nonAny(s string) string {
 }
 
 // persistListings upserts each listing and records a price snapshot when the
-// price differs from the listing's last snapshot. search_name tags listings
-// found by a saved search so `drops [name]` can scope to them.
+// price differs from the listing's last snapshot. When searchName is non-empty
+// (a saved search via `watch run <name>` or `find --save <name>`), each listing
+// is also registered in at_search_members so `drops <name>` can scope to it.
+// Membership is many-to-many: a listing belongs to every search that found it,
+// and a later run of a DIFFERENT search never removes it from earlier ones.
 func persistListings(ctx context.Context, dbPath, searchName string, listings []autotempest.Listing) error {
 	if len(listings) == 0 {
 		return nil
@@ -667,6 +670,18 @@ func persistListings(ctx context.Context, dbPath, searchName string, listings []
 					VALUES (?,?,?,?)`, l.ID, now, l.PriceCents, l.Mileage); err != nil {
 					return fmt.Errorf("snapshotting listing %s: %w", l.ID, err)
 				}
+			}
+		}
+
+		// Register the listing's membership in this saved search (if named).
+		// INSERT OR IGNORE keeps first_added stable across re-runs and never
+		// removes the listing from any OTHER search it already belongs to —
+		// memberships only accumulate. Unnamed/ad-hoc finds add no rows.
+		if searchName != "" {
+			if _, err := tx.ExecContext(ctx, `
+				INSERT OR IGNORE INTO at_search_members (search_name, listing_id, first_added)
+				VALUES (?,?,?)`, searchName, l.ID, now); err != nil {
+				return fmt.Errorf("recording search membership for %s: %w", l.ID, err)
 			}
 		}
 	}

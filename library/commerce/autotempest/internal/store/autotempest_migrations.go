@@ -67,6 +67,18 @@ var atTableStatements = []string{
 		created INTEGER,
 		last_run INTEGER
 	)`,
+	// Many-to-many membership: a listing can belong to multiple overlapping
+	// saved searches. This is the scoping source of truth for `drops <name>`,
+	// replacing the single at_listings.search_name column (which a later
+	// `watch run <other>` would overwrite, silently dropping the listing from
+	// the first search).
+	`CREATE TABLE IF NOT EXISTS at_search_members (
+		search_name TEXT NOT NULL,
+		listing_id TEXT NOT NULL,
+		first_added INTEGER,
+		PRIMARY KEY(search_name, listing_id)
+	)`,
+	`CREATE INDEX IF NOT EXISTS idx_at_search_members_listing ON at_search_members(listing_id)`,
 }
 
 // EnsureAutoTempestTables creates the AutoTempest novel-feature tables if they
@@ -80,6 +92,30 @@ func EnsureAutoTempestTables(db *sql.DB) error {
 		if _, err := db.Exec(stmt); err != nil {
 			return fmt.Errorf("ensuring autotempest tables: %w", err)
 		}
+	}
+	if err := backfillSearchMembers(db); err != nil {
+		return err
+	}
+	return nil
+}
+
+// backfillSearchMembers seeds at_search_members from any existing non-empty
+// at_listings.search_name values, so a local DB created before the membership
+// table keeps its `drops <name>` scoping. INSERT OR IGNORE makes it idempotent:
+// re-running adds nothing once the membership rows exist. Runs after the CREATE
+// statements so both tables are present.
+//
+// first_added is set to the listing's first_seen when available (it best
+// approximates when the listing entered the search) and falls back to its
+// last_seen. This one-time backfill only covers the legacy single-column
+// association; going forward the write path inserts membership rows directly.
+func backfillSearchMembers(db *sql.DB) error {
+	_, err := db.Exec(`INSERT OR IGNORE INTO at_search_members (search_name, listing_id, first_added)
+		SELECT search_name, listing_id, COALESCE(first_seen, last_seen)
+		FROM at_listings
+		WHERE search_name IS NOT NULL AND search_name != ''`)
+	if err != nil {
+		return fmt.Errorf("backfilling at_search_members: %w", err)
 	}
 	return nil
 }
