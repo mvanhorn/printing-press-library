@@ -44,8 +44,8 @@ Unofficial command-line client for MasterPark airport parking reservations using
 
 **quote** — Price a parking date range.
 
-- `masterpark-pp-cli quote --lot B --dropoff "2026-06-11 07:00" --pickup "2026-06-13 18:30"` — Get standard quotes.
-- `masterpark-pp-cli quote --lot G --dropoff "2026-06-11 07:00" --pickup "2026-06-13 18:30" --vehicle-type oversize --json` — Get oversize quotes as JSON.
+- `masterpark-pp-cli quote --lot B --dropoff "2030-06-11 07:00" --pickup "2030-06-13 18:30"` — Get standard quotes.
+- `masterpark-pp-cli quote --lot G --dropoff "2030-06-11 07:00" --pickup "2030-06-13 18:30" --vehicle-type oversize --json` — Get oversize quotes as JSON.
 
 **auth** — Manage credential sources without printing passwords.
 
@@ -61,8 +61,8 @@ Important: `reservations list` is not authoritative for freshly-created bookings
 
 **reserve** — Compose or submit a parking reservation.
 
-- `masterpark-pp-cli reserve --lot B --dropoff "2026-06-11 07:00" --pickup "2026-06-13 18:30" --quote 0` — Dry-run a reservation; does not book.
-- `masterpark-pp-cli reserve --lot B --dropoff "2026-06-11 07:00" --pickup "2026-06-13 18:30" --quote 0 --submit --yes` — Submit the reservation for real.
+- `masterpark-pp-cli reserve --lot B --dropoff "2030-06-11 07:00" --pickup "2030-06-13 18:30" --quote 0` — Dry-run a reservation; does not book.
+- `masterpark-pp-cli reserve --lot B --dropoff "2030-06-11 07:00" --pickup "2030-06-13 18:30" --quote 0 --submit --yes` — Submit the reservation for real.
 
 `reserve` is dry-run by default. Real booking requires both `--submit` and `--yes`. Under `PRINTING_PRESS_VERIFY=1`, it no-ops before calling live mutation endpoints.
 

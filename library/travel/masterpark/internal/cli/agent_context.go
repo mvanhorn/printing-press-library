@@ -43,7 +43,7 @@ func newAgentContextCmd(g *globalOpts) *cobra.Command {
 						Description: "Get live parking price quotes for a date range.",
 						Annotations: map[string]string{
 							"mcp:read-only": "true",
-							"pp:happy-args": "--lot=B;--dropoff=2026-06-11 07:00;--pickup=2026-06-13 18:30",
+							"pp:happy-args": "--lot=B;--dropoff=2030-06-11 07:00;--pickup=2030-06-13 18:30",
 						},
 					},
 				},

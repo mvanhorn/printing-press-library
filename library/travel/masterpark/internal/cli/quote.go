@@ -22,8 +22,8 @@ func newQuoteCmd(g *globalOpts) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "quote",
 		Short: "Get parking price quotes for a date range",
-		Example: `  masterpark-pp-cli quote --lot B --dropoff "2026-06-11 07:00" --pickup "2026-06-13 18:30"
-  masterpark-pp-cli quote --lot G --dropoff "2026-06-11 07:00" --pickup "2026-06-13 18:30" --vehicle-type oversize --json`,
+		Example: `  masterpark-pp-cli quote --lot B --dropoff "2030-06-11 07:00" --pickup "2030-06-13 18:30"
+  masterpark-pp-cli quote --lot G --dropoff "2030-06-11 07:00" --pickup "2030-06-13 18:30" --vehicle-type oversize --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if vehicleType != "standard" && vehicleType != "oversize" {
 				return fmt.Errorf("--vehicle-type must be standard or oversize")

@@ -15,7 +15,7 @@ Before running any command that may mutate remote state, inspect help and prefer
 
 ```bash
 masterpark-pp-cli reserve --help
-masterpark-pp-cli reserve --lot B --dropoff "2026-06-11 07:00" --pickup "2026-06-13 18:30" --quote 0 --json
+masterpark-pp-cli reserve --lot B --dropoff "2030-06-11 07:00" --pickup "2030-06-13 18:30" --quote 0 --json
 ```
 
 Use `--submit --yes` only after the booking target, dates, quote index, customer, vehicle, and payment-at-lot behavior are clear. Under `PRINTING_PRESS_VERIFY=1`, `reserve --submit` must no-op before calling the live mutation endpoint.

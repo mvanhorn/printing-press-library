@@ -44,18 +44,18 @@ Known lots: **MasterPark Lot B** (`2515-1-889`) and **MasterPark Lot G**
 ```bash
 # The canonical example:
 masterpark-pp-cli quote --lot G \
-  --dropoff "2026-06-11 07:00" \
-  --pickup  "2026-06-13 18:30"
+  --dropoff "2030-06-11 07:00" \
+  --pickup  "2030-06-13 18:30"
 
 # Oversize vehicle, Lot B, JSON:
 masterpark-pp-cli quote --lot B \
-  --dropoff "2026-06-11 07:00" \
-  --pickup  "2026-06-13 18:30" \
+  --dropoff "2030-06-11 07:00" \
+  --pickup  "2030-06-13 18:30" \
   --vehicle-type oversize --json
 
 # Raw codeID and a promo code:
 masterpark-pp-cli quote --lot 2515-1-889 \
-  --dropoff "2026-06-11 07:00" --pickup "2026-06-13 18:30" \
+  --dropoff "2030-06-11 07:00" --pickup "2030-06-13 18:30" \
   --promo-code SAVE10
 ```
 
@@ -143,11 +143,11 @@ win over saved-profile values.
 ```bash
 # Dry run (safe), relying entirely on a previously synced profile:
 masterpark-pp-cli reserve --lot G \
-  --dropoff "2026-06-11 07:00" --pickup "2026-06-13 18:30" --quote 1
+  --dropoff "2030-06-11 07:00" --pickup "2030-06-13 18:30" --quote 1
 
 # Dry run with explicit fields:
 masterpark-pp-cli reserve --lot G \
-  --dropoff "2026-06-11 07:00" --pickup "2026-06-13 18:30" \
+  --dropoff "2030-06-11 07:00" --pickup "2030-06-13 18:30" \
   --quote 1 --first-name Alice --last-name Smith \
   --email alice@example.com --phone "<phone>" \
   --vehicle-make Honda --vehicle-model Civic --plate ABC123
@@ -155,7 +155,7 @@ masterpark-pp-cli reserve --lot G \
 # Real booking (calls saveReservation); replace flags with the reviewed
 # booking window/profile before running:
 masterpark-pp-cli reserve --lot G \
-  --dropoff "2026-06-11 07:00" --pickup "2026-06-13 18:30" \
+  --dropoff "2030-06-11 07:00" --pickup "2030-06-13 18:30" \
   --quote 1 --submit --yes
 ```
 
