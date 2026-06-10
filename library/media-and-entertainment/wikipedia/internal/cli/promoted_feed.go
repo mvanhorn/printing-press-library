@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
@@ -19,11 +20,14 @@ func newFeedPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "feed <day>",
 		Short:       "Returns events, births, deaths, or holidays that occurred on a given date.",
 		Long:        "Shortcut for 'feed get-on-this-day'. Returns events, births, deaths, or holidays that occurred on a given date.",
-		Example:     "  wikipedia-pp-cli feed",
+		Example:     "  wikipedia-pp-cli feed 9 --month 6\n  wikipedia-pp-cli feed 9 --month 6 --type events",
 		Annotations: map[string]string{"pp:endpoint": "feed.get-on-this-day", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("month") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "month")
+			}
+			if cmd.Flags().Changed("month") && (flagMonth < 1 || flagMonth > 12) {
+				return usageErr(fmt.Errorf("month must be between 1 and 12, got %d", flagMonth))
 			}
 			if cmd.Flags().Changed("type") {
 				allowedType := []string{"all", "selected", "births", "deaths", "events", "holidays"}
@@ -44,17 +48,22 @@ func newFeedPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/feed/onthisday/{type}/{month}/{day}"
-			if len(args) < 3 {
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("day is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "day"))
 			}
-			path = replacePathParam(path, "day", args[2])
+			day, dayErr := strconv.Atoi(args[0])
+			if dayErr != nil || day < 1 || day > 31 {
+				return usageErr(fmt.Errorf("day must be a number between 1 and 31, got %q", args[0]))
+			}
+			if flagType == "" {
+				flagType = "all"
+			}
+			// All three params are path segments; the endpoint requires
+			// zero-padded month and day (/feed/onthisday/all/06/09).
+			path = replacePathParam(path, "type", flagType)
+			path = replacePathParam(path, "month", fmt.Sprintf("%02d", flagMonth))
+			path = replacePathParam(path, "day", fmt.Sprintf("%02d", day))
 			params := map[string]string{}
-			if flagType != "" {
-				params["type"] = fmt.Sprintf("%v", flagType)
-			}
-			if flagMonth != 0 {
-				params["month"] = fmt.Sprintf("%v", flagMonth)
-			}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "feed", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)

@@ -22,20 +22,16 @@ metadata:
 
 This skill drives the `wikipedia-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
+1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press-library install wikipedia --cli-only
+   npx -y @mvanhorn/printing-press install wikipedia --cli-only
    ```
 2. Verify: `wikipedia-pp-cli --version`
-3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
 
-```bash
-go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/wikipedia/cmd/wikipedia-pp-cli@latest
-```
-
-If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When Not to Use This CLI
 
@@ -45,7 +41,7 @@ Do not activate this CLI for requests that require creating, updating, deleting,
 
 **feed** — Manage feed
 
-- `wikipedia-pp-cli feed <day>` — Returns events, births, deaths, or holidays that occurred on a given date.
+- `wikipedia-pp-cli feed <day> --month <month> [--type all|events|births|deaths|holidays|selected]` — Returns events, births, deaths, or holidays that occurred on a given date.
 
 **page** — Article content and metadata
 
@@ -79,7 +75,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
 
   ```bash
-  wikipedia-pp-cli feed mock-value --agent --select id,name,status
+  wikipedia-pp-cli feed 9 --month 6 --agent --select selected
   ```
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
@@ -131,7 +127,7 @@ A profile is a saved set of flag values, reused across invocations. Use it when 
 
 ```
 wikipedia-pp-cli profile save briefing --json
-wikipedia-pp-cli --profile briefing feed mock-value
+wikipedia-pp-cli --profile briefing feed 9 --month 6
 wikipedia-pp-cli profile list --json
 wikipedia-pp-cli profile show briefing
 wikipedia-pp-cli profile delete briefing --yes
@@ -161,7 +157,7 @@ Parse `$ARGUMENTS`:
 
 1. Install the MCP server:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/other/wikipedia-pp-cli/cmd/wikipedia-pp-mcp@latest
+   go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/wikipedia/cmd/wikipedia-pp-mcp@latest
    ```
 2. Register with Claude Code:
    ```bash

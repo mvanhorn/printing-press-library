@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "api_name": "wikipedia",
+  "cli_name": "wikipedia-pp-cli",
+  "run_id": "20260427-064435",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 8,
+  "tests_total": 8,
+  "tests_passed": 8,
+  "tests_skipped": 0,
+  "tests_failed": 0,
+  "completed_at": "2026-06-10T04:30:00Z",
+  "summary": "Post-fix live acceptance of the feed (on-this-day) surface after repairing path-param substitution: feed previously sent literal {type}/{month} segments and read day from args[2], so every invocation failed. Live matrix against en.wikipedia.org REST: feed 9 --month 6 --agent (200, JSON envelope), --type events and --type=deaths variants (200), required-month error, legacy 3-positional form rejected with usage error, day/month range validation, and MCP feed_get-on-this-day with unpadded month/day and omitted type (defaults to all, zero-padded, 200). Non-feed commands unchanged by this fix; original full acceptance for this run predates the phase5 marker artifact.",
+  "auth_context": {
+    "type": "none",
+    "api_key_available": false,
+    "browser_session_available": false
+  }
+}

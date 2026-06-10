@@ -33,7 +33,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/feed/onthisday/{type}/{month}/{day}", []string{"type", "month", "day"}),
+		feedOnThisDayHandler("GET", "/feed/onthisday/{type}/{month}/{day}", []string{"type", "month", "day"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("page_get-html",
@@ -100,6 +100,32 @@ func RegisterTools(s *server.MCPServer) {
 	// Runtime Cobra-tree mirror — exposes every user-facing command that is
 	// not already covered by a typed endpoint or framework MCP tool.
 	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
+}
+
+// feedOnThisDayHandler wraps makeAPIHandler for the on-this-day feed: the
+// endpoint rejects unpadded date segments and has no wildcard type, so a
+// missing/empty type defaults to "all" and 1-digit month/day get zero-padded.
+func feedOnThisDayHandler(method, pathTemplate string, positionalParams []string) server.ToolHandlerFunc {
+	inner := makeAPIHandler(method, pathTemplate, positionalParams)
+	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+		args := req.GetArguments()
+		norm := make(map[string]any, len(args)+1)
+		for k, v := range args {
+			norm[k] = v
+		}
+		if v, ok := norm["type"]; !ok || fmt.Sprintf("%v", v) == "" {
+			norm["type"] = "all"
+		}
+		for _, k := range []string{"month", "day"} {
+			if v, ok := norm[k]; ok {
+				if s := fmt.Sprintf("%v", v); len(s) == 1 {
+					norm[k] = "0" + s
+				}
+			}
+		}
+		req.Params.Arguments = norm
+		return inner(ctx, req)
+	}
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
