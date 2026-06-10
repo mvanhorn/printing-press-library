@@ -42,6 +42,11 @@
       "name": "Pickup-slot inspection",
       "command": "checkout slots",
       "description": "Read live pickup-slot availability for the preferred store from the authenticated checkout flow."
+    },
+    {
+      "name": "Pickup-slot booking",
+      "command": "checkout select-slot",
+      "description": "Book one of the authenticated checkout delivery slots exposed by the live storefront delivery step."
     }
   ]
 }
