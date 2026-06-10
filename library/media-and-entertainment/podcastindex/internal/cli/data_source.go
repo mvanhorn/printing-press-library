@@ -80,12 +80,14 @@ func isNetworkError(err error) bool {
 
 // openStoreForRead opens the local SQLite store for reading.
 // Returns nil, nil if the database file does not exist (no sync has been run).
-func openStoreForRead(ctx context.Context, cliName string) (*store.Store, error) {
+func openStoreForRead(_ context.Context, cliName string) (*store.Store, error) {
 	dbPath := defaultDBPath(cliName)
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 		return nil, nil
 	}
-	return store.OpenWithContext(ctx, dbPath)
+	// Read paths open the existing mirror read-only: no write lock, no
+	// migrations. The missing-DB case is already handled above.
+	return store.OpenReadOnly(dbPath)
 }
 
 // localProvenance builds a DataProvenance for local data reads.

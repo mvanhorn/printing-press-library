@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"strings"
 	"testing"
+	"unicode/utf8"
 )
 
 func TestTgrepExtractText(t *testing.T) {
@@ -91,6 +92,20 @@ func TestTgrepSnippet(t *testing.T) {
 	loc := []int{16, 19} // "fox"
 	got := tgrepSnippet(text, loc)
 	if !strings.Contains(got, "fox") {
+		t.Errorf("snippet should contain match, got %q", got)
+	}
+}
+
+func TestTgrepSnippetUTF8Safe(t *testing.T) {
+	// Multi-byte runes surround the match; padding must not split a codepoint,
+	// so the snippet must always be valid UTF-8.
+	text := "café ☕ discussion about 日本語 podcasts and ☕ interest rates in 日本 markets ☕☕☕"
+	idx := strings.Index(text, "interest")
+	got := tgrepSnippet(text, []int{idx, idx + len("interest")})
+	if !utf8.ValidString(got) {
+		t.Errorf("snippet is not valid UTF-8: %q", got)
+	}
+	if !strings.Contains(got, "interest") {
 		t.Errorf("snippet should contain match, got %q", got)
 	}
 }

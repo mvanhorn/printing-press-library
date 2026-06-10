@@ -41,10 +41,13 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 			w := cmd.OutOrStdout()
 			fmt.Fprintln(w, "Get a key at: https://github.com/tbowers/python-podcastindex-org-lambda")
 			fmt.Fprintln(w, "")
-			fmt.Fprintln(w, "Then set:")
-			fmt.Fprintln(w, "  export PODCASTINDEX_KEY=\"<your-token>\"")
-			fmt.Fprintln(w, "  export PODCASTINDEX_ORG_API_KEY=\"<your-token>\"")
-			fmt.Fprintln(w, "  podcastindex-pp-cli auth set-token <token>")
+			fmt.Fprintln(w, "PodcastIndex signs every request, so BOTH a key and a secret are required.")
+			fmt.Fprintln(w, "Set both as environment variables:")
+			fmt.Fprintln(w, "  export PODCASTINDEX_KEY=\"<your-key>\"")
+			fmt.Fprintln(w, "  export PODCASTINDEX_SECRET=\"<your-secret>\"")
+			fmt.Fprintln(w, "")
+			fmt.Fprintln(w, "The secret cannot be stored in config; it must be in the environment so")
+			fmt.Fprintln(w, "the per-request SHA1 signature can be computed.")
 			if !launch {
 				return nil
 			}
@@ -93,7 +96,11 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 			w := cmd.OutOrStdout()
 			header := cfg.AuthHeader()
-			authed := header != ""
+			secret := cfg.PodcastindexSecret()
+			// PodcastIndex signs each request with key+secret, so both are
+			// required to be considered authenticated. A key without the
+			// secret cannot produce the Authorization signature.
+			authed := header != "" && secret != ""
 			// JSON envelope: {authenticated, verified, source, config}. When not
 			// authenticated, write the envelope first then return authErr
 			// so exit code carries the auth-failure signal.
@@ -113,12 +120,18 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 			if !authed {
+				if header != "" && secret == "" {
+					fmt.Fprintln(w, red("Incomplete credentials: key present but PODCASTINDEX_SECRET is missing"))
+					fmt.Fprintln(w, "")
+					fmt.Fprintln(w, "Requests cannot be signed without the secret. Set it:")
+					fmt.Fprintln(w, "  export PODCASTINDEX_SECRET=\"your-secret-here\"")
+					return authErr(fmt.Errorf("PODCASTINDEX_SECRET is not set"))
+				}
 				fmt.Fprintln(w, red("Not authenticated"))
 				fmt.Fprintln(w, "")
-				fmt.Fprintln(w, "Set your token:")
-				fmt.Fprintln(w, "  export PODCASTINDEX_KEY=\"your-token-here\"")
-				fmt.Fprintln(w, "  export PODCASTINDEX_ORG_API_KEY=\"your-token-here\"")
-				fmt.Fprintf(w, "  podcastindex-pp-cli auth set-token <token>\n")
+				fmt.Fprintln(w, "PodcastIndex requires BOTH a key and a secret. Set both:")
+				fmt.Fprintln(w, "  export PODCASTINDEX_KEY=\"your-key-here\"")
+				fmt.Fprintln(w, "  export PODCASTINDEX_SECRET=\"your-secret-here\"")
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
 

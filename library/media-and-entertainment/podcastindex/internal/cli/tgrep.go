@@ -19,6 +19,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/spf13/cobra"
 
@@ -372,6 +373,14 @@ func tgrepSnippet(text string, loc []int) string {
 	end := loc[1] + pad
 	if end > len(text) {
 		end = len(text)
+	}
+	// loc holds byte offsets; pad may land mid-codepoint. Walk both bounds
+	// back to a rune boundary so the slice never splits a multi-byte rune.
+	for start > 0 && !utf8.RuneStart(text[start]) {
+		start--
+	}
+	for end < len(text) && !utf8.RuneStart(text[end]) {
+		end++
 	}
 	snippet := strings.TrimSpace(text[start:end])
 	if start > 0 {

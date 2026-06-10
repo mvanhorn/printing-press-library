@@ -89,11 +89,12 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			// "Moved Permanently" body back to the caller.
 			return errors.New("stopped after 10 redirects")
 		}
-		// Same-host gate mirrors Go's shouldCopyHeaderOnRedirect: a
-		// cross-domain 3xx (open redirect or partner handoff) must not
-		// receive the auth credential, even though we are inside
-		// CheckRedirect where Go's automatic stripping has already run.
-		if req.URL.Host == via[0].URL.Host {
+		// Same-host gate mirrors Go's shouldCopyHeaderOnRedirect: compare
+		// against the immediately preceding hop (via[len(via)-1]), not the
+		// original request (via[0]). A cross-domain 3xx (open redirect or
+		// partner handoff) must not receive the auth credential, even though
+		// we are inside CheckRedirect where Go's automatic stripping has run.
+		if req.URL.Host == via[len(via)-1].URL.Host {
 			// PodcastIndex auth is nonce-bound: X-Auth-Date and the SHA1
 			// Authorization signature must be recomputed for each hop, not
 			// just X-Auth-Key. Re-sign the redirected request fully via the
