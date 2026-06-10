@@ -234,7 +234,11 @@ func Resolve(ctx context.Context, f *File, op OnePassword, inputs ...CredInput) 
 	if f != nil && f.OnePassword != nil {
 		ref := f.OnePassword
 		if c.Username == "" && ref.UsernameField != "" {
-			if u, err := op.FetchField(ctx, ref.Vault, ref.Item, ref.UsernameField); err == nil && u != "" {
+			u, err := op.FetchField(ctx, ref.Vault, ref.Item, ref.UsernameField)
+			if err != nil {
+				return c, err
+			}
+			if u != "" {
 				c.Username, c.UsernameSource = u, SourceOnePassword
 			}
 		}

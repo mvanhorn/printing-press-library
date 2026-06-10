@@ -53,6 +53,35 @@ func TestOnePasswordFetchField(t *testing.T) {
 	}
 }
 
+func TestResolveUsernameOnePasswordErrorPropagates(t *testing.T) {
+	os.Unsetenv(EnvUsername)
+	os.Unsetenv(EnvPassword)
+
+	f := &File{
+		OnePassword: &OnePasswordRef{
+			Vault: "Agent", Item: "Masterparking",
+			UsernameField: "username", PasswordField: "password",
+		},
+	}
+	op := OnePassword{
+		Runner: func(ctx context.Context, args ...string) ([]byte, error) {
+			for i, a := range args {
+				if a == "--fields" && i+1 < len(args) && args[i+1] == "label=username" {
+					return nil, fmt.Errorf("op item get failed")
+				}
+			}
+			return []byte("op-password"), nil
+		},
+	}
+	creds, err := Resolve(context.Background(), f, op, CredInput{})
+	if err == nil {
+		t.Fatalf("expected error from username 1Password lookup, got creds=%+v", creds)
+	}
+	if creds.Username != "" || creds.UsernameSource == SourceOnePassword {
+		t.Errorf("username must not be silently set on lookup error: %q (%s)", creds.Username, creds.UsernameSource)
+	}
+}
+
 func TestResolvePriorityAndSources(t *testing.T) {
 	os.Setenv(EnvUsername, "envuser")
 	defer os.Unsetenv(EnvUsername)
