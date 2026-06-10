@@ -17,7 +17,7 @@ npx -y @mvanhorn/printing-press-library install worten --cli-only
 Source build fallback:
 
 ```bash
-git clone https://github.com/mvanhorn/printing-press-library.git
+git clone https://github.com/emmassist-co/worten-pp-cli.git
 cd worten-pp-cli
 go install ./cmd/worten-pp-cli
 ```

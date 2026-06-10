@@ -22,7 +22,7 @@ const baseURL = "https://www.worten.pt"
 
 var (
 	uuidPattern    = regexp.MustCompile(`(?i)^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
-	gtinPattern    = regexp.MustCompile(`"gtin13":"([0-9a-f-]{36})"`)
+	gtinPattern    = regexp.MustCompile(`"gtin13":"((?i:[0-9a-f-]{36}))"`)
 	detailsPattern = regexp.MustCompile(`/worten-api/products/details",\{"query":\{"id":\["([^"]+)"\],"ref":"product_id"\}\}`)
 )
 
@@ -384,9 +384,22 @@ func (s *Service) resolveProductID(ctx context.Context, input string) (string, e
 		if !isChallengePage(html) {
 			break
 		}
-		time.Sleep(time.Duration(attempt+1) * 500 * time.Millisecond)
+		if err := sleepContext(ctx, time.Duration(attempt+1)*500*time.Millisecond); err != nil {
+			return "", err
+		}
 	}
 	return "", fmt.Errorf("could not extract product id from %s", normalizeCacheInput(productURL)+": "+challengeHint(lastHTML))
+}
+
+func sleepContext(ctx context.Context, wait time.Duration) error {
+	timer := time.NewTimer(wait)
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+		return nil
+	}
 }
 
 func challengeHint(html string) string {
