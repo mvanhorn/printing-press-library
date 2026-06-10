@@ -160,8 +160,7 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 			if err := runContinenteDirectLogin(cmd.Context(), c, email, password); err != nil {
 				return err
 			}
-			c.Config.SessionMode = "direct"
-			if err := c.Config.Save(); err != nil {
+			if err := persistSessionMode(c, "direct"); err != nil {
 				return err
 			}
 			status, err := buildAuthStatusPayload(cmd.Context(), c)
@@ -227,8 +226,7 @@ func newAuthImportHARCmd(flags *rootFlags) *cobra.Command {
 				hosts = append(hosts, u.Hostname())
 			}
 			sort.Strings(hosts)
-			c.Config.SessionMode = "imported"
-			if err := c.Config.Save(); err != nil {
+			if err := persistSessionMode(c, "imported"); err != nil {
 				return err
 			}
 
@@ -284,8 +282,7 @@ func newAuthImportCookiesCmd(flags *rootFlags) *cobra.Command {
 				hosts = append(hosts, u.Hostname())
 			}
 			sort.Strings(hosts)
-			c.Config.SessionMode = "imported"
-			if err := c.Config.Save(); err != nil {
+			if err := persistSessionMode(c, "imported"); err != nil {
 				return err
 			}
 			payload := map[string]any{
@@ -300,6 +297,18 @@ func newAuthImportCookiesCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&filePath, "file", "", "Path to a browser cookie export JSON file")
 	return cmd
+}
+
+func persistSessionMode(c *client.Client, sessionMode string) error {
+	if c == nil || c.Config == nil {
+		return nil
+	}
+	c.Config.SessionMode = sessionMode
+	if err := c.Config.Save(); err != nil {
+		return err
+	}
+	c.InvalidateCache()
+	return nil
 }
 
 func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
