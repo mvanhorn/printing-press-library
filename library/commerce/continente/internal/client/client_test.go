@@ -5,8 +5,13 @@ package client
 
 import (
 	"bytes"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/config"
+	"net/http"
+	"net/url"
+	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 	"unicode/utf8"
 )
 
@@ -68,5 +73,42 @@ func TestTruncateBody_UTF8RuneAtBoundary(t *testing.T) {
 	// Partial rune must be dropped, not replaced: 4094 valid bytes + "...".
 	if want := 4094 + 3; len(got) != want {
 		t.Fatalf("len = %d, want %d (partial rune should be dropped, not replaced)", len(got), want)
+	}
+}
+
+func TestCacheKeyChangesWithCookieSessionFingerprint(t *testing.T) {
+	t.Parallel()
+
+	tmpDir := t.TempDir()
+	cfg := &config.Config{
+		BaseURL:       "https://www.continente.pt",
+		CookieJarPath: filepath.Join(tmpDir, "cookies.json"),
+		Path:          filepath.Join(tmpDir, "config.toml"),
+	}
+	c := New(cfg, time.Second, 0)
+	baseURL, err := url.Parse(cfg.BaseURL)
+	if err != nil {
+		t.Fatalf("url.Parse: %v", err)
+	}
+
+	guestKey := c.cacheKey("/cart/mini", map[string]string{"format": "json"})
+	c.HTTPClient.Jar.SetCookies(baseURL, []*http.Cookie{{
+		Name:  "sid",
+		Value: "guest-session",
+		Path:  "/",
+	}})
+	guestSessionKey := c.cacheKey("/cart/mini", map[string]string{"format": "json"})
+	c.HTTPClient.Jar.SetCookies(baseURL, []*http.Cookie{{
+		Name:  "sid",
+		Value: "auth-session",
+		Path:  "/",
+	}})
+	authSessionKey := c.cacheKey("/cart/mini", map[string]string{"format": "json"})
+
+	if guestKey == guestSessionKey {
+		t.Fatal("expected guest cookie state to change cache key")
+	}
+	if guestSessionKey == authSessionKey {
+		t.Fatal("expected auth cookie state to change cache key")
 	}
 }
