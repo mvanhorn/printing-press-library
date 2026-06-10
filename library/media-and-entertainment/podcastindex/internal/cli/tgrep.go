@@ -203,6 +203,9 @@ bounded by --max-feeds, --max-episodes, and --max-scan.`),
 	cmd.Flags().IntVar(&flagMaxEpisodes, "max-episodes", 10, "Maximum episodes to pull per feed")
 	cmd.Flags().IntVar(&flagMaxScan, "max-scan", 50, "Maximum episodes to scan overall before returning")
 	cmd.Flags().BoolVar(&flagCaseSensitive, "case-sensitive", false, "Match the pattern case-sensitively (default: case-insensitive)")
+	// --feed and --feeds bind the same variable (--feed is a singular alias);
+	// passing both would silently drop one, so reject that combination.
+	cmd.MarkFlagsMutuallyExclusive("feed", "feeds")
 	return cmd
 }
 

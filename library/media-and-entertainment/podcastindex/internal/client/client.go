@@ -94,14 +94,19 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 		// receive the auth credential, even though we are inside
 		// CheckRedirect where Go's automatic stripping has already run.
 		if req.URL.Host == via[0].URL.Host {
-			if h, err := c.authHeader(req.Context()); err == nil && h != "" {
-				req.Header.Set("X-Auth-Key", h)
-			}
+			// PodcastIndex auth is nonce-bound: X-Auth-Date and the SHA1
+			// Authorization signature must be recomputed for each hop, not
+			// just X-Auth-Key. Re-sign the redirected request fully via the
+			// same signer used on the initial request (podcastindex_signer.go).
+			c.signPodcastIndex(req)
 		} else {
 			// Cross-host hop: Go strips standard auth headers (Authorization,
-			// Cookie) but not custom ones, so a custom API-key header would be
-			// forwarded verbatim to the redirect target. Delete it explicitly.
+			// Cookie) but not custom ones, so the custom PodcastIndex auth
+			// headers would be forwarded verbatim to the redirect target.
+			// Delete all of them explicitly.
 			req.Header.Del("X-Auth-Key")
+			req.Header.Del("X-Auth-Date")
+			req.Header.Del("Authorization")
 		}
 		return nil
 	}
