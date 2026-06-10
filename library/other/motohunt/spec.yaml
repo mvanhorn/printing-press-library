@@ -1,0 +1,124 @@
+name: motohunt
+description: "Search motorcycle and ATV listings with MotoHunt price research (MSRP/ALP/deal rating) — no API, scrapes server-rendered HTML"
+version: "0.1.0"
+base_url: "https://motohunt.com"
+http_transport: standard
+health_check_path: "/motorcycles-for-sale"
+category: other
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/motohunt-pp-cli/config.toml"
+
+resources:
+  listings:
+    description: "Search and inspect motorcycle/ATV listings"
+    endpoints:
+      search:
+        method: GET
+        path: "/motorcycles-for-sale"
+        description: "Search listings; returns links to listing detail pages (use the hand-built `search` command for parsed cards)"
+        params:
+          - name: q
+            type: string
+            required: false
+            description: "Free-text query, e.g. 'harley davidson'"
+          - name: location
+            type: string
+            required: false
+            description: "US ZIP code; results sort by distance from it"
+          - name: sort
+            type: string
+            required: false
+            enum: ["t", "p", "a", "c"]
+            description: "Sort: t=most recent, p=highest price, a=lowest price, c=best deal"
+          - name: start
+            type: int
+            required: false
+            default: 0
+            description: "Pagination offset; 24 results per page (0, 24, 48, ...)"
+        response:
+          type: array
+          item: Listing
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/l"]
+      get:
+        method: GET
+        path: "/l/{id}"
+        description: "Fetch a single listing detail page"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Listing id, e.g. 13256655"
+        response:
+          type: object
+          item: ListingDetail
+        response_format: html
+        html_extract:
+          mode: page
+
+types:
+  Listing:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: url
+        type: string
+      - name: price
+        type: string
+      - name: mileage
+        type: string
+      - name: location
+        type: string
+      - name: dealer
+        type: string
+      - name: deal_rating
+        type: string
+      - name: image
+        type: string
+  ListingDetail:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: subtitle
+        type: string
+      - name: price
+        type: string
+      - name: mileage
+        type: string
+      - name: vin
+        type: string
+      - name: color
+        type: string
+      - name: condition
+        type: string
+      - name: certified_pre_owned
+        type: bool
+      - name: stock_number
+        type: string
+      - name: dealer
+        type: string
+      - name: location
+        type: string
+      - name: base_msrp
+        type: string
+      - name: alp
+        type: string
+      - name: deal_rating
+        type: string
+      - name: description
+        type: string

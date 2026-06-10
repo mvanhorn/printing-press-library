@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-10T18:06:24.5979123Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "motohunt",
+  "display_name": "Motohunt",
+  "cli_name": "motohunt-pp-cli",
+  "run_id": "20260610-132752-motohunt",
+  "category": "other",
+  "description": "Search motorcycle and ATV listings with MotoHunt price research (MSRP/ALP/deal rating) \u2014 no API, scrapes server-rendered HTML",
+  "mcp_binary": "motohunt-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Price-research surfacing",
+      "command": "get",
+      "description": "See a listing's MSRP, average listing price, and deal rating as typed fields, not buried prose."
+    },
+    {
+      "name": "Offline deal ranking",
+      "command": "deal",
+      "description": "Rank synced listings by how far the asking price sits below the average listing price."
+    },
+    {
+      "name": "Saved-search watch + diff",
+      "command": "watch run",
+      "description": "Re-run saved searches and report new listings and price drops since the last run."
+    },
+    {
+      "name": "Dual-marketplace parity",
+      "command": "search",
+      "description": "Search motorcycles (motohunt.com) or ATV/UTV/SxS (atvhunt.com) from one binary via --site."
+    }
+  ],
+  "printer": "richardadonnell",
+  "printer_name": "richardadonnell"
+}
