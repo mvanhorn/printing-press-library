@@ -240,6 +240,17 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// whether to trust the cached data before issuing queries.
 			report["cache"] = collectCacheReport(cmd.Context(), "")
 
+			// PATCH(workspace-nudge): surface workspace-targeting health.
+			if cfg != nil {
+				enrolled := make([]string, 0, len(cfg.Workspaces))
+				for _, ws := range cfg.Workspaces {
+					enrolled = append(enrolled, ws.Slug)
+				}
+				if v := workspaceDoctorVerdict(cfg.TemplateVars["slug"], cfg.BaseURL, enrolled); v != "" {
+					report["workspace"] = v
+				}
+			}
+
 			// Verify mode state. Surfaced so an operator who unintentionally
 			// inherits PRINTING_PRESS_VERIFY=1 (parent shell, CI runner, container
 			// image) detects the foot-gun without inspecting a response body.
@@ -268,6 +279,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			w := cmd.OutOrStdout()
 			checkKeys := []struct{ key, label string }{
 				{"config", "Config"},
+				{"workspace", "Workspace"},
 				{"auth", "Auth"},
 				{"env_vars", "Env Vars"},
 				{"verify_mode", "Verify Mode"},
@@ -475,6 +487,22 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 		report["hint"] = "Some resources are older than stale_after; run 'plane-pp-cli sync' to refresh."
 	}
 	return report
+}
+
+// workspaceDoctorVerdict returns a non-empty doctor message when workspace
+// targeting needs attention: a literal-slug base_url (legacy anti-pattern that
+// pins one workspace) takes priority, then "no workspace configured". Empty
+// means healthy. PATCH(workspace-nudge): hand-added; re-apply after regen.
+func workspaceDoctorVerdict(slug, baseURL string, enrolled []string) string {
+	if baseURLHasLiteralSlug(baseURL) {
+		return "WARN base_url pins a literal workspace (" + baseURL + ") — use /workspaces/{slug} + 'plane-pp-cli workspaces use <slug>' so --workspace works."
+	}
+	if slug == "" || slug == "my-workspace" {
+		if len(enrolled) == 0 {
+			return "INFO no workspace configured — run 'plane-pp-cli init' or pass --workspace"
+		}
+	}
+	return ""
 }
 
 func renderCacheReport(w io.Writer, rep map[string]any) {
