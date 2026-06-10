@@ -101,7 +101,7 @@ func (s *Store) initSchema() error {
 		// Migrate pre-existing timezone-offset timestamps to UTC format
 		migrationQuery := fmt.Sprintf(`
 			UPDATE %s 
-			SET last_updated = strftime('%%Y-%%m-%%dT%%H:%%M:%%SZ', last_updated)
+			SET last_updated = strftime('%%Y-%%m-%%dT%%H:%%M:%%SZ', last_updated, 'utc')
 			WHERE last_updated NOT LIKE '%%Z' AND last_updated IS NOT NULL AND last_updated != '';
 		`, table)
 		if _, err := s.db.Exec(migrationQuery); err != nil {

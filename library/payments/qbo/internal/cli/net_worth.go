@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/payments/qbo/internal/store"
+	"math"
 
 	"github.com/spf13/cobra"
 )
@@ -62,22 +63,24 @@ func newNetWorthCmd(flags *rootFlags) *cobra.Command {
 				acc := netWorthAccount{
 					Name:    name,
 					Type:    accType.String,
-					Balance: balance.Float64,
+					Balance: math.Round(balance.Float64*100) / 100,
 				}
 
 				if isAssetAccount(accType.String) {
 					report.Assets = append(report.Assets, acc)
-					report.TotalAssets += balance.Float64
+					report.TotalAssets += acc.Balance
 				} else if isLiabilityAccount(accType.String) {
 					report.Liabilities = append(report.Liabilities, acc)
-					report.TotalLiabilities += balance.Float64
+					report.TotalLiabilities += acc.Balance
 				}
 			}
 			if err := rows.Err(); err != nil {
 				return fmt.Errorf("reading accounts: %w", err)
 			}
 
-			report.NetWorth = report.TotalAssets - report.TotalLiabilities
+			report.TotalAssets = math.Round(report.TotalAssets*100) / 100
+			report.TotalLiabilities = math.Round(report.TotalLiabilities*100) / 100
+			report.NetWorth = math.Round((report.TotalAssets-report.TotalLiabilities)*100) / 100
 
 			if flags.asJSON {
 				return flags.printJSON(cmd, report)
