@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "masterpark-reservations-list-verify-noop-and-location-apostrophes",
+  "applied_at": "2026-06-10",
+  "base_run_id": "manual-masterpark-20260609T023930Z",
+  "base_printing_press_version": "4.24.0",
+  "summary": "reservations list now no-ops before any live MasterPark verifyLogin/listReservations calls under PRINTING_PRESS_VERIFY, and locations.php parsing now handles escaped apostrophes inside single-quoted JavaScript strings.",
+  "reason": "Greptile identified that reservations list was the remaining network-touching command without an IsVerifyEnv guard and that normalizeJSObject emitted invalid JSON for JS-only escaped apostrophes such as \\' in single-quoted strings.",
+  "files": [
+    "internal/cli/reservations.go",
+    "internal/cli/request_shapes_test.go",
+    "internal/client/client.go",
+    "internal/client/client_test.go"
+  ],
+  "validated_outcome": "Focused tests cover reservations list under PRINTING_PRESS_VERIFY=1 with zero AJAX calls and location parsing for single-quoted names containing escaped apostrophes."
+}

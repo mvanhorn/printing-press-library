@@ -269,16 +269,22 @@ func normalizeJSObject(raw []byte) []byte {
 			out.WriteByte(ch)
 		case ch == '\'':
 			// Consume a single-quoted JS string and emit it as a JSON
-			// double-quoted string, escaping any embedded double quotes.
+			// double-quoted string. A JS-only escaped apostrophe (\\') is
+			// unescaped because it is not a valid JSON escape sequence once
+			// the surrounding string becomes double-quoted.
 			out.WriteByte('"')
 			i++
 			for i < len(raw) && raw[i] != '\'' {
 				c := raw[i]
 				if c == '\\' && i+1 < len(raw) {
-					out.WriteByte(c)
-					i++
-					out.WriteByte(raw[i])
-					i++
+					next := raw[i+1]
+					if next == '\'' {
+						out.WriteByte(next)
+					} else {
+						out.WriteByte(c)
+						out.WriteByte(next)
+					}
+					i += 2
 					continue
 				}
 				if c == '"' {

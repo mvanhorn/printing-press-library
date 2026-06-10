@@ -180,6 +180,22 @@ func TestParseLocationsLiveShape(t *testing.T) {
 	}
 }
 
+func TestParseLocationsSingleQuotedEscapedApostrophe(t *testing.T) {
+	body := []byte(`window.NP_PLUGIN_DATA.location = { 'locations': [` +
+		`{ 'name': 'Traveler\'s Choice Lot', 'codeID': '9999-1-111' }` +
+		`] };`)
+	locs, err := parseLocations(body)
+	if err != nil {
+		t.Fatalf("parseLocations escaped apostrophe: %v", err)
+	}
+	if len(locs) != 1 {
+		t.Fatalf("want 1 location, got %d: %v", len(locs), locs)
+	}
+	if locs[0].Name != "Traveler's Choice Lot" || locs[0].CodeID != "9999-1-111" {
+		t.Errorf("loc = %+v", locs[0])
+	}
+}
+
 // TestParseLocationsBareArray keeps the alternate (double-quoted array) shape
 // working.
 func TestParseLocationsBareArray(t *testing.T) {

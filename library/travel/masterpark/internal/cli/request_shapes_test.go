@@ -116,6 +116,35 @@ func TestReservationsListRequestShape(t *testing.T) {
 	}
 }
 
+func TestReservationsListVerifyNoopSkipsLiveEndpoints(t *testing.T) {
+	cap := &ajaxCapture{}
+	srv := newAjaxShapeServer(t, cap)
+	defer srv.Close()
+	t.Setenv("MASTERPARK_BASE_URL", srv.URL)
+	t.Setenv("PRINTING_PRESS_VERIFY", "1")
+	t.Setenv(config.EnvUsername, "alice@example.com")
+	t.Setenv(config.EnvPassword, "secret")
+
+	g := &globalOpts{timeout: 5 * time.Second, json: true}
+	out, err := runCmd(t, newReservationsListCmd(g), "--lot", "G")
+	if err != nil {
+		t.Fatalf("reservations list under verify env: %v", err)
+	}
+	if len(cap.Bodies) != 0 {
+		t.Fatalf("PRINTING_PRESS_VERIFY reservations list must not hit AJAX endpoints, got %d calls: %v", len(cap.Bodies), cap.Methods)
+	}
+	var got map[string]interface{}
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("parse verify-noop output %q: %v", out, err)
+	}
+	if got["verify_noop"] != true || got["status"] != "verify-noop" {
+		t.Fatalf("expected verify-noop output, got %v", got)
+	}
+	if got["command"] != "reservations list" {
+		t.Fatalf("expected command marker, got %v", got)
+	}
+}
+
 func TestSaveReservationRequestShape(t *testing.T) {
 	rf := &reserveFlags{
 		dropoff:     "2026-06-11 07:00",

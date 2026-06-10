@@ -49,6 +49,24 @@ func newReservationsListCmd(g *globalOpts) *cobra.Command {
 				return err
 			}
 
+			// Verifier guard: reservations list authenticates with verifyLogin and
+			// then calls listReservations, so it must no-op before touching live
+			// MasterPark endpoints under PRINTING_PRESS_VERIFY.
+			if IsVerifyEnv() {
+				result := map[string]interface{}{
+					"status":      "verify-noop",
+					"verify_noop": true,
+					"command":     "reservations list",
+					"lot":         lot,
+					"location":    location,
+				}
+				if g.json {
+					return printJSON(result)
+				}
+				fmt.Println("VERIFY NO-OP (PRINTING_PRESS_VERIFY=1): not contacting MasterPark; reservations not listed.")
+				return nil
+			}
+
 			c := g.newClient()
 			// Establish an authenticated session against the real endpoint.
 			ok, err := verifyLoginWithClient(ctx, c, creds.Username, creds.Password, location)
