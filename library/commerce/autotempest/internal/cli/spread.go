@@ -32,8 +32,12 @@ func newNovelSpreadCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
-			if len(args) > 0 && mk == "" && model == "" {
-				model = args[0]
+			// The positional is an AMBIGUOUS make-or-model token; keep it
+			// separate from --make/--model so it (and only it) OR-matches both
+			// columns. --make/--model each bind to their own column.
+			var term string
+			if len(args) > 0 {
+				term = args[0]
 			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
@@ -44,7 +48,7 @@ func newNovelSpreadCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer db.Close()
 
-			rows, err := spreadRows(ctx, db.DB(), mk, model)
+			rows, err := spreadRows(ctx, db.DB(), mk, model, term)
 			if err != nil {
 				return err
 			}
@@ -57,21 +61,10 @@ func newNovelSpreadCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
-func spreadRows(ctx context.Context, sqlDB *sql.DB, mk, model string) ([]map[string]any, error) {
+func spreadRows(ctx context.Context, sqlDB *sql.DB, mk, model, term string) ([]map[string]any, error) {
 	where := []string{"price_cents >= 0", "source IS NOT NULL", "source != ''"}
 	var argv []any
-	makeExpr := slugColExpr("make")
-	modelExpr := slugColExpr("model")
-	if mk != "" {
-		where = append(where, "("+makeExpr+" = ? OR "+modelExpr+" = ?)")
-		n := autotempest.NormalizeSlug(mk)
-		argv = append(argv, n, n)
-	}
-	if model != "" {
-		where = append(where, "("+makeExpr+" = ? OR "+modelExpr+" = ?)")
-		n := autotempest.NormalizeSlug(model)
-		argv = append(argv, n, n)
-	}
+	where, argv = appendMakeModelTermFilter(where, argv, mk, model, term)
 	// #nosec G202 -- where clauses are constant literals (slugColExpr takes a trusted
 	// column name); every user value is bound through argv via ? placeholders below.
 	query := `SELECT source, price_cents FROM at_listings WHERE ` + strings.Join(where, " AND ")

@@ -11,8 +11,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/autotempest/internal/autotempest"
-
 	"github.com/spf13/cobra"
 )
 
@@ -34,8 +32,12 @@ func newNovelDealCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
-			if len(args) > 0 && model == "" {
-				model = args[0]
+			// The positional is an AMBIGUOUS make-or-model token; keep it
+			// separate from --make/--model so it (and only it) OR-matches both
+			// columns. --make/--model each bind to their own column.
+			var term string
+			if len(args) > 0 {
+				term = args[0]
 			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
@@ -46,7 +48,7 @@ func newNovelDealCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer db.Close()
 
-			rows, err := dealRows(ctx, db.DB(), mk, model, limit)
+			rows, err := dealRows(ctx, db.DB(), mk, model, term, limit)
 			if err != nil {
 				return err
 			}
@@ -75,17 +77,10 @@ type dealRow struct {
 	bucket  string
 }
 
-func dealRows(ctx context.Context, sqlDB *sql.DB, mk, model string, limit int) ([]map[string]any, error) {
+func dealRows(ctx context.Context, sqlDB *sql.DB, mk, model, term string, limit int) ([]map[string]any, error) {
 	where := []string{"price_cents >= 0"}
 	var argv []any
-	if mk != "" {
-		where = append(where, slugColExpr("make")+" = ?")
-		argv = append(argv, autotempest.NormalizeSlug(mk))
-	}
-	if model != "" {
-		where = append(where, slugColExpr("model")+" = ?")
-		argv = append(argv, autotempest.NormalizeSlug(model))
-	}
+	where, argv = appendMakeModelTermFilter(where, argv, mk, model, term)
 	// #nosec G202 -- where clauses are constant literals (slugColExpr takes a trusted
 	// column name); every user value is bound through argv via ? placeholders below.
 	query := `SELECT listing_id, title, price_cents, mileage, year, make, model, source, url

@@ -10,8 +10,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/autotempest/internal/autotempest"
-
 	"github.com/spf13/cobra"
 )
 
@@ -20,15 +18,25 @@ func newNovelDedupeCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 
 	cmd := &cobra.Command{
-		Use:   "dedupe",
+		Use:   "dedupe [make-or-model]",
 		Short: "Collapse the same physical VIN listed on multiple marketplaces into one row with every source and price, cheapest first.",
 		Example: strings.Trim(`
   autotempest-pp-cli dedupe --json
+  autotempest-pp-cli dedupe "civic" --json
   autotempest-pp-cli dedupe --make honda --model civic --select vin,min_price,sources.source,sources.price --json`, "\n"),
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		// Positional is a free-text make/model filter against the local store;
+		// any string is valid, so the invalid-arg probe does not apply.
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:no-error-path-probe": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
+			}
+			// The positional is an AMBIGUOUS make-or-model token; keep it
+			// separate from --make/--model so it (and only it) OR-matches both
+			// columns. --make/--model each bind to their own column.
+			var term string
+			if len(args) > 0 {
+				term = args[0]
 			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
@@ -39,7 +47,7 @@ func newNovelDedupeCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer db.Close()
 
-			rows, err := dedupeRows(ctx, db.DB(), mk, model, limit)
+			rows, err := dedupeRows(ctx, db.DB(), mk, model, term, limit)
 			if err != nil {
 				return err
 			}
@@ -61,17 +69,10 @@ type dedupeSourceEntry struct {
 	cents  int64
 }
 
-func dedupeRows(ctx context.Context, sqlDB *sql.DB, mk, model string, limit int) ([]map[string]any, error) {
+func dedupeRows(ctx context.Context, sqlDB *sql.DB, mk, model, term string, limit int) ([]map[string]any, error) {
 	where := []string{"vin IS NOT NULL", "vin != ''"}
 	var argv []any
-	if mk != "" {
-		where = append(where, slugColExpr("make")+" = ?")
-		argv = append(argv, autotempest.NormalizeSlug(mk))
-	}
-	if model != "" {
-		where = append(where, slugColExpr("model")+" = ?")
-		argv = append(argv, autotempest.NormalizeSlug(model))
-	}
+	where, argv = appendMakeModelTermFilter(where, argv, mk, model, term)
 	// #nosec G202 -- where clauses are constant literals (slugColExpr takes a trusted
 	// column name); every user value is bound through argv via ? placeholders below.
 	query := `SELECT vin, title, make, model, year, price_cents, source, url

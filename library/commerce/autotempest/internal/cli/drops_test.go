@@ -30,11 +30,27 @@ func openTestStore(t *testing.T) (*sql.DB, func()) {
 
 func insertListing(t *testing.T, sqlDB *sql.DB, id string, priceCents int64) {
 	t.Helper()
+	insertListingFull(t, sqlDB, id, "2018 Honda Civic", "Honda", "Civic", priceCents)
+}
+
+// insertListingMM inserts a listing with explicit make/model so make-vs-model
+// column-binding tests can distinguish them. The title is derived from make and
+// model. vin is unique per id so dedupe treats each as its own VIN.
+func insertListingMM(t *testing.T, sqlDB *sql.DB, id, mk, model string, priceCents int64) {
+	t.Helper()
+	insertListingFull(t, sqlDB, id, mk+" "+model, mk, model, priceCents)
+}
+
+// insertListingFull is the shared insert with an explicit title; source "te".
+func insertListingFull(t *testing.T, sqlDB *sql.DB, id, title, mk, model string, priceCents int64) {
+	t.Helper()
 	_, err := sqlDB.Exec(`INSERT INTO at_listings
 		(listing_id, vin, title, make, model, year, price_cents, source, url)
 		VALUES (?,?,?,?,?,?,?,?,?)
-		ON CONFLICT(listing_id) DO UPDATE SET price_cents=excluded.price_cents`,
-		id, "VIN"+id, "2018 Honda Civic", "Honda", "Civic", 2018, priceCents, "te", "https://example.com/"+id)
+		ON CONFLICT(listing_id) DO UPDATE SET
+			title=excluded.title, make=excluded.make, model=excluded.model,
+			price_cents=excluded.price_cents`,
+		id, "VIN"+id, title, mk, model, 2018, priceCents, "te", "https://example.com/"+id)
 	if err != nil {
 		t.Fatalf("insert listing: %v", err)
 	}

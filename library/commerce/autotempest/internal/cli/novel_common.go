@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/autotempest/internal/autotempest"
 	"github.com/mvanhorn/printing-press-library/library/commerce/autotempest/internal/store"
 
 	"github.com/spf13/cobra"
@@ -24,6 +25,39 @@ import (
 // names. col must be a trusted literal column name (never user input).
 func slugColExpr(col string) string {
 	return fmt.Sprintf(`LOWER(REPLACE(REPLACE(REPLACE(%s,'-',''),' ',''),'.',''))`, col)
+}
+
+// appendMakeModelTermFilter appends slug-normalized make/model/term predicates
+// to a WHERE clause and returns the extended (clauses, args). Binding rules:
+//
+//   - mk (--make):    matches the MAKE column ONLY
+//   - model (--model): matches the MODEL column ONLY
+//   - term (positional): AMBIGUOUS — the user typed e.g. "f-150" without saying
+//     which column, so it OR-matches BOTH make and model
+//
+// This fixes the prior bug where --make bound the same value to both columns
+// (an OR), wrongly including a listing whose MODEL literally equaled the make.
+// Only the positional term is allowed to OR across columns.
+//
+// Column names come from slugColExpr (trusted literals); every user value is
+// bound via a ? placeholder appended to args.
+func appendMakeModelTermFilter(where []string, args []any, mk, model, term string) ([]string, []any) {
+	makeExpr := slugColExpr("make")
+	modelExpr := slugColExpr("model")
+	if mk != "" {
+		where = append(where, makeExpr+" = ?")
+		args = append(args, autotempest.NormalizeSlug(mk))
+	}
+	if model != "" {
+		where = append(where, modelExpr+" = ?")
+		args = append(args, autotempest.NormalizeSlug(model))
+	}
+	if term != "" {
+		where = append(where, "("+makeExpr+" = ? OR "+modelExpr+" = ?)")
+		n := autotempest.NormalizeSlug(term)
+		args = append(args, n, n)
+	}
+	return where, args
 }
 
 // rejectLiveDataSource returns an error when --data-source live is requested on
