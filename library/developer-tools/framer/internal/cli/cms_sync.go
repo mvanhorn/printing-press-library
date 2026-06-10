@@ -317,9 +317,33 @@ func loadCMSItems(db *store.Store, collection string) (map[string]map[string]any
 		if slug == "" {
 			continue
 		}
-		items[slug] = obj
+
+		items[slug] = flattenStoredCMSItem(obj, slug)
 	}
 	return items, nil
+}
+
+// flattenStoredCMSItem converts a stored CMS item — whose field values are
+// nested under fieldData as {field: {"value": v}} — into the flat {field: v}
+// shape used by incoming file items, so computeCMSDiff compares like-for-like.
+// Without this, every incoming field name resolves to nil on the stored item
+// and every item is always reported as changed. Top-level id and slug are
+// preserved because the delete path resolves item IDs from this map.
+func flattenStoredCMSItem(obj map[string]any, slug string) map[string]any {
+	flat := map[string]any{"slug": slug}
+	if id, ok := obj["id"].(string); ok {
+		flat["id"] = id
+	}
+	if fieldData, ok := obj["fieldData"].(map[string]any); ok {
+		for k, wrapped := range fieldData {
+			if m, ok := wrapped.(map[string]any); ok {
+				flat[k] = m["value"]
+			} else {
+				flat[k] = wrapped
+			}
+		}
+	}
+	return flat
 }
 
 // computeCMSDiff compares existing (store) items against incoming (file) items.

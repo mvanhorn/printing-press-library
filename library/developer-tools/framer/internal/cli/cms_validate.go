@@ -48,6 +48,7 @@ type cmsItem struct {
 
 func newCmsValidateCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
+	var includeOrphans bool
 
 	cmd := &cobra.Command{
 		Use:   "cms-validate",
@@ -58,7 +59,9 @@ references. Reports:
 
   - Broken references: collectionReference or multiCollectionReference fields
     that point to items that don't exist in the local store
-  - Orphan items: items that are not referenced by any other item
+  - Orphan items (opt-in, --orphans): items not referenced by any other item.
+    Off by default because top-level content (blog posts, products) is expected
+    to be unreferenced and would otherwise flood the report.
 
 Requires synced data — run 'framer-pp-cli sync' first.`, "\n"),
 		Example: strings.Trim(`
@@ -85,7 +88,7 @@ Requires synced data — run 'framer-pp-cli sync' first.`, "\n"),
 			}
 			defer db.Close()
 
-			report, err := validateCMSRefs(db)
+			report, err := validateCMSRefs(db, includeOrphans)
 			if err != nil {
 				return fmt.Errorf("validation failed: %w", err)
 			}
@@ -100,11 +103,12 @@ Requires synced data — run 'framer-pp-cli sync' first.`, "\n"),
 	}
 
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/framer-pp-cli/data.db)")
+	cmd.Flags().BoolVar(&includeOrphans, "orphans", false, "Also report orphan items not referenced by any other item (off by default — top-level content is expected to be unreferenced and would flood the report)")
 
 	return cmd
 }
 
-func validateCMSRefs(db *store.Store) (*cmsValidationReport, error) {
+func validateCMSRefs(db *store.Store, includeOrphans bool) (*cmsValidationReport, error) {
 	// Load all CMS items
 	itemRows, err := db.List("cms-items", 0)
 	if err != nil {
@@ -174,19 +178,26 @@ func validateCMSRefs(db *store.Store) (*cmsValidationReport, error) {
 		}
 	}
 
-	// Find orphan items (not referenced by any other item)
-	for id, item := range itemByID {
-		if !referencedIDs[id] {
-			report.OrphanIDs = append(report.OrphanIDs, orphanID{
-				ID:         id,
-				Slug:       item.Slug,
-				Collection: item.Collection,
-			})
+	// Find orphan items (not referenced by any other item). Off by default: in a
+	// typical CMS, top-level content (blog posts, products, announcements) is
+	// never referenced by other items and IS the authoritative content, so an
+	// unconditional orphan scan flags nearly everything and drowns out the real
+	// broken-reference signal. Opt in with --orphans when you specifically want
+	// to audit for unreferenced items.
+	if includeOrphans {
+		for id, item := range itemByID {
+			if !referencedIDs[id] {
+				report.OrphanIDs = append(report.OrphanIDs, orphanID{
+					ID:         id,
+					Slug:       item.Slug,
+					Collection: item.Collection,
+				})
+			}
 		}
+		sort.Slice(report.OrphanIDs, func(i, j int) bool {
+			return report.OrphanIDs[i].ID < report.OrphanIDs[j].ID
+		})
 	}
-	sort.Slice(report.OrphanIDs, func(i, j int) bool {
-		return report.OrphanIDs[i].ID < report.OrphanIDs[j].ID
-	})
 
 	report.Summary = valSummary{
 		TotalItems:       len(itemByID),
