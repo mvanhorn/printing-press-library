@@ -15,6 +15,7 @@ metadata:
         bins: [eu-tenders-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/sales-and-crm/eu-tenders/cmd/eu-tenders-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/sales-and-crm/eu-tenders/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

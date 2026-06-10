@@ -15,6 +15,7 @@ metadata:
         bins: [myfitnesspal-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/other/myfitnesspal/cmd/myfitnesspal-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/productivity/myfitnesspal/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

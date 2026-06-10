@@ -15,6 +15,7 @@ metadata:
         bins: [cal-com-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/productivity/cal-com/cmd/cal-com-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/productivity/cal-com/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

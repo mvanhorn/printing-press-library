@@ -15,6 +15,7 @@ metadata:
         bins: [meta-ads-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/marketing/meta-ads/cmd/meta-ads-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/marketing/meta-ads/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

@@ -15,6 +15,7 @@ metadata:
         bins: [tripadvisor-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/travel/tripadvisor/cmd/tripadvisor-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/travel/tripadvisor/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

@@ -1,0 +1,50 @@
+{
+  "api_name": "sendfox",
+  "category": "marketing",
+  "cli_name": "sendfox-pp-cli",
+  "generated_at": "2026-06-09T16:55:19Z",
+  "novel_features": [
+    {
+      "name": "AI Campaign Writer",
+      "command": "write",
+      "description": "Describe a topic in plain English and get a complete, ready-to-send newsletter with subject line, preview text, and full HTML body.",
+      "group": "AI-powered writing"
+    },
+    {
+      "name": "Subject Line A/B Generator",
+      "command": "write",
+      "description": "Get 3 AI-generated subject line options with a rationale for each, then pick one before the draft is created.",
+      "group": "AI-powered writing"
+    },
+    {
+      "name": "Batch Newsletter Scheduler",
+      "command": "write",
+      "description": "Give it a file with one topic per line and it schedules one AI-written newsletter per topic, spaced out over coming weeks.",
+      "group": "AI-powered writing"
+    },
+    {
+      "name": "Historical Open Rate Trends",
+      "command": "stats trends",
+      "description": "See how your open rates, click rates, and unsubscribes have changed over the last N days across all campaigns.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Campaign Engagement Funnel",
+      "command": "stats funnel",
+      "description": "A cross-campaign view of sent vs opened vs clicked vs unsubscribed to see your list health at a glance.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Best Send Time Analysis",
+      "command": "stats best-time",
+      "description": "Analyzes historical campaign data to identify which days and times correlate with your highest open rates.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "printer": "rdilipk1",
+  "printer_name": "Dilip",
+  "printing_press_version": "4.3.0",
+  "run_id": "20260609-205519",
+  "schema_version": 1,
+  "spec_url": ""
+}

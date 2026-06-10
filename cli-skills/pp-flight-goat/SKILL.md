@@ -15,6 +15,7 @@ metadata:
         bins: [flight-goat-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/travel/flight-goat/cmd/flight-goat-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/travel/flight-goat/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-06-10T07:01:05.9223597Z",
+  "cli_dir": "\u003ccli-dir\u003e",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 257,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; brief but precise — agents universally understand this without elaboration"
+    }
+  ]
+}

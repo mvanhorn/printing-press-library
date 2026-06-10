@@ -15,6 +15,7 @@ metadata:
         bins: [bird-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/social-and-messaging/bird/cmd/bird-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/social-and-messaging/bird/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

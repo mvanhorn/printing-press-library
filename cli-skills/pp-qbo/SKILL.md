@@ -3,6 +3,7 @@ name: pp-qbo
 description: Fixture-first, read-only QBO CLI for agents.
 author: Jeff DeBolt
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/accounting/qbo/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

@@ -15,6 +15,7 @@ metadata:
         bins: [movie-goat-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/cmd/movie-goat-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/media-and-entertainment/movie-goat/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

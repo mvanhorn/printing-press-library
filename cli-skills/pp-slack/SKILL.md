@@ -15,6 +15,7 @@ metadata:
         bins: [slack-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/productivity/slack/cmd/slack-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/productivity/slack/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

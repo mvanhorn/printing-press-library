@@ -11,6 +11,7 @@ metadata:
       bins:
         - function-health-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/other/function-health/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

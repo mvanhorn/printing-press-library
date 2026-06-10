@@ -15,6 +15,7 @@ metadata:
         bins: [trendhunter-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/marketing/trendhunter/cmd/trendhunter-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/marketing/trendhunter/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

@@ -15,6 +15,7 @@ metadata:
         bins: [lemonsqueezy-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/payments/lemonsqueezy/cmd/lemonsqueezy-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/payments/lemonsqueezy/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

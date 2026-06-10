@@ -15,6 +15,7 @@ metadata:
         bins: [klaviyo-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/cmd/klaviyo-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/marketing/klaviyo/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

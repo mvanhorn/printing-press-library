@@ -15,6 +15,7 @@ metadata:
         bins: [azure-functions-admin-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/cloud/azure-functions-admin/cmd/azure-functions-admin-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/cloud/azure-functions-admin/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

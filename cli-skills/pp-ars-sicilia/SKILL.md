@@ -11,6 +11,7 @@ metadata:
       bins:
         - ars-sicilia-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/other/ars-sicilia/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

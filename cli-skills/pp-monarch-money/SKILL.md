@@ -15,6 +15,7 @@ metadata:
         bins: [monarch-money-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/payments/monarch-money/cmd/monarch-money-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/payments/monarch-money/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

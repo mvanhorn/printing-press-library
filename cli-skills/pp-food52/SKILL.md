@@ -15,6 +15,7 @@ metadata:
         bins: [food52-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/food-and-dining/food52/cmd/food52-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/food-and-dining/food52/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

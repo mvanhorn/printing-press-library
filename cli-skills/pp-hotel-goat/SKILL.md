@@ -15,6 +15,7 @@ metadata:
         bins: [hotel-goat-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/travel/hotel-goat/cmd/hotel-goat-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/travel/hotel-goat/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are

@@ -15,6 +15,7 @@ metadata:
         bins: [revenuecat-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/payments/revenuecat/cmd/revenuecat-pp-cli
 ---
+
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/payments/revenuecat/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are
