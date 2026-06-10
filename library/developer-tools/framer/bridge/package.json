@@ -1,0 +1,9 @@
+{
+  "name": "framer-pp-bridge",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "framer-api": "latest"
+  }
+}
