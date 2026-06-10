@@ -131,7 +131,7 @@ func Load(configPath string) (*Config, error) {
 	if v := strings.TrimSpace(os.Getenv("PLANE_SLUG")); v != "" {
 		cfg.TemplateVars["slug"] = normalizeEndpointTemplateValue(v)
 	} else if cfg.DefaultWorkspace != "" {
-		cfg.TemplateVars["slug"] = cfg.DefaultWorkspace
+		cfg.TemplateVars["slug"] = normalizeEndpointTemplateValue(cfg.DefaultWorkspace)
 	} else {
 		cfg.TemplateVars["slug"] = "my-workspace"
 	}
