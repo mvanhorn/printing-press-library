@@ -29,7 +29,9 @@ func newRunCmd() *cobra.Command {
 			if err := child.Run(); err != nil {
 				var exitErr *exec.ExitError
 				if errors.As(err, &exitErr) {
-					os.Exit(exitErr.ExitCode())
+					cmd.SilenceErrors = true
+					cmd.SilenceUsage = true
+					return childExitError{code: exitErr.ExitCode()}
 				}
 				return err
 			}

@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -14,8 +15,30 @@ const (
 
 var version = "0.1.0"
 
+type childExitError struct {
+	code int
+}
+
+func (err childExitError) Error() string {
+	return fmt.Sprintf("agent-desktop exited with status %d", err.code)
+}
+
+func (err childExitError) ExitCode() int {
+	return err.code
+}
+
 func Execute() error {
 	return NewRootCmd().Execute()
+}
+
+func ExitCode(err error) int {
+	var exitErr interface {
+		ExitCode() int
+	}
+	if errors.As(err, &exitErr) {
+		return exitErr.ExitCode()
+	}
+	return 1
 }
 
 func NewRootCmd() *cobra.Command {
