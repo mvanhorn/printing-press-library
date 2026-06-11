@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "slug": "qbo",
+  "cli_name": "qbo-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-08T00:00:00Z",
+  "source_commit": "40610a4e649ed7db2f033b1abff765949bbad99d",
+  "printing_press_version": "4.20.1",
+  "run_id": "qbo-fixture-read-20260604",
+  "changes": [
+    {
+      "title": "Baseline release metadata added for this published CLI.",
+      "commit": "40610a4e649ed7db2f033b1abff765949bbad99d"
+    }
+  ]
+}
