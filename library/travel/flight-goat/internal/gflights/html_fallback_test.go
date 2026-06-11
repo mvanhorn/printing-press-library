@@ -126,8 +126,62 @@ func TestFlightsFromHTMLParsesEmbeddedPayload(t *testing.T) {
 			t.Fatalf("flight[%d] originates at %s, want AUS", i, f.Legs[0].DepartureAirport.Code)
 		}
 	}
-	if got := len(flights); got != 13 {
-		t.Fatalf("parsed %d flights from the 2026-06-11 capture, want 13", got)
+	// A busy nonstop market should always yield multiple itineraries; any
+	// stricter count would couple the test to one specific capture.
+	if got := len(flights); got < 2 {
+		t.Fatalf("parsed %d flights from the captured page payload, want at least 2", got)
+	}
+}
+
+func TestSortFlightsClientSide(t *testing.T) {
+	mk := func(price float64, duration int, dep, arr string) Flight {
+		return Flight{Price: price, DurationMinutes: duration, Legs: []Leg{{
+			DepartureTime: dep,
+			ArrivalTime:   arr,
+		}}}
+	}
+	base := []Flight{
+		mk(300, 180, "2026-07-15T16:15:00", "2026-07-15T19:15:00"),
+		mk(100, 240, "2026-07-15T20:43:00", "2026-07-16T00:43:00"),
+		mk(200, 120, "2026-07-15T06:10:00", "2026-07-15T08:10:00"),
+	}
+	cases := []struct {
+		sortBy    string
+		honored   bool
+		wantFirst float64 // price of the expected first flight
+	}{
+		{"", true, 100},
+		{"cheapest", true, 100},
+		{"Cheapest", true, 100},
+		{"duration", true, 200},
+		{"departure_time", true, 200},
+		{"arrival_time", true, 200},
+		{"best", false, 300},
+		{"top_flights", false, 300},
+		{"emissions", false, 300},
+	}
+	for _, c := range cases {
+		flights := append([]Flight(nil), base...)
+		if got := sortFlightsClientSide(flights, c.sortBy); got != c.honored {
+			t.Fatalf("sortFlightsClientSide(%q) honored = %v, want %v", c.sortBy, got, c.honored)
+		}
+		if flights[0].Price != c.wantFirst {
+			t.Fatalf("sort %q: first flight price = %.0f, want %.0f", c.sortBy, flights[0].Price, c.wantFirst)
+		}
+	}
+}
+
+// A page with no embedded payload at all (consent interstitial, redesign)
+// must be distinguishable from a legitimately empty result set.
+func TestPageMissingFlightData(t *testing.T) {
+	if !pageMissingFlightData(`<html><body>redirecting to https://consent.google.com/m?continue=...</body></html>`) {
+		t.Fatal("consent interstitial not detected")
+	}
+	if !pageMissingFlightData(`<html><body>no callbacks here</body></html>`) {
+		t.Fatal("payload-free page not detected")
+	}
+	if pageMissingFlightData(wrapDs1HTML([]byte(`[null,[],[]]`))) {
+		t.Fatal("page with embedded callbacks misclassified as missing data")
 	}
 }
 

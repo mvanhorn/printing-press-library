@@ -63,6 +63,11 @@ var errShoppingBlocked = errors.New(
 const htmlFallbackNote = "served via server-rendered HTML fallback: Google's flights RPC is currently " +
 	"blocking non-interactive clients; bags/emissions/layover filters are not applied on this path"
 
+// htmlFallbackSortNote discloses an unhonored --sort key. The fallback page
+// carries no ranking data for best/top_flights/emissions, so those keys
+// cannot be reproduced client-side.
+const htmlFallbackSortNote = "; the requested sort %q is not available on this path — results are in Google page order"
+
 // errorResponseMarker identifies the gated-RPC envelope. The full type URL is
 // type.googleapis.com/travel.frontend.flights.ErrorResponse.
 const errorResponseMarker = "travel.frontend.flights.ErrorResponse"
@@ -301,21 +306,70 @@ func flightsFromHTML(html, currency string) []Flight {
 // searchViaHTML is the fallback search path. Filters Google's RPC accepted
 // but the tfs URL cannot express (airlines, time window) are applied
 // client-side; page prices are per-person already, so no group-total divide.
-func searchViaHTML(ctx context.Context, opts SearchOptions, currencyCode string) ([]Flight, error) {
+// The returned note discloses the fallback and, when the requested sort key
+// has no client-side equivalent, the unhonored sort.
+func searchViaHTML(ctx context.Context, opts SearchOptions, currencyCode string) ([]Flight, string, error) {
 	pageURL, err := googleSearchPageURL(opts, currencyCode)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	html, err := fetchSearchPage(ctx, pageURL)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	flights := flightsFromHTML(html, currencyCode)
-	flights = filterFlightsClientSide(flights, opts)
-	if strings.EqualFold(opts.SortBy, "") || strings.EqualFold(opts.SortBy, "cheapest") {
-		sort.SliceStable(flights, func(i, j int) bool { return flights[i].Price < flights[j].Price })
+	if len(flights) == 0 && pageMissingFlightData(html) {
+		return nil, "", errors.New("fallback page did not embed flight data — Google likely served a consent " +
+			"interstitial (the built-in SOCS consent cookie may have gone stale) or redesigned the page")
 	}
-	return flights, nil
+	flights = filterFlightsClientSide(flights, opts)
+	note := htmlFallbackNote
+	if !sortFlightsClientSide(flights, opts.SortBy) {
+		note += fmt.Sprintf(htmlFallbackSortNote, opts.SortBy)
+	}
+	return flights, note, nil
+}
+
+// pageMissingFlightData reports whether a fetched search page carries no
+// embedded payload at all — the signature of a consent interstitial or a page
+// redesign, as opposed to a legitimately empty result set (which still embeds
+// AF_initDataCallback blobs).
+func pageMissingFlightData(html string) bool {
+	return strings.Contains(html, "consent.google.com") || !strings.Contains(html, "AF_initDataCallback(")
+}
+
+// sortFlightsClientSide orders fallback results for the sort keys the page
+// data can reproduce. It reports false when the key needs RPC-side ranking
+// data (best, top_flights, emissions) so the caller can disclose the
+// unhonored sort.
+func sortFlightsClientSide(flights []Flight, sortBy string) bool {
+	key := strings.ToLower(strings.TrimSpace(sortBy))
+	switch key {
+	case "", "cheapest":
+		sort.SliceStable(flights, func(i, j int) bool { return flights[i].Price < flights[j].Price })
+	case "duration":
+		sort.SliceStable(flights, func(i, j int) bool { return flights[i].DurationMinutes < flights[j].DurationMinutes })
+	case "departure_time":
+		sort.SliceStable(flights, func(i, j int) bool { return legTime(flights[i], false) < legTime(flights[j], false) })
+	case "arrival_time":
+		sort.SliceStable(flights, func(i, j int) bool { return legTime(flights[i], true) < legTime(flights[j], true) })
+	default:
+		return false
+	}
+	return true
+}
+
+// legTime returns the first departure or last arrival timestamp of a flight.
+// Timestamps are "2006-01-02T15:04:05" strings, so lexicographic order is
+// chronological order.
+func legTime(f Flight, arrival bool) string {
+	if len(f.Legs) == 0 {
+		return ""
+	}
+	if arrival {
+		return f.Legs[len(f.Legs)-1].ArrivalTime
+	}
+	return f.Legs[0].DepartureTime
 }
 
 // filterFlightsClientSide applies the airline and time-window filters the
@@ -402,7 +456,7 @@ func datesViaHTML(ctx context.Context, opts DatesOptions, from, to time.Time, cu
 				CabinClass:    opts.CabinClass,
 				MaxStops:      opts.MaxStops,
 			}
-			flights, err := searchViaHTML(ctx, searchOpts, currencyCode)
+			flights, _, err := searchViaHTML(ctx, searchOpts, currencyCode)
 			if err != nil {
 				results[i] = dayResult{idx: i, err: err}
 				return

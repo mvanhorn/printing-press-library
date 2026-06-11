@@ -183,11 +183,10 @@ func searchNativeDirect(ctx context.Context, opts SearchOptions) (*SearchResult,
 		// server-rendered HTML page instead — same inner schema, parsed by
 		// the same row parser. Page prices are per-person already, so the
 		// group-total divide below is intentionally skipped on this path.
-		flights, err = searchViaHTML(ctx, opts, currencyCode)
+		flights, note, err = searchViaHTML(ctx, opts, currencyCode)
 		if err != nil {
 			return nil, fmt.Errorf("google flights RPC is blocked and the HTML fallback failed: %w", err)
 		}
-		note = htmlFallbackNote
 	case err != nil:
 		return nil, fmt.Errorf("parsing response: %w", err)
 	default:
