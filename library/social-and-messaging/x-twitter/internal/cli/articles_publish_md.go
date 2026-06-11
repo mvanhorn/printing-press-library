@@ -158,6 +158,91 @@ type publishedArticleResult struct {
 	CoverMediaID string `json:"cover_media_id,omitempty"`
 }
 
+// articleGraphQLPoster is the minimal client surface the shared article
+// GraphQL composition helpers need. *client.Client satisfies it; tests inject
+// a fake transport so no network is involved.
+type articleGraphQLPoster interface {
+	Post(ctx context.Context, path string, body any) (json.RawMessage, int, error)
+}
+
+// PATCH: Shared X Articles GraphQL composition. Both articles-publish-md
+// (create) and articles update-md (in-place update) compose the same proven
+// mutations through these helpers; queryIds resolve through the client's
+// article-ops table instead of hardcoded literals that drift when X redeploys.
+func articleOpRequestBody(opName string, variables map[string]any) map[string]any {
+	return map[string]any{
+		"variables": variables,
+		"features":  articleGraphQLFeatures(),
+		"queryId":   client.ArticleOpQueryID(opName),
+	}
+}
+
+func createArticleDraftEntity(ctx context.Context, p articleGraphQLPoster) (string, error) {
+	body := articleOpRequestBody("ArticleEntityDraftCreate", map[string]any{
+		"content_state": map[string]any{"blocks": []any{}, "entity_map": []any{}},
+		"title":         "",
+	})
+	createData, _, err := p.Post(ctx, client.ArticleOpURL("ArticleEntityDraftCreate"), body)
+	if err != nil {
+		return "", err
+	}
+	articleID := articleIDFromCreateResponse(createData)
+	if articleID == "" {
+		return "", fmt.Errorf("create draft response did not include article rest_id")
+	}
+	return articleID, nil
+}
+
+func updateArticleEntityTitle(ctx context.Context, p articleGraphQLPoster, articleID string, title string) error {
+	body := articleOpRequestBody("ArticleEntityUpdateTitle", map[string]any{
+		"articleEntityId": articleID,
+		"title":           title,
+	})
+	_, _, err := p.Post(ctx, client.ArticleOpURL("ArticleEntityUpdateTitle"), body)
+	return err
+}
+
+// updateArticleEntityContent sends the proven UpdateContent variable shape:
+// {content_state: {blocks, entity_map}, article_entity: <id>}. This replaces
+// the entire body of the target draft.
+func updateArticleEntityContent(ctx context.Context, p articleGraphQLPoster, articleID string, contentState draftContentState) error {
+	body := articleOpRequestBody("ArticleEntityUpdateContent", map[string]any{
+		"content_state":  articleContentStateRequest(contentState),
+		"article_entity": articleID,
+	})
+	_, _, err := p.Post(ctx, client.ArticleOpURL("ArticleEntityUpdateContent"), body)
+	return err
+}
+
+func updateArticleEntityCoverMedia(ctx context.Context, p articleGraphQLPoster, articleID string, mediaID string) error {
+	body := articleOpRequestBody("ArticleEntityUpdateCoverMedia", map[string]any{
+		"articleEntityId": articleID,
+		"coverMedia": map[string]any{
+			"media_id":       mediaID,
+			"media_category": "DraftTweetImage",
+		},
+	})
+	_, _, err := p.Post(ctx, client.ArticleOpURL("ArticleEntityUpdateCoverMedia"), body)
+	return err
+}
+
+func publishArticleEntity(ctx context.Context, p articleGraphQLPoster, articleID string) (json.RawMessage, error) {
+	body := articleOpRequestBody("ArticleEntityPublish", map[string]any{
+		"articleEntityId":   articleID,
+		"visibilitySetting": "Public",
+	})
+	publishData, _, err := p.Post(ctx, client.ArticleOpURL("ArticleEntityPublish"), body)
+	return publishData, err
+}
+
+func unpublishArticleEntity(ctx context.Context, p articleGraphQLPoster, articleID string) error {
+	body := articleOpRequestBody("ArticleEntityUnpublish", map[string]any{
+		"articleEntityId": articleID,
+	})
+	_, _, err := p.Post(ctx, client.ArticleOpURL("ArticleEntityUnpublish"), body)
+	return err
+}
+
 // PATCH: Wire the X-specific Articles create/update/publish GraphQL sequence.
 func publishMarkdownArticle(ctx context.Context, flags *rootFlags, title string, coverPath string, contentState draftContentState, publish bool) (*publishedArticleResult, error) {
 	if strings.TrimSpace(title) == "" {
@@ -167,31 +252,13 @@ func publishMarkdownArticle(ctx context.Context, flags *rootFlags, title string,
 	if err != nil {
 		return nil, err
 	}
-	features := articleGraphQLFeatures()
 
-	createBody := map[string]any{
-		"variables": map[string]any{
-			"content_state": map[string]any{"blocks": []any{}, "entity_map": []any{}},
-			"title":         "",
-		},
-		"features": features,
-		"queryId":  "g1l5N8BxGewYuCy5USe_bQ",
-	}
-	createData, _, err := c.Post(ctx, client.ArticleOpURL("ArticleEntityDraftCreate"), createBody)
+	articleID, err := createArticleDraftEntity(ctx, c)
 	if err != nil {
 		return nil, classifyAPIError(err, flags)
 	}
-	articleID := articleIDFromCreateResponse(createData)
-	if articleID == "" {
-		return nil, fmt.Errorf("create draft response did not include article rest_id")
-	}
 
-	updateTitleBody := map[string]any{
-		"variables": map[string]any{"articleEntityId": articleID, "title": title},
-		"features":  features,
-		"queryId":   "x75E2ABzm8_mGTg1bz8hcA",
-	}
-	if _, _, err := c.Post(ctx, client.ArticleOpURL("ArticleEntityUpdateTitle"), updateTitleBody); err != nil {
+	if err := updateArticleEntityTitle(ctx, c, articleID, title); err != nil {
 		return nil, classifyAPIError(err, flags)
 	}
 
@@ -202,15 +269,7 @@ func publishMarkdownArticle(ctx context.Context, flags *rootFlags, title string,
 		return nil, classifyAPIError(err, flags)
 	}
 
-	updateContentBody := map[string]any{
-		"variables": map[string]any{
-			"content_state":  articleContentStateRequest(contentState),
-			"article_entity": articleID,
-		},
-		"features": features,
-		"queryId":  "M7N2FrPrlOmu-YrVIBxFnQ",
-	}
-	if _, _, err := c.Post(ctx, client.ArticleOpURL("ArticleEntityUpdateContent"), updateContentBody); err != nil {
+	if err := updateArticleEntityContent(ctx, c, articleID, contentState); err != nil {
 		return nil, classifyAPIError(err, flags)
 	}
 
@@ -220,18 +279,7 @@ func publishMarkdownArticle(ctx context.Context, flags *rootFlags, title string,
 		if err != nil {
 			return nil, classifyAPIError(err, flags)
 		}
-		updateCoverBody := map[string]any{
-			"variables": map[string]any{
-				"articleEntityId": articleID,
-				"coverMedia": map[string]any{
-					"media_id":       coverMediaID,
-					"media_category": "DraftTweetImage",
-				},
-			},
-			"features": features,
-			"queryId":  "Es8InPh7mEkK9PxclxFAVQ",
-		}
-		if _, _, err := c.Post(ctx, client.ArticleOpURL("ArticleEntityUpdateCoverMedia"), updateCoverBody); err != nil {
+		if err := updateArticleEntityCoverMedia(ctx, c, articleID, coverMediaID); err != nil {
 			return nil, classifyAPIError(err, flags)
 		}
 	}
@@ -247,12 +295,7 @@ func publishMarkdownArticle(ctx context.Context, flags *rootFlags, title string,
 		}, nil
 	}
 
-	publishBody := map[string]any{
-		"variables": map[string]any{"articleEntityId": articleID, "visibilitySetting": "Public"},
-		"features":  features,
-		"queryId":   "m4SHicYMoWO_qkLvjhDk7Q",
-	}
-	publishData, _, err := c.Post(ctx, client.ArticleOpURL("ArticleEntityPublish"), publishBody)
+	publishData, err := publishArticleEntity(ctx, c, articleID)
 	if err != nil {
 		return nil, classifyAPIError(err, flags)
 	}

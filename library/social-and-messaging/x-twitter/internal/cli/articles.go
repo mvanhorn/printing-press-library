@@ -21,6 +21,8 @@ func newArticlesCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newArticlesUnpublishCmd(flags))
 	cmd.AddCommand(newArticlesUpdateContentCmd(flags))
 	cmd.AddCommand(newArticlesUpdateCoverMediaCmd(flags))
+	// PATCH: hand-written in-place markdown update lane (see articles_update_md.go).
+	cmd.AddCommand(newArticlesUpdateMdCmd(flags))
 	cmd.AddCommand(newArticlesUpdateTitleCmd(flags))
 	cmd.AddCommand(newArticlesUploadMediaCmd(flags))
 	return cmd

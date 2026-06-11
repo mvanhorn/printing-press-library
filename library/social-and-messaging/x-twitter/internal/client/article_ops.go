@@ -85,6 +85,15 @@ func ArticleOpURL(opName string) string {
 	return fmt.Sprintf("https://x.com/i/api/graphql/%s/%s", hash, opName)
 }
 
+// PATCH: ArticleOpQueryID returns the bare operation hash for use as the
+// GraphQL request body's queryId field. Same runtime resolution as
+// ArticleOpURL (config-file override, then generation-time defaults), so
+// command code never hardcodes hash literals that drift when X redeploys.
+func ArticleOpQueryID(opName string) string {
+	articleOpsOnce.Do(loadArticleOps)
+	return articleOpsMap[opName]
+}
+
 // MediaUploadURL returns the absolute URL for the chunked media upload
 // endpoint, which lives on upload.x.com (different host from both api.x.com
 // and x.com). Used by articles_upload_media.go.
