@@ -107,8 +107,8 @@ jobs:
             echo "::error::Missing CLAW_TOKEN repository secret"
             exit 1
           fi
-          npx -y clawhub@0.18.0 --no-input login --token "$CLAW_TOKEN"
-          npx -y clawhub@0.18.0 --no-input whoami
+          npx -y clawhub@0.20.0 --no-input login --token "$CLAW_TOKEN"
+          npx -y clawhub@0.20.0 --no-input whoami
 
       - name: Ensure ClawHub version is new
         if: steps.changes.outputs.changed == 'true'
@@ -118,7 +118,7 @@ jobs:
         run: |
           set -euo pipefail
           set +e
-          npx -y clawhub@0.18.0 --no-input inspect printing-press-library --versions --limit 200 --json > /tmp/clawhub-existing.json 2>/tmp/clawhub-existing.err
+          npx -y clawhub@0.20.0 --no-input inspect printing-press-library --versions --limit 200 --json > /tmp/clawhub-existing.json 2>/tmp/clawhub-existing.err
           rc=$?
           set -e
 
@@ -177,12 +177,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npx -y clawhub@0.18.0 --no-input skill publish skills/printing-press-library \
+          # clawhub >=0.19 removed --clawscan-note. Former scanner note, kept for
+          # when an equivalent returns: "Catalog/discovery skill only. It may
+          # instruct agents to run npx @mvanhorn/printing-press-library commands
+          # and install focused pp-* skills, but this package itself does not
+          # include executable code or credentials."
+          npx -y clawhub@0.20.0 --no-input skill publish skills/printing-press-library \
             --slug printing-press-library \
             --name "Printing Press Library" \
             --version "${{ steps.version.outputs.version }}" \
-            --changelog "Publish Printing Press Library discovery skill from ${GITHUB_SHA}" \
-            --clawscan-note "Catalog/discovery skill only. It may instruct agents to run npx @mvanhorn/printing-press-library commands and install focused pp-* skills, but this package itself does not include executable code or credentials."
+            --changelog "Publish Printing Press Library discovery skill from ${GITHUB_SHA}"
 
       - name: Skip publish
         if: steps.changes.outputs.changed != 'true'
