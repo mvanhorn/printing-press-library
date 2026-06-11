@@ -1,0 +1,11 @@
+agent-desktop-pp-cli
+Copyright 2026 Lahfir and contributors
+
+Created by Lahfir (@lahfir).
+
+This CLI was prepared for the Printing Press library as a bridge to the
+agent-desktop project (https://github.com/lahfir/agent-desktop). It delegates
+to the real Rust agent-desktop binary and does not reimplement desktop
+automation behavior.
+
+CLI Printing Press is licensed separately under the MIT License.

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "slug": "agent-desktop",
+  "cli_name": "agent-desktop-pp-cli",
+  "version": "",
+  "released_at": "",
+  "source_commit": "",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260611T104457Z-agent-desktop-pp",
+  "changes": []
+}
