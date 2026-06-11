@@ -2,6 +2,8 @@
 
 A terminal CLI for [Plane](https://plane.so) — open-source project management for issues, cycles, modules, sub-issues, and workspaces; a self-hostable Jira / Linear / ClickUp alternative. Ships with offline SQLite sync for instant search and analytics, plus an MCP server (`plane-pp-mcp`) so agents can drive Plane directly.
 
+Pre-built binaries for Linux, macOS, and Windows ship in the [`plane-current`](https://github.com/mvanhorn/printing-press-library/releases/tag/plane-current) release, so you can install with no Go or Node toolchain — see [Install](#install).
+
 Visit the quick start guide and full API documentation at [developers.plane.so](https://developers.plane.so/api-reference/introduction).
 
 Learn more at [Plane](https://plane.so).
