@@ -2,6 +2,8 @@ module github.com/mvanhorn/printing-press-library/library/travel/flight-goat
 
 go 1.26.3
 
+toolchain go1.26.4
+
 require (
 	github.com/mark3labs/mcp-go v0.47.0
 	github.com/pelletier/go-toml/v2 v2.2.4

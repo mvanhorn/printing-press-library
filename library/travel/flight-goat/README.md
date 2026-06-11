@@ -46,6 +46,7 @@ Our AeroAPI push notification [testing interface](/commercial/aeroapi/send.rvt)
 provides a quick and easy way to test the delivery of customized alerts via AeroAPI push.
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Contributors: [@lloydarmbrust](https://github.com/lloydarmbrust) (Lloyd Armbrust).
 
 ## Install
 
@@ -221,7 +222,7 @@ Google Flights prices in that currency. The default is USD when the flag is
 omitted.
 
 ```bash
-flight-goat-pp-cli flights MAN AGP 2026-05-10 --currency GBP --sort cheapest
+flight-goat-pp-cli flights MAN AGP 2026-05-10 --currency GBP --sort=cheapest
 flight-goat-pp-cli dates JFK CDG --from 2026-07-01 --to 2026-07-31 --currency EUR --sort
 flight-goat-pp-cli compare SEA LHR 2026-06-15 --currency GBP
 ```

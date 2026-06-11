@@ -87,6 +87,7 @@ func datesNative(ctx context.Context, opts DatesOptions) (*DatesResult, error) {
 
 	// Chunk ranges > maxDaysPerSearch. Google rejects single requests spanning
 	// more than 61 days; fli does the same chunking in its Python loop.
+	note := ""
 	var all []DatePrice
 	cur := from
 	for !cur.After(to) {
@@ -99,6 +100,19 @@ func datesNative(ctx context.Context, opts DatesOptions) (*DatesResult, error) {
 		// the equivalent inside its loop.
 		chunk, err := datesChunk(ctx, opts, cur, chunkEnd)
 		if err != nil {
+			// PATCH(amend-2026-06-11): when Google's calendar RPC rejects the
+			// request with the gated-client ErrorResponse, serve the whole
+			// requested range from per-day server-rendered pages instead.
+			// One blocked chunk means every chunk is blocked — no point
+			// retrying the rest over the RPC.
+			if errors.Is(err, errShoppingBlocked) {
+				all, err = datesViaHTML(ctx, opts, from, to, currencyCode)
+				if err != nil {
+					return nil, fmt.Errorf("google flights calendar RPC is blocked and the HTML fallback failed: %w", err)
+				}
+				note = htmlFallbackNote
+				break
+			}
 			return nil, err
 		}
 		all = append(all, chunk...)
@@ -117,6 +131,7 @@ func datesNative(ctx context.Context, opts DatesOptions) (*DatesResult, error) {
 		},
 		Count: len(all),
 		Dates: all,
+		Note:  note,
 	}, nil
 }
 
@@ -304,7 +319,12 @@ func parseDatesResponse(body []byte, defaultCurrency string) ([]DatePrice, error
 	}
 	innerStr, ok := outer[0][2].(string)
 	if !ok || innerStr == "" {
-		return nil, errors.New("response wrb.fr payload is not a string")
+		// PATCH(amend-2026-06-11): since ~2026-06-09 Google rejects
+		// non-interactive calendar RPC calls with an ErrorResponse envelope
+		// whose payload slot is null — classify it so datesNative can fall
+		// back to per-day server-rendered pages instead of dying with the
+		// bare "payload is not a string" error users hit in the field.
+		return nil, envelopeBlockedErr(stripped)
 	}
 
 	var inner []any

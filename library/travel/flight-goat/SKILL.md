@@ -54,7 +54,7 @@ Use `--currency <ISO-4217-code>` when the user wants Google Flights prices in a
 specific currency. Omit it for the default USD behavior.
 
 ```bash
-flight-goat-pp-cli flights MAN AGP 2026-05-10 --currency GBP --sort cheapest --agent
+flight-goat-pp-cli flights MAN AGP 2026-05-10 --currency GBP --sort=cheapest --agent
 flight-goat-pp-cli dates JFK CDG --from 2026-07-01 --to 2026-07-31 --currency EUR --sort --agent
 flight-goat-pp-cli compare SEA LHR 2026-06-15 --currency GBP --agent
 ```
