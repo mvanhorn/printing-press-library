@@ -6,13 +6,15 @@
 // CURRENT SCOPE: article body + media. Supported block types:
 // paragraph, header-one, header-two, unordered-list-item, ordered-list-item,
 // blockquote, fenced code blocks, markdown table blocks, markdown image blocks,
-// tweet embeds, dividers, plus bold/italic inline styles. Cover image uses the
-// captured upload + UpdateCoverMedia flow.
+// tweet embeds, dividers, plus bold/italic inline styles and [text](url)
+// inline links (LINK entities). HTML comment lines are stripped. Cover image
+// uses the captured upload + UpdateCoverMedia flow.
 
 package cli
 
 import (
 	"context"
+	cryptorand "crypto/rand"
 	"encoding/json"
 	"fmt"
 	"math/rand"
@@ -406,6 +408,13 @@ func MarkdownBodyToDraftJS(md string) draftContentState {
 		if trim == "" {
 			continue
 		}
+		// PATCH: Strip HTML comment lines (`<!-- ... -->`) so loader directives
+		// never ship as visible article text. Only whole comment lines are
+		// stripped; an inline comment mid-paragraph passes through as literal
+		// text (multi-token HTML parsing is out of converter scope).
+		if strings.HasPrefix(trim, "<!--") {
+			continue
+		}
 		if strings.HasPrefix(trim, "```") {
 			codeLines := []string{}
 			openingFence := trim
@@ -463,7 +472,31 @@ func MarkdownBodyToDraftJS(md string) draftContentState {
 		default:
 			blk.Text = trim
 		}
-		blk.Text, blk.InlineStyleRanges = extractInlineStyles(blk.Text)
+		// PATCH: Run the combined inline pass (bold/italic + [text](url) links)
+		// on every non-atomic block, including blockquotes, and attach LINK
+		// entities with UTF-16 entity_ranges.
+		var links []linkSpan
+		blk.Text, blk.InlineStyleRanges, links = extractInlineSpans(blk.Text)
+		for _, ln := range links {
+			entityIndex := len(cs.EntityMap)
+			cs.EntityMap = append(cs.EntityMap, draftEntity{
+				Key: strconv.Itoa(entityIndex),
+				Value: draftEntityValue{
+					// Shape harvested from a live composer-authored draft
+					// (article 2064864205749280768): LINK entities are Mutable
+					// and carry {entityKey: <uuid>, url: <verbatim url>} —
+					// URLs are stored raw, not t.co-wrapped.
+					Data:       map[string]any{"entityKey": newDraftEntityKey(), "url": ln.URL},
+					Type:       "LINK",
+					Mutability: "Mutable",
+				},
+			})
+			blk.EntityRanges = append(blk.EntityRanges, map[string]any{
+				"key":    entityIndex,
+				"offset": ln.Offset,
+				"length": ln.Length,
+			})
+		}
 		cs.Blocks = append(cs.Blocks, blk)
 	}
 	return cs
@@ -638,6 +671,113 @@ func splitMarkdownTableRow(line string) []string {
 		return nil
 	}
 	return strings.Split(trimmed, "|")
+}
+
+// linkSpan describes one [text](url) span found by extractInlineSpans, with
+// Offset/Length in UTF-16 code units over the cleaned block text.
+type linkSpan struct {
+	Offset int
+	Length int
+	URL    string
+}
+
+// PATCH: extractInlineSpans is the combined inline pass: bold/italic markers
+// plus [text](url) inline links. Link text is recursively cleaned through
+// extractInlineStyles so `[**bold** link](url)` yields both the LINK range and
+// the inner Bold range with correct UTF-16 offsets. Image syntax (`![alt](p)`)
+// is left untouched, and degenerate links (`[](url)`, `[text]()`) degrade to
+// plain text.
+func extractInlineSpans(s string) (string, []inlineStyle, []linkSpan) {
+	ranges := []inlineStyle{}
+	links := []linkSpan{}
+	out := strings.Builder{}
+	i := 0
+	for i < len(s) {
+		// Bold first (**...**) so it doesn't get consumed as italic.
+		if i+2 <= len(s) && s[i:i+2] == "**" {
+			end := strings.Index(s[i+2:], "**")
+			if end >= 0 {
+				inner := s[i+2 : i+2+end]
+				offset := utf16Len(out.String())
+				out.WriteString(inner)
+				ranges = append(ranges, inlineStyle{Offset: offset, Length: utf16Len(inner), Style: "Bold"})
+				i = i + 2 + end + 2
+				continue
+			}
+		}
+		// Italic (*...*), single asterisk
+		if s[i] == '*' && (i == 0 || s[i-1] != '*') {
+			end := strings.Index(s[i+1:], "*")
+			if end > 0 && (i+1+end+1 >= len(s) || s[i+1+end+1] != '*') {
+				inner := s[i+1 : i+1+end]
+				offset := utf16Len(out.String())
+				out.WriteString(inner)
+				ranges = append(ranges, inlineStyle{Offset: offset, Length: utf16Len(inner), Style: "Italic"})
+				i = i + 1 + end + 1
+				continue
+			}
+		}
+		// Inline link [text](url). Skip image syntax (preceding '!').
+		if s[i] == '[' && (i == 0 || s[i-1] != '!') {
+			if inner, linkURL, advance, ok := parseInlineLinkAt(s, i); ok {
+				cleanedInner, innerStyles := extractInlineStyles(inner)
+				offset := utf16Len(out.String())
+				out.WriteString(cleanedInner)
+				for _, st := range innerStyles {
+					st.Offset += offset
+					ranges = append(ranges, st)
+				}
+				links = append(links, linkSpan{Offset: offset, Length: utf16Len(cleanedInner), URL: linkURL})
+				i += advance
+				continue
+			}
+		}
+		out.WriteByte(s[i])
+		i++
+	}
+	return out.String(), ranges, links
+}
+
+// parseInlineLinkAt parses a [text](url) span starting at s[i] (which must be
+// '['). Returns the raw link text, the url, and how many bytes the whole span
+// consumes. Empty link text or empty url returns ok=false so the caller copies
+// the characters through as plain text.
+func parseInlineLinkAt(s string, i int) (inner string, linkURL string, advance int, ok bool) {
+	closeText := strings.Index(s[i+1:], "](")
+	if closeText < 0 {
+		return "", "", 0, false
+	}
+	inner = s[i+1 : i+1+closeText]
+	if strings.TrimSpace(inner) == "" {
+		return "", "", 0, false
+	}
+	urlStart := i + 1 + closeText + 2
+	closeURL := strings.Index(s[urlStart:], ")")
+	if closeURL < 0 {
+		return "", "", 0, false
+	}
+	linkURL = strings.TrimSpace(s[urlStart : urlStart+closeURL])
+	if linkURL == "" {
+		return "", "", 0, false
+	}
+	advance = urlStart + closeURL + 1 - i
+	return inner, linkURL, advance, true
+}
+
+// newDraftEntityKey returns a v4-format UUID for a Draft.js entity's
+// data.entityKey field, matching the shape X's composer generates.
+func newDraftEntityKey() string {
+	var b [16]byte
+	if _, err := cryptorand.Read(b[:]); err != nil {
+		// Fall back to math/rand bytes; entityKey only needs uniqueness
+		// within one article's entity map.
+		for i := range b {
+			b[i] = byte(rand.Intn(256))
+		}
+	}
+	b[6] = (b[6] & 0x0f) | 0x40 // version 4
+	b[8] = (b[8] & 0x3f) | 0x80 // RFC 4122 variant
+	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
 }
 
 // extractInlineStyles scans a string for **bold** and *italic* markers and

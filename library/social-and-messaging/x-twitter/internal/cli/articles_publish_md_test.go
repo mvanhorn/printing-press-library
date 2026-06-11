@@ -180,6 +180,227 @@ func TestMarkdownBodyToDraftJSTable(t *testing.T) {
 	}
 }
 
+func TestMarkdownBodyToDraftJSInlineLink(t *testing.T) {
+	contentState := MarkdownBodyToDraftJS("See [the docs](https://example.com/docs) for more")
+
+	if len(contentState.Blocks) != 1 {
+		t.Fatalf("expected 1 block, got %d", len(contentState.Blocks))
+	}
+	blk := contentState.Blocks[0]
+	if blk.Text != "See the docs for more" {
+		t.Fatalf("expected link syntax stripped from text, got %q", blk.Text)
+	}
+	if len(blk.EntityRanges) != 1 {
+		t.Fatalf("expected one entity range, got %d", len(blk.EntityRanges))
+	}
+	er := blk.EntityRanges[0]
+	if er["key"] != 0 || er["offset"] != 4 || er["length"] != 8 {
+		t.Fatalf("unexpected entity range: %#v", er)
+	}
+	if len(contentState.EntityMap) != 1 {
+		t.Fatalf("expected one entity, got %d", len(contentState.EntityMap))
+	}
+	entity := contentState.EntityMap[0]
+	if entity.Key != "0" {
+		t.Fatalf("expected entity key 0, got %q", entity.Key)
+	}
+	if entity.Value.Type != "LINK" || entity.Value.Mutability != "Mutable" {
+		t.Fatalf("expected Mutable LINK entity, got %s/%s", entity.Value.Type, entity.Value.Mutability)
+	}
+	if entity.Value.Data["url"] != "https://example.com/docs" {
+		t.Fatalf("expected url retained verbatim (no t.co wrap), got %#v", entity.Value.Data["url"])
+	}
+	entityKey, _ := entity.Value.Data["entityKey"].(string)
+	if len(entityKey) != 36 {
+		t.Fatalf("expected uuid-shaped entityKey, got %q", entityKey)
+	}
+}
+
+func TestMarkdownBodyToDraftJSMultipleLinks(t *testing.T) {
+	contentState := MarkdownBodyToDraftJS("[a](https://a.example) mid [bb](https://b.example)")
+
+	if len(contentState.Blocks) != 1 {
+		t.Fatalf("expected 1 block, got %d", len(contentState.Blocks))
+	}
+	blk := contentState.Blocks[0]
+	if blk.Text != "a mid bb" {
+		t.Fatalf("unexpected text: %q", blk.Text)
+	}
+	if len(blk.EntityRanges) != 2 || len(contentState.EntityMap) != 2 {
+		t.Fatalf("expected two distinct entities, got %d ranges / %d entities", len(blk.EntityRanges), len(contentState.EntityMap))
+	}
+	first, second := blk.EntityRanges[0], blk.EntityRanges[1]
+	if first["key"] != 0 || first["offset"] != 0 || first["length"] != 1 {
+		t.Fatalf("unexpected first range: %#v", first)
+	}
+	if second["key"] != 1 || second["offset"] != 6 || second["length"] != 2 {
+		t.Fatalf("unexpected second range: %#v", second)
+	}
+	if contentState.EntityMap[0].Value.Data["url"] != "https://a.example" ||
+		contentState.EntityMap[1].Value.Data["url"] != "https://b.example" {
+		t.Fatalf("unexpected entity urls: %#v / %#v",
+			contentState.EntityMap[0].Value.Data["url"], contentState.EntityMap[1].Value.Data["url"])
+	}
+	firstKey, _ := contentState.EntityMap[0].Value.Data["entityKey"].(string)
+	secondKey, _ := contentState.EntityMap[1].Value.Data["entityKey"].(string)
+	if firstKey == secondKey {
+		t.Fatalf("expected distinct entityKey uuids, both %q", firstKey)
+	}
+}
+
+func TestMarkdownBodyToDraftJSLinkMultibyteOffsets(t *testing.T) {
+	// Two emoji (2 UTF-16 units each) + space = offset 5; link text
+	// "café ☕" = 6 UTF-16 units (é and ☕ are BMP, 1 unit each).
+	contentState := MarkdownBodyToDraftJS("🚀🚀 [café ☕](https://c.example) done")
+
+	blk := contentState.Blocks[0]
+	if blk.Text != "🚀🚀 café ☕ done" {
+		t.Fatalf("unexpected text: %q", blk.Text)
+	}
+	if len(blk.EntityRanges) != 1 {
+		t.Fatalf("expected one entity range, got %d", len(blk.EntityRanges))
+	}
+	er := blk.EntityRanges[0]
+	if er["offset"] != 5 || er["length"] != 6 {
+		t.Fatalf("expected UTF-16 offset 5 length 6, got %#v", er)
+	}
+}
+
+func TestMarkdownBodyToDraftJSLinkInBlockquote(t *testing.T) {
+	contentState := MarkdownBodyToDraftJS("> quoted [link](https://q.example) text")
+
+	if len(contentState.Blocks) != 1 {
+		t.Fatalf("expected 1 block, got %d", len(contentState.Blocks))
+	}
+	blk := contentState.Blocks[0]
+	if blk.Type != "blockquote" {
+		t.Fatalf("expected blockquote block type preserved, got %q", blk.Type)
+	}
+	if blk.Text != "quoted link text" {
+		t.Fatalf("unexpected text: %q", blk.Text)
+	}
+	if len(blk.EntityRanges) != 1 {
+		t.Fatalf("expected entity attached to blockquote, got %d ranges", len(blk.EntityRanges))
+	}
+	er := blk.EntityRanges[0]
+	if er["offset"] != 7 || er["length"] != 4 {
+		t.Fatalf("unexpected range: %#v", er)
+	}
+	if contentState.EntityMap[0].Value.Type != "LINK" {
+		t.Fatalf("expected LINK entity, got %q", contentState.EntityMap[0].Value.Type)
+	}
+}
+
+func TestMarkdownBodyToDraftJSBoldInBlockquote(t *testing.T) {
+	// Regression: extractInlineStyles already runs on blockquote blocks via
+	// the unconditional post-switch inline pass. Pin that behavior.
+	contentState := MarkdownBodyToDraftJS("> **bold words** rest")
+
+	blk := contentState.Blocks[0]
+	if blk.Type != "blockquote" {
+		t.Fatalf("expected blockquote, got %q", blk.Type)
+	}
+	if blk.Text != "bold words rest" {
+		t.Fatalf("unexpected text: %q", blk.Text)
+	}
+	if len(blk.InlineStyleRanges) != 1 {
+		t.Fatalf("expected one inline style range, got %d", len(blk.InlineStyleRanges))
+	}
+	style := blk.InlineStyleRanges[0]
+	if style.Offset != 0 || style.Length != 10 || style.Style != "Bold" {
+		t.Fatalf("unexpected style range: %#v", style)
+	}
+}
+
+func TestMarkdownBodyToDraftJSLinkAndBoldSameSentence(t *testing.T) {
+	contentState := MarkdownBodyToDraftJS("**Bold** then [link](https://x.example) end")
+
+	blk := contentState.Blocks[0]
+	if blk.Text != "Bold then link end" {
+		t.Fatalf("unexpected text: %q", blk.Text)
+	}
+	if len(blk.InlineStyleRanges) != 1 {
+		t.Fatalf("expected one style range, got %d", len(blk.InlineStyleRanges))
+	}
+	style := blk.InlineStyleRanges[0]
+	if style.Offset != 0 || style.Length != 4 || style.Style != "Bold" {
+		t.Fatalf("unexpected style range: %#v", style)
+	}
+	if len(blk.EntityRanges) != 1 {
+		t.Fatalf("expected one entity range, got %d", len(blk.EntityRanges))
+	}
+	er := blk.EntityRanges[0]
+	if er["offset"] != 10 || er["length"] != 4 {
+		t.Fatalf("unexpected link range: %#v", er)
+	}
+}
+
+func TestMarkdownBodyToDraftJSBoldInsideLinkText(t *testing.T) {
+	contentState := MarkdownBodyToDraftJS("[**bold** link](https://n.example)")
+
+	blk := contentState.Blocks[0]
+	if blk.Text != "bold link" {
+		t.Fatalf("unexpected text: %q", blk.Text)
+	}
+	if len(blk.InlineStyleRanges) != 1 {
+		t.Fatalf("expected style range inside link text, got %d", len(blk.InlineStyleRanges))
+	}
+	style := blk.InlineStyleRanges[0]
+	if style.Offset != 0 || style.Length != 4 || style.Style != "Bold" {
+		t.Fatalf("unexpected style range: %#v", style)
+	}
+	if len(blk.EntityRanges) != 1 {
+		t.Fatalf("expected one entity range, got %d", len(blk.EntityRanges))
+	}
+	er := blk.EntityRanges[0]
+	if er["offset"] != 0 || er["length"] != 9 {
+		t.Fatalf("unexpected link range: %#v", er)
+	}
+}
+
+func TestMarkdownBodyToDraftJSCommentLineStripped(t *testing.T) {
+	contentState := MarkdownBodyToDraftJS("Before\n\n<!-- x-loader: insert-as-code -->\n\nAfter")
+
+	if len(contentState.Blocks) != 2 {
+		t.Fatalf("expected comment line to produce no block, got %d blocks", len(contentState.Blocks))
+	}
+	if contentState.Blocks[0].Text != "Before" || contentState.Blocks[1].Text != "After" {
+		t.Fatalf("unexpected block texts: %q / %q", contentState.Blocks[0].Text, contentState.Blocks[1].Text)
+	}
+}
+
+func TestMarkdownBodyToDraftJSInlineCommentPassesThrough(t *testing.T) {
+	// Chosen behavior: only lines whose trimmed form starts with <!-- are
+	// stripped. A comment embedded mid-paragraph passes through as literal
+	// text (the helper-side gates flag it; the converter does not attempt
+	// multi-token HTML comment parsing).
+	contentState := MarkdownBodyToDraftJS("Hello <!-- hidden --> world")
+
+	if len(contentState.Blocks) != 1 {
+		t.Fatalf("expected 1 block, got %d", len(contentState.Blocks))
+	}
+	if contentState.Blocks[0].Text != "Hello <!-- hidden --> world" {
+		t.Fatalf("expected inline comment passed through, got %q", contentState.Blocks[0].Text)
+	}
+}
+
+func TestMarkdownBodyToDraftJSLinkEdgeCasesDegradeToPlainText(t *testing.T) {
+	contentState := MarkdownBodyToDraftJS("[](https://e.example)\n\n[text]()")
+
+	if len(contentState.Blocks) != 2 {
+		t.Fatalf("expected 2 blocks, got %d", len(contentState.Blocks))
+	}
+	if contentState.Blocks[0].Text != "[](https://e.example)" {
+		t.Fatalf("expected empty link text to degrade to plain text, got %q", contentState.Blocks[0].Text)
+	}
+	if contentState.Blocks[1].Text != "[text]()" {
+		t.Fatalf("expected empty url to degrade to plain text, got %q", contentState.Blocks[1].Text)
+	}
+	if len(contentState.EntityMap) != 0 {
+		t.Fatalf("expected no entities, got %d", len(contentState.EntityMap))
+	}
+}
+
 func requireAtomicEntity(t *testing.T, contentState draftContentState, blockIndex int, entityIndex int, entityType string, mutability string) draftEntityValue {
 	t.Helper()
 	if blockIndex >= len(contentState.Blocks) {
