@@ -1,14 +1,17 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 )
+
+const versionProbeTimeout = 3 * time.Second
 
 type doctorReport struct {
 	WrapperVersion       string `json:"wrapper_version"`
@@ -51,13 +54,28 @@ func buildDoctorReport() doctorReport {
 	}
 	report.AgentDesktopFound = true
 	report.AgentDesktopPath = path
-	versionCmd := exec.Command(path, "version")
-	versionCmd.Stdin = os.Stdin
-	output, err := versionCmd.CombinedOutput()
-	if err == nil {
-		report.AgentDesktopVersion = strings.TrimSpace(string(output))
+	if output := probeAgentDesktopVersion(path); output != "" {
+		report.AgentDesktopVersion = output
 	}
 	return report
+}
+
+func probeAgentDesktopVersion(path string) string {
+	for _, args := range [][]string{{"--version"}, {"version"}} {
+		output, err := runVersionProbe(path, args)
+		if err == nil && strings.TrimSpace(output) != "" {
+			return strings.TrimSpace(output)
+		}
+	}
+	return ""
+}
+
+func runVersionProbe(path string, args []string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), versionProbeTimeout)
+	defer cancel()
+	versionCmd := exec.CommandContext(ctx, path, args...)
+	output, err := versionCmd.CombinedOutput()
+	return string(output), err
 }
 
 func printDoctorReport(cmd *cobra.Command, report doctorReport) {

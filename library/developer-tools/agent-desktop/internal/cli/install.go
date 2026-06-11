@@ -37,7 +37,7 @@ func newInstallCmd() *cobra.Command {
 			return installCmd.Run()
 		},
 	}
-	cmd.Flags().StringVar(&manager, "manager", "npm", "Package manager to use: npm or bun")
+	cmd.Flags().StringVar(&manager, "manager", "npm", "Package manager to use: npm or bun; bun installs use --trust so the agent-desktop postinstall downloader runs")
 	cmd.Flags().StringVar(&version, "version", DefaultTargetVersion, "agent-desktop package version to install")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Print the install command without running it")
 	return cmd
