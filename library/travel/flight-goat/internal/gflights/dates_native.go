@@ -106,11 +106,10 @@ func datesNative(ctx context.Context, opts DatesOptions) (*DatesResult, error) {
 			// One blocked chunk means every chunk is blocked — no point
 			// retrying the rest over the RPC.
 			if errors.Is(err, errShoppingBlocked) {
-				all, err = datesViaHTML(ctx, opts, from, to, currencyCode)
+				all, note, err = datesViaHTML(ctx, opts, from, to, currencyCode)
 				if err != nil {
 					return nil, fmt.Errorf("google flights calendar RPC is blocked and the HTML fallback failed: %w", err)
 				}
-				note = htmlFallbackNote
 				break
 			}
 			return nil, err
@@ -318,7 +317,7 @@ func parseDatesResponse(body []byte, defaultCurrency string) ([]DatePrice, error
 		return nil, errors.New("response envelope missing wrb.fr entry")
 	}
 	innerStr, ok := outer[0][2].(string)
-	if !ok || innerStr == "" {
+	if !ok {
 		// PATCH(amend-2026-06-11): since ~2026-06-09 Google rejects
 		// non-interactive calendar RPC calls with an ErrorResponse envelope
 		// whose payload slot is null — classify it so datesNative can fall

@@ -10,11 +10,15 @@
 package gflights
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"net/url"
 	"os"
 	"strings"
+	"sync/atomic"
 	"testing"
+	"time"
 )
 
 func loadFixture(t *testing.T, name string) []byte {
@@ -47,6 +51,17 @@ func TestParseDatesResponseDetectsBlockedEnvelope(t *testing.T) {
 	_, err := parseDatesResponse(body, "USD")
 	if !errors.Is(err, errShoppingBlocked) {
 		t.Fatalf("parseDatesResponse error = %v, want errShoppingBlocked", err)
+	}
+}
+
+func TestParseDatesResponseEmptyStringIsNotBlockedEnvelope(t *testing.T) {
+	body := []byte(googleResponsePrefix + ` [["wrb.fr","opaque",""]]`)
+	_, err := parseDatesResponse(body, "USD")
+	if err == nil {
+		t.Fatal("expected parseDatesResponse to reject an empty inner payload")
+	}
+	if errors.Is(err, errShoppingBlocked) {
+		t.Fatalf("empty string payload misclassified as blocked envelope: %v", err)
 	}
 }
 
@@ -182,6 +197,43 @@ func TestPageMissingFlightData(t *testing.T) {
 	}
 	if pageMissingFlightData(wrapDs1HTML([]byte(`[null,[],[]]`))) {
 		t.Fatal("page with embedded callbacks misclassified as missing data")
+	}
+}
+
+func TestDatesViaHTMLDisclosesPartialDayFailures(t *testing.T) {
+	origFetch := fetchSearchPage
+	defer func() { fetchSearchPage = origFetch }()
+
+	html := wrapDs1HTML(loadFixture(t, "aus_lax_embedded_ds1.json"))
+	var calls atomic.Int64
+	fetchSearchPage = func(context.Context, string) (string, error) {
+		if calls.Add(1) == 1 {
+			return "", fmt.Errorf("temporary page fetch failure")
+		}
+		return html, nil
+	}
+
+	from, err := time.Parse("2006-01-02", "2026-07-13")
+	if err != nil {
+		t.Fatal(err)
+	}
+	to, err := time.Parse("2006-01-02", "2026-07-15")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rows, note, err := datesViaHTML(context.Background(), DatesOptions{
+		Origin:      "AUS",
+		Destination: "LAX",
+	}, from, to, "USD")
+	if err != nil {
+		t.Fatalf("datesViaHTML returned error: %v", err)
+	}
+	if len(rows) != 2 {
+		t.Fatalf("datesViaHTML returned %d rows, want 2 successful days", len(rows))
+	}
+	if !strings.Contains(note, "1 day(s) in range could not be fetched") {
+		t.Fatalf("datesViaHTML note did not disclose partial failure: %q", note)
 	}
 }
 

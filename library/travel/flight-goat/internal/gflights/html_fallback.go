@@ -154,7 +154,7 @@ func googleSearchPageURL(opts SearchOptions, currencyCode string) (string, error
 
 // fetchSearchPage GETs the server-rendered search page through the shared
 // utls client with anonymous consent cookies.
-func fetchSearchPage(ctx context.Context, pageURL string) (string, error) {
+var fetchSearchPage = func(ctx context.Context, pageURL string) (string, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, pageURL, nil)
 	if err != nil {
 		return "", fmt.Errorf("building fallback request: %w", err)
@@ -422,8 +422,8 @@ func filterFlightsClientSide(flights []Flight, opts SearchOptions) []Flight {
 // blocked: one server-rendered page per day, cheapest itinerary kept.
 // Bounded concurrency keeps the fan-out polite; individual day failures are
 // skipped so one bad fetch doesn't sink the range, but an all-failure run
-// returns the first error.
-func datesViaHTML(ctx context.Context, opts DatesOptions, from, to time.Time, currencyCode string) ([]DatePrice, error) {
+// returns the first error. The returned note discloses any skipped error days.
+func datesViaHTML(ctx context.Context, opts DatesOptions, from, to time.Time, currencyCode string) ([]DatePrice, string, error) {
 	var days []time.Time
 	for cur := from; !cur.After(to); cur = cur.AddDate(0, 0, 1) {
 		days = append(days, cur)
@@ -485,16 +485,24 @@ func datesViaHTML(ctx context.Context, opts DatesOptions, from, to time.Time, cu
 
 	var out []DatePrice
 	var firstErr error
+	failedDays := 0
 	for _, r := range results {
-		if r.err != nil && firstErr == nil {
-			firstErr = r.err
+		if r.err != nil {
+			failedDays++
+			if firstErr == nil {
+				firstErr = r.err
+			}
 		}
 		if r.price != nil {
 			out = append(out, *r.price)
 		}
 	}
 	if len(out) == 0 && firstErr != nil {
-		return nil, fmt.Errorf("dates HTML fallback failed for every day in range: %w", firstErr)
+		return nil, "", fmt.Errorf("dates HTML fallback failed for every day in range: %w", firstErr)
 	}
-	return out, nil
+	note := htmlFallbackNote
+	if failedDays > 0 {
+		note += fmt.Sprintf("; %d day(s) in range could not be fetched and are absent from the result", failedDays)
+	}
+	return out, note, nil
 }
