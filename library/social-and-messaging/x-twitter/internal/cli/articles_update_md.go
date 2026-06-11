@@ -190,19 +190,33 @@ func updateMarkdownArticle(ctx context.Context, deps articleUpdateDeps, opts art
 		}
 	}
 
+	// PATCH: once unpublished, a mid-sequence failure must not strand the
+	// article in the unpublished state (Greptile P1 on PR #1141). On any
+	// failure between Unpublish and the final Publish, attempt a best-effort
+	// restore publish and report both outcomes.
+	restoreOnErr := func(err error) error {
+		if !opts.republish {
+			return err
+		}
+		if _, pubErr := publishArticleEntity(ctx, deps.post, opts.articleID); pubErr != nil {
+			return fmt.Errorf("%w; restore publish also failed (%v) — article %s is left UNPUBLISHED, re-publish it in the composer or via `articles publish`", err, pubErr, opts.articleID)
+		}
+		return fmt.Errorf("%w (the article was re-published with its prior content)", err)
+	}
+
 	if strings.TrimSpace(opts.title) != "" {
 		if err := updateArticleEntityTitle(ctx, deps.post, opts.articleID, opts.title); err != nil {
-			return nil, err
+			return nil, restoreOnErr(err)
 		}
 	}
 
 	contentState := opts.contentState
 	if err := bindArticleMediaEntities(&contentState, deps.uploadImage); err != nil {
-		return nil, err
+		return nil, restoreOnErr(err)
 	}
 
 	if err := updateArticleEntityContent(ctx, deps.post, opts.articleID, contentState); err != nil {
-		return nil, err
+		return nil, restoreOnErr(err)
 	}
 
 	result := &articleUpdateResult{

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -391,5 +392,24 @@ func TestUpdateMarkdownArticleRepublishOnDraftRefuses(t *testing.T) {
 	}
 	if len(poster.ops()) != 0 {
 		t.Fatalf("expected zero mutations after refusal, got %v", poster.ops())
+	}
+}
+
+func TestUpdateMarkdownArticleRepublishRestoresOnFailure(t *testing.T) {
+	// PATCH: Greptile P1 — a failure after Unpublish must attempt restore publish.
+	poster := &fakeArticlePoster{fail: map[string]error{"ArticleEntityUpdateContent": fmt.Errorf("boom")}}
+	deps := testDeps(t, poster, "333", "Published")
+
+	_, err := updateMarkdownArticle(context.Background(), deps, articleUpdateOptions{
+		articleID:    "333",
+		contentState: MarkdownBodyToDraftJS("body"),
+		republish:    true,
+	})
+	if err == nil || !strings.Contains(err.Error(), "re-published with its prior content") {
+		t.Fatalf("expected restore-publish wrap, got err=%v", err)
+	}
+	wantOps := []string{"ArticleEntityUnpublish", "ArticleEntityUpdateContent", "ArticleEntityPublish"}
+	if strings.Join(poster.ops(), ",") != strings.Join(wantOps, ",") {
+		t.Fatalf("expected restore publish after failure, got %v", poster.ops())
 	}
 }
