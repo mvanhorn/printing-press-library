@@ -210,9 +210,10 @@ func TestMarkdownBodyToDraftJSInlineLink(t *testing.T) {
 	if entity.Value.Data["url"] != "https://example.com/docs" {
 		t.Fatalf("expected url retained verbatim (no t.co wrap), got %#v", entity.Value.Data["url"])
 	}
-	entityKey, _ := entity.Value.Data["entityKey"].(string)
-	if len(entityKey) != 36 {
-		t.Fatalf("expected uuid-shaped entityKey, got %q", entityKey)
+	// entityKey is server-generated on read-back; the write input schema
+	// rejects it (GRAPHQL_VALIDATION_FAILED, live-verified 2026-06-10).
+	if _, present := entity.Value.Data["entityKey"]; present {
+		t.Fatalf("entityKey must not be in the write payload, got %#v", entity.Value.Data)
 	}
 }
 
@@ -241,10 +242,10 @@ func TestMarkdownBodyToDraftJSMultipleLinks(t *testing.T) {
 		t.Fatalf("unexpected entity urls: %#v / %#v",
 			contentState.EntityMap[0].Value.Data["url"], contentState.EntityMap[1].Value.Data["url"])
 	}
-	firstKey, _ := contentState.EntityMap[0].Value.Data["entityKey"].(string)
-	secondKey, _ := contentState.EntityMap[1].Value.Data["entityKey"].(string)
-	if firstKey == secondKey {
-		t.Fatalf("expected distinct entityKey uuids, both %q", firstKey)
+	for i, ent := range contentState.EntityMap {
+		if _, present := ent.Value.Data["entityKey"]; present {
+			t.Fatalf("entity %d: entityKey must not be in the write payload, got %#v", i, ent.Value.Data)
+		}
 	}
 }
 

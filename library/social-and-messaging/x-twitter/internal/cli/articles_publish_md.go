@@ -14,7 +14,6 @@ package cli
 
 import (
 	"context"
-	cryptorand "crypto/rand"
 	"encoding/json"
 	"fmt"
 	"math/rand"
@@ -525,11 +524,13 @@ func MarkdownBodyToDraftJS(md string) draftContentState {
 			cs.EntityMap = append(cs.EntityMap, draftEntity{
 				Key: strconv.Itoa(entityIndex),
 				Value: draftEntityValue{
-					// Shape harvested from a live composer-authored draft
-					// (article 2064864205749280768): LINK entities are Mutable
-					// and carry {entityKey: <uuid>, url: <verbatim url>} —
-					// URLs are stored raw, not t.co-wrapped.
-					Data:       map[string]any{"entityKey": newDraftEntityKey(), "url": ln.URL},
+					// Read-back of a live composer-authored draft (article
+					// 2064864205749280768) shows {entityKey: <uuid>, url: <url>},
+					// but entityKey is server-generated: ArticleEntityUpdateContent
+					// rejects it with GRAPHQL_VALIDATION_FAILED (HTTP 422) at
+					// entity_map[N].value.data.entityKey. Write url only, verbatim
+					// (not t.co-wrapped); the server owns entityKey.
+					Data:       map[string]any{"url": ln.URL},
 					Type:       "LINK",
 					Mutability: "Mutable",
 				},
@@ -805,22 +806,6 @@ func parseInlineLinkAt(s string, i int) (inner string, linkURL string, advance i
 	}
 	advance = urlStart + closeURL + 1 - i
 	return inner, linkURL, advance, true
-}
-
-// newDraftEntityKey returns a v4-format UUID for a Draft.js entity's
-// data.entityKey field, matching the shape X's composer generates.
-func newDraftEntityKey() string {
-	var b [16]byte
-	if _, err := cryptorand.Read(b[:]); err != nil {
-		// Fall back to math/rand bytes; entityKey only needs uniqueness
-		// within one article's entity map.
-		for i := range b {
-			b[i] = byte(rand.Intn(256))
-		}
-	}
-	b[6] = (b[6] & 0x0f) | 0x40 // version 4
-	b[8] = (b[8] & 0x3f) | 0x80 // RFC 4122 variant
-	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
 }
 
 // extractInlineStyles scans a string for **bold** and *italic* markers and
