@@ -178,6 +178,12 @@ func updateMarkdownArticle(ctx context.Context, deps articleUpdateDeps, opts art
 		return nil, fmt.Errorf("article %s is published; pass --republish to run Unpublish -> UpdateContent -> Publish (it is briefly unpublished), or edit a draft instead", opts.articleID)
 	}
 
+	if opts.republish && scan.lifecycle != "Published" {
+		// PATCH: --republish on a non-Published article would fall through to
+		// Unpublish (likely a no-op) + Publish, silently publishing a draft
+		// (Greptile P1 on PR #1141). Restrict the republish lane to Published.
+		return nil, fmt.Errorf("article %s is not published (lifecycle %q); --republish only applies to published articles. Drop the flag to update the draft in place", opts.articleID, scan.lifecycle)
+	}
 	if opts.republish {
 		if err := unpublishArticleEntity(ctx, deps.post, opts.articleID); err != nil {
 			return nil, err

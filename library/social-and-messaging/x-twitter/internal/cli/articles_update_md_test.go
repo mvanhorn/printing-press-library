@@ -375,3 +375,21 @@ func TestUpdateMarkdownArticleNotFound(t *testing.T) {
 		t.Fatalf("expected no mutations, got %v", poster.ops())
 	}
 }
+
+func TestUpdateMarkdownArticleRepublishOnDraftRefuses(t *testing.T) {
+	// PATCH: Greptile P1 — --republish on a Draft must refuse, not silently publish.
+	poster := &fakeArticlePoster{}
+	deps := testDeps(t, poster, "222", "Draft")
+
+	_, err := updateMarkdownArticle(context.Background(), deps, articleUpdateOptions{
+		articleID:    "222",
+		contentState: MarkdownBodyToDraftJS("body"),
+		republish:    true,
+	})
+	if err == nil || !strings.Contains(err.Error(), "not published") {
+		t.Fatalf("expected refusal for --republish on a draft, got err=%v", err)
+	}
+	if len(poster.ops()) != 0 {
+		t.Fatalf("expected zero mutations after refusal, got %v", poster.ops())
+	}
+}

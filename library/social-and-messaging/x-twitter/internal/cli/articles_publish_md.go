@@ -796,7 +796,25 @@ func parseInlineLinkAt(s string, i int) (inner string, linkURL string, advance i
 		return "", "", 0, false
 	}
 	urlStart := i + 1 + closeText + 2
-	closeURL := strings.Index(s[urlStart:], ")")
+	// PATCH: balance nested parens so URLs like .../Rust_(programming_language)
+	// are not truncated at the inner ')' (Greptile P1 on PR #1141).
+	closeURL := -1
+	depth := 0
+	for j := urlStart; j < len(s); j++ {
+		switch s[j] {
+		case '(':
+			depth++
+		case ')':
+			if depth == 0 {
+				closeURL = j - urlStart
+			} else {
+				depth--
+			}
+		}
+		if closeURL >= 0 {
+			break
+		}
+	}
 	if closeURL < 0 {
 		return "", "", 0, false
 	}

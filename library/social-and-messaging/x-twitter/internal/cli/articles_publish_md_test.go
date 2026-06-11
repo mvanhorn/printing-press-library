@@ -435,3 +435,22 @@ func requireAtomicEntity(t *testing.T, contentState draftContentState, blockInde
 	}
 	return entity.Value
 }
+
+func TestParseInlineLinkBalancedParens(t *testing.T) {
+	// PATCH: Greptile P1 — parenthesized URLs must not truncate at the inner ')'.
+	state := MarkdownBodyToDraftJS("see [Rust](https://en.wikipedia.org/wiki/Rust_(programming_language)) docs")
+	if len(state.Blocks) != 1 {
+		t.Fatalf("expected 1 block, got %d", len(state.Blocks))
+	}
+	if len(state.EntityMap) != 1 {
+		t.Fatalf("expected 1 LINK entity, got %d", len(state.EntityMap))
+	}
+	url, _ := state.EntityMap[0].Value.Data["url"].(string)
+	want := "https://en.wikipedia.org/wiki/Rust_(programming_language)"
+	if url != want {
+		t.Fatalf("url truncated: got %q want %q", url, want)
+	}
+	if state.Blocks[0].Text != "see Rust docs" {
+		t.Fatalf("text wrong: %q", state.Blocks[0].Text)
+	}
+}
