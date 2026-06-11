@@ -54,10 +54,10 @@ func TestNormalizeHost(t *testing.T) {
 		"https://api.plane.so/":                "https://api.plane.so",
 		"https://plane.acme.com/":              "https://plane.acme.com",
 		"https://plane.acme.com/api/v1/workspaces/{slug}": "https://plane.acme.com",
-		// TrimRight strips the trailing slash before the /api/ check, so
-		// "  https://plane.acme.com/api/  " → TrimSpace → TrimRight("/") →
-		// "https://plane.acme.com/api" (no trailing slash, so /api/ not found).
-		"  https://plane.acme.com/api/  ": "https://plane.acme.com/api",
+		// A trailing "/api/" survives TrimRight as "…/api" and is stripped by
+		// the HasSuffix("/api") arm, so the caller never doubles the prefix.
+		"  https://plane.acme.com/api/  ": "https://plane.acme.com",
+		"https://plane.acme.com/api":      "https://plane.acme.com",
 	}
 	for in, want := range cases {
 		if got := normalizeHost(in); got != want {

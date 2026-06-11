@@ -410,6 +410,11 @@ func normalizeHost(h string) string {
 	h = strings.TrimRight(strings.TrimSpace(h), "/")
 	if i := strings.Index(h, "/api/"); i >= 0 {
 		h = h[:i]
+	} else if strings.HasSuffix(h, "/api") {
+		// TrimRight already dropped any trailing slash, so an input that ended
+		// in "/api/" arrives here as "…/api" and would otherwise slip past the
+		// "/api/" check — leaving the caller to append a doubled "/api/api/v1/…".
+		h = strings.TrimSuffix(h, "/api")
 	}
 	return h
 }

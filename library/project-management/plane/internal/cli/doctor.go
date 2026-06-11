@@ -506,6 +506,9 @@ func workspaceDoctorVerdict(slug, baseURL string, enrolled []string) string {
 		if len(enrolled) == 0 {
 			return "INFO no workspace configured — run 'plane-pp-cli init' or pass --workspace"
 		}
+		// Workspaces are enrolled but none is the default, so every command
+		// silently targets the "my-workspace" sentinel and fails at the API.
+		return "INFO workspaces enrolled but no default set — run 'plane-pp-cli workspaces use <slug>'"
 	}
 	return ""
 }

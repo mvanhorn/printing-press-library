@@ -64,6 +64,24 @@ func TestLoadDefaultWorkspaceNormalized(t *testing.T) {
 	if got := cfg.TemplateVars["slug"]; got != "acme" {
 		t.Fatalf("default_workspace should be normalized: got %q want acme", got)
 	}
+
+	// A full browser URL pasted from the address bar resolves to the slug, not
+	// the host+path (the domain-style normalizer would have yielded
+	// "app.plane.so/acme/settings").
+	for _, raw := range []string{
+		"https://app.plane.so/acme/settings/",
+		"https://plane.self.host/api/v1/workspaces/acme",
+		"acme/",
+	} {
+		p := writeTempConfig(t, "base_url = \"https://api.plane.so/api/v1/workspaces/{slug}\"\ndefault_workspace = \""+raw+"\"\n")
+		cfg, err := Load(p)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := cfg.TemplateVars["slug"]; got != "acme" {
+			t.Fatalf("default_workspace %q should normalize to acme: got %q", raw, got)
+		}
+	}
 }
 
 func TestWorkspaceEntryJSONTags(t *testing.T) {

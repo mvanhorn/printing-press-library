@@ -26,13 +26,12 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/spf13/cobra"
 )
 
 func newAttachFileCmd(flags *rootFlags) *cobra.Command {
-	var slug string
-
 	cmd := &cobra.Command{
 		Use:   "attach-file <issue_id> <project_id> <file_path>",
 		Short: "Attach a local file to a work item (presign → upload → mark uploaded) in one step.",
@@ -43,7 +42,8 @@ storage, then mark the attachment uploaded. The generated CLI exposes only the
 presign and mark steps; this command performs all three, so a single call puts a
 real file on the work item.
 
-Workspace slug defaults to $PLANE_SLUG (override with --slug).`,
+Workspace selection follows the global precedence: --workspace > $PLANE_SLUG > the
+saved default (plane-pp-cli workspaces use <slug>).`,
 		Example: `  plane-pp-cli attach-file \
     17334f5e-9e3f-41e8-ab27-69f68ecc5ce3 \
     8feda17c-6680-4f9d-a485-5cae321cd0cc \
@@ -56,11 +56,6 @@ Workspace slug defaults to $PLANE_SLUG (override with --slug).`,
 					cmd.CommandPath()))
 			}
 			issueID, projectID, filePath := args[0], args[1], args[2]
-
-			slug = resolveSlug(slug)
-			if slug == "" {
-				return usageErr(fmt.Errorf("workspace slug not set: pass --slug or export %s", envWorkspaceSlug))
-			}
 
 			info, err := os.Stat(filePath)
 			if err != nil {
@@ -83,7 +78,14 @@ Workspace slug defaults to $PLANE_SLUG (override with --slug).`,
 			if err != nil {
 				return err
 			}
-			applyClientSlug(c, slug)
+			// newClient() has already resolved the workspace slug through the
+			// full precedence chain (--workspace > PLANE_SLUG > default_workspace
+			// > sentinel) into the client's TemplateVars. Reuse it rather than a
+			// second, weaker resolution, so attach-file honors every workspace
+			// source the rest of the CLI does.
+			if c.Config == nil || c.Config.TemplateVars["slug"] == "" || c.Config.TemplateVars["slug"] == "my-workspace" {
+				return usageErr(fmt.Errorf("workspace not set: pass --workspace <slug>, export %s, or run 'plane-pp-cli workspaces use <slug>'", envWorkspaceSlug))
+			}
 
 			// Step 1 — presign. Workspace-relative path; BaseURL + TemplateVars[slug]
 			// supply the /api/v1/workspaces/{slug} prefix.
@@ -119,7 +121,7 @@ Workspace slug defaults to $PLANE_SLUG (override with --slug).`,
 			}
 
 			// Step 2 — upload the bytes to object storage.
-			if err := uploadPresignedFile(cmd.Context(), pres.UploadData.URL, pres.UploadData.Fields, filePath); err != nil {
+			if err := uploadPresignedFile(cmd.Context(), pres.UploadData.URL, pres.UploadData.Fields, filePath, flags.timeout); err != nil {
 				return err
 			}
 
@@ -141,7 +143,6 @@ Workspace slug defaults to $PLANE_SLUG (override with --slug).`,
 			return printOutputWithFlags(cmd.OutOrStdout(), json.RawMessage(result), flags)
 		},
 	}
-	cmd.Flags().StringVar(&slug, "slug", "", "Workspace slug (defaults to $"+envWorkspaceSlug+")")
 	return cmd
 }
 
@@ -151,7 +152,11 @@ Workspace slug defaults to $PLANE_SLUG (override with --slug).`,
 // the presign policy already pins the stored object's Content-Type (an explicit
 // per-part type can break the multipart body — observed as a silent transport
 // failure against MinIO).
-func uploadPresignedFile(ctx context.Context, url string, fields map[string]string, filePath string) error {
+//
+// A timeout (the global --timeout, default 60s) bounds the whole presigned POST
+// so a slow or unreachable storage endpoint cannot hang the command
+// indefinitely; cmd.Context() still carries user cancellation (Ctrl+C) on top.
+func uploadPresignedFile(ctx context.Context, url string, fields map[string]string, filePath string, timeout time.Duration) error {
 	f, err := os.Open(filePath)
 	if err != nil {
 		return fmt.Errorf("opening file for upload: %w", err)
@@ -182,7 +187,8 @@ func uploadPresignedFile(ctx context.Context, url string, fields map[string]stri
 	}
 	req.Header.Set("Content-Type", w.FormDataContentType())
 
-	resp, err := http.DefaultClient.Do(req)
+	httpClient := &http.Client{Timeout: timeout}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("uploading to storage: %w", err)
 	}

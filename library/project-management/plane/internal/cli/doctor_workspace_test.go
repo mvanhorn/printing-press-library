@@ -16,8 +16,9 @@ func TestWorkspaceDoctorVerdict(t *testing.T) {
 	if got := workspaceDoctorVerdict("acme", "https://h/api/v1/workspaces/acme", cfg); got == "" {
 		t.Fatal("expected a migration warning for literal-slug base_url")
 	}
-	// sentinel slug but workspaces already enrolled + templated base -> OK (empty)
-	if got := workspaceDoctorVerdict("my-workspace", "https://api.plane.so/api/v1/workspaces/{slug}", []string{"acme"}); got != "" {
-		t.Fatalf("sentinel slug with enrolled workspaces should be OK, got %q", got)
+	// sentinel slug but workspaces enrolled + templated base -> nudge to set a
+	// default (commands would otherwise target the "my-workspace" sentinel).
+	if got := workspaceDoctorVerdict("my-workspace", "https://api.plane.so/api/v1/workspaces/{slug}", []string{"acme"}); got == "" {
+		t.Fatal("expected a 'set a default' nudge when enrolled but no default set")
 	}
 }
