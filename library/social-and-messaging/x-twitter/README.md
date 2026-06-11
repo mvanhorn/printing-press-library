@@ -7,6 +7,7 @@ Mirrors the official X v2 API and adds what no other X tool has: a local SQLite 
 Learn more at [X (Twitter)](https://developer.x.com/).
 
 Created by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow), [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 
 ## Install
 

@@ -148,9 +148,22 @@ These capabilities aren't available in any other tool for this API.
 
   _The only programmatic way to author a long-form X Article from a document; preview and --draft keep it private until you explicitly --post._
 
+  The converter supports paragraphs, `#`/`##` headers, lists, blockquotes, fenced code blocks, tables, dividers, image lines (`![alt](path)`), standalone tweet URLs (native embeds), bold/italic inline styles (including inside blockquotes), and `[text](url)` inline links, which become real LINK entities (working hyperlinks) in the article. Lines that are HTML comments (`<!-- ... -->`) are stripped and never ship as article text.
+
   ```bash
   x-twitter-pp-cli articles-publish-md ./post.md
   ```
+- **`articles update-md`** — Update an existing X Article draft in place from a markdown file: title (frontmatter), body, links, and new inline images, all in one command. Find the article id via `articles list --agent`.
+
+  _Edit the markdown, re-run one command. No duplicate drafts: the draft keeps its id, so the edit URL and any saved state stay valid._
+
+  ```bash
+  x-twitter-pp-cli articles update-md ./post.md --article-id 1750000000000000000 --agent
+  ```
+
+  **WARNING — body replacement:** `articles update-md` replaces the ENTIRE body of the target draft. Anything added by hand in the X composer that the markdown converter cannot reproduce is destroyed by the update. The command preflights the draft's content_state and refuses when it finds entity types outside the converter's emit set (LINK, MARKDOWN, MEDIA, TWEET, DIVIDER); pass `--replace-unknown-entities` only when you genuinely want to overwrite those artifacts. Markdown-authored content round-trips cleanly; if a draft holds composer-only embeds or other manual artifacts, edit it in the composer instead.
+
+  Draft-only by default: a published article is refused unless you pass `--republish`, which runs Unpublish -> UpdateContent -> Publish (the article is briefly unpublished). Use `--dry-run` to preview the converted payload with no API call.
 
 ## Command Reference
 
