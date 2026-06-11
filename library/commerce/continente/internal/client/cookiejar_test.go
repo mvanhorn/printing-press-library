@@ -72,3 +72,34 @@ func TestPersistedCookieJar_ExpiredCookieNotReturned(t *testing.T) {
 		t.Fatalf("Cookies(...) len = %d, want 0", len(got))
 	}
 }
+
+func TestCookieMatchesURLRespectsPathBoundaries(t *testing.T) {
+	t.Parallel()
+
+	now := time.Now()
+	cookie := http.Cookie{
+		Name:   "sid",
+		Value:  "123",
+		Domain: "www.continente.pt",
+		Path:   "/foo",
+	}
+
+	mustParse := func(raw string) *url.URL {
+		t.Helper()
+		u, err := url.Parse(raw)
+		if err != nil {
+			t.Fatalf("url.Parse(%q): %v", raw, err)
+		}
+		return u
+	}
+
+	if !cookieMatchesURL(cookie, mustParse("https://www.continente.pt/foo"), now) {
+		t.Fatal("expected exact path match")
+	}
+	if !cookieMatchesURL(cookie, mustParse("https://www.continente.pt/foo/bar"), now) {
+		t.Fatal("expected child path match")
+	}
+	if cookieMatchesURL(cookie, mustParse("https://www.continente.pt/foobar"), now) {
+		t.Fatal("did not expect prefix-only path match")
+	}
+}

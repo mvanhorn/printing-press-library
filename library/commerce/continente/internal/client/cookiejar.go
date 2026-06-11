@@ -276,8 +276,14 @@ func cookieMatchesURL(cookie http.Cookie, u *url.URL, now time.Time) bool {
 	if requestPath == "" {
 		requestPath = "/"
 	}
-	if !strings.HasPrefix(requestPath, path) {
-		return false
+	if requestPath != path {
+		prefix := strings.TrimSuffix(path, "/") + "/"
+		if path == "/" {
+			prefix = "/"
+		}
+		if !strings.HasPrefix(requestPath, prefix) {
+			return false
+		}
 	}
 	return true
 }

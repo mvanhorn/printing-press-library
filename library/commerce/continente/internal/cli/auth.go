@@ -3,7 +3,6 @@ package cli
 import (
 	"bytes"
 	"context"
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/client"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
@@ -17,6 +16,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/client"
 	"github.com/spf13/cobra"
 )
 

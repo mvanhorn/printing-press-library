@@ -6,8 +6,6 @@ package client
 import (
 	"bytes"
 	"context"
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/config"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
@@ -23,6 +21,9 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/continente/internal/config"
 )
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"

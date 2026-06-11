@@ -98,7 +98,7 @@ func newCartAddCmd(flags *rootFlags) *cobra.Command {
 				"pid":      {pid},
 				"quantity": {strconv.Itoa(quantity)},
 			}
-			data, _, err := c.PostForm(cmd.Context(), cartAddPath, form)
+			data, _, err := c.PostFormWithHeaders(cmd.Context(), cartAddPath, form, cartAJAXHeaders(c.RequestBaseURL()+authLoginCheckPath))
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -242,7 +242,7 @@ func newCartClearCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			data, _, err := c.PostForm(cmd.Context(), cartClearPath, url.Values{})
+			data, _, err := c.PostFormWithHeaders(cmd.Context(), cartClearPath, url.Values{}, cartAJAXHeaders(c.RequestBaseURL()+authLoginCheckPath))
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
