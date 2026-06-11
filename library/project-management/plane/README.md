@@ -16,6 +16,8 @@ The recommended path installs both the `plane-pp-cli` binary and the `pp-plane` 
 npx -y @mvanhorn/printing-press-library install plane
 ```
 
+> **This path needs Go, not just Node.** The installer shells into `go install` under the hood, so a Go toolchain (1.26.3+) must be present — it does not download a pre-built binary. If you have no toolchain (an agent, CI, a sandbox), use the [pre-built binary](#pre-built-binary-no-node-no-go) below instead.
+
 For CLI only (no skill):
 
 ```bash
@@ -35,19 +37,32 @@ npx -y @mvanhorn/printing-press-library install plane --agent claude-code
 npx -y @mvanhorn/printing-press-library install plane --agent claude-code --agent codex
 ```
 
-### Without Node (Go fallback)
+### Pre-built binary (no Node, no Go)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+The simplest install when you have no toolchain — also the right path for agents, CI, and sandboxes. Download the asset for your platform from the rolling [`plane-current` release](https://github.com/mvanhorn/printing-press-library/releases/tag/plane-current) and put it on your `$PATH`. Assets are rebuilt on every push to `main`, so the URLs are stable:
+
+```
+plane-pp-cli-linux-amd64     plane-pp-cli-darwin-amd64     plane-pp-cli-windows-amd64.exe
+plane-pp-cli-linux-arm64     plane-pp-cli-darwin-arm64     plane-pp-cli-windows-arm64.exe
+```
+
+```bash
+# Example: Linux x86_64 (swap the asset name for your OS/arch)
+curl -fsSL -o plane-pp-cli \
+  https://github.com/mvanhorn/printing-press-library/releases/download/plane-current/plane-pp-cli-linux-amd64
+chmod +x plane-pp-cli && sudo mv plane-pp-cli /usr/local/bin/   # or any dir on $PATH
+plane-pp-cli --version
+```
+
+On macOS, also clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine plane-pp-cli`. This installs the CLI only — no skill.
+
+### Direct Go install (no Node, needs Go)
+
+If you have a Go toolchain (1.26.3+) but no Node, install the CLI directly — no skill:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/project-management/plane/cmd/plane-pp-cli@latest
 ```
-
-This installs the CLI only — no skill.
-
-### Pre-built binary
-
-Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/plane-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes

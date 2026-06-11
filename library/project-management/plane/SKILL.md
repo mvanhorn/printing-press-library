@@ -20,22 +20,33 @@ metadata:
 
 ## Prerequisites: Install the CLI
 
-This skill drives the `plane-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+This skill drives the `plane-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill** (`plane-pp-cli --version`). If it is missing, install it by ONE of the paths below. Pick the first one that fits your environment.
 
-1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
-   ```bash
-   npx -y @mvanhorn/printing-press-library install plane --cli-only
-   ```
-2. Verify: `plane-pp-cli --version`
-3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
+**1. Pre-built binary — no toolchain (best for agents, CI, and sandboxes).** Needs neither Node nor Go. Download the asset for your OS/arch from the rolling `plane-current` release and put it on `$PATH`:
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+```bash
+# Linux x86_64 — for other platforms swap the asset name:
+#   plane-pp-cli-{linux,darwin}-{amd64,arm64} | plane-pp-cli-windows-{amd64,arm64}.exe
+curl -fsSL -o plane-pp-cli \
+  https://github.com/mvanhorn/printing-press-library/releases/download/plane-current/plane-pp-cli-linux-amd64
+chmod +x plane-pp-cli && sudo mv plane-pp-cli /usr/local/bin/   # or any dir on $PATH
+```
+
+On macOS also clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine plane-pp-cli`.
+
+**2. Full install (CLI + this skill in one shot) — needs Node AND Go.** The `npx` installer shells into `go install` under the hood, so a Go toolchain (1.26.3+) must already be present; it does **not** download the pre-built binary. Binaries default to `$HOME/.local/bin` (macOS/Linux) or `%LOCALAPPDATA%\Programs\PrintingPress\bin` (Windows):
+
+```bash
+npx -y @mvanhorn/printing-press-library install plane --cli-only
+```
+
+**3. Direct Go install — no Node, but needs Go 1.26.3 or newer:**
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/project-management/plane/cmd/plane-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
+After any path, confirm with `plane-pp-cli --version` and ensure the install directory is on `$PATH` for the agent/runtime that will invoke this skill. If `--version` reports "command not found", the runtime cannot see the binary directory on `$PATH` — fix that before proceeding with skill commands.
 
 ## Command Reference
 
