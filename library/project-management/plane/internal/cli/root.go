@@ -246,6 +246,8 @@ Run 'plane-pp-cli doctor' to verify auth and connectivity.`,
 	// PATCH(novel): hand-authored relation + module commands; see .printing-press-patches/.
 	rootCmd.AddCommand(newRelationsCmd(flags))
 	rootCmd.AddCommand(newModuleCmd(flags))
+	// PATCH(novel): one-shot file attachment (presign → storage POST → mark uploaded); see .printing-press-patches/.
+	rootCmd.AddCommand(newAttachFileCmd(flags))
 	rootCmd.AddCommand(newDoctorCmd(flags))
 	rootCmd.AddCommand(newAuthCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
