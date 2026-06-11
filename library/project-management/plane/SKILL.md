@@ -162,6 +162,28 @@ Or persist it in `~/.config/plane-pp-cli/config.toml`.
 
 Run `plane-pp-cli doctor` to verify setup.
 
+## Workspace targeting
+
+Plane's REST API is workspace-scoped: every request goes to `…/api/v1/workspaces/<slug>/…`. The public API **cannot enumerate** a user's workspaces from an API key, so the slug is user-supplied — take it from the browser URL (`app.plane.so/<slug>/`). Keep `base_url` templated as `https://<host>/api/v1/workspaces/{slug}` (literal `{slug}`); do **not** bake a concrete slug into it (that pins the CLI to one workspace and is flagged by `doctor`).
+
+The active workspace is chosen by precedence: **`--workspace <slug>` flag > `PLANE_SLUG` env > `default_workspace` (config)**.
+
+```bash
+# One-time onboarding: probe + enroll your slug(s), write a templated base_url
+plane-pp-cli init --host https://api.plane.so --workspace acme --workspace bravo --default acme
+
+# Or manage the local registry directly
+plane-pp-cli workspaces add acme bravo   # access-probes each before saving
+plane-pp-cli workspaces use acme         # probe + set as the default
+plane-pp-cli workspaces list             # show enrolled workspaces (the API can't list them for you)
+plane-pp-cli workspaces current          # show active slug + where it was resolved from
+
+# Target a specific workspace for one command (overrides env + default)
+plane-pp-cli members --workspace bravo --agent --select display_name
+```
+
+Enrollment is local-only (a `[[workspaces]]` registry in `config.toml`) because the API can't enumerate workspaces by key. A bad slug fails loudly (the probe rejects it with a non-zero exit) rather than silently returning the wrong workspace.
+
 ## Agent Mode
 
 Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color --yes`.
