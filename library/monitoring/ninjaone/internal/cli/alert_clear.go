@@ -217,7 +217,12 @@ func emitAlertClearView(cmd *cobra.Command, flags *rootFlags, view alertClearVie
 	fmt.Fprintf(w, "Matched %d alert(s) for where=%q\n", view.MatchCount, view.Where)
 	if view.Note != "" {
 		fmt.Fprintln(w, view.Note)
-		return nil
+		// The note alone is terminal only for the preview path. On an --apply
+		// run the note is informational (e.g. unresolved org matches), so the
+		// reset summary below must still print.
+		if !view.Applied {
+			return nil
+		}
 	}
 	fmt.Fprintf(w, "Reset succeeded: %d  failures: %d\n", view.Succeeded, len(view.Failures))
 	for _, f := range view.Failures {
