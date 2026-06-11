@@ -73,6 +73,7 @@ func TestIsRuntimeVersionPath(t *testing.T) {
 		{"mcp main.go nested slug", "library/category/my-tool/cmd/my-tool-pp-mcp/main.go", true},
 		{"cli main.go", "library/social/x/cmd/x-pp-cli/main.go", false},
 		{"non-mcp main.go suffix", "library/social/x/cmd/x-pp-mcpd/main.go", false},
+		{"non-library mcp main.go", "tools/social/x/cmd/x-pp-mcp/main.go", false},
 		{"mcp main.go in subdir", "library/social/x/cmd/x-pp-mcp/subdir/main.go", false},
 		{"other go file", "library/social/x/internal/cli/other.go", false},
 		{"random file", "library/social/x/README.md", false},
