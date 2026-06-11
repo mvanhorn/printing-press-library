@@ -81,3 +81,20 @@
   - `(cd library/travel/flight-goat && go vet ./...)` — pass.
   - `(cd library/travel/flight-goat && go run golang.org/x/vuln/cmd/govulncheck@latest ./...)` — blocked by Go toolchain standard-library findings in local `go1.26.3` (`GO-2026-5039`, `GO-2026-5037`; fixed in Go 1.26.4), unrelated to the touched Flight Goat parser/test code.
 - Policy: no public upstream push/PR; branch/PR targets private `cathrynlavery/printing-press-library` only.
+
+## 2026-06-11 — ClawHub workflow pin
+
+- Base private branch: `origin/main`
+- Upstream range inspected: `origin/main..upstream/main` as of 2026-06-11 preflight (`39f91b1ce` public HEAD), with no bulk merge/rebase from `mvanhorn/*`.
+- Candidate commits considered:
+  - `0614c495c` fix(ci): pin clawhub 0.20.0 and drop the removed `--clawscan-note` flag — ported; narrow CI/package-publish compatibility fix for the discovery-skill workflow.
+  - `bdbaf0bb2`, `bc8a6f352` Dice FM entity-normalization hardening — deferred; useful runtime hardening, but a broader CLI-specific surface better handled in its own PR.
+  - `320263b85`, `92cbb07bb`, `9694e97bb` x-twitter LINK/OAuth2 fixes — deferred; auth/content-model changes should stay separate from the CI workflow fix.
+  - `b8969dfe8` and follow-up Masterpark commits — skipped; new CLI/product surface, not a narrow maintenance port.
+  - `8f6cfd92d`, `dd32ea19c`, `5266500b0` WaveSpeed/Cloudflare fixes — skipped; already present in private upstream sweep branches/merged public PR context, not selected for this CI-focused PR.
+  - Generated registry/skills/release-ledger commits — skipped; generated automation noise unless paired with selected source changes.
+- Validation run on branch `upstream-sweep/20260611-clawhub-pin`:
+  - `git diff --check origin/main...HEAD` — pass.
+  - `python3 - <<'PY' ... yaml.safe_load(...) ... PY` against `.github/workflows/publish-clawhub-discovery-skill.yml` — pass; workflow YAML parses.
+  - `grep -n "clawhub@\|clawscan-note" .github/workflows/publish-clawhub-discovery-skill.yml` — pass; all executable ClawHub invocations use `clawhub@0.20.0`, and `--clawscan-note` remains only in explanatory comments.
+- Policy: no public upstream push/PR; branch/PR targets private `cathrynlavery/printing-press-library` only.
