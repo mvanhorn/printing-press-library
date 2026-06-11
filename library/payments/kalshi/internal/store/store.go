@@ -803,8 +803,13 @@ func migrateResourcesCompositePK(ctx context.Context, conn *sql.Conn) error {
 			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY (resource_type, id)
 		)`,
+		// updated_at may be absent in databases predating its addition.
+		// Use CURRENT_TIMESTAMP as the fallback so the migration does not abort
+		// when the column is missing — the next sync will re-stamp every row anyway.
 		`INSERT OR REPLACE INTO resources (id, resource_type, data, synced_at, updated_at)
-			SELECT id, resource_type, data, synced_at, updated_at FROM resources_v1_migrating`,
+			SELECT id, resource_type, data, synced_at,
+				COALESCE((SELECT updated_at FROM resources_v1_migrating WHERE 1=0), CURRENT_TIMESTAMP)
+			FROM resources_v1_migrating`,
 		`DROP TABLE resources_v1_migrating`,
 	} {
 		if _, err := conn.ExecContext(ctx, q); err != nil {
