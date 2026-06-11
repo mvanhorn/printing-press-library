@@ -304,7 +304,7 @@ Plane's issue API never returns module membership, so a plain `sync` leaves `mod
 
 - **`plane-pp-cli module sync`** - Walk modules → module-issues, populate a junction table, and patch each issue's `module_ids` (also runs automatically inside `sync`).
 - **`plane-pp-cli module of <issue>`** - Show which modules an issue belongs to (from the local cache).
-- **`plane-pp-cli module create-issue <module> <project> <slug> --name "..."`** - Create a work item and add it to a module in one step.
+- **`plane-pp-cli module create-issue <module> <project> <slug> --name "..."`** - Create a work item and add it to a module in one step. The positional `<slug>` is overridden by the global `--workspace` flag when both are given.
 
 ## Output Formats
 

@@ -283,8 +283,8 @@ func withModuleEnrichment(syncCmd *cobra.Command, flags *rootFlags) *cobra.Comma
 			return nil
 		}
 		slug := resolveSlugFromConfig(flags)
-		if slug == "" {
-			return nil // sync itself would have failed without a slug
+		if slug == "" || slug == "my-workspace" {
+			return nil // sync itself would have failed without a real slug
 		}
 		c, err := flags.newClient()
 		if err != nil {
@@ -335,9 +335,9 @@ re-run it on its own or scope it to a single project.`,
 		Example: `  plane-pp-cli module sync
   plane-pp-cli module sync --project 8feda17c-6680-4f9d-a485-5cae321cd0cc`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			slug = resolveSlug(slug)
-			if slug == "" {
-				return usageErr(fmt.Errorf("workspace slug not set: pass --slug or export %s", envWorkspaceSlug))
+			slug = effectiveSlug(flags, slug)
+			if slug == "" || slug == "my-workspace" {
+				return usageErr(fmt.Errorf("workspace not set: pass --workspace <slug>, --slug <slug>, export %s, or run 'plane-pp-cli workspaces use <slug>'", envWorkspaceSlug))
 			}
 			if dbPath == "" {
 				dbPath = defaultDBPath("plane-pp-cli")
@@ -384,7 +384,7 @@ re-run it on its own or scope it to a single project.`,
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&slug, "slug", "", "Workspace slug (defaults to $"+envWorkspaceSlug+")")
+	cmd.Flags().StringVar(&slug, "slug", "", "Workspace slug; overridden by the global --workspace (defaults to $"+envWorkspaceSlug+")")
 	cmd.Flags().StringVar(&projectFilter, "project", "", "Limit to one project UUID (default: all synced projects)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	return cmd
@@ -475,6 +475,10 @@ cache (module_issues) if the issue store is present.`,
 			if name == "" && !flags.dryRun {
 				return usageErr(fmt.Errorf("--name is required"))
 			}
+			// The global --workspace flag tops the precedence chain and overrides
+			// the positional <slug>; effectiveSlug returns flags.workspace when set,
+			// otherwise the (required) positional arg.
+			slug = effectiveSlug(flags, slug)
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -585,12 +589,31 @@ cache (module_issues) if the issue store is present.`,
 	return cmd
 }
 
-// resolveSlugFromConfig mirrors the generated sync command's slug resolution:
-// the config file's TemplateVars["slug"] first (populated from PLANE_SLUG at
-// load time), then a live PLANE_SLUG env override. PATCH(slug-env-align): the
-// reprinted client stores the workspace {slug} in Config.TemplateVars rather
-// than a dedicated WorkspaceSlug field.
-func resolveSlugFromConfig(flags *rootFlags) string {
+// effectiveSlug resolves the workspace slug for the novel commands following the
+// global precedence:
+//
+//	--workspace (global flag) > --slug / positional slug (local) > $PLANE_SLUG > default_workspace (config)
+//
+// localSlug is the command's explicit slug ("" when the command has none or it
+// was left unset). It returns "" or the "my-workspace" sentinel only when nothing
+// is configured anywhere; callers reject that with a --workspace-aware message.
+//
+// This exists because the earlier resolveSlug()/resolveSlugFromConfig() helpers
+// stopped at $PLANE_SLUG and never consulted the global --workspace flag, so
+// `applyClientSlug(c, resolveSlug(...))` clobbered the slug newClient() had
+// already resolved from --workspace, issuing a cross-workspace request the API
+// rejects with 403 (see plane-pp-cli feedback, 2026-06-11). This mirrors the
+// attach-file fix (commit 954b5b34e).
+func effectiveSlug(flags *rootFlags, localSlug string) string {
+	if flags.workspace != "" {
+		return flags.workspace
+	}
+	if localSlug != "" {
+		return localSlug
+	}
+	// PATCH(slug-env-align): the reprinted client stores the workspace {slug} in
+	// Config.TemplateVars (seeded from default_workspace at load) rather than a
+	// dedicated WorkspaceSlug field; a live PLANE_SLUG still wins over that.
 	slug := ""
 	if cfg, err := config.Load(flags.configPath); err == nil {
 		slug = cfg.TemplateVars["slug"]
@@ -599,6 +622,13 @@ func resolveSlugFromConfig(flags *rootFlags) string {
 		slug = v
 	}
 	return slug
+}
+
+// resolveSlugFromConfig resolves the slug for the commands that carry no local
+// --slug flag (the post-sync enrichment wrapper). It delegates to effectiveSlug
+// so it too honors the global --workspace flag.
+func resolveSlugFromConfig(flags *rootFlags) string {
+	return effectiveSlug(flags, "")
 }
 
 // extractCreatedIssueID pulls the id out of an issueCreate response, tolerating
