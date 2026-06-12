@@ -179,9 +179,6 @@ func (r *novelCommandRunner) ensureReports(ctx context.Context, specs ...reportS
 			}
 			spec.MarketplaceID = marketplaceID
 		}
-		if spec.MarketplaceID == "" {
-			spec.MarketplaceID = r.marketplace
-		}
 		if spec.MaxAge <= 0 {
 			spec.MaxAge = 24 * time.Hour
 		}
@@ -254,11 +251,7 @@ func preferredMarketplaceID(raw json.RawMessage) string {
 	items := marketplaceParticipationItems(raw)
 	var firstParticipating, firstRetailAmazon, firstUS string
 	for _, item := range items {
-		marketplace, _ := item["marketplace"].(map[string]any)
 		id := nestedString(item, "marketplace", "id")
-		if id == "" {
-			id = stringValue(marketplace["id"])
-		}
 		if id == "" || !isParticipatingMarketplace(item) {
 			continue
 		}
