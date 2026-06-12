@@ -774,8 +774,26 @@ func addOrder(req map[string]any, order string) {
 	}
 	desc := strings.HasPrefix(order, "-")
 	name := strings.TrimPrefix(order, "-")
+	if containsNamedField(req["dimensions"], name) {
+		req["orderBys"] = []map[string]any{{"desc": desc, "dimension": map[string]string{"dimensionName": name}}}
+		return
+	}
 	req["orderBys"] = []map[string]any{{"desc": desc, "metric": map[string]string{"metricName": name}}}
 }
+
+func containsNamedField(v any, name string) bool {
+	fields, ok := v.([]map[string]string)
+	if !ok {
+		return false
+	}
+	for _, field := range fields {
+		if field["name"] == name {
+			return true
+		}
+	}
+	return false
+}
+
 func addDimensionOrder(req map[string]any, order string) {
 	if order == "" {
 		return
