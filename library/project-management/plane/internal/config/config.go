@@ -176,6 +176,13 @@ func normalizeWorkspaceSlug(v string) string {
 	return parts[0]
 }
 
+// NormalizeWorkspaceSlug exposes the workspace-slug normalizer to sibling
+// packages. PATCH(mcp-workspace): the MCP execute handlers reuse it to honor a
+// per-call "workspace" argument (overriding $PLANE_SLUG / default_workspace),
+// so a slug pasted as a bare segment, a browser URL, or the API base prefix all
+// resolve identically to the CLI's --workspace flag.
+func NormalizeWorkspaceSlug(v string) string { return normalizeWorkspaceSlug(v) }
+
 func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal

@@ -179,6 +179,8 @@ Plane's REST API is workspace-scoped: every request goes to `…/api/v1/workspac
 
 The active workspace is chosen by precedence: **`--workspace <slug>` flag > `PLANE_SLUG` env > `default_workspace` (config)**.
 
+> **Hitting an unexpected `403`/empty result?** Run `echo $PLANE_SLUG` first. A process-wide `PLANE_SLUG` exported in your shell **silently overrides** `default_workspace`, so commands target that workspace and items in any other one come back as `403 "You do not have permission"` — a wrong-workspace symptom masquerading as a permissions problem, not a key issue. Either unset it, set it per-project (e.g. `PLANE_SLUG=<slug>` in the project's env), or pass `--workspace <slug>` explicitly (the flag always wins). `plane-pp-cli workspaces current` shows the active slug **and where it was resolved from**.
+
 ```bash
 # One-time onboarding: probe + enroll your slug(s), write a templated base_url
 plane-pp-cli init --host https://api.plane.so --workspace acme --workspace bravo --default acme
@@ -194,6 +196,8 @@ plane-pp-cli members --workspace bravo --agent --select display_name
 ```
 
 Enrollment is local-only (a `[[workspaces]]` registry in `config.toml`) because the API can't enumerate workspaces by key. A bad slug fails loudly (the probe rejects it with a non-zero exit) rather than silently returning the wrong workspace.
+
+**Via the MCP server:** the `plane_execute` tool takes an optional top-level `workspace` argument — the MCP twin of `--workspace`, same top precedence over `PLANE_SLUG`/`default_workspace`. Pass it to target one call at a specific workspace; omit it to use the configured default. (Without it the server resolves the slug from `PLANE_SLUG`/`default_workspace` at load time, so the same `403`-as-wrong-workspace trap above applies to MCP calls.)
 
 ## Agent Mode
 
