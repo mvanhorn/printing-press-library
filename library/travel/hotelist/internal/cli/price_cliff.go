@@ -158,6 +158,12 @@ func newNovelPriceCliffCmd(flags *rootFlags) *cobra.Command {
 			for _, h := range below {
 				view.Recommended = append(view.Recommended, toHotelOut(h))
 			}
+			// No bin had a meaningful sample, so no cliff was identified and the
+			// recommendations are just the overall best-value hotels. Say so, so
+			// the list isn't mislabelled as cliff-constrained.
+			if view.CliffPrice == 0 && len(view.Recommended) > 0 {
+				view.Note = "data too sparse to identify a price cliff; showing overall best value"
+			}
 			return printPriceCliff(cmd.OutOrStdout(), flags, view)
 		},
 	}
@@ -172,8 +178,13 @@ func printPriceCliff(out io.Writer, flags *rootFlags, view priceCliffView) error
 	}
 	fmt.Fprintf(out, "Price cliff — %s (bins of $%.0f)\n", view.Location, view.BinSize)
 	fmt.Fprintln(out, strings.Repeat("-", 48))
-	if view.Note != "" {
-		fmt.Fprintf(out, "%s\n%s\n", view.Note, view.Disclaimer)
+	// No bins means there was nothing to chart (too few priced hotels); the note
+	// is the whole story. With bins present the note is a qualifier printed below.
+	if len(view.Bins) == 0 {
+		if view.Note != "" {
+			fmt.Fprintf(out, "%s\n", view.Note)
+		}
+		fmt.Fprintf(out, "%s\n", view.Disclaimer)
 		return nil
 	}
 	for _, b := range view.Bins {
@@ -182,9 +193,15 @@ func printPriceCliff(out io.Writer, flags *rootFlags, view priceCliffView) error
 	}
 	if view.CliffPrice > 0 {
 		fmt.Fprintf(out, "\nCliff: ~$%.0f/night — the cheapest tier that's still close to the best.\n", view.CliffPrice)
+	} else if view.Note != "" {
+		fmt.Fprintf(out, "\n%s\n", view.Note)
 	}
 	if len(view.Recommended) > 0 {
-		fmt.Fprintln(out, "\nBest value at or below the cliff:")
+		if view.CliffPrice > 0 {
+			fmt.Fprintln(out, "\nBest value at or below the cliff:")
+		} else {
+			fmt.Fprintln(out, "\nBest overall value:")
+		}
 		for i, h := range view.Recommended {
 			fmt.Fprintf(out, "  %d. %-34s ⭐%.1f $%.0f\n", i+1, truncate(h.Name, 34), h.Rating, h.Price)
 		}

@@ -186,10 +186,11 @@ func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 
 func newWatchAddCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:         "add <location>",
-		Short:       "Save a location and take its first snapshot",
-		Example:     "  hotelist-pp-cli watch add lisbon\n  hotelist-pp-cli watch add thailand --json",
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "<location>=lisbon"},
+		Use:     "add <location>",
+		Short:   "Save a location and take its first snapshot",
+		Example: "  hotelist-pp-cli watch add lisbon\n  hotelist-pp-cli watch add thailand --json",
+		// Writes a snapshot batch to the local SQLite store (takeSnapshot), so it is NOT mcp:read-only.
+		Annotations: map[string]string{"pp:happy-args": "<location>=lisbon"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
@@ -302,10 +303,12 @@ func newWatchListCmd(flags *rootFlags) *cobra.Command {
 func newWatchDiffCmd(flags *rootFlags) *cobra.Command {
 	var since, metric string
 	cmd := &cobra.Command{
-		Use:         "diff <location>",
-		Short:       "Re-fetch a watched location and report rating/price drift since the last snapshot",
-		Example:     "  hotelist-pp-cli watch diff lisbon\n  hotelist-pp-cli watch diff lisbon --metric price --json",
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "<location>=lisbon"},
+		Use:     "diff <location>",
+		Short:   "Re-fetch a watched location and report rating/price drift since the last snapshot",
+		Example: "  hotelist-pp-cli watch diff lisbon\n  hotelist-pp-cli watch diff lisbon --metric price --json",
+		// Records a fresh snapshot batch to the local SQLite store on every run
+		// (takeSnapshot), so it is NOT mcp:read-only despite being read-oriented.
+		Annotations: map[string]string{"pp:happy-args": "<location>=lisbon"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
