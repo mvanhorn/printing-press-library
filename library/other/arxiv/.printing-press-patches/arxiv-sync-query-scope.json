@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "arxiv-sync-query-scope",
+  "applied_at": "2026-06-13",
+  "base_run_id": "20260511-053009",
+  "base_printing_press_version": "4.2.2",
+  "summary": "arXiv sync must carry an explicit search_query or id_list scope on every /api/query page request.",
+  "reason": "The public arXiv Atom API rejects /api/query requests that omit both search_query and id_list, so an unscoped generated sync loop always fails live with HTTP 400 and cannot hydrate the local store.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "Fresh go test -count=1 ./..., go vet ./..., and go build ./... pass; live arxiv-pp-cli sync --search-query cat:cs.AI --max-pages 1 --agent stored 100 query rows."
+}

@@ -76,7 +76,7 @@ func TestSyncResourceParsesArxivAtomAndUsesOffsetPagination(t *testing.T) {
 		atomPage(3, 2, 1, "http://arxiv.org/abs/3"),
 	}}
 
-	res := syncResource(client, db, "query", "", true, 10)
+	res := syncResource(client, db, "query", "", true, 10, arxivSyncScope{searchQuery: "cat:cs.AI"})
 	if res.Err != nil {
 		t.Fatalf("syncResource error: %v", res.Err)
 	}
@@ -89,8 +89,14 @@ func TestSyncResourceParsesArxivAtomAndUsesOffsetPagination(t *testing.T) {
 	if client.params[0]["max_results"] != "100" || client.params[0]["start"] != "" {
 		t.Fatalf("first params = %#v", client.params[0])
 	}
+	if client.params[0]["search_query"] != "cat:cs.AI" {
+		t.Fatalf("first params = %#v, want search_query=cat:cs.AI", client.params[0])
+	}
 	if client.params[1]["start"] != "2" {
 		t.Fatalf("second params = %#v, want start=2", client.params[1])
+	}
+	if client.params[1]["search_query"] != "cat:cs.AI" {
+		t.Fatalf("second params = %#v, want search_query=cat:cs.AI", client.params[1])
 	}
 }
 

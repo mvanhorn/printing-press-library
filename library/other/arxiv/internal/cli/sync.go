@@ -27,6 +27,43 @@ type syncResult struct {
 	Duration time.Duration
 }
 
+type arxivSyncScope struct {
+	searchQuery string
+	idList      string
+}
+
+func newArxivSyncScope(searchQuery, idList string) arxivSyncScope {
+	return arxivSyncScope{
+		searchQuery: strings.TrimSpace(searchQuery),
+		idList:      strings.TrimSpace(idList),
+	}
+}
+
+func (s arxivSyncScope) isEmpty() bool {
+	return s.searchQuery == "" && s.idList == ""
+}
+
+func (s arxivSyncScope) addParams(resource string, params map[string]string) {
+	if resource != "query" {
+		return
+	}
+	if s.searchQuery != "" {
+		params["search_query"] = s.searchQuery
+	}
+	if s.idList != "" {
+		params["id_list"] = s.idList
+	}
+}
+
+func validateSyncScope(resources []string, scope arxivSyncScope) error {
+	for _, resource := range resources {
+		if resource == "query" && scope.isEmpty() {
+			return fmt.Errorf("sync resource %q requires --search-query or --id-list because arXiv /api/query rejects unscoped requests", resource)
+		}
+	}
+	return nil
+}
+
 func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var resources []string
 	var full bool
@@ -36,13 +73,18 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var maxPages int
 	var latestOnly bool
 	var strict bool
+	var searchQuery string
+	var idList string
 
 	cmd := &cobra.Command{
 		Use:   "sync",
 		Short: "Sync API data to local SQLite for offline search and analysis",
 		Long: `Sync data from the API into a local SQLite database. Supports resumable
 incremental sync (only fetches new data since last sync) and full resync.
-Once synced, use the 'search' command for instant full-text search.
+Once synced, use read commands with --data-source local or the analytics command.
+
+For arXiv, the query resource must be scoped with --search-query or --id-list;
+the public Atom API rejects unscoped /api/query requests.
 
 Exit codes & warnings:
   Resources the API denies access to (HTTP 403, or HTTP 400 with an
@@ -57,24 +99,37 @@ Exit codes & warnings:
   ...} so callers can detect that a partial failure was tolerated. Pass
   --strict to exit non-zero on any per-resource failure. Exit is always
   non-zero when every selected resource failed, regardless of --strict.`,
-		Example: `  # Sync all resources
-  arxiv-pp-cli sync
+		Example: `  # Sync recent AI papers into the local store
+  arxiv-pp-cli sync --search-query 'cat:cs.AI' --max-pages 1
+
+  # Hydrate exact papers by arXiv ID
+  arxiv-pp-cli sync --id-list 1706.03762 --max-pages 1
 
   # Sync specific resources only
-  arxiv-pp-cli sync --resources channels,messages
+  arxiv-pp-cli sync --resources query --search-query 'all:electron'
 
   # Full resync (ignore previous checkpoint)
-  arxiv-pp-cli sync --full
+  arxiv-pp-cli sync --full --search-query 'cat:cs.AI'
 
   # Incremental sync: only records from the last 7 days
-  arxiv-pp-cli sync --since 7d
+  arxiv-pp-cli sync --since 7d --search-query 'cat:cs.AI'
 
   # Parallel sync with 8 workers
-  arxiv-pp-cli sync --concurrency 8
+  arxiv-pp-cli sync --concurrency 8 --search-query 'cat:cs.AI'
 
   # Latest-only: refresh head of each resource, no historical backfill
-  arxiv-pp-cli sync --latest-only`,
+  arxiv-pp-cli sync --latest-only --search-query 'cat:cs.AI'`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// If no specific resources, sync top-level resources
+			if len(resources) == 0 {
+				resources = defaultSyncResources()
+			}
+
+			scope := newArxivSyncScope(searchQuery, idList)
+			if err := validateSyncScope(resources, scope); err != nil {
+				return usageErr(err)
+			}
+
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -90,11 +145,6 @@ Exit codes & warnings:
 				return fmt.Errorf("opening local database: %w", err)
 			}
 			defer db.Close()
-
-			// If no specific resources, sync top-level resources
-			if len(resources) == 0 {
-				resources = defaultSyncResources()
-			}
 
 			// --full: clear all sync cursors before starting
 			if full {
@@ -151,7 +201,7 @@ Exit codes & warnings:
 				go func() {
 					defer wg.Done()
 					for resource := range work {
-						res := syncResource(c, db, resource, sinceTS, full, maxPages)
+						res := syncResource(c, db, resource, sinceTS, full, maxPages, scope)
 						results <- res
 					}
 				}()
@@ -256,6 +306,8 @@ Exit codes & warnings:
 	cmd.Flags().IntVar(&maxPages, "max-pages", 100, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
 	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
 	cmd.Flags().BoolVar(&strict, "strict", false, "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).")
+	cmd.Flags().StringVar(&searchQuery, "search-query", "", "Search expression for the arXiv query sync resource, such as cat:cs.AI, all:electron, or au:smith.")
+	cmd.Flags().StringVar(&idList, "id-list", "", "Comma-delimited arXiv IDs to hydrate via the query sync resource, such as 1706.03762 or 1706.03762v7.")
 
 	return cmd
 }
@@ -265,7 +317,7 @@ Exit codes & warnings:
 func syncResource(c interface {
 	Get(string, map[string]string) (json.RawMessage, error)
 	RateLimit() float64
-}, db *store.Store, resource, sinceTS string, full bool, maxPages int) syncResult {
+}, db *store.Store, resource, sinceTS string, full bool, maxPages int, scope arxivSyncScope) syncResult {
 	started := time.Now()
 
 	if !humanFriendly {
@@ -310,6 +362,7 @@ func syncResource(c interface {
 
 	for {
 		params := map[string]string{}
+		scope.addParams(resource, params)
 
 		// Set page size
 		params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
