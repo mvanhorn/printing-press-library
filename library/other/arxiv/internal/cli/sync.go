@@ -44,9 +44,15 @@ func normalizeArxivIDList(idList string) string {
 	if idList == "" {
 		return ""
 	}
-	parts := strings.Split(idList, ",")
-	for i, part := range parts {
-		parts[i] = strings.TrimSpace(part)
+	rawParts := strings.Split(idList, ",")
+	parts := make([]string, 0, len(rawParts))
+	for _, part := range rawParts {
+		if trimmed := strings.TrimSpace(part); trimmed != "" {
+			parts = append(parts, trimmed)
+		}
+	}
+	if len(parts) == 0 {
+		return ""
 	}
 	return strings.Join(parts, ",")
 }

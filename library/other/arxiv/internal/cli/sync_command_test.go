@@ -28,6 +28,29 @@ func TestSyncCommandRequiresArxivQueryScope(t *testing.T) {
 	}
 }
 
+func TestSyncCommandRejectsBlankIDListScope(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	cmd.SetArgs([]string{
+		"sync",
+		"--dry-run",
+		"--agent",
+		"--db", filepath.Join(t.TempDir(), "data.db"),
+		"--max-pages", "1",
+		"--id-list", ",",
+	})
+
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatal("sync with blank --id-list succeeded; expected usage error")
+	}
+	if !strings.Contains(err.Error(), "--search-query or --id-list") {
+		t.Fatalf("error = %q, want mention of --search-query or --id-list", err)
+	}
+}
+
 func TestSyncCommandAcceptsSearchQueryScope(t *testing.T) {
 	t.Setenv("HOME", t.TempDir())
 

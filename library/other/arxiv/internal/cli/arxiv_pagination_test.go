@@ -121,6 +121,16 @@ func TestSyncResourceNormalizesArxivIDListScope(t *testing.T) {
 	}
 }
 
+func TestNormalizeArxivIDListDropsBlankParts(t *testing.T) {
+	got := normalizeArxivIDList(" 1706.03762, , 1312.5602, ")
+	if got != "1706.03762,1312.5602" {
+		t.Fatalf("normalized id_list = %q, want blank parts dropped", got)
+	}
+	if got := normalizeArxivIDList(","); got != "" {
+		t.Fatalf("normalized blank id_list = %q, want empty string", got)
+	}
+}
+
 func TestPaginatedGetParsesArxivAtomAllPages(t *testing.T) {
 	client := &fakePageClient{pages: []json.RawMessage{
 		atomPage(2, 0, 1, "http://arxiv.org/abs/1"),

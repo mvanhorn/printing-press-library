@@ -9,5 +9,5 @@
   "files": [
     "internal/cli/sync.go"
   ],
-  "validated_outcome": "Fresh go test -count=1 ./..., go vet ./..., and go build ./... pass; live arxiv-pp-cli sync --search-query cat:cs.AI --max-pages 1 --agent stored 100 query rows, and spaced --id-list '1706.03762, 1312.5602' stored 2 query rows."
+  "validated_outcome": "Fresh go test -count=1 ./..., go vet ./..., and go build ./... pass; live arxiv-pp-cli sync --search-query cat:cs.AI --max-pages 1 --agent stored 100 query rows, spaced --id-list '1706.03762, 1312.5602' stored 2 query rows, and blank id-list inputs collapse to the local usage error."
 }
