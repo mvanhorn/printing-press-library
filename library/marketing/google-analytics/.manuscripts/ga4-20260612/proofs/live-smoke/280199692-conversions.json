@@ -1,0 +1,38 @@
+{
+  "metric": "conversions",
+  "property": "280199692",
+  "report": "conversions",
+  "rows": [
+    {
+      "conversions": 174,
+      "date": "20260525",
+      "eventName": "add_to_cart"
+    },
+    {
+      "conversions": 106,
+      "date": "20260609",
+      "eventName": "add_to_cart"
+    },
+    {
+      "conversions": 100,
+      "date": "20260601",
+      "eventName": "add_to_cart"
+    },
+    {
+      "conversions": 91,
+      "date": "20260604",
+      "eventName": "add_to_cart"
+    },
+    {
+      "conversions": 76,
+      "date": "20260526",
+      "eventName": "add_to_cart"
+    }
+  ],
+  "trend": {
+    "delta": -98,
+    "first": 174,
+    "last": 76,
+    "pct_change": -0.5632183908045977
+  }
+}

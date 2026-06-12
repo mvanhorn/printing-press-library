@@ -1,0 +1,133 @@
+{
+  "funnelTable": {
+    "dimensionHeaders": [
+      {
+        "name": "funnelStepName"
+      }
+    ],
+    "metadata": {},
+    "metricHeaders": [
+      {
+        "name": "activeUsers",
+        "type": "TYPE_INTEGER"
+      },
+      {
+        "name": "funnelStepCompletionRate",
+        "type": "TYPE_INTEGER"
+      },
+      {
+        "name": "funnelStepAbandonments",
+        "type": "TYPE_INTEGER"
+      },
+      {
+        "name": "funnelStepAbandonmentRate",
+        "type": "TYPE_INTEGER"
+      },
+      {
+        "name": "activeUsers",
+        "type": "TYPE_INTEGER"
+      },
+      {
+        "name": "funnelStepCompletionRate",
+        "type": "TYPE_INTEGER"
+      },
+      {
+        "name": "funnelStepAbandonments",
+        "type": "TYPE_INTEGER"
+      },
+      {
+        "name": "funnelStepAbandonmentRate",
+        "type": "TYPE_INTEGER"
+      }
+    ],
+    "rows": [
+      {
+        "dimensionValues": [
+          {
+            "value": "1. page_view"
+          }
+        ],
+        "metricValues": [
+          {
+            "value": "522"
+          },
+          {
+            "value": "0.12835249042145594"
+          },
+          {
+            "value": "455"
+          },
+          {
+            "value": "0.87164750957854409"
+          }
+        ]
+      },
+      {
+        "dimensionValues": [
+          {
+            "value": "2. session_start"
+          }
+        ],
+        "metricValues": [
+          {
+            "value": "67"
+          },
+          {
+            "value": "0"
+          },
+          {
+            "value": "67"
+          },
+          {
+            "value": "1"
+          }
+        ]
+      }
+    ]
+  },
+  "funnelVisualization": {
+    "dimensionHeaders": [
+      {
+        "name": "funnelStepName"
+      }
+    ],
+    "metadata": {},
+    "metricHeaders": [
+      {
+        "name": "activeUsers",
+        "type": "TYPE_INTEGER"
+      },
+      {
+        "name": "activeUsers",
+        "type": "TYPE_INTEGER"
+      }
+    ],
+    "rows": [
+      {
+        "dimensionValues": [
+          {
+            "value": "1. page_view"
+          }
+        ],
+        "metricValues": [
+          {
+            "value": "522"
+          }
+        ]
+      },
+      {
+        "dimensionValues": [
+          {
+            "value": "2. session_start"
+          }
+        ],
+        "metricValues": [
+          {
+            "value": "67"
+          }
+        ]
+      }
+    ]
+  },
+  "kind": "analyticsData#runFunnelReport"
+}

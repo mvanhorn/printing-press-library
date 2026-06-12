@@ -1,0 +1,63 @@
+{
+  "property": "280199692",
+  "report": "audience",
+  "row_count": 5,
+  "rows": [
+    {
+      "conversion_rate": 0.18472222222222223,
+      "conversions": 665,
+      "country": "United States",
+      "deviceCategory": "mobile",
+      "engagementRate": 0.4741666666666667,
+      "newUsers": 2350,
+      "newVsReturning": "new",
+      "sessions": 3600,
+      "totalUsers": 3647
+    },
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "country": "Singapore",
+      "deviceCategory": "desktop",
+      "engagementRate": 0.37389162561576356,
+      "newUsers": 1186,
+      "newVsReturning": "new",
+      "sessions": 2030,
+      "totalUsers": 2031
+    },
+    {
+      "conversion_rate": 0.2488479262672811,
+      "conversions": 432,
+      "country": "United States",
+      "deviceCategory": "desktop",
+      "engagementRate": 0.451036866359447,
+      "newUsers": 898,
+      "newVsReturning": "new",
+      "sessions": 1736,
+      "totalUsers": 1737
+    },
+    {
+      "conversion_rate": 0.20074349442379183,
+      "conversions": 216,
+      "country": "United States",
+      "deviceCategory": "mobile",
+      "engagementRate": 0.6905204460966543,
+      "newUsers": 0,
+      "newVsReturning": "returning",
+      "sessions": 1076,
+      "totalUsers": 613
+    },
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "country": "Seychelles",
+      "deviceCategory": "mobile",
+      "engagementRate": 0.9974937343358395,
+      "newUsers": 399,
+      "newVsReturning": "new",
+      "sessions": 399,
+      "totalUsers": 399
+    }
+  ],
+  "totals": []
+}

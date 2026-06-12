@@ -1,0 +1,53 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "unifiedScreenName"
+    }
+  ],
+  "kind": "analyticsData#runRealtimeReport",
+  "metricHeaders": [
+    {
+      "name": "activeUsers",
+      "type": "TYPE_INTEGER"
+    }
+  ],
+  "rowCount": 15,
+  "rows": [
+    {
+      "dimensionValues": [
+        {
+          "value": "50 Questions to Ask Your Partner for Deeper Intimacy"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "Personal Growth | Personal Development Journal"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "BestSelf Digital Planner for GoodNotes"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "1"
+        }
+      ]
+    }
+  ]
+}

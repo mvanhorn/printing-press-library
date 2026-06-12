@@ -1,0 +1,48 @@
+{
+  "property": "280199692",
+  "report": "top_pages",
+  "row_count": 5,
+  "rows": [
+    {
+      "conversion_rate": 0.18674698795180722,
+      "conversions": 372,
+      "engagementRate": 0.5968875502008032,
+      "landingPagePlusQueryString": "/",
+      "sessions": 1992,
+      "totalRevenue": 1141.365202
+    },
+    {
+      "conversion_rate": 0.0006293266205160479,
+      "conversions": 1,
+      "engagementRate": 0.540591567023285,
+      "landingPagePlusQueryString": "/blogs/articles/questions-to-ask-your-kids",
+      "sessions": 1589,
+      "totalRevenue": 0
+    },
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "engagementRate": 0.6021505376344086,
+      "landingPagePlusQueryString": "/blogs/articles/questions-to-ask-your-partner",
+      "sessions": 837,
+      "totalRevenue": 0
+    },
+    {
+      "conversion_rate": 0.00727802037845706,
+      "conversions": 5,
+      "engagementRate": 0.021834061135371178,
+      "landingPagePlusQueryString": "(not set)",
+      "sessions": 687,
+      "totalRevenue": 52
+    },
+    {
+      "conversion_rate": 0.13506493506493505,
+      "conversions": 52,
+      "engagementRate": 0.44675324675324674,
+      "landingPagePlusQueryString": "/products/intimacy-deck",
+      "sessions": 385,
+      "totalRevenue": 258.214489
+    }
+  ],
+  "totals": []
+}

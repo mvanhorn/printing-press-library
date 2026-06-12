@@ -1,0 +1,63 @@
+{
+  "property": "540652239",
+  "report": "audience",
+  "row_count": 5,
+  "rows": [
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "country": "United States",
+      "deviceCategory": "desktop",
+      "engagementRate": 0.3813559322033898,
+      "newUsers": 118,
+      "newVsReturning": "new",
+      "sessions": 118,
+      "totalUsers": 118
+    },
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "country": "Singapore",
+      "deviceCategory": "desktop",
+      "engagementRate": 0.009259259259259259,
+      "newUsers": 108,
+      "newVsReturning": "new",
+      "sessions": 108,
+      "totalUsers": 108
+    },
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "country": "United States",
+      "deviceCategory": "mobile",
+      "engagementRate": 0.234375,
+      "newUsers": 64,
+      "newVsReturning": "new",
+      "sessions": 64,
+      "totalUsers": 64
+    },
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "country": "China",
+      "deviceCategory": "desktop",
+      "engagementRate": 0.08,
+      "newUsers": 25,
+      "newVsReturning": "new",
+      "sessions": 25,
+      "totalUsers": 25
+    },
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "country": "United States",
+      "deviceCategory": "desktop",
+      "engagementRate": 0.35294117647058826,
+      "newUsers": 0,
+      "newVsReturning": "returning",
+      "sessions": 17,
+      "totalUsers": 13
+    }
+  ],
+  "totals": []
+}

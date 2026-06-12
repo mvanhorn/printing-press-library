@@ -1,0 +1,33 @@
+{
+  "accountSummaries": [
+    {
+      "name": "accountSummaries/168106324",
+      "account": "accounts/168106324",
+      "displayName": "LittleMight",
+      "propertySummaries": [
+        {
+          "property": "properties/540652239",
+          "displayName": "LittleMight New",
+          "propertyType": "PROPERTY_TYPE_ORDINARY"
+        }
+      ]
+    },
+    {
+      "name": "accountSummaries/53855219",
+      "account": "accounts/53855219",
+      "displayName": "Little Might"
+    },
+    {
+      "name": "accountSummaries/63605374",
+      "account": "accounts/63605374",
+      "displayName": "Best SELF Co",
+      "propertySummaries": [
+        {
+          "property": "properties/280199692",
+          "displayName": "Best SELF Co - GA4",
+          "propertyType": "PROPERTY_TYPE_ORDINARY"
+        }
+      ]
+    }
+  ]
+}

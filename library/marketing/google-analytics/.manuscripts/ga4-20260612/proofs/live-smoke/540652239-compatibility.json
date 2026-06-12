@@ -1,0 +1,4268 @@
+{
+  "dimensionCompatibilities": [
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "achievementId",
+        "category": "Other",
+        "description": "The achievement ID in a game for an event. Populated by the event parameter `achievement_id`.",
+        "uiName": "Achievement ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "adFormat",
+        "category": "Publisher",
+        "description": "Describes the way ads looked and where they were located. Typical formats include `Interstitial`, `Banner`, `Rewarded`, and `Native advanced`.",
+        "uiName": "Ad format"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "adSourceName",
+        "category": "Publisher",
+        "description": "The source network that served the ad. Typical sources include `AdMob Network`, `Liftoff`, `Facebook Audience Network`, and `Mediated house ads`.",
+        "uiName": "Ad source"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "adUnitName",
+        "category": "Publisher",
+        "description": "The name you chose to describe this Ad unit. Ad units are containers you place in your apps to show ads to users.",
+        "uiName": "Ad unit"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "appVersion",
+        "category": "Platform / Device",
+        "description": "The app's versionName (Android) or short bundle version (iOS).",
+        "uiName": "App version"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "audienceId",
+        "category": "User",
+        "description": "The numeric identifier of an Audience. Users are reported in the audiences to which they belonged during the report's date range. Current user behavior does not affect historical audience membership in reports.",
+        "uiName": "Audience ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "audienceName",
+        "category": "User",
+        "description": "The given name of an Audience. Users are reported in the audiences to which they belonged during the report's date range. Current user behavior does not affect historical audience membership in reports.",
+        "uiName": "Audience name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "audienceResourceName",
+        "category": "User",
+        "description": "The resource name of this audience. Resource names contain both collection \u0026 resource identifiers to uniquely identify a resource; to learn more, see [Resource names](//google.aip.dev/122).",
+        "uiName": "Audience resource name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "brandingInterest",
+        "category": "Demographics",
+        "description": "Interests demonstrated by users who are higher in the shopping funnel. Users can be counted in multiple interest categories. For example, `Shoppers`, `Lifestyles \u0026 Hobbies/Pet Lovers`, or `Travel/Travel Buffs/Beachbound Travelers`.",
+        "uiName": "Interests"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "browser",
+        "category": "Platform / Device",
+        "description": "The browsers used to view your website.",
+        "uiName": "Browser"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "browserVersion",
+        "category": "Platform / Device",
+        "description": "The version of the browser from which the user activity originated. For example, a version might appear as `146.0.7680.178`. To understand which browser this version belongs to, use this version alongside the Browser dimension.",
+        "uiName": "Browser version"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "campaignId",
+        "category": "Attribution",
+        "description": "The identifier of the marketing campaign. Present only for key events. Includes Google Ads Campaigns, Manual Campaigns, \u0026 other Campaigns.",
+        "uiName": "Campaign ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "campaignName",
+        "category": "Attribution",
+        "description": "The name of the marketing campaign. Present only for key events. Includes Google Ads Campaigns, Manual Campaigns, \u0026 other Campaigns.",
+        "uiName": "Campaign"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "character",
+        "category": "Other",
+        "description": "The player character in a game for an event. Populated by the event parameter `character`.",
+        "uiName": "Character"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "city",
+        "category": "Geography",
+        "description": "The city from which the user activity originated.",
+        "uiName": "City"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cityId",
+        "category": "Geography",
+        "description": "The geographic ID of the city from which the user activity originated, derived from their IP address.",
+        "uiName": "City ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360AccountId",
+        "category": "Attribution",
+        "description": "The CM360 Account ID that led to the key event. Identifies the CM360 Account.",
+        "uiName": "CM360 account ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360AccountName",
+        "category": "Attribution",
+        "description": "The CM360 Account Name that led to the key event. A CM360 account consists of advertisers, sites, campaigns, and user profiles.",
+        "uiName": "CM360 account name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360AdvertiserId",
+        "category": "Attribution",
+        "description": "The CM360 Advertiser ID that led to the key event. A CM360 Advertiser contains a group of campaigns, creative assets, and other settings.",
+        "uiName": "CM360 advertiser ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360AdvertiserName",
+        "category": "Attribution",
+        "description": "The CM360 Advertiser Name that led to the key event. A CM360 Advertiser contains a group of campaigns, creative assets, and other settings.",
+        "uiName": "CM360 advertiser name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360CampaignId",
+        "category": "Attribution",
+        "description": "The CM360 Campaign ID that led to the key event. A CM360 campaign can be configured to specify when your ads run, what landing pages are used, and other properties.",
+        "uiName": "CM360 campaign ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360CampaignName",
+        "category": "Attribution",
+        "description": "The CM360 Campaign Name that led to the key event. A CM360 campaign can be configured to specify when your ads run, what landing pages are used, and other properties.",
+        "uiName": "CM360 campaign name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360CreativeFormat",
+        "category": "Attribution",
+        "description": "The CM360 Creative Format that led to the key event. CM360 creative formats are also referred to as creative types.",
+        "uiName": "CM360 creative format"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360CreativeId",
+        "category": "Attribution",
+        "description": "The CM360 Creative ID that led to the key event. Identifies a CM360 creative.",
+        "uiName": "CM360 creative ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360CreativeName",
+        "category": "Attribution",
+        "description": "The CM360 Creative Name that led to the key event. The name given to a CM360 creative.",
+        "uiName": "CM360 creative name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360CreativeType",
+        "category": "Attribution",
+        "description": "The CM360 Creative Type that led to the key event. A category of CM360 creatives like 'Display' or 'Tracking'. To learn more, see [manage creatives](https://support.google.com/campaignmanager/answer/3068258)",
+        "uiName": "CM360 creative type"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360CreativeTypeId",
+        "category": "Attribution",
+        "description": "The CM360 Creative Type ID that led to the key event. Identifies a CM360 creative type.",
+        "uiName": "CM360 creative type ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360CreativeVersion",
+        "category": "Attribution",
+        "description": "The CM360 Creative Version that led to the key event. The version number helps you keep track of multiple versions of your creative in your reports. If you upload a new asset to an existing creative, the version number is increased by one.",
+        "uiName": "CM360 creative version"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360Medium",
+        "category": "Attribution",
+        "description": "The CM360 Medium that led to the key event. The CM360 medium is also referred to as the placement cost structure.",
+        "uiName": "CM360 medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360PlacementCostStructure",
+        "category": "Attribution",
+        "description": "The CM360 Placement Cost Structure that led to the key event. Placement cost structures regulate how media cost will be calculated. For example 'CPM'.",
+        "uiName": "CM360 placement cost structure"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360PlacementId",
+        "category": "Attribution",
+        "description": "The CM360 Placement ID that led to the key event. Identifies a CM360 placement. A placement is the part of a website where your ad appears.",
+        "uiName": "CM360 placement ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360PlacementName",
+        "category": "Attribution",
+        "description": "The CM360 Placement Name that led to the key event. The given name for a CM360 placement. A placement is the part of a website where your ad appears.",
+        "uiName": "CM360 placement name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360RenderingId",
+        "category": "Attribution",
+        "description": "The CM360 Rendering ID that led to the key event. Identifies a CM360 creative.",
+        "uiName": "CM360 rendering ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360SiteId",
+        "category": "Attribution",
+        "description": "The CM360 Site ID that led to the key event. Identifies a CM360 site.",
+        "uiName": "CM360 site ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360SiteName",
+        "category": "Attribution",
+        "description": "The CM360 Site Name that led to the key event. The CM360 Site name from which the ad space was purchased.",
+        "uiName": "CM360 site name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360Source",
+        "category": "Attribution",
+        "description": "The CM360 Source that led to the key event. The CM360 source is also referred to as the site name.",
+        "uiName": "CM360 source"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cm360SourceMedium",
+        "category": "Attribution",
+        "description": "The CM360 Source Medium that led to the key event. A combination of the source and medium.",
+        "uiName": "CM360 source / medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "cohort",
+        "category": "Cohort",
+        "description": "The cohort's name in the request. A cohort is a set of users who started using your website or app in any consecutive group of days. If a cohort name is not specified in the request, cohorts are named by their zero based index such as cohort_0 and cohort_1.",
+        "uiName": "Cohort"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "comparison",
+        "category": "Other",
+        "description": "Comparisons enable you to evaluate subsets of your data side by side. For report requests, the comparisons column is automatically added to the response. For pivot report requests, the requested dimension must be used.",
+        "uiName": "Comparison"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "contentGroup",
+        "category": "Page / Screen",
+        "description": "A category that applies to items of published content. Populated by the event parameter `content_group`.",
+        "uiName": "Content group"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "contentId",
+        "category": "Page / Screen",
+        "description": "The identifier of the selected content. Populated by the event parameter `content_id`.",
+        "uiName": "Content ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "contentType",
+        "category": "Page / Screen",
+        "description": "The category of the selected content. Populated by the event parameter `content_type`.",
+        "uiName": "Content type"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "continent",
+        "category": "Geography",
+        "description": "The continent from which the user activity originated. For example, `Americas` or `Asia`.",
+        "uiName": "Continent"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "continentId",
+        "category": "Geography",
+        "description": "The geographic ID of the continent from which the user activity originated, derived from their IP address.",
+        "uiName": "Continent ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "country",
+        "category": "Geography",
+        "description": "The country from which the user activity originated.",
+        "uiName": "Country"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "countryId",
+        "category": "Geography",
+        "deprecatedApiNames": [
+          "countryIsoCode"
+        ],
+        "description": "The geographic ID of the country from which the user activity originated, derived from their IP address. Formatted according to ISO 3166-1 alpha-2 standard.",
+        "uiName": "Country ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "currencyCode",
+        "category": "Ecommerce",
+        "description": "The local currency code (based on ISO 4217 standard) of the eCommerce event. For example, `USD` or `GBP`. Currency is specified in tagging by the `currency` parameter. Businesses that transact in more than one currency can specify a local currency code when sending eCommerce events to Analytics, and this dimension shows those currencies. To Learn more, See [Currency reference](https://support.google.com/analytics/answer/9796179).",
+        "uiName": "Currency"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "date",
+        "category": "Time",
+        "description": "The date of the event, formatted as YYYYMMDD.",
+        "uiName": "Date"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dateHour",
+        "category": "Time",
+        "description": "The combined values of date and hour formatted as YYYYMMDDHH.",
+        "uiName": "Date + hour (YYYYMMDDHH)"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dateHourMinute",
+        "category": "Time",
+        "description": "The combined values of date, hour, and minute formatted as YYYYMMDDHHMM.",
+        "uiName": "Date hour and minute"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "day",
+        "category": "Time",
+        "description": "The day of the month, a two-digit number from 01 to 31.",
+        "uiName": "Day"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dayOfWeek",
+        "category": "Time",
+        "deprecatedApiNames": [
+          "dayOfWeekZero"
+        ],
+        "description": "The integer day of the week. It returns values in the range 0 to 6 with Sunday as the first day of the week.",
+        "uiName": "Day of week"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dayOfWeekName",
+        "category": "Time",
+        "description": "The day of the week in English. This dimension has values such as Sunday or Monday.",
+        "uiName": "Day of week name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "defaultChannelGroup",
+        "category": "Attribution",
+        "deprecatedApiNames": [
+          "defaultChannelGrouping"
+        ],
+        "description": "The key event's default channel group is based primarily on source and medium. An enumeration which includes `Direct`, `Organic Search`, `Paid Social`, `Organic Social`, `Email`, `Affiliates`, `Referral`, `Paid Search`, `Video`, and `Display`.",
+        "uiName": "Default channel group"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "deviceCategory",
+        "category": "Platform / Device",
+        "description": "The type of device: Desktop, Tablet, or Mobile.",
+        "uiName": "Device category"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "deviceModel",
+        "category": "Platform / Device",
+        "description": "The mobile device model (example: iPhone 10,6).",
+        "uiName": "Device model"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dv360AdvertiserId",
+        "category": "Attribution",
+        "description": "The DV360 Advertiser ID that led to the key event. Identifies the DV360 advertiser.",
+        "uiName": "DV360 advertiser ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dv360AdvertiserName",
+        "category": "Attribution",
+        "description": "The DV360 Advertiser Name that led to the key event. DV360 advertisers represent real-life businesses that run advertising campaigns.",
+        "uiName": "DV360 advertiser name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dv360CampaignId",
+        "category": "Attribution",
+        "description": "The DV360 Campaign ID that led to the key event. Identifies the DV360 campaign.",
+        "uiName": "DV360 campaign ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dv360CampaignName",
+        "category": "Attribution",
+        "description": "The DV360 Campaign Name that led to the key event. DV360 campaigns group together related insertion orders with a common business goal.",
+        "uiName": "DV360 campaign name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dv360CreativeFormat",
+        "category": "Attribution",
+        "description": "The DV360 Creative Format that led to the key event. Also referred to as the creative type. For example, expandable, video, or native.",
+        "uiName": "DV360 creative format"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dv360CreativeId",
+        "category": "Attribution",
+        "description": "The DV360 Creative ID that led to the key event. Identifies the DV360 creative.",
+        "uiName": "DV360 creative ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dv360CreativeName",
+        "category": "Attribution",
+        "description": "The DV360 Creative Name that led to the key event. The name given to a DV360 creative.",
+        "uiName": "DV360 creative name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dv360ExchangeId",
+        "category": "Attribution",
+        "description": "The DV360 Exchange ID that led to the key event. Identifies the DV360 exchange.",
+        "uiName": "DV360 exchange ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dv360ExchangeName",
+        "category": "Attribution",
+        "description": "The DV360 Exchange Name that led to the key event. The DV360 ad exchange involved in the ad click. To learn more, see [managing exchanges](https://support.google.com/displayvideo/answer/9230278).",
+        "uiName": "DV360 exchange name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dv360InsertionOrderId",
+        "category": "Attribution",
+        "description": "The DV360 Insertion Order ID that led to the key event. Identifies the DV360 insertion order.",
+        "uiName": "DV360 insertion order ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dv360InsertionOrderName",
+        "category": "Attribution",
+        "description": "The DV360 Insertion Order Name that led to the key event. A DV360 insertion order contains a set of line items that are related to the same advertising campaign.",
+        "uiName": "DV360 insertion order name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dv360LineItemId",
+        "category": "Attribution",
+        "description": "The DV360 Line Item ID that led to the key event. Identifies the DV360 line item.",
+        "uiName": "DV360 line item ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dv360LineItemName",
+        "category": "Attribution",
+        "description": "The DV360 Line Item Name that led to the key event. A DV360 line item bids on impressions and serves creatives to inventory sources.",
+        "uiName": "DV360 line item name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dv360Medium",
+        "category": "Attribution",
+        "description": "The DV360 Medium that led to the key event. The billable outcome of the insertion order. For example, `cpm`.",
+        "uiName": "DV360 medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dv360PartnerId",
+        "category": "Attribution",
+        "description": "The DV360 Partner ID that led to the key event. Identifies the DV360 partner.",
+        "uiName": "DV360 partner ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dv360PartnerName",
+        "category": "Attribution",
+        "description": "The DV360 Partner Name that led to the key event. DV360 partners represent agencies, trading desks, or large individual advertisers.",
+        "uiName": "DV360 partner name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dv360Source",
+        "category": "Attribution",
+        "description": "The DV360 Source that led to the key event. The DV360 site name where your ad was displayed.",
+        "uiName": "DV360 source"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "dv360SourceMedium",
+        "category": "Attribution",
+        "description": "The DV360 Source Medium that led to the key event. A combination of the source and medium.",
+        "uiName": "DV360 source / medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "eventName",
+        "category": "Event",
+        "description": "The name of the event.",
+        "uiName": "Event name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "fileExtension",
+        "category": "Other",
+        "description": "The extension of the downloaded file (for example, `pdf` or `txt`). Automatically populated if Enhanced Measurement is enabled. Populated by the event parameter `file_extension`.",
+        "uiName": "File extension"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "fileName",
+        "category": "Other",
+        "description": "The page path of the downloaded file (for example, `/menus/dinner-menu.pdf`). Automatically populated if Enhanced Measurement is enabled. Populated by the event parameter `file_name`.",
+        "uiName": "File name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstSessionDate",
+        "category": "User Lifetime",
+        "deprecatedApiNames": [
+          "firstTouchDate"
+        ],
+        "description": "The date the user's first session occurred, formatted as YYYYMMDD.",
+        "uiName": "First session date"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCampaignId",
+        "category": "Traffic Source",
+        "description": "Identifier of the marketing campaign that first acquired the user. Includes Google Ads Campaigns, Manual Campaigns, \u0026 other Campaigns.",
+        "uiName": "First user campaign ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCampaignName",
+        "category": "Traffic Source",
+        "description": "Name of the marketing campaign that first acquired the user. Includes Google Ads Campaigns, Manual Campaigns, \u0026 other Campaigns.",
+        "uiName": "First user campaign"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360AccountId",
+        "category": "Traffic Source",
+        "description": "The CM360 Account ID that originally acquired the user. Identifies the CM360 account.",
+        "uiName": "First user CM360 account ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360AccountName",
+        "category": "Traffic Source",
+        "description": "The CM360 Account Name that originally acquired the user. A CM360 account consists of advertisers, sites, campaigns, and user profiles.",
+        "uiName": "First user CM360 account name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360AdvertiserId",
+        "category": "Traffic Source",
+        "description": "The CM360 Advertiser ID that originally acquired the user. Identifies the CM360 advertiser.",
+        "uiName": "First user CM360 advertiser ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360AdvertiserName",
+        "category": "Traffic Source",
+        "description": "The CM360 Advertiser Name that originally acquired the user. A CM360 Advertiser contains a group of campaigns, creative assets, and other settings.",
+        "uiName": "First user CM360 advertiser name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360CampaignId",
+        "category": "Traffic Source",
+        "description": "The CM360 Campaign ID that originally acquired the user. Identifies the CM360 campaign.",
+        "uiName": "First user CM360 campaign ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360CampaignName",
+        "category": "Traffic Source",
+        "description": "The CM360 Campaign Name that originally acquired the user. A CM360 campaign can be configured to specify when your ads run, what landing pages are used, and other properties.",
+        "uiName": "First user CM360 campaign name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360CreativeFormat",
+        "category": "Traffic Source",
+        "description": "The CM360 Creative Format that originally acquired the user. CM360 creative formats are also referred to as creative types.",
+        "uiName": "First user CM360 creative format"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360CreativeId",
+        "category": "Traffic Source",
+        "description": "The CM360 Creative ID that originally acquired the user. Identifies a CM360 creative.",
+        "uiName": "First user CM360 creative ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360CreativeName",
+        "category": "Traffic Source",
+        "description": "The CM360 Creative Name that originally acquired the user. The name given to a CM360 creative.",
+        "uiName": "First user CM360 creative name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360CreativeType",
+        "category": "Traffic Source",
+        "description": "The CM360 Creative Type that originally acquired the user. A category of CM360 creatives like 'Display' or 'Tracking'. To learn more, see [manage creatives](https://support.google.com/campaignmanager/answer/3068258)",
+        "uiName": "First user CM360 creative type"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360CreativeTypeId",
+        "category": "Traffic Source",
+        "description": "The CM360 Creative Type ID that originally acquired the user. Identifies a CM360 creative type.",
+        "uiName": "First user CM360 creative type ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360CreativeVersion",
+        "category": "Traffic Source",
+        "description": "The CM360 Creative Version that originally acquired the user. The version number helps you keep track of multiple versions of your creative in your reports. If you upload a new asset to an existing creative, the version number is increased by one.",
+        "uiName": "First user CM360 creative version"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360Medium",
+        "category": "Traffic Source",
+        "description": "The CM360 Medium that originally acquired the user. The CM360 medium is also referred to as the placement cost structure.",
+        "uiName": "First user CM360 medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360PlacementCostStructure",
+        "category": "Traffic Source",
+        "description": "The CM360 Placement Cost Structure that originally acquired the user. Placement cost structures regulate how media cost will be calculated. For example 'CPM'.",
+        "uiName": "First user CM360 placement cost structure"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360PlacementId",
+        "category": "Traffic Source",
+        "description": "The CM360 Placement ID that originally acquired the user. Identifies a CM360 placement. A placement is the part of a website where your ad appears.",
+        "uiName": "First user CM360 placement ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360PlacementName",
+        "category": "Traffic Source",
+        "description": "The CM360 Placement Name that originally acquired the user. The given name for a CM360 placement. A placement is the part of a website where your ad appears.",
+        "uiName": "First user CM360 placement name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360RenderingId",
+        "category": "Traffic Source",
+        "description": "The CM360 Rendering ID that originally acquired the user. Identifies a CM360 creative.",
+        "uiName": "First user CM360 rendering ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360SiteId",
+        "category": "Traffic Source",
+        "description": "The CM360 Site ID that originally acquired the user. Identifies a CM360 site.",
+        "uiName": "First user CM360 site ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360SiteName",
+        "category": "Traffic Source",
+        "description": "The CM360 Site Name that originally acquired the user. The CM360 Site name from which the ad space was purchased.",
+        "uiName": "First user CM360 site name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360Source",
+        "category": "Traffic Source",
+        "description": "The CM360 Source that originally acquired the user. The CM360 source is also referred to as the site name.",
+        "uiName": "First user CM360 source"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserCm360SourceMedium",
+        "category": "Traffic Source",
+        "description": "The CM360 Source Medium that originally acquired the user. A combination of the source and medium.",
+        "uiName": "First user CM360 source / medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserDefaultChannelGroup",
+        "category": "Traffic Source",
+        "deprecatedApiNames": [
+          "firstUserDefaultChannelGrouping"
+        ],
+        "description": "The default channel group that first acquired the user. Default channel group is based primarily on source and medium. An enumeration which includes `Direct`, `Organic Search`, `Paid Social`, `Organic Social`, `Email`, `Affiliates`, `Referral`, `Paid Search`, `Video`, and `Display`.",
+        "uiName": "First user default channel group"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserDv360AdvertiserId",
+        "category": "Traffic Source",
+        "description": "The DV360 Advertiser ID that originally acquired the user. Identifies the DV360 advertiser.",
+        "uiName": "First user DV360 advertiser ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserDv360AdvertiserName",
+        "category": "Traffic Source",
+        "description": "The DV360 Advertiser Name that originally acquired the user. DV360 advertisers represent real-life businesses that run advertising campaigns.",
+        "uiName": "First user DV360 advertiser name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserDv360CampaignId",
+        "category": "Traffic Source",
+        "description": "The DV360 Campaign ID that originally acquired the user. Identifies the DV360 campaign.",
+        "uiName": "First user DV360 campaign ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserDv360CampaignName",
+        "category": "Traffic Source",
+        "description": "The DV360 Campaign Name that originally acquired the user. DV360 campaigns group together related insertion orders with a common business goal.",
+        "uiName": "First user DV360 campaign name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserDv360CreativeFormat",
+        "category": "Traffic Source",
+        "description": "The DV360 Creative Format that originally acquired the user. Also referred to as the creative type. For example, expandable, video, or native.",
+        "uiName": "First user DV360 creative format"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserDv360CreativeId",
+        "category": "Traffic Source",
+        "description": "The DV360 Creative ID that originally acquired the user. Identifies the DV360 creative.",
+        "uiName": "First user DV360 creative ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserDv360CreativeName",
+        "category": "Traffic Source",
+        "description": "The DV360 Creative Name that originally acquired the user. The name given to a DV360 creative.",
+        "uiName": "First user DV360 creative name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserDv360ExchangeId",
+        "category": "Traffic Source",
+        "description": "The DV360 Exchange ID that originally acquired the user. Identifies the DV360 exchange.",
+        "uiName": "First user DV360 exchange ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserDv360ExchangeName",
+        "category": "Traffic Source",
+        "description": "The DV360 Exchange Name that originally acquired the user. The DV360 ad exchange involved in the ad click. To learn more, see [managing exchanges](https://support.google.com/displayvideo/answer/9230278).",
+        "uiName": "First user DV360 exchange name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserDv360InsertionOrderId",
+        "category": "Traffic Source",
+        "description": "The DV360 Insertion Order ID that originally acquired the user. Identifies the DV360 insertion order.",
+        "uiName": "First user DV360 insertion order ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserDv360InsertionOrderName",
+        "category": "Traffic Source",
+        "description": "The DV360 Insertion Order Name that originally acquired the user. A DV360 insertion order contains a set of line items that are related to the same advertising campaign.",
+        "uiName": "First user DV360 insertion order name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserDv360LineItemId",
+        "category": "Traffic Source",
+        "description": "The DV360 Line Item ID that originally acquired the user. Identifies the DV360 line item.",
+        "uiName": "First user DV360 line item ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserDv360LineItemName",
+        "category": "Traffic Source",
+        "deprecatedApiNames": [
+          "firstUserDv360LinteItemName"
+        ],
+        "description": "The DV360 Line Item Name that originally acquired the user. A DV360 line item bids on impressions and serves creatives to inventory sources.",
+        "uiName": "First user DV360 line item name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserDv360Medium",
+        "category": "Traffic Source",
+        "description": "The DV360 Medium that originally acquired the user. The billable outcome of the insertion order. For example, `cpm`.",
+        "uiName": "First user DV360 medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserDv360PartnerId",
+        "category": "Traffic Source",
+        "description": "The DV360 Partner ID that originally acquired the user. Identifies the DV360 partner.",
+        "uiName": "First user DV360 partner ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserDv360PartnerName",
+        "category": "Traffic Source",
+        "description": "The DV360 Partner Name that originally acquired the user. DV360 partners represent agencies, trading desks, or large individual advertisers.",
+        "uiName": "First user DV360 partner name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserDv360Source",
+        "category": "Traffic Source",
+        "description": "The DV360 Source that originally acquired the user. The DV360 site name where your ad was displayed.",
+        "uiName": "First user DV360 source"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserDv360SourceMedium",
+        "category": "Traffic Source",
+        "description": "The DV360 Source Medium that originally acquired the user. A combination of the source and medium.",
+        "uiName": "First user DV360 source / medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserGoogleAdsAccountName",
+        "category": "Traffic Source",
+        "description": "The Account name from Google Ads that first acquired the user.",
+        "uiName": "First user Google Ads account name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserGoogleAdsAdGroupId",
+        "category": "Traffic Source",
+        "description": "The Ad Group Id in Google Ads that first acquired the user.",
+        "uiName": "First user Google Ads ad group ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserGoogleAdsAdGroupName",
+        "category": "Traffic Source",
+        "description": "The Ad Group Name in Google Ads that first acquired the user.",
+        "uiName": "First user Google Ads ad group name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserGoogleAdsAdNetworkType",
+        "category": "Traffic Source",
+        "description": "The advertising network that first acquired the user. An enumeration which includes `Google search`, `Search partners`, `Google Display Network`, `Youtube Search`, `Youtube Videos`, `Cross-network`, `Social`, and `(universal campaign)`.",
+        "uiName": "First user Google Ads ad network type"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserGoogleAdsCampaignId",
+        "category": "Traffic Source",
+        "description": "Identifier of the Google Ads marketing campaign that first acquired the user.",
+        "uiName": "First user Google Ads campaign ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserGoogleAdsCampaignName",
+        "category": "Traffic Source",
+        "description": "Name of the Google Ads marketing campaign that first acquired the user.",
+        "uiName": "First user Google Ads campaign"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserGoogleAdsCampaignType",
+        "category": "Traffic Source",
+        "description": "The campaign type of the Google Ads campaign that first acquired the user. Campaign types determine where customers see your ads and the settings and options available to you in Google Ads. Campaign type is an enumeration that includes: Search, Display, Shopping, Video, Demand Gen, App, Smart, Hotel, Local, and Performance Max. To learn more, see [Choose the right campaign type](https://support.google.com/google-ads/answer/2567043).",
+        "uiName": "First user Google Ads campaign type"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserGoogleAdsCreativeId",
+        "category": "Traffic Source",
+        "deprecatedApiNames": [
+          "firstUserCreativeId"
+        ],
+        "description": "The ID of the Google Ads creative that first acquired the user. Creative IDs identify individual ads.",
+        "uiName": "First user Google Ads creative ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserGoogleAdsCustomerId",
+        "category": "Traffic Source",
+        "description": "The Customer ID from Google Ads that first acquired the user. Customer IDs in Google Ads uniquely identify Google Ads accounts.",
+        "uiName": "First user Google Ads customer ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserGoogleAdsKeyword",
+        "category": "Traffic Source",
+        "description": "First user Google Ads keyword text | The matched keyword that first acquired the user. Keywords are words or phrases describing your product or service that you choose to get your ad in front of the right customers. To learn more about Keywords, see [Keywords: Definition](https://support.google.com/google-ads/answer/6323).",
+        "uiName": "First user Google Ads keyword text"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserGoogleAdsQuery",
+        "category": "Traffic Source",
+        "description": "The search query that first acquired the user.",
+        "uiName": "First user Google Ads query"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserManualAdContent",
+        "category": "Traffic Source",
+        "description": "The ad content that first acquired the user. Populated by the utm_content parameter.",
+        "uiName": "First user manual ad content"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserManualCampaignId",
+        "category": "Traffic Source",
+        "description": "The manual Campaign ID that originally acquired the user. Identifies the manual campaign. Populated by `utm_id` URL parameter.",
+        "uiName": "First user manual campaign ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserManualCampaignName",
+        "category": "Traffic Source",
+        "description": "The manual Campaign Name that originally acquired the user. The name of the manual campaign. Populated by `utm_campaign` URL parameter. To learn more, see [Collect campaign data with custom URLs](https://support.google.com/analytics/answer/10917952).",
+        "uiName": "First user manual campaign name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserManualCreativeFormat",
+        "category": "Traffic Source",
+        "description": "The manual Creative Format that originally acquired the user. Identifies the creative format used in the ad. Populated by `utm_creative_format` URL parameter.",
+        "uiName": "First user manual creative format"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserManualMarketingTactic",
+        "category": "Traffic Source",
+        "description": "The manual Marketing Tactic that originally acquired the user. The targeting criteria applied to a campaign. For example, remarketing or prospecting. Populated by `utm_marketing_tactic` URL parameter.",
+        "uiName": "First user manual marketing tactic"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserManualMedium",
+        "category": "Traffic Source",
+        "description": "The manual Medium that originally acquired the user. The marketing medium used in the referral. For example, `cpc`. Populated by `utm_medium` URL parameter.",
+        "uiName": "First user manual medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserManualSource",
+        "category": "Traffic Source",
+        "description": "The manual Source that originally acquired the user. The referrer. Populated by `utm_source` URL parameter.",
+        "uiName": "First user manual source"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserManualSourceMedium",
+        "category": "Traffic Source",
+        "description": "The manual Source Medium that originally acquired the user. A combination of the source and medium.",
+        "uiName": "First user manual source / medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserManualSourcePlatform",
+        "category": "Traffic Source",
+        "description": "The manual Source Platform that originally acquired the user. The platform responsible for directing traffic to a given Analytics property. Populated by `utm_source_platform` URL parameter.",
+        "uiName": "First user manual source platform"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserManualTerm",
+        "category": "Traffic Source",
+        "description": "The term that first acquired the user. Populated by the utm_term parameter.",
+        "uiName": "First user manual term"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserMedium",
+        "category": "Traffic Source",
+        "description": "The medium that first acquired the user to your website or app.",
+        "uiName": "First user medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserPrimaryChannelGroup",
+        "category": "Traffic Source",
+        "description": "The primary channel group that originally acquired a user. Primary channel groups are the channel groups used in standard reports in Google Analytics and serve as an active record of your property's data in alignment with channel grouping over time. To learn more, see [Custom channel groups](https://support.google.com/analytics/answer/13051316).",
+        "uiName": "First user primary channel group"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserSa360AdGroupId",
+        "category": "Traffic Source",
+        "description": "The SA360 Ad Group ID that originally acquired the user. Identifies the SA360 ad group.",
+        "uiName": "First user SA360 ad group ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserSa360AdGroupName",
+        "category": "Traffic Source",
+        "description": "The SA360 Ad Group Name that originally acquired the user. SA360 Ad groups contain ads and keywords that relate to each other.",
+        "uiName": "First user SA360 ad group name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserSa360CampaignId",
+        "category": "Traffic Source",
+        "description": "The SA360 Campaign ID that originally acquired the user. Identifies the SA360 campaign.",
+        "uiName": "First user SA360 campaign ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserSa360CampaignName",
+        "category": "Traffic Source",
+        "description": "The SA360 Campaign Name that originally acquired the user. A SA360 campaign lets you organize your ads and define a goal for your advertising.",
+        "uiName": "First user SA360 campaign"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserSa360CreativeFormat",
+        "category": "Traffic Source",
+        "description": "The SA360 Creative Format that originally acquired the user. The creative format is the specific layout or design of the advertisement used in a campaign.",
+        "uiName": "First user SA360 creative format"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserSa360EngineAccountId",
+        "category": "Traffic Source",
+        "description": "The SA360 Engine Account ID that originally acquired the user. Identifies the SA360 engine account.",
+        "uiName": "First user SA360 engine account ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserSa360EngineAccountName",
+        "category": "Traffic Source",
+        "description": "The SA360 Engine Account Name that originally acquired the user. A SA360 engine account contains campaigns, ad groups, and other items from an advertising account.",
+        "uiName": "First user SA360 engine account name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserSa360EngineAccountType",
+        "category": "Traffic Source",
+        "description": "The SA360 Engine Account Type that originally acquired the user. The type of engine used by the search engine account.",
+        "uiName": "First user SA360 engine account type"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserSa360KeywordText",
+        "category": "Traffic Source",
+        "description": "The SA360 Keyword Text that originally acquired the user. The keywords that matched the search query.",
+        "uiName": "First user SA360 keyword text"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserSa360ManagerAccountId",
+        "category": "Traffic Source",
+        "description": "The SA360 Manager Account ID that originally acquired the user. Identifies the SA360 manager account.",
+        "uiName": "First user SA360 manager account ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserSa360ManagerAccountName",
+        "category": "Traffic Source",
+        "description": "The SA360 Manager Account Name that originally acquired the user. The top level of the Search Ads 360 account hierarchy and is used for administration and reporting across the lower-level sub-manager and client accounts.",
+        "uiName": "First user SA360 manager account name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserSa360Medium",
+        "category": "Traffic Source",
+        "description": "The SA360 Medium that originally acquired the user. The payment mode used in ad buying. For example, `cpc`.",
+        "uiName": "First user SA360 medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserSa360Query",
+        "category": "Traffic Source",
+        "description": "The SA360 Query that originally acquired the user. The search query typed by the user.",
+        "uiName": "First user SA360 query"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserSa360Source",
+        "category": "Traffic Source",
+        "description": "The SA360 Source that originally acquired the user. The search query happened on this site.",
+        "uiName": "First user SA360 source"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserSa360SourceMedium",
+        "category": "Traffic Source",
+        "description": "The SA360 Source Medium that originally acquired the user. A combination of the source and medium.",
+        "uiName": "First user SA360 source / medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserSource",
+        "category": "Traffic Source",
+        "description": "The source that first acquired the user to your website or app.",
+        "uiName": "First user source"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserSourceMedium",
+        "category": "Traffic Source",
+        "description": "The combined values of the dimensions `firstUserSource` and `firstUserMedium`.",
+        "uiName": "First user source / medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "firstUserSourcePlatform",
+        "category": "Traffic Source",
+        "deprecatedApiNames": [
+          "firstUserTrafficOrigin"
+        ],
+        "description": "The source platform that first acquired the user. Don't depend on this field returning `Manual` for traffic that uses UTMs; this field will update from returning `Manual` to returning `(not set)` for an upcoming feature launch.",
+        "uiName": "First user source platform"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "fullPageUrl",
+        "category": "Page / Screen",
+        "description": "The hostname, page path, and query string for web pages visited; for example, the `fullPageUrl` portion of `https://www.example.com/store/contact-us?query_string=true` is `www.example.com/store/contact-us?query_string=true`.",
+        "uiName": "Full page URL"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "googleAdsAccountName",
+        "category": "Attribution",
+        "description": "The Account name from Google Ads for the campaign that led to the key event. Corresponds to `customer.descriptive_name` in the Google Ads API.",
+        "uiName": "Google Ads account name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "googleAdsAdGroupId",
+        "category": "Attribution",
+        "description": "The Google Ads ad group ID attributed to the key event.",
+        "uiName": "Google Ads ad group ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "googleAdsAdGroupName",
+        "category": "Attribution",
+        "description": "The ad group name attributed to the key event.",
+        "uiName": "Google Ads ad group name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "googleAdsAdNetworkType",
+        "category": "Attribution",
+        "description": "The advertising network type of the key event. An enumeration which includes `Google search`, `Search partners`, `Google Display Network`, `Youtube Search`, `Youtube Videos`, `Cross-network`, `Social`, and `(universal campaign)`.",
+        "uiName": "Google Ads ad network type"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "googleAdsCampaignId",
+        "category": "Attribution",
+        "description": "The campaign ID for the Google Ads campaign attributed to the key event.",
+        "uiName": "Google Ads campaign ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "googleAdsCampaignName",
+        "category": "Attribution",
+        "description": "The campaign name for the Google Ads campaign attributed to the key event.",
+        "uiName": "Google Ads campaign"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "googleAdsCampaignType",
+        "category": "Attribution",
+        "description": "The campaign type for the Google Ads campaign attributed to the key event. Campaign types determine where customers see your ads and the settings and options available to you in Google Ads. Campaign type is an enumeration that includes: Search, Display, Shopping, Video, Demand Gen, App, Smart, Hotel, Local, and Performance Max. To learn more, see [Choose the right campaign type](https://support.google.com/google-ads/answer/2567043).",
+        "uiName": "Google Ads campaign type"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "googleAdsCreativeId",
+        "category": "Attribution",
+        "description": "The ID of the Google Ads creative attributed to the key event. Creative IDs identify individual ads.",
+        "uiName": "Google Ads creative ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "googleAdsCustomerId",
+        "category": "Attribution",
+        "description": "The Customer ID from Google Ads for the campaign that led to key event. Customer IDs in Google Ads uniquely identify Google Ads accounts.",
+        "uiName": "Google Ads customer ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "googleAdsKeyword",
+        "category": "Attribution",
+        "description": "The matched keyword that led to the key event. Keywords are words or phrases describing your product or service that you choose to get your ad in front of the right customers. To learn more about Keywords, see [Keywords: Definition](https://support.google.com/google-ads/answer/6323).",
+        "uiName": "Google Ads keyword text"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "googleAdsQuery",
+        "category": "Attribution",
+        "description": "The search query that led to the key event.",
+        "uiName": "Google Ads query"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "groupId",
+        "category": "Other",
+        "description": "The player group ID in a game for an event. Populated by the event parameter `group_id`.",
+        "uiName": "Group ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "hostName",
+        "category": "Page / Screen",
+        "description": "Includes the subdomain and domain names of a URL; for example, the Host Name of www.example.com/contact.html is www.example.com.",
+        "uiName": "Hostname"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "hour",
+        "category": "Time",
+        "description": "The two-digit hour of the day that the event was logged. This dimension ranges from 0-23 and is reported in your property's timezone.",
+        "uiName": "Hour"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "isKeyEvent",
+        "category": "Event",
+        "deprecatedApiNames": [
+          "isConversionEvent"
+        ],
+        "description": "The string `true` if the event is a key event. Marking an event as a key event affects reports from time of creation. It doesn't change historic data. You can mark any event as key in Google Analytics, and some events (such as `first_open` or `purchase`) are marked as key events by default.",
+        "uiName": "Is key event"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "isoWeek",
+        "category": "Time",
+        "description": "ISO week number, where each week starts on Monday. For details, see http://en.wikipedia.org/wiki/ISO_week_date. Example values include 01, 02, \u0026 53.",
+        "uiName": "ISO week of the year"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "isoYear",
+        "category": "Time",
+        "description": "The ISO year of the event. For details, see http://en.wikipedia.org/wiki/ISO_week_date. Example values include 2022 \u0026 2023.",
+        "uiName": "ISO year"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "isoYearIsoWeek",
+        "category": "Time",
+        "description": "The combined values of isoWeek and isoYear. Example values include 201652 \u0026 201701.",
+        "uiName": "ISO week of ISO year"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "itemAffiliation",
+        "category": "Ecommerce",
+        "description": "The name or code of the affiliate (partner/vendor; if any) associated with an individual item. Populated by the `affiliation` item parameter.",
+        "uiName": "Item affiliation"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "itemBrand",
+        "category": "Ecommerce",
+        "description": "Brand name of the item.",
+        "uiName": "Item brand"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "itemCategory",
+        "category": "Ecommerce",
+        "description": "The hierarchical category in which the item is classified. For example, in Apparel/Mens/Summer/Shirts/T-shirts, Apparel is the item category.",
+        "uiName": "Item category"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "itemCategory2",
+        "category": "Ecommerce",
+        "description": "The hierarchical category in which the item is classified. For example, in Apparel/Mens/Summer/Shirts/T-shirts, Mens is the item category 2.",
+        "uiName": "Item category 2"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "itemCategory3",
+        "category": "Ecommerce",
+        "description": "The hierarchical category in which the item is classified. For example, in Apparel/Mens/Summer/Shirts/T-shirts, Summer is the item category 3.",
+        "uiName": "Item category 3"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "itemCategory4",
+        "category": "Ecommerce",
+        "description": "The hierarchical category in which the item is classified. For example, in Apparel/Mens/Summer/Shirts/T-shirts, Shirts is the item category 4.",
+        "uiName": "Item category 4"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "itemCategory5",
+        "category": "Ecommerce",
+        "description": "The hierarchical category in which the item is classified. For example, in Apparel/Mens/Summer/Shirts/T-shirts, T-shirts is the item category 5.",
+        "uiName": "Item category 5"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "itemId",
+        "category": "Ecommerce",
+        "description": "The ID of the item.",
+        "uiName": "Item ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "itemListId",
+        "category": "Ecommerce",
+        "description": "The ID of the item list.",
+        "uiName": "Item list ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "itemListName",
+        "category": "Ecommerce",
+        "description": "The name of the item list.",
+        "uiName": "Item list name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "itemListPosition",
+        "category": "Ecommerce",
+        "description": "The position of an item in a list. For example, a product you sell in a list. This dimension is populated in tagging by the `index` parameter in the items array.",
+        "uiName": "Item list position"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "itemLocationID",
+        "category": "Ecommerce",
+        "description": "The physical location associated with the item. For example, the physical store location. It's recommended to use the [Google Place ID](https://developers.google.com/maps/documentation/places/web-service/place-id) that corresponds to the associated item. A custom location ID can also be used. This field is populated in tagging by the `location_id` parameter in the items array.",
+        "uiName": "Item location ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "itemName",
+        "category": "Ecommerce",
+        "description": "The name of the item.",
+        "uiName": "Item name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "itemPromotionCreativeName",
+        "category": "Ecommerce",
+        "description": "The name of the item-promotion creative.",
+        "uiName": "Item promotion creative name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "itemPromotionCreativeSlot",
+        "category": "Ecommerce",
+        "description": "The name of the promotional creative slot associated with the item. This dimension can be specified in tagging by the `creative_slot` parameter at the event or item level. If the parameter is specified at both the event \u0026 item level, the item-level parameter is used.",
+        "uiName": "Item promotion creative slot"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "itemPromotionId",
+        "category": "Ecommerce",
+        "description": "The ID of the item promotion.",
+        "uiName": "Item promotion ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "itemPromotionName",
+        "category": "Ecommerce",
+        "description": "The name of the promotion for the item.",
+        "uiName": "Item promotion name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "itemVariant",
+        "category": "Ecommerce",
+        "description": "The specific variation of a product. For example, XS, S, M, or L for size; or Red, Blue, Green, or Black for color. Populated by the `item_variant` parameter.",
+        "uiName": "Item variant"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "landingPage",
+        "category": "Page / Screen",
+        "description": "The page path associated with the first pageview in a session.",
+        "uiName": "Landing page"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "landingPagePlusQueryString",
+        "category": "Page / Screen",
+        "description": "The page path + query string associated with the first pageview in a session.",
+        "uiName": "Landing page + query string"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "language",
+        "category": "Platform / Device",
+        "description": "The language setting of the user's browser or device. For example, `English`.",
+        "uiName": "Language"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "languageCode",
+        "category": "Platform / Device",
+        "description": "The language setting (ISO 639) of the user's browser or device. For example, `en-us`.",
+        "uiName": "Language code"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "level",
+        "category": "Other",
+        "description": "The player's level in a game. Populated by the event parameter `level`.",
+        "uiName": "Level"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "linkClasses",
+        "category": "Other",
+        "description": "The HTML class attribute for an outbound link. For example if a user clicks a link `\u003ca class=\"center\" href=\"www.youtube.com\"\u003e`, this dimension will return `center`. Automatically populated if Enhanced Measurement is enabled. Populated by the event parameter `link_classes`.",
+        "uiName": "Link classes"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "linkDomain",
+        "category": "Other",
+        "description": "The destination domain of the outbound link. For example if a user clicks a link `\u003ca href=\"www.youtube.com\"\u003e`, this dimension will return `youtube.com`. Automatically populated if Enhanced Measurement is enabled. Populated by the event parameter `link_domain`.",
+        "uiName": "Link domain"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "linkId",
+        "category": "Other",
+        "description": "The HTML ID attribute for an outbound link or file download. For example if a user clicks a link `\u003ca id=\"socialLinks\" href=\"www.youtube.com\"\u003e`, this dimension will return `socialLinks`. Automatically populated if Enhanced Measurement is enabled. Populated by the event parameter `link_id`.",
+        "uiName": "Link ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "linkText",
+        "category": "Other",
+        "description": "The link text of the file download. Automatically populated if Enhanced Measurement is enabled. Populated by the event parameter `link_text`.",
+        "uiName": "Link text"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "linkUrl",
+        "category": "Other",
+        "description": "The full URL for an outbound link or file download. For example if a user clicks a link `\u003ca href=\"https://www.youtube.com/results?search_query=analytics\"\u003e`, this dimension will return `https://www.youtube.com/results?search_query=analytics`. Automatically populated if Enhanced Measurement is enabled. Populated by the event parameter `link_url`.",
+        "uiName": "Link URL"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "manualAdContent",
+        "category": "Attribution",
+        "description": "The ad content attributed to the key event. Populated by the utm_content parameter.",
+        "uiName": "Manual ad content"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "manualCampaignId",
+        "category": "Attribution",
+        "description": "The manual Campaign ID that led to the key event. Identifies the manual campaign. Populated by `utm_id` URL parameter.",
+        "uiName": "Manual campaign ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "manualCampaignName",
+        "category": "Attribution",
+        "description": "The manual Campaign Name that led to the key event. The name of the manual campaign. Populated by `utm_campaign` URL parameter. To learn more, see [Collect campaign data with custom URLs](https://support.google.com/analytics/answer/10917952).",
+        "uiName": "Manual campaign name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "manualCreativeFormat",
+        "category": "Attribution",
+        "description": "The manual Creative Format that led to the key event. Identifies the creative format used in the ad. Populated by `utm_creative_format` URL parameter.",
+        "uiName": "Manual creative format"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "manualMarketingTactic",
+        "category": "Attribution",
+        "description": "The manual Marketing Tactic that led to the key event. The targeting criteria applied to a campaign. For example, remarketing or prospecting. Populated by `utm_marketing_tactic` URL parameter.",
+        "uiName": "Manual marketing tactic"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "manualMedium",
+        "category": "Attribution",
+        "description": "The manual Medium that led to the key event. The marketing medium used in the referral. For example, `cpc`. Populated by `utm_medium` URL parameter.",
+        "uiName": "Manual medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "manualSource",
+        "category": "Attribution",
+        "description": "The manual Source that led to the key event. The referrer. Populated by `utm_source` URL parameter.",
+        "uiName": "Manual source"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "manualSourceMedium",
+        "category": "Attribution",
+        "description": "The manual Source Medium that led to the key event. A combination of the source and medium.",
+        "uiName": "Manual source / medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "manualSourcePlatform",
+        "category": "Attribution",
+        "description": "The manual Source Platform that led to the key event. The platform responsible for directing traffic to a given Analytics property. Populated by `utm_source_platform` URL parameter.",
+        "uiName": "Manual source platform"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "manualTerm",
+        "category": "Attribution",
+        "description": "The term attributed to the key event. Populated by the utm_term parameter.",
+        "uiName": "Manual term"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "medium",
+        "category": "Attribution",
+        "description": "The medium attributed to the key event.",
+        "uiName": "Medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "method",
+        "category": "Other",
+        "description": "The method by which an event was triggered. Populated by the event parameter `method`.",
+        "uiName": "Method"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "minute",
+        "category": "Time",
+        "description": "The two-digit minute of the hour that the event was logged. This dimension ranges from 0-59 and is reported in your property's timezone.",
+        "uiName": "Minute"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "mobileDeviceBranding",
+        "category": "Platform / Device",
+        "description": "Manufacturer or branded name (examples: Samsung, HTC, Verizon, T-Mobile).",
+        "uiName": "Device brand"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "mobileDeviceMarketingName",
+        "category": "Platform / Device",
+        "description": "The branded device name (examples: Galaxy S10 or P30 Pro).",
+        "uiName": "Device"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "mobileDeviceModel",
+        "category": "Platform / Device",
+        "description": "The mobile device model name (examples: iPhone X or SM-G950F).",
+        "uiName": "Mobile model"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "month",
+        "category": "Time",
+        "description": "The month of the event, a two digit integer from 01 to 12.",
+        "uiName": "Month"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "newVsReturning",
+        "category": "User",
+        "description": "New users have 0 previous sessions, and returning users have 1 or more previous sessions. This dimension returns two values: `new` or `returning`.",
+        "uiName": "New / returning"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "nthDay",
+        "category": "Time",
+        "description": "The number of days since the start of the date range.",
+        "uiName": "Nth day"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "nthHour",
+        "category": "Time",
+        "description": "The number of hours since the start of the date range. The starting hour is 0000.",
+        "uiName": "Nth hour"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "nthMinute",
+        "category": "Time",
+        "description": "The number of minutes since the start of the date range. The starting minute is 0000.",
+        "uiName": "Nth minute"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "nthMonth",
+        "category": "Time",
+        "description": "The number of months since the start of a date range. The starting month is 0000.",
+        "uiName": "Nth month"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "nthWeek",
+        "category": "Time",
+        "description": "A number representing the number of weeks since the start of a date range.",
+        "uiName": "Nth week"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "nthYear",
+        "category": "Time",
+        "description": "The number of years since the start of the date range. The starting year is 0000.",
+        "uiName": "Nth year"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "operatingSystem",
+        "category": "Platform / Device",
+        "description": "The operating systems used by visitors to your app or website. Includes desktop and mobile operating systems such as Windows and Android.",
+        "uiName": "Operating system"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "operatingSystemVersion",
+        "category": "Platform / Device",
+        "description": "The operating system versions used by visitors to your website or app. For example, Android 10's version is 10, and iOS 13.5.1's version is 13.5.1.",
+        "uiName": "OS version"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "operatingSystemWithVersion",
+        "category": "Platform / Device",
+        "description": "The operating system and version. For example, Android 10 or Windows 7.",
+        "uiName": "Operating system with version"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "orderCoupon",
+        "category": "Ecommerce",
+        "description": "Code for the order-level coupon.",
+        "uiName": "Order coupon"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "outbound",
+        "category": "Other",
+        "description": "Returns `true` if the link led to a site that is not a part of the property's domain. Automatically populated if Enhanced Measurement is enabled. Populated by the event parameter `outbound`.",
+        "uiName": "Outbound"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "pageLocation",
+        "category": "Page / Screen",
+        "description": "The protocol, hostname, page path, and query string for web pages visited; for example, the `pageLocation` portion of `https://www.example.com/store/contact-us?query_string=true` is `https://www.example.com/store/contact-us?query_string=true`. Populated by the event parameter `page_location`.",
+        "uiName": "Page location"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "pagePath",
+        "category": "Page / Screen",
+        "description": "The portion of the URL between the hostname and query string for web pages visited; for example, the pagePath portion of `https://www.example.com/store/contact-us?query_string=true` is `/store/contact-us`.",
+        "uiName": "Page path"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "pagePathPlusQueryString",
+        "category": "Page / Screen",
+        "description": "The portion of the URL following the hostname for web pages visited; for example, the `pagePathPlusQueryString` portion of `https://www.example.com/store/contact-us?query_string=true` is `/store/contact-us?query_string=true`.",
+        "uiName": "Page path + query string"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "pageReferrer",
+        "category": "Page / Screen",
+        "description": "The full referring URL including the hostname and path. This referring URL is the user's previous URL and can be this website's domain or other domains. Populated by the event parameter `page_referrer`.",
+        "uiName": "Page referrer"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "pageTitle",
+        "category": "Page / Screen",
+        "description": "The web page titles used on your site.",
+        "uiName": "Page title"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "percentScrolled",
+        "category": "Other",
+        "description": "The percentage down the page that the user has scrolled (for example, `90`). Automatically populated if Enhanced Measurement is enabled. Populated by the event parameter `percent_scrolled`.",
+        "uiName": "Percent scrolled"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "platform",
+        "category": "Platform / Device",
+        "description": "The platform on which your app or website ran; for example, web, iOS, or Android. To determine a stream's type in a report, use both platform and streamId.",
+        "uiName": "Platform"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "platformDeviceCategory",
+        "category": "Platform / Device",
+        "description": "The platform and type of device on which your website or mobile app ran. (example: Android / mobile)",
+        "uiName": "Platform / device category"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "primaryChannelGroup",
+        "category": "Attribution",
+        "description": "The primary channel group attributed to the key event. Primary channel groups are the channel groups used in standard reports in Google Analytics and serve as an active record of your property's data in alignment with channel grouping over time. To learn more, see [Custom channel groups](https://support.google.com/analytics/answer/13051316).",
+        "uiName": "Primary channel group"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "region",
+        "category": "Geography",
+        "description": "The geographic region from which the user activity originated, derived from their IP address.",
+        "uiName": "Region"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sa360AdGroupId",
+        "category": "Attribution",
+        "description": "The SA360 Ad Group ID that led to the key event. Identifies the SA360 ad group.",
+        "uiName": "SA360 ad group ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sa360AdGroupName",
+        "category": "Attribution",
+        "description": "The SA360 Ad Group Name that led to the key event. SA360 Ad groups contain ads and keywords that relate to each other.",
+        "uiName": "SA360 ad group name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sa360CampaignId",
+        "category": "Attribution",
+        "description": "The SA360 Campaign ID that led to the key event. Identifies the SA360 campaign.",
+        "uiName": "SA360 campaign ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sa360CampaignName",
+        "category": "Attribution",
+        "description": "The SA360 Campaign Name that led to the key event. A SA360 campaign lets you organize your ads and define a goal for your advertising.",
+        "uiName": "SA360 campaign"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sa360CreativeFormat",
+        "category": "Attribution",
+        "description": "The SA360 Creative Format that led to the key event. The creative format is the specific layout or design of the advertisement used in a campaign.",
+        "uiName": "SA360 creative format"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sa360EngineAccountId",
+        "category": "Attribution",
+        "description": "The SA360 Engine Account ID that led to the key event. Identifies the SA360 engine account.",
+        "uiName": "SA360 engine account ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sa360EngineAccountName",
+        "category": "Attribution",
+        "description": "The SA360 Engine Account Name that led to the key event. A SA360 engine account contains campaigns, ad groups, and other items from an advertising account.",
+        "uiName": "SA360 engine account name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sa360EngineAccountType",
+        "category": "Attribution",
+        "description": "The SA360 Engine Account Type that led to the key event. The type of engine used by the search engine account.",
+        "uiName": "SA360 engine account type"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sa360KeywordText",
+        "category": "Attribution",
+        "description": "The SA360 Keyword Text that led to the key event. The keywords that matched the search query.",
+        "uiName": "SA360 keyword text"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sa360ManagerAccountId",
+        "category": "Attribution",
+        "description": "The SA360 Manager Account ID that led to the key event. Identifies the SA360 manager account.",
+        "uiName": "SA360 manager account ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sa360ManagerAccountName",
+        "category": "Attribution",
+        "description": "The SA360 Manager Account Name that led to the key event. The top level of the Search Ads 360 account hierarchy and is used for administration and reporting across the lower-level sub-manager and client accounts.",
+        "uiName": "SA360 manager account name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sa360Medium",
+        "category": "Attribution",
+        "description": "The SA360 Medium that led to the key event. The payment mode used in ad buying. For example, `cpc`.",
+        "uiName": "SA360 medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sa360Query",
+        "category": "Attribution",
+        "description": "The SA360 Query that led to the key event. The search query typed by the user.",
+        "uiName": "SA360 query"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sa360Source",
+        "category": "Attribution",
+        "description": "The SA360 Source that led to the key event. The search query happened on this site.",
+        "uiName": "SA360 source"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sa360SourceMedium",
+        "category": "Attribution",
+        "description": "The SA360 Source Medium that led to the key event. A combination of the source and medium.",
+        "uiName": "SA360 source / medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "screenResolution",
+        "category": "Platform / Device",
+        "description": "The screen resolution of the user's monitor. For example, 1920x1080.",
+        "uiName": "Screen resolution"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "searchTerm",
+        "category": "Other",
+        "description": "The term searched by the user. For example if the user visits `/some-page.html?q=some-term`, this dimension returns `some-term`. Automatically populated if Enhanced Measurement is enabled. Populated by the event parameter `search_term`.",
+        "uiName": "Search term"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCampaignId",
+        "category": "Traffic Source",
+        "description": "The marketing campaign ID for a session. Includes Google Ads Campaigns, Manual Campaigns, \u0026 other Campaigns.",
+        "uiName": "Session campaign ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCampaignName",
+        "category": "Traffic Source",
+        "description": "The marketing campaign name for a session. Includes Google Ads Campaigns, Manual Campaigns, \u0026 other Campaigns.",
+        "uiName": "Session campaign"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360AccountId",
+        "category": "Traffic Source",
+        "description": "The CM360 Account ID that led to the session. Identifies the CM360 account.",
+        "uiName": "Session CM360 account ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360AccountName",
+        "category": "Traffic Source",
+        "description": "The CM360 Account Name that led to the session. A CM360 account consists of advertisers, sites, campaigns, and user profiles.",
+        "uiName": "Session CM360 account name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360AdvertiserId",
+        "category": "Traffic Source",
+        "description": "The CM360 Advertiser ID that led to the session. Identifies the CM360 advertiser.",
+        "uiName": "Session CM360 advertiser ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360AdvertiserName",
+        "category": "Traffic Source",
+        "description": "The CM360 Advertiser Name that led to the session. A CM360 Advertiser contains a group of campaigns, creative assets, and other settings.",
+        "uiName": "Session CM360 advertiser name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360CampaignId",
+        "category": "Traffic Source",
+        "description": "The CM360 Campaign ID that led to the session. Identifies the CM360 campaign.",
+        "uiName": "Session CM360 campaign ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360CampaignName",
+        "category": "Traffic Source",
+        "description": "The CM360 Campaign Name that led to the session. A CM360 campaign can be configured to specify when your ads run, what landing pages are used, and other properties.",
+        "uiName": "Session CM360 campaign name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360CreativeFormat",
+        "category": "Traffic Source",
+        "description": "The CM360 Creative Format that led to the session. CM360 creative formats are also referred to as creative types.",
+        "uiName": "Session CM360 creative format"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360CreativeId",
+        "category": "Traffic Source",
+        "description": "The CM360 Creative ID that led to the session. Identifies a CM360 creative.",
+        "uiName": "Session CM360 creative ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360CreativeName",
+        "category": "Traffic Source",
+        "description": "The CM360 Creative Name that led to the session. The name given to a CM360 creative.",
+        "uiName": "Session CM360 creative name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360CreativeType",
+        "category": "Traffic Source",
+        "description": "The CM360 Creative Type that led to the session. A category of CM360 creatives like 'Display' or 'Tracking'. To learn more, see [manage creatives](https://support.google.com/campaignmanager/answer/3068258)",
+        "uiName": "Session CM360 creative type"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360CreativeTypeId",
+        "category": "Traffic Source",
+        "description": "The CM360 Creative Type ID that led to the session. Identifies a CM360 creative type.",
+        "uiName": "Session CM360 creative type ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360CreativeVersion",
+        "category": "Traffic Source",
+        "description": "The CM360 Creative Version that led to the session. The version number helps you keep track of multiple versions of your creative in your reports. If you upload a new asset to an existing creative, the version number is increased by one.",
+        "uiName": "Session CM360 creative version"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360Medium",
+        "category": "Traffic Source",
+        "description": "The CM360 Medium that led to the session. The CM360 medium is also referred to as the placement cost structure.",
+        "uiName": "Session CM360 medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360PlacementCostStructure",
+        "category": "Traffic Source",
+        "description": "The CM360 Placement Cost Structure that led to the session. Placement cost structures regulate how media cost will be calculated. For example 'CPM'.",
+        "uiName": "Session CM360 placement cost structure"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360PlacementId",
+        "category": "Traffic Source",
+        "description": "The CM360 Placement ID that led to the session. Identifies a CM360 placement. A placement is the part of a website where your ad appears.",
+        "uiName": "Session CM360 placement ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360PlacementName",
+        "category": "Traffic Source",
+        "description": "The CM360 Placement Name that led to the session. The given name for a CM360 placement. A placement is the part of a website where your ad appears.",
+        "uiName": "Session CM360 placement name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360RenderingId",
+        "category": "Traffic Source",
+        "description": "The CM360 Rendering ID that led to the session. Identifies a CM360 creative.",
+        "uiName": "Session CM360 rendering ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360SiteId",
+        "category": "Traffic Source",
+        "description": "The CM360 Site ID that led to the session. Identifies a CM360 site.",
+        "uiName": "Session CM360 site ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360SiteName",
+        "category": "Traffic Source",
+        "description": "The CM360 Site Name that led to the session. The CM360 Site name from which the ad space was purchased.",
+        "uiName": "Session CM360 site name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360Source",
+        "category": "Traffic Source",
+        "description": "The CM360 Source that led to the session. The CM360 source is also referred to as the site name.",
+        "uiName": "Session CM360 source"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionCm360SourceMedium",
+        "category": "Traffic Source",
+        "description": "The CM360 Source Medium that led to the session. A combination of the source and medium.",
+        "uiName": "Session CM360 source / medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionDefaultChannelGroup",
+        "category": "Traffic Source",
+        "deprecatedApiNames": [
+          "sessionDefaultChannelGrouping"
+        ],
+        "description": "The session's default channel group is based primarily on source and medium. An enumeration which includes `Direct`, `Organic Search`, `Paid Social`, `Organic Social`, `Email`, `Affiliates`, `Referral`, `Paid Search`, `Video`, and `Display`.",
+        "uiName": "Session default channel group"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionDv360AdvertiserId",
+        "category": "Traffic Source",
+        "description": "The DV360 Advertiser ID that led to the session. Identifies the DV360 advertiser.",
+        "uiName": "Session DV360 advertiser ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionDv360AdvertiserName",
+        "category": "Traffic Source",
+        "description": "The DV360 Advertiser Name that led to the session. DV360 advertisers represent real-life businesses that run advertising campaigns.",
+        "uiName": "Session DV360 advertiser name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionDv360CampaignId",
+        "category": "Traffic Source",
+        "description": "The DV360 Campaign ID that led to the session. Identifies the DV360 campaign.",
+        "uiName": "Session DV360 campaign ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionDv360CampaignName",
+        "category": "Traffic Source",
+        "description": "The DV360 Campaign Name that led to the session. DV360 campaigns group together related insertion orders with a common business goal.",
+        "uiName": "Session DV360 campaign name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionDv360CreativeFormat",
+        "category": "Traffic Source",
+        "description": "The DV360 Creative Format that led to the session. Also referred to as the creative type. For example, expandable, video, or native.",
+        "uiName": "Session DV360 creative format"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionDv360CreativeId",
+        "category": "Traffic Source",
+        "description": "The DV360 Creative ID that led to the session. Identifies the DV360 creative.",
+        "uiName": "Session DV360 creative ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionDv360CreativeName",
+        "category": "Traffic Source",
+        "description": "The DV360 Creative Name that led to the session. The name given to a DV360 creative.",
+        "uiName": "Session DV360 creative name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionDv360ExchangeId",
+        "category": "Traffic Source",
+        "description": "The DV360 Exchange ID that led to the session. Identifies the DV360 exchange.",
+        "uiName": "Session DV360 exchange ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionDv360ExchangeName",
+        "category": "Traffic Source",
+        "description": "The DV360 Exchange Name that led to the session. The DV360 ad exchange involved in the ad click. To learn more, see [managing exchanges](https://support.google.com/displayvideo/answer/9230278).",
+        "uiName": "Session DV360 exchange name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionDv360InsertionOrderId",
+        "category": "Traffic Source",
+        "description": "The DV360 Insertion Order ID that led to the session. Identifies the DV360 insertion order.",
+        "uiName": "Session DV360 insertion order ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionDv360InsertionOrderName",
+        "category": "Traffic Source",
+        "description": "The DV360 Insertion Order Name that led to the session. A DV360 insertion order contains a set of line items that are related to the same advertising campaign.",
+        "uiName": "Session DV360 insertion order name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionDv360LineItemId",
+        "category": "Traffic Source",
+        "description": "The DV360 Line Item ID that led to the session. Identifies the DV360 line item.",
+        "uiName": "Session DV360 line item ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionDv360LineItemName",
+        "category": "Traffic Source",
+        "description": "The DV360 Line Item Name that led to the session. A DV360 line item bids on impressions and serves creatives to inventory sources.",
+        "uiName": "Session DV360 line item name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionDv360Medium",
+        "category": "Traffic Source",
+        "description": "The DV360 Medium that led to the session. The billable outcome of the insertion order. For example, `cpm`.",
+        "uiName": "Session DV360 medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionDv360PartnerId",
+        "category": "Traffic Source",
+        "description": "The DV360 Partner ID that led to the session. Identifies the DV360 partner.",
+        "uiName": "Session DV360 partner ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionDv360PartnerName",
+        "category": "Traffic Source",
+        "description": "The DV360 Partner Name that led to the session. DV360 partners represent agencies, trading desks, or large individual advertisers.",
+        "uiName": "Session DV360 partner name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionDv360Source",
+        "category": "Traffic Source",
+        "description": "The DV360 Source that led to the session. The DV360 site name where your ad was displayed.",
+        "uiName": "Session DV360 source"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionDv360SourceMedium",
+        "category": "Traffic Source",
+        "description": "The DV360 Source Medium that led to the session. A combination of the source and medium.",
+        "uiName": "Session DV360 source / medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionGoogleAdsAccountName",
+        "category": "Traffic Source",
+        "description": "The Account name from Google Ads that led to the session. Corresponds to customer.descriptive_name in the Google Ads API.",
+        "uiName": "Session Google Ads account name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionGoogleAdsAdGroupId",
+        "category": "Traffic Source",
+        "description": "The Ad Group Id in Google Ads for a session.",
+        "uiName": "Session Google Ads ad group ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionGoogleAdsAdGroupName",
+        "category": "Traffic Source",
+        "description": "The Ad Group Name in Google Ads for a session.",
+        "uiName": "Session Google Ads ad group name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionGoogleAdsAdNetworkType",
+        "category": "Traffic Source",
+        "description": "The advertising network that led to the session. An enumeration which includes `Google search`, `Search partners`, `Google Display Network`, `Youtube Search`, `Youtube Videos`, `Cross-network`, `Social`, and `(universal campaign)`.",
+        "uiName": "Session Google Ads ad network type"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionGoogleAdsCampaignId",
+        "category": "Traffic Source",
+        "description": "The Campaign ID for the Google Ads Campaign that led to this session.",
+        "uiName": "Session Google Ads campaign ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionGoogleAdsCampaignName",
+        "category": "Traffic Source",
+        "description": "The Campaign name for the Google Ads Campaign that led to this session.",
+        "uiName": "Session Google Ads campaign"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionGoogleAdsCampaignType",
+        "category": "Traffic Source",
+        "description": "The campaign type for the Google Ads campaign that led to this session. Campaign types determine where customers see your ads and the settings and options available to you in Google Ads. Campaign type is an enumeration that includes: Search, Display, Shopping, Video, Demand Gen, App, Smart, Hotel, Local, and Performance Max. To learn more, see [Choose the right campaign type](https://support.google.com/google-ads/answer/2567043).",
+        "uiName": "Session Google Ads campaign type"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionGoogleAdsCreativeId",
+        "category": "Traffic Source",
+        "description": "The ID of the Google Ads creative that led to a session on your website or app. Creative IDs identify individual ads.",
+        "uiName": "Session Google Ads creative ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionGoogleAdsCustomerId",
+        "category": "Traffic Source",
+        "description": "The Customer ID from Google Ads that led to the session. Customer IDs in Google Ads uniquely identify Google Ads accounts.",
+        "uiName": "Session Google Ads customer ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionGoogleAdsKeyword",
+        "category": "Traffic Source",
+        "description": "The matched keyword that led to the session. Keywords are words or phrases describing your product or service that you choose to get your ad in front of the right customers. To learn more about Keywords, see [Keywords: Definition](https://support.google.com/google-ads/answer/6323).",
+        "uiName": "Session Google Ads keyword text"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionGoogleAdsQuery",
+        "category": "Traffic Source",
+        "description": "The search query that led to the session.",
+        "uiName": "Session Google Ads query"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionManualAdContent",
+        "category": "Traffic Source",
+        "description": "The ad content that led to a session. Populated by the utm_content parameter.",
+        "uiName": "Session manual ad content"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionManualCampaignId",
+        "category": "Traffic Source",
+        "description": "The manual Campaign ID that led to the session. Identifies the manual campaign. Populated by `utm_id` URL parameter.",
+        "uiName": "Session manual campaign ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionManualCampaignName",
+        "category": "Traffic Source",
+        "description": "The manual Campaign Name that led to the session. The name of the manual campaign. Populated by `utm_campaign` URL parameter. To learn more, see [Collect campaign data with custom URLs](https://support.google.com/analytics/answer/10917952).",
+        "uiName": "Session manual campaign name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionManualCreativeFormat",
+        "category": "Traffic Source",
+        "description": "The manual Creative Format that led to the session. Identifies the creative format used in the ad. Populated by `utm_creative_format` URL parameter.",
+        "uiName": "Session manual creative format"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionManualMarketingTactic",
+        "category": "Traffic Source",
+        "description": "The manual Marketing Tactic that led to the session. The targeting criteria applied to a campaign. For example, remarketing or prospecting. Populated by `utm_marketing_tactic` URL parameter.",
+        "uiName": "Session manual marketing tactic"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionManualMedium",
+        "category": "Traffic Source",
+        "description": "The manual Medium that led to the session. The marketing medium used in the referral. For example, `cpc`. Populated by `utm_medium` URL parameter.",
+        "uiName": "Session manual medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionManualSource",
+        "category": "Traffic Source",
+        "description": "The manual Source that led to the session. The referrer. Populated by `utm_source` URL parameter.",
+        "uiName": "Session manual source"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionManualSourceMedium",
+        "category": "Traffic Source",
+        "description": "The manual Source Medium that led to the session. A combination of the source and medium.",
+        "uiName": "Session manual source / medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionManualSourcePlatform",
+        "category": "Traffic Source",
+        "description": "The manual Source Platform that led to the session. The platform responsible for directing traffic to a given Analytics property. Populated by `utm_source_platform` URL parameter.",
+        "uiName": "Session manual source platform"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionManualTerm",
+        "category": "Traffic Source",
+        "description": "The term that led to a session. Populated by the utm_term parameter.",
+        "uiName": "Session manual term"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionMedium",
+        "category": "Traffic Source",
+        "description": "The medium that initiated a session on your website or app.",
+        "uiName": "Session medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionPrimaryChannelGroup",
+        "category": "Traffic Source",
+        "description": "The primary channel group that led to the session. Primary channel groups are the channel groups used in standard reports in Google Analytics and serve as an active record of your property's data in alignment with channel grouping over time. To learn more, see [Custom channel groups](https://support.google.com/analytics/answer/13051316).",
+        "uiName": "Session primary channel group"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionSa360AdGroupId",
+        "category": "Traffic Source",
+        "description": "The SA360 Ad Group ID that led to the session. Identifies the SA360 ad group.",
+        "uiName": "Session SA360 ad group ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionSa360AdGroupName",
+        "category": "Traffic Source",
+        "description": "The SA360 Ad Group Name that led to the session. SA360 Ad groups contain ads and keywords that relate to each other.",
+        "uiName": "Session SA360 ad group name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionSa360CampaignId",
+        "category": "Traffic Source",
+        "description": "The SA360 Campaign ID that led to the session. Identifies the SA360 campaign.",
+        "uiName": "Session SA360 campaign ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionSa360CampaignName",
+        "category": "Traffic Source",
+        "description": "The SA360 Campaign Name that led to the session. A SA360 campaign lets you organize your ads and define a goal for your advertising.",
+        "uiName": "Session SA360 campaign"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionSa360CreativeFormat",
+        "category": "Traffic Source",
+        "description": "The SA360 Creative Format that led to the session. The creative format is the specific layout or design of the advertisement used in a campaign.",
+        "uiName": "Session SA360 creative format"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionSa360EngineAccountId",
+        "category": "Traffic Source",
+        "description": "The SA360 Engine Account ID that led to the session. Identifies the SA360 engine account.",
+        "uiName": "Session SA360 engine account ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionSa360EngineAccountName",
+        "category": "Traffic Source",
+        "description": "The SA360 Engine Account Name that led to the session. A SA360 engine account contains campaigns, ad groups, and other items from an advertising account.",
+        "uiName": "Session SA360 engine account name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionSa360EngineAccountType",
+        "category": "Traffic Source",
+        "description": "The SA360 Engine Account Type that led to the session. The type of engine used by the search engine account. For example, `google ads`, `bing`, or `baidu`.",
+        "uiName": "Session SA360 engine account type"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionSa360Keyword",
+        "category": "Traffic Source",
+        "description": "The SA360 Keyword Text that led to the session. The keywords that matched the search query.",
+        "uiName": "Session SA360 keyword text"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionSa360ManagerAccountId",
+        "category": "Traffic Source",
+        "description": "The SA360 Manager Account ID that led to the session. Identifies the SA360 manager account.",
+        "uiName": "Session SA360 manager account ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionSa360ManagerAccountName",
+        "category": "Traffic Source",
+        "description": "The SA360 Manager Account Name that led to the session. The top level of the Search Ads 360 account hierarchy and is used for administration and reporting across the lower-level sub-manager and client accounts.",
+        "uiName": "Session SA360 manager account name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionSa360Medium",
+        "category": "Traffic Source",
+        "description": "The SA360 Medium that led to the session. The payment mode used in ad buying. For example, `cpc`.",
+        "uiName": "Session SA360 medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionSa360Query",
+        "category": "Traffic Source",
+        "description": "The SA360 Query that led to the session. The search query typed by the user.",
+        "uiName": "Session SA360 query"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionSa360Source",
+        "category": "Traffic Source",
+        "description": "The SA360 Source that led to the session. The search query happened on this site.",
+        "uiName": "Session SA360 source"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionSa360SourceMedium",
+        "category": "Traffic Source",
+        "description": "The SA360 Source Medium that led to the session. A combination of the source and medium.",
+        "uiName": "Session SA360 source / medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionSource",
+        "category": "Traffic Source",
+        "description": "The source that initiated a session on your website or app.",
+        "uiName": "Session source"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionSourceMedium",
+        "category": "Traffic Source",
+        "description": "The combined values of the dimensions `sessionSource` and `sessionMedium`.",
+        "uiName": "Session source / medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sessionSourcePlatform",
+        "category": "Traffic Source",
+        "deprecatedApiNames": [
+          "sessionTrafficOrigin"
+        ],
+        "description": "The source platform of the session's campaign. Don't depend on this field returning `Manual` for traffic that uses UTMs; this field will update from returning `Manual` to returning `(not set)` for an upcoming feature launch.",
+        "uiName": "Session source platform"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "shippingTier",
+        "category": "Ecommerce",
+        "description": "The shipping tier selected for delivery of the purchased item. For example, `Ground`, `Air`, or `Next-day`. Populated by the `shipping_tier` event parameter.",
+        "uiName": "Shipping tier"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "signedInWithUserId",
+        "category": "User",
+        "description": "The string `yes` if the user signed in with the User-ID feature. To learn more about User-ID, see [Measure activity across platforms with User-ID](https://support.google.com/analytics/answer/9213390).",
+        "uiName": "Signed in with user ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "source",
+        "category": "Attribution",
+        "description": "The source attributed to the key event.",
+        "uiName": "Source"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sourceMedium",
+        "category": "Attribution",
+        "description": "The combined values of the dimensions `source` and `medium`.",
+        "uiName": "Source / medium"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "sourcePlatform",
+        "category": "Attribution",
+        "deprecatedApiNames": [
+          "trafficOrigin"
+        ],
+        "description": "The source platform of the key event's campaign. Don't depend on this field returning `Manual` for traffic that uses UTMs; this field will update from returning `Manual` to returning `(not set)` for an upcoming feature launch.",
+        "uiName": "Source platform"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "streamId",
+        "category": "Platform / Device",
+        "description": "The numeric data stream identifier for your app or website.",
+        "uiName": "Stream ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "streamName",
+        "category": "Platform / Device",
+        "description": "The data stream name for your app or website.",
+        "uiName": "Stream name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "testDataFilterId",
+        "category": "Other",
+        "description": "The numeric identifier of a data filter in testing state. You use data filters to include or exclude event data from your reports based on event-parameter values. To learn more, see [Data filters](https://support.google.com/analytics/answer/10108813).",
+        "uiName": "Test data filter ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "testDataFilterName",
+        "category": "Other",
+        "description": "The name of data filters in testing state. You use data filters to include or exclude event data from your reports based on event-parameter values. To learn more, see [Data filters](https://support.google.com/analytics/answer/10108813).",
+        "uiName": "Test data filter name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "transactionId",
+        "category": "Ecommerce",
+        "description": "The ID of the ecommerce transaction.",
+        "uiName": "Transaction ID"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "unifiedPagePathScreen",
+        "category": "Page / Screen",
+        "description": "The page path (web) or screen class (app) on which the event was logged.",
+        "uiName": "Page path and screen class"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "unifiedPageScreen",
+        "category": "Page / Screen",
+        "description": "The page path and query string (web) or screen class (app) on which the event was logged.",
+        "uiName": "Page path + query string and screen class"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "unifiedScreenClass",
+        "category": "Page / Screen",
+        "description": "The page title (web) or screen class (app) on which the event was logged.",
+        "uiName": "Page title and screen class"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "unifiedScreenName",
+        "category": "Page / Screen",
+        "description": "The page title (web) or screen name (app) on which the event was logged.",
+        "uiName": "Page title and screen name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "userAgeBracket",
+        "category": "Demographics",
+        "description": "User age brackets.",
+        "uiName": "Age"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "userGender",
+        "category": "Demographics",
+        "description": "User gender.",
+        "uiName": "Gender"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "videoProvider",
+        "category": "Other",
+        "description": "The source of the video (for example, `youtube`). Automatically populated for embedded videos if Enhanced Measurement is enabled. Populated by the event parameter `video_provider`.",
+        "uiName": "Video provider"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "videoTitle",
+        "category": "Other",
+        "description": "The title of the video. Automatically populated for embedded videos if Enhanced Measurement is enabled. Populated by the event parameter `video_title`.",
+        "uiName": "Video title"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "videoUrl",
+        "category": "Other",
+        "description": "The URL of the video. Automatically populated for embedded videos if Enhanced Measurement is enabled. Populated by the event parameter `video_url`.",
+        "uiName": "Video URL"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "virtualCurrencyName",
+        "category": "Other",
+        "description": "The name of a virtual currency with which the user is interacting. Such as spending or purchasing gems in a game. Populated by the `virtual_currency_name` event parameter.",
+        "uiName": "Virtual currency name"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "visible",
+        "category": "Other",
+        "description": "Returns `true` if the content is visible. Automatically populated for embedded videos if Enhanced Measurement is enabled. Populated by the event parameter `visible`.",
+        "uiName": "Visible"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "week",
+        "category": "Time",
+        "description": "The week of the event, a two-digit number from 01 to 53. Each week starts on Sunday. January 1st is always in week 01. The first and last week of the year have fewer than 7 days in most years. Weeks other than the first and the last week of the year always have 7 days. For years where January 1st is a Sunday, the first week of that year and the last week of the prior year have 7 days.",
+        "uiName": "Week"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "year",
+        "category": "Time",
+        "description": "The four-digit year of the event. For example, 2020 or 2024.",
+        "uiName": "Year"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "yearMonth",
+        "category": "Time",
+        "description": "The combined values of year and month. Example values include 202212 or 202301.",
+        "uiName": "Year month"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "dimensionMetadata": {
+        "apiName": "yearWeek",
+        "category": "Time",
+        "description": "The combined values of year and week. Example values include 202253 or 202301.",
+        "uiName": "Year week"
+      }
+    }
+  ],
+  "metricCompatibilities": [
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "active1DayUsers",
+        "category": "User",
+        "description": "The number of distinct active users on your site or app within a 1 day period. The 1 day period includes the last day in the report's date range. Note: this is the same as Active Users.",
+        "type": "TYPE_INTEGER",
+        "uiName": "1-day active users"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "active28DayUsers",
+        "category": "User",
+        "description": "The number of distinct active users on your site or app within a 28 day period. The 28 day period includes the last day in the report's date range.",
+        "type": "TYPE_INTEGER",
+        "uiName": "28-day active users"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "active7DayUsers",
+        "category": "User",
+        "description": "The number of distinct active users on your site or app within a 7 day period. The 7 day period includes the last day in the report's date range.",
+        "type": "TYPE_INTEGER",
+        "uiName": "7-day active users"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "activeUsers",
+        "category": "User",
+        "description": "The number of distinct users who visited your site or app.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Active users"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "addToCarts",
+        "category": "Ecommerce",
+        "description": "The number of times users added items to their shopping carts.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Add to carts"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "adUnitExposure",
+        "category": "Publisher",
+        "deprecatedApiNames": [
+          "adUnitExposureMs"
+        ],
+        "description": "The time that an ad unit was exposed to a user, in milliseconds.",
+        "type": "TYPE_MILLISECONDS",
+        "uiName": "Ad unit exposure"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "advertiserAdClicks",
+        "category": "Other",
+        "description": "Total number of times users have clicked on an ad to reach the property. Includes clicks from linked integrations like linked Search Ads 360 advertisers. Also includes uploaded clicks from data import.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Ads clicks"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "advertiserAdCost",
+        "category": "Other",
+        "description": "The total amount you paid for your ads. Includes costs from linked integrations like linked Google Ads accounts. Also includes uploaded cost from data import; to learn more, see [Import cost data](https://support.google.com/analytics/answer/10071305).",
+        "type": "TYPE_CURRENCY",
+        "uiName": "Ads cost"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "advertiserAdCostPerClick",
+        "category": "Other",
+        "description": "Ads cost per click is ad cost divided by ad clicks and is often abbreviated CPC.",
+        "type": "TYPE_CURRENCY",
+        "uiName": "Ads cost per click"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "advertiserAdCostPerKeyEvent",
+        "category": "Other",
+        "deprecatedApiNames": [
+          "advertiserAdCostPerConversion"
+        ],
+        "description": "Cost per key event is ad cost divided by key events.",
+        "type": "TYPE_CURRENCY",
+        "uiName": "Cost per key event"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "advertiserAdImpressions",
+        "category": "Other",
+        "description": "The total number of impressions. Includes impressions from linked integrations like linked Display \u0026 Video 360 advertisers. Also includes uploaded impressions from data import.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Ads impressions"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "averagePurchaseRevenue",
+        "category": "Revenue",
+        "description": "The average purchase revenue in the transaction group of events.",
+        "type": "TYPE_CURRENCY",
+        "uiName": "Average purchase revenue"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "averagePurchaseRevenuePerPayingUser",
+        "category": "Revenue",
+        "description": "Average revenue per paying user (ARPPU) is the total purchase revenue per active user that logged a purchase event. The summary metric is for the time period selected.",
+        "type": "TYPE_CURRENCY",
+        "uiName": "ARPPU"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "averagePurchaseRevenuePerUser",
+        "category": "Revenue",
+        "description": "The average purchase revenue per active user is the total purchase revenue per active user that logged any event. The summary metric is for the time period selected.",
+        "type": "TYPE_CURRENCY",
+        "uiName": "Average purchase revenue per user"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "averageRevenuePerUser",
+        "category": "Revenue",
+        "description": "Average revenue per active user (ARPU). The summary metric is for the time period selected. ARPU uses Total Revenue and includes AdMob estimated earnings.",
+        "type": "TYPE_CURRENCY",
+        "uiName": "ARPU"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "averageSessionDuration",
+        "category": "Session",
+        "description": "The average duration (in seconds) of users` sessions.",
+        "type": "TYPE_SECONDS",
+        "uiName": "Average session duration"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "bounceRate",
+        "category": "Session",
+        "description": "The percentage of sessions that were not engaged ((Sessions Minus Engaged sessions) divided by Sessions). This metric is returned as a fraction; for example, 0.2761 means 27.61% of sessions were bounces.",
+        "type": "TYPE_FLOAT",
+        "uiName": "Bounce rate"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "cartToViewRate",
+        "category": "Other",
+        "description": "The number of users who added a product(s) to their cart divided by the number of users who viewed the same product(s). This metric is returned as a fraction; for example, 0.1132 means 11.32% of users who viewed a product also added the same product to their cart.",
+        "type": "TYPE_FLOAT",
+        "uiName": "Cart-to-view rate"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "checkouts",
+        "category": "Ecommerce",
+        "description": "The number of times users started the checkout process. This metric counts the occurrence of the `begin_checkout` event.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Checkouts"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "crashAffectedUsers",
+        "category": "Other",
+        "description": "The number of users that logged a crash in this row of the report. For example if the report is time series by date, this metrics reports total users with at least one crash on this date. Crashes are events with the name \"app_exception\".",
+        "type": "TYPE_INTEGER",
+        "uiName": "Crash-affected users"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "crashFreeUsersRate",
+        "category": "Other",
+        "description": "The number of users without crash events (in this row of the report) divided by the total number of users. This metric is returned as a fraction; for example, 0.9243 means 92.43% of users were crash-free.",
+        "type": "TYPE_FLOAT",
+        "uiName": "Crash-free users rate"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "dauPerMau",
+        "category": "User",
+        "description": "The rolling percent of 30-day active users who are also 1-day active users. This metric is returned as a fraction; for example, 0.113 means 11.3% of 30-day active users were also 1-day active users.",
+        "type": "TYPE_FLOAT",
+        "uiName": "DAU / MAU"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "dauPerWau",
+        "category": "User",
+        "description": "The rolling percent of 7-day active users who are also 1-day active users. This metric is returned as a fraction; for example, 0.082 means 8.2% of 7-day active users were also 1-day active users.",
+        "type": "TYPE_FLOAT",
+        "uiName": "DAU / WAU"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "ecommercePurchases",
+        "category": "Ecommerce",
+        "description": "The number of times users completed a purchase. This metric counts `purchase` events; this metric does not count `in_app_purchase` and subscription events.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Ecommerce purchases"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "engagedSessions",
+        "category": "Session",
+        "description": "The number of sessions that lasted longer than 10 seconds, or had a key event, or had 2 or more screen views.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Engaged sessions"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "engagementRate",
+        "category": "Session",
+        "description": "The percentage of engaged sessions (Engaged sessions divided by Sessions). This metric is returned as a fraction; for example, 0.7239 means 72.39% of sessions were engaged sessions.",
+        "type": "TYPE_FLOAT",
+        "uiName": "Engagement rate"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "eventCount",
+        "category": "Event",
+        "description": "The count of events.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Event count"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "eventCountPerUser",
+        "category": "Event",
+        "description": "The average number of events per user (Event count divided by Active users).",
+        "type": "TYPE_FLOAT",
+        "uiName": "Event count per user"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "eventsPerSession",
+        "category": "Event",
+        "description": "The average number of events per session (Event count divided by Sessions).",
+        "type": "TYPE_FLOAT",
+        "uiName": "Events per session"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "eventValue",
+        "category": "Event",
+        "description": "The sum of the event parameter named `value`.",
+        "type": "TYPE_FLOAT",
+        "uiName": "Event value"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "firstTimePurchaserRate",
+        "category": "User",
+        "deprecatedApiNames": [
+          "firstTimePurchaserConversionRate"
+        ],
+        "description": "The percentage of active users who made their first purchase. This metric is returned as a fraction; for example, 0.092 means 9.2% of active users were first time purchasers.",
+        "type": "TYPE_FLOAT",
+        "uiName": "First-time purchaser rate"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "firstTimePurchasers",
+        "category": "User",
+        "description": "The number of users that completed their first purchase event.",
+        "type": "TYPE_INTEGER",
+        "uiName": "First time purchasers"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "firstTimePurchasersPerNewUser",
+        "category": "User",
+        "description": "The average number of first time purchasers per new user.",
+        "type": "TYPE_FLOAT",
+        "uiName": "First-time purchasers per new user"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "grossItemRevenue",
+        "category": "Ecommerce",
+        "description": "The total revenue from items only. Gross item revenue is the product of its price and quantity. Item revenue excludes tax and shipping values; tax \u0026 shipping values are specified at the event and not item level. Gross item revenue does not include refunds.",
+        "type": "TYPE_CURRENCY",
+        "uiName": "Gross item revenue"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "grossPurchaseRevenue",
+        "category": "Ecommerce",
+        "description": "The sum of revenue from purchases made in your app or site. Gross purchase revenue sums the revenue for these events: `purchase`, `ecommerce_purchase`, `in_app_purchase`, `app_store_subscription_convert`, and `app_store_subscription_renew`. Purchase revenue is specified by the `value` parameter in tagging.",
+        "type": "TYPE_CURRENCY",
+        "uiName": "Gross purchase revenue"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "itemDiscountAmount",
+        "category": "Ecommerce",
+        "description": "The monetary value of item discounts in eCommerce events. This metric is populated in tagging by the `discount` item parameter.",
+        "type": "TYPE_CURRENCY",
+        "uiName": "Item discount amount"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "itemListClickEvents",
+        "category": "Ecommerce",
+        "deprecatedApiNames": [
+          "itemListClicks"
+        ],
+        "description": "The number of times users clicked an item when it appeared in a list. This metric counts the occurrence of the `select_item` event.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Item-list click events"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "itemListClickThroughRate",
+        "category": "Ecommerce",
+        "description": "The number of users who selected a list(s) divided by the number of users who viewed the same list(s). This metric is returned as a fraction; for example, 0.2145 means 21.45% of users who viewed a list also selected the same list.",
+        "type": "TYPE_FLOAT",
+        "uiName": "Item list click through rate"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "itemListViewEvents",
+        "category": "Ecommerce",
+        "deprecatedApiNames": [
+          "itemListViews"
+        ],
+        "description": "The number of times the item list was viewed. This metric counts the occurrence of the `view_item_list` event.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Item-list view events"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "itemPromotionClickThroughRate",
+        "category": "Ecommerce",
+        "description": "The number of users who selected a promotion(s) divided by the number of users who viewed the same promotion(s). This metric is returned as a fraction; for example, 0.1382 means 13.82% of users who viewed a promotion also selected the promotion.",
+        "type": "TYPE_FLOAT",
+        "uiName": "Item promotion click through rate"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "itemRefundAmount",
+        "category": "Ecommerce",
+        "description": "Item refund amount is the total refunded transaction revenue from items only. Item refund amount is the product of price and quantity for the `refund` event.",
+        "type": "TYPE_CURRENCY",
+        "uiName": "Item refund amount"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "itemRevenue",
+        "category": "Ecommerce",
+        "description": "The total revenue from purchases minus refunded transaction revenue from items only. Item revenue is the product of its price and quantity. Item revenue excludes tax and shipping values; tax \u0026 shipping values are specified at the event and not item level.",
+        "type": "TYPE_CURRENCY",
+        "uiName": "Item revenue"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "itemsAddedToCart",
+        "category": "Ecommerce",
+        "description": "The number of units added to cart for a single item. This metric counts the quantity of items in `add_to_cart` events.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Items added to cart"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "itemsCheckedOut",
+        "category": "Ecommerce",
+        "description": "The number of units checked out for a single item. This metric counts the quantity of items in `begin_checkout` events.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Items checked out"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "itemsClickedInList",
+        "category": "Ecommerce",
+        "description": "The number of units clicked in list for a single item. This metric counts the quantity of items in `select_item` events.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Items clicked in list"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "itemsClickedInPromotion",
+        "category": "Ecommerce",
+        "description": "The number of units clicked in promotion for a single item. This metric counts the quantity of items in `select_promotion` events.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Items clicked in promotion"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "itemsPurchased",
+        "category": "Ecommerce",
+        "deprecatedApiNames": [
+          "itemPurchaseQuantity"
+        ],
+        "description": "The number of units for a single item included in purchase events. This metric counts the quantity of items in purchase events.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Items purchased"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "itemsViewed",
+        "category": "Ecommerce",
+        "description": "The number of units viewed for a single item. This metric counts the quantity of items in `view_item` events.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Items viewed"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "itemsViewedInList",
+        "category": "Ecommerce",
+        "description": "The number of units viewed in list for a single item. This metric counts the quantity of items in `view_item_list` events.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Items viewed in list"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "itemsViewedInPromotion",
+        "category": "Ecommerce",
+        "description": "The number of units viewed in promotion for a single item. This metric counts the quantity of items in `view_promotion` events.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Items viewed in promotion"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "itemViewEvents",
+        "category": "Ecommerce",
+        "deprecatedApiNames": [
+          "itemViews"
+        ],
+        "description": "The number of times the item details were viewed. The metric counts the occurrence of the `view_item` event.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Item view events"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "keyEvents",
+        "category": "Event",
+        "deprecatedApiNames": [
+          "conversions"
+        ],
+        "description": "The count of key events. Marking an event as a key event affects reports from time of creation. It doesn't change historic data. You can mark any event as key in Google Analytics, and some events (such as `first_open` or `purchase`) are marked as key events by default.",
+        "type": "TYPE_FLOAT",
+        "uiName": "Key events"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "newUsers",
+        "category": "User",
+        "description": "The number of users who interacted with your site or launched your app for the first time (event triggered: first_open or first_visit).",
+        "type": "TYPE_INTEGER",
+        "uiName": "New users"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "promotionClicks",
+        "category": "Ecommerce",
+        "deprecatedApiNames": [
+          "itemPromotionClicks"
+        ],
+        "description": "The number of times an item promotion was clicked. This metric counts the occurrence of the `select_promotion` event.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Promotion clicks"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "promotionViews",
+        "category": "Ecommerce",
+        "deprecatedApiNames": [
+          "itemPromotionViews"
+        ],
+        "description": "The number of times an item promotion was viewed. This metric counts the occurrence of the `view_promotion` event.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Promotion views"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "publisherAdClicks",
+        "category": "Other",
+        "description": "The number of ad_click events.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Publisher ad clicks"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "publisherAdImpressions",
+        "category": "Other",
+        "description": "The number of ad_impression events.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Publisher ad impressions"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "purchaseRevenue",
+        "category": "Ecommerce",
+        "description": "The sum of revenue from purchases minus refunded transaction revenue made in your app or site. Purchase revenue sums the revenue for these events: `purchase`, `ecommerce_purchase`, `in_app_purchase`, `app_store_subscription_convert`, and `app_store_subscription_renew`. Purchase revenue is specified by the `value` parameter in tagging.",
+        "type": "TYPE_CURRENCY",
+        "uiName": "Purchase revenue"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "purchaserRate",
+        "category": "User",
+        "deprecatedApiNames": [
+          "purchaserConversionRate"
+        ],
+        "description": "The percentage of active users who made 1 or more purchase transactions. This metric is returned as a fraction; for example, 0.412 means 41.2% of users were purchasers.",
+        "type": "TYPE_FLOAT",
+        "uiName": "Purchaser rate"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "purchaseToViewRate",
+        "category": "Other",
+        "description": "The number of users who purchased a product(s) divided by the number of users who viewed the same product(s). This metric is returned as a fraction; for example, 0.128 means 12.8% of users that viewed a product(s) also purchased the same product(s).",
+        "type": "TYPE_FLOAT",
+        "uiName": "Purchase-to-view rate"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "refundAmount",
+        "category": "Ecommerce",
+        "description": "The total refunded transaction revenues. Refund amount sums refunded revenue for the `refund` and `app_store_refund` events.",
+        "type": "TYPE_CURRENCY",
+        "uiName": "Refund amount"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "returnOnAdSpend",
+        "category": "Other",
+        "description": "Return On Ad Spend (ROAS) is total revenue divided by advertiser ad cost.",
+        "type": "TYPE_FLOAT",
+        "uiName": "Return on ad spend"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "screenPageViews",
+        "category": "Page / Screen",
+        "description": "The number of app screens or web pages your users viewed. Repeated views of a single page or screen are counted. (screen_view + page_view events).",
+        "type": "TYPE_INTEGER",
+        "uiName": "Views"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "screenPageViewsPerSession",
+        "category": "Page / Screen",
+        "description": "The number of app screens or web pages your users viewed per session. Repeated views of a single page or screen are counted. (screen_view + page_view events) / sessions.",
+        "type": "TYPE_FLOAT",
+        "uiName": "Views per session"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "screenPageViewsPerUser",
+        "category": "Page / Screen",
+        "description": "The number of app screens or web pages your users viewed per active user. Repeated views of a single page or screen are counted. (screen_view + page_view events) / active users.",
+        "type": "TYPE_FLOAT",
+        "uiName": "Views per user"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "scrolledUsers",
+        "category": "Other",
+        "description": "The number of unique users who scrolled down at least 90% of the page.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Scrolled users"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "sessionKeyEventRate",
+        "category": "Session",
+        "deprecatedApiNames": [
+          "sessionConversionRate"
+        ],
+        "description": "The percentage of sessions in which any key event was triggered.",
+        "type": "TYPE_FLOAT",
+        "uiName": "Session key event rate"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "sessions",
+        "category": "Session",
+        "description": "The number of sessions that began on your site or app (event triggered: session_start).",
+        "type": "TYPE_INTEGER",
+        "uiName": "Sessions"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "sessionsPerUser",
+        "category": "Session",
+        "description": "The average number of sessions per user (Sessions divided by Active Users).",
+        "type": "TYPE_FLOAT",
+        "uiName": "Sessions per user"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "shippingAmount",
+        "category": "Ecommerce",
+        "description": "Shipping amount associated with a transaction. Populated by the `shipping` event parameter.",
+        "type": "TYPE_CURRENCY",
+        "uiName": "Shipping amount"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "taxAmount",
+        "category": "Ecommerce",
+        "description": "Tax amount associated with a transaction. Populated by the `tax` event parameter.",
+        "type": "TYPE_CURRENCY",
+        "uiName": "Tax amount"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "totalAdRevenue",
+        "category": "Revenue",
+        "description": "The total advertising revenue from both Admob and third-party sources.",
+        "type": "TYPE_CURRENCY",
+        "uiName": "Total ad revenue"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "totalPurchasers",
+        "category": "User",
+        "description": "The number of users that logged purchase events for the time period selected.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Total purchasers"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "totalRevenue",
+        "category": "Revenue",
+        "description": "The sum of revenue from purchases, subscriptions, and advertising (Purchase revenue plus Subscription revenue plus Ad revenue) minus refunded transaction revenue.",
+        "type": "TYPE_CURRENCY",
+        "uiName": "Total revenue"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "totalUsers",
+        "category": "User",
+        "description": "The number of distinct users who have logged at least one event, regardless of whether the site or app was in use when that event was logged.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Total users"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "transactions",
+        "category": "Ecommerce",
+        "description": "The count of transaction events with purchase revenue. Transaction events are in_app_purchase, ecommerce_purchase, purchase, app_store_subscription_renew, app_store_subscription_convert, and refund.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Transactions"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "transactionsPerPurchaser",
+        "category": "Ecommerce",
+        "description": "The average number of transactions per purchaser.",
+        "type": "TYPE_FLOAT",
+        "uiName": "Transactions per purchaser"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "userEngagementDuration",
+        "category": "User",
+        "description": "The total amount of time (in seconds) your website or app was in the foreground of users` devices.",
+        "type": "TYPE_SECONDS",
+        "uiName": "User engagement"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "userKeyEventRate",
+        "category": "User",
+        "deprecatedApiNames": [
+          "userConversionRate"
+        ],
+        "description": "The percentage of users who triggered any key event.",
+        "type": "TYPE_FLOAT",
+        "uiName": "User key event rate"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "wauPerMau",
+        "category": "User",
+        "description": "The rolling percent of 30-day active users who are also 7-day active users. This metric is returned as a fraction; for example, 0.234 means 23.4% of 30-day active users were also 7-day active users.",
+        "type": "TYPE_FLOAT",
+        "uiName": "WAU / MAU"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "keyEvents:purchase",
+        "category": "Event",
+        "deprecatedApiNames": [
+          "conversions:purchase"
+        ],
+        "description": "The count of a specific key event.",
+        "type": "TYPE_INTEGER",
+        "uiName": "Key event count for purchase"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "sessionKeyEventRate:purchase",
+        "category": "Session",
+        "deprecatedApiNames": [
+          "sessionConversionRate:purchase"
+        ],
+        "description": "The percentage of sessions in which a specific key event was triggered.",
+        "type": "TYPE_FLOAT",
+        "uiName": "Session key event rate for purchase"
+      }
+    },
+    {
+      "compatibility": "COMPATIBLE",
+      "metricMetadata": {
+        "apiName": "userKeyEventRate:purchase",
+        "category": "User",
+        "deprecatedApiNames": [
+          "userConversionRate:purchase"
+        ],
+        "description": "The percentage of users who triggered a specific key event.",
+        "type": "TYPE_FLOAT",
+        "uiName": "User key event rate for purchase"
+      }
+    }
+  ]
+}
