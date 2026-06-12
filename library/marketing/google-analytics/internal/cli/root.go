@@ -91,7 +91,7 @@ Property resolution for data commands: --property, then GA4_PROPERTY_ID. The CLI
 	cmd.PersistentFlags().BoolVar(&flags.yes, "yes", false, "Assume yes for safe non-mutating confirmations")
 	cmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Agent mode: --json --compact --no-input --yes")
 	cmd.PersistentFlags().StringVar(&flags.propertyID, "property", "", "GA4 numeric property ID (defaults to GA4_PROPERTY_ID)")
-	cmd.PersistentFlags().StringVar(&flags.credentials, "credentials", "", "Service-account JSON key path (defaults to GOOGLE_APPLICATION_CREDENTIALS, then /Users/knox/.agents/google-service-account.json if present)")
+	cmd.PersistentFlags().StringVar(&flags.credentials, "credentials", "", "Service-account JSON key path (defaults to GOOGLE_APPLICATION_CREDENTIALS)")
 	cmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 30*time.Second, "HTTP request timeout")
 	cmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		if flags.agent {
@@ -261,6 +261,9 @@ func newMetadataCmd(flags *rootFlags) *cobra.Command {
 			return err
 		}
 		raw, _, err := cl.getJSON(fmt.Sprintf("https://analyticsdata.googleapis.com/v1beta/properties/%s/metadata", url.PathEscape(p)))
+		if err != nil {
+			return err
+		}
 		return output(cmd, flags, raw, "")
 	}}
 }
@@ -298,6 +301,9 @@ func newPropertyCmd(flags *rootFlags) *cobra.Command {
 			return err
 		}
 		raw, _, err := cl.getJSON(fmt.Sprintf("https://analyticsadmin.googleapis.com/v1beta/properties/%s", url.PathEscape(p)))
+		if err != nil {
+			return err
+		}
 		return output(cmd, flags, raw, "")
 	}}
 }
@@ -312,6 +318,9 @@ func newStreamsCmd(flags *rootFlags) *cobra.Command {
 			return err
 		}
 		raw, _, err := cl.getJSON(fmt.Sprintf("https://analyticsadmin.googleapis.com/v1beta/properties/%s/dataStreams", url.PathEscape(p)))
+		if err != nil {
+			return err
+		}
 		return output(cmd, flags, raw, "")
 	}}
 }
@@ -553,9 +562,6 @@ func credentialPath(f *rootFlags) string {
 	}
 	if p := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"); p != "" {
 		return p
-	}
-	if _, err := os.Stat("/Users/knox/.agents/google-service-account.json"); err == nil {
-		return "/Users/knox/.agents/google-service-account.json"
 	}
 	return ""
 }

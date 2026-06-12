@@ -8,7 +8,7 @@ Use a Google service account JSON key with `https://www.googleapis.com/auth/anal
 
 1. `--credentials`
 2. `GOOGLE_APPLICATION_CREDENTIALS`
-3. `/Users/knox/.agents/google-service-account.json` when present
+3. No implicit local fallback. Pass `--credentials` or set `GOOGLE_APPLICATION_CREDENTIALS`.
 
 Property resolution for data commands is `--property`, then `GA4_PROPERTY_ID`. Do not hard-code brand property IDs in command implementations. Fleet checks can pass `health --properties <comma-list>` or set `GA4_PROPERTY_IDS`.
 

@@ -34,7 +34,7 @@ Use `google-analytics-pp-cli` for GA4-only analytics work. Search Console is cov
 
 ## Auth and property selection
 
-- Service account key: `--credentials`, else `GOOGLE_APPLICATION_CREDENTIALS`, else `/Users/knox/.agents/google-service-account.json` if present.
+- Service account key: `--credentials`, else `GOOGLE_APPLICATION_CREDENTIALS`.
 - Scope: `https://www.googleapis.com/auth/analytics.readonly`.
 - Property: pass `--property`, or set `GA4_PROPERTY_ID`.
 - Fleet health checks: `health --properties 280199692,540652239 --agent` or set `GA4_PROPERTY_IDS`.

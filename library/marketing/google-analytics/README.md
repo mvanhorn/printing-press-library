@@ -13,13 +13,9 @@ PP_LIBRARY_REPO=/Users/knox/Developer/PrintingPress/printing-press-library pp-sy
 
 ## Auth
 
-Use a service-account JSON key with Analytics readonly scope. The Knox fleet key is normally at:
+Use a service-account JSON key with Analytics readonly scope. Set `GOOGLE_APPLICATION_CREDENTIALS` to your service-account JSON path, or pass `--credentials` explicitly.
 
-```bash
-/Users/knox/.agents/google-service-account.json
-```
-
-Resolution order: `--credentials`, `GOOGLE_APPLICATION_CREDENTIALS`, then that Knox default path if present.
+Resolution order: `--credentials`, then `GOOGLE_APPLICATION_CREDENTIALS`. There is no implicit developer-local credential fallback.
 
 GA4 property resolution for data commands: `--property`, then `GA4_PROPERTY_ID`. The CLI does not hard-code BestSelf or LittleMight property IDs. For fleet health checks, pass explicit properties or set `GA4_PROPERTY_IDS`.
 
