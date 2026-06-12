@@ -98,3 +98,23 @@
   - `python3 - <<'PY' ... yaml.safe_load(...) ... PY` against `.github/workflows/publish-clawhub-discovery-skill.yml` — pass; workflow YAML parses.
   - `grep -n "clawhub@\|clawscan-note" .github/workflows/publish-clawhub-discovery-skill.yml` — pass; all executable ClawHub invocations use `clawhub@0.20.0`, and `--clawscan-note` remains only in explanatory comments.
 - Policy: no public upstream push/PR; branch/PR targets private `cathrynlavery/printing-press-library` only.
+
+## 2026-06-12 — EU Tenders descriptive BE notice titles
+
+- Base private branch: `origin/main`
+- Upstream range inspected: `origin/main..upstream/main` as of 2026-06-12 preflight (`f1a2fa4c7` public HEAD), with no bulk merge/rebase from `mvanhorn/*`.
+- Candidate commits considered:
+  - `ad3cfda97` fix(eu-tenders): resolve descriptive titles for BE notices with reference-only title-lot — ported; narrow data-correctness fix for title selection and multilingual scalar handling.
+  - `0d9fe0699` fix(eu-tenders): skip empty strings in array branch of ResolveMultilingual — ported; direct review/regression follow-up for the same helper.
+  - `0e7f6cb21` fix generated artifact workflow concurrency — deferred; CI workflow hardening, separate surface from the selected CLI runtime fix.
+  - `60964575e`/`1abfdbc87` sec-edgar ownership command and review follow-up — deferred; useful feature-sized CLI surface, better as its own focused PR.
+  - `7bb58b2d7`/`0fd5ee0a9` Daraz, `4df4db6eb`/`ca4434d23`/`7addd9fd6` Agent Desktop, Rechtspraak, Instagram, Shopping, Azure Cost Admin new-CLI batches — skipped; new CLI/reprint/product surfaces, not daily selective maintenance fixes.
+  - Generated registry/skills/release-ledger commits — skipped; automation noise unless paired with selected source changes.
+- Validation run on branch `upstream-sweep/20260612-eu-tenders-title-fallback`:
+  - `git diff --check origin/main...HEAD` — pass.
+  - `python3 .github/scripts/verify-skill/verify_skill.py --dir library/sales-and-crm/eu-tenders/` — pass (`All checks passed`).
+  - `(cd library/sales-and-crm/eu-tenders && go test ./...)` — pass.
+  - `(cd library/sales-and-crm/eu-tenders && go build ./...)` — pass.
+  - `(cd library/sales-and-crm/eu-tenders && go vet ./...)` — pass.
+  - `(cd library/sales-and-crm/eu-tenders && go run golang.org/x/vuln/cmd/govulncheck@latest ./...)` — blocked by local Go standard-library findings in `go1.26.3` (`GO-2026-5039`, `GO-2026-5037`; fixed in Go 1.26.4), unrelated to the touched EU Tenders title/multilingual code.
+- Policy: no public upstream push/PR; branch/PR targets private `cathrynlavery/printing-press-library` only.
