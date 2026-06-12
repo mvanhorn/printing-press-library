@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -47,6 +48,191 @@ func testBluRayStore(t *testing.T) *Store {
 	}
 	t.Cleanup(func() { _ = s.Close() })
 	return s
+}
+
+func TestReleasesFTSUpdateLeavesNoStalePosting(t *testing.T) {
+	ctx := context.Background()
+	s := testBluRayStore(t)
+
+	if err := s.UpsertCatalogRows(ctx, []CatalogRow{{
+		ID:              52,
+		Kind:            "bluray",
+		Slug:            "the-matrix-blu-ray",
+		TitleNormalized: "The Matrix",
+		Country:         "US",
+		YearHint:        1999,
+	}}); err != nil {
+		t.Fatalf("insert catalog row: %v", err)
+	}
+	if err := s.UpsertCatalogRows(ctx, []CatalogRow{{
+		ID:              52,
+		Kind:            "bluray",
+		Slug:            "zarquon-chronicles-blu-ray",
+		TitleNormalized: "Zarquon Chronicles",
+		Country:         "US",
+		YearHint:        2026,
+	}}); err != nil {
+		t.Fatalf("update catalog row: %v", err)
+	}
+
+	found, err := s.SearchCatalog(ctx, CatalogSearchOpts{Query: "Matrix", Limit: 10})
+	if err != nil {
+		t.Fatalf("search old token: %v", err)
+	}
+	for _, row := range found {
+		if row.ID == 52 {
+			t.Fatalf("stale Matrix posting returned updated row: %#v", found)
+		}
+	}
+
+	found, err = s.SearchCatalog(ctx, CatalogSearchOpts{Query: "Zarquon", Limit: 10})
+	if err != nil {
+		t.Fatalf("search new token: %v", err)
+	}
+	if len(found) != 1 || found[0].ID != 52 {
+		t.Fatalf("new token search rows = %#v, want id 52", found)
+	}
+
+	var beforeUpdateTrigger string
+	if err := s.DB().QueryRow(`SELECT sql FROM sqlite_master WHERE type='trigger' AND name='releases_catalog_bu'`).Scan(&beforeUpdateTrigger); err != nil {
+		t.Fatalf("read BEFORE UPDATE trigger: %v", err)
+	}
+	if !strings.Contains(strings.ToUpper(beforeUpdateTrigger), "BEFORE UPDATE") || !strings.Contains(beforeUpdateTrigger, "VALUES('delete'") {
+		t.Fatalf("BEFORE UPDATE trigger SQL = %q, want delete trigger", beforeUpdateTrigger)
+	}
+	var afterUpdateTrigger string
+	if err := s.DB().QueryRow(`SELECT sql FROM sqlite_master WHERE type='trigger' AND name='releases_catalog_au'`).Scan(&afterUpdateTrigger); err != nil {
+		t.Fatalf("read AFTER UPDATE trigger: %v", err)
+	}
+	if strings.Contains(afterUpdateTrigger, "VALUES('delete'") {
+		t.Fatalf("AFTER UPDATE trigger still deletes old FTS row: %s", afterUpdateTrigger)
+	}
+}
+
+func TestReleasesFTSRebuildSucceeds(t *testing.T) {
+	ctx := context.Background()
+	s := testBluRayStore(t)
+	rows := []CatalogRow{
+		{ID: 1, Kind: "bluray", Slug: "the-matrix-blu-ray", TitleNormalized: "The Matrix", Country: "US", YearHint: 1999},
+		{ID: 2, Kind: "4k", Slug: "alien-4k-blu-ray", TitleNormalized: "Alien", Country: "UK", YearHint: 1979},
+		{ID: 3, Kind: "bluray", Slug: "zarquon-chronicles-blu-ray", TitleNormalized: "Zarquon Chronicles", Country: "CA", YearHint: 2026},
+	}
+	if err := s.UpsertCatalogRows(ctx, rows); err != nil {
+		t.Fatalf("upsert catalog rows: %v", err)
+	}
+
+	if _, err := s.DB().Exec(`INSERT INTO releases_fts(releases_fts) VALUES('rebuild')`); err != nil {
+		t.Fatalf("rebuild releases_fts: %v", err)
+	}
+	var got int
+	if err := s.DB().QueryRow(`SELECT count(*) FROM releases_fts`).Scan(&got); err != nil {
+		t.Fatalf("count releases_fts: %v", err)
+	}
+	if got != len(rows) {
+		t.Fatalf("releases_fts count = %d, want %d", got, len(rows))
+	}
+}
+
+func TestMigrateFromLegacyFTSSchema(t *testing.T) {
+	ctx := context.Background()
+	s, err := Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = s.Close() })
+
+	for _, stmt := range legacyBluRayCatalogSchemaStatements() {
+		if _, err := s.DB().Exec(stmt); err != nil {
+			t.Fatalf("create legacy schema with %q: %v", stmt, err)
+		}
+	}
+	if _, err := s.DB().Exec(`INSERT INTO releases_catalog(id, kind, slug, title_normalized, country, year_hint, lastmod) VALUES
+		(52, 'bluray', 'the-matrix-blu-ray', 'The Matrix', 'US', 1999, '2026-01-01'),
+		(53, '4k', 'alien-4k-blu-ray', 'Alien', 'UK', 1979, '2026-01-02')`); err != nil {
+		t.Fatalf("insert legacy catalog rows: %v", err)
+	}
+
+	if err := s.MigrateBluRayCatalog(); err != nil {
+		t.Fatalf("migrate legacy FTS schema: %v", err)
+	}
+
+	var ddl string
+	if err := s.DB().QueryRow(`SELECT sql FROM sqlite_master WHERE type='table' AND name='releases_fts'`).Scan(&ddl); err != nil {
+		t.Fatalf("read migrated FTS schema: %v", err)
+	}
+	if strings.Contains(strings.ToLower(ddl), "distributor") {
+		t.Fatalf("migrated FTS schema still contains distributor: %s", ddl)
+	}
+	if _, err := s.DB().Exec(`INSERT INTO releases_fts(releases_fts) VALUES('rebuild')`); err != nil {
+		t.Fatalf("rebuild migrated releases_fts: %v", err)
+	}
+	var got int
+	if err := s.DB().QueryRow(`SELECT count(*) FROM releases_fts`).Scan(&got); err != nil {
+		t.Fatalf("count migrated releases_fts: %v", err)
+	}
+	if got != 2 {
+		t.Fatalf("migrated releases_fts count = %d, want 2", got)
+	}
+
+	if err := s.UpsertCatalogRows(ctx, []CatalogRow{{
+		ID:              52,
+		Kind:            "bluray",
+		Slug:            "zarquon-chronicles-blu-ray",
+		TitleNormalized: "Zarquon Chronicles",
+		Country:         "US",
+		YearHint:        2026,
+	}}); err != nil {
+		t.Fatalf("update migrated catalog row: %v", err)
+	}
+	found, err := s.SearchCatalog(ctx, CatalogSearchOpts{Query: "Matrix", Limit: 10})
+	if err != nil {
+		t.Fatalf("search old migrated token: %v", err)
+	}
+	for _, row := range found {
+		if row.ID == 52 {
+			t.Fatalf("stale Matrix posting returned migrated updated row: %#v", found)
+		}
+	}
+	found, err = s.SearchCatalog(ctx, CatalogSearchOpts{Query: "Zarquon", Limit: 10})
+	if err != nil {
+		t.Fatalf("search new migrated token: %v", err)
+	}
+	if len(found) != 1 || found[0].ID != 52 {
+		t.Fatalf("migrated new token search rows = %#v, want id 52", found)
+	}
+}
+
+func legacyBluRayCatalogSchemaStatements() []string {
+	return []string{
+		`CREATE TABLE releases_catalog (
+			id INTEGER PRIMARY KEY,
+			kind TEXT NOT NULL,
+			slug TEXT NOT NULL,
+			title_normalized TEXT,
+			country TEXT,
+			year_hint INTEGER,
+			lastmod TEXT,
+			fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE VIRTUAL TABLE releases_fts USING fts5(
+			title_normalized, slug, distributor UNINDEXED, country UNINDEXED, kind UNINDEXED, year UNINDEXED,
+			content='releases_catalog', content_rowid='id'
+		)`,
+		`CREATE TRIGGER releases_catalog_ai AFTER INSERT ON releases_catalog BEGIN
+			INSERT INTO releases_fts(rowid, title_normalized, slug, distributor, country, kind, year)
+			VALUES (new.id, new.title_normalized, new.slug, '', new.country, new.kind, CAST(new.year_hint AS TEXT));
+		END`,
+		`CREATE TRIGGER releases_catalog_ad AFTER DELETE ON releases_catalog BEGIN
+			INSERT INTO releases_fts(releases_fts, rowid, title_normalized, slug, distributor, country, kind, year)
+			VALUES('delete', old.id, old.title_normalized, old.slug, '', old.country, old.kind, CAST(old.year_hint AS TEXT));
+		END`,
+		`CREATE TRIGGER releases_catalog_au AFTER UPDATE ON releases_catalog BEGIN
+			INSERT INTO releases_fts(releases_fts, rowid, title_normalized, slug, distributor, country, kind, year)
+			VALUES('delete', old.id, old.title_normalized, old.slug, '', old.country, old.kind, CAST(old.year_hint AS TEXT));
+			INSERT INTO releases_fts(rowid, title_normalized, slug, distributor, country, kind, year)
+			VALUES (new.id, new.title_normalized, new.slug, '', new.country, new.kind, CAST(new.year_hint AS TEXT));
+		END`,
+	}
 }
 
 func TestBluRayCatalogDomainMethods(t *testing.T) {

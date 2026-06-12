@@ -42,26 +42,9 @@ func (s *Store) MigrateBluRayCatalog() error {
 			fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`,
 		`CREATE INDEX IF NOT EXISTS releases_catalog_kind ON releases_catalog(kind)`,
-		`CREATE INDEX IF NOT EXISTS releases_catalog_country ON releases_catalog(country)`,
-		`CREATE INDEX IF NOT EXISTS releases_catalog_year ON releases_catalog(year_hint)`,
-		`CREATE VIRTUAL TABLE IF NOT EXISTS releases_fts USING fts5(
-			title_normalized, slug, distributor UNINDEXED, country UNINDEXED, kind UNINDEXED, year UNINDEXED,
-			content='releases_catalog', content_rowid='id'
-		)`,
-		`CREATE TRIGGER IF NOT EXISTS releases_catalog_ai AFTER INSERT ON releases_catalog BEGIN
-			INSERT INTO releases_fts(rowid, title_normalized, slug, distributor, country, kind, year)
-			VALUES (new.id, new.title_normalized, new.slug, '', new.country, new.kind, CAST(new.year_hint AS TEXT));
-		END`,
-		`CREATE TRIGGER IF NOT EXISTS releases_catalog_ad AFTER DELETE ON releases_catalog BEGIN
-			INSERT INTO releases_fts(releases_fts, rowid, title_normalized, slug, distributor, country, kind, year)
-			VALUES('delete', old.id, old.title_normalized, old.slug, '', old.country, old.kind, CAST(old.year_hint AS TEXT));
-		END`,
-		`CREATE TRIGGER IF NOT EXISTS releases_catalog_au AFTER UPDATE ON releases_catalog BEGIN
-			INSERT INTO releases_fts(releases_fts, rowid, title_normalized, slug, distributor, country, kind, year)
-			VALUES('delete', old.id, old.title_normalized, old.slug, '', old.country, old.kind, CAST(old.year_hint AS TEXT));
-			INSERT INTO releases_fts(rowid, title_normalized, slug, distributor, country, kind, year)
-			VALUES (new.id, new.title_normalized, new.slug, '', new.country, new.kind, CAST(new.year_hint AS TEXT));
-		END`,
+		`DROP INDEX IF EXISTS releases_catalog_country`,
+		`DROP INDEX IF EXISTS releases_catalog_year`,
+		`CREATE INDEX IF NOT EXISTS releases_catalog_year ON releases_catalog(year_hint) WHERE year_hint IS NOT NULL`,
 		`CREATE TABLE IF NOT EXISTS news_catalog (
 			id INTEGER PRIMARY KEY,
 			url TEXT NOT NULL,
@@ -76,6 +59,7 @@ func (s *Store) MigrateBluRayCatalog() error {
 			low_seen REAL,
 			alerted_at TIMESTAMP
 		)`,
+		// release_id foreign keys on price_history/watchlist/upc_index are a deliberate future table-rebuild item.
 		`CREATE TABLE IF NOT EXISTS price_history (
 			release_id INTEGER NOT NULL,
 			retailer_id INTEGER NOT NULL,
@@ -85,6 +69,7 @@ func (s *Store) MigrateBluRayCatalog() error {
 		)`,
 		`DROP INDEX IF EXISTS price_history_release`,
 		`CREATE INDEX IF NOT EXISTS price_history_release_retailer_observed ON price_history(release_id, retailer_id, observed_at)`,
+		`CREATE INDEX IF NOT EXISTS price_history_release_observed ON price_history(release_id, observed_at)`,
 		`CREATE TABLE IF NOT EXISTS sitemap_snapshot (
 			taken_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			sitemap_name TEXT NOT NULL,
@@ -99,6 +84,97 @@ func (s *Store) MigrateBluRayCatalog() error {
 	for _, stmt := range migrations {
 		if _, err := s.DB().Exec(stmt); err != nil {
 			return fmt.Errorf("migrating Blu-ray catalog schema: %w", err)
+		}
+	}
+	if err := s.ensureReleasesFTS(); err != nil {
+		return fmt.Errorf("migrating Blu-ray release search index: %w", err)
+	}
+	return nil
+}
+
+const releasesFTSCreateSQL = `CREATE VIRTUAL TABLE IF NOT EXISTS releases_fts USING fts5(
+	title_normalized, slug, country UNINDEXED, kind UNINDEXED,
+	content='releases_catalog', content_rowid='id'
+)`
+
+var releasesFTSTriggerSQL = []string{
+	`CREATE TRIGGER IF NOT EXISTS releases_catalog_ai AFTER INSERT ON releases_catalog BEGIN
+		INSERT INTO releases_fts(rowid, title_normalized, slug, country, kind)
+		VALUES (new.id, new.title_normalized, new.slug, new.country, new.kind);
+	END`,
+	`CREATE TRIGGER IF NOT EXISTS releases_catalog_ad AFTER DELETE ON releases_catalog BEGIN
+		INSERT INTO releases_fts(releases_fts, rowid, title_normalized, slug, country, kind)
+		VALUES('delete', old.id, old.title_normalized, old.slug, old.country, old.kind);
+	END`,
+	`CREATE TRIGGER IF NOT EXISTS releases_catalog_bu BEFORE UPDATE ON releases_catalog BEGIN
+		INSERT INTO releases_fts(releases_fts, rowid, title_normalized, slug, country, kind)
+		VALUES('delete', old.id, old.title_normalized, old.slug, old.country, old.kind);
+	END`,
+	`CREATE TRIGGER IF NOT EXISTS releases_catalog_au AFTER UPDATE ON releases_catalog BEGIN
+		INSERT INTO releases_fts(rowid, title_normalized, slug, country, kind)
+		VALUES (new.id, new.title_normalized, new.slug, new.country, new.kind);
+	END`,
+}
+
+func (s *Store) ensureReleasesFTS() error {
+	var ddl string
+	err := s.DB().QueryRow(`SELECT sql FROM sqlite_master WHERE type='table' AND name='releases_fts'`).Scan(&ddl)
+	switch {
+	case err == sql.ErrNoRows:
+		if err := s.createReleasesFTS(s.DB()); err != nil {
+			return err
+		}
+		if _, err := s.DB().Exec(`INSERT INTO releases_fts(releases_fts) VALUES('rebuild')`); err != nil {
+			return fmt.Errorf("rebuilding fresh releases_fts: %w", err)
+		}
+		return nil
+	case err != nil:
+		return fmt.Errorf("reading releases_fts schema: %w", err)
+	// INVARIANT: "distributor" is the legacy-schema sentinel — the current
+	// releasesFTSCreateSQL must NEVER contain that substring, or this one-shot
+	// drop+rebuild migration would re-fire on every startup. (See createReleasesFTS.)
+	case strings.Contains(strings.ToLower(ddl), "distributor"):
+		return s.LockedExecTx(context.Background(), func(tx *sql.Tx) error {
+			for _, stmt := range []string{
+				`DROP TRIGGER IF EXISTS releases_catalog_ai`,
+				`DROP TRIGGER IF EXISTS releases_catalog_ad`,
+				`DROP TRIGGER IF EXISTS releases_catalog_au`,
+				`DROP TRIGGER IF EXISTS releases_catalog_bu`,
+				`DROP TABLE IF EXISTS releases_fts`,
+			} {
+				if _, err := tx.Exec(stmt); err != nil {
+					return fmt.Errorf("dropping legacy releases FTS object: %w", err)
+				}
+			}
+			if err := s.createReleasesFTS(tx); err != nil {
+				return err
+			}
+			if _, err := tx.Exec(`INSERT INTO releases_fts(releases_fts) VALUES('rebuild')`); err != nil {
+				return fmt.Errorf("rebuilding migrated releases_fts: %w", err)
+			}
+			return nil
+		})
+	default:
+		for _, stmt := range releasesFTSTriggerSQL {
+			if _, err := s.DB().Exec(stmt); err != nil {
+				return fmt.Errorf("ensuring releases FTS trigger: %w", err)
+			}
+		}
+		return nil
+	}
+}
+
+type sqlExecutor interface {
+	Exec(query string, args ...any) (sql.Result, error)
+}
+
+func (s *Store) createReleasesFTS(exec sqlExecutor) error {
+	if _, err := exec.Exec(releasesFTSCreateSQL); err != nil {
+		return fmt.Errorf("creating releases_fts: %w", err)
+	}
+	for _, stmt := range releasesFTSTriggerSQL {
+		if _, err := exec.Exec(stmt); err != nil {
+			return fmt.Errorf("creating releases FTS trigger: %w", err)
 		}
 	}
 	return nil
