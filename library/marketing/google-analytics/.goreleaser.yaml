@@ -1,0 +1,6 @@
+version: 2
+project_name: google-analytics-pp-cli
+builds:
+  - id: google-analytics-pp-cli
+    main: ./cmd/google-analytics-pp-cli
+    binary: google-analytics-pp-cli

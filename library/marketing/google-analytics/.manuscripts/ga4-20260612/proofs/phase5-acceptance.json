@@ -1,0 +1,22 @@
+{
+  "status": "pass",
+  "accepted_at": "2026-06-12T00:00:00Z",
+  "checks": [
+    "go test ./...",
+    "go build ./...",
+    "verify-skill",
+    "live GA4 smoke tests"
+  ],
+  "notes": "Private GA4 CLI ship acceptance record.",
+  "schema_version": 1,
+  "api_name": "google-analytics",
+  "run_id": "ga4-20260612",
+  "level": "quick",
+  "matrix_size": 8,
+  "tests_passed": 8,
+  "tests_skipped": 0,
+  "auth_context": {
+    "type": "service_account_jwt",
+    "scope": "analytics.readonly"
+  }
+}

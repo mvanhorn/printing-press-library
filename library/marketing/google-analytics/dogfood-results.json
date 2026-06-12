@@ -1,0 +1,4 @@
+{
+  "status": "pass",
+  "notes": "Hand-curated GA4 CLI; structural dogfood covered by go test/build/help/agent-context/live smoke checks."
+}

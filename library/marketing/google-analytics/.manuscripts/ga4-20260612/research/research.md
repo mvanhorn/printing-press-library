@@ -1,0 +1,1 @@
+Research: GA4 Data API v1beta supports runReport, runPivotReport, batchRunReports, runRealtimeReport, metadata, and compatibility. Funnel reports live under analyticsdata v1alpha. GA4 Admin v1beta accountSummaries, properties, and dataStreams provide property discovery. Service-account API access must be paired with GA4 property-level grants.
