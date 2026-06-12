@@ -31,6 +31,14 @@ func TestResolveMultilingual(t *testing.T) {
 			want: "English title",
 		},
 		{
+			name: "array empty string falls through to next language",
+			in: map[string]interface{}{
+				"eng": []interface{}{""},
+				"nld": "Nederlandse titel",
+			},
+			want: "Nederlandse titel",
+		},
+		{
 			name: "scalar empty string falls through to next language",
 			in: map[string]interface{}{
 				"eng": "",
