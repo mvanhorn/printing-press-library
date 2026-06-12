@@ -4405,45 +4405,6 @@
       }
     },
     {
-      "name": "google-analytics",
-      "category": "marketing",
-      "api": "Google Analytics 4",
-      "description": "Agent-first Google Analytics 4 CLI with raw API coverage and novel one-call analytics reports for channels, sources, pages, funnels, comparisons, anomalies, revenue, and health checks.",
-      "search_terms": [
-        "google-analytics",
-        "Google Analytics 4",
-        "google-analytics-pp-cli",
-        "Agent-first Google Analytics 4 CLI with raw API coverage and novel one-call analytics reports for channels, sources, pages, funnels, comparisons, anomalies, revenue, and health checks.",
-        "Health/Doctor",
-        "health",
-        "health/doctor distinguishes token/API errors from property-level GA4 access grant failures",
-        "Channels,",
-        "channels",
-        "channels, sources, top-pages, revenue produce curated acquisition/ecommerce tables",
-        "Compare",
-        "compare calculates period-over-period deltas and percentage changes in one call",
-        "Whats-Changed",
-        "whats-changed scans movers across channels, source/medium, and landing pages",
-        "Funnel",
-        "funnel wraps v1alpha runFunnelReport for named event sequences",
-        "Agent-Context",
-        "agent-context emits structured tool metadata for agents"
-      ],
-      "path": "library/marketing/google-analytics",
-      "printer": "cathrynlavery",
-      "printer_name": "Cathryn Lavery",
-      "creator": {
-        "handle": "cathrynlavery",
-        "name": "Cathryn Lavery"
-      },
-      "contributors": [
-        {
-          "handle": "cathrynlavery",
-          "name": "Cathryn Lavery"
-        }
-      ]
-    },
-    {
       "name": "google-photos",
       "category": "media-and-entertainment",
       "api": "Google Photos",
