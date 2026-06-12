@@ -30,7 +30,7 @@ type toolSpec struct {
 
 func tools() []toolSpec {
 	return []toolSpec{
-		mk("search", "Full-text (FTS5) search over visited URLs, page titles, and search terms, ranked by relevance. Required: query. Optional: domain, device, since, limit. Returns matching visits with URL, title, visit time, and visit count. Prefer this for keyword lookups; use 'visited' when checking one specific URL/domain.", []arg{{"query", true, "Search query"}, {"domain", false, "Domain filter"}, {"device", false, "Device filter"}, {"since", false, "Since window"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
+		mk("search", "Full-text (FTS5) search over visited URLs, page titles, and search terms in the local cached store; no sync required. Required: query. Optional: domain, device, since, limit. Prefer this for keyword lookups; use 'visited' when checking one URL/domain.", []arg{{"query", true, "Search query"}, {"domain", false, "Domain filter"}, {"device", false, "Device filter"}, {"since", false, "Since window"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
 			args := []string{"search"}
 			args = appendFlag(args, "domain", reqStr(r, "domain"))
 			args = appendFlag(args, "device", reqStr(r, "device"))
@@ -38,7 +38,7 @@ func tools() []toolSpec {
 			args = appendFlag(args, "limit", reqStr(r, "limit"))
 			return append(args, "--", reqStr(r, "query"))
 		}),
-		mk("list", "List recent individual visits from the synced snapshot, newest first. Optional filters: since/until window, domain, device, transition, min_visits, limit. Returns per-visit URL, title, visit time, and visit count. Use 'domains' or 'report' for aggregates instead of raw rows.", []arg{{"since", false, "Since window"}, {"until", false, "Until window"}, {"domain", false, "Domain filter"}, {"device", false, "Device filter"}, {"transition", false, "Transition filter"}, {"min_visits", false, "Minimum visits"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
+		mk("list", "List recent individual visits from the local cached store; no sync required. Optional filters: since/until window, domain, device, transition, min_visits, limit. Use 'domains' or 'report' for aggregates instead of raw rows.", []arg{{"since", false, "Since window"}, {"until", false, "Until window"}, {"domain", false, "Domain filter"}, {"device", false, "Device filter"}, {"transition", false, "Transition filter"}, {"min_visits", false, "Minimum visits"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
 			args := []string{"list"}
 			args = appendFlag(args, "since", reqStr(r, "since"))
 			args = appendFlag(args, "until", reqStr(r, "until"))
@@ -49,14 +49,14 @@ func tools() []toolSpec {
 			args = appendFlag(args, "limit", reqStr(r, "limit"))
 			return args
 		}),
-		mk("domains", "Rank the most-visited registrable domains over the --since window, with page counts, visit sums, and a productive/neutral/distracting category per domain. Optional: since, device, limit. Returns one ranked row per domain.", []arg{{"since", false, "Since window"}, {"device", false, "Device filter"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
+		mk("domains", "Rank domains from the local cached store over the --since window; no sync required. Optional: since, device, limit. Returns page counts, visit sums, and category per domain.", []arg{{"since", false, "Since window"}, {"device", false, "Device filter"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
 			args := []string{"domains"}
 			args = appendFlag(args, "since", reqStr(r, "since"))
 			args = appendFlag(args, "device", reqStr(r, "device"))
 			args = appendFlag(args, "limit", reqStr(r, "limit"))
 			return args
 		}),
-		mk("searches", "List the keyword search-engine queries the user ran over the --since window, optionally filtered by --domain. Optional: since, domain, device, limit. Returns each query term with its engine and visit time. Note: unavailable on Safari, which omits search terms from History.db (reports unavailable).", []arg{{"since", false, "Since window"}, {"domain", false, "Domain filter"}, {"device", false, "Device filter"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
+		mk("searches", "Query the local cached store for search-engine terms; no sync required. Optional: since, domain, device, limit. Note: unavailable on Safari, which omits search terms from History.db (reports unavailable).", []arg{{"since", false, "Since window"}, {"domain", false, "Domain filter"}, {"device", false, "Device filter"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
 			args := []string{"searches"}
 			args = appendFlag(args, "since", reqStr(r, "since"))
 			args = appendFlag(args, "domain", reqStr(r, "domain"))
@@ -64,39 +64,39 @@ func tools() []toolSpec {
 			args = appendFlag(args, "limit", reqStr(r, "limit"))
 			return args
 		}),
-		mk("downloads", "List downloaded files over the --since window with filename, size, MIME type, and download state. Optional: since, device, limit. Note: unavailable on Safari, which omits downloads from History.db (reports unavailable).", []arg{{"since", false, "Since window"}, {"device", false, "Device filter"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
+		mk("downloads", "Query the local cached store for downloads; no sync required. Optional: since, device, limit. Note: unavailable on Safari, which omits downloads from History.db (reports unavailable).", []arg{{"since", false, "Since window"}, {"device", false, "Device filter"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
 			args := []string{"downloads"}
 			args = appendFlag(args, "since", reqStr(r, "since"))
 			args = appendFlag(args, "device", reqStr(r, "device"))
 			args = appendFlag(args, "limit", reqStr(r, "limit"))
 			return args
 		}),
-		mk("visited", "Check whether a URL/domain was visited", []arg{{"target", true, "URL or domain"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
+		mk("visited", "Check the local cached store for whether a URL/domain was visited; no sync required.", []arg{{"target", true, "URL or domain"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
 			args := []string{"visited"}
 			args = appendFlag(args, "limit", reqStr(r, "limit"))
 			return append(args, "--", reqStr(r, "target"))
 		}),
-		mk("report", "Summarize browsing activity over the --since window: per-day and per-hour visit counts, top domains, and a productive/neutral/distracting split. Optional: since, device, limit. Use 'profile' for a higher-level behavioral summary instead.", []arg{{"since", false, "Since window"}, {"device", false, "Device filter"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
+		mk("report", "Summarize browsing activity from the local cached store; no sync required. Optional: since, device, limit. Includes per-day/hour counts, top domains, and productivity split.", []arg{{"since", false, "Since window"}, {"device", false, "Device filter"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
 			args := []string{"report"}
 			args = appendFlag(args, "since", reqStr(r, "since"))
 			args = appendFlag(args, "device", reqStr(r, "device"))
 			args = appendFlag(args, "limit", reqStr(r, "limit"))
 			return args
 		}),
-		mk("heatmap", "Render a weekday-by-hour activity heatmap of visit counts over the --since window. Optional: since, device, limit. Returns a 7x24 grid of counts (request --json for the raw grid). Shows when during the week the user browses most.", []arg{{"since", false, "Since window"}, {"device", false, "Device filter"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
+		mk("heatmap", "Render a weekday-by-hour activity heatmap from the local cached store; no sync required. Optional: since, device, limit. Returns a 7x24 grid of visit counts.", []arg{{"since", false, "Since window"}, {"device", false, "Device filter"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
 			args := []string{"heatmap"}
 			args = appendFlag(args, "since", reqStr(r, "since"))
 			args = appendFlag(args, "device", reqStr(r, "device"))
 			args = appendFlag(args, "limit", reqStr(r, "limit"))
 			return args
 		}),
-		mk("journeys", "List the browser's own topic clusters (Journeys) over the --since window, with cluster labels and top pages. Optional: since, limit. Note: unavailable on Safari, which has no journeys tables (reports unavailable); use 'topic' for FTS-based topic grouping instead.", []arg{{"since", false, "Since window"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
+		mk("journeys", "Query cached browser topic clusters; no sync required. Optional: since, limit. Note: unavailable on Safari, which has no journeys tables (reports unavailable); use 'topic' for FTS-based topic grouping instead.", []arg{{"since", false, "Since window"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
 			args := []string{"journeys"}
 			args = appendFlag(args, "since", reqStr(r, "since"))
 			args = appendFlag(args, "limit", reqStr(r, "limit"))
 			return args
 		}),
-		mk("timeline", "Reconstruct ordered browsing sessions for a date or since/until window, splitting into sessions on a --gap idle threshold (e.g. 30m). Optional: since, until, device, gap, limit. Returns sessions with their ordered page visits. Use for 'what was I doing on <day>' narratives.", []arg{{"since", false, "Since window/date"}, {"until", false, "Until date"}, {"device", false, "Device filter"}, {"gap", false, "Session gap"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
+		mk("timeline", "Reconstruct sessions from the local cached store; no sync required. Optional: since, until, device, gap, limit. Use for 'what was I doing on <day>' narratives.", []arg{{"since", false, "Since window/date"}, {"until", false, "Until date"}, {"device", false, "Device filter"}, {"gap", false, "Session gap"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
 			args := []string{"timeline"}
 			args = appendFlag(args, "since", reqStr(r, "since"))
 			args = appendFlag(args, "until", reqStr(r, "until"))
@@ -105,7 +105,7 @@ func tools() []toolSpec {
 			args = appendFlag(args, "limit", reqStr(r, "limit"))
 			return args
 		}),
-		mk("rabbitholes", "Find browsing sessions over the --since window that started on productive pages and drifted into distracting ones, split on a --gap idle threshold. Optional: since, device, gap, limit. Note: unavailable on Safari, which omits navigation transition types from History.db (reports unavailable).", []arg{{"since", false, "Since window"}, {"device", false, "Device filter"}, {"gap", false, "Session gap"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
+		mk("rabbitholes", "Query cached sessions for productive-to-distracting drift; no sync required. Optional: since, device, gap, limit. Note: unavailable on Safari, which omits navigation transition types from History.db.", []arg{{"since", false, "Since window"}, {"device", false, "Device filter"}, {"gap", false, "Session gap"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
 			args := []string{"rabbitholes"}
 			args = appendFlag(args, "since", reqStr(r, "since"))
 			args = appendFlag(args, "device", reqStr(r, "device"))
@@ -113,7 +113,7 @@ func tools() []toolSpec {
 			args = appendFlag(args, "limit", reqStr(r, "limit"))
 			return args
 		}),
-		mk("dwell", "Estimate time-on-site per domain over the --since window by differencing consecutive visit timestamps, capping each visit's dwell at --gap (default 30m). Optional: since, device, gap, limit. Returns ranked domains with estimated total dwell. Note: an inference from visit gaps, not a precise measurement.", []arg{{"since", false, "Since window"}, {"device", false, "Device filter"}, {"gap", false, "Dwell cap gap"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
+		mk("dwell", "Estimate time-on-site per domain from the local cached store; no sync required. Optional: since, device, gap, limit. Note: an inference from visit gaps, not a precise measurement.", []arg{{"since", false, "Since window"}, {"device", false, "Device filter"}, {"gap", false, "Dwell cap gap"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
 			args := []string{"dwell"}
 			args = appendFlag(args, "since", reqStr(r, "since"))
 			args = appendFlag(args, "device", reqStr(r, "device"))
@@ -121,7 +121,7 @@ func tools() []toolSpec {
 			args = appendFlag(args, "limit", reqStr(r, "limit"))
 			return args
 		}),
-		mk("graph", "Build a navigation graph of page nodes and referrer edges (which page led to which) over the --since window. Optional: since, domain, device, format (json|dot for Graphviz), limit. Note: edges are sparse on Safari, which lacks from_visit referrer links in History.db.", []arg{{"since", false, "Since window"}, {"domain", false, "Domain filter"}, {"device", false, "Device filter"}, {"format", false, "json|dot"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
+		mk("graph", "Build a navigation graph from the local cached store; no sync required. Optional: since, domain, device, format (json|dot), limit. Note: edges are sparse on Safari.", []arg{{"since", false, "Since window"}, {"domain", false, "Domain filter"}, {"device", false, "Device filter"}, {"format", false, "json|dot"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
 			args := []string{"graph"}
 			args = appendFlag(args, "since", reqStr(r, "since"))
 			args = appendFlag(args, "domain", reqStr(r, "domain"))
@@ -130,14 +130,14 @@ func tools() []toolSpec {
 			args = appendFlag(args, "limit", reqStr(r, "limit"))
 			return args
 		}),
-		mk("profile", "Summarize the user's browsing self over the --since window: peak hours, busiest weekday, top domains, and the productive/neutral/distracting split. Optional: since, device, limit. The highest-level behavioral summary; use 'report' for raw per-day/per-hour counts.", []arg{{"since", false, "Since window"}, {"device", false, "Device filter"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
+		mk("profile", "Summarize browsing patterns from the local cached store; no sync required. Optional: since, device, limit. Higher-level summary; use 'report' for raw per-day/per-hour counts.", []arg{{"since", false, "Since window"}, {"device", false, "Device filter"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
 			args := []string{"profile"}
 			args = appendFlag(args, "since", reqStr(r, "since"))
 			args = appendFlag(args, "device", reqStr(r, "device"))
 			args = appendFlag(args, "limit", reqStr(r, "limit"))
 			return args
 		}),
-		mk("devices", "List visit-origin buckets (this-device vs synced) with visit counts, first/last seen, and top domains. Optional: limit. Note: Safari reports a single local origin and a synced bucket, with no per-device identity (unlike Chrome). Use the 'device' filter on other commands to scope by origin.", []arg{{"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
+		mk("devices", "List visit-origin buckets from the local cached store; no sync required. Optional: limit. Safari reports a local origin and a synced bucket, with no per-device identity.", []arg{{"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
 			args := []string{"devices"}
 			args = appendFlag(args, "limit", reqStr(r, "limit"))
 			return args
@@ -154,18 +154,18 @@ func tools() []toolSpec {
 			args = appendFlag(args, "limit", reqStr(r, "limit"))
 			return args
 		}),
-		mk("topic", "Gather everything the user browsed about a named topic over the --since window via full-text page matches, merging in the browser's Journeys clusters when the source has them. Required: name. Optional: since, limit. Returns the matching pages grouped under the topic.", []arg{{"name", true, "Topic name"}, {"since", false, "Since window"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
+		mk("topic", "Gather cached pages about a named topic via full-text matches; no sync required. Required: name. Optional: since, limit. Returns matching pages grouped under the topic.", []arg{{"name", true, "Topic name"}, {"since", false, "Since window"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
 			args := []string{"topic"}
 			args = appendFlag(args, "since", reqStr(r, "since"))
 			args = appendFlag(args, "limit", reqStr(r, "limit"))
 			return append(args, "--", reqStr(r, "name"))
 		}),
-		mk("sql", "Run a read-only SELECT query against the snapshot's history tables for custom analysis the other tools don't cover. Required: query (non-SELECT statements are rejected). Optional: limit. Returns the result rows as JSON. The connection is enforced read-only via PRAGMA query_only.", []arg{{"query", true, "SELECT query"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
+		mk("sql", "Run a read-only SELECT query against the local cached store; no sync required. Required: query (non-SELECT rejected). Optional: limit. Enforced read-only via PRAGMA query_only.", []arg{{"query", true, "SELECT query"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
 			args := []string{"sql"}
 			args = appendFlag(args, "limit", reqStr(r, "limit"))
 			return append(args, "--", reqStr(r, "query"))
 		}),
-		mkWrite("sync", "Snapshot the live Safari history DB into the local cache and rebuild the FTS index; run this first so the read tools have fresh data. Optional: profile, accumulate (pass true to also append into the durable archive). Writes local state (not read-only). Returns the synced page/visit counts.", []arg{{"profile", false, "Profile name"}, {"accumulate", false, "Also append into the durable archive (archive mode); pass true to enable"}}, func(r mcp.CallToolRequest) []string {
+		mkWrite("sync", "Refresh the local cache from the live Safari history DB and rebuild FTS. Only needed when cached results are known-stale; read tools query the cached store without sync. Optional: profile, accumulate (append into durable archive). Writes local state.", []arg{{"profile", false, "Profile name"}, {"accumulate", false, "Also append into the durable archive (archive mode); pass true to enable"}}, func(r mcp.CallToolRequest) []string {
 			args := []string{"sync"}
 			args = appendFlag(args, "profile", reqStr(r, "profile"))
 			if strings.EqualFold(reqStr(r, "accumulate"), "true") {
@@ -173,7 +173,7 @@ func tools() []toolSpec {
 			}
 			return args
 		}),
-		mk("archive_status", "Show accumulating-archive status (enabled, counts, baseline).", nil, func(r mcp.CallToolRequest) []string {
+		mk("archive_status", "Show accumulating-archive status and whether archive.db is queryable offline; no sync required.", nil, func(r mcp.CallToolRequest) []string {
 			return []string{"archive", "status"}
 		}),
 		mkWrite("archive_enable", "Enable the durable accumulating archive by seeding it from the current snapshot.", nil, func(r mcp.CallToolRequest) []string {
@@ -182,7 +182,7 @@ func tools() []toolSpec {
 		mkWrite("archive_disable", "Stop accumulating into the archive but keep the archive file.", nil, func(r mcp.CallToolRequest) []string {
 			return []string{"archive", "disable"}
 		}),
-		mk("doctor", "Health-check the Safari history source and the local snapshot: reports whether the source DB is reachable, snapshot freshness, row counts, and archive state. Optional: profile. Run this to diagnose empty results or 'db not found' errors before other tools.", []arg{{"profile", false, "Profile name"}}, func(r mcp.CallToolRequest) []string {
+		mk("doctor", "Health-check live refresh access plus cached snapshot/archive readability. Optional: profile. If source_db is missing but cached_store is queryable, answer from search/sql/domains/list/report without sync.", []arg{{"profile", false, "Profile name"}}, func(r mcp.CallToolRequest) []string {
 			args := []string{"doctor"}
 			args = appendFlag(args, "profile", reqStr(r, "profile"))
 			return args

@@ -80,6 +80,7 @@ Off by default and additive — plain `sync` is unchanged.
 ## Agent notes
 
 - Prefer `--json` and `--select` for compact outputs.
-- Run `sync` before **history** analysis (`search`/`report`/`domains`/etc.) or when history results are stale. If the accumulating archive is enabled (`archive status`), use `sync --accumulate` to keep growing it.
+- Do **not** reflexively run `sync` before reads. `search`/`sql`/`domains`/`list`/`report` query the cached snapshot/archive directly; run `sync` only to refresh known-stale results. If `sync` or `doctor` says the live Safari source is missing/inaccessible, that means "can't refresh", not "no data" — query the cached store directly.
+- If the accumulating archive is enabled (`archive status`), use `sync --accumulate` only when you need to refresh and keep growing it.
 - **`icloud-tabs` is the exception — do NOT `sync` for it.** It reads Safari's `CloudTabs.db` (synced tabs from the user's *other* Apple devices), a separate datastore from `History.db`, so it never needs `sync`. Use `--summary` for a deterministic per-device tab count, and `--refresh` when the user needs the freshest tabs or sees the closed-Safari stale-data warning (it activates Safari — a side effect, CLI-only, not exposed over MCP).
 - Local-first, read-only, zero-network behavior by default.

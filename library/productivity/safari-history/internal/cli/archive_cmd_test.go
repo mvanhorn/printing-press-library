@@ -10,8 +10,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	_ "modernc.org/sqlite"
 	"github.com/mvanhorn/printing-press-library/library/productivity/safari-history/internal/store"
+	_ "modernc.org/sqlite"
 )
 
 func writeArchiveCommandSnapshot(t *testing.T, path string, rows []struct {
@@ -85,6 +85,68 @@ func decodeRows(t *testing.T, raw string) []map[string]any {
 		t.Fatalf("decode rows %q: %v", raw, err)
 	}
 	return rows
+}
+
+// TestArchiveStatusCachedStoreFields asserts the two steering branches of
+// `archive status`: queryable (enabled + rows) and present_disabled (disabled +
+// rows).  Both branches must set cached_store correctly and emit a non-empty
+// note so agents know whether the archive is usable offline.
+func TestArchiveStatusCachedStoreFields(t *testing.T) {
+	t.Setenv("XDG_CACHE_HOME", t.TempDir())
+	snapshot, err := snapshotPath()
+	if err != nil {
+		t.Fatalf("snapshot path: %v", err)
+	}
+
+	writeArchiveCommandSnapshot(t, snapshot, []struct {
+		id    int
+		url   string
+		title string
+		when  float64
+	}{
+		{1, "https://steer-test.example/a", "SteerA", 101},
+		{2, "https://steer-test.example/b", "SteerB", 202},
+	})
+
+	// Enable archive — seeds rows from the snapshot.
+	raw, err := runArchiveCmdJSON(t, "--json", "archive", "enable")
+	if err != nil {
+		t.Fatalf("enable: %v\n%s", err, raw)
+	}
+
+	// Branch 1: enabled + rows → cached_store="queryable", note non-empty.
+	raw, err = runArchiveCmdJSON(t, "--json", "archive", "status")
+	if err != nil {
+		t.Fatalf("status after enable: %v\n%s", err, raw)
+	}
+	status := decodeObject(t, raw)
+	if status["cached_store"] != "queryable" {
+		t.Fatalf("archive status cached_store = %#v, want queryable (enabled with rows); full=%#v", status["cached_store"], status)
+	}
+	note, _ := status["note"].(string)
+	if note == "" {
+		t.Fatalf("archive status note = %q, want non-empty offline guidance when queryable", note)
+	}
+
+	// Disable archive — keeps the rows but stops accumulation.
+	raw, err = runArchiveCmdJSON(t, "--json", "archive", "disable")
+	if err != nil {
+		t.Fatalf("disable: %v\n%s", err, raw)
+	}
+
+	// Branch 2: disabled + rows → cached_store="present_disabled", note non-empty.
+	raw, err = runArchiveCmdJSON(t, "--json", "archive", "status")
+	if err != nil {
+		t.Fatalf("status after disable: %v\n%s", err, raw)
+	}
+	status = decodeObject(t, raw)
+	if status["cached_store"] != "present_disabled" {
+		t.Fatalf("archive status cached_store = %#v, want present_disabled (disabled with rows); full=%#v", status["cached_store"], status)
+	}
+	disabledNote, _ := status["note"].(string)
+	if disabledNote == "" {
+		t.Fatalf("archive status note = %q, want non-empty guidance when present_disabled", disabledNote)
+	}
 }
 
 func TestArchiveLifecycleCommands(t *testing.T) {

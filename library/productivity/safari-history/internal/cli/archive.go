@@ -6,9 +6,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/safari-history/internal/output"
 	"github.com/mvanhorn/printing-press-library/library/productivity/safari-history/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newArchiveCmd(opts *RootOptions) *cobra.Command {
@@ -38,8 +38,27 @@ func newArchiveStatusCmd(opts *RootOptions) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			row := map[string]any{
+				"enabled":     status.Enabled,
+				"baseline_at": status.BaselineAt,
+				"url_count":   status.URLCount,
+				"visit_count": status.VisitCount,
+				"path":        status.Path,
+				"size_bytes":  status.SizeBytes,
+			}
+			if status.Enabled && status.VisitCount > 0 {
+				row["cached_store"] = "queryable"
+				row["note"] = "Archive is queryable offline; live Safari source access is only needed to refresh it with sync --accumulate."
+			} else if status.VisitCount > 0 {
+				row["cached_store"] = "present_disabled"
+				row["note"] = "Archive has cached rows but archive mode is disabled; enable archive mode before expecting read tools to use archive.db."
+			} else if status.SizeBytes > 0 {
+				row["cached_store"] = "empty"
+			} else {
+				row["cached_store"] = "missing"
+			}
 			output.DefaultToJSONIfNotTTY(&opts.Output)
-			return output.Render(opts.Output, status)
+			return output.Render(opts.Output, row)
 		},
 	}
 }

@@ -84,6 +84,58 @@ func TestToolListIncludesArchiveAndSyncAccumulate(t *testing.T) {
 	}
 }
 
+func TestToolDescriptionsSteerCachedReadsBeforeSync(t *testing.T) {
+	byName := toolSpecsByName(tools())
+	for _, name := range []string{"search", "list", "domains", "visited", "report", "sql"} {
+		desc := byName[name].tool.Description
+		if !strings.Contains(desc, "cached store") || !strings.Contains(desc, "no sync required") {
+			t.Fatalf("%s description = %q, want cached-store/no-sync steering", name, desc)
+		}
+	}
+
+	syncDesc := byName["sync"].tool.Description
+	if strings.Contains(strings.ToLower(syncDesc), "run this first") {
+		t.Fatalf("sync description still encourages reflexive sync: %q", syncDesc)
+	}
+	for _, want := range []string{"Refresh", "Only needed", "read tools query the cached store without sync"} {
+		if !strings.Contains(syncDesc, want) {
+			t.Fatalf("sync description missing %q: %q", want, syncDesc)
+		}
+	}
+
+	doctorDesc := byName["doctor"].tool.Description
+	if !strings.Contains(doctorDesc, "cached_store is queryable") || !strings.Contains(doctorDesc, "without sync") {
+		t.Fatalf("doctor description = %q, want cached_store offline-read guidance", doctorDesc)
+	}
+}
+
+// TestWriteToolsDoNotCarryCachedReadSteering asserts that the write/mutating
+// tools (sync, archive_enable, archive_disable) do NOT carry the cached-read
+// steering phrases that belong only on read tools.  A false-positive match
+// would mislead agents into thinking these mutation tools are cache-servable.
+func TestWriteToolsDoNotCarryCachedReadSteering(t *testing.T) {
+	byName := toolSpecsByName(tools())
+
+	// None of the write tools must advertise "no sync required" — that phrase
+	// is the agent-steering signal that a tool reads from the cached store.
+	for _, name := range []string{"sync", "archive_enable", "archive_disable"} {
+		desc := byName[name].tool.Description
+		if strings.Contains(desc, "no sync required") {
+			t.Fatalf("%s description must NOT contain \"no sync required\" (write tool should not carry cached-read steering): %q", name, desc)
+		}
+	}
+
+	// archive_enable and archive_disable are about seeding/stopping the archive,
+	// not reading from it.  Their descriptions must not reference "cached store"
+	// as a queryable source.
+	for _, name := range []string{"archive_enable", "archive_disable"} {
+		desc := byName[name].tool.Description
+		if strings.Contains(desc, "cached store") {
+			t.Fatalf("%s description must NOT contain \"cached store\" (not a cached-read tool): %q", name, desc)
+		}
+	}
+}
+
 func TestArchiveAndSyncCommandArgs(t *testing.T) {
 	ts := toolSpecsByName(tools())
 	tests := []struct {
