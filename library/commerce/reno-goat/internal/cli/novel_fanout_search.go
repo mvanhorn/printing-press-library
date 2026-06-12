@@ -1556,6 +1556,14 @@ func applianceFactoryHTTP1Client(httpClient *http.Client) *http.Client {
 	if httpClient != nil && httpClient.Timeout > 0 {
 		timeout = httpClient.Timeout
 	}
+	if httpClient != nil && httpClient.Transport != nil {
+		return &http.Client{
+			Timeout:       timeout,
+			Transport:     httpClient.Transport,
+			CheckRedirect: httpClient.CheckRedirect,
+			Jar:           httpClient.Jar,
+		}
+	}
 	return &http.Client{
 		Timeout: timeout,
 		Transport: &http.Transport{
@@ -1923,9 +1931,6 @@ func searchBestBuy(ctx context.Context, httpClient *http.Client, query string, p
 		return nil, fmt.Errorf("best-buy: HTTP %d: %s", resp.StatusCode, truncate(string(body), 200))
 	}
 	products := bestBuyProductsFromHTML(string(body), perPage)
-	if len(products) == 0 {
-		return nil, fmt.Errorf("best-buy: no product rows found")
-	}
 	return products, nil
 }
 
@@ -1964,9 +1969,6 @@ func searchAbt(ctx context.Context, httpClient *http.Client, query string, perPa
 		return nil, fmt.Errorf("abt: HTTP %d: %s", resp.StatusCode, truncate(string(body), 200))
 	}
 	products := abtProductsFromHTML(string(body), perPage)
-	if len(products) == 0 {
-		return nil, fmt.Errorf("abt: no product rows found")
-	}
 	return products, nil
 }
 
@@ -2003,9 +2005,6 @@ func searchQualityBath(ctx context.Context, httpClient *http.Client, query strin
 	products, err := qualityBathProductsFromHTML(string(body), perPage)
 	if err != nil {
 		return nil, fmt.Errorf("qualitybath: %w", err)
-	}
-	if len(products) == 0 {
-		return nil, fmt.Errorf("qualitybath: no product rows found")
 	}
 	return products, nil
 }
@@ -2881,9 +2880,6 @@ func searchPCRichard(ctx context.Context, httpClient *http.Client, query string,
 		return nil, fmt.Errorf("pc-richard: HTTP %d: %s", resp.StatusCode, truncate(string(body), 200))
 	}
 	products := pcRichardProductsFromHTML(string(body), perPage)
-	if len(products) == 0 {
-		return nil, fmt.Errorf("pc-richard: no product rows found")
-	}
 	return products, nil
 }
 
@@ -3619,9 +3615,6 @@ func searchLightingNewYork(ctx context.Context, httpClient *http.Client, query s
 		return nil, fmt.Errorf("lighting-new-york: HTTP %d: %s", resp.StatusCode, truncate(string(body), 200))
 	}
 	products := lightingNewYorkProductsFromHTML(string(body), perPage)
-	if len(products) == 0 {
-		return nil, fmt.Errorf("lighting-new-york: no product rows found")
-	}
 	return products, nil
 }
 
@@ -3727,9 +3720,6 @@ func searchLightology(ctx context.Context, httpClient *http.Client, query string
 		return nil, fmt.Errorf("lightology: HTTP %d: %s", resp.StatusCode, truncate(string(body), 200))
 	}
 	products := lightologyProductsFromHTML(string(body), perPage)
-	if len(products) == 0 {
-		return nil, fmt.Errorf("lightology: no product rows found")
-	}
 	return products, nil
 }
 
@@ -3896,9 +3886,6 @@ func searchKBAuthority(ctx context.Context, httpClient *http.Client, query strin
 		return nil, fmt.Errorf("kbauthority: decoding searchspring response: %w", err)
 	}
 	products := kbauthorityProductsFromHTML(payload.Results, perPage)
-	if len(products) == 0 {
-		return nil, fmt.Errorf("kbauthority: no product rows found")
-	}
 	return products, nil
 }
 
@@ -4071,9 +4058,6 @@ func searchVintageTub(ctx context.Context, httpClient *http.Client, query string
 			break
 		}
 	}
-	if len(products) == 0 {
-		return nil, fmt.Errorf("vintage-tub: no product rows found")
-	}
 	return products, nil
 }
 
@@ -4153,9 +4137,6 @@ func searchSignatureHardware(ctx context.Context, httpClient *http.Client, query
 		return nil, fmt.Errorf("signature-hardware: HTTP %d: %s", resp.StatusCode, truncate(string(body), 200))
 	}
 	products := signatureHardwareProductsFromHTML(string(body), perPage)
-	if len(products) == 0 {
-		return nil, fmt.Errorf("signature-hardware: no product rows found")
-	}
 	return products, nil
 }
 

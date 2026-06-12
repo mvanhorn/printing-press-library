@@ -549,6 +549,45 @@ func TestSearchShopifyAllAllowsEmptySuccessfulStoresWithPartialFailure(t *testin
 	}
 }
 
+func TestFanoutSearchSourcesTreatEmptyProductSetsAsSuccess(t *testing.T) {
+	qualityBathEmpty := `<script>window.__INITIAL_QUERIES__ = JSON.parse('{"mutations":[],"queries":[{"state":{"data":{"products":[]}},"queryKey":["search.getFull",{"id":"no matches","pageType":"search"}]}]}');</script>`
+	tests := []struct {
+		name   string
+		body   string
+		search func(context.Context, *http.Client, string, int) ([]NormalizedProduct, error)
+	}{
+		{name: "best-buy", body: `<html><body>No matching products</body></html>`, search: searchBestBuy},
+		{name: "abt", body: `<html><body>No matching products</body></html>`, search: searchAbt},
+		{name: "qualitybath", body: qualityBathEmpty, search: searchQualityBath},
+		{name: "pc-richard", body: `<html><body>No matching products</body></html>`, search: searchPCRichard},
+		{name: "lighting-new-york", body: `<html><body>No matching products</body></html>`, search: searchLightingNewYork},
+		{name: "lightology", body: `<html><body>No matching products</body></html>`, search: searchLightology},
+		{name: "kbauthority", body: `{"results":""}`, search: searchKBAuthority},
+		{name: "vintage-tub", body: `{"results":[]}`, search: searchVintageTub},
+		{name: "signature-hardware", body: `<html><body>No matching products</body></html>`, search: searchSignatureHardware},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			client := &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Header:     make(http.Header),
+					Body:       io.NopCloser(strings.NewReader(tt.body)),
+					Request:    req,
+				}, nil
+			})}
+			products, err := tt.search(context.Background(), client, "pendant light", 5)
+			if err != nil {
+				t.Fatalf("expected empty results to be a successful search, got error: %v", err)
+			}
+			if len(products) != 0 {
+				t.Fatalf("expected no products, got %#v", products)
+			}
+		})
+	}
+}
+
 func TestNormalizeShopifySuggestProductExtractsLightingSKUFromHandle(t *testing.T) {
 	tests := []struct {
 		name   string
