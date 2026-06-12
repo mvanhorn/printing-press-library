@@ -1,0 +1,48 @@
+{
+  "property": "540652239",
+  "report": "revenue",
+  "row_count": 5,
+  "rows": [
+    {
+      "averagePurchaseRevenue": 0,
+      "conversion_rate": 0,
+      "purchaseRevenue": 0,
+      "sessionDefaultChannelGroup": "Direct",
+      "sessions": 384,
+      "transactions": 0
+    },
+    {
+      "averagePurchaseRevenue": 0,
+      "conversion_rate": 0,
+      "purchaseRevenue": 0,
+      "sessionDefaultChannelGroup": "Email",
+      "sessions": 9,
+      "transactions": 0
+    },
+    {
+      "averagePurchaseRevenue": 0,
+      "conversion_rate": 0,
+      "purchaseRevenue": 0,
+      "sessionDefaultChannelGroup": "Organic Search",
+      "sessions": 169,
+      "transactions": 0
+    },
+    {
+      "averagePurchaseRevenue": 0,
+      "conversion_rate": 0,
+      "purchaseRevenue": 0,
+      "sessionDefaultChannelGroup": "Organic Social",
+      "sessions": 20,
+      "transactions": 0
+    },
+    {
+      "averagePurchaseRevenue": 0,
+      "conversion_rate": 0,
+      "purchaseRevenue": 0,
+      "sessionDefaultChannelGroup": "Referral",
+      "sessions": 25,
+      "transactions": 0
+    }
+  ],
+  "totals": []
+}

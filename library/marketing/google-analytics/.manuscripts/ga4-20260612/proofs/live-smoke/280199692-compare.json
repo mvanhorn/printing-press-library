@@ -1,0 +1,100 @@
+{
+  "period_a": {
+    "end": "yesterday",
+    "start": "7daysAgo"
+  },
+  "period_b": {
+    "end": "8daysAgo",
+    "start": "14daysAgo"
+  },
+  "property": "280199692",
+  "raw_row_count": 5,
+  "row_count": 5,
+  "rows": [
+    {
+      "key": "Organic Search",
+      "largest_pct_change": 0.1793103448275862,
+      "sessionDefaultChannelGroup": "Organic Search",
+      "sessions": {
+        "current": 1222,
+        "delta": 147,
+        "pct_change": 0.13674418604651162,
+        "previous": 1075
+      },
+      "totalUsers": {
+        "current": 1026,
+        "delta": 156,
+        "pct_change": 0.1793103448275862,
+        "previous": 870
+      }
+    },
+    {
+      "key": "Unassigned",
+      "largest_pct_change": -0.35304347826086957,
+      "sessionDefaultChannelGroup": "Unassigned",
+      "sessions": {
+        "current": 796,
+        "delta": -415,
+        "pct_change": -0.342691990090834,
+        "previous": 1211
+      },
+      "totalUsers": {
+        "current": 744,
+        "delta": -406,
+        "pct_change": -0.35304347826086957,
+        "previous": 1150
+      }
+    },
+    {
+      "key": "Direct",
+      "largest_pct_change": -0.103125,
+      "sessionDefaultChannelGroup": "Direct",
+      "sessions": {
+        "current": 654,
+        "delta": -56,
+        "pct_change": -0.07887323943661972,
+        "previous": 710
+      },
+      "totalUsers": {
+        "current": 574,
+        "delta": -66,
+        "pct_change": -0.103125,
+        "previous": 640
+      }
+    },
+    {
+      "key": "Referral",
+      "largest_pct_change": 0,
+      "sessionDefaultChannelGroup": "Referral",
+      "sessions": {
+        "current": 560,
+        "delta": 560,
+        "pct_change": 0,
+        "previous": 0
+      },
+      "totalUsers": {
+        "current": 551,
+        "delta": 551,
+        "pct_change": 0,
+        "previous": 0
+      }
+    },
+    {
+      "key": "Cross-network",
+      "largest_pct_change": -0.06462585034013606,
+      "sessionDefaultChannelGroup": "Cross-network",
+      "sessions": {
+        "current": 275,
+        "delta": -19,
+        "pct_change": -0.06462585034013606,
+        "previous": 294
+      },
+      "totalUsers": {
+        "current": 238,
+        "delta": -6,
+        "pct_change": -0.02459016393442623,
+        "previous": 244
+      }
+    }
+  ]
+}

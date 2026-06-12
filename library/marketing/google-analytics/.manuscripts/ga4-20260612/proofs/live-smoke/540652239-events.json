@@ -1,0 +1,38 @@
+{
+  "metric": "eventCount",
+  "property": "540652239",
+  "report": "events",
+  "rows": [
+    {
+      "date": "20260610",
+      "eventCount": 259,
+      "eventName": "page_view"
+    },
+    {
+      "date": "20260611",
+      "eventCount": 245,
+      "eventName": "page_view"
+    },
+    {
+      "date": "20260610",
+      "eventCount": 199,
+      "eventName": "session_start"
+    },
+    {
+      "date": "20260609",
+      "eventCount": 193,
+      "eventName": "page_view"
+    },
+    {
+      "date": "20260611",
+      "eventCount": 175,
+      "eventName": "session_start"
+    }
+  ],
+  "trend": {
+    "delta": -84,
+    "first": 259,
+    "last": 175,
+    "pct_change": -0.32432432432432434
+  }
+}

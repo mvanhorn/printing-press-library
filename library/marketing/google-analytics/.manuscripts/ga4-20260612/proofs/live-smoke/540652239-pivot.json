@@ -1,0 +1,84 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "sessionDefaultChannelGroup"
+    }
+  ],
+  "kind": "analyticsData#runPivotReport",
+  "metadata": {
+    "currencyCode": "USD",
+    "timeZone": "America/Los_Angeles"
+  },
+  "metricHeaders": [
+    {
+      "name": "sessions",
+      "type": "TYPE_INTEGER"
+    }
+  ],
+  "pivotHeaders": [
+    {
+      "pivotDimensionHeaders": [
+        {
+          "dimensionValues": [
+            {
+              "value": "Direct"
+            }
+          ]
+        },
+        {
+          "dimensionValues": [
+            {
+              "value": "Organic Search"
+            }
+          ]
+        },
+        {
+          "dimensionValues": [
+            {
+              "value": "Referral"
+            }
+          ]
+        }
+      ],
+      "rowCount": 6
+    }
+  ],
+  "rows": [
+    {
+      "dimensionValues": [
+        {
+          "value": "Direct"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "384"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "Organic Search"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "169"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "Referral"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "25"
+        }
+      ]
+    }
+  ]
+}

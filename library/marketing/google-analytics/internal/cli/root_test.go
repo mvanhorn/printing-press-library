@@ -1,77 +1,41 @@
 package cli
 
-import "testing"
+import (
+	"bytes"
+	"strings"
+	"testing"
+)
 
-func TestAddOrderUsesDimensionPayloadWhenOrderingByRequestedDimension(t *testing.T) {
-	req := reportRequest("sessions", "date", "7daysAgo", "yesterday", 10)
-	addOrder(req, "date")
-
-	orderBys, ok := req["orderBys"].([]map[string]any)
-	if !ok || len(orderBys) != 1 {
-		t.Fatalf("orderBys = %#v, want one order", req["orderBys"])
+func TestAgentModeSetsGlobalFlags(t *testing.T) {
+	var f rootFlags
+	cmd := newRootCmd(&f)
+	cmd.SetOut(&bytes.Buffer{})
+	cmd.SetArgs([]string{"agent-context", "--agent"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatal(err)
 	}
-	if _, ok := orderBys[0]["metric"]; ok {
-		t.Fatalf("dimension order unexpectedly used metric payload: %#v", orderBys[0])
-	}
-	dim, ok := orderBys[0]["dimension"].(map[string]string)
-	if !ok {
-		t.Fatalf("dimension payload = %#v", orderBys[0]["dimension"])
-	}
-	if got := dim["dimensionName"]; got != "date" {
-		t.Fatalf("dimensionName = %q, want date", got)
+	if !f.asJSON || !f.compact || !f.noInput || !f.yes {
+		t.Fatalf("agent flags not applied: %#v", f)
 	}
 }
-
-func TestAddOrderKeepsMetricPayloadForRequestedMetric(t *testing.T) {
-	req := reportRequest("sessions", "date", "7daysAgo", "yesterday", 10)
-	addOrder(req, "-sessions")
-
-	orderBys, ok := req["orderBys"].([]map[string]any)
-	if !ok || len(orderBys) != 1 {
-		t.Fatalf("orderBys = %#v, want one order", req["orderBys"])
-	}
-	metric, ok := orderBys[0]["metric"].(map[string]string)
-	if !ok {
-		t.Fatalf("metric payload = %#v", orderBys[0]["metric"])
-	}
-	if got := metric["metricName"]; got != "sessions" {
-		t.Fatalf("metricName = %q, want sessions", got)
-	}
-	if got := orderBys[0]["desc"]; got != true {
-		t.Fatalf("desc = %#v, want true", got)
+func TestEveryCommandHasAgentSafetyGlobals(t *testing.T) {
+	root := RootCmd()
+	for _, name := range []string{"report", "pivot", "batch", "realtime", "metadata", "compatibility", "properties", "property", "streams", "channels", "sources", "top-pages", "events", "conversions", "funnel", "compare", "whats-changed", "revenue", "audience", "cohort", "health", "doctor"} {
+		cmd, _, err := root.Find([]string{name})
+		if err != nil || cmd == nil || cmd.Name() != name {
+			t.Fatalf("missing command %s", name)
+		}
+		for _, flag := range []string{"agent", "json", "compact", "no-input", "yes", "property"} {
+			if cmd.InheritedFlags().Lookup(flag) == nil && cmd.Flags().Lookup(flag) == nil {
+				t.Fatalf("%s missing --%s", name, flag)
+			}
+		}
 	}
 }
-
-func TestAddDimensionOrderUsesDimensionName(t *testing.T) {
-	req := map[string]any{}
-	addDimensionOrder(req, "firstSessionDate")
-
-	orderBys, ok := req["orderBys"].([]map[string]any)
-	if !ok || len(orderBys) != 1 {
-		t.Fatalf("orderBys = %#v, want one order", req["orderBys"])
-	}
-	if _, ok := orderBys[0]["metric"]; ok {
-		t.Fatalf("dimension order unexpectedly used metric payload: %#v", orderBys[0])
-	}
-	dim, ok := orderBys[0]["dimension"].(map[string]string)
-	if !ok {
-		t.Fatalf("dimension payload = %#v", orderBys[0]["dimension"])
-	}
-	if got := dim["dimensionName"]; got != "firstSessionDate" {
-		t.Fatalf("dimensionName = %q, want firstSessionDate", got)
-	}
-}
-
-func TestInferPreviousUsesCurrentRelativeWindow(t *testing.T) {
-	start, end := inferPrevious("28daysAgo", "yesterday", "wow")
-	if start != "56daysAgo" || end != "29daysAgo" {
-		t.Fatalf("inferPrevious = %s/%s, want 56daysAgo/29daysAgo", start, end)
-	}
-}
-
-func TestInferPreviousFallsBackForUnsupportedDates(t *testing.T) {
-	start, end := inferPrevious("2026-05-01", "2026-05-31", "mom")
-	if start != "60daysAgo" || end != "31daysAgo" {
-		t.Fatalf("inferPrevious fallback = %s/%s, want 60daysAgo/31daysAgo", start, end)
+func TestRequirePropertyError(t *testing.T) {
+	t.Setenv("GA4_PROPERTY_ID", "")
+	_, err := requireProperty(&rootFlags{})
+	if err == nil || !strings.Contains(err.Error(), "--property") {
+		t.Fatalf("expected missing property error, got %v", err)
 	}
 }

@@ -1,0 +1,48 @@
+{
+  "property": "540652239",
+  "report": "sources",
+  "row_count": 5,
+  "rows": [
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "sessionSourceMedium": "(direct) / (none)",
+      "sessions": 384,
+      "totalRevenue": 0,
+      "totalUsers": 338
+    },
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "sessionSourceMedium": "google / organic",
+      "sessions": 160,
+      "totalRevenue": 0,
+      "totalUsers": 127
+    },
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "sessionSourceMedium": "t.co / referral",
+      "sessions": 20,
+      "totalRevenue": 0,
+      "totalUsers": 18
+    },
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "sessionSourceMedium": "diagram-design / readme",
+      "sessions": 10,
+      "totalRevenue": 0,
+      "totalUsers": 8
+    },
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "sessionSourceMedium": "convertkit / email",
+      "sessions": 8,
+      "totalRevenue": 0,
+      "totalUsers": 8
+    }
+  ],
+  "totals": []
+}

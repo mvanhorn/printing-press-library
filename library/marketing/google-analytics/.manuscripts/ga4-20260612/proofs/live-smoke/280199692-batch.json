@@ -1,0 +1,135 @@
+{
+  "kind": "analyticsData#batchRunReports",
+  "reports": [
+    {
+      "dimensionHeaders": [
+        {
+          "name": "date"
+        }
+      ],
+      "kind": "analyticsData#runReport",
+      "metadata": {
+        "currencyCode": "USD",
+        "timeZone": "America/New_York"
+      },
+      "metricHeaders": [
+        {
+          "name": "sessions",
+          "type": "TYPE_INTEGER"
+        },
+        {
+          "name": "totalUsers",
+          "type": "TYPE_INTEGER"
+        }
+      ],
+      "rowCount": 7,
+      "rows": [
+        {
+          "dimensionValues": [
+            {
+              "value": "20260611"
+            }
+          ],
+          "metricValues": [
+            {
+              "value": "1017"
+            },
+            {
+              "value": "966"
+            }
+          ]
+        },
+        {
+          "dimensionValues": [
+            {
+              "value": "20260605"
+            }
+          ],
+          "metricValues": [
+            {
+              "value": "574"
+            },
+            {
+              "value": "513"
+            }
+          ]
+        },
+        {
+          "dimensionValues": [
+            {
+              "value": "20260609"
+            }
+          ],
+          "metricValues": [
+            {
+              "value": "563"
+            },
+            {
+              "value": "491"
+            }
+          ]
+        },
+        {
+          "dimensionValues": [
+            {
+              "value": "20260610"
+            }
+          ],
+          "metricValues": [
+            {
+              "value": "517"
+            },
+            {
+              "value": "467"
+            }
+          ]
+        },
+        {
+          "dimensionValues": [
+            {
+              "value": "20260608"
+            }
+          ],
+          "metricValues": [
+            {
+              "value": "469"
+            },
+            {
+              "value": "418"
+            }
+          ]
+        },
+        {
+          "dimensionValues": [
+            {
+              "value": "20260607"
+            }
+          ],
+          "metricValues": [
+            {
+              "value": "423"
+            },
+            {
+              "value": "394"
+            }
+          ]
+        },
+        {
+          "dimensionValues": [
+            {
+              "value": "20260606"
+            }
+          ],
+          "metricValues": [
+            {
+              "value": "420"
+            },
+            {
+              "value": "383"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

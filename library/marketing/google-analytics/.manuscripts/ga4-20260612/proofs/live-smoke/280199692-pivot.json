@@ -1,0 +1,84 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "sessionDefaultChannelGroup"
+    }
+  ],
+  "kind": "analyticsData#runPivotReport",
+  "metadata": {
+    "currencyCode": "USD",
+    "timeZone": "America/New_York"
+  },
+  "metricHeaders": [
+    {
+      "name": "sessions",
+      "type": "TYPE_INTEGER"
+    }
+  ],
+  "pivotHeaders": [
+    {
+      "pivotDimensionHeaders": [
+        {
+          "dimensionValues": [
+            {
+              "value": "Organic Search"
+            }
+          ]
+        },
+        {
+          "dimensionValues": [
+            {
+              "value": "Unassigned"
+            }
+          ]
+        },
+        {
+          "dimensionValues": [
+            {
+              "value": "Direct"
+            }
+          ]
+        }
+      ],
+      "rowCount": 15
+    }
+  ],
+  "rows": [
+    {
+      "dimensionValues": [
+        {
+          "value": "Organic Search"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "1222"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "Unassigned"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "796"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "Direct"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "654"
+        }
+      ]
+    }
+  ]
+}

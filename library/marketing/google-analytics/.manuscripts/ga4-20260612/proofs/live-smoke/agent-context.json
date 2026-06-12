@@ -1,0 +1,49 @@
+{
+  "auth": "Google service account JSON via --credentials or GOOGLE_APPLICATION_CREDENTIALS; analytics.readonly scope",
+  "binary": "google-analytics-pp-cli",
+  "examples": [
+    "google-analytics-pp-cli health --properties 280199692,540652239 --agent",
+    "google-analytics-pp-cli channels --property 280199692 --start 28daysAgo --end yesterday --agent",
+    "google-analytics-pp-cli compare --property 280199692 --metrics sessions,totalRevenue --period wow --agent",
+    "google-analytics-pp-cli funnel --property 280199692 --steps view_item,add_to_cart,begin_checkout,purchase --agent"
+  ],
+  "global_flags": [
+    "--agent",
+    "--json",
+    "--compact",
+    "--no-input",
+    "--yes",
+    "--property",
+    "--credentials",
+    "--timeout"
+  ],
+  "name": "google-analytics-pp-cli",
+  "novel_commands": [
+    "channels",
+    "sources",
+    "top-pages",
+    "events",
+    "conversions",
+    "funnel",
+    "compare",
+    "whats-changed",
+    "revenue",
+    "audience",
+    "cohort",
+    "health",
+    "doctor"
+  ],
+  "property_resolution": "--property, else GA4_PROPERTY_ID; health can accept --properties for fleet checks",
+  "purpose": "GA4-only analytics CLI with raw API wrappers and one-call novel reports",
+  "raw_commands": [
+    "report",
+    "pivot",
+    "batch",
+    "realtime",
+    "metadata",
+    "compatibility",
+    "properties",
+    "property",
+    "streams"
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "kind": "analyticsData#batchRunReports",
+  "reports": [
+    {
+      "dimensionHeaders": [
+        {
+          "name": "date"
+        }
+      ],
+      "kind": "analyticsData#runReport",
+      "metadata": {
+        "currencyCode": "USD",
+        "timeZone": "America/Los_Angeles"
+      },
+      "metricHeaders": [
+        {
+          "name": "sessions",
+          "type": "TYPE_INTEGER"
+        },
+        {
+          "name": "totalUsers",
+          "type": "TYPE_INTEGER"
+        }
+      ],
+      "rowCount": 4,
+      "rows": [
+        {
+          "dimensionValues": [
+            {
+              "value": "20260610"
+            }
+          ],
+          "metricValues": [
+            {
+              "value": "197"
+            },
+            {
+              "value": "181"
+            }
+          ]
+        },
+        {
+          "dimensionValues": [
+            {
+              "value": "20260611"
+            }
+          ],
+          "metricValues": [
+            {
+              "value": "176"
+            },
+            {
+              "value": "158"
+            }
+          ]
+        },
+        {
+          "dimensionValues": [
+            {
+              "value": "20260609"
+            }
+          ],
+          "metricValues": [
+            {
+              "value": "163"
+            },
+            {
+              "value": "144"
+            }
+          ]
+        },
+        {
+          "dimensionValues": [
+            {
+              "value": "20260608"
+            }
+          ],
+          "metricValues": [
+            {
+              "value": "82"
+            },
+            {
+              "value": "76"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "property": "280199692",
+  "report": "channels",
+  "row_count": 5,
+  "rows": [
+    {
+      "conversion_rate": 0.12391374316060509,
+      "conversions": 770,
+      "sessionDefaultChannelGroup": "Unassigned",
+      "sessions": 6214,
+      "totalRevenue": 4624.054735,
+      "totalUsers": 5946
+    },
+    {
+      "conversion_rate": 0.05804416403785489,
+      "conversions": 184,
+      "sessionDefaultChannelGroup": "Organic Search",
+      "sessions": 3170,
+      "totalRevenue": 1416.839488,
+      "totalUsers": 2540
+    },
+    {
+      "conversion_rate": 0.11464133639043564,
+      "conversions": 350,
+      "sessionDefaultChannelGroup": "Direct",
+      "sessions": 3053,
+      "totalRevenue": 1007.84,
+      "totalUsers": 2610
+    },
+    {
+      "conversion_rate": 0.1356907894736842,
+      "conversions": 165,
+      "sessionDefaultChannelGroup": "Cross-network",
+      "sessions": 1216,
+      "totalRevenue": 1365.18,
+      "totalUsers": 888
+    },
+    {
+      "conversion_rate": 0.4979757085020243,
+      "conversions": 369,
+      "sessionDefaultChannelGroup": "Email",
+      "sessions": 741,
+      "totalRevenue": 1854.1847189999999,
+      "totalUsers": 463
+    }
+  ],
+  "totals": []
+}

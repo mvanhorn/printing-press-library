@@ -1,0 +1,48 @@
+{
+  "property": "540652239",
+  "report": "cohort",
+  "row_count": 5,
+  "rows": [
+    {
+      "conversion_rate": 0,
+      "engagementRate": 0.3157894736842105,
+      "firstSessionDate": "20260608",
+      "newVsReturning": "new",
+      "sessions": 76,
+      "totalUsers": 76
+    },
+    {
+      "conversion_rate": 0,
+      "engagementRate": 0,
+      "firstSessionDate": "20260608",
+      "newVsReturning": "(not set)",
+      "sessions": 11,
+      "totalUsers": 8
+    },
+    {
+      "conversion_rate": 0,
+      "engagementRate": 0.4166666666666667,
+      "firstSessionDate": "20260608",
+      "newVsReturning": "returning",
+      "sessions": 12,
+      "totalUsers": 7
+    },
+    {
+      "conversion_rate": 0,
+      "engagementRate": 0.208955223880597,
+      "firstSessionDate": "20260609",
+      "newVsReturning": "new",
+      "sessions": 134,
+      "totalUsers": 134
+    },
+    {
+      "conversion_rate": 0,
+      "engagementRate": 0.56,
+      "firstSessionDate": "20260609",
+      "newVsReturning": "returning",
+      "sessions": 25,
+      "totalUsers": 17
+    }
+  ],
+  "totals": []
+}
