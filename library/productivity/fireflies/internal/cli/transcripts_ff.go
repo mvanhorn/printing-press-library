@@ -758,10 +758,14 @@ Use --output (-o) or its alias --file to write to an explicit file path.`,
 
 			md := renderTranscriptMarkdown(&t)
 
-			// --file is an alias for --output; --output (-o) wins if both are set.
+			// --file is an alias for --output; the two are mutually exclusive
+			// (enforced below), so at most one is set here.
 			dest := outputFile
 			if dest == "" {
 				dest = fileFlag
+			}
+			if dest != "" {
+				dest = expandHome(dest)
 			}
 			if dest == "" && vaultPath != "" {
 				vaultPath = expandHome(vaultPath)
@@ -788,6 +792,9 @@ Use --output (-o) or its alias --file to write to an explicit file path.`,
 	cmd.Flags().StringVar(&vaultPath, "vault", "", "Directory to write markdown (filename auto-generated as YYYY-MM-DD_title.md)")
 	cmd.Flags().StringVarP(&outputFile, "output", "o", "", "Explicit output file path")
 	cmd.Flags().StringVar(&fileFlag, "file", "", "Explicit output file path (alias for --output)")
+	// --file is an alias for --output; rejecting both together avoids silently
+	// discarding one path.
+	cmd.MarkFlagsMutuallyExclusive("output", "file")
 	return cmd
 }
 
