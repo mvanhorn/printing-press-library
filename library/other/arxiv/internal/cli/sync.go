@@ -35,8 +35,20 @@ type arxivSyncScope struct {
 func newArxivSyncScope(searchQuery, idList string) arxivSyncScope {
 	return arxivSyncScope{
 		searchQuery: strings.TrimSpace(searchQuery),
-		idList:      strings.TrimSpace(idList),
+		idList:      normalizeArxivIDList(idList),
 	}
+}
+
+func normalizeArxivIDList(idList string) string {
+	idList = strings.TrimSpace(idList)
+	if idList == "" {
+		return ""
+	}
+	parts := strings.Split(idList, ",")
+	for i, part := range parts {
+		parts[i] = strings.TrimSpace(part)
+	}
+	return strings.Join(parts, ",")
 }
 
 func (s arxivSyncScope) isEmpty() bool {

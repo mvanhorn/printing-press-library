@@ -46,3 +46,22 @@ func TestSyncCommandAcceptsSearchQueryScope(t *testing.T) {
 		t.Fatalf("sync with --search-query failed: %v", err)
 	}
 }
+
+func TestSyncCommandAcceptsIDListScope(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	cmd.SetArgs([]string{
+		"sync",
+		"--dry-run",
+		"--agent",
+		"--db", filepath.Join(t.TempDir(), "data.db"),
+		"--max-pages", "1",
+		"--id-list", "1706.03762",
+	})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("sync with --id-list failed: %v", err)
+	}
+}

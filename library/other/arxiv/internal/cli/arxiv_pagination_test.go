@@ -100,6 +100,27 @@ func TestSyncResourceParsesArxivAtomAndUsesOffsetPagination(t *testing.T) {
 	}
 }
 
+func TestSyncResourceNormalizesArxivIDListScope(t *testing.T) {
+	db, err := store.Open(t.TempDir() + "/data.db")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	client := &fakeSyncClient{pages: []json.RawMessage{
+		atomPage(1, 0, 1, "http://arxiv.org/abs/1706.03762"),
+	}}
+
+	scope := newArxivSyncScope("", " 1706.03762, 1312.5602 ")
+	res := syncResource(client, db, "query", "", true, 1, scope)
+	if res.Err != nil {
+		t.Fatalf("syncResource error: %v", res.Err)
+	}
+	if got := client.params[0]["id_list"]; got != "1706.03762,1312.5602" {
+		t.Fatalf("id_list = %q, want normalized comma-delimited IDs", got)
+	}
+}
+
 func TestPaginatedGetParsesArxivAtomAllPages(t *testing.T) {
 	client := &fakePageClient{pages: []json.RawMessage{
 		atomPage(2, 0, 1, "http://arxiv.org/abs/1"),
