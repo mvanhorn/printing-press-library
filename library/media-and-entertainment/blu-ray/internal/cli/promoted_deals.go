@@ -72,7 +72,7 @@ func newDealsPromotedCmd(flags *rootFlags) *cobra.Command {
 					return perr
 				}
 				rows = filterDealRows(rows, flagMinDiscount, flagMaxPrice, flagLimit)
-				return printDealRows(cmd, flags, rows)
+				return printDealRows(cmd, flags, rows, prov)
 			}
 			if !flags.dryRun {
 				data, err = extractHTMLResponse(data, htmlExtractionOptions{
@@ -162,12 +162,23 @@ func filterDealRows(rows []DealRow, minDiscount int, maxPrice float64, limit int
 	return filtered
 }
 
-func printDealRows(cmd *cobra.Command, flags *rootFlags, rows []DealRow) error {
+func printDealRows(cmd *cobra.Command, flags *rootFlags, rows []DealRow, prov DataProvenance) error {
 	raw, err := json.Marshal(rows)
 	if err != nil {
 		return err
 	}
-	outputFlags := *flags
-	outputFlags.asJSON = true
-	return printOutputWithFlags(cmd.OutOrStdout(), raw, &outputFlags)
+	// Mirror the standard JSON path so the provenance envelope (meta.source) is
+	// preserved and --select/--compact are honored for machine consumers/agents.
+	// --select wins over --compact when both are set.
+	filtered := json.RawMessage(raw)
+	if flags.selectFields != "" {
+		filtered = filterFields(filtered, flags.selectFields)
+	} else if flags.compact {
+		filtered = compactFields(filtered)
+	}
+	wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+	if wrapErr != nil {
+		return wrapErr
+	}
+	return printOutput(cmd.OutOrStdout(), wrapped, true)
 }
