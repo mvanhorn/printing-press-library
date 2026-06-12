@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "id": "safari-history-accumulating-archive-slice1",
+  "applied_at": "2026-05-24T00:00:00Z",
+  "base_run_id": "20260523-231334",
+  "base_printing_press_version": "4.13.0",
+  "summary": "Added opt-in accumulating archive.db store, active-store routing, and sync --accumulate for Safari history.",
+  "reason": "Safari prunes History.db; the local CLI needs a generated-tree customization to preserve older visits while keeping rich Safari-only reads on the snapshot.",
+  "files": [
+    "internal/store/archive.go",
+    "internal/store/store.go",
+    "internal/cli/path.go",
+    "internal/cli/root.go",
+    "internal/cli/list.go",
+    "internal/cli/domains.go",
+    "internal/cli/report.go",
+    "internal/cli/heatmap.go",
+    "internal/cli/timeline.go",
+    "internal/cli/visited.go",
+    "internal/cli/devices.go",
+    "internal/cli/dwell.go",
+    "internal/cli/graph.go",
+    "internal/cli/journeys.go",
+    "internal/cli/profile.go",
+    "internal/cli/topic.go",
+    "internal/cli/searches.go",
+    "internal/cli/rabbitholes.go",
+    "internal/cli/downloads.go"
+  ]
+}

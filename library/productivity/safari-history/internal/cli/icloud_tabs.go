@@ -20,6 +20,7 @@ var (
 	readCloudTabsFn      = safariSource.ReadCloudTabs
 	summarizeCloudTabsFn = safariSource.SummarizeCloudTabs
 	refreshSafariFn      = safariSource.RefreshSafari
+	safariRunningFn      = safariSource.IsSafariRunning
 )
 
 // mapCloudTabsDBErr maps the source-package CloudTabs sentinels to the CLI's
@@ -103,6 +104,7 @@ a pure read with no app side effect.
 				if err != nil {
 					return mapCloudTabsDBErr(err)
 				}
+				maybeStaleTabsHint(cmd, cloudTabsSummaryCount(rows), refresh)
 				out := make([]map[string]any, 0, len(rows))
 				for _, r := range rows {
 					out = append(out, map[string]any{
@@ -119,6 +121,7 @@ a pure read with no app side effect.
 			if err != nil {
 				return mapCloudTabsDBErr(err)
 			}
+			maybeStaleTabsHint(cmd, len(tabs), refresh)
 			out := make([]map[string]any, 0, len(tabs))
 			for _, t := range tabs {
 				out = append(out, map[string]any{
@@ -141,6 +144,33 @@ a pure read with no app side effect.
 	cmd.Flags().BoolVar(&refresh, "refresh", false, "activate Safari and wait --wait seconds before reading, so iCloud syncs the latest tabs (side effect: brings Safari to the foreground)")
 	cmd.Flags().IntVar(&wait, "wait", 5, "seconds to wait after --refresh activates Safari")
 	return cmd
+}
+
+// maybeStaleTabsHint writes a one-line stderr hint when a plain (non-refresh)
+// read happens while Safari is not running. CloudTabs.db only updates while
+// Safari is running, so a closed Safari can leave a non-empty but stale tab set.
+// Written to stderr so it never pollutes stdout (which may be JSON); suppressed
+// when --refresh was already used (it would have opened Safari).
+func maybeStaleTabsHint(cmd *cobra.Command, n int, refresh bool) {
+	if refresh {
+		return
+	}
+	running, err := safariRunningFn()
+	if err != nil || running {
+		return
+	}
+	fmt.Fprintf(cmd.ErrOrStderr(), "Safari isn't running — these %d tab(s) are from Safari's last iCloud sync and may be stale; run --refresh to open Safari and read the current tabs\n", n)
+}
+
+func cloudTabsSummaryCount(rows []safariSource.CloudTabDeviceSummary) int {
+	var n int64
+	for _, r := range rows {
+		n += r.TabCount
+	}
+	if n > int64(^uint(0)>>1) {
+		return int(^uint(0) >> 1)
+	}
+	return int(n)
 }
 
 // formatRFC3339 renders a time as RFC3339, or "" for the zero value so a tab

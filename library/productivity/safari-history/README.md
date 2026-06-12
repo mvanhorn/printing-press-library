@@ -63,10 +63,36 @@ Every read command supports machine-readable output:
 ./safari-history-pp-cli icloud-tabs --refresh --wait 5        # activate Safari + wait, then read freshest tabs
 ```
 
-- **Freshness:** `CloudTabs.db` only updates while Safari is running, so a pure read can return stale tabs. `--refresh` activates Safari (via `osascript`) and waits `--wait` seconds (default 5) for iCloud to sync before reading. Without `--refresh` the command is a pure read with no app side effect.
+- **Freshness — Safari must be open for the latest tabs.** `CloudTabs.db` only updates **while Safari is running**, so a pure read can show Safari's last-synced tab set when Safari is closed. Without `--refresh`, the CLI detects a closed Safari and prints a stderr warning that tabs may be stale; `--refresh` **opens Safari for you** (via `osascript`) and waits `--wait` seconds (default 5) for iCloud to sync before reading.
 - **No silent cap:** all tabs are returned by default; the root `--limit` is only applied when you pass it explicitly.
 - **Exit code:** `4` if `CloudTabs.db` is absent (iCloud Tabs not enabled on your other devices, or this terminal lacks Full Disk Access).
 - The MCP tool exposes the read view (`--summary`, `--device-name`, `--pinned`, `--limit`); `--refresh` is intentionally **not** exposed over MCP because it brings Safari to the foreground.
+
+## Accumulating Archive
+
+By default `sync` mirrors only what Safari currently retains — and Safari prunes old history over time. The
+**opt-in accumulating archive** keeps a durable `archive.db` that grows across syncs, so your history outlives
+Safari's pruning. It's additive and off until you enable it; plain `sync` is unchanged.
+
+```bash
+./safari-history-pp-cli archive enable                  # seed the archive from the current snapshot + turn it on
+./safari-history-pp-cli sync --accumulate               # sync, then append new visits into the archive (deduped)
+./safari-history-pp-cli archive status                  # enabled? baseline date, url/visit counts, size
+./safari-history-pp-cli archive disable                 # stop accumulating (keeps the file)
+./safari-history-pp-cli archive clobber                 # rebuild the archive from the current snapshot
+./safari-history-pp-cli archive reset --force [--purge] # disable + move (or --purge delete) archive.db
+./safari-history-pp-cli archive vacuum                  # compact archive.db
+```
+
+- **Active store (no flags to remember):** when archive mode is on, the history-faithful commands — `list`,
+  `search`, `domains`, `report`, `heatmap`, `timeline`, `sql` — automatically read the archive; the
+  richer commands (`dwell`, `graph`, `journeys`, `profile`, …) keep reading the current snapshot.
+- **Semantics:** in archive mode, `visit_count` reflects visits the archive has accumulated, not Safari's live
+  per-page count; `visited` referrer chains read the live snapshot because archive rowid remapping cannot preserve
+  redirect lineage.
+- **`reset` is guarded:** without `--force` it prints what it *would* destroy and touches nothing.
+- **MCP:** `archive_status` (read-only) + `archive_enable`/`archive_disable` are exposed, and `sync` gains an
+  `accumulate` option. The destructive `clobber`/`reset`/`vacuum` are CLI-only (human-gated).
 
 ## Capability Notes
 
@@ -98,7 +124,7 @@ activates Safari — is intentionally **not** exposed over MCP, so the MCP surfa
 | --- | --- | --- |
 | `safari db not found` | 4 | Grant your terminal Full Disk Access, then re-run `sync`. |
 | `icloud-tabs` reports iCloud Tabs not found | 4 | Enable iCloud Tabs on your other devices (iPhone: Settings → Apps → Safari → iCloud Tabs) and grant this terminal Full Disk Access. |
-| `icloud-tabs` returns stale tabs | 0 | Run with `--refresh` (Safari only syncs `CloudTabs.db` while it is running). |
+| `icloud-tabs` returns stale tabs | 0 | The CLI warns when Safari is closed and CloudTabs may be showing the last-synced set; run with `--refresh` to open Safari and read current tabs. |
 | `run sync first` | 3 | Run `./safari-history-pp-cli sync` to build the snapshot. |
 | `searches`/`downloads`/`journeys` say "not available" | 0 | Expected — Safari's `History.db` does not store these datasets. |
 | Empty results for a recent window | 0 | Widen `--since`, or re-run `sync` to refresh the snapshot. |

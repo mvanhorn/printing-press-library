@@ -22,9 +22,9 @@ import (
 func withStubbedICloudSeams(t *testing.T, tabs []safariSource.CloudTab) *bool {
 	t.Helper()
 	refreshCalled := false
-	origLocate, origRead, origSummarize, origRefresh := locateCloudTabsDBFn, readCloudTabsFn, summarizeCloudTabsFn, refreshSafariFn
+	origLocate, origRead, origSummarize, origRefresh, origSafariRunning := locateCloudTabsDBFn, readCloudTabsFn, summarizeCloudTabsFn, refreshSafariFn, safariRunningFn
 	t.Cleanup(func() {
-		locateCloudTabsDBFn, readCloudTabsFn, summarizeCloudTabsFn, refreshSafariFn = origLocate, origRead, origSummarize, origRefresh
+		locateCloudTabsDBFn, readCloudTabsFn, summarizeCloudTabsFn, refreshSafariFn, safariRunningFn = origLocate, origRead, origSummarize, origRefresh, origSafariRunning
 	})
 	locateCloudTabsDBFn = func() (string, error) { return "/stub/CloudTabs.db", nil }
 	readCloudTabsFn = func(_ string, f safariSource.CloudTabsFilter) ([]safariSource.CloudTab, error) {
@@ -40,6 +40,7 @@ func withStubbedICloudSeams(t *testing.T, tabs []safariSource.CloudTab) *bool {
 		return nil, nil
 	}
 	refreshSafariFn = func(time.Duration) error { refreshCalled = true; return nil }
+	safariRunningFn = func() (bool, error) { return true, nil }
 	return &refreshCalled
 }
 
@@ -290,6 +291,66 @@ func TestICloudTabs_ReadPermissionExit4(t *testing.T) {
 	}
 	if got := ExitCodeForError(err); got != ExitSourceDBMissing {
 		t.Fatalf("read-time permission ExitCodeForError = %d, want %d", got, ExitSourceDBMissing)
+	}
+}
+
+func executeICloudTabsForErr(t *testing.T, opts *RootOptions, args ...string) string {
+	t.Helper()
+	cmd := newICloudTabsCmd(opts)
+	cmd.Flags().IntVar(&opts.Output.Limit, "limit", 20, "row limit")
+	var errBuf bytes.Buffer
+	cmd.SetOut(&bytes.Buffer{})
+	cmd.SetErr(&errBuf)
+	cmd.SetArgs(args)
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("pipe: %v", err)
+	}
+	orig := os.Stdout
+	os.Stdout = w
+	if err := cmd.Execute(); err != nil {
+		_ = w.Close()
+		os.Stdout = orig
+		t.Fatalf("execute: %v", err)
+	}
+	_ = w.Close()
+	os.Stdout = orig
+	_, _ = io.ReadAll(r)
+	return errBuf.String()
+}
+
+// A plain read while Safari is not running must emit the --refresh hint on
+// STDERR even with non-zero tabs. Safari running, unknown running state, and
+// --refresh must suppress it.
+func TestICloudTabs_StaleHint(t *testing.T) {
+	opts := &RootOptions{Output: output.Flags{JSON: true, Limit: 20, Command: "icloud-tabs"}}
+
+	withStubbedICloudSeams(t, fixtureTabs()[:2])
+	safariRunningFn = func() (bool, error) { return false, nil }
+	errText := executeICloudTabsForErr(t, opts)
+	if !strings.Contains(errText, "these 2 tab(s)") || !strings.Contains(errText, "--refresh") {
+		t.Fatalf("expected stale hint with non-zero tab count on stderr, got %q", errText)
+	}
+
+	withStubbedICloudSeams(t, nil)
+	safariRunningFn = func() (bool, error) { return true, nil }
+	errText = executeICloudTabsForErr(t, opts)
+	if errText != "" {
+		t.Fatalf("hint must be suppressed when Safari is running, got %q", errText)
+	}
+
+	withStubbedICloudSeams(t, fixtureTabs()[:1])
+	safariRunningFn = func() (bool, error) { return false, fmt.Errorf("unknown") }
+	errText = executeICloudTabsForErr(t, opts)
+	if errText != "" {
+		t.Fatalf("hint must be suppressed when Safari running state is unknown, got %q", errText)
+	}
+
+	withStubbedICloudSeams(t, fixtureTabs()[:1])
+	safariRunningFn = func() (bool, error) { return false, nil }
+	errText = executeICloudTabsForErr(t, opts, "--refresh")
+	if errText != "" {
+		t.Fatalf("hint must be suppressed under --refresh, got %q", errText)
 	}
 }
 

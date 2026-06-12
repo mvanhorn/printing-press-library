@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "safari-history-archive-lifecycle-mcp",
+  "applied_at": "2026-05-24T00:00:00Z",
+  "base_run_id": "20260523-231334",
+  "base_printing_press_version": "4.13.0",
+  "summary": "Added archive lifecycle CLI commands and MCP archive status/enable/disable tools.",
+  "reason": "Completes the accumulating archive customization with human-gated lifecycle operations while keeping destructive clobber/reset/vacuum off MCP.",
+  "files": [
+    "internal/store/archive.go",
+    "internal/cli/archive.go",
+    "internal/cli/root.go",
+    "internal/mcp/server.go",
+    "internal/cli/archive_cmd_test.go",
+    "internal/mcp/server_test.go"
+  ]
+}

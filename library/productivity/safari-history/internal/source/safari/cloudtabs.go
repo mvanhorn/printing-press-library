@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -93,6 +94,22 @@ func RefreshSafari(wait time.Duration) error {
 		time.Sleep(wait)
 	}
 	return nil
+}
+
+// IsSafariRunning reports whether Safari is currently running without
+// launching or foregrounding it. Errors mean the state could not be determined;
+// callers should avoid presenting stale-data hints on an unknown state.
+func IsSafariRunning() (bool, error) {
+	cmd := exec.Command("osascript", "-e", `application "Safari" is running`)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return false, fmt.Errorf("osascript check Safari running: %w: %s", err, strings.TrimSpace(string(out)))
+	}
+	running, err := strconv.ParseBool(strings.TrimSpace(string(out)))
+	if err != nil {
+		return false, fmt.Errorf("parse Safari running state %q: %w", strings.TrimSpace(string(out)), err)
+	}
+	return running, nil
 }
 
 // snapshotCloudTabs copies CloudTabs.db to a temp file read-only (VACUUM INTO,

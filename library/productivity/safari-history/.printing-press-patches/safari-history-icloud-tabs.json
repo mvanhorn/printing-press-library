@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "safari-history-icloud-tabs",
+  "applied_at": "2026-05-24T00:00:00Z",
+  "base_run_id": "20260523-231334",
+  "base_printing_press_version": "4.13.0",
+  "summary": "icloud-tabs command: deterministic read of synced iCloud tabs (open tabs from the user's other Apple devices) from CloudTabs.db, with --summary per-device counts, --device-name/--pinned filters, no-silent-cap default, and an opt-in --refresh (osascript Safari-activate + --wait) for freshness. Registered as a read-only MCP tool (--refresh excluded from MCP).",
+  "reason": "CloudTabs.db is a second local Safari datastore (separate from History.db) with no generator path; replaces a calling skill's fragile inline osascript+sqlite and removes the stale-tabs and fabricated-count failure modes. CloudTabs.db only updates while Safari runs, hence the opt-in refresh.",
+  "files": [
+    "internal/source/safari/cloudtabs.go",
+    "internal/cli/icloud_tabs.go",
+    "internal/cli/root.go",
+    "internal/mcp/server.go"
+  ],
+  "validated_outcome": "go build/vet clean; full test suite green incl new cloudtabs fixture + CLI-RunE tests; tiered peer gate (code/test/security/privacy) PASS after fixes — resolved a MAJOR (FDA permission denial now maps to exit 4 via ErrCloudTabsDBPermission wrap in snapshotCloudTabs) and 4 test Blocker/Majors (CLI RunE no-cap-default, RFC3339, summary count-desc, --refresh isolation now mutation-proven via injectable seams); temp snapshot hardened to 0600. Live pure-read returned 55 real iCloud tabs with correct humanization/ordering/no-cap. Peer log: printing-press-workshop/docs/agent-reviews/2026-06-11-safari-history-icloud-tabs-amend-peer-reviews.md"
+}

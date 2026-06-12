@@ -1,14 +1,12 @@
 package cli
 
 import (
-	"errors"
 	"strings"
 	"time"
 
+	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/safari-history/internal/output"
 	"github.com/mvanhorn/printing-press-library/library/productivity/safari-history/internal/source"
-	"github.com/mvanhorn/printing-press-library/library/productivity/safari-history/internal/store"
-	"github.com/spf13/cobra"
 )
 
 func newVisitedCmd(opts *RootOptions) *cobra.Command {
@@ -19,15 +17,8 @@ func newVisitedCmd(opts *RootOptions) *cobra.Command {
 		Example:     strings.Trim("safari-history-pp-cli visited github.com\n  safari-history-pp-cli visited https://docs.github.com", "\n"),
 		Annotations: map[string]string{"pp:typed-exit-codes": "0,2,3", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			snapshot, err := snapshotPath()
+			st, err := openSnapshotStore()
 			if err != nil {
-				return err
-			}
-			st, err := store.OpenExisting(snapshot)
-			if err != nil {
-				if errors.Is(err, store.ErrNoSnapshot) {
-					return ErrNoSnapshot
-				}
 				return err
 			}
 			defer st.Close()
