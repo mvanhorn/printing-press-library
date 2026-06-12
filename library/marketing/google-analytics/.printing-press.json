@@ -52,7 +52,7 @@
     },
     {
       "name": "Agent-Context",
-      "command": "",
+      "command": "agent-context",
       "description": "agent-context emits structured tool metadata for agents"
     }
   ],

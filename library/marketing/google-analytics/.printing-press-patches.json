@@ -1,11 +1,14 @@
-[
-  {
-    "schema_version": 2,
-    "id": "ga4-novel-agent-commands",
-    "applied_at": "2026-06-12",
-    "base_run_id": "ga4-20260612",
-    "base_printing_press_version": "private-library-manual-pp-sync",
-    "summary": "Adds GA4-specific novel commands and service-account health diagnostics beyond thin API wrappers.",
-    "reason": "Agents need one-call answers and must distinguish Google Cloud API availability from GA4 property-level sharing."
-  }
-]
+{
+  "schema_version": 2,
+  "patches": [
+    {
+      "schema_version": 2,
+      "id": "ga4-novel-agent-commands",
+      "applied_at": "2026-06-12",
+      "base_run_id": "ga4-20260612",
+      "base_printing_press_version": "private-library-manual-pp-sync",
+      "summary": "Adds GA4-specific novel commands and service-account health diagnostics beyond thin API wrappers.",
+      "reason": "Agents need one-call answers and must distinguish Google Cloud API availability from GA4 property-level sharing."
+    }
+  ]
+}
