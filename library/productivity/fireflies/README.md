@@ -5,6 +5,7 @@
 Sync your entire meeting history once, then search, analyze, and correlate across every conversation without touching the API. Find stale action items, track topic escalation over weeks, reconstruct the full history with any person or account — all offline, all composable with jq and SQL.
 
 Created by [@neektza](https://github.com/neektza) (Nikica Jokic).
+Contributors: [@shanegardner405-arch](https://github.com/shanegardner405-arch) (Shane Gardner).
 
 ## Install
 
@@ -191,12 +192,13 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   fireflies-pp-cli digest --since 24h --agent
   ```
-- **`transcripts export`** — Export a transcript as markdown to a vault directory with auto-generated YYYY-MM-DD_title.md filename.
+- **`transcripts export`** — Export a transcript as markdown to a vault directory with auto-generated YYYY-MM-DD_title.md filename, or to an explicit file path with `--output` (`-o`) or its alias `--file`.
 
   _Use after a client meeting to save the formatted transcript directly to the right project folder._
 
   ```bash
   fireflies-pp-cli transcripts export abc123 --vault ~/vaults/VBT/Projects/1_Active/Ryder/transcripts/ --agent
+  fireflies-pp-cli transcripts export abc123 --file /tmp/dennis_1on1.md --agent
   ```
 
 ### Person-centric intelligence
