@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"sort"
 	"strings"
 
@@ -40,7 +41,13 @@ Data must be synced first with the sync command.`,
 				dbPath = defaultDBPath("podcastindex-pp-cli")
 			}
 
-			db, err := store.OpenWithContext(cmd.Context(), dbPath)
+			if _, statErr := os.Stat(dbPath); os.IsNotExist(statErr) {
+				return fmt.Errorf("no local data at %s. Run 'podcastindex-pp-cli sync' first.", dbPath)
+			}
+			// analytics is mcp:read-only — open the mirror read-only so it
+			// runs no migrations, takes no write lock, and works against a
+			// read-only-mounted store. Mirrors openStoreForRead (data_source.go).
+			db, err := store.OpenReadOnly(dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'podcastindex-pp-cli sync' first.", err)
 			}
