@@ -51,6 +51,23 @@ Every read command supports machine-readable output:
 ./safari-history-pp-cli sql "SELECT url, title FROM urls ORDER BY visit_count DESC LIMIT 10"
 ```
 
+## iCloud Tabs
+
+`icloud-tabs` lists synced iCloud tabs — the open tabs from your **other** Apple devices (iPhone, iPad, …) — read directly from Safari's `CloudTabs.db`. This is a separate datastore from `History.db`, so `icloud-tabs` does **not** require `sync`.
+
+```bash
+./safari-history-pp-cli icloud-tabs --json                    # all synced tabs (no silent cap)
+./safari-history-pp-cli icloud-tabs --summary                 # deterministic per-device tab counts
+./safari-history-pp-cli icloud-tabs --device-name iPhone      # filter to one device (substring match)
+./safari-history-pp-cli icloud-tabs --pinned                  # only pinned tabs
+./safari-history-pp-cli icloud-tabs --refresh --wait 5        # activate Safari + wait, then read freshest tabs
+```
+
+- **Freshness:** `CloudTabs.db` only updates while Safari is running, so a pure read can return stale tabs. `--refresh` activates Safari (via `osascript`) and waits `--wait` seconds (default 5) for iCloud to sync before reading. Without `--refresh` the command is a pure read with no app side effect.
+- **No silent cap:** all tabs are returned by default; the root `--limit` is only applied when you pass it explicitly.
+- **Exit code:** `4` if `CloudTabs.db` is absent (iCloud Tabs not enabled on your other devices, or this terminal lacks Full Disk Access).
+- The MCP tool exposes the read view (`--summary`, `--device-name`, `--pinned`, `--limit`); `--refresh` is intentionally **not** exposed over MCP because it brings Safari to the foreground.
+
 ## Capability Notes
 
 `searches`, `downloads`, and `journeys` are intentionally unavailable for Safari because `History.db` does not store those datasets — the commands exist for cross-browser parity and report `not available` rather than erroring. `graph` and `rabbitholes` depend on referrer/transition data that Safari records sparsely, so results may be thin.
@@ -71,13 +88,17 @@ Every read command supports machine-readable output:
 ./safari-history-pp-cli mcp
 ```
 
-All tools are read-only and shell out to the same binary with `--json`.
+All tools are read-only and shell out to the same binary with `--json`. This includes `icloud-tabs`
+(synced tabs from your other Apple devices); its `--refresh` flag — the only side effect, since it
+activates Safari — is intentionally **not** exposed over MCP, so the MCP surface stays purely read-only.
 
 ## Troubleshooting
 
 | Symptom | Exit code | Fix |
 | --- | --- | --- |
 | `safari db not found` | 4 | Grant your terminal Full Disk Access, then re-run `sync`. |
+| `icloud-tabs` reports iCloud Tabs not found | 4 | Enable iCloud Tabs on your other devices (iPhone: Settings → Apps → Safari → iCloud Tabs) and grant this terminal Full Disk Access. |
+| `icloud-tabs` returns stale tabs | 0 | Run with `--refresh` (Safari only syncs `CloudTabs.db` while it is running). |
 | `run sync first` | 3 | Run `./safari-history-pp-cli sync` to build the snapshot. |
 | `searches`/`downloads`/`journeys` say "not available" | 0 | Expected — Safari's `History.db` does not store these datasets. |
 | Empty results for a recent window | 0 | Widen `--since`, or re-run `sync` to refresh the snapshot. |

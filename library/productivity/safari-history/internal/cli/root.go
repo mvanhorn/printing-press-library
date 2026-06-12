@@ -79,6 +79,7 @@ func NewRootCmd() *cobra.Command {
 		newSearchesCmd(opts),
 		newDownloadsCmd(opts),
 		newDevicesCmd(opts),
+		newICloudTabsCmd(opts),
 		newVisitedCmd(opts),
 		newReportCmd(opts),
 		newHeatmapCmd(opts),

@@ -12,8 +12,8 @@ import (
 // tool is a real bug, so guard the count and the per-tool annotation.
 func TestToolReadOnlyHints(t *testing.T) {
 	ts := tools()
-	if len(ts) != 19 {
-		t.Fatalf("expected 19 tools, got %d", len(ts))
+	if len(ts) != 20 {
+		t.Fatalf("expected 20 tools, got %d", len(ts))
 	}
 	writeTools := map[string]bool{"sync": true}
 	for _, spec := range ts {

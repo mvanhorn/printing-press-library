@@ -141,6 +141,18 @@ func tools() []toolSpec {
 			args = appendFlag(args, "limit", reqStr(r, "limit"))
 			return args
 		}),
+		mk("icloud-tabs", "List synced iCloud tabs open on the user's other Apple devices (read-only; --refresh is intentionally not exposed over MCP because it activates Safari)", []arg{{"summary", false, "Per-device tab counts instead of per-tab rows (true/false)"}, {"device_name", false, "Filter to devices whose name contains this substring"}, {"pinned", false, "Only pinned tabs (true/false)"}, {"limit", false, "Row limit (default unlimited)"}}, func(r mcp.CallToolRequest) []string {
+			args := []string{"icloud-tabs"}
+			if strings.EqualFold(reqStr(r, "summary"), "true") {
+				args = append(args, "--summary")
+			}
+			if strings.EqualFold(reqStr(r, "pinned"), "true") {
+				args = append(args, "--pinned")
+			}
+			args = appendFlag(args, "device-name", reqStr(r, "device_name"))
+			args = appendFlag(args, "limit", reqStr(r, "limit"))
+			return args
+		}),
 		mk("topic", "Merge FTS and journeys by topic", []arg{{"name", true, "Topic name"}, {"since", false, "Since window"}, {"limit", false, "Row limit"}}, func(r mcp.CallToolRequest) []string {
 			args := []string{"topic"}
 			args = appendFlag(args, "since", reqStr(r, "since"))

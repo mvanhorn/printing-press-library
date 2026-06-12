@@ -31,7 +31,7 @@ Historical Safari browsing activity from `~/Library/Safari/History.db`: recall p
 ## Anti-triggers
 
 - **Non-macOS — macOS only.** Safari does not exist on Linux/Windows, so there is no history DB to read there.
-- Live/open tabs are not in `History.db`.
+- Live/open tabs on *this* Mac are not in `History.db`. (Synced **iCloud tabs** open on your *other* Apple devices ARE available — see `icloud-tabs` below.)
 - For Chrome history, use `chrome-history-pp-cli`.
 - `searches`, `downloads`, and `journeys` are not available for Safari because Safari does not store those datasets in `History.db`.
 
@@ -53,10 +53,22 @@ If Safari DB access fails, grant terminal Full Disk Access (System Settings -> P
 - Find: `search <query>`, `visited <url|domain>`, `list`, `topic <name>`
 - Aggregate: `domains`, `report`, `heatmap`, `profile`, `dwell`
 - Reconstruct: `timeline <date>`, `rabbitholes`, `graph`
+- Synced tabs: `icloud-tabs` (open tabs from your other Apple devices)
 - Ops: `sync`, `doctor`, `sql "<SELECT...>"`, `mcp`
+
+## iCloud tabs (synced open tabs from other devices)
+
+`icloud-tabs` reads synced iCloud tabs — the open tabs from your *other* Apple devices — directly from Safari's `CloudTabs.db` (separate from `History.db`; does **not** require `sync`).
+
+- `icloud-tabs` — one row per tab (device_name, device_type, title, url, last_viewed_time, is_pinned, is_showing_reader). Returns ALL tabs by default (no silent cap).
+- `icloud-tabs --summary` — per-device tab counts; use this for a **deterministic** "N tabs across M devices" total instead of estimating.
+- Filters: `--device-name <substring>`, `--pinned`.
+- `icloud-tabs --refresh [--wait <secs>]` — activate Safari and wait (default 5s) before reading so iCloud syncs the freshest tabs. **`CloudTabs.db` only updates while Safari is running, so use `--refresh` when you need current data.** Default (no `--refresh`) is a pure read with no app side effect.
+- Exit 4 if `CloudTabs.db` is absent (iCloud Tabs not enabled, or Full Disk Access missing).
 
 ## Agent notes
 
 - Prefer `--json` and `--select` for compact outputs.
-- Run `sync` before analysis or when results are stale.
+- Run `sync` before **history** analysis (`search`/`report`/`domains`/etc.) or when history results are stale.
+- **`icloud-tabs` is the exception — do NOT `sync` for it.** It reads Safari's `CloudTabs.db` (synced tabs from the user's *other* Apple devices), a separate datastore from `History.db`, so it never needs `sync`. Use `--summary` for a deterministic per-device tab count, and `--refresh` only when the user needs the freshest tabs (it activates Safari — a side effect, CLI-only, not exposed over MCP).
 - Local-first, read-only, zero-network behavior by default.
