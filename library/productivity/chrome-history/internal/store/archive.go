@@ -146,6 +146,7 @@ func OpenActiveStore() (*Store, bool, error) {
 func InitArchiveSchema(db *sql.DB) error {
 	stmts := []string{
 		`CREATE TABLE IF NOT EXISTS meta_pp (
+			id INTEGER PRIMARY KEY CHECK (id = 1),
 			archive_enabled INTEGER NOT NULL DEFAULT 0,
 			baseline_at TEXT,
 			schema_version INTEGER
@@ -167,15 +168,17 @@ func InitArchiveSchema(db *sql.DB) error {
 			search_terms
 		)`,
 		`CREATE TRIGGER IF NOT EXISTS history_archive_ai AFTER INSERT ON history_archive BEGIN
+			DELETE FROM history_fts WHERE url = new.url;
 			INSERT INTO history_fts(rowid, url, title, search_terms)
-				SELECT new.rowid, new.url, COALESCE(new.title,''), ''
-				WHERE NOT EXISTS (SELECT 1 FROM history_fts WHERE url = new.url);
+				SELECT MIN(rowid), url, COALESCE((SELECT title FROM history_archive h2 WHERE h2.url = history_archive.url ORDER BY visit_time DESC, rowid DESC LIMIT 1), ''), ''
+				FROM history_archive WHERE url = new.url GROUP BY url;
 		END`,
 		`CREATE TRIGGER IF NOT EXISTS history_archive_ad AFTER DELETE ON history_archive BEGIN
 			DELETE FROM history_fts WHERE url = old.url AND NOT EXISTS (SELECT 1 FROM history_archive WHERE url = old.url);
 		END`,
 		`CREATE TRIGGER IF NOT EXISTS history_archive_au AFTER UPDATE ON history_archive BEGIN
 			DELETE FROM history_fts WHERE url = old.url;
+			DELETE FROM history_fts WHERE url = new.url;
 			INSERT INTO history_fts(rowid, url, title, search_terms)
 				SELECT MIN(rowid), url, COALESCE((SELECT title FROM history_archive h2 WHERE h2.url = history_archive.url ORDER BY visit_time DESC, rowid DESC LIMIT 1), ''), ''
 				FROM history_archive WHERE url IN (old.url, new.url) GROUP BY url;
@@ -223,8 +226,8 @@ func InitArchiveSchema(db *sql.DB) error {
 			return err
 		}
 	}
-	_, err := db.Exec(`INSERT INTO meta_pp(archive_enabled, schema_version)
-		SELECT 0, ? WHERE NOT EXISTS (SELECT 1 FROM meta_pp)`, archiveSchemaVersion)
+	_, err := db.Exec(`INSERT INTO meta_pp(id, archive_enabled, schema_version)
+		SELECT 1, 0, ? WHERE NOT EXISTS (SELECT 1 FROM meta_pp)`, archiveSchemaVersion)
 	if err != nil {
 		return err
 	}
@@ -276,16 +279,23 @@ func migrateArchiveFTS(db *sql.DB) error {
 	if version.Valid && version.Int64 >= archiveSchemaVersion {
 		return nil
 	}
-	if _, err := db.Exec(`DELETE FROM history_fts`); err != nil {
+	tx, err := db.Begin()
+	if err != nil {
 		return err
 	}
-	if _, err := db.Exec(`INSERT INTO history_fts(rowid, url, title, search_terms)
+	defer tx.Rollback()
+	if _, err := tx.Exec(`DELETE FROM history_fts`); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(`INSERT INTO history_fts(rowid, url, title, search_terms)
 		SELECT MIN(rowid), url, COALESCE((SELECT title FROM history_archive h2 WHERE h2.url = history_archive.url ORDER BY visit_time DESC, rowid DESC LIMIT 1), ''), ''
 		FROM history_archive GROUP BY url`); err != nil {
 		return err
 	}
-	_, err := db.Exec(`UPDATE meta_pp SET schema_version=?`, archiveSchemaVersion)
-	return err
+	if _, err := tx.Exec(`UPDATE meta_pp SET schema_version=?`, archiveSchemaVersion); err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 
 // AccumulateFromSource appends current source visits to archivePath, deduping

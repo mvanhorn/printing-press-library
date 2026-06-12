@@ -160,6 +160,151 @@ func TestArchiveFTSIncrementalAndPrunedRowStillFound(t *testing.T) {
 	}
 }
 
+func TestArchiveAUTriggerNoDuplicateFTSOnURLChange(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "archive.db")
+	db, err := sql.Open("sqlite", path)
+	if err != nil {
+		t.Fatalf("open archive: %v", err)
+	}
+	defer db.Close()
+	if err := InitArchiveSchema(db); err != nil {
+		t.Fatalf("InitArchiveSchema: %v", err)
+	}
+	if _, err := db.Exec(`INSERT INTO history_archive(url, visit_time, title, visit_count) VALUES
+		('https://example.test/a', 1, 'A', 1),
+		('https://example.test/b', 2, 'B', 1)`); err != nil {
+		t.Fatalf("insert archive rows: %v", err)
+	}
+	if _, err := db.Exec(`UPDATE history_archive SET url='https://example.test/b' WHERE url='https://example.test/a'`); err != nil {
+		t.Fatalf("update archive url: %v", err)
+	}
+	var ftsRows int64
+	if err := db.QueryRow(`SELECT COUNT(*) FROM history_fts WHERE url='https://example.test/b'`).Scan(&ftsRows); err != nil {
+		t.Fatalf("count FTS rows: %v", err)
+	}
+	if ftsRows != 1 {
+		t.Fatalf("FTS rows for updated URL = %d, want 1", ftsRows)
+	}
+}
+
+func TestArchiveFTSTitleRefreshedOnRevisit(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "archive.db")
+	db, err := sql.Open("sqlite", path)
+	if err != nil {
+		t.Fatalf("open archive: %v", err)
+	}
+	defer db.Close()
+	if err := InitArchiveSchema(db); err != nil {
+		t.Fatalf("InitArchiveSchema: %v", err)
+	}
+	if _, err := db.Exec(`INSERT INTO history_archive(url, visit_time, title) VALUES
+		('https://x.test/page', 100, 'old boring title'),
+		('https://x.test/page', 200, 'fresh kayak rental')`); err != nil {
+		t.Fatalf("insert archive rows: %v", err)
+	}
+	var ftsRows int64
+	if err := db.QueryRow(`SELECT COUNT(*) FROM history_fts WHERE url='https://x.test/page'`).Scan(&ftsRows); err != nil {
+		t.Fatalf("count FTS rows: %v", err)
+	}
+	if ftsRows != 1 {
+		t.Fatalf("FTS rows for revisited URL = %d, want 1", ftsRows)
+	}
+	var title string
+	if err := db.QueryRow(`SELECT title FROM history_fts WHERE url='https://x.test/page'`).Scan(&title); err != nil {
+		t.Fatalf("read FTS title: %v", err)
+	}
+	if title != "fresh kayak rental" {
+		t.Fatalf("FTS title = %q, want newest title", title)
+	}
+	var matches int64
+	if err := db.QueryRow(`SELECT COUNT(*) FROM history_fts WHERE history_fts MATCH 'kayak'`).Scan(&matches); err != nil {
+		t.Fatalf("count kayak FTS matches: %v", err)
+	}
+	if matches != 1 {
+		t.Fatalf("kayak FTS matches = %d, want 1", matches)
+	}
+}
+
+func TestMetaPPSingletonEnforced(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "archive.db")
+	db, err := sql.Open("sqlite", path)
+	if err != nil {
+		t.Fatalf("open archive: %v", err)
+	}
+	defer db.Close()
+	if err := InitArchiveSchema(db); err != nil {
+		t.Fatalf("InitArchiveSchema: %v", err)
+	}
+	tx, err := db.Begin()
+	if err != nil {
+		t.Fatalf("begin rollback-only duplicate probe: %v", err)
+	}
+	_, err = tx.Exec(`INSERT INTO meta_pp(id, archive_enabled, schema_version) VALUES (1, 1, 2)`)
+	if rbErr := tx.Rollback(); rbErr != nil {
+		t.Fatalf("rollback duplicate probe: %v", rbErr)
+	}
+	if err == nil {
+		t.Errorf("second meta_pp insert succeeded, want constraint error")
+	}
+	if _, err := db.Exec(`INSERT INTO meta_pp(archive_enabled, schema_version) VALUES (1, 2)`); err == nil {
+		t.Errorf("second meta_pp insert without id succeeded, want constraint error")
+	}
+	var rows int64
+	if err := db.QueryRow(`SELECT COUNT(*) FROM meta_pp`).Scan(&rows); err != nil {
+		t.Fatalf("count meta_pp rows: %v", err)
+	}
+	if rows != 1 {
+		t.Fatalf("meta_pp rows = %d, want 1", rows)
+	}
+	var id int64
+	if err := db.QueryRow(`SELECT id FROM meta_pp`).Scan(&id); err != nil {
+		t.Fatalf("read meta_pp id: %v", err)
+	}
+	if id != 1 {
+		t.Fatalf("meta_pp id = %d, want 1", id)
+	}
+}
+
+func TestMigrateArchiveFTSRebuildsIndex(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "archive.db")
+	db, err := sql.Open("sqlite", path)
+	if err != nil {
+		t.Fatalf("open archive: %v", err)
+	}
+	defer db.Close()
+	if err := InitArchiveSchema(db); err != nil {
+		t.Fatalf("InitArchiveSchema: %v", err)
+	}
+	if _, err := db.Exec(`INSERT INTO history_archive(url, visit_time, title, visit_count) VALUES
+		('https://example.test/a', 1, 'A old', 1),
+		('https://example.test/a', 2, 'A new', 1),
+		('https://example.test/b', 3, 'B', 1)`); err != nil {
+		t.Fatalf("insert archive rows: %v", err)
+	}
+	if _, err := db.Exec(`UPDATE meta_pp SET schema_version=1`); err != nil {
+		t.Fatalf("lower schema version: %v", err)
+	}
+	if _, err := db.Exec(`DELETE FROM history_fts`); err != nil {
+		t.Fatalf("empty FTS: %v", err)
+	}
+	if err := migrateArchiveFTS(db); err != nil {
+		t.Fatalf("migrateArchiveFTS: %v", err)
+	}
+	var ftsRows, version int64
+	if err := db.QueryRow(`SELECT COUNT(*) FROM history_fts`).Scan(&ftsRows); err != nil {
+		t.Fatalf("count FTS rows: %v", err)
+	}
+	if ftsRows != 2 {
+		t.Fatalf("FTS rows = %d, want 2 distinct URLs", ftsRows)
+	}
+	if err := db.QueryRow(`SELECT schema_version FROM meta_pp LIMIT 1`).Scan(&version); err != nil {
+		t.Fatalf("read schema version: %v", err)
+	}
+	if version != archiveSchemaVersion {
+		t.Fatalf("schema_version = %d, want %d", version, archiveSchemaVersion)
+	}
+}
+
 func TestArchiveCompatibilityViewsSupportCoreReads(t *testing.T) {
 	cache := t.TempDir()
 	t.Setenv("XDG_CACHE_HOME", cache)
