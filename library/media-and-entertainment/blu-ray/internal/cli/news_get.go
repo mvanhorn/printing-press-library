@@ -17,19 +17,16 @@ func newNewsGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "get <id>",
 		Short:       "Fetch a single news story by id.",
-		Example:     "  blu-ray-pp-cli news get 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  blu-ray-pp-cli news get 12345",
 		Annotations: map[string]string{"pp:endpoint": "news.get", "pp:method": "GET", "pp:path": "/news/", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if dryRunOK(flags) {
-				return nil
-			}
-			// PATCH: News story ids are numeric on Blu-ray.com; reject invalid ids before fetching the index page.
-			id, err := strconv.Atoi(args[0])
-			if err != nil || id <= 0 {
-				return fmt.Errorf("news id must be a positive integer, got %q", args[0])
+			// PATCH (phase-5-dogfood-blockers): news story ids are numeric on
+			// Blu-ray.com; reject invalid ids before fetching the index page.
+			if n, convErr := strconv.Atoi(args[0]); convErr != nil || n <= 0 {
+				return usageErr(fmt.Errorf("news id must be a positive integer, got %q", args[0]))
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -41,7 +38,7 @@ func newNewsGetCmd(flags *rootFlags) *cobra.Command {
 			htmlRequestParams["id"] = args[0]
 			params := map[string]string{}
 			params["id"] = args[0]
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "news", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "news", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

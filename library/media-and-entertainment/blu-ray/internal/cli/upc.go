@@ -1,6 +1,8 @@
 package cli
 
 // PATCH: Hand-built UPC import resolver over the local Blu-ray catalog.
+// pp:data-source local -- upc resolves codes against the locally synced
+// catalog and price_history tables; it makes no live API calls.
 
 import (
 	"fmt"
@@ -25,7 +27,7 @@ type upcRow struct {
 	LastObservedAt    string  `json:"last_observed_at,omitempty"`
 }
 
-func newUPCCmd(flags *rootFlags) *cobra.Command {
+func newNovelUpcCmd(flags *rootFlags) *cobra.Command {
 	var enrich bool
 	cmd := &cobra.Command{
 		Use:   "upc <file.csv>",

@@ -8,24 +8,10 @@ website_url: "https://www.blu-ray.com"
 spec_source: community
 http_transport: standard
 health_check_path: "/sitemap.xml"
-category: media-and-entertainment
+category: media
 
 auth:
   type: none
-
-cache:
-  enabled: true
-  stale_after: 168h
-  env_opt_out: BLURAY_FRESHNESS_SKIP
-  commands:
-    - name: search
-      resources: [releases]
-    - name: editions
-      resources: [releases]
-    - name: drift
-      resources: [releases]
-    - name: history
-      resources: [releases]
 
 config:
   format: toml
@@ -123,7 +109,7 @@ resources:
       theatrical:
         method: GET
         path: "/theatrical/releasedates.php"
-        description: "Theatrical release calendar."
+        description: "Theatrical release calendar for a given year — films opening in theaters, with titles and dates. JS-driven UI; the raw HTML still contains the listing data the page renders."
         response_format: html
         html_extract:
           mode: page

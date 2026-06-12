@@ -42,15 +42,6 @@
   "researched_at": "2026-05-17T05:59:55Z",
   "novel_features": [
     {
-      "name": "Offline FTS5 Search",
-      "command": "search",
-      "description": "Instant offline search across every Blu-ray release in Blu-ray.com's published sitemap (~400k+ entries). Faster than the site's JS-rendered search and works without a network round-trip after one sync.",
-      "rationale": "Requires a local SQLite + FTS5 index hydrated from blu-ray.com's public sitemap; the site's own /movies/search.php is JS-rendered and robots-disallowed.",
-      "example": "blu-ray-pp-cli search 'fight club' --format 4k --year 2025 --json",
-      "why_it_matters": "Reach for this whenever an agent needs to resolve a title to a release id, list every edition of a film, or filter the catalog by year/format/country. Single round-trip vs. the dozens of network hits the website does.",
-      "group": "Local state that compounds"
-    },
-    {
       "name": "Price-Drop Watchlist",
       "command": "watch check",
       "description": "Local watchlist of release ids; re-scans Blu-ray.com deals on demand and alerts when any watched disc hits its target price or a new historical low.",
@@ -97,15 +88,6 @@
     }
   ],
   "novel_features_built": [
-    {
-      "name": "Offline FTS5 Search",
-      "command": "search",
-      "description": "Instant offline search across every Blu-ray release in Blu-ray.com's published sitemap (~400k+ entries). Faster than the site's JS-rendered search and works without a network round-trip after one sync.",
-      "rationale": "Requires a local SQLite + FTS5 index hydrated from blu-ray.com's public sitemap; the site's own /movies/search.php is JS-rendered and robots-disallowed.",
-      "example": "blu-ray-pp-cli search 'fight club' --format 4k --year 2025 --json",
-      "why_it_matters": "Reach for this whenever an agent needs to resolve a title to a release id, list every edition of a film, or filter the catalog by year/format/country. Single round-trip vs. the dozens of network hits the website does.",
-      "group": "Local state that compounds"
-    },
     {
       "name": "Price-Drop Watchlist",
       "command": "watch check",

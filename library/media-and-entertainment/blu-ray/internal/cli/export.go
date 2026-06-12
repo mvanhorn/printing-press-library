@@ -80,6 +80,9 @@ func writeExportRows(cmd *cobra.Command, flags *rootFlags, format, output string
 	if output == "" {
 		f = nil
 	} else {
+		// #nosec G304 -- output is the operator-supplied --output path for an
+		// export-to-file feature; writing to a caller-chosen path is the intended
+		// behavior, and the user already controls their own filesystem.
 		f, err = os.Create(output)
 		if err != nil {
 			return err

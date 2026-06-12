@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "id": "reprint-4.24.0-framework-refresh",
+  "applied_at": "2026-06-11",
+  "base_run_id": "20260611-022446",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Reprints the CLI from scratch under Printing Press 4.24.0 — context-first client, binary-response envelope decode, native FTS5, store extraction, and an SSRF-guard base-URL override helper.",
+  "reason": "The published CLI was generated on 4.8.0. Regenerating under 4.24.0 picks up the context-first client signature and the framework's native FTS5, lets the hand-built offline search shrink to a thin wrapper, and removes generator-era workarounds. The carried-forward Phase 3 / Phase 5 / review patches (catalogued in the sibling patch files) were re-applied on top of the 4.24.0 base; this entry records the framework-refresh delta itself.",
+  "files": [
+    "internal/client/client.go",
+    "internal/cli/bluray_helpers.go",
+    "internal/cli/bluray_helpers_test.go",
+    "internal/cli/sync_bluray.go",
+    "internal/cli/editions.go",
+    "internal/cli/watch.go",
+    "internal/cli/search.go",
+    "internal/cli/promoted_deals.go",
+    "internal/cli/deals_parse.go",
+    "internal/cli/deals_parse_test.go",
+    "internal/cli/news_get.go",
+    "internal/store/blu_ray_catalog.go",
+    "internal/store/blu_ray_catalog_test.go",
+    "internal/store/store.go",
+    "manifest.json"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass; restored real tests plus a new mutation-verified TestDecodeMaybeBinaryEnvelope pass. Tier-1 peer review (code + test) resolved all Blocker/Major findings; polish scorecard A/92; live dogfood 88/88."
+}

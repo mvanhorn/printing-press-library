@@ -1,6 +1,8 @@
 package cli
 
 // PATCH: Hand-built local price watchlist commands backed by SQLite.
+// pp:data-source live -- "watch check" fetches the live Blu-ray.com deals page
+// to re-price watched releases; the watchlist itself is stored locally.
 
 import (
 	"context"
@@ -22,7 +24,7 @@ type watchRow struct {
 	AlertedAt   string  `json:"alerted_at,omitempty"`
 }
 
-func newWatchCmd(flags *rootFlags) *cobra.Command {
+func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "watch",
 		Short: "Manage a local Blu-ray.com price-drop watchlist.",
@@ -47,6 +49,9 @@ func newWatchAddCmd(flags *rootFlags) *cobra.Command {
 				return cmd.Help()
 			}
 			if dryRunOK(flags) {
+				if flags.asJSON || flags.selectFields != "" || flags.csv || flags.quiet || flags.plain {
+					return flags.printJSON(cmd, map[string]any{"dry_run": true, "release_id": args[0]})
+				}
 				return nil
 			}
 			id, err := strconv.Atoi(args[0])
@@ -63,6 +68,9 @@ func newWatchAddCmd(flags *rootFlags) *cobra.Command {
 			}
 			if err := s.AddToWatchlist(cmd.Context(), id, target); err != nil {
 				return err
+			}
+			if flags.asJSON || flags.selectFields != "" || flags.csv || flags.quiet || flags.plain {
+				return flags.printJSON(cmd, map[string]any{"release_id": id, "target_price": target, "status": "watching"})
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Watching release %d\n", id)
 			return nil
@@ -116,6 +124,9 @@ func newWatchRmCmd(flags *rootFlags) *cobra.Command {
 				return cmd.Help()
 			}
 			if dryRunOK(flags) {
+				if flags.asJSON || flags.selectFields != "" || flags.csv || flags.quiet || flags.plain {
+					return flags.printJSON(cmd, map[string]any{"dry_run": true, "release_id": args[0]})
+				}
 				return nil
 			}
 			id, err := strconv.Atoi(args[0])
@@ -132,6 +143,9 @@ func newWatchRmCmd(flags *rootFlags) *cobra.Command {
 			}
 			if _, err := s.RemoveFromWatchlist(cmd.Context(), id); err != nil {
 				return err
+			}
+			if flags.asJSON || flags.selectFields != "" || flags.csv || flags.quiet || flags.plain {
+				return flags.printJSON(cmd, map[string]any{"release_id": id, "status": "removed"})
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Removed release %d\n", id)
 			return nil
@@ -198,7 +212,7 @@ func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			body, err := bluRayGet(c, "https://www.blu-ray.com/deals/", false)
+			body, err := bluRayGet(cmd.Context(), c, bluRaySiteURL(c, "/deals/"), false)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

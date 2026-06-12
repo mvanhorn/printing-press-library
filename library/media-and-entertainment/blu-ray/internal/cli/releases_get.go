@@ -15,8 +15,8 @@ func newReleasesGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "get <slug> <id>",
-		Short:       "Fetch the canonical release detail page by URL slug and id. The id is stable; slug is documented for redirect-safe...",
-		Example:     "  blu-ray-pp-cli releases get example-value 550e8400-e29b-41d4-a716-446655440000",
+		Short:       "Fetch the canonical release detail page by URL slug and id.",
+		Example:     "  blu-ray-pp-cli releases get Fight-Club-4K-Blu-ray 406956 --json",
 		Annotations: map[string]string{"pp:endpoint": "releases.get", "pp:method": "GET", "pp:path": "/movies/{slug}/{id}/", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -35,7 +35,7 @@ func newReleasesGetCmd(flags *rootFlags) *cobra.Command {
 			path = replacePathParam(path, "id", args[1])
 			htmlRequestParams := map[string]string{}
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "releases", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "releases", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

@@ -42,6 +42,40 @@ func TestFilterDealRowsHappyPath(t *testing.T) {
 	}
 }
 
+func TestFilterDealRowsMaxPriceGate(t *testing.T) {
+	t.Parallel()
+
+	rows := []DealRow{
+		{ReleaseID: 1, SalePrice: 14.99, PercentOff: 50},
+		{ReleaseID: 2, SalePrice: 15.01, PercentOff: 50},
+	}
+
+	got := filterDealRows(rows, 40, 15, 0)
+	if len(got) != 1 {
+		t.Fatalf("expected 1 filtered row, got %d: %+v", len(got), got)
+	}
+	if got[0].ReleaseID != 1 {
+		t.Fatalf("expected release 1 after max price gate, got %+v", got[0])
+	}
+}
+
+func TestFilterDealRowsMinDiscountGate(t *testing.T) {
+	t.Parallel()
+
+	rows := []DealRow{
+		{ReleaseID: 1, SalePrice: 14.99, PercentOff: 40},
+		{ReleaseID: 2, SalePrice: 14.99, PercentOff: 39},
+	}
+
+	got := filterDealRows(rows, 40, 15, 0)
+	if len(got) != 1 {
+		t.Fatalf("expected 1 filtered row, got %d: %+v", len(got), got)
+	}
+	if got[0].ReleaseID != 1 {
+		t.Fatalf("expected release 1 after min discount gate, got %+v", got[0])
+	}
+}
+
 func TestPriceRegexAcceptsSubDollarAndRejectsBareDollar(t *testing.T) {
 	t.Parallel()
 

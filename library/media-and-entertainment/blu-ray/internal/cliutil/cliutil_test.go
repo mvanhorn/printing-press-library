@@ -9,32 +9,12 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 )
-
-// PATCH: Avoid socket-bound httptest servers so probes are testable in sandboxed agents.
-type probeRoundTripFunc func(*http.Request) (*http.Response, error)
-
-func (f probeRoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
-	return f(req)
-}
-
-func probeClient(statusCode int, observe func(*http.Request)) *http.Client {
-	return &http.Client{Transport: probeRoundTripFunc(func(req *http.Request) (*http.Response, error) {
-		if observe != nil {
-			observe(req)
-		}
-		return &http.Response{
-			StatusCode: statusCode,
-			Header:     make(http.Header),
-			Body:       http.NoBody,
-			Request:    req,
-		}, nil
-	})}
-}
 
 // ---- CleanText ----
 
@@ -452,7 +432,13 @@ func TestFanoutReportErrorsTruncates(t *testing.T) {
 // TestProbeReachable_200 asserts that a plain 2xx GET is classified
 // reachable with the right code.
 func TestProbeReachable_200(t *testing.T) {
-	status, code, err := ProbeReachable(context.Background(), probeClient(http.StatusOK, nil), "https://example.test")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("hello"))
+	}))
+	defer srv.Close()
+
+	status, code, err := ProbeReachable(context.Background(), srv.Client(), srv.URL)
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
@@ -467,7 +453,12 @@ func TestProbeReachable_200(t *testing.T) {
 // TestProbeReachable_206_Reachable asserts hosts that honor Range
 // (returning 206 Partial Content) are classified reachable.
 func TestProbeReachable_206_Reachable(t *testing.T) {
-	status, code, err := ProbeReachable(context.Background(), probeClient(http.StatusPartialContent, nil), "https://example.test")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusPartialContent)
+	}))
+	defer srv.Close()
+
+	status, code, err := ProbeReachable(context.Background(), srv.Client(), srv.URL)
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
@@ -484,7 +475,12 @@ func TestProbeReachable_206_Reachable(t *testing.T) {
 // the headers came back, the host is up. This is the F4 motivating
 // case: HEAD-then-GET probes incorrectly report unreachable here.
 func TestProbeReachable_416_Reachable(t *testing.T) {
-	status, code, err := ProbeReachable(context.Background(), probeClient(http.StatusRequestedRangeNotSatisfiable, nil), "https://example.test")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusRequestedRangeNotSatisfiable)
+	}))
+	defer srv.Close()
+
+	status, code, err := ProbeReachable(context.Background(), srv.Client(), srv.URL)
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
@@ -501,7 +497,12 @@ func TestProbeReachable_416_Reachable(t *testing.T) {
 // and refusing this request — a doctor command should render WARN
 // rather than FAIL.
 func TestProbeReachable_403_Blocked(t *testing.T) {
-	status, code, err := ProbeReachable(context.Background(), probeClient(http.StatusForbidden, nil), "https://example.test")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusForbidden)
+	}))
+	defer srv.Close()
+
+	status, code, err := ProbeReachable(context.Background(), srv.Client(), srv.URL)
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
@@ -517,10 +518,8 @@ func TestProbeReachable_403_Blocked(t *testing.T) {
 // failures (DNS, connection refused, timeout) report unreachable with
 // a non-nil err.
 func TestProbeReachable_NetworkError_Unreachable(t *testing.T) {
-	client := &http.Client{Transport: probeRoundTripFunc(func(req *http.Request) (*http.Response, error) {
-		return nil, errors.New("dial failed")
-	})}
-	status, code, err := ProbeReachable(context.Background(), client, "https://example.test")
+	// Use a port that nothing is listening on.
+	status, code, err := ProbeReachable(context.Background(), http.DefaultClient, "http://127.0.0.1:1")
 	if err == nil {
 		t.Fatal("expected non-nil err for unreachable host")
 	}
@@ -536,18 +535,12 @@ func TestProbeReachable_NetworkError_Unreachable(t *testing.T) {
 // guard so doctor commands don't have to plumb an explicit *http.Client
 // when default behavior is fine.
 func TestProbeReachable_NilClient_UsesDefault(t *testing.T) {
-	old := http.DefaultTransport
-	http.DefaultTransport = probeRoundTripFunc(func(req *http.Request) (*http.Response, error) {
-		return &http.Response{
-			StatusCode: http.StatusOK,
-			Header:     make(http.Header),
-			Body:       http.NoBody,
-			Request:    req,
-		}, nil
-	})
-	t.Cleanup(func() { http.DefaultTransport = old })
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer srv.Close()
 
-	status, _, err := ProbeReachable(context.Background(), nil, "https://example.test")
+	status, _, err := ProbeReachable(context.Background(), nil, srv.URL)
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
@@ -567,18 +560,20 @@ func TestProbeReachable_NilClient_HasTimeout(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skip slow timeout test in -short mode")
 	}
-	old := http.DefaultTransport
-	http.DefaultTransport = probeRoundTripFunc(func(req *http.Request) (*http.Response, error) {
-		<-req.Context().Done()
-		return nil, req.Context().Err()
+	hang := make(chan struct{})
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		<-hang // never returns until t.Cleanup closes it
+	}))
+	t.Cleanup(func() {
+		close(hang)
+		srv.Close()
 	})
-	t.Cleanup(func() { http.DefaultTransport = old })
 
 	done := make(chan struct{})
 	var status string
 	var probeErr error
 	go func() {
-		status, _, probeErr = ProbeReachable(context.Background(), nil, "https://example.test")
+		status, _, probeErr = ProbeReachable(context.Background(), nil, srv.URL)
 		close(done)
 	}()
 	select {
@@ -600,10 +595,13 @@ func TestProbeReachable_NilClient_HasTimeout(t *testing.T) {
 // response body before we even read it.
 func TestProbeReachable_SendsRangeHeader(t *testing.T) {
 	var receivedRange string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		receivedRange = r.Header.Get("Range")
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer srv.Close()
 
-	_, _, err := ProbeReachable(context.Background(), probeClient(http.StatusOK, func(req *http.Request) {
-		receivedRange = req.Header.Get("Range")
-	}), "https://example.test")
+	_, _, err := ProbeReachable(context.Background(), srv.Client(), srv.URL)
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
@@ -661,6 +659,27 @@ func TestAdaptiveLimiter_FloorsAtHalfRPS(t *testing.T) {
 	}
 	if got := l.Rate(); got < 0.5 {
 		t.Errorf("Rate() after many OnRateLimit = %v, want >= 0.5", got)
+	}
+}
+
+func TestAdaptiveLimiter_DoesNotRaiseSubFloorRateOnRateLimit(t *testing.T) {
+	l := NewAdaptiveLimiter(0.3)
+	startRate := l.Rate()
+	l.OnRateLimit()
+	if got := l.Rate(); got > startRate {
+		t.Errorf("Rate() after OnRateLimit = %v, want <= %v", got, startRate)
+	}
+}
+
+func TestAdaptiveLimiter_DoesNotRampBelowFloorAfterRateLimit(t *testing.T) {
+	l := NewAdaptiveLimiter(0.3)
+	floor := l.Rate()
+	l.OnRateLimit()
+	for i := 0; i < l.rampAfter; i++ {
+		l.OnSuccess()
+	}
+	if got := l.Rate(); got < floor {
+		t.Errorf("Rate() after ramping from rate-limit ceiling = %v, want >= %v", got, floor)
 	}
 }
 

@@ -1,6 +1,7 @@
 {
   "dir": "\u003ccli-dir\u003e/blu-ray",
   "spec_path": "\u003ccli-dir\u003e/spec.yaml",
+  "spec_source": "bundled",
   "verdict": "WARN",
   "path_check": {
     "tested": 0,
@@ -13,26 +14,34 @@
     "spec_scheme": "",
     "generated_format": "unknown",
     "match": true,
-    "detail": "spec not provided or no bot/bearer/basic scheme detected"
+    "detail": "no bot/bearer/basic scheme detected"
   },
   "browser_session_check": {
     "required": false,
     "pass": true,
     "detail": "browser-session auth not required"
   },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
   "dead_flags": {
-    "total": 18,
+    "total": 19,
     "dead": 0
   },
   "dead_functions": {
-    "total": 55,
+    "total": 61,
     "dead": 0
   },
   "pipeline_check": {
     "sync_calls_domain": false,
     "search_calls_domain": true,
-    "domain_tables": 3,
-    "detail": "sync Upsert calls not found; search uses domain-specific Search methods; 3 domain tables found"
+    "domain_tables": 1,
+    "sync_file_emitted": false,
+    "sync_resources_present": false,
+    "detail": "sync Upsert calls not found; search uses domain-specific Search methods; 1 domain tables found"
   },
   "example_check": {
     "tested": 10,
@@ -42,8 +51,8 @@
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 44,
-      "registered": 44
+      "defined": 43,
+      "registered": 43
     },
     "config_consistency": {
       "consistent": true
@@ -56,8 +65,8 @@
     }
   },
   "novel_features_check": {
-    "planned": 6,
-    "found": 6
+    "planned": 5,
+    "found": 5
   },
   "mcp_surface_parity": {
     "state": "runtime_walking",
@@ -65,21 +74,25 @@
     "detail": "MCP surface mirrors the Cobra tree at runtime"
   },
   "reimplementation_check": {
-    "checked": 6,
-    "exempted_via_store": 6
+    "checked": 5,
+    "exempted_via_store": 5
   },
   "source_client_check": {
     "checked": 0,
     "skipped": true
   },
   "print_json_filtered_check": {
-    "checked": 39
+    "checked": 40
   },
   "test_presence": {
     "checked": 0
   },
   "naming_check": {
-    "checked": 39
+    "checked": 40
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
   },
   "issues": [
     "sync uses generic Upsert only"
