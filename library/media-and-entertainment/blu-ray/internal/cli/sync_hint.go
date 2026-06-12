@@ -86,7 +86,8 @@ func readSyncHintState(db *store.Store, resourceType string) (syncHintState, err
 	} else {
 		query += ` WHERE last_synced_at IS NOT NULL`
 	}
-	query += ` ORDER BY last_synced_at ASC LIMIT 1`
+	// The global path wants the newest sync (store freshness), not the stalest resource.
+	query += ` ORDER BY last_synced_at DESC LIMIT 1`
 
 	var lastSynced sql.NullTime
 	err := db.DB().QueryRow(query, args...).Scan(&lastSynced)

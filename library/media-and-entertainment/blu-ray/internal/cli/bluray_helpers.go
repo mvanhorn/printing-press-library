@@ -110,7 +110,11 @@ func bluRayGet(ctx context.Context, c *client.Client, rawURL string, binary bool
 	if err != nil {
 		return nil, err
 	}
-	return decodeMaybeBinaryEnvelope([]byte(data)), nil
+	decoded, decErr := decodeMaybeBinaryEnvelope([]byte(data))
+	if decErr != nil {
+		return nil, decErr
+	}
+	return decoded, nil
 }
 
 // decodeMaybeBinaryEnvelope unwraps the 4.24.0 client's base64 binary-response
@@ -119,10 +123,10 @@ func bluRayGet(ctx context.Context, c *client.Client, rawURL string, binary bool
 // e.g. the gzipped Blu-ray.com sitemap shards — so the gzip magic bytes survive
 // the json.RawMessage contract. Non-envelope bodies (HTML, XML, text) pass
 // through untouched.
-func decodeMaybeBinaryEnvelope(raw []byte) []byte {
+func decodeMaybeBinaryEnvelope(raw []byte) ([]byte, error) {
 	trimmed := bytes.TrimSpace(raw)
 	if len(trimmed) == 0 || trimmed[0] != '{' || !bytes.Contains(trimmed, []byte(`"_pp_binary"`)) {
-		return raw
+		return raw, nil
 	}
 	var env struct {
 		PPBinary bool   `json:"_pp_binary"`
@@ -130,14 +134,16 @@ func decodeMaybeBinaryEnvelope(raw []byte) []byte {
 		Data     string `json:"data"`
 	}
 	if err := json.Unmarshal(trimmed, &env); err != nil || !env.PPBinary {
-		return raw
+		return raw, nil
 	}
 	if env.Encoding == "base64" {
-		if decoded, decErr := base64.StdEncoding.DecodeString(env.Data); decErr == nil {
-			return decoded
+		decoded, decErr := base64.StdEncoding.DecodeString(env.Data)
+		if decErr != nil {
+			return nil, fmt.Errorf("decode base64 binary envelope: %w", decErr)
 		}
+		return decoded, nil
 	}
-	return raw
+	return nil, fmt.Errorf("unsupported binary envelope encoding %q", env.Encoding)
 }
 
 func decodeLatin1(raw []byte) string {

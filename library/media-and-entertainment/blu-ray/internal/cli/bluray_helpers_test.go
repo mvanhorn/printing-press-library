@@ -127,13 +127,15 @@ func TestDecodeMaybeBinaryEnvelope(t *testing.T) {
 	}
 
 	tests := []struct {
-		name string
-		raw  []byte
-		want []byte
+		name    string
+		raw     []byte
+		want    []byte
+		wantErr bool
 	}{
 		{name: "base64 gzip envelope", raw: envelope, want: gzipBytes},
 		{name: "plain body", raw: []byte("<html><body>ok</body></html>"), want: []byte("<html><body>ok</body></html>")},
-		{name: "invalid base64 envelope", raw: []byte(`{"_pp_binary":true,"content_type":"application/gzip","encoding":"base64","bytes":3,"data":"%%%"}`), want: []byte(`{"_pp_binary":true,"content_type":"application/gzip","encoding":"base64","bytes":3,"data":"%%%"}`)},
+		{name: "invalid base64 envelope", raw: []byte(`{"_pp_binary":true,"content_type":"application/gzip","encoding":"base64","bytes":3,"data":"!!!notbase64!!!"}`), wantErr: true},
+		{name: "unknown binary envelope encoding", raw: []byte(`{"_pp_binary":true,"content_type":"application/gzip","encoding":"gzip","bytes":3,"data":"abc"}`), wantErr: true},
 		{name: "missing binary discriminator", raw: []byte(`{"content_type":"application/gzip","encoding":"base64","bytes":3,"data":"abc"}`), want: []byte(`{"content_type":"application/gzip","encoding":"base64","bytes":3,"data":"abc"}`)},
 		{name: "false binary discriminator", raw: []byte(`{"_pp_binary":false,"content_type":"application/gzip","encoding":"base64","bytes":3,"data":"abc"}`), want: []byte(`{"_pp_binary":false,"content_type":"application/gzip","encoding":"base64","bytes":3,"data":"abc"}`)},
 	}
@@ -141,7 +143,19 @@ func TestDecodeMaybeBinaryEnvelope(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := decodeMaybeBinaryEnvelope(tt.raw)
+			got, err := decodeMaybeBinaryEnvelope(tt.raw)
+			if tt.wantErr {
+				if err == nil {
+					t.Fatalf("decodeMaybeBinaryEnvelope error = nil, want error")
+				}
+				if got != nil {
+					t.Fatalf("decodeMaybeBinaryEnvelope decoded = %q, want nil on error", got)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("decodeMaybeBinaryEnvelope error = %v, want nil", err)
+			}
 			if !bytes.Equal(got, tt.want) {
 				t.Fatalf("decodeMaybeBinaryEnvelope = %q, want %q", got, tt.want)
 			}

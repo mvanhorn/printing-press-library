@@ -500,7 +500,8 @@ func paginationCursorToken(raw json.RawMessage) string {
 	}
 	var number json.Number
 	if json.Unmarshal(raw, &number) == nil {
-		if n, err := number.Int64(); err == nil && n > 0 {
+		// Cursor 0 is valid; null/absent values are handled upstream as empty.
+		if n, err := number.Int64(); err == nil && n >= 0 {
 			return number.String()
 		}
 	}

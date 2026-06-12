@@ -102,7 +102,7 @@ func TestHintIfUnsynced_NullTimestampWritesHint(t *testing.T) {
 	}
 }
 
-func TestHintIfStale_AllResourcesIgnoresNullTimestampRows(t *testing.T) {
+func TestHintIfStale_AllResourcesUsesNewestTimestamp(t *testing.T) {
 	db := newSyncHintTestStore(t)
 	now := time.Now()
 	for _, row := range []struct {
@@ -111,6 +111,7 @@ func TestHintIfStale_AllResourcesIgnoresNullTimestampRows(t *testing.T) {
 	}{
 		{"users", nil},
 		{"issues", now.Add(-2 * time.Hour)},
+		{"movies", now.Add(-5 * time.Minute)},
 	} {
 		if _, err := db.DB().Exec(
 			`INSERT INTO sync_state(resource_type, last_synced_at, total_count) VALUES (?, ?, ?)`,
@@ -124,11 +125,11 @@ func TestHintIfStale_AllResourcesIgnoresNullTimestampRows(t *testing.T) {
 	if hintIfUnsynced(cmd, db, "") {
 		t.Fatalf("hintIfUnsynced returned true when a valid sync timestamp exists")
 	}
-	if !hintIfStale(cmd, db, "", 30*time.Minute) {
-		t.Fatalf("hintIfStale returned false for oldest valid all-resource timestamp")
+	if hintIfStale(cmd, db, "", 30*time.Minute) {
+		t.Fatalf("hintIfStale returned true when the newest all-resource timestamp is fresh")
 	}
-	if got := stderr.String(); !strings.Contains(got, "older than --max-age=30m0s") {
-		t.Fatalf("stderr = %q, want stale hint from valid timestamp", got)
+	if stderr.Len() != 0 {
+		t.Fatalf("stderr = %q, want no stale hint from newest timestamp", stderr.String())
 	}
 }
 
