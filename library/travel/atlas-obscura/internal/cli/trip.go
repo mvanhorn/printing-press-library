@@ -31,10 +31,10 @@ func newNovelTripCmd(flags *rootFlags) *cobra.Command {
 func newTripAddCmd(flags *rootFlags) *cobra.Command {
 	var trip string
 	cmd := &cobra.Command{
-		Use:         "add <id-or-slug>",
-		Short:       "Add a place to a trip",
-		Example:     "  atlas-obscura-pp-cli trip add winchester-mystery-house --trip california-oddities",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Use:     "add <id-or-slug>",
+		Short:   "Add a place to a trip",
+		Example: "  atlas-obscura-pp-cli trip add winchester-mystery-house --trip california-oddities",
+		// Writes to the local SQLite store (ao_trip_items), so it is NOT mcp:read-only.
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
@@ -92,8 +92,9 @@ func newTripRemoveCmd(flags *rootFlags) *cobra.Command {
 		Use:     "remove <id-or-slug>",
 		Short:   "Remove a place from a trip",
 		Example: "  atlas-obscura-pp-cli trip remove winchester-mystery-house --trip california-oddities",
+		// Writes to the local SQLite store (ao_trip_items), so it is NOT mcp:read-only.
 		// Removing an absent item is an idempotent no-op (exit 0), not an error.
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:no-error-path-probe": "true"},
+		Annotations: map[string]string{"pp:no-error-path-probe": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
@@ -212,9 +213,12 @@ func listTrips(cmd *cobra.Command, flags *rootFlags, s interface{ DB() *sql.DB }
 	for rows.Next() {
 		var tr tripRow
 		if err := rows.Scan(&tr.Trip, &tr.Count); err != nil {
-			continue
+			return err
 		}
 		trips = append(trips, tr)
+	}
+	if err := rows.Err(); err != nil {
+		return err
 	}
 	return aoEmit(cmd, flags, map[string]any{"source": aoSourceNote, "trips": trips, "count": len(trips)})
 }
@@ -240,7 +244,7 @@ func readTripPlaces(s interface{ DB() *sql.DB }, trip string) ([]AOPlace, error)
 		var slug, title, location sql.NullString
 		var lat, lng sql.NullFloat64
 		if err := rows.Scan(&p.ID, &slug, &title, &location, &lat, &lng); err != nil {
-			continue
+			return nil, err
 		}
 		p.Slug = slug.String
 		p.Title = title.String
@@ -249,6 +253,9 @@ func readTripPlaces(s interface{ DB() *sql.DB }, trip string) ([]AOPlace, error)
 		p.Lng = lng.Float64
 		p.URL = absoluteAOURL("/places/" + p.Slug)
 		places = append(places, p)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return places, nil
 }

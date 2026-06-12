@@ -296,8 +296,11 @@ func extractKBYG(html string) string {
 		}
 	}
 	text = strings.TrimSpace(text)
-	if len(text) > 1200 {
-		text = strings.TrimSpace(text[:1200]) + "…"
+	// Truncate on a rune boundary, not a byte offset: Atlas Obscura carries
+	// non-ASCII content, and slicing mid-rune would emit invalid UTF-8 that
+	// json.Marshal silently replaces with U+FFFD.
+	if r := []rune(text); len(r) > 1200 {
+		text = strings.TrimSpace(string(r[:1200])) + "…"
 	}
 	return text
 }

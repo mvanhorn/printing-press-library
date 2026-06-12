@@ -28,10 +28,10 @@ func newVisitedMarkCmd(flags *rootFlags) *cobra.Command {
 	var note string
 	var date string
 	cmd := &cobra.Command{
-		Use:         "mark <id-or-slug>",
-		Short:       "Mark a place as visited",
-		Example:     "  atlas-obscura-pp-cli visited mark salvation-mountain --note \"worth the desert drive\"",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Use:     "mark <id-or-slug>",
+		Short:   "Mark a place as visited",
+		Example: "  atlas-obscura-pp-cli visited mark salvation-mountain --note \"worth the desert drive\"",
+		// Writes to the local SQLite store (ao_visited), so it is NOT mcp:read-only.
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
@@ -143,9 +143,13 @@ func visitedIDs(s interface{ DB() *sql.DB }) (map[int]bool, error) {
 	set := map[int]bool{}
 	for rows.Next() {
 		var id int
-		if rows.Scan(&id) == nil {
-			set[id] = true
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
 		}
+		set[id] = true
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return set, nil
 }
