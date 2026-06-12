@@ -74,7 +74,7 @@ Off by default and additive — plain `sync` is unchanged.
 - `archive status` — enabled? baseline date, distinct-url + visit counts, size. **Check this to know whether reads come from the archive vs the snapshot.**
 - When archive mode is on, the history-faithful commands (`list`/`search`/`domains`/`report`/`heatmap`/`timeline`/`sql`) automatically read the **archive**; the richer commands (`dwell`/`graph`/`journeys`/`profile`/…) read the current snapshot. No flags needed.
 - In archive mode, `visit_count` reflects visits the archive has accumulated, not Safari's live per-page count; `visited` referrer chains read the live snapshot because archive rowid remapping cannot preserve redirect lineage.
-- `archive disable` (keep file) · `archive clobber` (rebuild from snapshot) · `archive reset --force [--purge]` (guarded — without `--force` it only prints the destroy plan) · `archive vacuum`.
+- `archive disable` (keep file) · `archive clobber --force` (rebuild from snapshot — **guarded**: without `--force` it only prints the destroy plan) · `archive reset --force [--purge]` (guarded — without `--force` it only prints the destroy plan) · `archive vacuum`.
 - MCP: `archive_status`/`archive_enable`/`archive_disable` + `sync(accumulate=true)`. Destructive ops are CLI-only.
 
 ## Agent notes

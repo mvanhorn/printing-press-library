@@ -79,7 +79,7 @@ Safari's pruning. It's additive and off until you enable it; plain `sync` is unc
 ./safari-history-pp-cli sync --accumulate               # sync, then append new visits into the archive (deduped)
 ./safari-history-pp-cli archive status                  # enabled? baseline date, url/visit counts, size
 ./safari-history-pp-cli archive disable                 # stop accumulating (keeps the file)
-./safari-history-pp-cli archive clobber                 # rebuild the archive from the current snapshot
+./safari-history-pp-cli archive clobber --force         # rebuild the archive from the current snapshot (guarded)
 ./safari-history-pp-cli archive reset --force [--purge] # disable + move (or --purge delete) archive.db
 ./safari-history-pp-cli archive vacuum                  # compact archive.db
 ```
@@ -90,7 +90,7 @@ Safari's pruning. It's additive and off until you enable it; plain `sync` is unc
 - **Semantics:** in archive mode, `visit_count` reflects visits the archive has accumulated, not Safari's live
   per-page count; `visited` referrer chains read the live snapshot because archive rowid remapping cannot preserve
   redirect lineage.
-- **`reset` is guarded:** without `--force` it prints what it *would* destroy and touches nothing.
+- **`clobber` and `reset` are guarded:** without `--force` each prints what it *would* destroy and touches nothing.
 - **MCP:** `archive_status` (read-only) + `archive_enable`/`archive_disable` are exposed, and `sync` gains an
   `accumulate` option. The destructive `clobber`/`reset`/`vacuum` are CLI-only (human-gated).
 

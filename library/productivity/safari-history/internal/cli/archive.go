@@ -137,15 +137,36 @@ func newArchiveDisableCmd(opts *RootOptions) *cobra.Command {
 }
 
 func newArchiveClobberCmd(opts *RootOptions) *cobra.Command {
-	return &cobra.Command{
-		Use:         "clobber",
-		Short:       "Replace the archive with a fresh current snapshot baseline",
-		Example:     "  safari-history-pp-cli archive clobber",
-		Annotations: map[string]string{"pp:typed-exit-codes": "0,3"},
+	var force bool
+	cmd := &cobra.Command{
+		Use:     "clobber",
+		Short:   "Replace the archive with a fresh current snapshot baseline",
+		Example: "  safari-history-pp-cli archive clobber --force",
+		Annotations: map[string]string{
+			"pp:typed-exit-codes": "0,2,3",
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			archivePath, snapshot, err := archiveAndSnapshotPaths()
 			if err != nil {
 				return err
+			}
+			output.DefaultToJSONIfNotTTY(&opts.Output)
+			if !force {
+				status, err := store.ReadArchiveStatus()
+				if err != nil {
+					return err
+				}
+				plan := []map[string]any{{
+					"requires_force": true,
+					"path":           archivePath,
+					"size_bytes":     status.SizeBytes,
+					"enabled":        status.Enabled,
+					"visit_count":    status.VisitCount,
+				}}
+				if err := output.Render(opts.Output, plan); err != nil {
+					return err
+				}
+				return errors.Join(ErrUsage, fmt.Errorf("archive clobber requires --force"))
 			}
 			if err := store.ClobberArchiveFromSource(archivePath, snapshot, time.Now().UTC()); err != nil {
 				if os.IsNotExist(err) {
@@ -157,10 +178,11 @@ func newArchiveClobberCmd(opts *RootOptions) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			output.DefaultToJSONIfNotTTY(&opts.Output)
 			return output.Render(opts.Output, status)
 		},
 	}
+	cmd.Flags().BoolVar(&force, "force", false, "required: confirm destroying accumulated archive history not present in the current snapshot")
+	return cmd
 }
 
 func newArchiveResetCmd(opts *RootOptions) *cobra.Command {
@@ -220,7 +242,7 @@ func newArchiveVacuumCmd(opts *RootOptions) *cobra.Command {
 		Use:         "vacuum",
 		Short:       "Compact archive.db with VACUUM",
 		Example:     "  safari-history-pp-cli archive vacuum",
-		Annotations: map[string]string{"pp:typed-exit-codes": "0"},
+		Annotations: map[string]string{"pp:typed-exit-codes": "0,3"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			archivePath, err := store.ArchivePath()
 			if err != nil {
@@ -229,7 +251,7 @@ func newArchiveVacuumCmd(opts *RootOptions) *cobra.Command {
 			before := fileSize(archivePath)
 			if err := store.VacuumArchive(archivePath); err != nil {
 				if os.IsNotExist(err) {
-					return ErrNoSnapshot
+					return fmt.Errorf("%w: archive not initialized: run 'archive enable' first", ErrNoSnapshot)
 				}
 				return err
 			}

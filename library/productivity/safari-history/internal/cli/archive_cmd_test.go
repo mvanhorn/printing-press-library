@@ -232,12 +232,24 @@ func TestArchiveLifecycleCommands(t *testing.T) {
 		{1, "https://refreshed.example/new", "Refreshed", 303},
 	})
 	raw, err = runArchiveCmdJSON(t, "--json", "archive", "clobber")
+	if !errors.Is(err, ErrUsage) {
+		t.Fatalf("clobber without --force err = %v, want ErrUsage; out=%s", err, raw)
+	}
+	if got := ExitCodeForError(err); got != ExitUsage {
+		t.Fatalf("clobber without --force exit = %d, want %d", got, ExitUsage)
+	}
+	clobberPlan := decodeRows(t, raw)
+	if len(clobberPlan) != 1 || clobberPlan[0]["requires_force"] != true || clobberPlan[0]["path"] != archivePath {
+		t.Fatalf("clobber plan = %#v, want guarded plan for %s", clobberPlan, archivePath)
+	}
+
+	raw, err = runArchiveCmdJSON(t, "--json", "archive", "clobber", "--force")
 	if err != nil {
-		t.Fatalf("clobber: %v\n%s", err, raw)
+		t.Fatalf("clobber --force: %v\n%s", err, raw)
 	}
 	status = decodeObject(t, raw)
 	if status["enabled"] != true || status["url_count"] != float64(1) || status["visit_count"] != float64(1) {
-		t.Fatalf("clobber status = %#v, want refreshed enabled archive", status)
+		t.Fatalf("clobber --force status = %#v, want refreshed enabled archive", status)
 	}
 
 	raw, err = runArchiveCmdJSON(t, "--json", "archive", "reset", "--force", "--purge")
@@ -251,4 +263,102 @@ func TestArchiveLifecycleCommands(t *testing.T) {
 	if _, err := os.Stat(archivePath); !os.IsNotExist(err) {
 		t.Fatalf("archive exists after purge or stat err = %v", err)
 	}
+}
+
+func TestArchiveVacuumAbsentReturnsError(t *testing.T) {
+	// VacuumArchive must return an archive-missing error (exit 3) and must NOT
+	// create archive.db when it does not exist yet.
+	t.Setenv("XDG_CACHE_HOME", t.TempDir())
+	archivePath, err := store.ArchivePath()
+	if err != nil {
+		t.Fatalf("archive path: %v", err)
+	}
+	if _, err := os.Stat(archivePath); !os.IsNotExist(err) {
+		t.Fatalf("precondition: archive.db already exists at %s", archivePath)
+	}
+	_, runErr := runArchiveCmdJSON(t, "--json", "archive", "vacuum")
+	if runErr == nil {
+		t.Fatal("archive vacuum on absent archive: got nil error, want non-nil")
+	}
+	if !errors.Is(runErr, ErrNoSnapshot) {
+		t.Fatalf("archive vacuum on absent archive: got %v, want ErrNoSnapshot wrapped error", runErr)
+	}
+	if got := ExitCodeForError(runErr); got != ExitNoSnapshot {
+		t.Fatalf("archive vacuum on absent archive: exit = %d, want %d (ExitNoSnapshot)", got, ExitNoSnapshot)
+	}
+	// The file must NOT have been created.
+	if _, statErr := os.Stat(archivePath); !os.IsNotExist(statErr) {
+		t.Fatal("archive vacuum on absent archive: archive.db was created (should not be)")
+	}
+}
+
+func TestArchiveClobberForceGuard(t *testing.T) {
+	// Without --force, clobber must return ErrUsage and leave accumulated rows intact.
+	// With --force, it must proceed and replace the archive.
+	t.Setenv("XDG_CACHE_HOME", t.TempDir())
+	snapshot, err := snapshotPath()
+	if err != nil {
+		t.Fatalf("snapshot path: %v", err)
+	}
+	archivePath, err := store.ArchivePath()
+	if err != nil {
+		t.Fatalf("archive path: %v", err)
+	}
+
+	// Seed an archive with 2 rows via enable.
+	writeArchiveCommandSnapshot(t, snapshot, []struct {
+		id    int
+		url   string
+		title string
+		when  float64
+	}{
+		{1, "https://alpha.test/page", "Alpha", 101},
+		{2, "https://beta.test/page", "Beta", 202},
+	})
+	if _, err := runArchiveCmdJSON(t, "--json", "archive", "enable"); err != nil {
+		t.Fatalf("enable: %v", err)
+	}
+
+	// Now change the snapshot to a single new row.
+	writeArchiveCommandSnapshot(t, snapshot, []struct {
+		id    int
+		url   string
+		title string
+		when  float64
+	}{
+		{3, "https://gamma.test/page", "Gamma", 303},
+	})
+
+	// Without --force: must return ErrUsage and the archive rows must be untouched.
+	raw, clobberErr := runArchiveCmdJSON(t, "--json", "archive", "clobber")
+	if !errors.Is(clobberErr, ErrUsage) {
+		t.Fatalf("clobber without --force err = %v, want ErrUsage; out=%s", clobberErr, raw)
+	}
+	if got := ExitCodeForError(clobberErr); got != ExitUsage {
+		t.Fatalf("clobber without --force exit = %d, want %d", got, ExitUsage)
+	}
+	plan := decodeRows(t, raw)
+	if len(plan) != 1 || plan[0]["requires_force"] != true {
+		t.Fatalf("clobber plan = %#v, want requires_force=true", plan)
+	}
+	// The original 2 accumulated rows must still be present.
+	raw, err = runArchiveCmdJSON(t, "--json", "archive", "status")
+	if err != nil {
+		t.Fatalf("status after blocked clobber: %v\n%s", err, raw)
+	}
+	st := decodeObject(t, raw)
+	if st["visit_count"] != float64(2) {
+		t.Fatalf("after blocked clobber visit_count = %v, want 2 (rows must be intact)", st["visit_count"])
+	}
+
+	// With --force: archive must be replaced with the single new row.
+	raw, err = runArchiveCmdJSON(t, "--json", "archive", "clobber", "--force")
+	if err != nil {
+		t.Fatalf("clobber --force: %v\n%s", err, raw)
+	}
+	st = decodeObject(t, raw)
+	if st["enabled"] != true || st["url_count"] != float64(1) || st["visit_count"] != float64(1) {
+		t.Fatalf("clobber --force status = %#v, want enabled with 1 url/1 visit", st)
+	}
+	_ = archivePath
 }

@@ -135,6 +135,23 @@ func TestAccumulateFromSourceDedupCompatViewsAndFTS(t *testing.T) {
 	}
 }
 
+func TestVacuumArchiveAbsentReturnsNotExist(t *testing.T) {
+	dir := t.TempDir()
+	archivePath := filepath.Join(dir, "archive.db")
+	// archive.db does NOT exist — VacuumArchive must return an os.IsNotExist error
+	// and must NOT create the file.
+	err := VacuumArchive(archivePath)
+	if err == nil {
+		t.Fatal("VacuumArchive on absent path: got nil error, want os.IsNotExist")
+	}
+	if !os.IsNotExist(err) {
+		t.Fatalf("VacuumArchive on absent path: got %v, want os.IsNotExist", err)
+	}
+	if _, statErr := os.Stat(archivePath); !os.IsNotExist(statErr) {
+		t.Fatal("VacuumArchive on absent path: archive.db was created (should not be)")
+	}
+}
+
 func TestActiveStorePath(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("XDG_CACHE_HOME", dir)

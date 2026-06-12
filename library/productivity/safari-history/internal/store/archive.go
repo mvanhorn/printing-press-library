@@ -393,6 +393,9 @@ func DisableArchive(archivePath string) error {
 
 // VacuumArchive compacts archive.db when lifecycle commands are added later.
 func VacuumArchive(archivePath string) error {
+	if _, err := os.Stat(archivePath); err != nil {
+		return err
+	}
 	db, err := sql.Open("sqlite", archivePath)
 	if err != nil {
 		return err
