@@ -400,7 +400,7 @@ func newCohortCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	c := &cobra.Command{Use: "cohort", Short: "Cheap retention proxy: users by first-user date and returning status", RunE: func(cmd *cobra.Command, args []string) error {
 		req := reportRequest("totalUsers,sessions,engagementRate", "firstSessionDate,newVsReturning", start, end, limit)
-		addOrder(req, "firstSessionDate")
+		addDimensionOrder(req, "firstSessionDate")
 		return novelReport(cmd, flags, req, "cohort")
 	}}
 	dateLimitFlags(c, &start, &end, &limit)
@@ -770,6 +770,14 @@ func addOrder(req map[string]any, order string) {
 	name := strings.TrimPrefix(order, "-")
 	req["orderBys"] = []map[string]any{{"desc": desc, "metric": map[string]string{"metricName": name}}}
 }
+func addDimensionOrder(req map[string]any, order string) {
+	if order == "" {
+		return
+	}
+	desc := strings.HasPrefix(order, "-")
+	name := strings.TrimPrefix(order, "-")
+	req["orderBys"] = []map[string]any{{"desc": desc, "dimension": map[string]string{"dimensionName": name}}}
+}
 func flattenRows(raw map[string]any) []map[string]any {
 	var out []map[string]any
 	rows, _ := raw["rows"].([]any)
@@ -899,6 +907,9 @@ func trend(rows []map[string]any, metric string) map[string]any {
 	return map[string]any{"first": first, "last": last, "delta": delta, "pct_change": pct}
 }
 func inferPrevious(start, end, period string) (string, string) {
+	if previousStart, previousEnd, ok := inferPreviousRelativeRange(start, end); ok {
+		return previousStart, previousEnd
+	}
 	switch period {
 	case "wow":
 		return "14daysAgo", "8daysAgo"
@@ -906,6 +917,45 @@ func inferPrevious(start, end, period string) (string, string) {
 		return "60daysAgo", "31daysAgo"
 	default:
 		return "14daysAgo", "8daysAgo"
+	}
+}
+func inferPreviousRelativeRange(start, end string) (string, string, bool) {
+	startDays, ok := relativeDaysAgo(start)
+	if !ok {
+		return "", "", false
+	}
+	endDays, ok := relativeDaysAgo(end)
+	if !ok || startDays < endDays {
+		return "", "", false
+	}
+	windowDays := startDays - endDays + 1
+	return formatDaysAgo(startDays + windowDays), formatDaysAgo(endDays + windowDays), true
+}
+func relativeDaysAgo(value string) (int, bool) {
+	value = strings.TrimSpace(value)
+	switch value {
+	case "today":
+		return 0, true
+	case "yesterday":
+		return 1, true
+	}
+	if !strings.HasSuffix(value, "daysAgo") {
+		return 0, false
+	}
+	days, err := strconv.Atoi(strings.TrimSuffix(value, "daysAgo"))
+	if err != nil || days < 0 {
+		return 0, false
+	}
+	return days, true
+}
+func formatDaysAgo(days int) string {
+	switch days {
+	case 0:
+		return "today"
+	case 1:
+		return "yesterday"
+	default:
+		return strconv.Itoa(days) + "daysAgo"
 	}
 }
 func toFloat(v any) float64 {
