@@ -507,6 +507,46 @@ func fetchInsightTotals(ctx context.Context, c *client.Client, path string, metr
 	return out, nil
 }
 
+// fetchMediaInsightTotals fetches per-media insights. Unlike account
+// insights, media insights use the classic lifetime shape
+// (data[].values[].value) and do not honor metric_type=total_value, so
+// this path omits metric_type/period and sums the values array per
+// metric. Without this, total_value parsing yields zero for every media
+// metric (reach/saved/shares/watch-time).
+func fetchMediaInsightTotals(ctx context.Context, c *client.Client, path string, metrics string) (map[string]int64, error) {
+	out := map[string]int64{}
+	raw, err := c.Get(ctx, path, map[string]string{
+		"metric": metrics,
+	})
+	if err != nil {
+		var apiErr *client.APIError
+		if errors.As(err, &apiErr) && apiErr.StatusCode == 400 {
+			return out, nil // unsupported-metric; tolerate as "no values"
+		}
+		return out, err
+	}
+	var resp struct {
+		Data []struct {
+			Name   string `json:"name"`
+			Values []struct {
+				Value json.Number `json:"value"`
+			} `json:"values"`
+		} `json:"data"`
+	}
+	if jerr := json.Unmarshal(raw, &resp); jerr != nil {
+		return out, fmt.Errorf("parsing insights for %s: %w", path, jerr)
+	}
+	for _, m := range resp.Data {
+		var sum int64
+		for _, v := range m.Values {
+			i, _ := v.Value.Int64()
+			sum += i
+		}
+		out[m.Name] = sum
+	}
+	return out, nil
+}
+
 func newPullCmd(flags *rootFlags) *cobra.Command {
 	var dbFlag, accountFlag string
 	var mediaLimit int
@@ -752,7 +792,7 @@ func pullBrandMedia(ctx context.Context, c *client.Client, db *sql.DB, b pullBra
 			if pt, _ := m["media_product_type"].(string); strings.EqualFold(pt, "REELS") {
 				metrics += ",ig_reels_avg_watch_time"
 			}
-			ins, insErr := fetchInsightTotals(ctx, c, "/"+mediaID+"/insights", metrics)
+			ins, insErr := fetchMediaInsightTotals(ctx, c, "/"+mediaID+"/insights", metrics)
 			if insErr != nil {
 				// A real auth/transport error (not a tolerated 400) — record
 				// it as a fetch failure rather than upserting fake-zero metrics.
