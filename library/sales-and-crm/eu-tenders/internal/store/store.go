@@ -250,7 +250,7 @@ func ResolveMultilingual(v interface{}) string {
 			switch lv := t[lang].(type) {
 			case []interface{}:
 				if len(lv) > 0 {
-					if s, ok := lv[0].(string); ok {
+					if s, ok := lv[0].(string); ok && s != "" {
 						return s
 					}
 				}
