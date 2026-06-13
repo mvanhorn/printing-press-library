@@ -116,6 +116,68 @@ func TestResources_CompositePK_MigratesV1(t *testing.T) {
 	}
 }
 
+// v1 databases created before updated_at was added must still migrate. The
+// composite-PK rebuild reads updated_at, and SQLite resolves that column name
+// at prepare time, so the column has to be backfilled before the rebuild runs.
+// (The earlier COALESCE/WHERE-1=0 guard did not dodge that prepare-time check;
+// this test fails against that version and passes once updated_at is backfilled.)
+func TestResources_CompositePK_MigratesV1_NoUpdatedAt(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	stmts := []string{
+		// Legacy shape: id-only PK AND no updated_at column.
+		`CREATE TABLE resources (
+			id TEXT PRIMARY KEY,
+			resource_type TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE VIRTUAL TABLE resources_fts USING fts5(id, resource_type, content, tokenize='porter unicode61')`,
+		`INSERT INTO resources (id, resource_type, data) VALUES
+			('TICK-A', 'markets', '{"ticker":"TICK-A","status":"open"}'),
+			('TICK-B', 'portfolio-settlements', '{"ticker":"TICK-B","revenue":100}')`,
+		`PRAGMA user_version = 1`,
+	}
+	for _, q := range stmts {
+		if _, err := raw.Exec(q); err != nil {
+			raw.Close()
+			t.Fatalf("seed pre-updated_at v1 db: %v (stmt: %s)", err, q)
+		}
+	}
+	raw.Close()
+
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open pre-updated_at v1 db with v2 binary: %v", err)
+	}
+	defer s.Close()
+
+	// Both seeded rows survive the rebuild.
+	var n int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resources`).Scan(&n); err != nil {
+		t.Fatalf("count after migration: %v", err)
+	}
+	if n != 2 {
+		t.Fatalf("rows after migration = %d, want 2", n)
+	}
+
+	// The table is now composite and carries the backfilled updated_at column.
+	var ddl string
+	if err := s.DB().QueryRow(`SELECT sql FROM sqlite_master WHERE type='table' AND name='resources'`).Scan(&ddl); err != nil {
+		t.Fatalf("read ddl: %v", err)
+	}
+	if !strings.Contains(ddl, "PRIMARY KEY (resource_type, id)") {
+		t.Fatalf("resources still on v1 PK after migration: %s", ddl)
+	}
+	if !strings.Contains(ddl, "updated_at") {
+		t.Fatalf("updated_at column missing after migration: %s", ddl)
+	}
+}
+
 // Reopening a migrated DB must be a no-op (idempotence).
 func TestResources_CompositePK_MigrationIdempotent(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")

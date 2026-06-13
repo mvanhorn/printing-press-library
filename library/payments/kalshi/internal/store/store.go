@@ -188,6 +188,16 @@ func (s *Store) ensureColumn(ctx context.Context, conn *sql.Conn, table, column,
 // word.
 func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 	for _, c := range []struct{ table, column, decl string }{
+		// resources.updated_at is absent in stores created before it was added.
+		// It must exist before migrateResourcesCompositePK reads it: SQLite
+		// resolves column names at prepare time, so a SELECT naming a missing
+		// updated_at aborts the rebuild (a COALESCE/WHERE 1=0 guard does not
+		// dodge that resolution). backfillColumns runs before that migration
+		// (see Open), so adding it here guarantees the column for the copy.
+		// Declared without a DEFAULT: SQLite forbids a non-constant default
+		// (CURRENT_TIMESTAMP) on ALTER TABLE ADD COLUMN, so rows backfilled
+		// here land NULL and the rebuild's COALESCE supplies the timestamp.
+		{table: "resources", column: "updated_at", decl: "DATETIME"},
 		{table: "structured_targets", column: "type", decl: "TEXT"},
 		{table: "structured_targets", column: "competition", decl: "TEXT"},
 		{table: "structured_targets", column: "page_size", decl: "INTEGER"},
@@ -803,13 +813,13 @@ func migrateResourcesCompositePK(ctx context.Context, conn *sql.Conn) error {
 			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY (resource_type, id)
 		)`,
-		// updated_at may be absent in databases predating its addition.
-		// Use CURRENT_TIMESTAMP as the fallback so the migration does not abort
-		// when the column is missing — the next sync will re-stamp every row anyway.
+		// backfillColumns (run before this migration) guarantees updated_at
+		// exists on the legacy table, so this COALESCE always compiles — it is
+		// the column's presence, not the COALESCE, that makes the read safe.
+		// Rows backfilled as NULL (DBs predating the column) get a timestamp
+		// here; the next sync re-stamps every row regardless.
 		`INSERT OR REPLACE INTO resources (id, resource_type, data, synced_at, updated_at)
-			SELECT id, resource_type, data, synced_at,
-				COALESCE((SELECT updated_at FROM resources_v1_migrating WHERE 1=0), CURRENT_TIMESTAMP)
-			FROM resources_v1_migrating`,
+			SELECT id, resource_type, data, synced_at, COALESCE(updated_at, CURRENT_TIMESTAMP) FROM resources_v1_migrating`,
 		`DROP TABLE resources_v1_migrating`,
 	} {
 		if _, err := conn.ExecContext(ctx, q); err != nil {

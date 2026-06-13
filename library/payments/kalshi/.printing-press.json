@@ -20,7 +20,8 @@
   "mcp_ready": "full",
   "auth_type": "api_key",
   "auth_env_vars": [
-    "KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY"
+    "KALSHI_API_KEY",
+    "KALSHI_PRIVATE_KEY_PATH"
   ],
   "novel_features": [
     {

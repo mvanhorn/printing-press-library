@@ -202,6 +202,13 @@ func classifyAPIError(err error) error {
 		// 409 Conflict = resource already exists. For agents retrying CREATES
 		// this is success — but a 409 on a GET must surface as a real error,
 		// not be swallowed into a silent empty success (audit 2026-06-09).
+		// Inspect the typed error's Method rather than the message prefix: a
+		// wrapped error (fmt.Errorf "%w") shifts the "GET " prefix and would
+		// misroute a real GET 409 into the no-op branch. errors.As unwraps.
+		var apiE *client.APIError
+		if errors.As(err, &apiE) && apiE.Method == "GET" {
+			return apiErr(err)
+		}
 		if !strings.HasPrefix(msg, "GET ") {
 			fmt.Fprintln(os.Stderr, "already exists (no-op)")
 			return nil
