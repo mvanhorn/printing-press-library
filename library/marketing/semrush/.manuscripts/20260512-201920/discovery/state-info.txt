@@ -1,0 +1,30 @@
+viewport: 1512x747
+page: 1512x2203
+scroll: (0, 0)
+[133]<header id=srf-header />
+	[134]<a aria-label=Semrush homepage />
+	[1067]<div id=search-bar-overlay />
+	|SHADOW(open)|[73]<input type=text role=combobox placeholder=Enter your task, website, or keyword aria-autocomplete=list autocomplete=list expanded=false />
+	[138]<button aria-label=Search />
+	[141]<button id=srf-header-invite-users-button role=button aria-label=Invite users expanded=false />
+		Invite users
+	[142]<a role=menuitem />
+		Pricing
+	[143]<a role=menuitem />
+		Enterprise
+	[144]<button role=menuitem />
+		More
+	[1270]<li role=none />
+		[176]<button role=menuitem aria-label=My profile expanded=false />
+[199]<nav id=srf-sidebar />
+	Open Shadow
+		[1423]<a aria-label=Home />
+	Shadow End
+	Open Shadow
+		[1437]<a aria-label=SEO />
+	Shadow End
+	Open Shadow
+		[1451]<a aria-label=AI />
+	Shadow End
+	[1465]<hr />
+	Open Shadow

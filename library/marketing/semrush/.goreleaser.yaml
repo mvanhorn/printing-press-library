@@ -42,10 +42,10 @@ checksum:
 brews:
   - name: semrush-pp-cli
     repository:
-      owner: charles-garrison
+      owner: australian-digital
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Every Semrush Analytics + Projects feature, plus a local SQLite store and cross-domain joins no other Semrush tool has."
+    description: "Semrush CLI with Domain Overview, organic keyword research, and backlink intelligence — JSON-first, agent-native, with a local SQLite cache for offline use."
     install: |
       bin.install "semrush-pp-cli"
       bin.install "semrush-pp-mcp"

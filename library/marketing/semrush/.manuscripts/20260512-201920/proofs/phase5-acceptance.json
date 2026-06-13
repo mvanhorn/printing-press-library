@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "api_name": "semrush",
+  "run_id": "20260512-201920",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 6,
+  "tests_passed": 6,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": true,
+    "browser_session_available": true
+  },
+  "live_tests": [
+    {"cmd": "doctor", "result": "pass", "evidence": "OK Config, Auth, Env Vars, API reachable"},
+    {"cmd": "keyword overview \"seo audit\"", "result": "pass", "evidence": "Volume 22200, CPC 7.45, KD field present"},
+    {"cmd": "keyword related \"seo audit\"", "result": "pass", "evidence": "5 related keywords returned with full metrics"},
+    {"cmd": "keyword questions \"seo audit\"", "result": "pass", "evidence": "5 question-form keywords returned"},
+    {"cmd": "keyword difficulty \"seo audit\"", "result": "pass", "evidence": "KD index 66 returned"},
+    {"cmd": "domain overview semrush.com", "result": "pass", "evidence": "Rank 566, 540K organic keywords, 4.99M traffic"}
+  ],
+  "known_gaps": [
+    "PKD (Personal Keyword Difficulty) via UI proxy mode (kmtgw/v2/webapi) not yet implemented — public API does not expose PKD",
+    "Position Tracking commands not yet implemented (endpoints captured in HAR but spec didn't include)",
+    "Google Sheets export not implemented",
+    "Magic-recipe workflow command not implemented (compound feature requiring above)",
+    "CSV responses currently wrapped raw inside JSON results envelope; structured parsing pending"
+  ],
+  "generator_bugs_filed": [
+    "Off-by-one in positional arg parsing when path has no template (args[1] vs args[0]) — patched in 9 files",
+    "domain_overview default type was wrong (domain_overview is not a valid SEMrush API type; should be domain_ranks) — patched"
+  ]
+}

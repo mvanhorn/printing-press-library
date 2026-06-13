@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "semrush-pp-mcp",
   "display_name": "Semrush",
-  "version": "4.14.0",
-  "description": "Every Semrush Analytics + Projects feature, plus a local SQLite store and cross-domain joins no other Semrush tool has.",
+  "version": "4.5.0",
+  "description": "Semrush CLI with Domain Overview, organic keyword research, and backlink intelligence — JSON-first, agent-native, with a local SQLite cache for offline use.",
   "author": {
     "name": "CLI Printing Press"
   },

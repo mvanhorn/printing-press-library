@@ -1,25 +1,19 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-25T13:43:22.078473Z",
-  "printing_press_version": "4.14.0",
+  "generated_at": "2026-05-12T11:05:48.096372Z",
+  "printing_press_version": "4.5.0",
   "api_name": "semrush",
   "display_name": "Semrush",
   "cli_name": "semrush-pp-cli",
-  "creator": {
-    "handle": "Charles-Garrison",
-    "name": "Charles Garrison"
-  },
-  "owner": "charles-garrison",
-  "printer": "Charles-Garrison",
-  "printer_name": "Charles Garrison",
-  "spec_path": "/Users/charlesg77/printing-press/.runstate/semrush-d68edb2c/runs/20260524-232429/research/semrush-spec.yaml",
+  "owner": "australian-digital",
+  "printer": "australian-digital",
+  "printer_name": "australian-digital",
   "spec_format": "internal",
-  "spec_checksum": "sha256:c00032122bf54c7de397019c9d95e903ab497d0862386aead564120e4a47d4ed",
-  "run_id": "20260524-232429",
-  "category": "marketing",
-  "description": "Every Semrush Analytics + Projects feature, plus a local SQLite store and cross-domain joins no other Semrush tool has.",
+  "spec_checksum": "sha256:e7efba13526be1807fc153b1c2c3368e4bdf4a0f3b646517f010b726f973cd47",
+  "run_id": "20260512-201920",
+  "description": "Semrush CLI with Domain Overview, organic keyword research, and backlink intelligence — JSON-first, agent-native, with a local SQLite cache for offline use.",
   "mcp_binary": "semrush-pp-mcp",
-  "mcp_tool_count": 97,
+  "mcp_tool_count": 9,
   "mcp_ready": "full",
   "api_version": "0.1.0",
   "auth_type": "api_key",
@@ -28,64 +22,34 @@
   ],
   "novel_features": [
     {
-      "name": "Weekly Drift Report",
-      "command": "drift",
-      "description": "Diff this week's domain + keyword snapshot against last week's to see what moved, without re-spending credits on the data you already pulled."
+      "name": "Magic-recipe keyword research",
+      "command": "research",
+      "description": "Run a full keyword research pass — seeds expand via the Keyword Magic Tool, filter by Personal Keyword Difficulty against your client domain, score by intent + volume + opportunity, dedupe across seeds, and emit a ready-for-Sheets ranked list."
     },
     {
-      "name": "Snapshot Tag + Diff",
-      "command": "snapshot",
-      "description": "Tag the current local-store state of any resource (e.g. monday-baseline) and later diff any two tags to see exactly what moved between them."
+      "name": "Keyword Magic Tool with PKD",
+      "command": "keyword-magic",
+      "description": "Run the Keyword Magic Tool against a seed and get Personal Keyword Difficulty (PKD) scored against your target domain. PKD is not exposed by the public Analytics API."
     },
     {
-      "name": "Backlink Delta Since Last Sync",
-      "command": "backlink new",
-      "description": "Show only the referring domains and backlinks first seen in a window, so the 'did anything new link to us this week' question is a one-liner."
+      "name": "Push results to a Google Sheets client template",
+      "command": "sheets",
+      "description": "Push Semrush data (keyword research, rankings, gap analysis) directly into your existing Google Sheets client template — no copy/paste, no CSV roundtrip."
     },
     {
-      "name": "Budget Ledger",
-      "command": "budget",
-      "description": "Every API call's documented unit cost is logged locally; budget rolls up spend by day, command, resource, and projects month-end burn from the current balance probe."
+      "name": "Add keywords to Position Tracking with tags",
+      "command": "pt add-keywords",
+      "description": "Add one or more keywords to a Semrush Position Tracking campaign, optionally tagging them so they show up grouped in the PT UI. The public Semrush API does not expose Position Tracking write endpoints."
     },
     {
-      "name": "Keyword Gap",
-      "command": "keyword gap",
-      "description": "Set-difference of organic keywords across two or more domains in the same database, with intersection and unique-to-each modes."
+      "name": "Pull current organic rankings for a tracked campaign",
+      "command": "pt rankings",
+      "description": "Returns the current organic rankings snapshot for every tracked keyword in a Position Tracking campaign — position, position diff, volume, SERP features, traffic estimate. Different from `pt report` which returns rank history."
     },
     {
-      "name": "Backlink Gap",
-      "command": "backlink gap",
-      "description": "Find referring domains that link to a competitor but not to you, filtered by authority score."
-    },
-    {
-      "name": "Audit Triage",
-      "command": "audit triage",
-      "description": "Rank Site Audit pages by weighted issue severity (errors x3, warnings x1, notices x0.1) so you fix the highest-impact pages first."
-    },
-    {
-      "name": "Position Drift",
-      "command": "tracking drift",
-      "description": "Window-function over Position Tracking snapshots: which keywords moved more than N positions, dropped off page 1, or entered page 1, per region and device."
-    },
-    {
-      "name": "Country Fan-out",
-      "command": "domain regions",
-      "description": "Run Domain Overview across multiple country databases in one shot, persist all rows with the database key so later cross-region drift queries work."
-    },
-    {
-      "name": "SERP Feature Monitor",
-      "command": "serp-features",
-      "description": "Time-series view of which SERP features (featured snippet, People Also Ask, video, image pack) have appeared and disappeared for a tracked keyword."
-    },
-    {
-      "name": "Cannibalization Detector",
-      "command": "cannibalization",
-      "description": "List phrases where the same domain ranks for multiple URLs (a known SEO problem) with the URLs and their respective positions."
-    },
-    {
-      "name": "Audit Regression Watch",
-      "command": "audit regression",
-      "description": "Diff the latest two Site Audit snapshots for a project: new issue IDs introduced, issues resolved, count delta per severity."
+      "name": "Annotate a Position Tracking campaign",
+      "command": "pt annotate",
+      "description": "Add an annotation (note) to a Position Tracking campaign — appears on the PT chart at the specified date. Lets you correlate site changes (publishes, redirects, algorithm updates) with ranking movements."
     }
   ]
 }

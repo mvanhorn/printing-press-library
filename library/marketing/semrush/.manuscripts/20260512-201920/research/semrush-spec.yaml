@@ -1,0 +1,209 @@
+name: semrush
+description: "SEMrush CLI — magic-recipe keyword research, Domain Overview, Position Tracking, with PKD via your logged-in Chrome session"
+cli_description: "SEMrush data on tap: domain audits, keyword research with Personal Keyword Difficulty, Position Tracking, and a magic-recipe pipeline that turns conversion-pages into client-ready keyword lists in Google Sheets."
+version: "0.1.0"
+base_url: "https://api.semrush.com"
+
+auth:
+  type: api_key
+  header: "key"
+  in: query
+  env_vars:
+    - SEMRUSH_API_KEY
+
+config:
+  format: toml
+  path: "~/.config/semrush-pp-cli/config.toml"
+
+resources:
+  domain:
+    description: "Domain Overview — organic traffic, top keywords, top pages, competitors"
+    endpoints:
+      overview:
+        method: GET
+        path: "/"
+        description: "Domain overview (organic + paid traffic, keyword count, traffic cost) for a target domain"
+        params:
+          - name: type
+            type: string
+            required: true
+            description: "Report type (domain_overview, domain_ranks)"
+            default: "domain_overview"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Target domain (e.g. example.com)"
+          - name: database
+            type: string
+            description: "Country database code (us, uk, au, etc.)"
+            default: "us"
+
+      organic_keywords:
+        method: GET
+        path: "/"
+        description: "Keywords a domain ranks for in organic Google search results"
+        params:
+          - name: type
+            type: string
+            required: true
+            description: "Report type"
+            default: "domain_organic"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Target domain"
+          - name: database
+            type: string
+            description: "Country database code"
+            default: "us"
+          - name: display_limit
+            type: int
+            description: "Max keywords to return (default 10, max 100000)"
+            default: 100
+
+      organic_pages:
+        method: GET
+        path: "/"
+        description: "Top organic landing pages and their ranking keywords for a domain"
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "domain_organic_pages"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Target domain"
+          - name: database
+            type: string
+            default: "us"
+          - name: display_limit
+            type: int
+            default: 100
+
+      organic_competitors:
+        method: GET
+        path: "/"
+        description: "Domains ranking for the same keywords as the target — organic competitors"
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "domain_organic_organic"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Target domain"
+          - name: database
+            type: string
+            default: "us"
+          - name: display_limit
+            type: int
+            default: 50
+
+  keyword:
+    description: "Keyword research — overview, related, questions, difficulty"
+    endpoints:
+      overview:
+        method: GET
+        path: "/"
+        description: "Volume, CPC, KD, competition for a single keyword"
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "phrase_this"
+          - name: phrase
+            type: string
+            required: true
+            positional: true
+            description: "Keyword phrase to look up"
+          - name: database
+            type: string
+            default: "us"
+
+      related:
+        method: GET
+        path: "/"
+        description: "Related keywords (semantic variants) for a seed phrase"
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "phrase_related"
+          - name: phrase
+            type: string
+            required: true
+            positional: true
+            description: "Seed phrase"
+          - name: database
+            type: string
+            default: "us"
+          - name: display_limit
+            type: int
+            default: 100
+
+      questions:
+        method: GET
+        path: "/"
+        description: "Question-style keywords containing the seed phrase (great for content SEO)"
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "phrase_questions"
+          - name: phrase
+            type: string
+            required: true
+            positional: true
+            description: "Seed phrase"
+          - name: database
+            type: string
+            default: "us"
+          - name: display_limit
+            type: int
+            default: 100
+
+      difficulty:
+        method: GET
+        path: "/"
+        description: "Keyword difficulty (KD%) — chance of ranking on first SERP page"
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "phrase_kdi"
+          - name: phrase
+            type: string
+            required: true
+            positional: true
+            description: "Keyword phrase"
+          - name: database
+            type: string
+            default: "us"
+
+  backlinks:
+    description: "Backlink data for a target domain or URL"
+    endpoints:
+      overview:
+        method: GET
+        path: "/analytics/v1/"
+        description: "Backlink count, referring domains, Authority Score"
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "backlinks_overview"
+          - name: target
+            type: string
+            required: true
+            positional: true
+            description: "Target domain or URL"
+          - name: target_type
+            type: string
+            description: "root_domain, domain, or url"
+            default: "root_domain"
