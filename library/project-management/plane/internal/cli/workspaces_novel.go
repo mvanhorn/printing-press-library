@@ -53,6 +53,23 @@ func resolveWorkspace(flags *rootFlags, cfg *config.Config) (slug, source string
 	return "", "unset"
 }
 
+// normalizeSlugList normalizes each raw slug (tolerating browser-URL and
+// API-base pastes via config.NormalizeWorkspaceSlug), drops blanks, and
+// de-duplicates while preserving first-seen order.
+func normalizeSlugList(raw []string) []string {
+	seen := map[string]bool{}
+	var out []string
+	for _, r := range raw {
+		s := config.NormalizeWorkspaceSlug(r)
+		if s == "" || seen[s] {
+			continue
+		}
+		seen[s] = true
+		out = append(out, s)
+	}
+	return out
+}
+
 // upsertWorkspace inserts or updates a workspace registry entry. A non-empty
 // id overwrites an existing blank/old id; an empty id never clobbers a known one.
 func upsertWorkspace(cfg *config.Config, slug, id string) {
@@ -159,8 +176,20 @@ func newWorkspacesAddCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return configErr(err)
 			}
+			// Normalize each arg first so a browser-URL / API-base paste
+			// (app.plane.so/acme, .../workspaces/acme) resolves to the bare
+			// slug — the same input tolerance PLANE_SLUG already enjoys —
+			// instead of probing a bogus path and reporting "not reachable".
+			normSlugs := make([]string, 0, len(args))
+			for _, raw := range args {
+				slug := config.NormalizeWorkspaceSlug(raw)
+				if slug == "" {
+					return usageErr(fmt.Errorf("could not extract a workspace slug from %q", raw))
+				}
+				normSlugs = append(normSlugs, slug)
+			}
 			added := []map[string]any{}
-			for _, slug := range args {
+			for _, slug := range normSlugs {
 				id, perr := probeWorkspace(cmd.Context(), flags, slug)
 				if perr != nil {
 					return fmt.Errorf("workspace %q is not reachable with the current credentials: %w", slug, perr)
@@ -169,7 +198,7 @@ func newWorkspacesAddCmd(flags *rootFlags) *cobra.Command {
 				added = append(added, map[string]any{"slug": slug, "id": id})
 			}
 			if makeDefault || cfg.DefaultWorkspace == "" {
-				cfg.DefaultWorkspace = args[0]
+				cfg.DefaultWorkspace = normSlugs[0]
 			}
 			if err := cfg.Save(); err != nil {
 				return configErr(err)
@@ -199,7 +228,10 @@ func newWorkspacesUseCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
-			slug := args[0]
+			slug := config.NormalizeWorkspaceSlug(args[0])
+			if slug == "" {
+				return usageErr(fmt.Errorf("could not extract a workspace slug from %q", args[0]))
+			}
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
@@ -301,14 +333,14 @@ func newWorkspacesCurrentCmd(flags *rootFlags) *cobra.Command {
 // come from a flag.
 func newInitCmd(flags *rootFlags) *cobra.Command {
 	var apiKey, host, defaultWS string
-	var slugFlags []string
 	cmd := &cobra.Command{
-		Use:   "init",
+		Use:   "init [<slug>...]",
 		Short: "First-run setup: API key, host, and your workspace slug(s).",
 		Long: `Interactive onboarding. Plane's API cannot list your workspaces from a
 key, so you provide the slug(s) from your browser URL (app.plane.so/<slug>/);
-each is access-probed before being saved. Use flags for non-interactive setup.`,
-		Example: "  plane-pp-cli init\n  plane-pp-cli init --api-key $KEY --host https://plane.acme.com --workspace acme --workspace bravo",
+each is access-probed before being saved. Use flags/args for non-interactive setup.`,
+		Example: "  plane-pp-cli init\n  plane-pp-cli init --api-key $KEY --host https://plane.acme.com acme bravo\n  plane-pp-cli init -w acme",
+		Args:    cobra.ArbitraryArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
@@ -339,17 +371,23 @@ each is access-probed before being saved. Use flags for non-interactive setup.`,
 			}
 			cfg.BaseURL = normalizeHost(host) + "/api/v1/workspaces/{slug}"
 
-			slugs := slugFlags
-			if len(slugs) == 0 && interactive {
-				fmt.Fprint(out, "Workspace slug(s), comma-separated (from app URL, e.g. app.plane.so/<slug>/): ")
-				for _, s := range strings.Split(readLine(r), ",") {
-					if s = strings.TrimSpace(s); s != "" {
-						slugs = append(slugs, s)
-					}
-				}
+			// Slugs come from positional args and/or the persistent
+			// --workspace/-w flag; init registers no local --workspace flag of
+			// its own, so -w keeps working here exactly as on every other
+			// subcommand (a local flag of the same name would shadow the
+			// persistent shorthand and break `init -w <slug>`).
+			var rawSlugs []string
+			rawSlugs = append(rawSlugs, args...)
+			if flags.workspace != "" {
+				rawSlugs = append(rawSlugs, flags.workspace)
 			}
+			if len(rawSlugs) == 0 && interactive {
+				fmt.Fprint(out, "Workspace slug(s), comma-separated (from app URL, e.g. app.plane.so/<slug>/): ")
+				rawSlugs = append(rawSlugs, strings.Split(readLine(r), ",")...)
+			}
+			slugs := normalizeSlugList(rawSlugs)
 			if len(slugs) == 0 {
-				return usageErr(fmt.Errorf("no workspace slug provided (pass --workspace or run interactively)"))
+				return usageErr(fmt.Errorf("no workspace slug provided (pass a slug argument or --workspace, or run interactively)"))
 			}
 			// Reload so the saved api key + base_url are in the client config.
 			cfg, err = config.Load(flags.configPath)
@@ -379,6 +417,8 @@ each is access-probed before being saved. Use flags for non-interactive setup.`,
 			}
 			if defaultWS == "" {
 				defaultWS = enrolled[0]
+			} else {
+				defaultWS = config.NormalizeWorkspaceSlug(defaultWS)
 			}
 			cfg.DefaultWorkspace = defaultWS
 			if err := cfg.Save(); err != nil {
@@ -394,7 +434,6 @@ each is access-probed before being saved. Use flags for non-interactive setup.`,
 	}
 	cmd.Flags().StringVar(&apiKey, "api-key", "", "API key (X-API-Key); prompts if omitted and interactive")
 	cmd.Flags().StringVar(&host, "host", "", "Plane host base, e.g. https://api.plane.so or https://plane.acme.com")
-	cmd.Flags().StringArrayVar(&slugFlags, "workspace", nil, "Workspace slug to enroll (repeatable)")
 	cmd.Flags().StringVar(&defaultWS, "default", "", "Which enrolled slug becomes the default (first if unset)")
 	return cmd
 }

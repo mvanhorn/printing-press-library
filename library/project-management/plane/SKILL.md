@@ -183,7 +183,7 @@ The active workspace is chosen by precedence: **`--workspace <slug>` flag > `PLA
 
 ```bash
 # One-time onboarding: probe + enroll your slug(s), write a templated base_url
-plane-pp-cli init --host https://api.plane.so --workspace acme --workspace bravo --default acme
+plane-pp-cli init --host https://api.plane.so acme bravo --default acme
 
 # Or manage the local registry directly
 plane-pp-cli workspaces add acme bravo   # access-probes each before saving

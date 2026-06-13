@@ -50,9 +50,9 @@ func TestBaseURLHasLiteralSlug(t *testing.T) {
 
 func TestNormalizeHost(t *testing.T) {
 	cases := map[string]string{
-		"https://api.plane.so":                 "https://api.plane.so",
-		"https://api.plane.so/":                "https://api.plane.so",
-		"https://plane.acme.com/":              "https://plane.acme.com",
+		"https://api.plane.so":                            "https://api.plane.so",
+		"https://api.plane.so/":                           "https://api.plane.so",
+		"https://plane.acme.com/":                         "https://plane.acme.com",
 		"https://plane.acme.com/api/v1/workspaces/{slug}": "https://plane.acme.com",
 		// A trailing "/api/" survives TrimRight as "…/api" and is stripped by
 		// the HasSuffix("/api") arm, so the caller never doubles the prefix.
@@ -62,6 +62,36 @@ func TestNormalizeHost(t *testing.T) {
 	for in, want := range cases {
 		if got := normalizeHost(in); got != want {
 			t.Errorf("normalizeHost(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
+
+// TestInitCmdDoesNotShadowWorkspaceFlag guards the regression where init
+// registered a local --workspace flag whose name collided with the root's
+// persistent --workspace/-w. Cobra's AddFlagSet skips a persistent flag when a
+// local flag of the same name exists, which silently dropped the `-w`
+// shorthand from `init`. init must therefore expose NO local --workspace flag.
+func TestInitCmdDoesNotShadowWorkspaceFlag(t *testing.T) {
+	cmd := newInitCmd(&rootFlags{})
+	if f := cmd.Flags().Lookup("workspace"); f != nil {
+		t.Fatalf("init must not register a local --workspace flag (shadows persistent -w); found %q", f.Name)
+	}
+}
+
+func TestNormalizeSlugList(t *testing.T) {
+	got := normalizeSlugList([]string{
+		"app.plane.so/acme",                  // browser-URL paste
+		"https://app.plane.so/acme/projects", // same slug, full URL → dedup
+		"   ",                                // blank → dropped
+		"https://h/api/v1/workspaces/bravo",  // API-base paste
+	})
+	want := []string{"acme", "bravo"}
+	if len(got) != len(want) {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("got %v, want %v", got, want)
 		}
 	}
 }
