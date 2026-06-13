@@ -48,15 +48,18 @@ func newWatchAddCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if dryRunOK(flags) {
-				if flags.asJSON || flags.selectFields != "" || flags.csv || flags.quiet || flags.plain {
-					return flags.printJSON(cmd, map[string]any{"dry_run": true, "release_id": args[0]})
-				}
-				return nil
-			}
+			// Validate the id BEFORE the dry-run branch so dry-run rejects
+			// non-numeric input like the live path does, and emits release_id
+			// as an int (matching the live success JSON shape).
 			id, err := strconv.Atoi(args[0])
 			if err != nil {
 				return usageErr(fmt.Errorf("release-id must be numeric"))
+			}
+			if dryRunOK(flags) {
+				if flags.asJSON || flags.selectFields != "" || flags.csv || flags.quiet || flags.plain {
+					return flags.printJSON(cmd, map[string]any{"dry_run": true, "release_id": id})
+				}
+				return nil
 			}
 			s, err := store.OpenWithContext(cmd.Context(), defaultDBPath("blu-ray-pp-cli"))
 			if err != nil {
@@ -123,15 +126,18 @@ func newWatchRmCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if dryRunOK(flags) {
-				if flags.asJSON || flags.selectFields != "" || flags.csv || flags.quiet || flags.plain {
-					return flags.printJSON(cmd, map[string]any{"dry_run": true, "release_id": args[0]})
-				}
-				return nil
-			}
+			// Validate the id BEFORE the dry-run branch so dry-run rejects
+			// non-numeric input like the live path does, and emits release_id
+			// as an int (matching the live success JSON shape).
 			id, err := strconv.Atoi(args[0])
 			if err != nil {
 				return usageErr(fmt.Errorf("release-id must be numeric"))
+			}
+			if dryRunOK(flags) {
+				if flags.asJSON || flags.selectFields != "" || flags.csv || flags.quiet || flags.plain {
+					return flags.printJSON(cmd, map[string]any{"dry_run": true, "release_id": id})
+				}
+				return nil
 			}
 			s, err := store.OpenWithContext(cmd.Context(), defaultDBPath("blu-ray-pp-cli"))
 			if err != nil {
