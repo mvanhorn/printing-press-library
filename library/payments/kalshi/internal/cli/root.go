@@ -18,7 +18,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.6.2"
+// version is intentionally left at the last released value; post-merge release
+// automation bumps it (and CHANGELOG.md) — see verify-release-ledger. The
+// User-Agent below tracks whatever version automation lands.
+var version = "2026.6.1"
 
 func init() {
 	// Keep the wire User-Agent in lockstep with the release version.
