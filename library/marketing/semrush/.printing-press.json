@@ -86,6 +86,21 @@
       "name": "Audit Regression Watch",
       "command": "audit regression",
       "description": "Diff the latest two Site Audit snapshots for a project: new issue IDs introduced, issues resolved, count delta per severity."
+    },
+    {
+      "name": "Add keywords to Position Tracking with tags (cookie-auth)",
+      "command": "pt add-keywords",
+      "description": "Bulk-add keywords to a Semrush Position Tracking campaign with tags via the internal UI endpoint POST /tracking/web-api/management/{cid}/update_keywords_state. Complements the public-API `tracking keywords-add` command — uses cookie session + SEMRUSH_API_KEY so users without paid API tier access can still automate PT writes."
+    },
+    {
+      "name": "Pull current organic rankings for a tracked campaign (cookie-auth)",
+      "command": "pt rankings",
+      "description": "Returns the current organic rankings snapshot for every tracked keyword in a PT campaign via the internal UI endpoint GET /tracking/web-api/reports/overview — keyword, position, position diff, volume, SERP features, traffic estimate. Different from public-API `tracking organic-positions` which paginates more aggressively."
+    },
+    {
+      "name": "Annotate a Position Tracking campaign",
+      "command": "pt annotate",
+      "description": "Add an annotation (note) to a PT campaign that appears on the chart at the specified date. Hits the internal /notes/api/notes/v2/notes/ endpoint (cookie-only auth). Lets agents correlate content publishes, redirects, and algorithm updates with ranking movements — a capability not in the public Semrush API."
     }
   ]
 }
