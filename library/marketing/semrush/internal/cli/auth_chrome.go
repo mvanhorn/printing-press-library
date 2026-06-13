@@ -222,6 +222,13 @@ func (j *CookieJar) applyCookiesToRequest(req *http.Request) {
 		if !c.Expires.IsZero() && c.Expires.Before(now) {
 			continue
 		}
+		// Semicolons in a cookie value would split the Cookie header field.
+		// Skip any cookie whose value contains the delimiter to avoid
+		// silently mangling the header (rare but possible for base64/JWT
+		// session tokens stored by Chrome).
+		if strings.ContainsAny(c.Value, ";") {
+			continue
+		}
 		parts = append(parts, c.Name+"="+c.Value)
 	}
 	if len(parts) > 0 {

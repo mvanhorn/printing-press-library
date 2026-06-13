@@ -8,7 +8,6 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 
 	"github.com/spf13/cobra"
 )
@@ -39,7 +38,6 @@ func newPTCmd(flags *rootFlags) *cobra.Command {
 // is already JSON.
 func ptPrint(cmd *cobra.Command, flags *rootFlags, data []byte) error {
 	_ = flags
-	_ = io.EOF // satisfy io import if unused below
 	var anyVal any
 	if json.Unmarshal(data, &anyVal) != nil {
 		fmt.Fprintln(cmd.OutOrStdout(), string(data))
