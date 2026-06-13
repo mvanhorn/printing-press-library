@@ -15,13 +15,13 @@ import (
 	"strings"
 	"time"
 
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/blu-ray/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/blu-ray/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/blu-ray/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/blu-ray/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/blu-ray/internal/store"
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 )
 
 const (
@@ -163,8 +163,8 @@ func RegisterTools(s *server.MCPServer) {
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
-			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='items'.")),
+			mcplib.WithDescription("Run read-only SQL against the local catalog database. Use for ad-hoc analysis, aggregations, and joins over the synced disc catalog. Requires sync first."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). The bulk synced disc catalog lives in releases_catalog (populated by `sync`), NOT in the generic `resources` response-cache table. releases_catalog(id, kind, slug, title_normalized, country, year_hint, lastmod) — one row per release, where kind is the format ('bluray','4k','dvd','digital', etc.). Full-text search via releases_fts(title_normalized, slug). Watchlist in watchlist(release_id, target_price, low_seen, alerted_at). e.g. SELECT kind, COUNT(*) FROM releases_catalog GROUP BY kind.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
@@ -775,6 +775,43 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"tool_count":  11,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion blu-ray-pp-cli binary.",
+		// local_tables names the canonical local SQLite schema so agents query
+		// releases_catalog directly via the sql tool instead of probing the empty
+		// generic resources scaffold and sqlite_master-spelunking to find the data.
+		"local_tables": []map[string]any{
+			{
+				"name":        "releases_catalog",
+				"description": "THE disc catalog — one row per release. Query this for counts, format/year/country breakdowns, and lookups. Synced disc data lives here, NOT in a generic resources table.",
+				"columns":     []string{"id", "kind", "slug", "title_normalized", "country", "year_hint", "lastmod"},
+				"notes":       "kind is the format ('bluray','4k','dvd','digital', etc.).",
+			},
+			{
+				"name":        "releases_fts",
+				"description": "FTS5 full-text index over releases_catalog (use the search tool, or MATCH in sql).",
+				"columns":     []string{"title_normalized", "slug", "country", "kind"},
+				"notes":       "title_normalized/slug are full-text indexed; country/kind are UNINDEXED (filterable, not MATCH-able).",
+			},
+			{
+				"name":        "watchlist",
+				"description": "Local price-drop watchlist (the watch commands).",
+				"columns":     []string{"release_id", "target_price", "low_seen", "alerted_at", "added_at"},
+			},
+			{
+				"name":        "news_catalog",
+				"description": "Synced Blu-ray.com news stories.",
+				"columns":     []string{"id", "url", "title", "publication_date"},
+			},
+			{
+				"name":        "price_history",
+				"description": "Observed prices per release per retailer over time.",
+				"columns":     []string{"release_id", "retailer_id", "observed_at", "price"},
+			},
+			{
+				"name":        "upc_index",
+				"description": "UPC → release_id resolution (the upc command).",
+				"columns":     []string{"upc", "release_id"},
+			},
+		},
 		"resources": []map[string]any{
 			{
 				"name":        "calendar",
@@ -809,10 +846,11 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			},
 		},
 		"query_tips": []string{
+			"The bulk synced disc catalog lives in releases_catalog (id, kind, slug, title_normalized, country, year_hint, lastmod) — one row per release, populated by sync. Query it directly with the sql tool. (The generic resources table only caches individual endpoint responses, not the catalog.) See local_tables for the full schema.",
 			"Pagination uses cursor-based paging. Pass page parameter for subsequent pages.",
 			"Control page size with the limit parameter (default 100).",
-			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
-			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
+			"Use the sql tool for ad-hoc analysis on synced data (e.g. SELECT kind, COUNT(*) FROM releases_catalog GROUP BY kind). Run sync first to populate the local database.",
+			"Use the search tool for full-text search over the disc catalog (releases_fts). Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
 		},
 		// Command-mirror capabilities are exposed through MCP by shelling out

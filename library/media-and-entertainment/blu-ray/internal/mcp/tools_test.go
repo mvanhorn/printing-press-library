@@ -4,6 +4,7 @@
 package mcp
 
 import (
+	"context"
 	"encoding/json"
 	"strings"
 	"testing"
@@ -153,6 +154,41 @@ func TestStripLeadingSQLNoise(t *testing.T) {
 		if !strings.EqualFold(got, c.want) {
 			t.Errorf("stripLeadingSQLNoise(%q) = %q, want %q", c.in, got, c.want)
 		}
+	}
+}
+
+// TestHandleContext_SurfacesReleasesCatalogSchema guards the DEV-87 schema
+// surfacing so future changes keep steering agents to the canonical local
+// catalog table instead of probing the resources response cache.
+func TestHandleContext_SurfacesReleasesCatalogSchema(t *testing.T) {
+	res, err := handleContext(context.Background(), mcplib.CallToolRequest{})
+	if err != nil {
+		t.Fatalf("handleContext: %v", err)
+	}
+	var ctx map[string]any
+	if err := json.Unmarshal([]byte(mcpTextContent(t, res)), &ctx); err != nil {
+		t.Fatalf("unmarshal context: %v", err)
+	}
+	tables, ok := ctx["local_tables"].([]any)
+	if !ok || len(tables) == 0 {
+		t.Fatalf("local_tables missing or empty: %v", ctx["local_tables"])
+	}
+	found := false
+	for _, e := range tables {
+		if m, ok := e.(map[string]any); ok && m["name"] == "releases_catalog" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("local_tables must surface releases_catalog so agents stop probing the empty resources scaffold")
+	}
+	tips, _ := ctx["query_tips"].([]any)
+	if len(tips) == 0 {
+		t.Fatal("query_tips missing")
+	}
+	if first, _ := tips[0].(string); !strings.Contains(first, "releases_catalog") {
+		t.Errorf("first query_tip should steer to releases_catalog, got: %q", first)
 	}
 }
 
