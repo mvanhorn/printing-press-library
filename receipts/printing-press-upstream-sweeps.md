@@ -118,3 +118,20 @@
   - `(cd library/sales-and-crm/eu-tenders && go vet ./...)` — pass.
   - `(cd library/sales-and-crm/eu-tenders && go run golang.org/x/vuln/cmd/govulncheck@latest ./...)` — blocked by local Go standard-library findings in `go1.26.3` (`GO-2026-5039`, `GO-2026-5037`; fixed in Go 1.26.4), unrelated to the touched EU Tenders title/multilingual code.
 - Policy: no public upstream push/PR; branch/PR targets private `cathrynlavery/printing-press-library` only.
+
+## 2026-06-13 — generated artifact workflow concurrency
+
+- Base private branch: `origin/main`
+- Upstream range inspected: `origin/main..upstream/main` as of 2026-06-13 preflight (`2f5f13550` public HEAD), with no bulk merge/rebase from `mvanhorn/*`.
+- Candidate commits considered:
+  - `0e7f6cb21` fix generated artifact workflow concurrency — ported; narrow CI workflow reliability fix to prevent generated-artifact runs from evicting each other from a shared concurrency group.
+  - `ce67a81a2` ci(verify-skill): allow home in COMMON_FLAGS for paths-and-state SKILLs — already present by equivalent patch-id; cherry-pick was empty.
+  - `38687d6bf` test(verify-skill): cover home allowlist entry in flag checks — already present by equivalent patch-id; cherry-pick was empty.
+  - `0614c495c` fix(ci): pin clawhub 0.20.0 and drop the removed `--clawscan-note` flag — already present by equivalent patch-id; cherry-pick was empty.
+  - `update-cli-release-ledger.yml` hunk from `0e7f6cb21` — skipped because the private fork does not currently have that workflow on `origin/main`.
+  - New CLI/reprint batches and follow-up generated registry/skills/release-ledger commits (`roadside-america`, `tripadvisor`, `openart`, `autotempest`, `motohunt`, `yeswehack`, `agent-desktop`, etc.) — skipped; not a narrow selective maintenance port.
+- Validation run on branch `upstream-sweep/20260613-ci-verifier-fixes`:
+  - YAML parse of `.github/workflows/generate-registry.yml`, `.github/workflows/generate-skills.yml`, and `.github/workflows/normalize-patches.yml` with `yaml.safe_load` — pass.
+  - `python3 .github/scripts/verify-skill/verify_skill_test.py` — pass (`Ran 9 tests ... OK`).
+  - `git diff --check origin/main...HEAD -- .github/workflows/generate-registry.yml .github/workflows/generate-skills.yml .github/workflows/normalize-patches.yml` — pass.
+- Policy: no public upstream push/PR; branch/PR targets private `cathrynlavery/printing-press-library` only.
