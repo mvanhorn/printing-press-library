@@ -70,6 +70,32 @@ func normalizeSlugList(raw []string) []string {
 	return out
 }
 
+// chooseDefaultWorkspace picks the default_workspace to persist after init: the
+// user's --default (normalized) when it is among the reachable/enrolled slugs,
+// otherwise the first reachable slug. ok is false when the requested default was
+// dropped because it never enrolled (so the caller can warn). enrolled must be
+// non-empty.
+func chooseDefaultWorkspace(requested string, enrolled []string) (slug string, ok bool) {
+	if requested == "" {
+		return enrolled[0], true
+	}
+	requested = config.NormalizeWorkspaceSlug(requested)
+	if containsString(enrolled, requested) {
+		return requested, true
+	}
+	return enrolled[0], false
+}
+
+// containsString reports whether s is present in list.
+func containsString(list []string, s string) bool {
+	for _, v := range list {
+		if v == s {
+			return true
+		}
+	}
+	return false
+}
+
 // upsertWorkspace inserts or updates a workspace registry entry. A non-empty
 // id overwrites an existing blank/old id; an empty id never clobbers a known one.
 func upsertWorkspace(cfg *config.Config, slug, id string) {
@@ -415,10 +441,12 @@ each is access-probed before being saved. Use flags/args for non-interactive set
 			if len(enrolled) == 0 {
 				return apiErr(fmt.Errorf("no workspace could be reached with the provided credentials"))
 			}
-			if defaultWS == "" {
-				defaultWS = enrolled[0]
-			} else {
-				defaultWS = config.NormalizeWorkspaceSlug(defaultWS)
+			defaultWS, ok := chooseDefaultWorkspace(defaultWS, enrolled)
+			if !ok {
+				// The requested --default didn't survive its probe; writing it
+				// would point default_workspace at an unreachable slug and make
+				// every later command 403/404. Fell back to the first reachable.
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: --default is not among the reachable workspaces; using %q instead.\n", defaultWS)
 			}
 			cfg.DefaultWorkspace = defaultWS
 			if err := cfg.Save(); err != nil {

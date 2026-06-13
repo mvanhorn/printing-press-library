@@ -605,23 +605,28 @@ cache (module_issues) if the issue store is present.`,
 // rejects with 403 (see plane-pp-cli feedback, 2026-06-11). This mirrors the
 // attach-file fix (commit 954b5b34e).
 func effectiveSlug(flags *rootFlags, localSlug string) string {
-	if flags.workspace != "" {
-		return flags.workspace
-	}
-	if localSlug != "" {
-		return localSlug
-	}
-	// PATCH(slug-env-align): the reprinted client stores the workspace {slug} in
-	// Config.TemplateVars (seeded from default_workspace at load) rather than a
-	// dedicated WorkspaceSlug field; a live PLANE_SLUG still wins over that.
 	slug := ""
-	if cfg, err := config.Load(flags.configPath); err == nil {
-		slug = cfg.TemplateVars["slug"]
+	switch {
+	case flags.workspace != "":
+		slug = flags.workspace
+	case localSlug != "":
+		slug = localSlug
+	default:
+		// PATCH(slug-env-align): the reprinted client stores the workspace {slug}
+		// in Config.TemplateVars (seeded from default_workspace at load) rather
+		// than a dedicated WorkspaceSlug field; a live PLANE_SLUG still wins over
+		// that.
+		if cfg, err := config.Load(flags.configPath); err == nil {
+			slug = cfg.TemplateVars["slug"]
+		}
+		if v := os.Getenv(envWorkspaceSlug); v != "" {
+			slug = v
+		}
 	}
-	if v := os.Getenv(envWorkspaceSlug); v != "" {
-		slug = v
-	}
-	return slug
+	// Normalize on the way out so --workspace and a raw PLANE_SLUG tolerate a
+	// pasted browser URL / API base exactly like newClient() and config.Load do
+	// (a slug already stored normalized is unchanged — the op is idempotent).
+	return config.NormalizeWorkspaceSlug(slug)
 }
 
 // resolveSlugFromConfig resolves the slug for the commands that carry no local

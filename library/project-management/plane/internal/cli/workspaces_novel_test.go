@@ -96,6 +96,28 @@ func TestNormalizeSlugList(t *testing.T) {
 	}
 }
 
+// TestChooseDefaultWorkspace guards against init writing an unreachable slug as
+// default_workspace: a --default that never enrolled (failed its probe) must be
+// dropped in favor of the first reachable slug, signalled by ok=false.
+func TestChooseDefaultWorkspace(t *testing.T) {
+	enrolled := []string{"acme", "bravo"}
+
+	if got, ok := chooseDefaultWorkspace("", enrolled); got != "acme" || !ok {
+		t.Fatalf("empty default: got %q/%v, want acme/true", got, ok)
+	}
+	if got, ok := chooseDefaultWorkspace("bravo", enrolled); got != "bravo" || !ok {
+		t.Fatalf("enrolled default: got %q/%v, want bravo/true", got, ok)
+	}
+	// URL-form --default that resolves to an enrolled slug is honored.
+	if got, ok := chooseDefaultWorkspace("https://app.plane.so/bravo/", enrolled); got != "bravo" || !ok {
+		t.Fatalf("URL-form enrolled default: got %q/%v, want bravo/true", got, ok)
+	}
+	// A --default that never enrolled falls back to the first reachable slug.
+	if got, ok := chooseDefaultWorkspace("ghost", enrolled); got != "acme" || ok {
+		t.Fatalf("unenrolled default: got %q/%v, want acme/false", got, ok)
+	}
+}
+
 func TestWorkspacesListBanner(t *testing.T) {
 	var b strings.Builder
 	cfg := &config.Config{

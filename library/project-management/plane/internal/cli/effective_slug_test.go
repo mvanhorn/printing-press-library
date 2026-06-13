@@ -26,6 +26,10 @@ func TestEffectiveSlugPrecedence(t *testing.T) {
 		{"local beats env", "", "localslug", "envslug", "localslug"},
 		{"env when no flag", "", "", "envslug", "envslug"},
 		{"sentinel when nothing set", "", "", "", "my-workspace"},
+		// --workspace and PLANE_SLUG tolerate a pasted browser URL / API base,
+		// resolving to the bare slug (same tolerance as config.Load).
+		{"workspace URL form normalized", "https://app.plane.so/acme/projects", "", "", "acme"},
+		{"env URL form normalized", "", "", "app.plane.so/bravo", "bravo"},
 	}
 
 	for _, tt := range tests {

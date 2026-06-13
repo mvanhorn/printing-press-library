@@ -41,15 +41,15 @@ type rootFlags struct {
 	// PATCH(workspace-flag): top-precedence workspace selector; overrides
 	// PLANE_SLUG and default_workspace by writing TemplateVars["slug"] in
 	// newClient(). Re-apply after regen.
-	workspace  string
-	configPath string
-	profileName         string
-	deliverSpec         string
-	timeout             time.Duration
-	rateLimit           float64
-	maxAge              time.Duration
-	dataSource          string
-	freshnessMeta       any
+	workspace     string
+	configPath    string
+	profileName   string
+	deliverSpec   string
+	timeout       time.Duration
+	rateLimit     float64
+	maxAge        time.Duration
+	dataSource    string
+	freshnessMeta any
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
@@ -298,7 +298,11 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 		if cfg.TemplateVars == nil {
 			cfg.TemplateVars = map[string]string{}
 		}
-		cfg.TemplateVars["slug"] = f.workspace
+		// Normalize like every other slug source (PLANE_SLUG / default_workspace
+		// via config.Load, the MCP workspace arg via applyWorkspaceArg) so a
+		// pasted browser URL or API base (app.plane.so/acme, .../workspaces/acme)
+		// resolves to the bare slug instead of a malformed {slug} path → 404/403.
+		cfg.TemplateVars["slug"] = config.NormalizeWorkspaceSlug(f.workspace)
 	}
 	return c, nil
 }
