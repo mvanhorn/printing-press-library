@@ -58,7 +58,7 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			query := strings.Join(args, " ")
-			searchExpr := ftsQuery(query)
+			searchExpr := FtsQuery(query)
 			if year != "" {
 				y, err := strconv.Atoi(year)
 				if err != nil {
@@ -109,7 +109,10 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
-func ftsQuery(q string) string {
+// FtsQuery normalizes a user query into an FTS5 MATCH expression for the
+// releases_fts catalog index (exported so the MCP search tool reuses the exact
+// same transformation as the CLI search command).
+func FtsQuery(q string) string {
 	// PATCH: Strip FTS5 syntax chars before adding prefix markers. Hyphens
 	// are NOT stripped — they are split on instead, mirroring titleFromSlug
 	// which replaces hyphens with spaces before indexing. Stripping turned

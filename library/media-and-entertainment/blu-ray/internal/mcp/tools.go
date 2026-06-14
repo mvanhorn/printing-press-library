@@ -547,9 +547,27 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 	}
 	defer db.Close()
 
-	results, err := db.Search(query, limit)
+	// PATCH: Query the disc catalog (releases_fts JOIN releases_catalog) via
+	// SearchCatalog, NOT the generic resources_fts response-cache index that
+	// db.Search() reads — for this sitemap-sourced CLI all synced releases live
+	// in releases_catalog, so db.Search() returns empty after `sync`. Reuse the
+	// CLI search command's FtsQuery transform so MCP and CLI search match.
+	// (Generator-level: the generic search tool targets the wrong index for
+	// domain-table CLIs — tracked at mvanhorn/cli-printing-press#2965.)
+	rows, err := db.SearchCatalog(ctx, store.CatalogSearchOpts{Query: cli.FtsQuery(query), Limit: limit})
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("search failed: %v", err)), nil
+	}
+	results := make([]map[string]any, 0, len(rows))
+	for _, r := range rows {
+		results = append(results, map[string]any{
+			"id":      r.ID,
+			"kind":    r.Kind,
+			"title":   r.TitleNormalized,
+			"slug":    r.Slug,
+			"year":    r.YearHint,
+			"country": r.Country,
+		})
 	}
 
 	return toolResultJSON(results)
