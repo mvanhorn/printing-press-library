@@ -138,6 +138,18 @@ func RegisterTools(s *server.MCPServer) {
 		),
 		makeAPIHandler("GET", "/sitemap/sitemap_news.xml.gz", false, []mcpParamBinding{}, []string{}),
 	)
+	// Search tool — query the synced Blu-ray release catalog, not the generic response cache.
+	s.AddTool(
+		mcplib.NewTool("search",
+			mcplib.WithDescription("Full-text search across the synced Blu-ray release catalog. Requires sync first."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query.")),
+			mcplib.WithNumber("limit", mcplib.Description("Max results (default 25).")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+		),
+		handleSearch,
+	)
+
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
@@ -350,6 +362,51 @@ func dbPath() string {
 
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
+
+func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	args := req.GetArguments()
+	query, ok := args["query"].(string)
+	if !ok || query == "" {
+		return mcplib.NewToolResultError("query is required"), nil
+	}
+
+	limit := 25
+	if v, ok := args["limit"].(float64); ok && v > 0 {
+		limit = int(v)
+	}
+
+	db, err := store.OpenReadOnly(dbPath())
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+	}
+	defer db.Close()
+
+	// PATCH: Query the disc catalog (releases_fts JOIN releases_catalog) via
+	// SearchCatalog, NOT the generic resources_fts response-cache index that
+	// db.Search() reads — for this sitemap-sourced CLI all synced releases live
+	// in releases_catalog, so db.Search() returns empty after `sync`. Reuse the
+	// CLI search command's FtsQuery transform so MCP and CLI search match.
+	// (Generator-level: the generic search tool targets the wrong index for
+	// domain-table CLIs — tracked at mvanhorn/cli-printing-press#2965.)
+	rows, err := db.SearchCatalog(ctx, store.CatalogSearchOpts{Query: cli.FtsQuery(query), Limit: limit})
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("search failed: %v", err)), nil
+	}
+	results := make([]map[string]any, 0, len(rows))
+	for _, r := range rows {
+		results = append(results, map[string]any{
+			"id":      r.ID,
+			"kind":    r.Kind,
+			"title":   r.TitleNormalized,
+			"slug":    r.Slug,
+			"year":    r.YearHint,
+			"country": r.Country,
+		})
+	}
+
+	data, _ := json.MarshalIndent(results, "", "  ")
+	return mcplib.NewToolResultText(string(data)), nil
+}
 
 // validateReadOnlyQuery gates the MCP sql tool. The agent contract advertised
 // to the host is ReadOnlyHintAnnotation(true); a false annotation on a

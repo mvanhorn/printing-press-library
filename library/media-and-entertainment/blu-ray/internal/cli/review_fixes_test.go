@@ -6,10 +6,10 @@ import (
 )
 
 func TestFTSQueryStripsSyntax(t *testing.T) {
-	got := ftsQuery(`Title:foo "bar" baz) +qux -zap *`)
+	got := FtsQuery(`Title:foo "bar" baz) +qux -zap *`)
 	want := "Titlefoo* bar* baz* qux* zap*"
 	if got != want {
-		t.Fatalf("ftsQuery = %q, want %q", got, want)
+		t.Fatalf("FtsQuery = %q, want %q", got, want)
 	}
 }
 
