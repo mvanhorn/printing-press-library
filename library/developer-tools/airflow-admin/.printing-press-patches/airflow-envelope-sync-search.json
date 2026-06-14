@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "airflow-envelope-sync-search",
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260615-airflow-admin",
+  "base_printing_press_version": "4.18.1",
+  "summary": "internal/cli sync and search handling now recognizes Airflow list envelopes such as dags, dag_runs, task_instances, pools, variables, and connections, including empty arrays.",
+  "reason": "Airflow API list responses are resource-named envelopes with total_entries metadata. The generated generic extractor handled data/results/items but treated Airflow envelopes as single objects, so sync dropped rows with missing IDs and search filtered DAG rows that use dag_id/task_id instead of id/name.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/data_source.go",
+    "internal/cli/search.go",
+    "internal/cli/sync_airflow_envelopes_test.go",
+    "internal/cli/search_airflow_identifiers_test.go"
+  ],
+  "validated_outcome": "Local Airflow 3.0.0 validation: sync --resources dags,pools stored four records with zero errors, and search validation returned the synced DAG and failed DAG-run rows from SQLite."
+}

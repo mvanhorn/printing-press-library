@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "airflow-admin-pp-mcp",
+  "display_name": "Apache Airflow Admin",
+  "version": "4.18.1",
+  "description": "Read-first Apache Airflow operations surface for DAG inventory, DAG run history, task instance inspection, pool capacity, metadata sync, search, and runtime health checks.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/airflow-admin-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/airflow-admin-pp-mcp",
+      "args": [],
+      "env": {
+        "AIRFLOW_ADMIN_BASE_URL": "${user_config.airflow_admin_base_url}",
+        "AIRFLOW_ADMIN_BEARER_AUTH": "${user_config.airflow_admin_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "airflow_admin_base_url": {
+      "type": "string",
+      "title": "AIRFLOW_ADMIN_BASE_URL",
+      "description": "Airflow webserver/API base URL. Defaults to http://localhost:8080 when omitted.",
+      "sensitive": false,
+      "required": false
+    },
+    "airflow_admin_bearer_auth": {
+      "type": "string",
+      "title": "AIRFLOW_ADMIN_BEARER_AUTH",
+      "description": "Airflow JWT access token without the Bearer prefix.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "id": "airflow-review-auth-db-cache",
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260615-airflow-admin",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Airflow Admin now clears env-derived bearer auth before saving a new token, uses the root --db path across local-store commands, and keeps cache files private.",
+  "reason": "Review identified that auth set-token could persist the old AIRFLOW_ADMIN_BEARER_AUTH value, that sync --db could create a database other read commands did not use, and that cached API responses were readable by other local users. The cache fixes also tighten existing public cache directories and files on the next write.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/auth_test.go",
+    "internal/cli/root.go",
+    "internal/cli/data_source.go",
+    "internal/cli/data_source_test.go",
+    "internal/cli/sync.go",
+    "internal/cli/search.go",
+    "internal/cli/analytics.go",
+    "internal/cli/channel_workflow.go",
+    "internal/cli/doctor.go",
+    "internal/cli/promoted_apache-airflow-admin-auth.go",
+    "internal/client/client.go",
+    "internal/client/client_test.go",
+    "internal/cache/cache.go",
+    "internal/cache/cache_test.go"
+  ],
+  "validated_outcome": "Focused tests passed: go test ./internal/cli -run 'TestAuthSetTokenDoesNotPersistEnvBearerAuth|TestOpenStoreForRead|TestRootDBFlagRoutesLocalSearchToCustomStore' -count=1, go test ./internal/client -run 'TestWriteCacheUsesPrivatePermissions|TestWriteCacheTightensExistingPublicPermissions' -count=1, and go test ./internal/cache -count=1."
+}

@@ -1,0 +1,379 @@
+{
+  "api_name": "airflow-admin",
+  "base_url": "http://localhost:8080",
+  "description": "Focused read-first API surface for inspecting Apache Airflow DAGs, DAG runs, task instances, pools, variables, connections metadata, and runtime health.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "AIRFLOW_ADMIN_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "AIRFLOW_ADMIN_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "apache-airflow-admin-auth_create-token",
+      "description": "Authenticate with an Airflow username and password and return a JWT access token. Required: password, username. Returns the new AuthTokenResponse. (public)",
+      "method": "POST",
+      "path": "/auth/token",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password",
+          "required": true
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body",
+          "description": "Username",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apache-airflow-admin-version_get",
+      "description": "Get Airflow version. Returns the VersionInfo.",
+      "method": "GET",
+      "path": "/api/v2/version",
+      "params": []
+    },
+    {
+      "name": "connections_list",
+      "description": "List connections. Optional: limit (default: 100), offset (default: 0). Returns the ConnectionCollection.",
+      "method": "GET",
+      "path": "/api/v2/connections",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum records to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Records to skip."
+        }
+      ]
+    },
+    {
+      "name": "dags_get",
+      "description": "Get DAG. Required: dag_id. Returns the Dag.",
+      "method": "GET",
+      "path": "/api/v2/dags/{dag_id}",
+      "params": [
+        {
+          "name": "dag_id",
+          "type": "string",
+          "location": "path",
+          "description": "Dag id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dags_list",
+      "description": "List DAGs. Optional: limit (default: 100), offset (default: 0), dag_id_pattern (plus 1 more). Returns the DagCollection.",
+      "method": "GET",
+      "path": "/api/v2/dags",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum records to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Records to skip."
+        },
+        {
+          "name": "dag_id_pattern",
+          "type": "string",
+          "location": "query",
+          "description": "Optional DAG id pattern filter."
+        },
+        {
+          "name": "paused",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter DAGs by paused state."
+        }
+      ]
+    },
+    {
+      "name": "dags_dag-runs_get",
+      "description": "Get DAG run. Required: dag_id, dag_run_id. Returns the DagRun.",
+      "method": "GET",
+      "path": "/api/v2/dags/{dag_id}/dagRuns/{dag_run_id}",
+      "params": [
+        {
+          "name": "dag_id",
+          "type": "string",
+          "location": "path",
+          "description": "Dag id",
+          "required": true
+        },
+        {
+          "name": "dag_run_id",
+          "type": "string",
+          "location": "path",
+          "description": "Dag run id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dags_dag-runs_get-task-instance",
+      "description": "Get task instance. Required: dag_id, dag_run_id, task_id. Returns the TaskInstance.",
+      "method": "GET",
+      "path": "/api/v2/dags/{dag_id}/dagRuns/{dag_run_id}/taskInstances/{task_id}",
+      "params": [
+        {
+          "name": "dag_id",
+          "type": "string",
+          "location": "path",
+          "description": "Dag id",
+          "required": true
+        },
+        {
+          "name": "dag_run_id",
+          "type": "string",
+          "location": "path",
+          "description": "Dag run id",
+          "required": true
+        },
+        {
+          "name": "task_id",
+          "type": "string",
+          "location": "path",
+          "description": "Task id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dags_dag-runs_list",
+      "description": "List DAG runs. Required: dag_id. Optional: limit (default: 100), offset (default: 0), state (plus 3 more). Returns the DagRunCollection.",
+      "method": "GET",
+      "path": "/api/v2/dags/{dag_id}/dagRuns",
+      "params": [
+        {
+          "name": "dag_id",
+          "type": "string",
+          "location": "path",
+          "description": "Dag id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum records to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Records to skip."
+        },
+        {
+          "name": "state",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by one or more DAG run states."
+        },
+        {
+          "name": "start_date_gte",
+          "type": "string",
+          "location": "query",
+          "description": "Earliest start date."
+        },
+        {
+          "name": "start_date_lte",
+          "type": "string",
+          "location": "query",
+          "description": "Latest start date."
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort expression supported by Airflow."
+        }
+      ]
+    },
+    {
+      "name": "dags_dag-runs_list-task-instances",
+      "description": "List task instances. Required: dag_id, dag_run_id. Optional: limit (default: 100), offset (default: 0), state. Returns the TaskInstanceCollection.",
+      "method": "GET",
+      "path": "/api/v2/dags/{dag_id}/dagRuns/{dag_run_id}/taskInstances",
+      "params": [
+        {
+          "name": "dag_id",
+          "type": "string",
+          "location": "path",
+          "description": "Dag id",
+          "required": true
+        },
+        {
+          "name": "dag_run_id",
+          "type": "string",
+          "location": "path",
+          "description": "Dag run id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum records to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Records to skip."
+        },
+        {
+          "name": "state",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by task instance state."
+        }
+      ]
+    },
+    {
+      "name": "dags_details_get-dag",
+      "description": "Get DAG details. Required: dag_id. Returns the DagDetails.",
+      "method": "GET",
+      "path": "/api/v2/dags/{dag_id}/details",
+      "params": [
+        {
+          "name": "dag_id",
+          "type": "string",
+          "location": "path",
+          "description": "Dag id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dags_tasks_get",
+      "description": "Get DAG task. Required: dag_id, task_id. Returns the Task.",
+      "method": "GET",
+      "path": "/api/v2/dags/{dag_id}/tasks/{task_id}",
+      "params": [
+        {
+          "name": "dag_id",
+          "type": "string",
+          "location": "path",
+          "description": "Dag id",
+          "required": true
+        },
+        {
+          "name": "task_id",
+          "type": "string",
+          "location": "path",
+          "description": "Task id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dags_tasks_list",
+      "description": "List tasks for DAG. Required: dag_id. Returns the TaskCollection.",
+      "method": "GET",
+      "path": "/api/v2/dags/{dag_id}/tasks",
+      "params": [
+        {
+          "name": "dag_id",
+          "type": "string",
+          "location": "path",
+          "description": "Dag id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "monitor_get-health",
+      "description": "Get health. Returns the HealthInfo.",
+      "method": "GET",
+      "path": "/api/v2/monitor/health",
+      "params": []
+    },
+    {
+      "name": "pools_get",
+      "description": "Get pool. Required: pool_name. Returns the Pool.",
+      "method": "GET",
+      "path": "/api/v2/pools/{pool_name}",
+      "params": [
+        {
+          "name": "pool_name",
+          "type": "string",
+          "location": "path",
+          "description": "Pool name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pools_list",
+      "description": "List pools. Optional: limit (default: 100), offset (default: 0). Returns the PoolCollection.",
+      "method": "GET",
+      "path": "/api/v2/pools",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum records to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Records to skip."
+        }
+      ]
+    },
+    {
+      "name": "variables_list",
+      "description": "List variables. Optional: limit (default: 100), offset (default: 0). Returns the VariableCollection.",
+      "method": "GET",
+      "path": "/api/v2/variables",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum records to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Records to skip."
+        }
+      ]
+    }
+  ]
+}
