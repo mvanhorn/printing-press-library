@@ -18,8 +18,20 @@ func newFindSearchBypersonCmd(flags *rootFlags) *cobra.Command {
 	var flagPretty bool
 
 	cmd := &cobra.Command{
-		Use:         "search-byperson",
-		Short:       "This call returns all of the episodes where the specified person is mentioned.",
+		Use:   "search-byperson",
+		Short: "Find episodes that PodcastIndex tags with the specified person (tag-based; noisy).",
+		// PATCH(demote byperson: it fuzzy-matches the first token and is tag-dependent;
+		// point users to `workflow find-appearances` for finding a named guest on a known
+		// show. See .printing-press-patches/find-appearances-and-auth-config.json)
+		Long: `search-byperson matches PodcastIndex <podcast:person> tags and fuzzy-matches the
+query, so it is NOISY on common first names (e.g. "Arthur" or "Arnaud" returns
+unrelated shows) and MISSES guests whose host never added a person tag.
+
+To find a named guest's appearance on a show you already know, prefer:
+  podcastindex-pp-cli workflow find-appearances --match "<name>" --show "<show>"
+which filters a show's episodes by title/description. PodcastIndex has no
+episode-content search, so discover the show via web search first. See the
+README "Find a person's appearances" section.`,
 		Example:     "  podcastindex-pp-cli find search-byperson --q example-value",
 		Annotations: map[string]string{"pp:endpoint": "find.search-byperson", "pp:method": "GET", "pp:path": "/search/byperson", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {

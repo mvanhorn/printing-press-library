@@ -21,6 +21,8 @@ func newWorkflowCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.AddCommand(newWorkflowArchiveCmd(flags))
 	cmd.AddCommand(newWorkflowStatusCmd(flags))
+	// PATCH(find-appearances: resolution-layer guest/company appearance finder; body in workflow_find_appearances.go; see .printing-press-patches/find-appearances-and-auth-config.json)
+	cmd.AddCommand(newWorkflowFindAppearancesCmd(flags))
 
 	return cmd
 }

@@ -23,6 +23,8 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newAuthSetupCmd(flags))
 	cmd.AddCommand(newAuthStatusCmd(flags))
 	cmd.AddCommand(newAuthSetTokenCmd(flags))
+	// PATCH(set-secret: persist the signing secret to config; body in auth_set_secret.go; see .printing-press-patches/find-appearances-and-auth-config.json)
+	cmd.AddCommand(newAuthSetSecretCmd(flags))
 	cmd.AddCommand(newAuthLogoutCmd(flags))
 
 	return cmd
@@ -46,8 +48,15 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 			fmt.Fprintln(w, "  export PODCASTINDEX_KEY=\"<your-key>\"")
 			fmt.Fprintln(w, "  export PODCASTINDEX_SECRET=\"<your-secret>\"")
 			fmt.Fprintln(w, "")
-			fmt.Fprintln(w, "The secret cannot be stored in config; it must be in the environment so")
-			fmt.Fprintln(w, "the per-request SHA1 signature can be computed.")
+			// PATCH(set-secret: the secret CAN be persisted to config — PodcastindexSecret()
+			// falls back to client_secret; the old text wrongly said it could not. See
+			// .printing-press-patches/find-appearances-and-auth-config.json)
+			fmt.Fprintln(w, "Or persist both to the config file, so non-interactive / --agent runs")
+			fmt.Fprintln(w, "authenticate without exporting env vars in every shell:")
+			fmt.Fprintln(w, "  podcastindex-pp-cli auth set-token  <your-key>")
+			fmt.Fprintln(w, "  podcastindex-pp-cli auth set-secret <your-secret>")
+			fmt.Fprintln(w, "")
+			fmt.Fprintln(w, "When both are present, the environment variables override stored config.")
 			if !launch {
 				return nil
 			}

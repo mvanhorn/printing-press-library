@@ -22,3 +22,16 @@ func (c *Config) PodcastindexSecret() string {
 func (c *Config) PodcastindexAuthKey() string {
 	return strings.TrimSpace(c.AuthHeader())
 }
+
+// SaveClientSecret persists the PodcastIndex shared secret to client_secret in
+// the config file, mirroring SaveCredential for the key. PodcastindexSecret()
+// reads PODCASTINDEX_SECRET first and falls back to this stored value, so a
+// saved secret lets non-interactive / --agent runs sign requests without the
+// PODCASTINDEX_SECRET environment variable. Lives here (not config.go) so it
+// survives generator regen. See .printing-press-patches/find-appearances-and-auth-config.json.
+func (c *Config) SaveClientSecret(secret string) error {
+	c.ClientSecret = strings.TrimSpace(secret)
+	delete(c.envOverrides, "ClientSecret")
+	c.updateFileConfigField("ClientSecret")
+	return c.save()
+}

@@ -165,6 +165,34 @@ podcastindex-pp-cli find search-byterm --q "no agenda" --max 1 --json --select f
 
 Get the feedId for a show by name, ready to pass to episodes byfeedid.
 
+### Find a person's (or company's) appearances
+
+This is the primary path for "where did **X** appear". PodcastIndex has **no
+episode-content or guest search** — `find search-byterm` matches feed metadata,
+`find search-byperson` matches `<podcast:person>` tags (and fuzzy-matches the
+first name, so it is noisy and misses untagged guests). So you cannot reach an
+untagged appearance from a name alone: find the **show** first (a web search),
+then resolve it here.
+
+```bash
+# A guest on a known show — resolves the show, filters its episodes by name,
+# emits the enclosure URLs ready to transcribe.
+podcastindex-pp-cli workflow find-appearances --match "Arthur Mensch" --show "Big Technology" \
+  --json --select feedTitle,title,datePublished,enclosureUrl
+
+# Company + founder across a candidate show
+podcastindex-pp-cli workflow find-appearances --match "Implicity" --match "Arnaud Rosier" \
+  --show "Med in Tech"
+
+# Scan an explicit feed id directly (skip the show lookup)
+podcastindex-pp-cli workflow find-appearances --match "Rosier" --feed 4712435
+```
+
+`--match` is repeatable (OR-matched against each episode's title and
+description); `--show` and `--feed` are repeatable. Add `--byperson` to also fold
+in tag-based hits (still filtered through `--match`). Prefer this over
+`find search-byperson` whenever you know the show.
+
 ### Catch up on a show
 
 ```bash
