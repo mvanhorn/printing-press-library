@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "calendly-pp-cli"
+display_name = "Calendly Read"
+description = "Read-first Calendly API surface for scheduling, availability, event, invitee, and webhook inspection."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/github.com/mvanhorn/printing-press-library/library/productivity/calendly/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+CALENDLY_BEARER_AUTH = true

@@ -1,0 +1,51 @@
+version: 2
+project_name: braze-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: braze-pp-cli
+    main: ./cmd/braze-pp-cli
+    binary: braze-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X braze-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: braze-pp-mcp
+    main: ./cmd/braze-pp-mcp
+    binary: braze-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: braze-pp-cli
+    repository:
+      owner: debgotwired
+      name: homebrew-tap
+    homepage: "https://github.com/debgotwired/braze-pp-cli"
+    description: "Read-first Braze REST API surface for marketing analytics, campaign inspection, content assets, and catalog lookup."
+    install: |
+      bin.install "braze-pp-cli"
+      bin.install "braze-pp-mcp"

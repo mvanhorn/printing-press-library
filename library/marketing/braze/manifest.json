@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "braze-pp-mcp",
+  "display_name": "Braze Read",
+  "version": "0.0.0",
+  "description": "Read-first Braze REST API surface for marketing analytics, campaign inspection, content assets, and catalog lookup.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/braze-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/braze-pp-mcp",
+      "args": [],
+      "env": {
+        "BRAZE_BEARER_AUTH": "${user_config.braze_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "braze_bearer_auth": {
+      "type": "string",
+      "title": "BRAZE_BEARER_AUTH",
+      "description": "Sets BRAZE_BEARER_AUTH for the Braze Read MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
