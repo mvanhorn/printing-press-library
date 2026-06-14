@@ -18,6 +18,8 @@ type Config struct {
 	Headers       map[string]string `toml:"headers,omitempty"`
 	AuthSource    string            `toml:"-"`
 	Path          string            `toml:"-"`
+	envOverrides  map[string]bool   `toml:"-"`
+	fileConfig    *Config           `toml:"-"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -43,6 +45,8 @@ func Load(configPath string) (*Config, error) {
 			return nil, fmt.Errorf("parsing config %s: %w", path, err)
 		}
 	}
+
+	cfg.snapshotFileConfig()
 
 	// Env var overrides
 
@@ -85,16 +89,78 @@ func applyAuthFormat(format string, replacements map[string]string) string {
 	return format
 }
 
+func (c *Config) markEnvOverride(field string) {
+	if c.envOverrides == nil {
+		c.envOverrides = map[string]bool{}
+	}
+	c.envOverrides[field] = true
+}
+
+// cloneStringMap returns an independent copy of m (nil stays nil). The fileConfig
+// snapshot must not share reference-type map fields (such as Headers) with the
+// live config, or a later mutation to one would silently track in the other.
+func cloneStringMap(m map[string]string) map[string]string {
+	if m == nil {
+		return nil
+	}
+	out := make(map[string]string, len(m))
+	for k, v := range m {
+		out[k] = v
+	}
+	return out
+}
+
+func (c *Config) snapshotFileConfig() {
+	snapshot := *c
+	snapshot.envOverrides = nil
+	snapshot.fileConfig = nil
+	// *c is a shallow copy: map fields are reference types, so the snapshot would
+	// share them with c and silently track later mutations, defeating the
+	// isolation this snapshot exists to provide. Clone them.
+	snapshot.Headers = cloneStringMap(c.Headers)
+	c.fileConfig = &snapshot
+}
+
+func (c *Config) configForSave() Config {
+	out := *c
+	if c.fileConfig != nil {
+	}
+	out.envOverrides = nil
+	out.fileConfig = nil
+	return out
+}
+
+func (c *Config) updateFileConfigField(field string) {
+	if c.fileConfig == nil || c.envOverrides[field] {
+		return
+	}
+	switch field {
+	case "AuthHeaderVal":
+		c.fileConfig.AuthHeaderVal = c.AuthHeaderVal
+	}
+}
+
 func (c *Config) save() error {
 	dir := filepath.Dir(c.Path)
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return fmt.Errorf("creating config dir: %w", err)
 	}
-	data, err := toml.Marshal(c)
+	persisted := c.configForSave()
+	data, err := toml.Marshal(persisted)
 	if err != nil {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
-	return os.WriteFile(c.Path, data, 0o600)
+	if err := os.WriteFile(c.Path, data, 0o600); err != nil {
+		return err
+	}
+	c.fileConfig = &persisted
+	c.fileConfig.envOverrides = nil
+	c.fileConfig.fileConfig = nil
+	// persisted shares its map fields with c (configForSave shallow-copies *c),
+	// so isolate the stored fileConfig the same way snapshotFileConfig does;
+	// otherwise later mutations to c's maps leak into the on-disk snapshot.
+	c.fileConfig.Headers = cloneStringMap(c.fileConfig.Headers)
+	return nil
 }
 
 // Ensure strings import is used

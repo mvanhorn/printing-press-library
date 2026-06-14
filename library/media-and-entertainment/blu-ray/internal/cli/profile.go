@@ -253,6 +253,9 @@ func newProfileListCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "list",
 		Short: "List saved profiles",
+		Annotations: map[string]string{
+			"mcp:read-only": "true",
+		},
 		Example: `  blu-ray-pp-cli profile list
   blu-ray-pp-cli profile list --json`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
@@ -292,6 +295,9 @@ func newProfileShowCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "show <name>",
 		Short: "Show a profile's values as JSON",
+		Annotations: map[string]string{
+			"mcp:read-only": "true",
+		},
 		Example: `  blu-ray-pp-cli profile show my-defaults
   blu-ray-pp-cli profile show tonight-defaults --json`,
 		Args: cobra.ExactArgs(1),

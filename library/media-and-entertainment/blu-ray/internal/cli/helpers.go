@@ -5,6 +5,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,6 +16,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -22,6 +24,15 @@ import (
 )
 
 var As = errors.As
+
+const paginatedGetMaxPages = 100
+
+func formatCLIParamValue(v any) string {
+	if f, ok := v.(float64); ok {
+		return strconv.FormatFloat(f, 'f', -1, 64)
+	}
+	return fmt.Sprintf("%v", v)
+}
 
 // noColor is set by the --no-color flag
 var noColor bool
@@ -121,6 +132,17 @@ func dryRunOK(flags *rootFlags) bool {
 	return flags != nil && flags.dryRun
 }
 
+// boundCtx applies the root --timeout flag to hand-written command work that
+// does not go through the generated internal/client.Client. Generated endpoint
+// commands already pass flags.timeout into client.New; sibling typed clients
+// used by novel commands need an explicit command-level context boundary.
+func boundCtx(parent context.Context, flags *rootFlags) (context.Context, context.CancelFunc) {
+	if flags == nil || flags.timeout <= 0 {
+		return parent, func() {}
+	}
+	return context.WithTimeout(parent, flags.timeout)
+}
+
 // parentNoSubcommandRunE returns a RunE that handles parents invoked without a
 // subcommand. In machine output (--json/--agent) the parent emits a structured
 // error to stdout listing valid subcommands and exits 2; otherwise cobra's
@@ -172,6 +194,11 @@ func writeAPIErrorEnvelope(flags *rootFlags, err error, code int) {
 
 // classifyAPIError maps API errors to structured exit codes with actionable hints.
 func classifyAPIError(err error, flags *rootFlags) error {
+	var typed *cliError
+	if errors.As(err, &typed) {
+		return err
+	}
+
 	msg := err.Error()
 	switch {
 	case strings.Contains(msg, "HTTP 409"):
@@ -221,9 +248,9 @@ func replacePathParam(path, name, value string) string {
 // argument carries per-endpoint required headers (e.g. cal-api-version) that
 // must be sent on every page request, including the first; pass nil when the
 // endpoint has no per-endpoint header overrides.
-func paginatedGet(c interface {
-	GetWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error)
-}, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, error) {
+func paginatedGet(ctx context.Context, c interface {
+	GetWithHeaders(ctx context.Context, path string, params map[string]string, headers map[string]string) (json.RawMessage, error)
+}, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField string) (json.RawMessage, error) {
 	// Cursor params are exempt from the "0"/"false" strip: offset-paginated
 	// APIs send offset=0 on the first page.
 	clean := map[string]string{}
@@ -237,11 +264,11 @@ func paginatedGet(c interface {
 	}
 
 	if !fetchAll {
-		data, err := c.GetWithHeaders(path, clean, headers)
+		data, err := c.GetWithHeaders(ctx, path, clean, headers)
 		if err != nil {
 			return nil, err
 		}
-		emitTruncationWarning(data, nextCursorPath, hasMoreField)
+		emitTruncationWarning(data, nextCursorPath, hasMoreField, paginationType)
 		return data, nil
 	}
 
@@ -256,7 +283,7 @@ func paginatedGet(c interface {
 			fmt.Fprintf(os.Stderr, `{"event":"page_fetch","page":%d}`+"\n", page)
 		}
 
-		data, err := c.GetWithHeaders(path, clean, headers)
+		data, err := c.GetWithHeaders(ctx, path, clean, headers)
 		if err != nil {
 			return nil, err
 		}
@@ -265,32 +292,69 @@ func paginatedGet(c interface {
 		var items []json.RawMessage
 		if json.Unmarshal(data, &items) == nil {
 			allItems = append(allItems, items...)
+			if next, ok := nextFullPageOffsetCursor(clean, cursorParam, paginationType, limitParam, len(items)); ok {
+				if page >= paginatedGetMaxPages {
+					emitPaginatedGetMaxPagesWarning()
+					break
+				}
+				clean[cursorParam] = next
+				continue
+			}
 		} else {
 			// Response is an object - look for array inside
 			var obj map[string]json.RawMessage
 			if json.Unmarshal(data, &obj) == nil {
+				itemCount := 0
 				if nested, ok := extractPaginatedItems(obj); ok {
 					allItems = append(allItems, nested...)
+					itemCount = len(nested)
 				}
 
 				// Check for next cursor
 				if nextCursorPath != "" {
 					if tokenRaw, ok := rawAtPath(obj, nextCursorPath); ok {
-						var token string
-						if json.Unmarshal(tokenRaw, &token) == nil && token != "" {
+						if token := paginationCursorToken(tokenRaw); token != "" {
+							if page >= paginatedGetMaxPages {
+								emitPaginatedGetMaxPagesWarning()
+								break
+							}
 							clean[cursorParam] = token
 							continue
 						}
 					}
 				}
 
-				// Check has_more
+				// Check has_more. Page and offset paginators can advance
+				// client-side; cursor-based APIs still need a body cursor.
+				hasExplicitNoMore := false
 				if hasMoreField != "" {
 					if moreRaw, ok := rawAtPath(obj, hasMoreField); ok {
 						var more bool
-						if json.Unmarshal(moreRaw, &more) == nil && more {
-							continue
+						if json.Unmarshal(moreRaw, &more) == nil {
+							if more {
+								if next, ok := nextClientSidePaginationCursor(clean, cursorParam, paginationType, limitParam); ok {
+									if page >= paginatedGetMaxPages {
+										emitPaginatedGetMaxPagesWarning()
+										break
+									}
+									clean[cursorParam] = next
+									continue
+								}
+								emitMissingPaginationCursorWarning(nextCursorPath)
+								break
+							}
+							hasExplicitNoMore = true
 						}
+					}
+				}
+				if !hasExplicitNoMore {
+					if next, ok := nextFullPageOffsetCursor(clean, cursorParam, paginationType, limitParam, itemCount); ok {
+						if page >= paginatedGetMaxPages {
+							emitPaginatedGetMaxPagesWarning()
+							break
+						}
+						clean[cursorParam] = next
+						continue
 					}
 				}
 			}
@@ -302,6 +366,9 @@ func paginatedGet(c interface {
 		break
 	}
 
+	if fetchAll && page == 1 && nextCursorPath == "" && hasMoreField == "" {
+		emitMissingPaginationSignalWarning()
+	}
 	if humanFriendly {
 		fmt.Fprintf(os.Stderr, "fetched %d items across %d pages\n", len(allItems), page)
 	} else {
@@ -311,10 +378,55 @@ func paginatedGet(c interface {
 	return json.RawMessage(result), nil
 }
 
+func nextFullPageOffsetCursor(params map[string]string, cursorParam, paginationType, limitParam string, itemCount int) (string, bool) {
+	if paginationType != "offset" || itemCount == 0 {
+		return "", false
+	}
+	limit, err := strconv.Atoi(params[limitParam])
+	if err != nil || limit <= 0 || itemCount < limit {
+		return "", false
+	}
+	return nextClientSidePaginationCursor(params, cursorParam, paginationType, limitParam)
+}
+
+func nextClientSidePaginationCursor(params map[string]string, cursorParam, paginationType, limitParam string) (string, bool) {
+	if cursorParam == "" {
+		return "", false
+	}
+	switch paginationType {
+	case "page":
+		current := params[cursorParam]
+		if current == "" {
+			current = "1"
+		}
+		n, err := strconv.Atoi(current)
+		if err != nil {
+			return "", false
+		}
+		return strconv.Itoa(n + 1), true
+	case "offset":
+		current := params[cursorParam]
+		if current == "" {
+			current = "0"
+		}
+		n, err := strconv.Atoi(current)
+		if err != nil {
+			return "", false
+		}
+		limit, err := strconv.Atoi(params[limitParam])
+		if err != nil || limit <= 0 {
+			return "", false
+		}
+		return strconv.Itoa(n + limit), true
+	default:
+		return "", false
+	}
+}
+
 // Silent page-1 truncation is the worst-possible mode for agents,
 // who otherwise compute totals against an incomplete set without
 // passing --all.
-func emitTruncationWarning(data json.RawMessage, nextCursorPath, hasMoreField string) {
+func emitTruncationWarning(data json.RawMessage, nextCursorPath, hasMoreField, paginationType string) {
 	if nextCursorPath == "" && hasMoreField == "" {
 		return
 	}
@@ -325,7 +437,7 @@ func emitTruncationWarning(data json.RawMessage, nextCursorPath, hasMoreField st
 	var nextCursor string
 	if nextCursorPath != "" {
 		if tokenRaw, ok := rawAtPath(obj, nextCursorPath); ok {
-			_ = json.Unmarshal(tokenRaw, &nextCursor)
+			nextCursor = paginationCursorToken(tokenRaw)
 		}
 	}
 	var hasMore bool
@@ -337,11 +449,10 @@ func emitTruncationWarning(data json.RawMessage, nextCursorPath, hasMoreField st
 	if nextCursor == "" && !hasMore {
 		return
 	}
-	// --all only advances when a next-cursor is configured. has_more-only
-	// endpoints have no cursor to set on the next page, so the --all loop
-	// re-fetches the same response forever. Don't advertise an escape
-	// hatch that doesn't work for this topology.
-	if nextCursor != "" {
+	// --all advances when a next-cursor is configured, or when the endpoint
+	// uses client-side numeric page/offset advancement. Opaque cursor APIs
+	// still need a returned cursor to advance safely.
+	if nextCursor != "" || ((paginationType == "page" || paginationType == "offset") && hasMore) {
 		if humanFriendly {
 			fmt.Fprintf(os.Stderr, "warning: results truncated; more pages available. Re-run with --all to fetch every page.\n")
 		} else {
@@ -354,6 +465,47 @@ func emitTruncationWarning(data json.RawMessage, nextCursorPath, hasMoreField st
 	} else {
 		fmt.Fprintf(os.Stderr, `{"event":"truncated"}`+"\n")
 	}
+}
+
+func emitMissingPaginationSignalWarning() {
+	if humanFriendly {
+		fmt.Fprintf(os.Stderr, "warning: --all requested, but this endpoint does not declare a next cursor or has-more field; returning page 1 only.\n")
+	} else {
+		fmt.Fprintf(os.Stderr, `{"event":"truncated","reason":"pagination_signal_missing","message":"--all requested but this endpoint does not declare a next cursor or has-more field; returning page 1 only"}`+"\n")
+	}
+}
+
+func emitPaginatedGetMaxPagesWarning() {
+	if humanFriendly {
+		fmt.Fprintf(os.Stderr, "warning: --all reached the %d-page safety limit; returning fetched pages only.\n", paginatedGetMaxPages)
+	} else {
+		fmt.Fprintf(os.Stderr, `{"event":"truncated","reason":"max_pages_cap_hit","message":"--all reached the %d-page safety limit; returning fetched pages only"}`+"\n", paginatedGetMaxPages)
+	}
+}
+
+func emitMissingPaginationCursorWarning(nextCursorPath string) {
+	if humanFriendly {
+		fmt.Fprintf(os.Stderr, "warning: --all requested, but the response indicated more pages without a usable next cursor; returning fetched pages only.\n")
+	} else if nextCursorPath != "" {
+		fmt.Fprintf(os.Stderr, `{"event":"truncated","reason":"pagination_cursor_missing","next_cursor_path":%q,"message":"--all requested but the response indicated more pages without a usable next cursor; returning fetched pages only"}`+"\n", nextCursorPath)
+	} else {
+		fmt.Fprintf(os.Stderr, `{"event":"truncated","reason":"pagination_cursor_missing","message":"--all requested but the response indicated more pages without a usable next cursor; returning fetched pages only"}`+"\n")
+	}
+}
+
+func paginationCursorToken(raw json.RawMessage) string {
+	var token string
+	if json.Unmarshal(raw, &token) == nil && token != "" {
+		return token
+	}
+	var number json.Number
+	if json.Unmarshal(raw, &number) == nil {
+		// Cursor 0 is valid; null/absent values are handled upstream as empty.
+		if n, err := number.Int64(); err == nil && n >= 0 {
+			return number.String()
+		}
+	}
+	return ""
 }
 
 func extractPaginatedItems(obj map[string]json.RawMessage) ([]json.RawMessage, bool) {
@@ -567,34 +719,6 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 	return printOutput(w, data, flags.asJSON)
 }
 
-// extractResponseData unwraps common API response envelopes for display.
-// Many APIs return {"status":"success","data":[...]} instead of a bare array.
-// This extracts the inner data for output helpers (filterFields, compactFields,
-// printAutoTable) that expect arrays or flat objects.
-//
-// Only unwraps when a "status" field is present and indicates success — this
-// avoids false positives on APIs where "data" is a regular field (e.g., Stripe
-// returns {"data":[...],"has_more":true} where "data" is the list, not an
-// envelope wrapper).
-func extractResponseData(data json.RawMessage) json.RawMessage {
-	var envelope struct {
-		Status string          `json:"status"`
-		Data   json.RawMessage `json:"data"`
-	}
-	if err := json.Unmarshal(data, &envelope); err != nil {
-		return data
-	}
-	if envelope.Data == nil || envelope.Status == "" {
-		return data // No status field = not an envelope, might be regular "data" field
-	}
-	switch envelope.Status {
-	case "success", "ok", "OK", "Success":
-		return envelope.Data
-	default:
-		return data
-	}
-}
-
 // compactVerboseListFields are prose-shaped fields stripped from list-item
 // projections. On lists, "body"/"content"/"html"/"markdown" are verbose
 // noise and the row's identity is carried by id/name/title/etc.
@@ -638,10 +762,11 @@ func compactFields(data json.RawMessage) json.RawMessage {
 // Two-layer keep rule:
 //
 //  1. A static allow-list covers canonical scalars (id/name/price/status/...).
-//  2. A data-driven extension also keeps any scalar key present in at least
-//     80% of input rows. This catches hand-written novel commands whose
-//     output keys (object_name, match_key, snippet) aren't on the canonical
-//     allow-list, without forcing every printed CLI to expand the list.
+//  2. A data-driven extension also keeps any key present in at least 80% of
+//     input rows. This catches hand-written novel commands whose payload keys
+//     (object_name, match_key, snippet, series, metrics) aren't on the
+//     canonical allow-list, without forcing every printed CLI to expand the
+//     list.
 //
 // Verbose fields (description, body, content, etc.) are excluded from the
 // data-driven extension regardless of frequency, so the compact intent
@@ -677,8 +802,8 @@ func compactListFields(items []map[string]any) json.RawMessage {
 	if len(items) > 0 {
 		keyCounts := map[string]int{}
 		for _, item := range items {
-			for k, v := range item {
-				if compactVerboseListFields[k] || !isCompactScalar(v) {
+			for k := range item {
+				if compactVerboseListFields[k] {
 					continue
 				}
 				keyCounts[k]++
@@ -718,10 +843,9 @@ func compactListFields(items []map[string]any) json.RawMessage {
 }
 
 // isCompactScalar reports whether v is a small primitive (string, number,
-// bool, null) suitable for --compact projection. Objects and arrays are
-// rejected: they almost always represent nested structure that defeats the
-// "short identifying value" intent of --compact, and including them in the
-// data-driven keep set would bloat agent output.
+// bool, null) suitable for compact table decisions. Compact list projection
+// may still retain frequent nested payload fields; this helper is about
+// display density, not whether a field carries agent-useful payload.
 func isCompactScalar(v any) bool {
 	switch v.(type) {
 	case nil, bool, float64, string:
@@ -777,7 +901,12 @@ func printCSV(w io.Writer, data json.RawMessage) error {
 			if v == nil {
 				vals = append(vals, "")
 			} else {
-				s := fmt.Sprintf("%v", v)
+				var s string
+				if f, ok := v.(float64); ok {
+					s = strconv.FormatFloat(f, 'f', -1, 64)
+				} else {
+					s = fmt.Sprintf("%v", v)
+				}
 				if strings.ContainsAny(s, ",\"\n") {
 					s = `"` + strings.ReplaceAll(s, `"`, `""`) + `"`
 				}

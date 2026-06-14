@@ -78,6 +78,32 @@ func TestExitCode_UsageError_WrappedAsCode2(t *testing.T) {
 	}
 }
 
+func TestPaginationCursorToken(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name string
+		raw  json.RawMessage
+		want string
+	}{
+		{name: "zero number", raw: json.RawMessage(`0`), want: "0"},
+		{name: "positive number", raw: json.RawMessage(`5`), want: "5"},
+		{name: "negative number", raw: json.RawMessage(`-1`), want: ""},
+		{name: "null", raw: json.RawMessage(`null`), want: ""},
+		{name: "string token", raw: json.RawMessage(`"cursor-1"`), want: "cursor-1"},
+		{name: "empty string", raw: json.RawMessage(`""`), want: ""},
+		{name: "non numeric raw", raw: json.RawMessage(`{"next":true}`), want: ""},
+	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			if got := paginationCursorToken(tc.raw); got != tc.want {
+				t.Fatalf("paginationCursorToken(%s) = %q, want %q", string(tc.raw), got, tc.want)
+			}
+		})
+	}
+}
+
 // TestFilterFields covers --select projection against the four payload
 // shapes printed CLIs see in practice: bare arrays, direct objects,
 // list envelopes (Stripe/GitHub/Notion-style wrapper + array), and

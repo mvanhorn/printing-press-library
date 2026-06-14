@@ -7,13 +7,17 @@
 package store
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"hash/fnv"
+	"math"
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -22,6 +26,13 @@ import (
 )
 
 var uuidPattern = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
+var isoDatePattern = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}(?:[T ][0-9:.+-Zz]+)?$`)
+var ftsQueryTokenRE = regexp.MustCompile(`[\pL\pN_]+`)
+
+var sqliteDriverInit struct {
+	mu   sync.Mutex
+	done bool
+}
 
 // validIdentifierRE pins ListField's `field` argument to a safe SQL
 // identifier shape before any Sprintf interpolation. Matches what
@@ -37,11 +48,15 @@ func IsUUID(s string) bool {
 
 // StoreSchemaVersion is the on-disk schema version this binary understands.
 // It is stamped into SQLite's PRAGMA user_version on fresh databases and
-// checked on every open. Bump this whenever a migration changes table
-// shape — adding columns, dropping indexes, changing FTS5 tokenizers —
-// so an older binary refuses to open a newer database rather than silently
-// producing wrong results against a schema it cannot read.
-const StoreSchemaVersion = 2
+// checked on every open. Non-learn CLIs advance to v4 for the
+// resources_fts content extraction.
+const StoreSchemaVersion = 4
+
+// resourcesFTSContentSchemaVersion pins the schema bump that rewrote
+// resources_fts content from raw JSON to searchable leaf values. Keep this
+// separate from StoreSchemaVersion so future unrelated migrations do not
+// trigger an expensive full FTS rebuild.
+const resourcesFTSContentSchemaVersion = 4
 
 const resourcesFTSCreateSQL = `CREATE VIRTUAL TABLE IF NOT EXISTS resources_fts USING fts5(
 	id, resource_type, content, tokenize='porter unicode61'
@@ -78,8 +93,19 @@ func Open(dbPath string) (*Store, error) {
 // mattn/go-sqlite3 _journal_mode=WAL / _busy_timeout=5000 form and drops
 // those keys silently, so the busy_timeout below is what keeps a read
 // concurrent with a writer from failing immediately with SQLITE_BUSY.
+//
+// Deliberately no journal_mode pragma here: journal mode is a property of
+// the database file, set by the read-write open, not the connection. Issuing
+// PRAGMA journal_mode=WAL on a read-only handle to a DB still in the default
+// delete mode (e.g. a pre-WAL database opened by an old binary before its
+// first read-write open) errors with "attempt to write a readonly database".
 func OpenReadOnly(dbPath string) (*Store, error) {
-	db, err := sql.Open("sqlite", "file:"+dbPath+"?mode=ro&_pragma=busy_timeout(5000)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=mmap_size(268435456)")
+	dsn := "file:" + dbPath + "?mode=ro&_pragma=busy_timeout(5000)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=mmap_size(268435456)"
+	if err := ensureSQLiteDriverInitialized(context.Background(), dsn); err != nil {
+		return nil, err
+	}
+
+	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("opening database (read-only): %w", err)
 	}
@@ -96,7 +122,12 @@ func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
 		return nil, fmt.Errorf("creating db directory: %w", err)
 	}
 
-	db, err := sql.Open("sqlite", dbPath+"?_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)&_pragma=busy_timeout(5000)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=mmap_size(268435456)")
+	dsn := dbPath + "?_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)&_pragma=busy_timeout(5000)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=mmap_size(268435456)"
+	if err := ensureSQLiteDriverInitialized(ctx, dsn); err != nil {
+		return nil, err
+	}
+
+	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("opening database: %w", err)
 	}
@@ -115,6 +146,32 @@ func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
 	return s, nil
 }
 
+func ensureSQLiteDriverInitialized(ctx context.Context, dsn string) error {
+	sqliteDriverInit.mu.Lock()
+	defer sqliteDriverInit.mu.Unlock()
+
+	if sqliteDriverInit.done {
+		return nil
+	}
+
+	db, err := sql.Open("sqlite", dsn)
+	if err != nil {
+		return fmt.Errorf("opening database for driver initialization: %w", err)
+	}
+	defer db.Close()
+
+	conn, err := db.Conn(ctx)
+	if err != nil {
+		return fmt.Errorf("initializing sqlite driver: %w", err)
+	}
+	if err := conn.Close(); err != nil {
+		return fmt.Errorf("closing sqlite initialization connection: %w", err)
+	}
+
+	sqliteDriverInit.done = true
+	return nil
+}
+
 func (s *Store) Close() error {
 	return s.db.Close()
 }
@@ -129,460 +186,6 @@ func (s *Store) Path() string {
 // Callers must not call Close on the returned handle.
 func (s *Store) DB() *sql.DB {
 	return s.db
-}
-
-// PATCH: Expose mutex-serialized ad-hoc writes for local Blu-ray catalog commands.
-// LockedExec serializes writes through writeMu.
-func (s *Store) LockedExec(ctx context.Context, stmt string, args ...any) (sql.Result, error) {
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	return s.db.ExecContext(ctx, stmt, args...)
-}
-
-// PATCH: Expose one locked transaction for hand-written multi-table catalog updates.
-// LockedExecTx serializes writes through writeMu and runs fn inside a single
-// transaction. Commits on nil error from fn; rolls back otherwise.
-func (s *Store) LockedExecTx(ctx context.Context, fn func(tx *sql.Tx) error) error {
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.BeginTx(ctx, nil)
-	if err != nil {
-		return fmt.Errorf("begin tx: %w", err)
-	}
-	if err := fn(tx); err != nil {
-		if rbErr := tx.Rollback(); rbErr != nil {
-			return fmt.Errorf("%w (rollback also failed: %v)", err, rbErr)
-		}
-		return err
-	}
-	return tx.Commit()
-}
-
-// PATCH: Install Phase 3 Blu-ray.com catalog tables outside the generated generic store schema.
-// MigrateBluRayCatalog installs the hand-built Blu-ray.com catalog tables.
-func (s *Store) MigrateBluRayCatalog() error {
-	migrations := []string{
-		`CREATE TABLE IF NOT EXISTS releases_catalog (
-			id INTEGER PRIMARY KEY,
-			kind TEXT NOT NULL,
-			slug TEXT NOT NULL,
-			title_normalized TEXT,
-			country TEXT,
-			year_hint INTEGER,
-			lastmod TEXT,
-			fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS releases_catalog_kind ON releases_catalog(kind)`,
-		`CREATE INDEX IF NOT EXISTS releases_catalog_country ON releases_catalog(country)`,
-		`CREATE INDEX IF NOT EXISTS releases_catalog_year ON releases_catalog(year_hint)`,
-		`CREATE VIRTUAL TABLE IF NOT EXISTS releases_fts USING fts5(
-			title_normalized, slug, distributor UNINDEXED, country UNINDEXED, kind UNINDEXED, year UNINDEXED,
-			content='releases_catalog', content_rowid='id'
-		)`,
-		`CREATE TRIGGER IF NOT EXISTS releases_catalog_ai AFTER INSERT ON releases_catalog BEGIN
-			INSERT INTO releases_fts(rowid, title_normalized, slug, distributor, country, kind, year)
-			VALUES (new.id, new.title_normalized, new.slug, '', new.country, new.kind, CAST(new.year_hint AS TEXT));
-		END`,
-		`CREATE TRIGGER IF NOT EXISTS releases_catalog_ad AFTER DELETE ON releases_catalog BEGIN
-			INSERT INTO releases_fts(releases_fts, rowid, title_normalized, slug, distributor, country, kind, year)
-			VALUES('delete', old.id, old.title_normalized, old.slug, '', old.country, old.kind, CAST(old.year_hint AS TEXT));
-		END`,
-		`CREATE TRIGGER IF NOT EXISTS releases_catalog_au AFTER UPDATE ON releases_catalog BEGIN
-			INSERT INTO releases_fts(releases_fts, rowid, title_normalized, slug, distributor, country, kind, year)
-			VALUES('delete', old.id, old.title_normalized, old.slug, '', old.country, old.kind, CAST(old.year_hint AS TEXT));
-			INSERT INTO releases_fts(rowid, title_normalized, slug, distributor, country, kind, year)
-			VALUES (new.id, new.title_normalized, new.slug, '', new.country, new.kind, CAST(new.year_hint AS TEXT));
-		END`,
-		`CREATE TABLE IF NOT EXISTS news_catalog (
-			id INTEGER PRIMARY KEY,
-			url TEXT NOT NULL,
-			title TEXT,
-			publication_date TEXT,
-			fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE TABLE IF NOT EXISTS watchlist (
-			release_id INTEGER PRIMARY KEY,
-			target_price REAL,
-			added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-			low_seen REAL,
-			alerted_at TIMESTAMP
-		)`,
-		`CREATE TABLE IF NOT EXISTS price_history (
-			release_id INTEGER NOT NULL,
-			retailer_id INTEGER NOT NULL,
-			observed_at TIMESTAMP NOT NULL,
-			price REAL NOT NULL,
-			PRIMARY KEY (release_id, retailer_id, observed_at)
-		)`,
-		// PATCH: One-time cleanup of the narrower legacy index. The wider index
-		// is created via IF NOT EXISTS so it is a no-op on subsequent calls.
-		// An earlier version of this migration dropped+recreated the wider index
-		// on every command invocation, which spent measurable latency on every
-		// read-only command and left a brief gap when concurrent readers had no
-		// retailer-aware index to plan against. Fixes Greptile P1 on PR #634.
-		`DROP INDEX IF EXISTS price_history_release`,
-		`CREATE INDEX IF NOT EXISTS price_history_release_retailer_observed ON price_history(release_id, retailer_id, observed_at)`,
-		`CREATE TABLE IF NOT EXISTS sitemap_snapshot (
-			taken_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-			sitemap_name TEXT NOT NULL,
-			url_count INTEGER NOT NULL,
-			url_set_hash TEXT NOT NULL
-		)`,
-		`CREATE TABLE IF NOT EXISTS upc_index (
-			upc TEXT PRIMARY KEY,
-			release_id INTEGER NOT NULL
-		)`,
-	}
-	for _, stmt := range migrations {
-		if _, err := s.db.Exec(stmt); err != nil {
-			return fmt.Errorf("migrating Blu-ray catalog schema: %w", err)
-		}
-	}
-	return nil
-}
-
-// PATCH: Blu-ray catalog domain methods.
-type CatalogRow struct {
-	ID              int
-	Kind            string
-	Slug            string
-	TitleNormalized string
-	Country         string
-	YearHint        int
-	Lastmod         string
-}
-
-type CatalogSearchOpts struct {
-	Query   string // FTS5 expression (already escaped by caller)
-	Format  string
-	Year    string
-	Country string
-	Limit   int
-}
-
-type NewsRow struct {
-	ID              int
-	URL             string
-	Title           string
-	PublicationDate string
-}
-
-type WatchlistRow struct {
-	ReleaseID   int
-	TargetPrice float64
-	AddedAt     string
-	LowSeen     sql.NullFloat64
-	AlertedAt   sql.NullString
-	Title       sql.NullString
-	CurrentLow  sql.NullFloat64
-}
-
-type PriceObservation struct {
-	ReleaseID  int
-	RetailerID int
-	ObservedAt string
-	Price      float64
-}
-
-type SitemapSnapshot struct {
-	TakenAt     string
-	SitemapName string
-	URLCount    int
-	URLSetHash  string
-}
-
-type CatalogStats struct {
-	TotalRows  int
-	RowsByKind map[string]int
-}
-
-func (s *Store) SearchCatalog(ctx context.Context, opts CatalogSearchOpts) ([]CatalogRow, error) {
-	limit := opts.Limit
-	if limit <= 0 {
-		limit = 25
-	}
-	var rows *sql.Rows
-	var err error
-	if strings.TrimSpace(opts.Query) == "" {
-		where, args := catalogFilters(opts.Format, opts.Year, opts.Country)
-		args = append(args, limit)
-		rows, err = s.db.QueryContext(ctx, `SELECT id, kind, slug, title_normalized, country, COALESCE(year_hint, 0), lastmod
-			FROM releases_catalog`+where+` ORDER BY id LIMIT ?`, args...)
-	} else {
-		where, args := catalogJoinFilters(opts.Format, opts.Year, opts.Country)
-		args = append([]any{opts.Query}, args...)
-		args = append(args, limit)
-		rows, err = s.db.QueryContext(ctx, `SELECT c.id, c.kind, c.slug, c.title_normalized, c.country, COALESCE(c.year_hint, 0), c.lastmod
-			FROM releases_fts f JOIN releases_catalog c ON c.id = f.rowid
-			WHERE releases_fts MATCH ?`+strings.Replace(where, " WHERE ", " AND ", 1)+`
-			ORDER BY rank LIMIT ?`, args...)
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	return scanCatalogRows(rows)
-}
-
-func (s *Store) ListCatalog(ctx context.Context, kind string, limit int) ([]CatalogRow, error) {
-	if limit <= 0 {
-		limit = 1000000
-	}
-	return s.SearchCatalog(ctx, CatalogSearchOpts{Format: kind, Limit: limit})
-}
-
-func catalogFilters(format, year, country string) (string, []any) {
-	return catalogFiltersWithPrefix("", format, year, country)
-}
-
-func catalogJoinFilters(format, year, country string) (string, []any) {
-	return catalogFiltersWithPrefix("c.", format, year, country)
-}
-
-func catalogFiltersWithPrefix(prefix, format, year, country string) (string, []any) {
-	var where []string
-	var args []any
-	if format != "" {
-		where = append(where, prefix+"kind = ?")
-		args = append(args, format)
-	}
-	if year != "" {
-		where = append(where, prefix+"year_hint = ?")
-		args = append(args, year)
-	}
-	if country != "" {
-		where = append(where, prefix+"country = ?")
-		args = append(args, country)
-	}
-	if len(where) == 0 {
-		return "", args
-	}
-	return " WHERE " + strings.Join(where, " AND "), args
-}
-
-func scanCatalogRows(rows *sql.Rows) ([]CatalogRow, error) {
-	var out []CatalogRow
-	for rows.Next() {
-		var r CatalogRow
-		var title, country, lastmod sql.NullString
-		if err := rows.Scan(&r.ID, &r.Kind, &r.Slug, &title, &country, &r.YearHint, &lastmod); err != nil {
-			return nil, err
-		}
-		r.TitleNormalized = nullString(title)
-		r.Country = nullString(country)
-		r.Lastmod = nullString(lastmod)
-		out = append(out, r)
-	}
-	return out, rows.Err()
-}
-
-func (s *Store) GetRelease(ctx context.Context, id int) (CatalogRow, bool, error) {
-	rows, err := s.db.QueryContext(ctx, `SELECT id, kind, slug, title_normalized, country, COALESCE(year_hint, 0), lastmod
-		FROM releases_catalog WHERE id = ?`, id)
-	if err != nil {
-		return CatalogRow{}, false, err
-	}
-	defer rows.Close()
-	out, err := scanCatalogRows(rows)
-	if err != nil {
-		return CatalogRow{}, false, err
-	}
-	if len(out) == 0 {
-		return CatalogRow{}, false, nil
-	}
-	return out[0], true, nil
-}
-
-func (s *Store) UpsertCatalogRows(ctx context.Context, rows []CatalogRow) error {
-	if len(rows) == 0 {
-		return nil
-	}
-	return s.LockedExecTx(ctx, func(tx *sql.Tx) error {
-		for _, r := range rows {
-			if _, err := tx.ExecContext(ctx, `INSERT INTO releases_catalog(id, kind, slug, title_normalized, country, year_hint, lastmod)
-				VALUES(?, ?, ?, ?, ?, NULLIF(?, 0), ?)
-				ON CONFLICT(id) DO UPDATE SET kind=excluded.kind, slug=excluded.slug, title_normalized=excluded.title_normalized, country=excluded.country, year_hint=excluded.year_hint, lastmod=excluded.lastmod`,
-				r.ID, r.Kind, r.Slug, r.TitleNormalized, r.Country, r.YearHint, r.Lastmod); err != nil {
-				return err
-			}
-		}
-		return nil
-	})
-}
-
-func (s *Store) UpsertNewsRows(ctx context.Context, rows []NewsRow) error {
-	if len(rows) == 0 {
-		return nil
-	}
-	return s.LockedExecTx(ctx, func(tx *sql.Tx) error {
-		for _, r := range rows {
-			if _, err := tx.ExecContext(ctx, `INSERT INTO news_catalog(id, url, title, publication_date)
-				VALUES(?, ?, ?, ?)
-				ON CONFLICT(id) DO UPDATE SET url=excluded.url, title=excluded.title, publication_date=excluded.publication_date`,
-				r.ID, r.URL, r.Title, r.PublicationDate); err != nil {
-				return err
-			}
-		}
-		return nil
-	})
-}
-
-func (s *Store) RecordSitemapSnapshot(ctx context.Context, name string, urlCount int, hash string) error {
-	_, err := s.LockedExec(ctx, `INSERT INTO sitemap_snapshot(taken_at, sitemap_name, url_count, url_set_hash) VALUES(CURRENT_TIMESTAMP, ?, ?, ?)`, name, urlCount, hash)
-	return err
-}
-
-func (s *Store) ListSitemapSnapshots(ctx context.Context, sitemapNameLike string, sinceISO string) ([]SitemapSnapshot, error) {
-	query := `SELECT taken_at, sitemap_name, url_count, url_set_hash FROM sitemap_snapshot`
-	var where []string
-	var args []any
-	if sitemapNameLike != "" {
-		where = append(where, `sitemap_name LIKE ? ESCAPE '\'`)
-		args = append(args, sitemapNameLike)
-	}
-	if sinceISO != "" {
-		where = append(where, "taken_at >= ?")
-		args = append(args, sinceISO)
-	}
-	if len(where) > 0 {
-		query += " WHERE " + strings.Join(where, " AND ")
-	}
-	query += " ORDER BY taken_at ASC"
-	rows, err := s.db.QueryContext(ctx, query, args...)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var out []SitemapSnapshot
-	for rows.Next() {
-		var r SitemapSnapshot
-		if err := rows.Scan(&r.TakenAt, &r.SitemapName, &r.URLCount, &r.URLSetHash); err != nil {
-			return nil, err
-		}
-		out = append(out, r)
-	}
-	return out, rows.Err()
-}
-
-func (s *Store) ListWatchlist(ctx context.Context) ([]WatchlistRow, error) {
-	rows, err := s.db.QueryContext(ctx, `SELECT w.release_id, COALESCE(w.target_price, 0), w.added_at, w.low_seen, w.alerted_at,
-		c.title_normalized, (SELECT MIN(price) FROM price_history p WHERE p.release_id=w.release_id)
-		FROM watchlist w LEFT JOIN releases_catalog c ON c.id=w.release_id ORDER BY w.added_at DESC`)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var out []WatchlistRow
-	for rows.Next() {
-		var r WatchlistRow
-		if err := rows.Scan(&r.ReleaseID, &r.TargetPrice, &r.AddedAt, &r.LowSeen, &r.AlertedAt, &r.Title, &r.CurrentLow); err != nil {
-			return nil, err
-		}
-		out = append(out, r)
-	}
-	return out, rows.Err()
-}
-
-func (s *Store) AddToWatchlist(ctx context.Context, releaseID int, targetPrice float64) error {
-	_, err := s.LockedExec(ctx, `INSERT INTO watchlist(release_id, target_price, added_at)
-		VALUES(?, NULLIF(?, 0), CURRENT_TIMESTAMP)
-		ON CONFLICT(release_id) DO UPDATE SET target_price=excluded.target_price`, releaseID, targetPrice)
-	return err
-}
-
-func (s *Store) RemoveFromWatchlist(ctx context.Context, releaseID int) (int64, error) {
-	res, err := s.LockedExec(ctx, `DELETE FROM watchlist WHERE release_id=?`, releaseID)
-	if err != nil {
-		return 0, err
-	}
-	return res.RowsAffected()
-}
-
-func (s *Store) MarkWatchlistAlerted(ctx context.Context, releaseID int, low float64) error {
-	_, err := s.LockedExec(ctx, `UPDATE watchlist SET
-		low_seen = CASE WHEN low_seen IS NULL OR ? < low_seen THEN ? ELSE low_seen END,
-		alerted_at = CURRENT_TIMESTAMP
-		WHERE release_id=?`, low, low, releaseID)
-	return err
-}
-
-func (s *Store) UpdateWatchlistLow(ctx context.Context, releaseID int, low float64) error {
-	_, err := s.LockedExec(ctx, `UPDATE watchlist SET low_seen = CASE WHEN low_seen IS NULL OR ? < low_seen THEN ? ELSE low_seen END WHERE release_id=?`, low, low, releaseID)
-	return err
-}
-
-func (s *Store) RecordPrice(ctx context.Context, p PriceObservation) error {
-	_, err := s.LockedExec(ctx, `INSERT OR REPLACE INTO price_history(release_id, retailer_id, observed_at, price) VALUES(?, ?, ?, ?)`, p.ReleaseID, p.RetailerID, p.ObservedAt, p.Price)
-	return err
-}
-
-// PATCH: GetPriceHistory takes a numeric retailerID. Pass 0 to skip the
-// retailer filter. The prior signature accepted a free-form string and
-// silently dropped the filter when strconv.Atoi failed, which meant
-// `history 9929 --retailer amazon` returned every retailer's history with no
-// warning. Forcing the caller to parse moves the failure to the command
-// boundary where it becomes an actionable error. Fixes Greptile P1 on PR #634.
-func (s *Store) GetPriceHistory(ctx context.Context, releaseID int, retailerID int) ([]PriceObservation, error) {
-	query := `SELECT release_id, retailer_id, observed_at, price FROM price_history WHERE release_id=?`
-	args := []any{releaseID}
-	if retailerID > 0 {
-		query += ` AND retailer_id=?`
-		args = append(args, retailerID)
-	}
-	query += ` ORDER BY observed_at`
-	rows, err := s.db.QueryContext(ctx, query, args...)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var out []PriceObservation
-	for rows.Next() {
-		var r PriceObservation
-		if err := rows.Scan(&r.ReleaseID, &r.RetailerID, &r.ObservedAt, &r.Price); err != nil {
-			return nil, err
-		}
-		out = append(out, r)
-	}
-	return out, rows.Err()
-}
-
-func (s *Store) ResolveUPC(ctx context.Context, upc string) (releaseID int, ok bool, err error) {
-	err = s.db.QueryRowContext(ctx, `SELECT release_id FROM upc_index WHERE upc=?`, upc).Scan(&releaseID)
-	if err == sql.ErrNoRows {
-		return 0, false, nil
-	}
-	if err != nil {
-		return 0, false, err
-	}
-	return releaseID, true, nil
-}
-
-func (s *Store) CatalogStats(ctx context.Context) (CatalogStats, error) {
-	stats := CatalogStats{RowsByKind: map[string]int{}}
-	if err := s.db.QueryRowContext(ctx, `SELECT COUNT(*) FROM releases_catalog`).Scan(&stats.TotalRows); err != nil {
-		return stats, err
-	}
-	rows, err := s.db.QueryContext(ctx, `SELECT kind, COUNT(*) FROM releases_catalog GROUP BY kind ORDER BY kind`)
-	if err != nil {
-		return stats, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var kind string
-		var count int
-		if err := rows.Scan(&kind, &count); err != nil {
-			return stats, err
-		}
-		stats.RowsByKind[kind] = count
-	}
-	return stats, rows.Err()
-}
-
-func nullString(v sql.NullString) string {
-	if v.Valid {
-		return v.String
-	}
-	return ""
 }
 
 // SchemaVersion reads PRAGMA user_version, which is stamped by migrate().
@@ -683,9 +286,23 @@ func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 }
 
 func (s *Store) migrate(ctx context.Context) error {
-	conn, err := s.db.Conn(ctx)
-	if err != nil {
-		return fmt.Errorf("acquiring migration connection: %w", err)
+	// Acquiring the migration connection establishes a physical SQLite
+	// connection, which runs the DSN _pragma directives — including the
+	// journal_mode(WAL) conversion. On a fresh DB opened by several
+	// processes at once, that conversion briefly needs an exclusive lock
+	// and can return SQLITE_BUSY before any statement-level busy handler
+	// applies, so retry the acquisition against the shared deadline.
+	deadline := time.Now().Add(migrationLockTimeout)
+	var conn *sql.Conn
+	if err := retryOnBusy(ctx, deadline, "acquiring migration connection", func() error {
+		c, err := s.db.Conn(ctx)
+		if err != nil {
+			return err
+		}
+		conn = c
+		return nil
+	}); err != nil {
+		return err
 	}
 	defer conn.Close()
 
@@ -693,7 +310,6 @@ func (s *Store) migrate(ctx context.Context) error {
 	// opening a newer-schema DB rejects immediately. WAL readers don't
 	// normally block on writers, but the fresh-DB WAL-init race can BUSY
 	// a SELECT — share the lock's deadline so total budget stays bounded.
-	deadline := time.Now().Add(migrationLockTimeout)
 	var current int
 	if err := retryOnBusy(ctx, deadline, "reading schema version", func() error {
 		return conn.QueryRowContext(ctx, `PRAGMA user_version`).Scan(&current)
@@ -754,6 +370,11 @@ func (s *Store) migrate(ctx context.Context) error {
 				return fmt.Errorf("migrating resources composite key: %w", err)
 			}
 		}
+		if current == 2 {
+			if err := s.migrateResourcesFTSRowIDs(ctx, conn); err != nil {
+				return fmt.Errorf("migrating resources FTS rowids: %w", err)
+			}
+		}
 
 		if err := s.backfillColumns(ctx, conn); err != nil {
 			return fmt.Errorf("backfilling columns: %w", err)
@@ -761,6 +382,14 @@ func (s *Store) migrate(ctx context.Context) error {
 		for _, m := range migrations {
 			if _, err := conn.ExecContext(ctx, m); err != nil {
 				return fmt.Errorf("migration failed: %w", err)
+			}
+		}
+		if err := s.migrateExtras(ctx, conn); err != nil {
+			return fmt.Errorf("running extra migrations: %w", err)
+		}
+		if current < resourcesFTSContentSchemaVersion {
+			if err := s.migrateResourcesFTSContent(ctx, conn); err != nil {
+				return fmt.Errorf("migrating resources FTS content: %w", err)
 			}
 		}
 		// Stamp the schema version. On a fresh DB this writes the current
@@ -815,6 +444,48 @@ func (s *Store) migrateResourcesCompositeKey(ctx context.Context, conn *sql.Conn
 	// Always rebuild FTS during the v2 transition. The resources table may
 	// already have the composite key, but v1 FTS rowids were scoped by id
 	// alone and must be replaced with resource_type + id rowids.
+	if _, err := conn.ExecContext(ctx, `DROP TABLE IF EXISTS resources_fts`); err != nil {
+		return fmt.Errorf("dropping resources_fts: %w", err)
+	}
+	if _, err := conn.ExecContext(ctx, resourcesFTSCreateSQL); err != nil {
+		return fmt.Errorf("creating resources_fts: %w", err)
+	}
+	if err := rebuildResourcesFTS(ctx, conn); err != nil {
+		return fmt.Errorf("rebuilding resources_fts: %w", err)
+	}
+	return nil
+}
+
+func (s *Store) migrateResourcesFTSRowIDs(ctx context.Context, conn *sql.Conn) error {
+	exists, err := tableExists(ctx, conn, "resources")
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return nil
+	}
+
+	if _, err := conn.ExecContext(ctx, `DROP TABLE IF EXISTS resources_fts`); err != nil {
+		return fmt.Errorf("dropping resources_fts: %w", err)
+	}
+	if _, err := conn.ExecContext(ctx, resourcesFTSCreateSQL); err != nil {
+		return fmt.Errorf("creating resources_fts: %w", err)
+	}
+	if err := rebuildResourcesFTS(ctx, conn); err != nil {
+		return fmt.Errorf("rebuilding resources_fts: %w", err)
+	}
+	return nil
+}
+
+func (s *Store) migrateResourcesFTSContent(ctx context.Context, conn *sql.Conn) error {
+	exists, err := tableExists(ctx, conn, "resources")
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return nil
+	}
+
 	if _, err := conn.ExecContext(ctx, `DROP TABLE IF EXISTS resources_fts`); err != nil {
 		return fmt.Errorf("dropping resources_fts: %w", err)
 	}
@@ -890,7 +561,7 @@ func rebuildResourcesFTS(ctx context.Context, conn *sql.Conn) error {
 	for _, r := range resources {
 		if _, err := conn.ExecContext(ctx,
 			`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (?, ?, ?, ?)`,
-			ftsRowID(r.resourceType, r.id), r.id, r.resourceType, r.data,
+			ftsRowID(r.resourceType, r.id), r.id, r.resourceType, searchableResourceContent(json.RawMessage(r.data)),
 		); err != nil {
 			return fmt.Errorf("indexing resource %s/%s: %w", r.resourceType, r.id, err)
 		}
@@ -1010,7 +681,7 @@ func (s *Store) upsertGenericResourceTx(tx *sql.Tx, resourceType, id string, dat
 		`INSERT INTO resources (id, resource_type, data, synced_at, updated_at)
 		 VALUES (?, ?, ?, ?, ?)
 		 ON CONFLICT(resource_type, id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, updated_at = excluded.updated_at`,
-		id, resourceType, string(data), time.Now(), time.Now(),
+		id, resourceType, string(data), time.Now().UTC().Format(time.RFC3339), time.Now().UTC().Format(time.RFC3339),
 	)
 	if err != nil {
 		return err
@@ -1026,7 +697,7 @@ func (s *Store) upsertGenericResourceTx(tx *sql.Tx, resourceType, id string, dat
 	if _, err = tx.Exec(
 		`INSERT INTO resources_fts (rowid, id, resource_type, content)
 		 VALUES (?, ?, ?, ?)`,
-		ftsRowid, id, resourceType, string(data),
+		ftsRowid, id, resourceType, searchableResourceContent(data),
 	); err != nil {
 		// FTS insert failure is non-fatal
 		fmt.Fprintf(os.Stderr, "warning: FTS index update failed: %v\n", err)
@@ -1065,14 +736,16 @@ func (s *Store) Get(resourceType, id string) (json.RawMessage, error) {
 	return json.RawMessage(data), nil
 }
 
+// List returns resources of the given type. A positive limit caps the result
+// count; zero or negative means no limit.
 func (s *Store) List(resourceType string, limit int) ([]json.RawMessage, error) {
-	if limit <= 0 {
-		limit = 200
+	query := `SELECT data FROM resources WHERE resource_type = ? ORDER BY updated_at DESC`
+	args := []any{resourceType}
+	if limit > 0 {
+		query += ` LIMIT ?`
+		args = append(args, limit)
 	}
-	rows, err := s.db.Query(
-		`SELECT data FROM resources WHERE resource_type = ? ORDER BY updated_at DESC LIMIT ?`,
-		resourceType, limit,
-	)
+	rows, err := s.db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -1089,9 +762,42 @@ func (s *Store) List(resourceType string, limit int) ([]json.RawMessage, error) 
 	return results, rows.Err()
 }
 
-func (s *Store) Search(query string, limit int) ([]json.RawMessage, error) {
+func (s *Store) Search(query string, limit int, resourceTypes ...string) ([]json.RawMessage, error) {
 	if limit <= 0 {
 		limit = 50
+	}
+	matchQuery := ftsMatchQuery(query)
+	if matchQuery == "" {
+		return nil, nil
+	}
+	resourceType := ""
+	if len(resourceTypes) > 0 {
+		resourceType = strings.TrimSpace(resourceTypes[0])
+	}
+	if resourceType != "" {
+		rows, err := s.db.Query(
+			`SELECT r.data FROM resources r
+			 JOIN resources_fts f ON r.id = f.id AND r.resource_type = f.resource_type
+			 WHERE resources_fts MATCH ?
+			 AND r.resource_type = ?
+			 ORDER BY rank
+			 LIMIT ?`,
+			matchQuery, resourceType, limit,
+		)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+
+		var results []json.RawMessage
+		for rows.Next() {
+			var data string
+			if err := rows.Scan(&data); err != nil {
+				return nil, err
+			}
+			results = append(results, json.RawMessage(data))
+		}
+		return results, rows.Err()
 	}
 	rows, err := s.db.Query(
 		`SELECT r.data FROM resources r
@@ -1099,7 +805,7 @@ func (s *Store) Search(query string, limit int) ([]json.RawMessage, error) {
 		 WHERE resources_fts MATCH ?
 		 ORDER BY rank
 		 LIMIT ?`,
-		query, limit,
+		matchQuery, limit,
 	)
 	if err != nil {
 		return nil, err
@@ -1117,28 +823,104 @@ func (s *Store) Search(query string, limit int) ([]json.RawMessage, error) {
 	return results, rows.Err()
 }
 
+func searchableResourceContent(data json.RawMessage) string {
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.UseNumber()
+	var value any
+	if err := dec.Decode(&value); err != nil {
+		return ""
+	}
+	var parts []string
+	collectSearchableStrings(&parts, "", value)
+	return strings.Join(parts, " ")
+}
+
+func collectSearchableStrings(parts *[]string, key string, value any) {
+	switch v := value.(type) {
+	case map[string]any:
+		for childKey, child := range v {
+			collectSearchableStrings(parts, childKey, child)
+		}
+	case []any:
+		for _, child := range v {
+			collectSearchableStrings(parts, key, child)
+		}
+	case string:
+		if shouldIndexSearchString(key, v) {
+			*parts = append(*parts, strings.TrimSpace(v))
+		}
+	}
+}
+
+func shouldIndexSearchString(key, value string) bool {
+	s := strings.TrimSpace(value)
+	if len(s) < 2 {
+		return false
+	}
+	if isIdentifierKey(key) {
+		return false
+	}
+	lower := strings.ToLower(s)
+	upper := strings.ToUpper(s)
+	switch {
+	case IsUUID(s):
+		return false
+	case isoDatePattern.MatchString(s):
+		return false
+	case strings.HasPrefix(lower, "http://") || strings.HasPrefix(lower, "https://"):
+		return false
+	case upper == s && len(s) == 3 && strings.IndexFunc(s, func(r rune) bool { return r < 'A' || r > 'Z' }) == -1:
+		return false
+	}
+	tokens := ftsQueryTokenRE.FindAllString(s, -1)
+	return len(tokens) > 0
+}
+
+func isIdentifierKey(key string) bool {
+	if key == "" {
+		return false
+	}
+	lower := strings.ToLower(key)
+	return lower == "id" ||
+		lower == "uuid" ||
+		strings.HasSuffix(lower, "_id") ||
+		strings.HasSuffix(lower, "-id") ||
+		strings.HasSuffix(key, "Id") ||
+		strings.HasSuffix(key, "ID")
+}
+
+func ftsMatchQuery(query string) string {
+	tokens := ftsQueryTokenRE.FindAllString(query, -1)
+	if len(tokens) == 0 {
+		return ""
+	}
+	quoted := make([]string, 0, len(tokens))
+	for _, token := range tokens {
+		quoted = append(quoted, `"`+token+`"`)
+	}
+	return strings.Join(quoted, " ")
+}
+
 func extractObjectID(obj map[string]any) string {
 	for _, key := range []string{"id", "Id", "ID", "uuid", "slug", "name"} {
 		if v, ok := obj[key]; ok {
-			return fmt.Sprintf("%v", v)
+			return ResourceIDString(v)
 		}
 	}
 	return ""
 }
 
 // ftsRowID derives a deterministic rowid from a string ID for use with FTS5.
+// Any change to this derivation requires a StoreSchemaVersion bump and a
+// resources_fts rebuild migration for already-stamped databases.
 // modernc.org/sqlite's FTS5 implementation may not support DELETE WHERE column=?
 // on virtual tables, so we use explicit rowids and DELETE WHERE rowid=? instead.
 func ftsRowID(scope, id string) int64 {
-	var h uint64
-	for _, c := range scope {
-		h = h*31 + uint64(c)
-	}
-	h *= 31
-	for _, c := range id {
-		h = h*31 + uint64(c)
-	}
-	return int64(h & 0x7FFFFFFFFFFFFFFF) // ensure positive
+	h := fnv.New64a()
+	_, _ = h.Write([]byte(scope))
+	_, _ = h.Write([]byte{0}) // separator so ("ab","c") != ("a","bc")
+	_, _ = h.Write([]byte(id))
+	return int64(h.Sum64() & 0x7FFFFFFFFFFFFFFF) // ensure positive
 }
 
 // LookupFieldValue resolves a field value from a JSON object map, trying the
@@ -1172,9 +954,11 @@ func LookupFieldValue(obj map[string]any, snakeKey string) any {
 }
 
 func sqliteFieldValue(v any) any {
-	switch v.(type) {
+	switch t := v.(type) {
 	case nil, string, bool, int, int64, float64, []byte:
 		return v
+	case json.Number:
+		return strings.TrimSpace(t.String())
 	default:
 		data, err := json.Marshal(v)
 		if err != nil {
@@ -1189,6 +973,44 @@ func sqliteFieldValue(v any) any {
 // with the package name.
 func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	return LookupFieldValue(obj, snakeKey)
+}
+
+// DecodeJSONObject decodes data into an object while preserving JSON numbers.
+// Plain json.Unmarshal turns numbers into float64, and fmt on those values can
+// render large integer IDs as scientific notation before they reach resources.id.
+func DecodeJSONObject(data json.RawMessage) (map[string]any, error) {
+	var obj map[string]any
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.UseNumber()
+	if err := dec.Decode(&obj); err != nil {
+		return nil, err
+	}
+	return obj, nil
+}
+
+// ResourceIDString returns the stable text form used for resources.id.
+func ResourceIDString(v any) string {
+	switch t := v.(type) {
+	case nil:
+		return ""
+	case json.Number:
+		return strings.TrimSpace(t.String())
+	case float64:
+		if math.IsNaN(t) || math.IsInf(t, 0) {
+			return ""
+		}
+		return strconv.FormatFloat(t, 'f', -1, 64)
+	case float32:
+		f := float64(t)
+		if math.IsNaN(f) || math.IsInf(f, 0) {
+			return ""
+		}
+		return strconv.FormatFloat(f, 'f', -1, 32)
+	default:
+		// fmt.Sprint on typed nil pointers returns "<nil>"; callers still guard
+		// that sentinel so unresolved IDs do not become stored resource keys.
+		return strings.TrimSpace(fmt.Sprint(t))
+	}
 }
 
 // resourceIDFieldOverrides projects per-resource IDField (set by the profiler
@@ -1209,6 +1031,146 @@ var resourceIDFieldOverrides = map[string]string{}
 // so APIs like Asana (gid) and Twilio (sid) don't fall through to a display
 // field and upsert on names — see #1394.
 var genericIDFieldFallbacks = []string{"id", "ID", "gid", "sid", "uid", "uuid", "guid", "name", "slug", "key", "code"}
+
+// resourceParentKeyColumns identifies generated dependent resources whose
+// local mirror rows need the parent context in the storage key. Without this,
+// many-to-many sub-collections collapse every parent association onto the
+// child's bare id and silently keep only the last synced parent.
+var resourceParentKeyColumns = map[string]string{}
+
+// ExtractResourceID resolves the bare resource id field that UpsertBatch
+// extracts from a resource item. For dependent resource types, UpsertBatch
+// derives the actual storage key by combining this id with the parent value;
+// use resourceStorageID if you need the key as it appears in the database.
+// Callers that need to gate best-effort writes can use this to avoid passing
+// non-entity envelopes into the batch path.
+func ExtractResourceID(resourceType string, obj map[string]any) string {
+	if override, ok := resourceIDFieldOverrides[resourceType]; ok && override != "" {
+		if v := lookupFieldValue(obj, override); v != nil {
+			s := ResourceIDString(v)
+			if s != "" && s != "<nil>" {
+				return s
+			}
+		}
+	}
+	for _, key := range genericIDFieldFallbacks {
+		if v := lookupFieldValue(obj, key); v != nil {
+			s := ResourceIDString(v)
+			if s != "" && s != "<nil>" {
+				return s
+			}
+		}
+	}
+	if s := suffixIDFieldFallback(resourceType, obj); s != "" {
+		return s
+	}
+	return ""
+}
+
+// suffixIDFieldFallback resolves an id-less resource that keys on its own
+// "<name>_code" / "<name>_id" / "<name>_key" / "<name>_slug" field (e.g. the
+// "currencies" resource keying on "currency_code" — see #2327). It is scoped to
+// the resource's OWN name so a foreign key like account_id/parent_id is never
+// promoted to the primary key, and it uses direct map lookups in a fixed suffix
+// order so the chosen id is deterministic.
+func suffixIDFieldFallback(resourceType string, obj map[string]any) string {
+	for _, base := range resourceIDBaseNames(resourceType) {
+		for _, suffix := range []string{"_id", "_code", "_key", "_slug"} {
+			if v, ok := obj[base+suffix]; ok {
+				if s := scalarIDString(v); s != "" && s != "<nil>" {
+					return s
+				}
+			}
+		}
+	}
+	return ""
+}
+
+// resourceIDBaseNames returns lowercase candidate singular/plural stems of a
+// resource name to build "<base>_id"-style key probes from (e.g. "currencies"
+// -> ["currencies","currency"]). OpenAPI-/path-derived names can carry a
+// leading verb token ("get-currencies"), so the same probes are also attempted
+// on the de-verbed stem. Minimal English depluralization; the raw name is
+// always included so already-singular names work too.
+func resourceIDBaseNames(resourceType string) []string {
+	r := strings.ToLower(strings.TrimSpace(resourceType))
+	if r == "" {
+		return nil
+	}
+	stems := []string{r}
+	if d := stripLeadingResourceVerb(r); d != "" && d != r {
+		stems = append(stems, d)
+	}
+	var bases []string
+	seen := map[string]bool{}
+	add := func(s string) {
+		if s != "" && !seen[s] {
+			seen[s] = true
+			bases = append(bases, s)
+		}
+	}
+	for _, stem := range stems {
+		add(stem)
+		add(depluralizeResourceStem(stem))
+	}
+	return bases
+}
+
+func stripLeadingResourceVerb(r string) string {
+	for _, verb := range []string{"get", "list", "fetch", "find", "retrieve", "read", "show", "all"} {
+		for _, sep := range []string{"-", "_"} {
+			prefix := verb + sep
+			if strings.HasPrefix(r, prefix) && len(r) > len(prefix) {
+				return r[len(prefix):]
+			}
+		}
+	}
+	return ""
+}
+
+func depluralizeResourceStem(r string) string {
+	switch {
+	case strings.HasSuffix(r, "ies") && len(r) > 3:
+		return strings.TrimSuffix(r, "ies") + "y" // currencies -> currency
+	// Plurals formed by adding "es" to a base ending in s/x/z/ch/sh. The
+	// double-s "sses" guard (not bare "ses") keeps soft-e plurals — where the
+	// singular already ends in a silent "e" (cases, databases, licenses,
+	// purchases) — out of this branch; they fall through to the "-s" case below
+	// (cases -> case, not cas). Trade-off: a genuine "-es" plural of an s-ending
+	// singular (buses, statuses) depluralizes imperfectly, but those are rare as
+	// resource names and this stem only feeds best-effort id-field probing.
+	case strings.HasSuffix(r, "sses") || strings.HasSuffix(r, "xes") ||
+		strings.HasSuffix(r, "zes") || strings.HasSuffix(r, "ches") ||
+		strings.HasSuffix(r, "shes"):
+		return strings.TrimSuffix(r, "es") // classes -> class, boxes -> box, dishes -> dish
+	case strings.HasSuffix(r, "s") && !strings.HasSuffix(r, "ss") && len(r) > 1:
+		return strings.TrimSuffix(r, "s") // languages -> language, cases -> case
+	}
+	return r
+}
+
+func scalarIDString(value any) string {
+	switch value.(type) {
+	case string, bool, int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64,
+		float32, float64, json.Number, []byte:
+		return ResourceIDString(value)
+	default:
+		return ""
+	}
+}
+
+func resourceStorageID(resourceType, id string, obj map[string]any) string {
+	parentKey := resourceParentKeyColumns[resourceType]
+	if parentKey == "" {
+		return id
+	}
+	parentValue := ResourceIDString(lookupFieldValue(obj, parentKey))
+	if parentValue == "" || parentValue == "<nil>" {
+		return id
+	}
+	return id + string([]byte{0}) + parentValue
+}
 
 // UpsertBatch inserts or replaces multiple records in a single transaction
 // and returns (stored, extractFailures, err). stored counts rows landed in
@@ -1242,8 +1204,8 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 
 	var stored, skippedCount, extractFailures int
 	for _, item := range items {
-		var obj map[string]any
-		if err := json.Unmarshal(item, &obj); err != nil {
+		obj, err := DecodeJSONObject(item)
+		if err != nil {
 			skippedCount++
 			continue
 		}
@@ -1251,37 +1213,19 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 		// the override is empty OR the override field is absent on this
 		// particular item (response shape mismatches happen even when the
 		// spec declares x-resource-id).
-		var id string
-		if override, ok := resourceIDFieldOverrides[resourceType]; ok && override != "" {
-			if v := lookupFieldValue(obj, override); v != nil {
-				s := fmt.Sprintf("%v", v)
-				if s != "" && s != "<nil>" {
-					id = s
-				}
-			}
-		}
-		if id == "" {
-			for _, key := range genericIDFieldFallbacks {
-				if v := lookupFieldValue(obj, key); v != nil {
-					s := fmt.Sprintf("%v", v)
-					if s != "" && s != "<nil>" {
-						id = s
-						break
-					}
-				}
-			}
-		}
+		id := ExtractResourceID(resourceType, obj)
 		if id == "" {
 			skippedCount++
 			extractFailures++
 			continue
 		}
+		storageID := resourceStorageID(resourceType, id, obj)
 
-		if err := s.upsertGenericResourceTx(tx, resourceType, id, item); err != nil {
+		if err := s.upsertGenericResourceTx(tx, resourceType, storageID, item); err != nil {
 			// Return the running stored count rather than zero so callers
 			// inspecting partial progress on failure see what already
 			// landed in earlier loop iterations.
-			return stored, extractFailures, fmt.Errorf("upserting %s/%s: %w", resourceType, id, err)
+			return stored, extractFailures, fmt.Errorf("upserting %s/%s: %w", resourceType, storageID, err)
 		}
 		stored++
 	}
@@ -1289,7 +1233,7 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 	// Warn when most items in a batch lack an extractable ID — this likely
 	// means the API uses a primary key field we don't recognize yet.
 	if skippedCount > 0 && len(items) > 0 && skippedCount*2 > len(items) {
-		fmt.Fprintf(os.Stderr, "warning: %d/%d %s items skipped (no extractable ID field found)\n", skippedCount, len(items), resourceType)
+		fmt.Fprintf(os.Stderr, "warning: %d/%d %s items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n", skippedCount, len(items), resourceType)
 	}
 
 	if err := tx.Commit(); err != nil {
@@ -1306,7 +1250,7 @@ func (s *Store) SaveSyncState(resourceType, cursor string, count int) error {
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(resource_type) DO UPDATE SET last_cursor = excluded.last_cursor,
 		 last_synced_at = excluded.last_synced_at, total_count = excluded.total_count`,
-		resourceType, cursor, time.Now(), count,
+		resourceType, cursor, time.Now().UTC().Format(time.RFC3339), count,
 	)
 	return err
 }
@@ -1454,6 +1398,73 @@ func (s *Store) ListField(resourceType, field string) ([]string, error) {
 	return values, rows.Err()
 }
 
+// ListFieldSets returns row-correlated values from the generic resources
+// table. Dependent sync uses this for multi-placeholder paths where values
+// such as owner/repo or server/webapp must stay paired per parent row.
+func (s *Store) ListFieldSets(resourceType string, fields []string) ([]map[string]string, error) {
+	if len(fields) == 0 {
+		return nil, nil
+	}
+	for _, field := range fields {
+		if !validIdentifierRE.MatchString(field) {
+			return nil, fmt.Errorf("ListFieldSets: invalid field name %q (must match %s)", field, validIdentifierRE.String())
+		}
+	}
+
+	rows, err := s.db.Query(`SELECT id, data FROM resources WHERE resource_type = ?`, resourceType)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var out []map[string]string
+	seenRows := map[string]bool{}
+	for rows.Next() {
+		var id string
+		var data []byte
+		if err := rows.Scan(&id, &data); err != nil {
+			return nil, err
+		}
+		var obj map[string]any
+		if len(data) > 0 {
+			var err error
+			obj, err = DecodeJSONObject(data)
+			if err != nil {
+				return nil, fmt.Errorf("decode %s parent row %s: %w", resourceType, id, err)
+			}
+		}
+		values := make(map[string]string, len(fields))
+		complete := true
+		for _, field := range fields {
+			var value any
+			if field == "id" {
+				value = id
+			} else {
+				value = LookupFieldValue(obj, field)
+			}
+			valueString := ResourceIDString(value)
+			if value == nil || valueString == "" {
+				complete = false
+				break
+			}
+			values[field] = valueString
+		}
+		if complete {
+			keyParts := make([]string, 0, len(fields))
+			for _, field := range fields {
+				keyParts = append(keyParts, values[field])
+			}
+			key := strings.Join(keyParts, "\x00")
+			if seenRows[key] {
+				continue
+			}
+			seenRows[key] = true
+			out = append(out, values)
+		}
+	}
+	return out, rows.Err()
+}
+
 // GetLastSyncedAt returns the last sync timestamp for a resource type.
 func (s *Store) GetLastSyncedAt(resourceType string) string {
 	var ts sql.NullString
@@ -1531,7 +1542,7 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 		)
 		rows, err := s.db.Query(query, resourceType, input)
 		if err != nil {
-			continue
+			return "", err
 		}
 		for rows.Next() {
 			var id string
@@ -1548,6 +1559,10 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 					matches = append(matches, id)
 				}
 			}
+		}
+		if err := rows.Err(); err != nil {
+			rows.Close()
+			return "", err
 		}
 		rows.Close()
 	}

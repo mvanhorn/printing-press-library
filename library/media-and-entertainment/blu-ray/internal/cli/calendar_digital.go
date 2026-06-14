@@ -28,13 +28,13 @@ func newCalendarDigitalCmd(flags *rootFlags) *cobra.Command {
 			path := "/digital/releasedates.php"
 			htmlRequestParams := map[string]string{}
 			if flagYear != 0 {
-				htmlRequestParams["year"] = fmt.Sprintf("%v", flagYear)
+				htmlRequestParams["year"] = formatCLIParamValue(flagYear)
 			}
 			params := map[string]string{}
 			if flagYear != 0 {
-				params["year"] = fmt.Sprintf("%v", flagYear)
+				params["year"] = formatCLIParamValue(flagYear)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "calendar", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "calendar", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

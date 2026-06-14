@@ -17,8 +17,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.6.1"
-
 type rootFlags struct {
 	asJSON        bool
 	compact       bool
@@ -37,6 +35,7 @@ type rootFlags struct {
 	deliverSpec   string
 	timeout       time.Duration
 	rateLimit     float64
+	maxAge        time.Duration
 	dataSource    string
 	freshnessMeta any
 
@@ -142,7 +141,6 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 		Long: `Blu-ray.com disc database CLI — local catalog, listings, deals, news, and price-drop watchlist for every Blu-ray, 4K, DVD, and digital release.
 
 Highlights (not in the official API docs):
-  • search   Instant offline search across every Blu-ray release in Blu-ray.com's published sitemap (~400k+ entries). Faster than the site's JS-rendered search and works without a network round-trip after one syn…
   • watch check   Local watchlist of release ids; re-scans Blu-ray.com deals on demand and alerts when any watched disc hits its target price or a new historical low.
   • editions   Given a movie umbrella id, lists every disc edition (4K UHD, Blu-ray, Steelbook, Director's Cut, country variant) with release date, list price, current price, and Blu-ray.com community rating in a s…
   • upc   Resolves a CSV of UPC codes (e.g. the comma-separated export Blu-ray.com itself produces) back to local release records, hydrating titles, formats, ratings, and current prices.
@@ -163,7 +161,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().BoolVar(&flags.plain, "plain", false, "Output as plain tab-separated text")
 	rootCmd.PersistentFlags().BoolVar(&flags.quiet, "quiet", false, "Bare output, one value per line")
 	rootCmd.PersistentFlags().StringVar(&flags.configPath, "config", "", "Config file path")
-	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 30*time.Second, "Request timeout")
+	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 60*time.Second, "Request timeout")
 	rootCmd.PersistentFlags().BoolVar(&flags.dryRun, "dry-run", false, "Show request without sending")
 	rootCmd.PersistentFlags().BoolVar(&flags.noCache, "no-cache", false, "Bypass response cache")
 	rootCmd.PersistentFlags().BoolVar(&flags.noInput, "no-input", false, "Disable all interactive prompts (for CI/agents)")
@@ -174,6 +172,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
+	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'blu-ray-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
@@ -229,7 +228,6 @@ See README.md or the bundled SKILL.md for recipes.`,
 		default:
 			return fmt.Errorf("invalid --data-source value %q: must be auto, live, or local", flags.dataSource)
 		}
-		flags.freshnessMeta = ensureFreshForCommand(cmd.Context(), flags, cmd.CommandPath())
 		return nil
 	}
 	rootCmd.AddCommand(newCalendarCmd(flags))
@@ -242,19 +240,18 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newFeedbackCmd(flags))
 	rootCmd.AddCommand(newWhichCmd(flags))
 	rootCmd.AddCommand(newImportCmd(flags))
-	rootCmd.AddCommand(newSyncCmd(flags))
-	// PATCH: Wire hand-built Phase 3 Blu-ray.com transcendence commands.
-	rootCmd.AddCommand(newSearchCmd(flags))
-	rootCmd.AddCommand(newWatchCmd(flags))
-	rootCmd.AddCommand(newEditionsCmd(flags))
-	rootCmd.AddCommand(newUPCCmd(flags))
-	rootCmd.AddCommand(newDriftCmd(flags))
-	rootCmd.AddCommand(newHistoryCmd(flags))
 	rootCmd.AddCommand(newExportCmd(flags))
+	rootCmd.AddCommand(newSearchCmd(flags))
+	rootCmd.AddCommand(newSyncCmd(flags))
 	rootCmd.AddCommand(newWorkflowCmd(flags))
+	rootCmd.AddCommand(newNovelDriftCmd(flags))
+	rootCmd.AddCommand(newNovelEditionsCmd(flags))
+	rootCmd.AddCommand(newNovelHistoryCmd(flags))
+	rootCmd.AddCommand(newNovelUpcCmd(flags))
+	rootCmd.AddCommand(newNovelWatchCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
 	rootCmd.AddCommand(newDealsPromotedCmd(flags))
-	rootCmd.AddCommand(newVersionCliCmd())
+	rootCmd.AddCommand(newVersionCmd())
 
 	return rootCmd
 }
@@ -306,14 +303,4 @@ func (f *rootFlags) printTable(w *cobra.Command, headers []string, rows [][]stri
 		fmt.Fprintln(tw, line)
 	}
 	return tw.Flush()
-}
-
-func newVersionCliCmd() *cobra.Command {
-	return &cobra.Command{
-		Use:   "version",
-		Short: "Print version",
-		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("blu-ray-pp-cli %s\n", version)
-		},
-	}
 }

@@ -1,6 +1,8 @@
 package cli
 
 // PATCH: Hand-built sitemap snapshot drift report command.
+// pp:data-source local -- drift diffs locally stored sitemap snapshots from
+// prior syncs; it reads only the local store and makes no live API calls.
 
 import (
 	"fmt"
@@ -26,7 +28,7 @@ type snapshot struct {
 	URLSetHash  string `json:"url_set_hash"`
 }
 
-func newDriftCmd(flags *rootFlags) *cobra.Command {
+func newNovelDriftCmd(flags *rootFlags) *cobra.Command {
 	var since, kind string
 	cmd := &cobra.Command{
 		Use:   "drift",

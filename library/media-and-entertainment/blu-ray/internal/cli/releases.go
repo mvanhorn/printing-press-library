@@ -9,10 +9,11 @@ import (
 
 func newReleasesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "releases",
-		Short:  "Disc release pages and listings (Blu-ray, 4K, 3D, DVD, digital, iTunes, MA, UV).",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "releases",
+		Short:       "Disc release pages and listings (Blu-ray, 4K, 3D, DVD, digital, iTunes, MA, UV).",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newReleasesGetCmd(flags))

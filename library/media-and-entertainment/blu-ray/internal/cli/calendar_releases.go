@@ -18,7 +18,7 @@ func newCalendarReleasesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "releases",
-		Short:       "Release calendar page for a given year, optionally filtered by country and format. JS-driven UI; the raw HTML still...",
+		Short:       "Release calendar page for a given year, optionally filtered by country and format.",
 		Example:     "  blu-ray-pp-cli calendar releases",
 		Annotations: map[string]string{"pp:endpoint": "calendar.releases", "pp:method": "GET", "pp:path": "/movies/releasedates.php", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -32,7 +32,7 @@ func newCalendarReleasesCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validFormat {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "format", flagFormat, allowedFormat)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagFormat, "format", allowedFormat)
 				}
 			}
 			c, err := flags.newClient()
@@ -43,25 +43,25 @@ func newCalendarReleasesCmd(flags *rootFlags) *cobra.Command {
 			path := "/movies/releasedates.php"
 			htmlRequestParams := map[string]string{}
 			if flagYear != 0 {
-				htmlRequestParams["year"] = fmt.Sprintf("%v", flagYear)
+				htmlRequestParams["year"] = formatCLIParamValue(flagYear)
 			}
 			if flagCountry != "" {
-				htmlRequestParams["country"] = fmt.Sprintf("%v", flagCountry)
+				htmlRequestParams["country"] = formatCLIParamValue(flagCountry)
 			}
 			if flagFormat != "" {
-				htmlRequestParams["format"] = fmt.Sprintf("%v", flagFormat)
+				htmlRequestParams["format"] = formatCLIParamValue(flagFormat)
 			}
 			params := map[string]string{}
 			if flagYear != 0 {
-				params["year"] = fmt.Sprintf("%v", flagYear)
+				params["year"] = formatCLIParamValue(flagYear)
 			}
 			if flagCountry != "" {
-				params["country"] = fmt.Sprintf("%v", flagCountry)
+				params["country"] = formatCLIParamValue(flagCountry)
 			}
 			if flagFormat != "" {
-				params["format"] = fmt.Sprintf("%v", flagFormat)
+				params["format"] = formatCLIParamValue(flagFormat)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "calendar", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "calendar", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

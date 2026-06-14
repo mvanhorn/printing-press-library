@@ -4,12 +4,10 @@
 package store
 
 import (
-	"context"
-	"database/sql"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"sync"
 	"testing"
@@ -87,37 +85,6 @@ func TestStoreWrite_NoSQLITE_BUSY_HighConcurrency(t *testing.T) {
 	}
 	if total != goroutines*itemsPerBatch {
 		t.Fatalf("resources total = %d, want %d", total, goroutines*itemsPerBatch)
-	}
-}
-
-func TestLockedExecTxRollsBackOnError(t *testing.T) {
-	dbPath := filepath.Join(t.TempDir(), "data.db")
-	s, err := Open(dbPath)
-	if err != nil {
-		t.Fatalf("open: %v", err)
-	}
-	defer s.Close()
-
-	if _, err := s.LockedExec(context.Background(), `CREATE TABLE tx_test (id INTEGER PRIMARY KEY)`); err != nil {
-		t.Fatalf("create table: %v", err)
-	}
-	wantErr := errors.New("stop")
-	err = s.LockedExecTx(context.Background(), func(tx *sql.Tx) error {
-		if _, err := tx.ExecContext(context.Background(), `INSERT INTO tx_test(id) VALUES(1)`); err != nil {
-			return err
-		}
-		return wantErr
-	})
-	if !errors.Is(err, wantErr) {
-		t.Fatalf("LockedExecTx error = %v, want %v", err, wantErr)
-	}
-
-	var count int
-	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM tx_test`).Scan(&count); err != nil {
-		t.Fatalf("count rows: %v", err)
-	}
-	if count != 0 {
-		t.Fatalf("rows after rollback = %d, want 0", count)
 	}
 }
 
@@ -260,6 +227,64 @@ func TestUpsertBatch_GenericFallbackList(t *testing.T) {
 	}
 }
 
+func TestUpsertBatch_PreservesLargeIntegerResourceIDs(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"id": 55043301, "name": "large"}`),
+		json.RawMessage(`{"id": 100, "name": "small"}`),
+		json.RawMessage(`{"id": 7, "name": "tiny"}`),
+	}
+	stored, extractFailures, err := s.UpsertBatch("numeric_ids", items)
+	if err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+	if stored != len(items) {
+		t.Fatalf("stored = %d, want %d", stored, len(items))
+	}
+	if extractFailures != 0 {
+		t.Fatalf("extractFailures = %d, want 0", extractFailures)
+	}
+
+	rows, err := s.DB().Query(`SELECT id FROM resources WHERE resource_type = ? ORDER BY CAST(id AS INTEGER)`, "numeric_ids")
+	if err != nil {
+		t.Fatalf("query resources: %v", err)
+	}
+	defer rows.Close()
+
+	var got []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			t.Fatalf("scan id: %v", err)
+		}
+		got = append(got, id)
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("rows: %v", err)
+	}
+	want := []string{"7", "100", "55043301"}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("resource ids = %v, want %v", got, want)
+	}
+
+	var literalMatches int
+	if err := s.DB().QueryRow(
+		`SELECT COUNT(*) FROM resources WHERE resource_type = ? AND id IN ('55043301', '100', '7')`,
+		"numeric_ids",
+	).Scan(&literalMatches); err != nil {
+		t.Fatalf("count literal id matches: %v", err)
+	}
+	if literalMatches != len(items) {
+		t.Fatalf("literal id matches = %d, want %d", literalMatches, len(items))
+	}
+}
+
 // TestUpsertBatch_ExtractFailuresReturnedForPerItemMisses pins the third
 // return value: items that survive JSON unmarshal but have no extractable
 // PK (templated override AND generic fallback both miss) bump
@@ -289,5 +314,47 @@ func TestUpsertBatch_ExtractFailuresReturnedForPerItemMisses(t *testing.T) {
 	}
 	if extractFailures != 2 {
 		t.Fatalf("extractFailures = %d, want 2 (two items have no extractable PK)", extractFailures)
+	}
+}
+
+func TestSearchQuotesFTSQuerySyntax(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"id": "ip", "value": "10.0.0.1"}`),
+		json.RawMessage(`{"id": "cidr", "value": "172.16.192.0/18"}`),
+		json.RawMessage(`{"id": "host", "value": "host.example.com"}`),
+		json.RawMessage(`{"id": "email", "value": "user@example.com"}`),
+		json.RawMessage(`{"id": "mac", "value": "aa:bb:cc:dd:ee:ff"}`),
+		json.RawMessage(`{"id": "hyphen", "value": "some-name"}`),
+		json.RawMessage(`{"id": "multi", "value": "error with extra words before timeout"}`),
+	}
+	if stored, failed, err := s.UpsertBatch("search-regression", items); err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	} else if failed != 0 || stored != len(items) {
+		t.Fatalf("UpsertBatch stored=%d failed=%d, want stored=%d failed=0", stored, failed, len(items))
+	}
+
+	for _, query := range []string{
+		"10.0.0.1",
+		"172.16.192.0/18",
+		"host.example.com",
+		"user@example.com",
+		"aa:bb:cc:dd:ee:ff",
+		"some-name",
+		"error timeout",
+	} {
+		results, err := s.Search(query, 10)
+		if err != nil {
+			t.Fatalf("Search(%q): %v", query, err)
+		}
+		if len(results) == 0 {
+			t.Fatalf("Search(%q) returned no results", query)
+		}
 	}
 }

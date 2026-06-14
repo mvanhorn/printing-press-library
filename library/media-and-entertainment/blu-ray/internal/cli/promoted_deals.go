@@ -20,9 +20,9 @@ func newDealsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "deals",
-		Short:       "Current Blu-ray.com deals, filterable by country and format. Each row carries the underlying release id and the...",
-		Long:        "Shortcut for 'deals list'. Current Blu-ray.com deals, filterable by country and format. Each row carries the underlying release id and the...",
-		Example:     "  blu-ray-pp-cli deals",
+		Short:       "Current Blu-ray.com deals, filterable by country and format.",
+		Long:        "Current Blu-ray.com deals, filterable by country and format.",
+		Example:     "  blu-ray-pp-cli deals --country USA --format 4k --json --select release_id,title,sale_price,percent_off",
 		Annotations: map[string]string{"pp:endpoint": "deals.list", "pp:method": "GET", "pp:path": "/deals/", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("format") {
@@ -35,7 +35,7 @@ func newDealsPromotedCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validFormat {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "format", flagFormat, allowedFormat)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagFormat, "format", allowedFormat)
 				}
 			}
 			c, err := flags.newClient()
@@ -46,36 +46,39 @@ func newDealsPromotedCmd(flags *rootFlags) *cobra.Command {
 			path := "/deals/"
 			htmlRequestParams := map[string]string{}
 			if flagCountry != "" {
-				htmlRequestParams["country"] = fmt.Sprintf("%v", flagCountry)
+				htmlRequestParams["country"] = formatCLIParamValue(flagCountry)
 			}
 			if flagFormat != "" {
-				htmlRequestParams["format"] = fmt.Sprintf("%v", flagFormat)
+				htmlRequestParams["format"] = formatCLIParamValue(flagFormat)
 			}
 			params := map[string]string{}
 			if flagCountry != "" {
-				params["country"] = fmt.Sprintf("%v", flagCountry)
+				params["country"] = formatCLIParamValue(flagCountry)
 			}
 			if flagFormat != "" {
-				params["format"] = fmt.Sprintf("%v", flagFormat)
+				params["format"] = formatCLIParamValue(flagFormat)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "deals", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "deals", true, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// PATCH: Machine output and deal filters use the structured deal parser; default human output stays backwards-compatible.
+			// PATCH (phase-5-deals-filters): structured deal parser powers machine
+			// output and the --min-discount/--max-price/--limit filters; default
+			// human output stays backwards-compatible.
 			filterDeals := cmd.Flags().Changed("min-discount") || cmd.Flags().Changed("max-price") || cmd.Flags().Changed("limit")
 			if !flags.dryRun && (filterDeals || flags.asJSON || flags.selectFields != "") {
-				rows, err := parseDealsHTML(data)
-				if err != nil {
-					return err
+				rows, perr := parseDealsHTML(data)
+				if perr != nil {
+					return perr
 				}
 				rows = filterDealRows(rows, flagMinDiscount, flagMaxPrice, flagLimit)
-				return printDealRows(cmd, flags, rows)
+				return printDealRows(cmd, flags, rows, prov)
 			}
 			if !flags.dryRun {
 				data, err = extractHTMLResponse(data, htmlExtractionOptions{
 					Mode:           "page",
 					BaseURL:        htmlExtractionRequestURL(c.BaseURL, path, htmlRequestParams),
+					ContentType:    c.LastContentType(),
 					LinkPrefixes:   []string{},
 					Limit:          0,
 					ScriptSelector: "script#__NEXT_DATA__",
@@ -85,10 +88,6 @@ func newDealsPromotedCmd(flags *rootFlags) *cobra.Command {
 					return err
 				}
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -163,12 +162,23 @@ func filterDealRows(rows []DealRow, minDiscount int, maxPrice float64, limit int
 	return filtered
 }
 
-func printDealRows(cmd *cobra.Command, flags *rootFlags, rows []DealRow) error {
+func printDealRows(cmd *cobra.Command, flags *rootFlags, rows []DealRow, prov DataProvenance) error {
 	raw, err := json.Marshal(rows)
 	if err != nil {
 		return err
 	}
-	outputFlags := *flags
-	outputFlags.asJSON = true
-	return printOutputWithFlags(cmd.OutOrStdout(), raw, &outputFlags)
+	// Mirror the standard JSON path so the provenance envelope (meta.source) is
+	// preserved and --select/--compact are honored for machine consumers/agents.
+	// --select wins over --compact when both are set.
+	filtered := json.RawMessage(raw)
+	if flags.selectFields != "" {
+		filtered = filterFields(filtered, flags.selectFields)
+	} else if flags.compact {
+		filtered = compactFields(filtered)
+	}
+	wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+	if wrapErr != nil {
+		return wrapErr
+	}
+	return printOutput(cmd.OutOrStdout(), wrapped, true)
 }
