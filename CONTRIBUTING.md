@@ -20,7 +20,7 @@ The skill handles everything: validation, packaging, and PR creation. You don't 
 
 ### Prerequisites
 
-- [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press) installed (`go install github.com/mvanhorn/cli-printing-press/cmd/printing-press@latest`)
+- [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press) installed (`go install github.com/mvanhorn/cli-printing-press/v4/cmd/cli-printing-press@latest`)
 - `gh` CLI installed and authenticated (`gh auth login`)
 - A generated CLI in your local library (`~/printing-press/library/`)
 
