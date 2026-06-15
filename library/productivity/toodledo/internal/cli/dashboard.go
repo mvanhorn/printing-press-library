@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"io"
 	"sort"
-	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -68,7 +67,6 @@ For a single grouped count, use 'analytics --type tasks --group-by <field>'.`,
 				return err
 			}
 
-			now := time.Now().Unix()
 			todayStart := startOfTodayUnix()
 			todayEnd := todayStart + 86400
 
@@ -85,7 +83,7 @@ For a single grouped count, use 'analytics --type tasks --group-by <field>'.`,
 				if t.Star == 1 {
 					res.Starred++
 				}
-				if t.Due > 0 && t.Due < now {
+				if t.Due > 0 && t.Due < todayStart {
 					res.Overdue++
 				}
 				if t.Due >= todayStart && t.Due < todayEnd {

@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"io"
 	"strings"
-	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -68,13 +67,13 @@ Reads the local SQLite mirror only (no API calls). Run 'sync' first.`,
 			if err != nil {
 				return err
 			}
-			now := time.Now().Unix()
+			todayStart := startOfTodayUnix()
 			res := reviewResult{Inbox: []taskRow{}, Overdue: []taskRow{}, Waiting: []taskRow{}, Someday: []taskRow{}}
 			for _, t := range openTasks {
 				if t.Folder == 0 && t.Context == 0 {
 					res.Inbox = append(res.Inbox, t)
 				}
-				if t.Due > 0 && t.Due < now {
+				if t.Due > 0 && t.Due < todayStart {
 					res.Overdue = append(res.Overdue, t)
 				}
 				if t.Status == statusWaiting {
