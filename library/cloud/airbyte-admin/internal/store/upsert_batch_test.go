@@ -171,6 +171,32 @@ func TestUpsertBatch_TemplatedIDFieldOverrideWins(t *testing.T) {
 	}
 }
 
+func TestAirbyteResourceIDOverridesUseStableIDs(t *testing.T) {
+	cases := []struct {
+		resourceType string
+		idField      string
+		idValue      string
+	}{
+		{"public-v1-destinations", "destinationId", "dest-uuid-1"},
+		{"public-v1-sources", "sourceId", "source-uuid-1"},
+		{"public-v1-workspaces", "workspaceId", "workspace-uuid-1"},
+		{"public-v1-organizations", "organizationId", "org-uuid-1"},
+		{"public-v1-tags", "tagId", "tag-uuid-1"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.resourceType, func(t *testing.T) {
+			got := ExtractResourceID(tc.resourceType, map[string]any{
+				tc.idField: tc.idValue,
+				"name":     "duplicate-display-name",
+			})
+			if got != tc.idValue {
+				t.Fatalf("ExtractResourceID(%q) = %q, want %q from %s", tc.resourceType, got, tc.idValue, tc.idField)
+			}
+		})
+	}
+}
+
 // TestUpsertBatch_GenericFallbackList covers each name in the reduced
 // fallback list. The kalshi-accreted names (ticker/event_ticker/series_ticker)
 // were dropped because the user owns kalshi and will regenerate

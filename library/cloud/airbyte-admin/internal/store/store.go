@@ -892,12 +892,12 @@ var resourceIDFieldOverrides = map[string]string{
 	"public":                          "id",
 	"public-v1-applications":          "id",
 	"public-v1-connector-definitions": "id",
-	"public-v1-destinations":          "name",
-	"public-v1-organizations":         "name",
+	"public-v1-destinations":          "destinationId",
+	"public-v1-organizations":         "organizationId",
 	"public-v1-permissions":           "permissionId",
-	"public-v1-sources":               "name",
-	"public-v1-tags":                  "name",
-	"public-v1-workspaces":            "name",
+	"public-v1-sources":               "sourceId",
+	"public-v1-tags":                  "tagId",
+	"public-v1-workspaces":            "workspaceId",
 }
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did

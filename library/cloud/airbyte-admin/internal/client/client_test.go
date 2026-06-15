@@ -5,6 +5,9 @@ package client
 
 import (
 	"bytes"
+	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"unicode/utf8"
@@ -68,5 +71,31 @@ func TestTruncateBody_UTF8RuneAtBoundary(t *testing.T) {
 	// Partial rune must be dropped, not replaced: 4094 valid bytes + "...".
 	if want := 4094 + 3; len(got) != want {
 		t.Fatalf("len = %d, want %d (partial rune should be dropped, not replaced)", len(got), want)
+	}
+}
+
+func TestWriteCacheUsesPrivatePermissions(t *testing.T) {
+	t.Parallel()
+
+	c := &Client{cacheDir: filepath.Join(t.TempDir(), "http-cache")}
+	path := "/public/v1/workspaces"
+	params := map[string]string{"limit": "10"}
+	c.writeCache(path, params, json.RawMessage(`{"workspaceId":"workspace-1"}`))
+
+	dirInfo, err := os.Stat(c.cacheDir)
+	if err != nil {
+		t.Fatalf("stat cache dir: %v", err)
+	}
+	if got := dirInfo.Mode().Perm(); got != 0o700 {
+		t.Fatalf("cache dir permissions = %#o, want 0700", got)
+	}
+
+	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
+	fileInfo, err := os.Stat(cacheFile)
+	if err != nil {
+		t.Fatalf("stat cache file: %v", err)
+	}
+	if got := fileInfo.Mode().Perm(); got != 0o600 {
+		t.Fatalf("cache file permissions = %#o, want 0600", got)
 	}
 }

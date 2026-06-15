@@ -36,6 +36,18 @@
         "internal/config/config.go"
       ],
       "validated_outcome": "Printing Press dogfood reports PASS with zero dead flags, zero dead functions, command wiring 39/39 registered, MCP surface parity passing, and novel features 5/5 found."
+    },
+    {
+      "id": "airbyte-admin-greptile-sync-cache-fixes",
+      "summary": "Fix Airbyte local-sync primary keys and make HTTP cache files private.",
+      "reason": "Greptile found that generated local sync keyed Airbyte sources, destinations, workspaces, organizations, and tags by display name instead of resource UUID fields, which could silently overwrite duplicate names. It also found that cached API payloads were written with world-readable permissions.",
+      "files": [
+        "internal/store/store.go",
+        "internal/store/upsert_batch_test.go",
+        "internal/client/client.go",
+        "internal/client/client_test.go"
+      ],
+      "validated_outcome": "Focused tests cover Airbyte UUID field selection for local sync and 0700/0600 HTTP cache permissions."
     }
   ]
 }
