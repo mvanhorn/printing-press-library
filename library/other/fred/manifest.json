@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "fred-pp-mcp",
+  "display_name": "FRED",
+  "version": "0.0.0",
+  "description": "Every FRED endpoint, plus a local SQLite store, offline search, and macro commands no other FRED tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/fred-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/fred-pp-mcp",
+      "args": [],
+      "env": {
+        "FRED_API_KEY": "${user_config.fred_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "fred_api_key": {
+      "type": "string",
+      "title": "FRED_API_KEY",
+      "description": "Sets FRED_API_KEY for the FRED MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
