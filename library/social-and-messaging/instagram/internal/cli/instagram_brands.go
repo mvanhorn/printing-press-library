@@ -476,7 +476,6 @@ func jsonNum(v any) int64 {
 // malformed body) is propagated so the caller does NOT persist a zero-filled
 // snapshot that would silently corrupt the growth/compare/top-posts series.
 func fetchInsightTotals(ctx context.Context, c *client.Client, path string, metrics string) (map[string]int64, error) {
-	out := map[string]int64{}
 	raw, err := c.Get(ctx, path, map[string]string{
 		"metric":      metrics,
 		"period":      "day",
@@ -485,24 +484,55 @@ func fetchInsightTotals(ctx context.Context, c *client.Client, path string, metr
 	if err != nil {
 		var apiErr *client.APIError
 		if errors.As(err, &apiErr) && apiErr.StatusCode == 400 {
-			return out, nil // unsupported-metric; tolerate as "no values"
+			return map[string]int64{}, nil // unsupported-metric; tolerate as "no values"
 		}
-		return out, err
+		return map[string]int64{}, err
 	}
+	totals, jerr := parseInsightTotals(raw)
+	if jerr != nil {
+		return map[string]int64{}, fmt.Errorf("parsing insights for %s: %w", path, jerr)
+	}
+	return totals, nil
+}
+
+// parseInsightTotals extracts metric->value from a Graph API insights response.
+// The endpoint returns one of two shapes depending on the target object:
+//
+//   - Account insights honor metric_type=total_value and return a scalar:
+//     {"data":[{"name":"reach","total_value":{"value":555}}]}
+//   - Per-media insights ignore metric_type and return the time-series shape:
+//     {"data":[{"name":"reach","period":"lifetime","values":[{"value":211}]}]}
+//
+// Reading only total_value (the previous behavior) silently produced 0 for
+// every per-media metric, since media responses carry no total_value field.
+// Both shapes are handled here; for the values[] shape the latest entry is
+// used (lifetime media metrics return a single entry).
+func parseInsightTotals(raw json.RawMessage) (map[string]int64, error) {
+	out := map[string]int64{}
 	var resp struct {
 		Data []struct {
 			Name       string `json:"name"`
 			TotalValue struct {
 				Value json.Number `json:"value"`
 			} `json:"total_value"`
+			Values []struct {
+				Value json.Number `json:"value"`
+			} `json:"values"`
 		} `json:"data"`
 	}
-	if jerr := json.Unmarshal(raw, &resp); jerr != nil {
-		return out, fmt.Errorf("parsing insights for %s: %w", path, jerr)
+	if err := json.Unmarshal(raw, &resp); err != nil {
+		return out, err
 	}
 	for _, m := range resp.Data {
-		i, _ := m.TotalValue.Value.Int64()
-		out[m.Name] = i
+		if m.TotalValue.Value.String() != "" {
+			i, _ := m.TotalValue.Value.Int64()
+			out[m.Name] = i
+			continue
+		}
+		if n := len(m.Values); n > 0 {
+			i, _ := m.Values[n-1].Value.Int64()
+			out[m.Name] = i
+		}
 	}
 	return out, nil
 }
