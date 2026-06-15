@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "noon-ae-pp-mcp",
+  "display_name": "Noon Uae Public",
+  "version": "0.0.0",
+  "description": "Unofficial public HTML surface for Noon UAE product search and product detail pages.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/noon-ae-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/noon-ae-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

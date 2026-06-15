@@ -1,0 +1,34 @@
+{
+  "api_name": "noon-ae",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "category": "commerce",
+  "cli_name": "noon-ae-pp-cli",
+  "creator": {
+    "handle": "aamin-labs",
+    "name": "Hugo Rossi"
+  },
+  "description": "Unofficial public HTML surface for Noon UAE product search and product detail pages.",
+  "display_name": "Noon Uae Public",
+  "generated_at": "2026-06-15T06:39:24.201185Z",
+  "mcp_binary": "noon-ae-pp-mcp",
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "mcp_tool_count": 2,
+  "novel_features": [
+    {
+      "name": "search and detail commands for noon uae public web pages",
+      "command": "products search / products get",
+      "description": "Search and detail commands for Noon UAE public web pages."
+    }
+  ],
+  "owner": "aamin-labs",
+  "printer": "aamin-labs",
+  "printer_name": "Hugo Rossi",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260615-063924",
+  "schema_version": 1,
+  "spec_checksum": "sha256:39ba57d58282abbe53e1009b7335ec86ca58abdfae435336a99114ab0a640917",
+  "spec_format": "openapi3",
+  "spec_path": "noon-ae-openapi.yaml"
+}

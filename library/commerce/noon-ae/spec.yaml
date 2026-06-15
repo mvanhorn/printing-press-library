@@ -1,0 +1,40 @@
+openapi: 3.0.3
+info:
+  title: Noon UAE public web
+  version: 0.1.0
+  description: Unofficial public HTML surface for Noon UAE product search and product detail pages.
+servers:
+  - url: https://www.noon.com
+paths:
+  /uae-en/search/:
+    get:
+      operationId: searchProducts
+      x-pp-resource: products
+      summary: Search Noon UAE products
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Search results HTML
+          content:
+            text/html:
+              schema: { type: string }
+  /uae-en/p/:
+    get:
+      operationId: getProduct
+      x-pp-resource: products
+      summary: Fetch Noon UAE product details by SKU
+      parameters:
+        - name: o
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Product detail HTML
+          content:
+            text/html:
+              schema: { type: string }

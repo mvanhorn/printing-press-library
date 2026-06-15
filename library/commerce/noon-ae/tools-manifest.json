@@ -1,0 +1,45 @@
+{
+  "api_name": "noon-ae",
+  "base_url": "https://www.noon.com",
+  "description": "Unofficial public HTML surface for Noon UAE product search and product detail pages.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "products_get",
+      "description": "Fetch Noon UAE product details by SKU. Required: o.",
+      "method": "GET",
+      "path": "/uae-en/p/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "o",
+          "type": "string",
+          "location": "query",
+          "description": "O",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_search",
+      "description": "Search Noon UAE products. Required: q.",
+      "method": "GET",
+      "path": "/uae-en/search/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Q",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
