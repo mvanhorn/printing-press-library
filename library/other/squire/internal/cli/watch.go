@@ -5,7 +5,9 @@
 package cli
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -99,7 +101,15 @@ func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 			defer s.Close()
 
 			res := watchResult{Shop: shop, Snapshot: cur}
-			if prevRaw, err := s.Get("watch_snapshot", uuid); err == nil && len(prevRaw) > 0 {
+			prevRaw, getErr := s.Get("watch_snapshot", uuid)
+			if getErr != nil && !errors.Is(getErr, sql.ErrNoRows) {
+				// A real store failure (I/O error, SQLITE_BUSY, corruption) must
+				// not be silently treated as "first snapshot" — that would
+				// overwrite and lose the existing history. Only a missing row is
+				// a legitimate first snapshot.
+				return fmt.Errorf("read prior snapshot: %w", getErr)
+			}
+			if getErr == nil && len(prevRaw) > 0 {
 				var prev watchSnapshot
 				if json.Unmarshal(prevRaw, &prev) == nil {
 					res.Since = prev.CapturedAt
@@ -116,7 +126,10 @@ func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 				res.ServicesRemoved = make([]string, 0)
 			}
 
-			snapJSON, _ := json.Marshal(cur)
+			snapJSON, mErr := json.Marshal(cur)
+			if mErr != nil {
+				return fmt.Errorf("marshal snapshot: %w", mErr)
+			}
 			if err := s.Upsert("watch_snapshot", uuid, snapJSON); err != nil {
 				return fmt.Errorf("store snapshot: %w", err)
 			}

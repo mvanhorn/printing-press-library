@@ -64,7 +64,8 @@ func newNovelCompareCmd(flags *rootFlags) *cobra.Command {
 				}
 				row := compareRow{Shop: shop, Name: name, BarberCount: barberCount, BookingFeeCents: bookingFee}
 				if svcs, err := fetchServices(ctx, c, uuid); err == nil {
-					total, n, min := 0, 0, 0
+					total, n := 0, 0
+					minCost, haveMin := 0, false
 					for _, s := range svcs {
 						if b, _ := s["addonOnly"].(bool); b {
 							continue
@@ -72,12 +73,17 @@ func newNovelCompareCmd(flags *rootFlags) *cobra.Command {
 						cost := sqInt(s, "cost")
 						total += cost
 						n++
-						if min == 0 || cost < min {
-							min = cost
+						// Explicit flag so a legitimate $0.00 service isn't
+						// mistaken for "no minimum found yet".
+						if !haveMin || cost < minCost {
+							minCost = cost
+							haveMin = true
 						}
 					}
 					row.ServiceCount = n
-					row.MinServiceCents = min
+					if haveMin {
+						row.MinServiceCents = minCost
+					}
 					if n > 0 {
 						row.AvgServiceCents = total / n
 					}

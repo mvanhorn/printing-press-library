@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -84,31 +85,54 @@ func newNovelSoonestCmd(flags *rootFlags) *cobra.Command {
 			entries := make([]soonestEntry, 0)
 			failures := make([]fetchFailure, 0)
 			term := strings.ToLower(strings.TrimSpace(flagService))
-			for _, shop := range shops {
-				pros, err := fetchProfessionals(ctx, c, shop)
-				if err != nil {
-					failures = append(failures, fetchFailure{Shop: shop, Error: err.Error()})
+			// Fan out the per-shop fetches concurrently. Each goroutine writes
+			// its own results slot by index, so there is no shared-slice race;
+			// results are merged in shop order and globally sorted afterward.
+			type shopResult struct {
+				entries []soonestEntry
+				failure *fetchFailure
+			}
+			results := make([]shopResult, len(shops))
+			var wg sync.WaitGroup
+			for i, shop := range shops {
+				wg.Add(1)
+				go func(i int, shop string) {
+					defer wg.Done()
+					pros, err := fetchProfessionals(ctx, c, shop)
+					if err != nil {
+						results[i] = shopResult{failure: &fetchFailure{Shop: shop, Error: err.Error()}}
+						return
+					}
+					local := make([]soonestEntry, 0)
+					for _, p := range pros {
+						next := sqString(p, "nextAvailableTime")
+						if next == "" {
+							continue
+						}
+						b := sqMap(p, "barber")
+						name := strings.TrimSpace(sqString(b, "firstName") + " " + sqString(b, "lastName"))
+						def := sqString(p, "defaultServiceName")
+						if term != "" && !strings.Contains(strings.ToLower(def), term) {
+							continue
+						}
+						local = append(local, soonestEntry{
+							Shop:              shop,
+							Barber:            name,
+							NextAvailableTime: next,
+							NextAvailableText: sqString(p, "nextAvailableTimeText"),
+							DefaultService:    def,
+						})
+					}
+					results[i] = shopResult{entries: local}
+				}(i, shop)
+			}
+			wg.Wait()
+			for _, r := range results {
+				if r.failure != nil {
+					failures = append(failures, *r.failure)
 					continue
 				}
-				for _, p := range pros {
-					next := sqString(p, "nextAvailableTime")
-					if next == "" {
-						continue
-					}
-					b := sqMap(p, "barber")
-					name := strings.TrimSpace(sqString(b, "firstName") + " " + sqString(b, "lastName"))
-					def := sqString(p, "defaultServiceName")
-					if term != "" && !strings.Contains(strings.ToLower(def), term) {
-						continue
-					}
-					entries = append(entries, soonestEntry{
-						Shop:              shop,
-						Barber:            name,
-						NextAvailableTime: next,
-						NextAvailableText: sqString(p, "nextAvailableTimeText"),
-						DefaultService:    def,
-					})
-				}
+				entries = append(entries, r.entries...)
 			}
 			sort.SliceStable(entries, func(i, j int) bool {
 				ti, ei := time.Parse(time.RFC3339, entries[i].NextAvailableTime)
