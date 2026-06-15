@@ -28,17 +28,15 @@ func newArticlesSetCoverCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			body := map[string]any{
-				"variables": map[string]any{
-					"articleEntityId": args[0],
-					"coverMedia": map[string]any{
-						"media_id":       mediaID,
-						"media_category": "DraftTweetImage",
-					},
+			// PATCH: resolve the queryId through the article-ops table instead
+			// of a hardcoded literal that drifts when X redeploys.
+			body := articleOpRequestBody("ArticleEntityUpdateCoverMedia", map[string]any{
+				"articleEntityId": args[0],
+				"coverMedia": map[string]any{
+					"media_id":       mediaID,
+					"media_category": "DraftTweetImage",
 				},
-				"features": articleGraphQLFeatures(),
-				"queryId":  "Es8InPh7mEkK9PxclxFAVQ",
-			}
+			})
 			data, _, err := c.Post(cmd.Context(), client.ArticleOpURL("ArticleEntityUpdateCoverMedia"), body)
 			if err != nil {
 				return classifyAPIError(err, flags)

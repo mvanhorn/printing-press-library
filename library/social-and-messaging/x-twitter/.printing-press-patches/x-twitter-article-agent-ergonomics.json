@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "x-twitter-article-agent-ergonomics",
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260603-230951",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Preserve agent-safe X Articles management surfaces: markdown update-in-place, friendly mutation flags, cookie user-id identity, and lossless basic inline markdown.",
+  "reason": "Real article authoring sessions showed agents were forced to create duplicate drafts or hand-craft GraphQL variables, while doctor over-emphasized OAuth2 user-context warnings for cookie-lane Article writes. A regen must keep Articles create/update/delete on the browser-cookie lane and keep markdown links/code/headings from leaking raw syntax into Draft.js output.",
+  "files": [
+    "internal/client/cookies.go",
+    "internal/cli/account_snapshot_workflow.go",
+    "internal/cli/articles_delete.go",
+    "internal/cli/articles_friendly.go",
+    "internal/cli/articles_publish_md.go",
+    "internal/cli/articles_update_content.go",
+    "internal/cli/articles_update_cover_media.go",
+    "internal/cli/articles_update_md.go",
+    "internal/cli/articles_update_title.go",
+    "internal/cli/doctor.go"
+  ],
+  "validated_outcome": "go test ./... passed; local dry-run previews showed LINK entities, CODE inline style, downgraded h3 headings, --update preview, and friendly Article GraphQL request bodies without posting to X."
+}

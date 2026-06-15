@@ -160,7 +160,7 @@ Highlights (not in the official API docs):
   • timeline export   Export account or query timelines as markdown, JSON, or JSONL for research and archives.
   • thread show   Rebuild a full conversation thread from your locally synced posts — ordered and depth-tagged — without re-spending API read credits.
   • thread compose   Split a markdown file into a numbered, 280-char-packed self-reply thread; prints by default and only posts with --post.
-  • articles-publish-md   Parse a markdown file with YAML frontmatter into the Draft.js content_state JSON X's Articles editor accepts; previews by default; --draft saves a draft, --post publishes publicly.
+  • articles-publish-md   Parse a markdown file with YAML frontmatter into Draft.js; preview by default, --draft creates, --update edits an existing draft, --post publishes.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'x-twitter-pp-cli doctor' to verify auth and connectivity.
