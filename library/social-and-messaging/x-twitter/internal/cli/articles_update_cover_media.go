@@ -16,6 +16,9 @@ import (
 
 func newArticlesUpdateCoverMediaCmd(flags *rootFlags) *cobra.Command {
 	var flagData string
+	var articleID string
+	var coverPath string
+	var mediaID string
 	var bodyFeatures string
 	var bodyQueryId string
 	var bodyVariables string
@@ -27,6 +30,52 @@ func newArticlesUpdateCoverMediaCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  x-twitter-pp-cli articles update-cover-media --data example-value --query-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "articles.update_cover_media", "pp:method": "POST", "pp:path": "/i/api/graphql/Es8InPh7mEkK9PxclxFAVQ/ArticleEntityUpdateCoverMedia"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			friendly := cmd.Flags().Changed("id") || cmd.Flags().Changed("media-id") || cmd.Flags().Changed("cover")
+			if friendly {
+				if cmd.Flags().Changed("media-id") && cmd.Flags().Changed("cover") {
+					return usageErr(fmt.Errorf("use only one of --media-id or --cover"))
+				}
+				if cmd.Flags().Changed("cover") {
+					if _, err := articleIDFlag(articleID); err != nil {
+						return err
+					}
+					if flags.dryRun {
+						body, err := articleUpdateCoverRequestBody(articleID, "<uploaded-cover-media-id>")
+						if err != nil {
+							return err
+						}
+						return printArticleMutationDryRun(cmd, flags, client.ArticleOpURL("ArticleEntityUpdateCoverMedia"), body, map[string]any{
+							"would_upload": map[string]any{
+								"media_category": "DraftTweetImage",
+								"path":           coverPath,
+							},
+						})
+					}
+					c, err := flags.newClient()
+					if err != nil {
+						return err
+					}
+					uploaded, err := c.UploadArticleImage(cmd.Context(), coverPath)
+					if err != nil {
+						return classifyAPIError(err, flags)
+					}
+					body, err := articleUpdateCoverRequestBody(articleID, uploaded)
+					if err != nil {
+						return err
+					}
+					path := client.ArticleOpURL("ArticleEntityUpdateCoverMedia")
+					data, statusCode, err := c.Post(cmd.Context(), path, body)
+					if err != nil {
+						return classifyAPIError(err, flags)
+					}
+					return printArticleMutationResponse(cmd, flags, path, data, statusCode)
+				}
+				body, err := articleUpdateCoverRequestBody(articleID, mediaID)
+				if err != nil {
+					return err
+				}
+				return runArticleGraphQLMutation(cmd, flags, "ArticleEntityUpdateCoverMedia", body)
+			}
 			if !cmd.Flags().Changed("data") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "data")
 			}
@@ -146,6 +195,9 @@ func newArticlesUpdateCoverMediaCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagData, "data", "", "")
+	cmd.Flags().StringVar(&articleID, "id", "", "Article rest_id to update")
+	cmd.Flags().StringVar(&mediaID, "media-id", "", "Uploaded media id to set as the cover")
+	cmd.Flags().StringVar(&coverPath, "cover", "", "Image file to upload and set as the cover")
 	cmd.Flags().StringVar(&bodyFeatures, "features", "", "")
 	cmd.Flags().StringVar(&bodyQueryId, "query-id", "", "")
 	cmd.Flags().StringVar(&bodyVariables, "variables", "", "")

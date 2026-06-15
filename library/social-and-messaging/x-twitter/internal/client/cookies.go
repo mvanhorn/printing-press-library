@@ -18,6 +18,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type cookieAuth struct {
@@ -25,6 +26,7 @@ type cookieAuth struct {
 	CT0        string `json:"ct0"`
 	WebBearer  string `json:"web_bearer"`
 	UserID     string `json:"user_id"`
+	TWID       string `json:"twid"`
 	CapturedAt string `json:"captured_at"`
 }
 
@@ -55,7 +57,32 @@ func (c *cookieAuth) ArticleUserID() string {
 	if c == nil {
 		return ""
 	}
-	return c.UserID
+	if c.UserID != "" {
+		return c.UserID
+	}
+	return userIDFromTWID(c.TWID)
+}
+
+func userIDFromTWID(twid string) string {
+	twid = strings.TrimSpace(twid)
+	if twid == "" {
+		return ""
+	}
+	if decoded, err := url.QueryUnescape(twid); err == nil {
+		twid = decoded
+	}
+	twid = strings.Trim(twid, `"`)
+	twid = strings.TrimPrefix(twid, "u=")
+	twid = strings.TrimPrefix(twid, "u%3D")
+	if twid == "" {
+		return ""
+	}
+	for _, r := range twid {
+		if r < '0' || r > '9' {
+			return ""
+		}
+	}
+	return twid
 }
 
 // applyCookieAuth attaches Source B auth headers to req. Used for hosts
