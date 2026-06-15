@@ -93,11 +93,13 @@ and reservations.`,
 			if err != nil {
 				return fmt.Errorf("querying clients: %w", err)
 			}
-			purchasers, err := set(`SELECT DISTINCT client_id FROM purchases WHERE client_id IS NOT NULL`)
+			// purchasers/attendees consistently exclude removed clients, matching
+			// existingClients, so every funnel stage uses the same client universe.
+			purchasers, err := set(`SELECT DISTINCT p.client_id FROM purchases p JOIN clients cl ON p.client_id = cl.id WHERE COALESCE(cl.removed,0)=0 AND p.client_id IS NOT NULL`)
 			if err != nil {
 				return fmt.Errorf("querying purchases: %w", err)
 			}
-			attendees, err := set(`SELECT DISTINCT json_extract(data,'$.client_id') FROM reservations WHERE json_extract(data,'$.status') IN ('ATTENDED','CHECKED_IN') OR json_extract(data,'$.checked_in')=1`)
+			attendees, err := set(`SELECT DISTINCT json_extract(r.data,'$.client_id') FROM reservations r JOIN clients cl ON json_extract(r.data,'$.client_id') = cl.id WHERE COALESCE(cl.removed,0)=0 AND (json_extract(r.data,'$.status') IN ('ATTENDED','CHECKED_IN') OR json_extract(r.data,'$.checked_in')=1)`)
 			if err != nil {
 				return fmt.Errorf("querying reservations: %w", err)
 			}
