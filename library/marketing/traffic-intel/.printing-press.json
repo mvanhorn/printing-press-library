@@ -1,0 +1,42 @@
+{
+  "schema_version": "printing-press.cli/v1",
+  "name": "traffic-intel-pp-cli",
+  "visibility": "private",
+  "category": "marketing",
+  "module": "traffic-intel",
+  "language": "go",
+  "entrypoint": "./cmd/traffic-intel-pp-cli",
+  "binary": "traffic-intel-pp-cli",
+  "agent_context_command": "traffic-intel-pp-cli --agent agent-context",
+  "doctor_command": "traffic-intel-pp-cli --agent doctor",
+  "local_first": true,
+  "external_api_calls_in_mvp": false,
+  "state_dir_env": "TRAFFIC_INTEL_HOME",
+  "sources": [
+    {
+      "name": "gsc",
+      "child_binary": "google-search-console-pp-cli",
+      "planned_command": "google-search-console-pp-cli export pages --json",
+      "env": ["GSC_SITE_URL"]
+    },
+    {
+      "name": "ga4",
+      "child_binary": "google-analytics-pp-cli",
+      "planned_command": "google-analytics-pp-cli export landing-pages --json",
+      "env": ["GA4_PROPERTY_ID"]
+    },
+    {
+      "name": "ahrefs",
+      "child_binary": "ahrefs-pp-cli",
+      "planned_command": "ahrefs-pp-cli export pages --json",
+      "env": ["AHREFS_PROJECT"]
+    }
+  ],
+  "verification": [
+    "gofmt -w ./cmd ./internal",
+    "go test ./...",
+    "go build ./cmd/traffic-intel-pp-cli",
+    "go run ./cmd/traffic-intel-pp-cli --agent agent-context",
+    "go run ./cmd/traffic-intel-pp-cli --agent sources doctor"
+  ]
+}
