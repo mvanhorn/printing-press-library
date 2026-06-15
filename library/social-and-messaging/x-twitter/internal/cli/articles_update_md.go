@@ -245,7 +245,7 @@ func updateMarkdownArticle(ctx context.Context, deps articleUpdateDeps, opts art
 	if opts.republish {
 		publishData, err := publishArticleEntity(ctx, deps.post, opts.articleID)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("article %s was updated but final publish failed (%w); it is left UNPUBLISHED, re-publish it in the composer or retry `articles update-md --article-id %s --republish`", opts.articleID, err, opts.articleID)
 		}
 		articleID := opts.articleID
 		if publishedID := articleIDFromPublishResponse(publishData); publishedID != "" {

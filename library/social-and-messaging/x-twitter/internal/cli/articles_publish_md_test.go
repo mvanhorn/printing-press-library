@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -118,6 +119,20 @@ func TestArticlesPublishMdUpdateAcceptsReplaceUnknownEntitiesFlag(t *testing.T) 
 	}
 	if payload["article_id"] != "123" {
 		t.Fatalf("unexpected preview payload: %#v", payload)
+	}
+}
+
+func TestPublishMarkdownArticleMissingTitleMessageCoversDraft(t *testing.T) {
+	var flags rootFlags
+	_, err := publishMarkdownArticle(context.Background(), &flags, "", "", MarkdownBodyToDraftJS("Body"), false)
+	if err == nil {
+		t.Fatalf("expected missing-title error")
+	}
+	if !strings.Contains(err.Error(), "draft or post") {
+		t.Fatalf("expected title error to cover draft creation, got %v", err)
+	}
+	if strings.Contains(err.Error(), "--post") {
+		t.Fatalf("title error should not mention only --post, got %v", err)
 	}
 }
 

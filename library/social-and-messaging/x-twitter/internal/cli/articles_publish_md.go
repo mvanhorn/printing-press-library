@@ -303,7 +303,7 @@ func unpublishArticleEntity(ctx context.Context, p articleGraphQLPoster, article
 // PATCH: Wire the X-specific Articles create/update/publish GraphQL sequence.
 func publishMarkdownArticle(ctx context.Context, flags *rootFlags, title string, coverPath string, contentState draftContentState, publish bool) (*publishedArticleResult, error) {
 	if strings.TrimSpace(title) == "" {
-		return nil, fmt.Errorf("frontmatter title is required when --post is set")
+		return nil, fmt.Errorf("frontmatter title is required when creating an article draft or post")
 	}
 	c, err := flags.newClient()
 	if err != nil {
