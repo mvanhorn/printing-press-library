@@ -1,0 +1,9 @@
+{
+  "dir": "/private/tmp/printing-press-library/library/devices/fellow-stagg-ekg",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}
+
