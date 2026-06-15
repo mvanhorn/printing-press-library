@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-15T06:46:48.022971Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "surfline",
+  "display_name": "Surfline",
+  "cli_name": "surfline-pp-cli",
+  "creator": {
+    "handle": "Shoffner",
+    "name": "Shoffner"
+  },
+  "owner": "shoffner",
+  "printer": "Shoffner",
+  "printer_name": "Shoffner",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:1d7142fd1da863d7b89658cf3a380488a4de87c2d45e0170bd98146582518957",
+  "run_id": "20260614-164025-61e51520",
+  "category": "other",
+  "description": "Every Surfline forecast, scriptable from your terminal — plus multi-spot ranking, a local forecast journal, and cron-able alerts no Surfline tool has.",
+  "mcp_binary": "surfline-pp-mcp",
+  "mcp_tool_count": 15,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "SURFLINE_ACCESS_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Dawn-patrol one-shot",
+      "command": "now",
+      "description": "One spot's next few hours as a paddle/no-paddle line readout: swell, wind, tide and rating joined per hour."
+    },
+    {
+      "name": "Multi-spot rank",
+      "command": "rank",
+      "description": "Score and sort several spots best-first on a transparent sum of wave, wind and swell optimalScore."
+    },
+    {
+      "name": "Optimal-window scanner",
+      "command": "windows",
+      "description": "Emit only the contiguous time blocks where wave, wind and swell optimalScore are all good, daylight-only."
+    },
+    {
+      "name": "Raw conditions dump",
+      "command": "raw",
+      "description": "Pipe-friendly table/JSON of min/max/optimalScore/humanRelation plus swell components and wind directionType/gust, no rating editorializing."
+    },
+    {
+      "name": "Scriptable alert rules",
+      "command": "alert run",
+      "description": "Store swell/wind/tide threshold rules locally; alert run fetches a fresh forecast, evaluates them, prints matches and sets an exit code for cron."
+    },
+    {
+      "name": "Buoy vs forecast cross-check",
+      "command": "buoy-check",
+      "description": "Show nearby-buoy observed swell against the spot's wave forecast for the same window, side by side."
+    },
+    {
+      "name": "Forecast-history journal",
+      "command": "journal show",
+      "description": "Snapshot the current forecast into local SQLite and review a spot's snapshots over time."
+    },
+    {
+      "name": "Offline spot search",
+      "command": "search",
+      "description": "Resolve spot names to spotIds via FTS over the locally-synced taxonomy, with no network."
+    }
+  ]
+}

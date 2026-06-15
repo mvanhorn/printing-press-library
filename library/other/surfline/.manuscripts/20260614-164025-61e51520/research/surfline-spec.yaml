@@ -1,0 +1,373 @@
+name: surfline
+description: "Surfline surf-forecast CLI — wave, swell, wind, tide, weather, conditions and rating data, scriptable."
+version: "0.1.0"
+base_url: "https://services.surfline.com"
+http_transport: browser-chrome
+category: other
+cli_description: "Every Surfline forecast, scriptable from your terminal — plus multi-spot ranking, a local forecast journal, and cron-able alerts no Surfline tool has."
+health_check_path: "/kbyg/spots/forecasts/wave?spotId=5842041f4e65fad6a7708807&days=1"
+
+# Optional auth: basic forecasts/search/taxonomy/batch/buoys work with NO token (up to a 6-day horizon).
+# A token (accesstoken query param) unlocks 7-17 day forecasts and premium cams. Acquired via the
+# /trusted/token password grant (hand-authored `auth login`); `auth set-token` / SURFLINE_ACCESS_TOKEN also work.
+auth:
+  type: api_key
+  optional: true
+  in: query
+  header: accesstoken
+  format: "{token}"
+  scheme: surflineToken
+  env_vars:
+    - SURFLINE_ACCESS_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/surfline/config.toml"
+
+resources:
+  spots:
+    description: "Find spots and pull per-spot forecasts and reports (wave, wind, tide, weather, conditions, rating)"
+    endpoints:
+      find:
+        method: GET
+        path: "/search/site"
+        description: "Live spot search by name (online); returns hits with spotIds. For offline name lookup after a sync, use the top-level `search` command instead."
+        params:
+          - name: q
+            type: string
+            required: true
+            positional: true
+            description: "Search query (spot or place name, e.g. \"Ocean Beach\")"
+          - name: querySize
+            flag_name: query-size
+            type: int
+            required: false
+            default: 10
+            description: "Max search results to return"
+          - name: suggestionSize
+            flag_name: suggestion-size
+            type: int
+            required: false
+            default: 10
+            description: "Max autocomplete suggestions to return"
+          - name: newsSearch
+            flag_name: news
+            type: bool
+            required: false
+            default: false
+            description: "Include news articles in the search"
+        response:
+          type: object
+      wave:
+        method: GET
+        path: "/kbyg/spots/forecasts/wave"
+        description: "Wave and swell forecast: surf min/max, optimalScore, swell components (height/period/direction)"
+        params:
+          - name: spotId
+            flag_name: spot
+            aliases: [spot-id]
+            type: string
+            required: true
+            description: "24-char Surfline spot ID (get one from `surfline search`)"
+          - name: days
+            type: int
+            required: false
+            default: 3
+            description: "Forecast horizon in days (1-6 free; 7-17 needs a premium token)"
+          - name: intervalHours
+            flag_name: interval
+            type: int
+            required: false
+            description: "Hours between forecast points (e.g. 3 = 8 points/day)"
+          - name: "units[swellHeight]"
+            flag_name: swell-units
+            type: string
+            required: false
+            enum: [FT, M]
+            description: "Swell/surf height units"
+        response:
+          type: object
+      wind:
+        method: GET
+        path: "/kbyg/spots/forecasts/wind"
+        description: "Wind forecast: speed, direction, directionType (Onshore/Offshore/Cross-shore), gust, optimalScore"
+        params:
+          - name: spotId
+            flag_name: spot
+            aliases: [spot-id]
+            type: string
+            required: true
+            description: "24-char Surfline spot ID"
+          - name: days
+            type: int
+            required: false
+            default: 3
+            description: "Forecast horizon in days (1-6 free; 7-17 needs a premium token)"
+          - name: intervalHours
+            flag_name: interval
+            type: int
+            required: false
+            description: "Hours between forecast points"
+          - name: corrected
+            type: bool
+            required: false
+            description: "Apply Surfline's local wind correction"
+          - name: "units[windSpeed]"
+            flag_name: wind-units
+            type: string
+            required: false
+            enum: [KTS, MPH, KPH, MPS]
+            description: "Wind speed units"
+        response:
+          type: object
+      tides:
+        method: GET
+        path: "/kbyg/spots/forecasts/tides"
+        description: "Tide forecast: HIGH/LOW/NORMAL extremes with heights and local times"
+        params:
+          - name: spotId
+            flag_name: spot
+            aliases: [spot-id]
+            type: string
+            required: true
+            description: "24-char Surfline spot ID"
+          - name: days
+            type: int
+            required: false
+            default: 3
+            description: "Forecast horizon in days (1-6 free; 7-17 needs a premium token)"
+          - name: "units[tideHeight]"
+            flag_name: tide-units
+            type: string
+            required: false
+            enum: [FT, M]
+            description: "Tide height units"
+        response:
+          type: object
+      weather:
+        method: GET
+        path: "/kbyg/spots/forecasts/weather"
+        description: "Weather forecast: temperature, condition, pressure, plus sunlight times"
+        params:
+          - name: spotId
+            flag_name: spot
+            aliases: [spot-id]
+            type: string
+            required: true
+            description: "24-char Surfline spot ID"
+          - name: days
+            type: int
+            required: false
+            default: 3
+            description: "Forecast horizon in days (1-6 free; 7-17 needs a premium token)"
+          - name: intervalHours
+            flag_name: interval
+            type: int
+            required: false
+            description: "Hours between forecast points"
+          - name: "units[temperature]"
+            flag_name: temp-units
+            type: string
+            required: false
+            enum: [F, C]
+            description: "Temperature units"
+        response:
+          type: object
+      conditions:
+        method: GET
+        path: "/kbyg/spots/forecasts/conditions"
+        description: "AM/PM conditions: rating, observation, surf range, forecaster notes, humanRelation"
+        params:
+          - name: spotId
+            flag_name: spot
+            aliases: [spot-id]
+            type: string
+            required: true
+            description: "24-char Surfline spot ID"
+          - name: days
+            type: int
+            required: false
+            default: 3
+            description: "Forecast horizon in days (1-6 free; 7-17 needs a premium token)"
+        response:
+          type: object
+      rating:
+        method: GET
+        path: "/kbyg/spots/forecasts/rating"
+        description: "Rating forecast: VERY_POOR..EPIC key plus numeric value per time point"
+        params:
+          - name: spotId
+            flag_name: spot
+            aliases: [spot-id]
+            type: string
+            required: true
+            description: "24-char Surfline spot ID"
+          - name: days
+            type: int
+            required: false
+            default: 3
+            description: "Forecast horizon in days (1-6 free; 7-17 needs a premium token)"
+          - name: intervalHours
+            flag_name: interval
+            type: int
+            required: false
+            description: "Hours between forecast points"
+        response:
+          type: object
+      sunlight:
+        method: GET
+        path: "/kbyg/spots/forecasts/sunlight"
+        description: "Sunlight forecast: dawn, sunrise, sunset, dusk local times"
+        params:
+          - name: spotId
+            flag_name: spot
+            aliases: [spot-id]
+            type: string
+            required: true
+            description: "24-char Surfline spot ID"
+          - name: days
+            type: int
+            required: false
+            default: 3
+            description: "Forecast horizon in days"
+        response:
+          type: object
+      forecast:
+        method: GET
+        path: "/kbyg/spots/forecasts"
+        description: "Combined forecast: forecasts + tides + sunrise/sunset in one call"
+        params:
+          - name: spotId
+            flag_name: spot
+            aliases: [spot-id]
+            type: string
+            required: true
+            description: "24-char Surfline spot ID"
+          - name: days
+            type: int
+            required: false
+            default: 3
+            description: "Forecast horizon in days (1-6 free; 7-17 needs a premium token)"
+        response:
+          type: object
+      details:
+        method: GET
+        path: "/kbyg/spots/details"
+        description: "Spot metadata: name, location, ability levels, travel info"
+        params:
+          - name: spotId
+            flag_name: spot
+            aliases: [spot-id]
+            type: string
+            required: true
+            description: "24-char Surfline spot ID"
+        response:
+          type: object
+      report:
+        method: GET
+        path: "/kbyg/spots/reports"
+        description: "Spot report: forecaster narrative, current conditions, cameras"
+        params:
+          - name: spotId
+            flag_name: spot
+            aliases: [spot-id]
+            type: string
+            required: true
+            description: "24-char Surfline spot ID"
+        response:
+          type: object
+      batch:
+        method: POST
+        path: "/kbyg/spots/batch"
+        description: "Rich per-spot info for many spots in one call (conditions, cameras, current swell/wind/tide)"
+        body:
+          properties:
+            spotIds:
+              type: array
+              required: true
+              items:
+                type: string
+        response:
+          type: object
+
+  regions:
+    description: "Region/subregion-level forecasts"
+    endpoints:
+      conditions:
+        method: GET
+        path: "/kbyg/regions/forecasts/conditions"
+        description: "Subregion conditions forecast (multi-day AM/PM rating across a subregion)"
+        params:
+          - name: subregionId
+            flag_name: subregion
+            aliases: [subregion-id]
+            type: string
+            required: true
+            description: "Subregion forecast ID (from a spot report's spot.subregion._id, e.g. surfline-pp-cli spots report --spot <id>)"
+          - name: days
+            type: int
+            required: false
+            default: 3
+            description: "Forecast horizon in days"
+        response:
+          type: object
+
+  taxonomy:
+    description: "Browse Surfline's geographic hierarchy (geoname > region > subregion > spot)"
+    endpoints:
+      get:
+        method: GET
+        path: "/taxonomy"
+        description: "Fetch a taxonomy node and its children (ancestors via `in`, children via `contains`)"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Taxonomy node ID (use 58f7ed51dadb30820bb38782 for the Earth root)"
+          - name: type
+            type: string
+            required: false
+            default: taxonomy
+            enum: [taxonomy, spot, subregion, region, geoname]
+            description: "Node type to interpret `id` as"
+          - name: maxDepth
+            flag_name: max-depth
+            type: int
+            required: false
+            default: 0
+            description: "How many child levels to return (0 = immediate children)"
+        response:
+          type: object
+
+  buoys:
+    description: "Nearby NDBC-style buoy observations"
+    endpoints:
+      nearby:
+        method: GET
+        path: "/kbyg/buoys/nearby"
+        description: "Buoys near a lat/lon with observed swell readings"
+        params:
+          - name: latitude
+            flag_name: lat
+            aliases: [latitude]
+            type: float
+            required: true
+            description: "Latitude"
+          - name: longitude
+            flag_name: lon
+            aliases: [longitude]
+            type: float
+            required: true
+            description: "Longitude"
+          - name: distance
+            type: int
+            required: false
+            description: "Search radius (km)"
+          - name: limit
+            type: int
+            required: false
+            default: 5
+            description: "Max buoys to return"
+        response:
+          type: object

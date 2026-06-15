@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "surfline-optional-auth-doctor",
+  "applied_at": "2026-06-14",
+  "base_run_id": "20260614-164025-61e51520",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Route a missing optional token to INFO instead of FAIL in doctor env-var check.",
+  "reason": "auth.Optional updates the doctor Auth line but not the env-var requiredness; for Surfline (optional token) a missing token is informational, not an error.",
+  "files": ["internal/cli/doctor.go"]
+}
