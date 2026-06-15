@@ -1,0 +1,45 @@
+{
+  "api_name": "amazon-ae",
+  "base_url": "https://www.amazon.ae",
+  "description": "Unofficial public HTML surface for Amazon.ae product search and product detail pages.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "products_get",
+      "description": "Fetch Amazon.ae product details. Required: asin.",
+      "method": "GET",
+      "path": "/dp/{asin}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "asin",
+          "type": "string",
+          "location": "path",
+          "description": "Asin",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_search",
+      "description": "Search Amazon.ae products. Required: k.",
+      "method": "GET",
+      "path": "/s",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "k",
+          "type": "string",
+          "location": "query",
+          "description": "K",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

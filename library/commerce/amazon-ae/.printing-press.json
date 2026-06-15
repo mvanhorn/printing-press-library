@@ -1,0 +1,34 @@
+{
+  "api_name": "amazon-ae",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "category": "commerce",
+  "cli_name": "amazon-ae-pp-cli",
+  "creator": {
+    "handle": "aamin-labs",
+    "name": "Hugo Rossi"
+  },
+  "description": "Unofficial public HTML surface for Amazon.ae product search and product detail pages.",
+  "display_name": "Amazon Uae Public",
+  "generated_at": "2026-06-15T06:39:14.351586Z",
+  "mcp_binary": "amazon-ae-pp-mcp",
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "mcp_tool_count": 2,
+  "novel_features": [
+    {
+      "name": "search and detail commands for amazon",
+      "command": "products search / products get",
+      "description": "Search and detail commands for Amazon.ae public web pages."
+    }
+  ],
+  "owner": "aamin-labs",
+  "printer": "aamin-labs",
+  "printer_name": "Hugo Rossi",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260615-063914",
+  "schema_version": 1,
+  "spec_checksum": "sha256:9bf8a9c7c3a560ca529e708aa45ca0b18453d8c5da27c5c601936f5219a8f129",
+  "spec_format": "openapi3",
+  "spec_path": "amazon-ae-openapi.yaml"
+}

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "amazon-ae-pp-mcp",
+  "display_name": "Amazon Uae Public",
+  "version": "0.0.0",
+  "description": "Unofficial public HTML surface for Amazon.ae product search and product detail pages.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/amazon-ae-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/amazon-ae-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

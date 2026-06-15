@@ -1,0 +1,40 @@
+openapi: 3.0.3
+info:
+  title: Amazon UAE public web
+  version: 0.1.0
+  description: Unofficial public HTML surface for Amazon.ae product search and product detail pages.
+servers:
+  - url: https://www.amazon.ae
+paths:
+  /s:
+    get:
+      operationId: searchProducts
+      x-pp-resource: products
+      summary: Search Amazon.ae products
+      parameters:
+        - name: k
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Search results HTML
+          content:
+            text/html:
+              schema: { type: string }
+  /dp/{asin}:
+    get:
+      operationId: getProduct
+      x-pp-resource: products
+      summary: Fetch Amazon.ae product details
+      parameters:
+        - name: asin
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Product detail HTML
+          content:
+            text/html:
+              schema: { type: string }
