@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "find_get-search": "Search products by structured filters (search API v2 — no full-text term; use the local `search` tool for that). Tag filters (`*_tags`, e.g. `categories_tags_en`, `labels_tags`) accept comma=AND, pipe=OR, and a `-` prefix to exclude. Nutriment filters use `<nutrient>_100g` or `_serving` with `<`, `>`, or `=` (e.g. `sugars_100g<8`). Paginate with `page` and `page_size`; use `fields` to limit returned columns. Returns array of Product."
+  }
+}

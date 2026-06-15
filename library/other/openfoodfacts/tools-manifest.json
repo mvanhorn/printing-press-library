@@ -1,0 +1,762 @@
+{
+  "api_name": "openfoodfacts",
+  "base_url": "https://world.openfoodfacts.net",
+  "description": "Every Open Food Facts read endpoint, plus a local calorie/macro diary, product compare, and offline search no other Open Food Facts tool has — free, no account, pipeable to jq.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "User-Agent",
+    "in": "header",
+    "env_vars": [
+      "OPENFOODFACTS_USER_AGENT_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "OPENFOODFACTS_USER_AGENT_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "attribute-groups_get",
+      "description": "Attributes are at the heart of personal search. They score the products according to different criterias, which could then be matched to a user's preferences. This API helps you list attributes and display them in your application, for the user to choose the importance of each criteria. note: `/api/v2/attribute_groups_{lc}` is also a valid route, but consider it deprecated. Optional: lc. Returns array of AttributeGroup.",
+      "method": "GET",
+      "path": "/api/v2/attribute_groups",
+      "params": [
+        {
+          "name": "lc",
+          "type": "string",
+          "location": "query",
+          "description": "2 letter code of the language of the user."
+        }
+      ]
+    },
+    {
+      "name": "cgi_get-ingredients-pl",
+      "description": "Open Food Facts uses optical character recognition (OCR) to retrieve nutritional data and other information from the product labels. Required: id, code, process_image, ocr_engine. Returns the OcrOnProduct.",
+      "method": "GET",
+      "path": "/cgi/ingredients.pl",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "query",
+          "description": "Barcode of the product",
+          "required": true
+        },
+        {
+          "name": "process_image",
+          "type": "string",
+          "location": "query",
+          "description": "Process image",
+          "required": true
+        },
+        {
+          "name": "ocr_engine",
+          "type": "string",
+          "location": "query",
+          "description": "Ocr engine",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cgi_get-nutrients-pl",
+      "description": "Used to display the nutrition facts table of a product, or to display a form to input those nutrition facts. Optional: cc, lc. Returns array of Nutrient.",
+      "method": "GET",
+      "path": "/cgi/nutrients.pl",
+      "params": [
+        {
+          "name": "cc",
+          "type": "string",
+          "location": "query",
+          "description": "2 letter code of the country of the user. Used for localizing some fields in returned values (e.g. knowledge panels). If not passed, the country may be inferred by the IP address of the request."
+        },
+        {
+          "name": "lc",
+          "type": "string",
+          "location": "query",
+          "description": "2 letter code of the language of the user."
+        }
+      ]
+    },
+    {
+      "name": "cgi_get-product-image-crop-pl",
+      "description": "Although we recommend rotating photos manually and uploading a new version of the image, the OFF API allows you to make api calls to automate this process. You can rotate existing photos by setting the angle to 90º, 180º, or 270º clockwise. Required: code, id, imgid, angle. Returns the RotateAPhoto.",
+      "method": "GET",
+      "path": "/cgi/product_image_crop.pl",
+      "params": [
+        {
+          "name": "code",
+          "type": "string",
+          "location": "query",
+          "description": "Barcode of the product",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "imgid",
+          "type": "string",
+          "location": "query",
+          "description": "Imgid",
+          "required": true
+        },
+        {
+          "name": "angle",
+          "type": "string",
+          "location": "query",
+          "description": "Angle",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cgi_get-product-image-upload-pl",
+      "description": "Photos are source and proof of data. The first photo uploaded for a product is auto-selected as the product’s “front” photo.'. Required: code, imagefield, imgupload_front_en. Optional: User-Agent, app_name, app_uuid (plus 2 more). Returns array of CgiGetProductImageUploadPlItem.",
+      "method": "POST",
+      "path": "/cgi/product_image_upload.pl",
+      "params": [
+        {
+          "name": "User-Agent",
+          "type": "string",
+          "location": "body",
+          "description": "It is required that you pass a specific User-Agent header when you do an API request."
+        },
+        {
+          "name": "app_name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the app providing the information"
+        },
+        {
+          "name": "app_uuid",
+          "type": "string",
+          "location": "body",
+          "description": "When an app uses a single user to log its contributions, it might be interesting to know..."
+        },
+        {
+          "name": "app_version",
+          "type": "string",
+          "location": "body",
+          "description": "Version of the app providing the information"
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "Barcode of the product",
+          "required": true
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "A comment on the contribution."
+        },
+        {
+          "name": "imagefield",
+          "type": "string",
+          "location": "body",
+          "description": "Indicates the type of the image and the corresponding language. It should be in the format `{IMAGE_TYPE}_{LANG}` format, where `IMAGE_TYPE` is one of `front|ingredients|nutrition|packaging|other` and `LANG` is the 2 letter language code. Use `other` if you don't want the image to be selected. Note that the first image of a product is always selected as front picture.",
+          "required": true
+        },
+        {
+          "name": "imgupload_front_en",
+          "type": "string",
+          "location": "body",
+          "description": "This field must contain image binary content. The format and extension must be one of gif|jpeg|jpg|png|heic. This field is dynamic and dependent on the value of imagefield in the request body. It wil be imgupload_the value of the imagefield stated earlier. For example, if `imagefield=front_en`, the name of this field should be `imageupload_front_en`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cgi_get-session-pl",
+      "description": "Retrieve session cookie for writing operations. Required: password, user_id.",
+      "method": "POST",
+      "path": "/cgi/session.pl",
+      "params": [
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password for login",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "body",
+          "description": "Username for login Note: you must always use the username (and not the email) as it is far less brittle.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cgi_get-suggest-pl",
+      "description": "For example , Dave is looking for packaging_shapes that contain the term 'fe', all packaging_shapes containing 'fe' will be returned. This is useful if you have a search in your application, for a specific product field. Required: tagtype. Optional: term. Returns array of string.",
+      "method": "GET",
+      "path": "/cgi/suggest.pl",
+      "params": [
+        {
+          "name": "tagtype",
+          "type": "string",
+          "location": "query",
+          "description": "Type of a tag / id of a tags taxonomy (e.g. categories, labels, ingredients, etc.)",
+          "required": true
+        },
+        {
+          "name": "term",
+          "type": "string",
+          "location": "query",
+          "description": "Term"
+        }
+      ]
+    },
+    {
+      "name": "cgi_post-product-image-crop-pl",
+      "description": "Cropping is only relevant for editing existing products. You cannot crop an image the first time you upload it to the system. Required: code, id, imgid. Optional: User-Agent, angle, app_name (plus 9 more). Returns the new ProductImageCrop.",
+      "method": "POST",
+      "path": "/cgi/product_image_crop.pl",
+      "params": [
+        {
+          "name": "User-Agent",
+          "type": "string",
+          "location": "body",
+          "description": "It is required that you pass a specific User-Agent header when you do an API request."
+        },
+        {
+          "name": "angle",
+          "type": "int",
+          "location": "body",
+          "description": "angle of the rotation to apply on the selected image. passing `90` as value rotate the image 90 degrees counter-clockwise."
+        },
+        {
+          "name": "app_name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the app providing the information"
+        },
+        {
+          "name": "app_uuid",
+          "type": "string",
+          "location": "body",
+          "description": "When an app uses a single user to log its contributions, it might be interesting to know..."
+        },
+        {
+          "name": "app_version",
+          "type": "string",
+          "location": "body",
+          "description": "Version of the app providing the information"
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "Barcode of the product.",
+          "required": true
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "A comment on the contribution."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "identifier of the selected image field, should be in the format `{IMAGE_TYPE}_{LANG}` format, where `IMAGE_TYPE` is one of `front|ingredients|nutrition|packaging|other` and `LANG` is the 2 letter language code. Note that if you select an image for the main language of the product (ex: `ingredients_it` if `it` is the main language), this image will be displayed on Product Opener for all languages (ex: on `https://fr.openfoodfacts.org`, unless `ingredients_fr` exists).",
+          "required": true
+        },
+        {
+          "name": "imgid",
+          "type": "int",
+          "location": "body",
+          "description": "identifier of the image to select, it should be a number",
+          "required": true
+        },
+        {
+          "name": "normalize",
+          "type": "string",
+          "location": "body",
+          "description": "whether the selected image should be normalized using ImageMagick"
+        },
+        {
+          "name": "white_magic",
+          "type": "string",
+          "location": "body",
+          "description": "whether the source image should be white magiced (background removal) using ImageMagick."
+        },
+        {
+          "name": "x1",
+          "type": "int",
+          "location": "body",
+          "description": "X origin coordinate of the crop, it must be lower than x2"
+        },
+        {
+          "name": "x2",
+          "type": "int",
+          "location": "body",
+          "description": "X end coordinate of the crop, it must be higher than x1"
+        },
+        {
+          "name": "y1",
+          "type": "int",
+          "location": "body",
+          "description": "Y origin coordinate of the crop, it must be lower than y2"
+        },
+        {
+          "name": "y2",
+          "type": "int",
+          "location": "body",
+          "description": "Y end coordinate of the crop, it must be higher than y1"
+        }
+      ]
+    },
+    {
+      "name": "cgi_post-product-image-unselect-pl",
+      "description": "This endpoint allows the user to unselect a photo for a product. The user must provide the product code and the image ID to unselect. Optional: code, id. Returns the new UnselectAPhotoResponse.",
+      "method": "POST",
+      "path": "/cgi/product_image_unselect.pl",
+      "params": [
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "code of the product"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "image field (image id) of the photo to unselect"
+        }
+      ]
+    },
+    {
+      "name": "cgi_post-product-jqm2-pl",
+      "description": "This updates a product. Note: If the barcode exists then you will be editing the existing product, However if it doesn''t you will be creating a new product with that unique barcode, and adding properties to the product. Required: code. Optional: User-Agent, abbreviated_product_name, app_name (plus 23 more). Returns the new AddOrEditAProduct2.",
+      "method": "POST",
+      "path": "/cgi/product_jqm2.pl",
+      "params": [
+        {
+          "name": "User-Agent",
+          "type": "string",
+          "location": "body",
+          "description": "It is required that you pass a specific User-Agent header when you do an API request."
+        },
+        {
+          "name": "abbreviated_product_name",
+          "type": "string",
+          "location": "body",
+          "description": "Abbreviated product name. For backward compatibility only, use the field abbreviated_product_name_[language_code] instead."
+        },
+        {
+          "name": "app_name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the app providing the information"
+        },
+        {
+          "name": "app_uuid",
+          "type": "string",
+          "location": "body",
+          "description": "When an app uses a single user to log its contributions, it might be interesting to know..."
+        },
+        {
+          "name": "app_version",
+          "type": "string",
+          "location": "body",
+          "description": "Version of the app providing the information"
+        },
+        {
+          "name": "brands",
+          "type": "string",
+          "location": "body",
+          "description": "Product brands (comma-separated list)"
+        },
+        {
+          "name": "categories",
+          "type": "string",
+          "location": "body",
+          "description": "Product categories (comma-separated list)"
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "The barcode of the product to be added or edited",
+          "required": true
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "A comment on the contribution."
+        },
+        {
+          "name": "countries",
+          "type": "string",
+          "location": "body",
+          "description": "Countries where product is sold"
+        },
+        {
+          "name": "generic_name",
+          "type": "string",
+          "location": "body",
+          "description": "Legal name of the product. For backward compatibility only, use the field generic_name_[language_code] instead."
+        },
+        {
+          "name": "ingredients_text",
+          "type": "string",
+          "location": "body",
+          "description": "Raw list of ingredients text. For backward compatibility only, use the field ingredients_text_[language_code] instead."
+        },
+        {
+          "name": "labels",
+          "type": "string",
+          "location": "body",
+          "description": "Product labels (comma-separated list)"
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "body",
+          "description": "2 letter language code of the main language of the product (the most prominent on the packaging)"
+        },
+        {
+          "name": "lc",
+          "type": "string",
+          "location": "body",
+          "description": "2 letter code of the language of the interface. Used to determine the language of certain fields (e.g. product_name and taxonomy fields like categories and labels). If not passed, the language may be inferred by the country of the user (passed through the cc field or inferred by the IP address). Full list at https://static.openfoodfacts.org/data/taxonomies/languages.json"
+        },
+        {
+          "name": "nutrition_data_per",
+          "type": "string",
+          "location": "body",
+          "description": "Whether nutrition data is per 100g or per serving. Note that this field applies to all nutriment fields (existing or new). So if its value is changed, all nutrients should be supplied, so that we don't have existing values per 100g when the new values are per serving, or vice versa."
+        },
+        {
+          "name": "origins",
+          "type": "string",
+          "location": "body",
+          "description": "Origins of ingredients"
+        },
+        {
+          "name": "packaging",
+          "type": "string",
+          "location": "body",
+          "description": "Packaging type, format, material. The [v3 API documentation](https://openfoodfacts.github.io/openfoodfacts-server/api/ref-v3/#operation/post-api-v3-product-barcode) has a more structured data for `packaging`."
+        },
+        {
+          "name": "packaging_text",
+          "type": "string",
+          "location": "body",
+          "description": "Packaging information text. For backward compatibility only, use the field packaging_text_[language_code] instead."
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password to authenticate with"
+        },
+        {
+          "name": "product_name",
+          "type": "string",
+          "location": "body",
+          "description": "Product name in the language sent in the lc field. For backward compatibility only, use the field product_name_[language_code] instead."
+        },
+        {
+          "name": "product_type",
+          "type": "string",
+          "location": "body",
+          "description": "The product type is a fundamental separation that tells on which platform the product is made available: Open Food Facts, Open Beauty Facts, Open Pet Food Facts or Open Products Facts. Each platform has variations on the way it analyses the product. Changing the product type moves the product to the new platform. It must be done thoughtfully."
+        },
+        {
+          "name": "quantity",
+          "type": "string",
+          "location": "body",
+          "description": "Product quantity with unit"
+        },
+        {
+          "name": "serving_size",
+          "type": "string",
+          "location": "body",
+          "description": "Serving size"
+        },
+        {
+          "name": "stores",
+          "type": "string",
+          "location": "body",
+          "description": "Stores where product is sold"
+        },
+        {
+          "name": "traces",
+          "type": "string",
+          "location": "body",
+          "description": "Traces of allergens"
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "body",
+          "description": "Username to authenticate with Note: you must always use the username (and not the email) as it is far less brittle."
+        }
+      ]
+    },
+    {
+      "name": "find_get-search",
+      "description": "Search request allows you to get products that match your search criteria. It allows you create many custom APIs for your use case. If a search query parameter has multiple values, separate them with commas (`,`). When filtering with a language-specific parameter (`fr`, `de`, `en`, etc.), specify the language code in the parameter name (for example: `categories_tags_en`). **Important:** search API v2 does not support full text request (search_term), you have to use [search API v1](https://wiki.openfoodfacts.org/API/Read/Search) for that. Upcoming [search-a-licious project](https://github.com/openfoodfacts/search-a-licious) will fix that. ### Limiting results You can limit the size of returned objects thanks to the `fields` object (see below). Example: `fields=code,product_name,brands,attribute_groups` Please use it as much as possible to avoid overloading the servers. The search endpoint uses pagination: see `page` and `page_size` parameters. **Beware:** `page_count` is the number of products returned in the current page, not the total number of pages. ### Conditions on tags All `_tags`` parameters accepts either: * a single value * or a comma-separated list of values (doing a AND) * or a pipe separated list of values (doing a OR) You can exclude terms by using a '-' prefix. For taxonomized entries, you might either use the tag id (recommended), or a known synonym (without language prefix) * `labels_tags=en:organic,en:fair-trade` find items that are fair-trade AND organic * `labels_tags=en:organic|en:fair-trade` find items that are fair-trade OR organic * `labels_tags=en:organic,en:-fair-trade` find items that are organic BUT NOT fair-trade ### Conditions on nutriments To get a list of nutrients: You can either query on nutrient per 100g (`_100g` suffix) or per serving (`serving` suffix). You can also add `_prepared_` to get the nutrients in the prepared product instead of as sold. You can add a comparison operator and value to the parameter name to get products with nutrient above or below a value. If you use a parameter value it exactly match it. * `energy-kj_100g\u003c200` products where energy in kj for 100g is less than 200kj * `sugars_serving\u003e10` products where sugar per serving is greater than 10g * `saturated-fat_100g=1` products where saturated fat per 100g is exactly 10g * `salt_prepared_serving\u003c0.1` products where salt per serving for prepared product is less than 0.1g ### Combining filters and pagination (examples) 1. Breakfast cereals with Nutri-Score A or B, with explicit pagination: `/api/v2/search?categories_tags_en=breakfast-cereals\u0026nutrition_grades_tags=a|b\u0026page=2\u0026page_size=20\u0026fields=code,product_name,nutrition_grades` 2. Multiple constraints in one query (category + nutrients + sorting + compact fields): `/api/v2/search?categories_tags_en=orange-juices\u0026sugars_100g%3C8\u0026salt_100g%3C0.2\u0026sort_by=last_modified_t\u0026page=1\u0026page_size=24\u0026fields=code,product_name,nutriments` 3. Include/exclude tags together: `/api/v2/search?labels_tags=en:organic,en:-fair-trade\u0026page=1\u0026page_size=24\u0026fields=code,product_name,labels_tags` ### Response structure at a glance A successful response contains: * `count`: total number of matching products * `page`: current page number * `page_size`: requested number of products per page * `page_count`: number of products actually returned in this page * `skip`: number of products skipped before this page * `products`: array of products for the current page Total page count can be computed with: `Math.floor((count - 1) / page_size) + 1` ### More references See also [wiki page](https://wiki.openfoodfacts.org/Open_Food_Facts_Search_API_Version_2). Optional: additives_tags, allergens_tags, brands_tags (plus 20 more). Returns array of Product.",
+      "method": "GET",
+      "path": "/api/v2/search",
+      "params": [
+        {
+          "name": "additives_tags",
+          "type": "string",
+          "location": "query",
+          "description": "The additives_tags in english of product(s) you are searching for. The [Open Food Facts Web App](https://world.openfoodfacts.org/facets/additives) has a list of possible values for `additives`. Translated values are available at https://static.openfoodfacts.org/data/taxonomies/additives.json You can use multiple values by using a comma separated list. You can add a '-' before values to avoid matching a tag."
+        },
+        {
+          "name": "allergens_tags",
+          "type": "string",
+          "location": "query",
+          "description": "The allergens_tags in english of product(s) you are searching for. The [Open Food Facts Web App](https://world.openfoodfacts.org/facets/allergens) has a list of possible values for `allergens`. Translated values are available at https://static.openfoodfacts.org/data/taxonomies/allergens.json You can use multiple values by using a comma separated list. You can add a '-' before values to avoid matching a tag."
+        },
+        {
+          "name": "brands_tags",
+          "type": "string",
+          "location": "query",
+          "description": "The brands_tags of product(s) you are searching for. The [Open Food Facts Web App](https://world.openfoodfacts.org/facets/brands) has a list of possible values for `brands`. Taxonomized values are available at https://static.openfoodfacts.org/data/taxonomies/brands.json You can use multiple values by using a comma separated list. You can add a '-' before values to avoid matching a tag."
+        },
+        {
+          "name": "categories_tags",
+          "type": "string",
+          "location": "query",
+          "description": "The category of product(s) you are searching for. The [Open Food Facts Web App](https://world.openfoodfacts.org/facets/categories) has a list of possible values for `categories`. Translated values are available at https://static.openfoodfacts.org/data/taxonomies/categories.json You can use multiple values by using a comma separated list. You can add a '-' before values to avoid matching a tag."
+        },
+        {
+          "name": "countries_tags_en",
+          "type": "string",
+          "location": "query",
+          "description": "The countries_tags_en of product(s) you are searching for. The [Open Food Facts Web App](https://world.openfoodfacts.org/facets/countries) shows a list of possible values for `countries`. Translated values are available at https://static.openfoodfacts.org/data/taxonomies/countries.json You can use multiple values by using a comma separated list. You can add a '-' before values to avoid matching a tag."
+        },
+        {
+          "name": "emb_codes_tags",
+          "type": "string",
+          "location": "query",
+          "description": "The emb_codes_tags of product(s) you are searching for. You can use multiple values by using a comma separated list. You can add a '-' before values to avoid matching a tag."
+        },
+        {
+          "name": "labels_tags",
+          "type": "string",
+          "location": "query",
+          "description": "The labels_tags in english of product(s) you are searching for. The [Open Food Facts Web App](https://world.openfoodfacts.org/facets/labels) has a list of possible values for `labels`. You can use multiple values by using a comma separated list. You can add a '-' before values to avoid matching a tag."
+        },
+        {
+          "name": "manufacturing_places_tags",
+          "type": "string",
+          "location": "query",
+          "description": "The manufacturing_places_tags of product(s) you are searching for. The [Open Food Facts Web App](https://world.openfoodfacts.org/facets/manufacturing-places) has a list of possible values for `manufacturing-places`. You can use multiple values by using a comma separated list. You can add a '-' before values to avoid matching a tag."
+        },
+        {
+          "name": "nutrition_grades_tags",
+          "type": "string",
+          "location": "query",
+          "description": "The nutrition_grades_tags of product(s) you are searching for. The [Open Food Facts Web App](https://world.openfoodfacts.org/facets/nutrition-grades) has a list of possible values for `nutrition-grades`. You can use multiple values by using a comma separated list. You can add a '-' before values to avoid matching a tag."
+        },
+        {
+          "name": "origins_tags",
+          "type": "string",
+          "location": "query",
+          "description": "The origins_tags of product(s) you are searching for. The [Open Food Facts Web App](https://world.openfoodfacts.org/facets/origins) has a list of possible values for `origins`. You can use multiple values by using a comma separated list. You can add a '-' before values to avoid matching a tag."
+        },
+        {
+          "name": "packaging_tags_de",
+          "type": "string",
+          "location": "query",
+          "description": "The packaging_tag in german of product(s) you are searching for. The [Open Food Facts Web App](https://world.openfoodfacts.org/facets/packaging) has a list of possible values for `packaging`. You can use multiple values by using a comma separated list. You can add a '-' before values to avoid matching a tag."
+        },
+        {
+          "name": "purchase_places_tags",
+          "type": "string",
+          "location": "query",
+          "description": "The purchase_places_tags of product(s) you are searching for. You can use multiple values by using a comma separated list. You can add a '-' before values to avoid matching a tag."
+        },
+        {
+          "name": "states_tags",
+          "type": "string",
+          "location": "query",
+          "description": "The states_tags in english of product(s) you are searching for. The [Open Food Facts Web App](https://world.openfoodfacts.org/facets/states) has a list of possible values for `states`. Translated values are available at https://static.openfoodfacts.org/data/taxonomies/states.json You can use multiple values by using a comma separated list. You can add a '-' before values to avoid matching a tag."
+        },
+        {
+          "name": "stores_tags",
+          "type": "string",
+          "location": "query",
+          "description": "The stores_tags of product(s) you are searching for. You can use multiple values by using a comma separated list. You can add a '-' before values to avoid matching a tag."
+        },
+        {
+          "name": "traces_tags",
+          "type": "string",
+          "location": "query",
+          "description": "The traces_tags of product(s) you are searching for. The [Open Food Facts Web App](https://world.openfoodfacts.org/facets/traces) shows a list of possible values for `traces`. You can use multiple values by using a comma separated list. You can add a '-' before values to avoid matching a tag."
+        },
+        {
+          "name": "\u003ctag_name\u003e_tags_\u003clanguage_code\u003e",
+          "type": "object",
+          "location": "query",
+          "description": "You can add a language code to a specific tag to query it in a specific language"
+        },
+        {
+          "name": "\u003cnutrient\u003e_lt_\u003cvalue\u003e",
+          "type": "object",
+          "location": "query",
+          "description": "Search on nutrient lower than a value"
+        },
+        {
+          "name": "\u003cnutrient\u003e_gt_\u003cvalue\u003e",
+          "type": "object",
+          "location": "query",
+          "description": "Search on nutrient greater than a value"
+        },
+        {
+          "name": "\u003cnutrient\u003e_eq_\u003cvalue\u003e",
+          "type": "object",
+          "location": "query",
+          "description": "Search on nutrient for an exact quantity"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Specific fields to return. Use 'knowledge_panels' for Knowledge Panels only."
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "The allowed values used to sort/order the search results. * `product_name` sorts on name * `ecoscore_score`, `nova_score`, `nutriscore_score` rank on the [Eco-Score](https://world.openfoodfacts.org/eco-score-the-environmental-impact-of-food-products), [Nova](https://world.openfoodfacts.org/nova), or [Nutri-Score](https://world.openfoodfacts.org/nutriscore) * `scans_n`, `unique_scans_n` and `popularity_key` are about product popularity: number of scans on unique scans, rank of product * `created_t`, `last_modified_t`, are about creation and modification dates * `nothing`, tells not to sort at all (because if you do not provide the sort_by argument we default to sorting on popularity (for food) or last modification date)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number you request to view (eg. in search results spanning multiple pages)"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "The number of elements should be sent per page"
+        }
+      ]
+    },
+    {
+      "name": "preferences_get",
+      "description": "This endpoint retrieves the weights corresponding to attribute preferences for computing personal product recommendations. The weights are used to personalize the product recommendations based on user preferences. Optional: lc. Returns array of PreferencesGetItem.",
+      "method": "GET",
+      "path": "/api/v2/preferences",
+      "params": [
+        {
+          "name": "lc",
+          "type": "string",
+          "location": "query",
+          "description": "2 letter code of the language of the user."
+        }
+      ]
+    },
+    {
+      "name": "product_get-by-code",
+      "description": "Fetches product details by its unique barcode. Can return all product details or specific fields like knowledge panels. Use the `blame` parameter to include information about who last modified each field of the product. Required: code. Optional: product_type, cc, lc (plus 7 more).",
+      "method": "GET",
+      "path": "/api/v2/product/{code}",
+      "params": [
+        {
+          "name": "code",
+          "type": "string",
+          "location": "path",
+          "description": "The barcode of the product to be fetched",
+          "required": true
+        },
+        {
+          "name": "product_type",
+          "type": "string",
+          "location": "query",
+          "description": "Used for READ queries for one product. Expected product type of the requested product. Defaults to the product type of the server the query is sent to (e.g. 'food' for Open Food Facts, 'beauty' for Open Beauty Facts, etc.). 'all' matches all product types. If the product exists on a different server that matches the requested product type, the API will return a 302 redirect to the correct server. Otherwise, the API will return a 404 error. It is possible that new product types will be added in the future."
+        },
+        {
+          "name": "cc",
+          "type": "string",
+          "location": "query",
+          "description": "2 letter code of the country of the user. Used for localizing some fields in returned values (e.g. knowledge panels). If not passed, the country may be inferred by the IP address of the request."
+        },
+        {
+          "name": "lc",
+          "type": "string",
+          "location": "query",
+          "description": "2 letter code of the language of the user."
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Specific fields to return. Use 'knowledge_panels' for Knowledge Panels only."
+        },
+        {
+          "name": "knowledge_panel_client",
+          "type": "string",
+          "location": "query",
+          "description": "Client requesting knowledge panels. Used to customize which knowledge panels are returned. Example values: 'web', 'mobile'. Defaults to 'app' for all API requests, and 'web' for all other requests."
+        },
+        {
+          "name": "activate_knowledge_panels_simplified",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, knowledge panels will include the simplified_root knowledge panel its simplified sub-panels (e.g. simplified health and environment cards)"
+        },
+        {
+          "name": "activate_knowledge_panel_physical_activities",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, knowledge panels will include the physical activities panel"
+        },
+        {
+          "name": "knowledge_panels_included",
+          "type": "string",
+          "location": "query",
+          "description": "When knowledge_panels are requested, you can specify which panels should be in the response. All the others will be excluded."
+        },
+        {
+          "name": "knowledge_panels_excluded",
+          "type": "string",
+          "location": "query",
+          "description": "When knowledge_panels are requested, you can specify which panels to exclude from the response. All the others will be included. If a panel is both excluded and included (with the knowledge_panels_excluded parameter), it will be excluded."
+        },
+        {
+          "name": "blame",
+          "type": "string",
+          "location": "query",
+          "description": "Include blame information in the response showing who last modified each field of the product. The blame information contains the user ID, timestamp, revision number, and value for each field. Set to a non-empty and non-0 value (e.g. 1 or true) to enable."
+        }
+      ]
+    }
+  ]
+}

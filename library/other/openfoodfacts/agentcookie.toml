@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "openfoodfacts-pp-cli"
+display_name = "Open Food Facts"
+description = "Every Open Food Facts read endpoint, plus a local calorie/macro diary, product compare, and offline search no other Open Food Facts tool has — free, no account, pipeable to jq."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/openfoodfacts-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+OPENFOODFACTS_USER_AGENT_AUTH = true

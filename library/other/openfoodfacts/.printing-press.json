@@ -1,0 +1,70 @@
+{
+  "api_name": "openfoodfacts",
+  "api_version": "2",
+  "auth_env_vars": [
+    "OPENFOODFACTS_USER_AGENT_AUTH"
+  ],
+  "auth_type": "api_key",
+  "category": "other",
+  "cli_name": "openfoodfacts-pp-cli",
+  "creator": {
+    "handle": "quickpre",
+    "name": "Pietro Cimmaruta"
+  },
+  "description": "Every Open Food Facts read endpoint, plus a local calorie/macro diary, product compare, and offline search no other Open Food Facts tool has — free, no account, pipeable to jq.",
+  "display_name": "Open Food Facts",
+  "generated_at": "2026-06-15T21:49:21.825074Z",
+  "mcp_binary": "openfoodfacts-pp-mcp",
+  "mcp_ready": "full",
+  "mcp_tool_count": 13,
+  "novel_features": [
+    {
+      "name": "Local macro diary + goal",
+      "command": "diary add",
+      "description": "Log foods by barcode and track running kcal/protein/fat/carbs against a daily goal — free, offline, scriptable."
+    },
+    {
+      "name": "Range diary report",
+      "command": "diary since",
+      "description": "Per-day macro totals and averages across a date range from the local diary."
+    },
+    {
+      "name": "Side-by-side compare",
+      "command": "compare",
+      "description": "Put two or more products side-by-side on per-100g nutriments, Nutri-Score, NOVA, Eco-Score, and sugar."
+    },
+    {
+      "name": "Healthier-alternative swap",
+      "command": "swap",
+      "description": "Given a product, find better-scoring items in the same category, ranked by Nutri-Score/NOVA."
+    },
+    {
+      "name": "Recipe/meal nutrition aggregation",
+      "command": "recipe",
+      "description": "Sum per-serving nutriments across multiple products into one recipe block plus a per-serving block."
+    },
+    {
+      "name": "Allergen-profile alert",
+      "command": "allergens set",
+      "description": "Store your allergens once, then check any product (and exit non-zero on) one whose allergens or traces match."
+    },
+    {
+      "name": "Diet-budget search",
+      "command": "budget",
+      "description": "Search constrained to the macros left in today's goal after what you've logged."
+    },
+    {
+      "name": "Offline nutriment ranking",
+      "command": "rank",
+      "description": "Rank synced products in a category by any nutriment, entirely from the local store."
+    }
+  ],
+  "owner": "quickpre",
+  "printer": "quickpre",
+  "printer_name": "Pietro Cimmaruta",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260615-201528",
+  "schema_version": 1,
+  "spec_checksum": "sha256:279793607ba36c97fb02fd5965ae2cce2fb317578e1b72e6615ebc48d32a78e2",
+  "spec_format": "openapi3"
+}

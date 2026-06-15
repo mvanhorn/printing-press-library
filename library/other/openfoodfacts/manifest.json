@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "openfoodfacts-pp-mcp",
+  "display_name": "Open Food Facts",
+  "version": "0.0.0",
+  "description": "Every Open Food Facts read endpoint, plus a local calorie/macro diary, product compare, and offline search no other Open Food Facts tool has — free, no account, pipeable to jq.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/openfoodfacts-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/openfoodfacts-pp-mcp",
+      "args": [],
+      "env": {
+        "OPENFOODFACTS_USER_AGENT_AUTH": "${user_config.openfoodfacts_user_agent_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "openfoodfacts_user_agent_auth": {
+      "type": "string",
+      "title": "OPENFOODFACTS_USER_AGENT_AUTH",
+      "description": "Sets OPENFOODFACTS_USER_AGENT_AUTH for the Open Food Facts MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

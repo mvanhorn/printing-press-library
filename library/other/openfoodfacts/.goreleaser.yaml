@@ -1,0 +1,51 @@
+version: 2
+project_name: openfoodfacts-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: openfoodfacts-pp-cli
+    main: ./cmd/openfoodfacts-pp-cli
+    binary: openfoodfacts-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/openfoodfacts/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: openfoodfacts-pp-mcp
+    main: ./cmd/openfoodfacts-pp-mcp
+    binary: openfoodfacts-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: openfoodfacts-pp-cli
+    repository:
+      owner: quickpre
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Open Food Facts read endpoint, plus a local calorie/macro diary, product compare"
+    install: |
+      bin.install "openfoodfacts-pp-cli"
+      bin.install "openfoodfacts-pp-mcp"

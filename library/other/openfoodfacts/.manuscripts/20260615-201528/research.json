@@ -1,0 +1,304 @@
+{
+  "api_name": "openfoodfacts",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "openfoodfacts-nodejs",
+      "url": "https://github.com/openfoodfacts/openfoodfacts-nodejs",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "openfoodfacts-python",
+      "url": "https://github.com/openfoodfacts/openfoodfacts-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "JagjeevanAK/OpenFoodFacts-MCP",
+      "url": "https://github.com/JagjeevanAK/OpenFoodFacts-MCP",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "nagarjun226/food-tracker-mcp",
+      "url": "https://github.com/nagarjun226/food-tracker-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "openfoodfacts/labelr",
+      "url": "https://github.com/openfoodfacts/labelr",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "angristan/openfoodfacts-api-c",
+      "url": "https://github.com/angristan/openfoodfacts-api-c",
+      "language": "C",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-15T18:40:00Z",
+  "novel_features": [
+    {
+      "name": "Local macro diary + goal",
+      "command": "diary add",
+      "description": "Log foods by barcode and track running kcal/protein/fat/carbs against a daily goal — free, offline, scriptable.",
+      "rationale": "OFF has no diary; this lives entirely in a local SQLite diary_entry/goal join. It is MyFitnessPal's paywalled core loop, rebuilt on open data.",
+      "example": "openfoodfacts-pp-cli diary add 3017620422003 --servings 1.5 \u0026\u0026 openfoodfacts-pp-cli diary today --agent",
+      "why_it_matters": "Reach for this when an agent needs to track or total a user's intake without an account, subscription, or network round-trip per query.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Range diary report",
+      "command": "diary since",
+      "description": "Per-day macro totals and averages across a date range from the local diary.",
+      "rationale": "Time-windowed aggregation over local diary rows — no single OFF API call produces it.",
+      "example": "openfoodfacts-pp-cli diary since 2026-06-08 --agent",
+      "why_it_matters": "Use when summarizing a week of intake or feeding macro trends into a planner.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Side-by-side compare",
+      "command": "compare",
+      "description": "Put two or more products side-by-side on per-100g nutriments, Nutri-Score, NOVA, Eco-Score, and sugar.",
+      "rationale": "Multi-product client-side table built from N barcode lookups; no OFF tool ships compare.",
+      "example": "openfoodfacts-pp-cli compare 3017620422003 7622210449283 --agent",
+      "why_it_matters": "Reach for this on store-brand-vs-name-brand or any 'which is healthier' decision.",
+      "group": "Decision tools"
+    },
+    {
+      "name": "Healthier-alternative swap",
+      "command": "swap",
+      "description": "Given a product, find better-scoring items in the same category, ranked by Nutri-Score/NOVA.",
+      "rationale": "Reads the product's category, runs a Nutri-Score-sorted category search, and ranks mechanically — no tool answers 'find a healthier alternative in this category'.",
+      "example": "openfoodfacts-pp-cli swap 3017620422003 --max-nova 3 --agent",
+      "why_it_matters": "Use when a user wants a concrete substitute, not just a verdict on what they're holding.",
+      "group": "Decision tools"
+    },
+    {
+      "name": "Recipe/meal nutrition aggregation",
+      "command": "recipe",
+      "description": "Sum per-serving nutriments across multiple products into one recipe block plus a per-serving block.",
+      "rationale": "Mechanical aggregation over batch lookups into agent-shaped JSON; OFF returns single products only.",
+      "example": "openfoodfacts-pp-cli recipe 3017620422003 7622210449283 --servings 4 --agent",
+      "why_it_matters": "Reach for this when an LLM meal-planner needs totaled nutrition for a composed dish.",
+      "group": "Decision tools"
+    },
+    {
+      "name": "Allergen-profile alert",
+      "command": "allergens set",
+      "description": "Store your allergens once, then check any product (and exit non-zero on) one whose allergens or traces match.",
+      "rationale": "Set-intersection of product allergens/traces against a stored local profile with a scriptable exit code — no consumer app offers an allergen gate you can pipe.",
+      "example": "openfoodfacts-pp-cli allergens set milk,gluten \u0026\u0026 openfoodfacts-pp-cli allergens check 3017620422003",
+      "why_it_matters": "Use as a guardrail in any flow that must refuse foods matching a fixed allergen list.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Diet-budget search",
+      "command": "budget",
+      "description": "Search constrained to the macros left in today's goal after what you've logged.",
+      "rationale": "Reads (goal − logged diary macros) from SQLite and injects the remaining headroom as nutrient-range filters on the live search — a cross-entity join of local state into an API query.",
+      "example": "openfoodfacts-pp-cli budget \"snack\" --agent",
+      "why_it_matters": "Reach for this to suggest foods that still fit a user's remaining daily budget.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Offline nutriment ranking",
+      "command": "rank",
+      "description": "Rank synced products in a category by any nutriment, entirely from the local store.",
+      "rationale": "Pure local SQLite query over the synced product/nutriment store — runs offline and dodges the rate limit.",
+      "example": "openfoodfacts-pp-cli rank --category breakfast-cereals --sort sugar --agent",
+      "why_it_matters": "Use for repeated comparisons across a category without burning the 10-req/min search budget.",
+      "group": "Reachability mitigation"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Local macro diary + goal",
+      "command": "diary add",
+      "description": "Log foods by barcode and track running kcal/protein/fat/carbs against a daily goal — free, offline, scriptable.",
+      "rationale": "OFF has no diary; this lives entirely in a local SQLite diary_entry/goal join. It is MyFitnessPal's paywalled core loop, rebuilt on open data.",
+      "example": "openfoodfacts-pp-cli diary add 3017620422003 --servings 1.5 \u0026\u0026 openfoodfacts-pp-cli diary today --agent",
+      "why_it_matters": "Reach for this when an agent needs to track or total a user's intake without an account, subscription, or network round-trip per query.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Range diary report",
+      "command": "diary since",
+      "description": "Per-day macro totals and averages across a date range from the local diary.",
+      "rationale": "Time-windowed aggregation over local diary rows — no single OFF API call produces it.",
+      "example": "openfoodfacts-pp-cli diary since 2026-06-08 --agent",
+      "why_it_matters": "Use when summarizing a week of intake or feeding macro trends into a planner.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Side-by-side compare",
+      "command": "compare",
+      "description": "Put two or more products side-by-side on per-100g nutriments, Nutri-Score, NOVA, Eco-Score, and sugar.",
+      "rationale": "Multi-product client-side table built from N barcode lookups; no OFF tool ships compare.",
+      "example": "openfoodfacts-pp-cli compare 3017620422003 7622210449283 --agent",
+      "why_it_matters": "Reach for this on store-brand-vs-name-brand or any 'which is healthier' decision.",
+      "group": "Decision tools"
+    },
+    {
+      "name": "Healthier-alternative swap",
+      "command": "swap",
+      "description": "Given a product, find better-scoring items in the same category, ranked by Nutri-Score/NOVA.",
+      "rationale": "Reads the product's category, runs a Nutri-Score-sorted category search, and ranks mechanically — no tool answers 'find a healthier alternative in this category'.",
+      "example": "openfoodfacts-pp-cli swap 3017620422003 --max-nova 3 --agent",
+      "why_it_matters": "Use when a user wants a concrete substitute, not just a verdict on what they're holding.",
+      "group": "Decision tools"
+    },
+    {
+      "name": "Recipe/meal nutrition aggregation",
+      "command": "recipe",
+      "description": "Sum per-serving nutriments across multiple products into one recipe block plus a per-serving block.",
+      "rationale": "Mechanical aggregation over batch lookups into agent-shaped JSON; OFF returns single products only.",
+      "example": "openfoodfacts-pp-cli recipe 3017620422003 7622210449283 --servings 4 --agent",
+      "why_it_matters": "Reach for this when an LLM meal-planner needs totaled nutrition for a composed dish.",
+      "group": "Decision tools"
+    },
+    {
+      "name": "Allergen-profile alert",
+      "command": "allergens set",
+      "description": "Store your allergens once, then check any product (and exit non-zero on) one whose allergens or traces match.",
+      "rationale": "Set-intersection of product allergens/traces against a stored local profile with a scriptable exit code — no consumer app offers an allergen gate you can pipe.",
+      "example": "openfoodfacts-pp-cli allergens set milk,gluten \u0026\u0026 openfoodfacts-pp-cli allergens check 3017620422003",
+      "why_it_matters": "Use as a guardrail in any flow that must refuse foods matching a fixed allergen list.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Diet-budget search",
+      "command": "budget",
+      "description": "Search constrained to the macros left in today's goal after what you've logged.",
+      "rationale": "Reads (goal − logged diary macros) from SQLite and injects the remaining headroom as nutrient-range filters on the live search — a cross-entity join of local state into an API query.",
+      "example": "openfoodfacts-pp-cli budget \"snack\" --agent",
+      "why_it_matters": "Reach for this to suggest foods that still fit a user's remaining daily budget.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Offline nutriment ranking",
+      "command": "rank",
+      "description": "Rank synced products in a category by any nutriment, entirely from the local store.",
+      "rationale": "Pure local SQLite query over the synced product/nutriment store — runs offline and dodges the rate limit.",
+      "example": "openfoodfacts-pp-cli rank --category breakfast-cereals --sort sugar --agent",
+      "why_it_matters": "Use for repeated comparisons across a category without burning the 10-req/min search budget.",
+      "group": "Reachability mitigation"
+    }
+  ],
+  "narrative": {
+    "display_name": "Open Food Facts",
+    "headline": "Every Open Food Facts read endpoint, plus a local calorie/macro diary, product compare, and offline search no other Open Food Facts tool has — free, no account, pipeable to jq.",
+    "value_prop": "A general-purpose Go CLI for the Open Food Facts database: barcode lookup, filtered search, Nutri-Score/NOVA/Eco-Score, additives and allergens, with a built-in mandatory User-Agent and an adaptive rate limiter so you don't get throttled or banned. On top of the API it adds what the consumer apps charge for: a local SQLite food diary (diary), healthier-alternative lookup (swap), product comparison (compare), and offline ranking/search that bypass the rate limit entirely.",
+    "auth_narrative": "No API key, no account, no OAuth. Open Food Facts read endpoints are open data. The only requirement is a well-formed User-Agent, which the CLI sets automatically and lets you override with --user-agent or OPENFOODFACTS_USER_AGENT.",
+    "quickstart": [
+      {
+        "command": "openfoodfacts-pp-cli product 3017620422003 --compact",
+        "comment": "Scan-and-judge: kcal, Nutri-Score, NOVA, additives, allergens for one barcode."
+      },
+      {
+        "command": "openfoodfacts-pp-cli find --categories-tags en:yogurts --agent",
+        "comment": "Find products by category tag against the live API, agent-shaped JSON."
+      },
+      {
+        "command": "openfoodfacts-pp-cli compare 3017620422003 7622210449283",
+        "comment": "Two products side-by-side on scores and per-100g nutriments."
+      },
+      {
+        "command": "openfoodfacts-pp-cli diary add 3017620422003 --servings 1.5",
+        "comment": "Log a food to the local diary."
+      },
+      {
+        "command": "openfoodfacts-pp-cli diary today",
+        "comment": "Running kcal/macro totals vs your daily goal."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 429 or 503 from the API",
+        "fix": "You hit the per-IP rate limit (15/min reads, 10/min search). The CLI backs off automatically; for bulk work run `sync` once then query with `--local` / `rank` / `sql` offline."
+      },
+      {
+        "symptom": "Requests rejected or empty as a suspected bot",
+        "fix": "Set a contactable User-Agent: `export OPENFOODFACTS_USER_AGENT='myapp/1.0 (me@example.com)'`. Run `doctor` to confirm it's set."
+      },
+      {
+        "symptom": "Product has no Nutri-Score or missing nutriments",
+        "fix": "Open Food Facts data is crowd-sourced; many products are partial. Nutri-Score needs a category. The CLI emits null fields rather than failing — check `product \u003ccode\u003e --fields nutriments,categories`."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or script needs nutrition facts for a packaged food without an API key, account, or paid tier — barcode lookups, name search with nutrient filters, Nutri-Score/NOVA/additive/allergen data, or a local calorie/macro diary. It is the right choice over a raw HTTP call because it ships rate-limit safety, a mandatory User-Agent, offline search, and aggregation primitives (compare, recipe, diary) the bare API lacks.",
+    "recipes": [
+      {
+        "title": "Aisle verdict with allergen gate",
+        "command": "openfoodfacts-pp-cli allergens set milk,gluten \u0026\u0026 openfoodfacts-pp-cli allergens check 3017620422003",
+        "explanation": "Store your allergens once, then `allergens check` flags a HIT and exits non-zero when the product matches — a scriptable buy/skip gate."
+      },
+      {
+        "title": "Daily macro loop",
+        "command": "openfoodfacts-pp-cli diary goal --kcal 2000 --protein 150 \u0026\u0026 openfoodfacts-pp-cli diary add 3017620422003 --servings 2 \u0026\u0026 openfoodfacts-pp-cli diary today --agent",
+        "explanation": "Set a goal, log foods by barcode, and read running totals vs the goal — MyFitnessPal's core loop, free and offline."
+      },
+      {
+        "title": "Healthier swap in a category",
+        "command": "openfoodfacts-pp-cli swap 3017620422003 --max-nova 3 --agent",
+        "explanation": "Find better-scoring products in the same category as a given barcode, ranked by Nutri-Score."
+      },
+      {
+        "title": "Narrow a deep payload with --select",
+        "command": "openfoodfacts-pp-cli find --categories-tags en:chocolate-biscuits --agent --select products.code,products.product_name,products.nutriscore_grade",
+        "explanation": "Search responses carry tens of KB per page; dotted --select paths return only the fields an agent needs, keeping context small."
+      },
+      {
+        "title": "Offline ranking without burning rate limit",
+        "command": "openfoodfacts-pp-cli sync --resources find \u0026\u0026 openfoodfacts-pp-cli rank --sort sugar --agent",
+        "explanation": "Sync a category to SQLite once, then rank by any nutriment offline — no repeated API calls, no throttling."
+      }
+    ],
+    "trigger_phrases": [
+      "look up this barcode",
+      "nutrition facts for",
+      "check the Nutri-Score of",
+      "log this food to my diary",
+      "find a healthier alternative to",
+      "compare these two products",
+      "use openfoodfacts",
+      "run openfoodfacts"
+    ]
+  }
+}
