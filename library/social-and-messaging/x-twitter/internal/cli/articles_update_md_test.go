@@ -385,8 +385,8 @@ func TestUpdateMarkdownArticlePublishedRequiresRepublish(t *testing.T) {
 		articleID:    "111",
 		contentState: MarkdownBodyToDraftJS("body"),
 	})
-	if err == nil || !strings.Contains(err.Error(), "--republish") {
-		t.Fatalf("expected published-article refusal advising --republish, got %v", err)
+	if err == nil || !strings.Contains(err.Error(), "articles update-md <markdown-file> --article-id 111 --republish") {
+		t.Fatalf("expected published-article refusal to name update-md --republish, got %v", err)
 	}
 	if len(poster.calls) != 0 {
 		t.Fatalf("expected no mutations, got %v", poster.ops())
