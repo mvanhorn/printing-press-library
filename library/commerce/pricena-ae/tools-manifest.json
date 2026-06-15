@@ -1,0 +1,73 @@
+{
+  "api_name": "pricena-ae",
+  "base_url": "https://ae.pricena.com",
+  "description": "Unofficial HTML surface for ae.pricena.com product search and product detail pages.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "products_get",
+      "description": "Fetch a product detail page. Required: slug.",
+      "method": "GET",
+      "path": "/en/product/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_search",
+      "description": "Search Pricena UAE products. Required: s. Optional: page.",
+      "method": "GET",
+      "path": "/search/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "s",
+          "type": "string",
+          "location": "query",
+          "description": "S",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "products_search-english",
+      "description": "Search Pricena UAE products in English locale. Required: s. Optional: page.",
+      "method": "GET",
+      "path": "/en/search/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "s",
+          "type": "string",
+          "location": "query",
+          "description": "S",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    }
+  ]
+}

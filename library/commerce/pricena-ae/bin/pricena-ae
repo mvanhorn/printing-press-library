@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+"""Agent-friendly Pricena UAE CLI.
+
+Scaffold/spec generated with cli-printing-press; this wrapper adds the useful
+HTML extraction layer because Pricena exposes product/search data as public HTML.
+"""
+import argparse, base64, html, json, re, sys, time
+from urllib.parse import quote, urljoin
+from urllib.request import Request, urlopen
+from urllib.error import HTTPError, URLError
+
+BASE = "https://ae.pricena.com"
+UA = "pricena-ae-pp-cli/0.1 (+agent; public html fetch)"
+ES_URL = "https://balin-eu-west-1.searchly.com/autocomplete/_search"
+ES_AUTH = "get:c4ruacuyvfzgzrggdvithisxp1xlvexz"  # public autocomplete credential exposed by Pricena web UI
+
+class Exit:
+    USAGE=2; NOT_FOUND=3; NETWORK=5; BLOCKED=7
+
+def fetch(url, timeout=30):
+    req = Request(url, headers={"User-Agent": UA, "Accept": "text/html,application/xhtml+xml"})
+    try:
+        with urlopen(req, timeout=timeout) as r:
+            body = r.read().decode("utf-8", "ignore")
+            return r.status, r.geturl(), body
+    except HTTPError as e:
+        body = e.read().decode("utf-8", "ignore")
+        if e.code in (403, 429) or "cloudflare" in body.lower() or "security verification" in body.lower():
+            raise RuntimeError(f"blocked:{e.code}")
+        return e.code, e.geturl(), body
+    except URLError as e:
+        raise RuntimeError(f"network:{e}")
+
+def clean(s):
+    if s is None: return None
+    s = html.unescape(re.sub(r"\s+", " ", str(s))).strip()
+    return s or None
+
+def attrs(tag):
+    return {m.group(1).replace("-","_"): clean(m.group(2)) for m in re.finditer(r'([\w-]+)="([^"]*)"', tag)}
+
+def title_from(body):
+    m = re.search(r"<title>(.*?)</title>", body, re.I|re.S)
+    return clean(m.group(1)) if m else None
+
+def parse_offers(body, limit):
+    out=[]
+    for m in re.finditer(r'<button\b[^>]*class="[^"]*green-button[^"]*"[^>]*>', body, re.I):
+        a=attrs(m.group(0))
+        if not a.get("data_productname") and not a.get("data_price"): continue
+        price = None
+        try: price = float(a["data_price"]) if a.get("data_price") else None
+        except ValueError: pass
+        slug = a.get("data_productseo") or a.get("data_src")
+        out.append({
+            "product": a.get("data_productname"),
+            "store": a.get("data_storename"),
+            "price": price,
+            "currency": "AED" if price is not None else None,
+            "shipping": None,
+            "slug": slug,
+            "product_id": a.get("data_product"),
+            "store_id": a.get("data_store"),
+            "rank": int(a["data_srank"]) if str(a.get("data_srank","")).isdigit() else None,
+            "featured": a.get("data_featured") == "1",
+            "url": urljoin(BASE, f"/en/product/{slug}") if slug else None,
+        })
+        if len(out) >= limit: break
+    # De-dupe exact store/product/price repeats.
+    seen=set(); dedup=[]
+    for x in out:
+        k=(x.get("product"),x.get("store"),x.get("price"))
+        if k not in seen:
+            seen.add(k); dedup.append(x)
+    return dedup
+
+def autocomplete(query, limit, timeout):
+    payload = {
+        "size": limit,
+        "query": {"multi_match": {"query": query, "fields": ["brandmodel^5", "keyword^4", "name^4", "cat^3", "brand^3", "slug"]}},
+        "sort": [{"_score": {"order": "desc"}}, {"popularity": {"order": "desc"}}],
+    }
+    req = Request(ES_URL, data=json.dumps(payload).encode(), headers={
+        "Content-Type": "application/json",
+        "Authorization": "Basic " + base64.b64encode(ES_AUTH.encode()).decode(),
+    })
+    with urlopen(req, timeout=timeout) as r:
+        data = json.load(r)
+    suggestions=[]
+    for hit in data.get("hits", {}).get("hits", []):
+        src=hit.get("_source", {}); typ=hit.get("_type") or hit.get("_index")
+        slug=src.get("slug")
+        name=src.get("brandmodel") or src.get("keyword") or src.get("name") or src.get("brand") or src.get("cat")
+        suggestions.append({"type": typ, "name": name, "slug": slug, "url": urljoin(BASE, f"/en/product/{slug}") if slug else None, "popularity": src.get("popularity")})
+    return suggestions
+
+def cmd_search(args):
+    url = f"{BASE}/en/search/?s={quote(args.query)}"
+    try:
+        status, final_url, body = fetch(url, args.timeout)
+        offers = parse_offers(body, args.limit)
+        result = {"query": args.query, "source_url": final_url, "status": status, "title": title_from(body), "offers": offers}
+        if not offers:
+            result["suggestions"] = autocomplete(args.query, args.limit, args.timeout)
+            result["warning"] = "No offers parsed; returned Pricena autocomplete suggestions instead."
+    except RuntimeError as e:
+        if not str(e).startswith('blocked:'):
+            raise
+        result = {"query": args.query, "source": "pricena-autocomplete", "offers": [], "suggestions": autocomplete(args.query, args.limit, args.timeout), "warning": "Pricena HTML was blocked by Cloudflare from this host; prices unavailable, returned product suggestions."}
+    emit(result, args)
+
+def cmd_details(args):
+    slug = args.slug.strip().strip('/')
+    if slug.startswith('http'):
+        url = slug
+    else:
+        slug = slug.replace('/en/product/','')
+        url = urljoin(BASE, f"/en/product/{slug}")
+    status, final_url, body = fetch(url, args.timeout)
+    offers = parse_offers(body, args.limit)
+    emit({"slug": slug, "source_url": final_url, "status": status, "title": title_from(body), "offers": offers}, args)
+
+def emit(obj, args):
+    if getattr(args, 'compact', False):
+        def slim_offer(o):
+            return {k:o.get(k) for k in ("product","store","price","currency","slug","url") if o.get(k) is not None}
+        if "offers" in obj: obj["offers"]=[slim_offer(o) for o in obj["offers"]]
+    print(json.dumps(obj, ensure_ascii=False, separators=((',',':') if getattr(args,'compact',False) else (', ', ': ')), indent=None if getattr(args,'compact',False) else 2))
+
+def main():
+    p=argparse.ArgumentParser(description="Search Pricena UAE prices/offers (unofficial public HTML scraper).")
+    p.add_argument('--json', action='store_true', help='Always JSON; accepted for agent convention')
+    p.add_argument('--compact', action='store_true', help='Compact JSON')
+    sub=p.add_subparsers(dest='cmd', required=True)
+    common=argparse.ArgumentParser(add_help=False)
+    common.add_argument('--json', action='store_true', help='Always JSON; accepted for agent convention')
+    common.add_argument('--compact', action='store_true', help='Compact JSON')
+    s=sub.add_parser('search', parents=[common], help='Search product offers')
+    s.add_argument('query'); s.add_argument('--limit', type=int, default=10); s.add_argument('--timeout', type=int, default=30); s.set_defaults(fn=cmd_search)
+    d=sub.add_parser('details', parents=[common], help='Fetch offers for a product slug or URL')
+    d.add_argument('slug'); d.add_argument('--limit', type=int, default=20); d.add_argument('--timeout', type=int, default=30); d.set_defaults(fn=cmd_details)
+    a=p.parse_args()
+    try:
+        a.fn(a)
+    except RuntimeError as e:
+        msg=str(e)
+        if msg.startswith('blocked:'):
+            print(json.dumps({"error":"blocked", "detail":msg, "hint":"Pricena/Cloudflare blocked this request; retry later."}), file=sys.stderr); sys.exit(Exit.BLOCKED)
+        print(json.dumps({"error":"network", "detail":msg}), file=sys.stderr); sys.exit(Exit.NETWORK)
+
+if __name__ == '__main__': main()

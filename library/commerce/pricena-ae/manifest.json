@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "pricena-ae-pp-mcp",
+  "display_name": "Pricena Uae Public",
+  "version": "0.0.0",
+  "description": "Unofficial HTML surface for ae.pricena.com product search and product detail pages.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/pricena-ae-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/pricena-ae-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

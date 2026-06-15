@@ -1,0 +1,34 @@
+{
+  "api_name": "pricena-ae",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "category": "commerce",
+  "cli_name": "pricena-ae-pp-cli",
+  "creator": {
+    "handle": "aamin-labs",
+    "name": "Hugo Rossi"
+  },
+  "description": "Unofficial HTML surface for ae.pricena.com product search and product detail pages.",
+  "display_name": "Pricena Uae Public",
+  "generated_at": "2026-06-15T06:21:30.493357Z",
+  "mcp_binary": "pricena-ae-pp-mcp",
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "full",
+  "mcp_tool_count": 3,
+  "novel_features": [
+    {
+      "name": "search, details, and autocomplete fallback for pricena uae price comparison",
+      "command": "products search / products get",
+      "description": "Search, details, and autocomplete fallback for Pricena UAE price comparison."
+    }
+  ],
+  "owner": "aamin-labs",
+  "printer": "aamin-labs",
+  "printer_name": "Hugo Rossi",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260615-062130",
+  "schema_version": 1,
+  "spec_checksum": "sha256:57c3de7096277004847026f8ea18885493c1c3f3ba72fc70312246f0cfd66d0d",
+  "spec_format": "openapi3",
+  "spec_path": "pricena-ae-openapi.yaml"
+}

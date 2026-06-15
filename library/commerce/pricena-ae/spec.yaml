@@ -1,0 +1,74 @@
+openapi: 3.0.3
+info:
+  title: Pricena UAE public web
+  version: 0.1.0
+  description: Unofficial HTML surface for ae.pricena.com product search and product detail pages.
+servers:
+  - url: https://ae.pricena.com
+paths:
+  /search/:
+    get:
+      operationId: searchProducts
+      x-pp-resource: products
+      summary: Search Pricena UAE products
+      parameters:
+        - name: s
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Search results HTML
+          content:
+            text/html:
+              schema:
+                type: string
+  /en/search/:
+    get:
+      operationId: searchProductsEnglish
+      x-pp-resource: products
+      summary: Search Pricena UAE products in English locale
+      parameters:
+        - name: s
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Search results HTML
+          content:
+            text/html:
+              schema:
+                type: string
+  /en/product/{slug}:
+    get:
+      operationId: getProduct
+      x-pp-resource: products
+      summary: Fetch a product detail page
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product detail HTML
+          content:
+            text/html:
+              schema:
+                type: string
