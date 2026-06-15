@@ -43,10 +43,25 @@ func TestTrendAndInferPrevious(t *testing.T) {
 	if ps != "14daysAgo" || pe != "8daysAgo" {
 		t.Fatalf("bad previous: %s %s", ps, pe)
 	}
+	ps, pe = inferPrevious("2026-05-01", "2026-05-31", "trailing")
+	if ps != "2026-03-31" || pe != "2026-04-30" {
+		t.Fatalf("bad absolute previous window: %s %s", ps, pe)
+	}
 }
 func TestWhatsChangedRankingMagnitude(t *testing.T) {
 	movers := []map[string]any{{"largest_pct_change": -2.0}, {"largest_pct_change": 0.5}}
 	if !(abs(toFloat(movers[0]["largest_pct_change"])) > abs(toFloat(movers[1]["largest_pct_change"]))) {
 		t.Fatal("expected absolute pct ranking")
+	}
+}
+
+func TestPreviousWindowRejectsPartialExplicitPreviousPeriod(t *testing.T) {
+	_, _, err := previousWindow("2026-05-01", "2026-05-31", "2026-04-01", "", "trailing")
+	if err == nil {
+		t.Fatal("expected partial previous-period input to fail")
+	}
+	ps, pe, err := previousWindow("2026-05-01", "2026-05-31", "2026-04-01", "2026-04-30", "trailing")
+	if err != nil || ps != "2026-04-01" || pe != "2026-04-30" {
+		t.Fatalf("bad explicit previous window: %s %s %v", ps, pe, err)
 	}
 }

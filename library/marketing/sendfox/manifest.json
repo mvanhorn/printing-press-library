@@ -1,0 +1,40 @@
+{
+  "manifest_version": "0.3",
+  "name": "sendfox-pp-mcp",
+  "display_name": "SendFox",
+  "version": "4.20.1",
+  "description": "Manage SendFox contacts, lists, campaigns, audience snapshots, bulk imports, and signup-form handoffs from the terminal.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/sendfox-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/sendfox-pp-mcp",
+      "args": [],
+      "env": {
+        "SENDFOX_API_TOKEN": "${user_config.sendfox_api_token}",
+        "SENDFOX_BEARER_AUTH": "${user_config.sendfox_api_token}"
+      }
+    }
+  },
+  "user_config": {
+    "sendfox_api_token": {
+      "type": "string",
+      "title": "SENDFOX_API_TOKEN",
+      "description": "SendFox personal access token from https://sendfox.com/account/oauth.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

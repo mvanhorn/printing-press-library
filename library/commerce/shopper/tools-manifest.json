@@ -1,0 +1,340 @@
+{
+  "api_name": "shopper",
+  "base_url": "https://siteapi.shopper.com.br",
+  "description": "The first CLI for Shopper — every catalog, cart, and delivery surface plus a local price/basket history the web app throws away each cycle.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {SHOPPER_TOKEN}",
+    "in": "header",
+    "env_vars": [
+      "SHOPPER_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SHOPPER_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "address_list_address",
+      "description": "GET /address/. Returns the address.",
+      "method": "GET",
+      "path": "/address/",
+      "params": []
+    },
+    {
+      "name": "cart_add",
+      "description": "Add a product to the cart or increase its quantity. Required: id, quantity. Optional: engine. Returns the new cart.",
+      "method": "POST",
+      "path": "/cart/add",
+      "params": [
+        {
+          "name": "id",
+          "type": "integer",
+          "location": "body",
+          "description": "Product ID to add",
+          "required": true
+        },
+        {
+          "name": "quantity",
+          "type": "integer",
+          "location": "body",
+          "description": "Quantity to add (increments existing)",
+          "required": true
+        },
+        {
+          "name": "engine",
+          "type": "string",
+          "location": "body",
+          "description": "Catalog engine (default SHOPPER)"
+        }
+      ]
+    },
+    {
+      "name": "cart_list_summary",
+      "description": "GET /cart/summary. Returns the summary.",
+      "method": "GET",
+      "path": "/cart/summary",
+      "params": []
+    },
+    {
+      "name": "cart_remove",
+      "description": "Remove a product from the cart or decrease its quantity. Required: id, quantity. Returns the new cart.",
+      "method": "POST",
+      "path": "/cart/remove",
+      "params": [
+        {
+          "name": "id",
+          "type": "integer",
+          "location": "body",
+          "description": "Product ID to remove",
+          "required": true
+        },
+        {
+          "name": "quantity",
+          "type": "integer",
+          "location": "body",
+          "description": "Quantity to remove (decrements; full qty removes the line)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "catalog_create_count",
+      "description": "POST /catalog/search/count. Required: brands, metadata, types. Optional: query. Returns the new count.",
+      "method": "POST",
+      "path": "/catalog/search/count",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "brands",
+          "type": "array",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "array",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "types",
+          "type": "array",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "catalog_create_filters",
+      "description": "POST /catalog/search/filters. Required: brands, metadata, types. Optional: query. Returns the new filters.",
+      "method": "POST",
+      "path": "/catalog/search/filters",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "brands",
+          "type": "array",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "array",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "types",
+          "type": "array",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "catalog_create_search",
+      "description": "POST /catalog/search. Required: brands, metadata, types. Optional: page, query, size. Returns the new search.",
+      "method": "POST",
+      "path": "/catalog/search",
+      "params": [
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "size",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "brands",
+          "type": "array",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "array",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "types",
+          "type": "array",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "catalog_get_view",
+      "description": "GET /catalog/banners/{banner_id}/view. Required: banner_id. Returns the view.",
+      "method": "GET",
+      "path": "/catalog/banners/{banner_id}/view",
+      "params": [
+        {
+          "name": "banner_id",
+          "type": "string",
+          "location": "path",
+          "description": "The banner_id path segment",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "catalog_list_banners",
+      "description": "GET /catalog/banners. Optional: imageSize. Returns the banners.",
+      "method": "GET",
+      "path": "/catalog/banners",
+      "params": [
+        {
+          "name": "imageSize",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "catalog_list_departments",
+      "description": "GET /catalog/departments. Returns the departments.",
+      "method": "GET",
+      "path": "/catalog/departments",
+      "params": []
+    },
+    {
+      "name": "catalog_list_news",
+      "description": "GET /catalog/products/news. Returns the news.",
+      "method": "GET",
+      "path": "/catalog/products/news",
+      "params": []
+    },
+    {
+      "name": "catalog_list_suggest",
+      "description": "GET /catalog/search/suggest. Optional: query. Returns the suggest.",
+      "method": "GET",
+      "path": "/catalog/search/suggest",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "delivery_list_calendar",
+      "description": "GET /delivery/v2/calendar. Returns the calendar.",
+      "method": "GET",
+      "path": "/delivery/v2/calendar",
+      "params": []
+    },
+    {
+      "name": "delivery_list_summary",
+      "description": "GET /delivery/summary. Returns the summary.",
+      "method": "GET",
+      "path": "/delivery/summary",
+      "params": []
+    },
+    {
+      "name": "features_create_select",
+      "description": "POST /features/stores/select. Required: store_id. Returns the new select.",
+      "method": "POST",
+      "path": "/features/stores/select",
+      "params": [
+        {
+          "name": "store_id",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "features_create_start",
+      "description": "POST /features/timer/start. Required: name. Returns the new start.",
+      "method": "POST",
+      "path": "/features/timer/start",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "features_create_view",
+      "description": "POST /features/toggle/view. Required: toggle. Returns the new view.",
+      "method": "POST",
+      "path": "/features/toggle/view",
+      "params": [
+        {
+          "name": "toggle",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "features_list_stores",
+      "description": "GET /features/stores. Optional: toggles. Returns the stores.",
+      "method": "GET",
+      "path": "/features/stores",
+      "params": [
+        {
+          "name": "toggles",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "features_list_tick",
+      "description": "GET /features/timer/tick. Returns the tick.",
+      "method": "GET",
+      "path": "/features/timer/tick",
+      "params": []
+    },
+    {
+      "name": "features_list_toggle",
+      "description": "GET /features/toggle. Returns the toggle.",
+      "method": "GET",
+      "path": "/features/toggle",
+      "params": []
+    },
+    {
+      "name": "session_list_social",
+      "description": "GET /auth/validation/social. Returns the social.",
+      "method": "GET",
+      "path": "/auth/validation/social",
+      "params": []
+    }
+  ]
+}

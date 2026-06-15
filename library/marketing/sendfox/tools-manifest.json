@@ -1,0 +1,211 @@
+{
+  "api_name": "sendfox",
+  "base_url": "https://api.sendfox.com",
+  "description": "SendFox email marketing API for authenticated user details, contact lists,\ncontacts, unsubscribe operations, and campaign reads.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "SENDFOX_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SENDFOX_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "campaigns_get",
+      "description": "Get campaign by ID. Required: campaign_id. Returns the Campaign.",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Campaign id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_list",
+      "description": "List campaigns. Optional: page. Returns array of Campaign.",
+      "method": "GET",
+      "path": "/campaigns",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for paginated responses"
+        }
+      ]
+    },
+    {
+      "name": "contacts_create",
+      "description": "Create a contact. Required: email. Optional: first_name, last_name, lists. Returns array of int.",
+      "method": "POST",
+      "path": "/contacts",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "First name"
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Last name"
+        },
+        {
+          "name": "lists",
+          "type": "array",
+          "location": "body",
+          "description": "Lists"
+        }
+      ]
+    },
+    {
+      "name": "contacts_get",
+      "description": "Get a contact by ID. Required: contact_id. Returns array of int.",
+      "method": "GET",
+      "path": "/contacts/{contact_id}",
+      "params": [
+        {
+          "name": "contact_id",
+          "type": "int",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_list",
+      "description": "List contacts or find a contact by email. Optional: page, email.",
+      "method": "GET",
+      "path": "/contacts",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for paginated responses"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "Contact email address to find"
+        }
+      ]
+    },
+    {
+      "name": "lists_create",
+      "description": "Create a contact list. Required: name. Returns the new List.",
+      "method": "POST",
+      "path": "/lists",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_get",
+      "description": "Get a contact list by ID. Required: list_id. Returns the List.",
+      "method": "GET",
+      "path": "/lists/{list_id}",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "int",
+          "location": "path",
+          "description": "List id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_list_lists",
+      "description": "List contact lists. Optional: page. Returns array of List.",
+      "method": "GET",
+      "path": "/lists",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for paginated responses"
+        }
+      ]
+    },
+    {
+      "name": "lists_contacts_remove-from-list",
+      "description": "Remove a contact from a list. Required: list_id, contact_id. Returns the GenericResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/lists/{list_id}/contacts/{contact_id}",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "int",
+          "location": "path",
+          "description": "List id",
+          "required": true
+        },
+        {
+          "name": "contact_id",
+          "type": "int",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_get",
+      "description": "Get authenticated user. Returns the User.",
+      "method": "GET",
+      "path": "/me",
+      "params": []
+    },
+    {
+      "name": "unsubscribe_contact",
+      "description": "Unsubscribe a contact by email. Required: email. Returns the updated GenericResponse.",
+      "method": "PATCH",
+      "path": "/unsubscribe",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

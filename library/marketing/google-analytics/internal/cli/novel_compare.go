@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/spf13/cobra"
@@ -10,11 +11,16 @@ func newCompareCmd(flags *rootFlags) *cobra.Command {
 	var start, end, prevStart, prevEnd, period, metrics, dims string
 	var limit int
 	c := &cobra.Command{Use: "compare", Short: "Period-over-period deltas and percent change without doing two calls manually", RunE: func(cmd *cobra.Command, args []string) error {
-		if start == "" || end == "" {
-			start, end = "7daysAgo", "yesterday"
+		if start == "" {
+			start = "7daysAgo"
 		}
-		if prevStart == "" || prevEnd == "" {
-			prevStart, prevEnd = inferPrevious(start, end, period)
+		if end == "" {
+			end = "yesterday"
+		}
+		var err error
+		prevStart, prevEnd, err = previousWindow(start, end, prevStart, prevEnd, period)
+		if err != nil {
+			return err
 		}
 		dimList := splitCSV(dims)
 		reqA := reportRequest(metrics, dims, start, end, limit)
@@ -41,6 +47,7 @@ func newCompareCmd(flags *rootFlags) *cobra.Command {
 	c.Flags().StringVar(&period, "period", "wow", "If previous dates absent: wow, mom, or trailing")
 	c.Flags().StringVar(&metrics, "metrics", "sessions,totalUsers,conversions,totalRevenue", "Metrics")
 	c.Flags().StringVar(&metrics, "metric", "sessions,totalUsers,conversions,totalRevenue", "Alias for --metrics")
+	_ = c.Flags().MarkHidden("metric")
 	c.Flags().StringVar(&dims, "dimensions", "", "Optional dimensions to compare by")
 	c.Flags().IntVar(&limit, "limit", 25, "Rows per report")
 	return c
@@ -52,8 +59,10 @@ func newWhatsChangedCmd(flags *rootFlags) *cobra.Command {
 		if dims == "" {
 			dims = "sessionDefaultChannelGroup,sessionSourceMedium,landingPagePlusQueryString"
 		}
-		if prevStart == "" || prevEnd == "" {
-			prevStart, prevEnd = inferPrevious(start, end, period)
+		var err error
+		prevStart, prevEnd, err = previousWindow(start, end, prevStart, prevEnd, period)
+		if err != nil {
+			return err
 		}
 		movers := []map[string]any{}
 		for _, dim := range splitCSV(dims) {
@@ -91,4 +100,15 @@ func newWhatsChangedCmd(flags *rootFlags) *cobra.Command {
 	c.Flags().StringVar(&dims, "dimensions", "", "Dimensions to scan")
 	c.Flags().IntVar(&limit, "limit", 20, "Movers")
 	return c
+}
+
+func previousWindow(start, end, prevStart, prevEnd, period string) (string, string, error) {
+	if (prevStart == "") != (prevEnd == "") {
+		return "", "", fmt.Errorf("pass both --previous-start and --previous-end, or omit both to infer the previous period")
+	}
+	if prevStart != "" {
+		return prevStart, prevEnd, nil
+	}
+	ps, pe := inferPrevious(start, end, period)
+	return ps, pe, nil
 }

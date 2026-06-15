@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "intervals-icu-pp-mcp",
+  "display_name": "Intervals.icu",
+  "version": "4.20.1",
+  "description": "The first intervals.icu CLI with a local training database — offline search, SQL, and fitness/form analytics no other tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/intervals-icu-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/intervals-icu-pp-mcp",
+      "args": [],
+      "env": {
+        "INTERVALS_ICU_API_KEY": "${user_config.intervals_icu_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "intervals_icu_api_key": {
+      "type": "string",
+      "title": "INTERVALS_ICU_API_KEY",
+      "description": "Sets INTERVALS_ICU_API_KEY for the Intervals.icu MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "shopping-greptile-review-fixes",
+  "applied_at": "2026-06-05",
+  "base_run_id": "20260605-212010",
+  "base_printing_press_version": "4.22.1",
+  "summary": "Fixed two Greptile findings: watch status now uses the most-recent price point (deduped against the current products price) as the previous observation so the delta spans one change; price-drops skips points with an unparseable timestamp.",
+  "reason": "P1: when index runs without --price-history, products.current_price is fresher than the latest recorded point, so the delta was spanning two changes. P2: a malformed ts parsed to the zero time and won baseline selection, corrupting drop rankings.",
+  "files": [
+    "internal/cli/watch_status.go",
+    "internal/cli/price_drops.go",
+    "internal/cli/watch_status_test.go",
+    "internal/cli/price_drops_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli/ green incl. new regression tests TestNovelWatchStatusProductsDivergeFromHistory + TestNovelPriceDropsSkipsMalformedTimestamp; live dogfood 76/0.",
+  "upstream_issue": ""
+}

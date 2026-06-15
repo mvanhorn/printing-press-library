@@ -134,6 +134,7 @@ type ReportResponse struct {
 
 type AccountSummariesResponse struct {
 	AccountSummaries []AccountSummary `json:"accountSummaries,omitempty"`
+	NextPageToken    string           `json:"nextPageToken,omitempty"`
 }
 type AccountSummary struct {
 	Name              string            `json:"name,omitempty"`

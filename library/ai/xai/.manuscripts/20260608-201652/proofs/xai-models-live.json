@@ -1,0 +1,106 @@
+{
+  "meta": {
+    "source": "live"
+  },
+  "results": {
+    "data": [
+      {
+        "id": "grok-4.20-0309-non-reasoning",
+        "created": 1773014400,
+        "object": "model",
+        "owned_by": "xai",
+        "prompt_text_token_price": 12500,
+        "cached_prompt_text_token_price": 2000,
+        "prompt_image_token_price": 12500,
+        "completion_text_token_price": 25000,
+        "prompt_text_token_price_long_context": 25000,
+        "cached_prompt_text_token_price_long_context": 4000,
+        "completion_text_token_price_long_context": 50000,
+        "long_context_threshold": 200000
+      },
+      {
+        "id": "grok-4.20-0309-reasoning",
+        "created": 1773014400,
+        "object": "model",
+        "owned_by": "xai",
+        "prompt_text_token_price": 12500,
+        "cached_prompt_text_token_price": 2000,
+        "prompt_image_token_price": 12500,
+        "completion_text_token_price": 25000,
+        "prompt_text_token_price_long_context": 25000,
+        "cached_prompt_text_token_price_long_context": 4000,
+        "completion_text_token_price_long_context": 50000,
+        "long_context_threshold": 200000
+      },
+      {
+        "id": "grok-4.20-multi-agent-0309",
+        "created": 1773014400,
+        "object": "model",
+        "owned_by": "xai",
+        "prompt_text_token_price": 12500,
+        "cached_prompt_text_token_price": 2000,
+        "prompt_image_token_price": 12500,
+        "completion_text_token_price": 25000,
+        "prompt_text_token_price_long_context": 25000,
+        "cached_prompt_text_token_price_long_context": 4000,
+        "completion_text_token_price_long_context": 50000,
+        "long_context_threshold": 200000
+      },
+      {
+        "id": "grok-4.3",
+        "created": 1776384000,
+        "object": "model",
+        "owned_by": "xai",
+        "prompt_text_token_price": 12500,
+        "cached_prompt_text_token_price": 2000,
+        "prompt_image_token_price": 12500,
+        "completion_text_token_price": 25000,
+        "prompt_text_token_price_long_context": 25000,
+        "cached_prompt_text_token_price_long_context": 4000,
+        "completion_text_token_price_long_context": 50000,
+        "long_context_threshold": 200000
+      },
+      {
+        "id": "grok-build-0.1",
+        "created": 1776297600,
+        "object": "model",
+        "owned_by": "xai",
+        "prompt_text_token_price": 10000,
+        "cached_prompt_text_token_price": 2000,
+        "prompt_image_token_price": 10000,
+        "completion_text_token_price": 20000,
+        "prompt_text_token_price_long_context": 20000,
+        "cached_prompt_text_token_price_long_context": 4000,
+        "completion_text_token_price_long_context": 40000,
+        "long_context_threshold": 200000
+      },
+      {
+        "id": "grok-imagine-image",
+        "created": 1769558400,
+        "object": "model",
+        "owned_by": "xai",
+        "image_price": 200000000
+      },
+      {
+        "id": "grok-imagine-image-quality",
+        "created": 1775174400,
+        "object": "model",
+        "owned_by": "xai",
+        "image_price": 400000000
+      },
+      {
+        "id": "grok-imagine-video",
+        "created": 1769558400,
+        "object": "model",
+        "owned_by": "xai"
+      },
+      {
+        "id": "grok-imagine-video-1.5-preview",
+        "created": 1779840000,
+        "object": "model",
+        "owned_by": "xai"
+      }
+    ],
+    "object": "list"
+  }
+}

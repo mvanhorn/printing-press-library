@@ -1,0 +1,67 @@
+{
+  "api_name": "motohunt",
+  "base_url": "https://motohunt.com",
+  "description": "Search motorcycle and ATV listings from the terminal — with MotoHunt's MSRP/average-price/deal-rating data exposed as structured fields no other tool gives you.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "listings_get",
+      "description": "Fetch a single listing detail page. Required: id. Returns the ListingDetail.",
+      "method": "GET",
+      "path": "/l/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Listing id, e.g. 13256655",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listings_search",
+      "description": "Search listings; returns links to listing detail pages (use the hand-built `search` command for parsed cards). Optional: q, location, sort (plus 1 more).",
+      "method": "GET",
+      "path": "/motorcycles-for-sale",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text query, e.g. 'harley davidson'"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "query",
+          "description": "US ZIP code; results sort by distance from it"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort: t=most recent, p=highest price, a=lowest price, c=best deal"
+        },
+        {
+          "name": "start",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset; 24 results per page (0, 24, 48, ...)"
+        }
+      ]
+    }
+  ]
+}

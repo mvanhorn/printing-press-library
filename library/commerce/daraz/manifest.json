@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "daraz-pp-mcp",
+  "display_name": "Daraz.pk",
+  "version": "0.0.0",
+  "description": "Every Daraz product search, plus a local price database, real-deal ranking, and drop alerts no Daraz scraper has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/daraz-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/daraz-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

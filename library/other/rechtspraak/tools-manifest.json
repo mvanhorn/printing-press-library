@@ -1,0 +1,177 @@
+{
+  "api_name": "rechtspraak",
+  "base_url": "https://data.rechtspraak.nl",
+  "description": "Dutch court decisions CLI - data.rechtspraak.nl Open Data with local FTS narrowing and an appeal-chain walker",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "rechtspraak-pp-cli/0.1.0 (+printing-press)"
+    },
+    {
+      "name": "Accept",
+      "value": "application/atom+xml, application/xml;q=0.9, */*;q=0.5"
+    }
+  ],
+  "tools": [
+    {
+      "name": "courts_list",
+      "description": "List every Dutch rechtsprekende instantie with PSI URI, full name, afkorting code, type, and Begin/EndDate. Begin/EndDate enable court-succession lookup (Wet Herziening Gerechtelijke Kaart). Returns array of Court.",
+      "method": "GET",
+      "path": "/Waardelijst/Instanties",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "foreign-courts_list",
+      "description": "Foreign court catalog: ECHR, CJEU, and ~5000 EU member-state courts with PSI URI, multilingual name, and country code. Returns array of ForeignCourt.",
+      "method": "GET",
+      "path": "/Waardelijst/InstantiesBuitenlands",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "foreign-decisions_list",
+      "description": "Bridge from foreign ECLIs (CJEU, ECHR) to old Dutch LJN codes - ~173k entries. Returns array of ForeignDecision.",
+      "method": "GET",
+      "path": "/Waardelijst/NietNederlandseUitspraken",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "procedures_list",
+      "description": "Procedure types (cassatie, hoger beroep, kort geding, etc.) with PSI URIs. Returns array of Procedure.",
+      "method": "GET",
+      "path": "/Waardelijst/Proceduresoorten",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "relations_list",
+      "description": "Relation taxonomy: each relation type pairs from/to court tiers and lists the canonical AfhandelingsWijze (disposition outcomes: bekrachtiging, vernietiging, niet ontvankelijk, etc.). Returns array of Relation.",
+      "method": "GET",
+      "path": "/Waardelijst/FormeleRelaties",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "subjects_list",
+      "description": "Subject-area taxonomy with PSI URIs, names, and parent-child hierarchy. Returns array of Subject.",
+      "method": "GET",
+      "path": "/Waardelijst/Rechtsgebieden",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "uitspraken_get",
+      "description": "Fetch a single decision by ECLI - returns full RDF metadata plus the inhoudsindicatie summary and the uitspraak body when available. Required: id. Optional: return.",
+      "method": "GET",
+      "path": "/uitspraken/content",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "The ECLI to fetch, e.g. ECLI:NL:HR:2024:1",
+          "required": true
+        },
+        {
+          "name": "return",
+          "type": "string",
+          "location": "query",
+          "description": "META = metadata only (skip body, saves bandwidth on large decisions)"
+        }
+      ]
+    },
+    {
+      "name": "uitspraken_image",
+      "description": "Fetch an embedded image from a decision body by its imagedata identifier. Required: id. Returns the Image.",
+      "method": "GET",
+      "path": "/uitspraken/image",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Image identifier from an imagedata element inside a decision body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "uitspraken_search",
+      "description": "Search the ECLI index by date, court, subject, type. Per IVO 1.15: same-type params are OR-unioned, cross-type params are AND-combined. Local --keyword/--exclude/--phrase/--regex/--procedure flags narrow results against the synced FTS5 index after the API returns. Optional: max (default: 1000), from (default: 0), date (plus 7 more). Returns array of SearchEntry.",
+      "method": "GET",
+      "path": "/uitspraken/zoeken",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum results per page (server caps at 1000)"
+        },
+        {
+          "name": "from",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset for results beyond max"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Decision date (Uitspraakdatum). One value = exact day; pass twice for a range. Format: YYYY-MM-DD."
+        },
+        {
+          "name": "modified",
+          "type": "string",
+          "location": "query",
+          "description": "Modification date. One value = from that point until now; pass twice for a range. Format: YYYY-MM-DDTHH:MM:SS."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "query",
+          "description": "Subject area (rechtsgebied) PSI URI. Repeat for multi-subject OR-union."
+        },
+        {
+          "name": "creator",
+          "type": "string",
+          "location": "query",
+          "description": "Court (instantie) PSI URI. Repeat for multi-court OR-union."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Document type: Uitspraak (decision) or Conclusie (A-G conclusion)"
+        },
+        {
+          "name": "replaces",
+          "type": "string",
+          "location": "query",
+          "description": "Old LJN code. Returns the ECLI(s) that superseded that LJN."
+        },
+        {
+          "name": "return",
+          "type": "string",
+          "location": "query",
+          "description": "DOC = only return ECLIs that have a document body (subset)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by modification date - ASC oldest-first (default) or DESC newest-first"
+        }
+      ]
+    }
+  ]
+}

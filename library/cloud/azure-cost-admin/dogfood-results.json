@@ -1,0 +1,44 @@
+{
+  "dir": "azure-cost-admin",
+  "verdict": "WARN",
+  "dead_flags": {
+    "total": 0,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 7,
+    "dead": 0
+  },
+  "example_check": {
+    "tested": 7,
+    "with_examples": 7,
+    "valid_examples": 7,
+    "detail": "7/7 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 14,
+      "registered": 14
+    },
+    "config_consistency": {
+      "consistent": true
+    }
+  },
+  "novel_features_check": {
+    "planned": 5,
+    "found": 5
+  },
+  "mcp_surface_parity": {
+    "state": "missing",
+    "pass": true,
+    "skipped": true,
+    "detail": "Standalone CLI does not ship an MCP surface in this PR."
+  },
+  "reimplementation_check": {
+    "checked": 5,
+    "exempted_via_client_directive": 5
+  },
+  "issues": [
+    "sync uses generic Upsert only; expected for this standalone read-only cloud CLI with no local sync/search store."
+  ]
+}

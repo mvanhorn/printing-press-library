@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "daraz-novel-commands",
+  "applied_at": "2026-06-09",
+  "base_run_id": "20260609-111047-f0fd648a",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Implemented the 7 novel commands + products get + seller listings against the public catalog search JSON and a self-populating local SQLite store.",
+  "reason": "Generator scaffolds novel-feature command stubs; the search/store-backed logic (deals/value/compare/watch/since/price-history/seller stats/seller listings/products get) is hand-authored in internal/cli/daraz_common.go and the per-command files.",
+  "files": ["internal/cli/daraz_common.go", "internal/cli/deals.go", "internal/cli/value.go", "internal/cli/compare.go", "internal/cli/watch.go", "internal/cli/since.go", "internal/cli/price_history.go", "internal/cli/seller.go", "internal/cli/seller_stats.go", "internal/cli/products_get.go", "internal/cli/root.go"],
+  "validated_outcome": "shipcheck PASS 6/6, scorecard 86/100, live dogfood 59/59"
+}

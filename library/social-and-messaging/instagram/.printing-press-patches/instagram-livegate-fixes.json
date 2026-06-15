@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "instagram-livegate-fixes",
+  "applied_at": "2026-06-07",
+  "base_run_id": "20260606-183021",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Publish-time correctness + live-gate fixes: classified insight-fetch errors, MAX(id) latest-row tiebreaker, tolerant timestamp parsing, brands rm not-found exit, hashtags search example, go 1.26.4 toolchain.",
+  "reason": "Code review and the live publish gate surfaced: silent zero-fill on auth/transport errors, duplicate rows on same-second pulls, weeks_covered=0 from strict RFC3339, brands rm exit 0 on missing slug, an invalid UUID example on the token-scoped hashtag search, and go1.26.3 stdlib vulns fixed in 1.26.4.",
+  "files": [
+    "internal/cli/instagram_brands.go",
+    "internal/cli/compare.go",
+    "internal/cli/hashtag_perf.go",
+    "internal/cli/growth.go",
+    "internal/cli/hashtags_search.go",
+    "go.mod"
+  ],
+  "validated_outcome": "publish validate 11/11 PASS (incl. govulncheck 0); live dogfood 111/111 PASS."
+}

@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-06-06T19:15:59.692929Z",
+  "cli_dir": "\u003ccli-dir\u003e/roadside-america-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 3,
+    "captured": "2026-06-06T19:03:50.323213Z"
+  }
+}

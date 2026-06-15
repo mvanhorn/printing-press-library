@@ -39,3 +39,17 @@ func TestRequirePropertyError(t *testing.T) {
 		t.Fatalf("expected missing property error, got %v", err)
 	}
 }
+
+func TestCredentialPathUsesExplicitThenEnvOnly(t *testing.T) {
+	t.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "/tmp/from-env.json")
+	if got := credentialPath(&rootFlags{credentials: "/tmp/from-flag.json"}); got != "/tmp/from-flag.json" {
+		t.Fatalf("explicit credential path not preferred: %q", got)
+	}
+	if got := credentialPath(&rootFlags{}); got != "/tmp/from-env.json" {
+		t.Fatalf("env credential path not used: %q", got)
+	}
+	t.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "")
+	if got := credentialPath(&rootFlags{}); got != "" {
+		t.Fatalf("unexpected implicit credential fallback: %q", got)
+	}
+}

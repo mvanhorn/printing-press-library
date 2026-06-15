@@ -1,0 +1,226 @@
+{
+  "verify": {
+    "mode": "mock",
+    "total": 26,
+    "passed": 26,
+    "failed": 0,
+    "critical": 0,
+    "pass_rate": 100,
+    "data_pipeline": true,
+    "data_pipeline_detail": "PASS: sync completed (sql unavailable, table validation skipped)",
+    "freshness": {
+      "enabled": false,
+      "verdict": "SKIP",
+      "detail": "cache freshness helper not emitted"
+    },
+    "verdict": "PASS",
+    "results": [
+      {
+        "command": "agent-context",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "analytics",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "api",
+        "kind": "local",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "api-key",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "auth",
+        "kind": "local",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "complete",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "completions",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "doctor",
+        "kind": "local",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "documents",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      },
+      {
+        "command": "embeddings",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "feedback",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "import",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "me",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "messages",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "profile",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      },
+      {
+        "command": "search",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "sync",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "tail",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "tokenize-text",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "which",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "workflow",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      }
+    ],
+    "path_param_probes": [
+      {
+        "command": "auth set-token",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "profile delete",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "profile save",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "profile show",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "profile use",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      }
+    ],
+    "binary": "/Users/cathrynlavery/printing-press/library/xai/xai"
+  }
+}

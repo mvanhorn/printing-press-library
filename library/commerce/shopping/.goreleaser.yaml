@@ -1,0 +1,51 @@
+version: 2
+project_name: shopping-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: shopping-pp-cli
+    main: ./cmd/shopping-pp-cli
+    binary: shopping-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/commerce/shopping/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: shopping-pp-mcp
+    main: ./cmd/shopping-pp-mcp
+    binary: shopping-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: shopping-pp-cli
+    repository:
+      owner: nicholasspisak
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every LemmeBuyIt retail endpoint, plus a local store that compares one UPC across 70+ retailers"
+    install: |
+      bin.install "shopping-pp-cli"
+      bin.install "shopping-pp-mcp"

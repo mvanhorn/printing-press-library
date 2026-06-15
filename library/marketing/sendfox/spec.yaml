@@ -1,0 +1,356 @@
+openapi: 3.0.3
+info:
+  title: SendFox API
+  version: '1.0'
+  description: |
+    SendFox email marketing API for authenticated user details, contact lists,
+    contacts, unsubscribe operations, and campaign reads.
+servers:
+  - url: https://api.sendfox.com
+security:
+  - bearerAuth: []
+tags:
+  - name: account
+    description: Authenticated user/account context
+  - name: lists
+    description: Contact lists
+  - name: contacts
+    description: Contacts and subscription state
+  - name: campaigns
+    description: Campaign reads
+paths:
+  /me:
+    get:
+      operationId: getMe
+      tags: [account]
+      summary: Get authenticated user
+      responses:
+        '200':
+          description: Authenticated user information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /lists:
+    get:
+      operationId: listLists
+      tags: [lists]
+      summary: List contact lists
+      parameters:
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Paginated lists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCollection'
+    post:
+      operationId: createList
+      tags: [lists]
+      summary: Create a contact list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ListCreateRequest'
+      responses:
+        '200':
+          description: Created list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/List'
+        '201':
+          description: Created list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/List'
+  /lists/{list_id}:
+    get:
+      operationId: getList
+      tags: [lists]
+      summary: Get a contact list by ID
+      parameters:
+        - $ref: '#/components/parameters/ListId'
+      responses:
+        '200':
+          description: Contact list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/List'
+  /lists/{list_id}/contacts/{contact_id}:
+    delete:
+      operationId: removeContactFromList
+      tags: [lists]
+      summary: Remove a contact from a list
+      parameters:
+        - $ref: '#/components/parameters/ListId'
+        - $ref: '#/components/parameters/ContactId'
+      responses:
+        '200':
+          description: Contact removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '204':
+          description: Contact removed
+  /contacts:
+    get:
+      operationId: listContacts
+      tags: [contacts]
+      summary: List contacts or find a contact by email
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - name: email
+          in: query
+          required: false
+          description: Contact email address to find
+          schema:
+            type: string
+            format: email
+      responses:
+        '200':
+          description: Paginated contacts or filtered contact result
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ContactCollection'
+                  - $ref: '#/components/schemas/Contact'
+    post:
+      operationId: createContact
+      tags: [contacts]
+      summary: Create a contact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ContactCreateRequest'
+      responses:
+        '200':
+          description: Created contact
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+        '201':
+          description: Created contact
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+  /contacts/{contact_id}:
+    get:
+      operationId: getContact
+      tags: [contacts]
+      summary: Get a contact by ID
+      parameters:
+        - $ref: '#/components/parameters/ContactId'
+      responses:
+        '200':
+          description: Contact
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+  /unsubscribe:
+    patch:
+      operationId: unsubscribeContact
+      tags: [contacts]
+      summary: Unsubscribe a contact by email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnsubscribeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UnsubscribeRequest'
+      responses:
+        '200':
+          description: Contact unsubscribed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+  /campaigns:
+    get:
+      operationId: listCampaigns
+      tags: [campaigns]
+      summary: List campaigns
+      parameters:
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Paginated campaigns
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignCollection'
+  /campaigns/{campaign_id}:
+    get:
+      operationId: getCampaign
+      tags: [campaigns]
+      summary: Get campaign by ID
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+      responses:
+        '200':
+          description: Campaign
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: OAuth2 personal access token
+  parameters:
+    Page:
+      name: page
+      in: query
+      required: false
+      description: Page number for paginated responses
+      schema:
+        type: integer
+        minimum: 1
+    ListId:
+      name: list_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    ContactId:
+      name: contact_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    CampaignId:
+      name: campaign_id
+      in: path
+      required: true
+      schema:
+        type: integer
+  schemas:
+    User:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+    List:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ListCollection:
+      type: object
+      additionalProperties: true
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/List'
+    ListCreateRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+    Contact:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        first_name:
+          type: string
+        last_name:
+          type: string
+        lists:
+          type: array
+          items:
+            type: integer
+    ContactCollection:
+      type: object
+      additionalProperties: true
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contact'
+    ContactCreateRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+        first_name:
+          type: string
+        last_name:
+          type: string
+        lists:
+          type: array
+          items:
+            type: integer
+    UnsubscribeRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+    Campaign:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        status:
+          type: string
+        subject:
+          type: string
+        sent_at:
+          type: string
+          format: date-time
+    CampaignCollection:
+      type: object
+      additionalProperties: true
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Campaign'
+    GenericResponse:
+      type: object
+      additionalProperties: true

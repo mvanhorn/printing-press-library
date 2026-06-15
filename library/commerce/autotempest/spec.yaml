@@ -1,0 +1,78 @@
+name: autotempest
+description: "AutoTempest used-car meta-search CLI — every source, one query, with a local store, cross-source VIN dedupe, and price-drop tracking."
+version: "0.1.0"
+base_url: "https://www.autotempest.com"
+health_check_path: "/api/get-makes"
+http_transport: standard
+category: commerce
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0 Safari/537.36"
+  - name: X-Requested-With
+    value: "XMLHttpRequest"
+  - name: Referer
+    value: "https://www.autotempest.com/"
+  - name: Accept
+    value: "application/json, text/javascript, */*; q=0.01"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/autotempest-pp-cli/config.toml"
+
+resources:
+  makes:
+    description: "List vehicle makes AutoTempest recognizes (slug + display name)."
+    endpoints:
+      list:
+        method: GET
+        path: "/api/get-makes"
+        description: "List makes. Use the returned slug (e.g. 'honda') as the --make value for find."
+        params:
+          - name: popularMakes
+            flag_name: popular
+            type: bool
+            required: false
+            default: true
+            description: "Return the popular-makes subset."
+        response:
+          type: object
+          item: MakesResponse
+
+  models:
+    description: "List models for a given make (slug + display name + year range)."
+    endpoints:
+      list:
+        method: GET
+        path: "/api/get-models/{make}"
+        description: "List models for a make. Pass the make slug (e.g. 'honda'); use the returned model slug as --model for find."
+        params:
+          - name: make
+            type: string
+            required: true
+            positional: true
+            description: "Make slug, e.g. honda."
+          - name: popularModels
+            flag_name: popular
+            type: bool
+            required: false
+            default: true
+            description: "Return the popular-models subset."
+        response:
+          type: object
+          item: ModelsResponse
+
+types:
+  MakesResponse:
+    fields:
+      - name: popularMakes
+        type: string
+        description: "Array of [slug, display-name] pairs."
+  ModelsResponse:
+    fields:
+      - name: popularModels
+        type: string
+        description: "Array of [slug, display-name, flag, yearMin, yearMax, popular] tuples."

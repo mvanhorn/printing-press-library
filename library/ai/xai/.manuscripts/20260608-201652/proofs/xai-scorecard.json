@@ -1,0 +1,47 @@
+{
+  "scorecard": {
+    "api_name": "xai",
+    "steinberger": {
+      "output_modes": 10,
+      "auth": 10,
+      "error_handling": 10,
+      "terminal_ux": 10,
+      "readme": 8,
+      "doctor": 10,
+      "agent_native": 10,
+      "mcp_quality": 10,
+      "mcp_description_quality": 9,
+      "mcp_token_efficiency": 4,
+      "mcp_remote_transport": 5,
+      "mcp_tool_design": 5,
+      "mcp_surface_strategy": 0,
+      "local_cache": 10,
+      "cache_freshness": 5,
+      "breadth": 10,
+      "vision": 10,
+      "workflows": 10,
+      "insight": 4,
+      "agent_workflow_readiness": 9,
+      "path_validity": 10,
+      "auth_protocol": 10,
+      "data_pipeline_integrity": 10,
+      "sync_correctness": 10,
+      "type_fidelity": 4,
+      "dead_code": 5,
+      "live_api_verification": 0,
+      "total": 90,
+      "percentage": 90
+    },
+    "competitor_scores": null,
+    "overall_grade": "A",
+    "gap_report": [
+      "mcp_token_efficiency scored 4/10 - needs improvement",
+      "insight scored 4/10 - needs improvement",
+      "MCP: 41 tools (0 public, 41 auth-required) — readiness: full"
+    ],
+    "unscored_dimensions": [
+      "mcp_surface_strategy",
+      "live_api_verification"
+    ]
+  }
+}

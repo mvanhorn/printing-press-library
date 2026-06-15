@@ -1,0 +1,7 @@
+{
+  "descriptions": {
+    "raw_detail": "Fetch the raw HTML of a single attraction's detail page from RoadsideAmerica.com. Required: id (the numeric attraction id, e.g. from a /tip/<id> link). Returns the unparsed page HTML, not structured fields. Prefer the 'show' command when you want a parsed Attraction (name, city, state, source_url); use this only when you need the raw markup the parser worked from.",
+    "raw_by-state": "Fetch the raw HTML fragment listing attraction links for one US or Canadian state from RoadsideAmerica.com. Required: state (two-letter code, e.g. TX, CA, ON). Returns unparsed /tip and /story link markup, not structured records. Prefer the 'state' command for a parsed, cached attraction list; use this only when you need the raw link fragment.",
+    "raw_nearby": "Fetch the raw HTML fragment of attraction links near a coordinate from RoadsideAmerica.com. Required: long and lat (decimal degrees). Optional: delta (bounding half-size in degrees, radius proxy, default 0.5) and id (reference attraction id, default 0). Returns unparsed /tip and /story link markup. Prefer the 'near' command for a parsed, distance-sorted list; use this only when you need the raw fragment."
+  }
+}

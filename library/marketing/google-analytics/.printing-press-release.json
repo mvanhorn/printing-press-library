@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "google-analytics",
+  "cli_name": "google-analytics-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-12T20:27:07Z",
+  "source_commit": "6a396520da06affbd045eb1598808f0eff3a17e2",
+  "printing_press_version": "4.20.1",
+  "run_id": "ga4-20260612",
+  "changes": [
+    {
+      "title": "feat(google-analytics): add google-analytics",
+      "pr": 1160,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1160",
+      "commit": "6a396520da06affbd045eb1598808f0eff3a17e2"
+    }
+  ]
+}
