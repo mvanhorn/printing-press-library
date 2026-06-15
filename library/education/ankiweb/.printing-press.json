@@ -6,6 +6,12 @@
   "auth_type": "cookie",
   "category": "education",
   "cli_name": "ankiweb-pp-cli",
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
   "display_name": "Ankiweb",
   "generated_at": "2026-05-26T01:29:51.352069Z",
   "mcp_binary": "ankiweb-pp-mcp",
