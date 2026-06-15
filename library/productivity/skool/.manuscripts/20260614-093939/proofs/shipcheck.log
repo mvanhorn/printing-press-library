@@ -1,0 +1,159 @@
+
+=== verify ===
+Runtime Verification: C:\Users\Graha\printing-press\.runstate\graha-59db7ab2\runs\20260614-093939\working\skool-pp-cli\skool-pp-cli.exe
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+agent-context                  read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+autodm                         read         PASS   PASS     PASS     3/3
+chat                           read         PASS   PASS     PASS     3/3
+config                         read         PASS   PASS     PASS     3/3
+course                         read         PASS   PASS     PASS     3/3
+digest                         read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+group                          read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+member                         read         PASS   PASS     PASS     3/3
+post                           read         PASS   PASS     PASS     3/3
+posts                          read         PASS   PASS     FAIL     2/3
+profile                        read         PASS   PASS     FAIL     2/3
+search                         data-layer   PASS   PASS     PASS     3/3
+session                        read         PASS   PASS     PASS     3/3
+sql                            data-layer   PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+webhook                        read         PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     FAIL     2/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS auth set-token
+  PASS autodm set
+  PASS chat reply
+  PASS config set
+  PASS member approve
+  PASS member ban
+  PASS member reject
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+  PASS webhook delete
+
+Data Pipeline: PASS: 29 domain tables created
+Pass Rate: 100% (37/37 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+FAILED [recipes]: skool-pp-cli course publish ./my-course/ → full example failed: C:\Users\Graha\printing-press\.runstate\graha-59db7ab2\runs\20260614-093939\working\skool-pp-cli\skool-pp-cli.exe course publish ./my-course/ --dry-run: exit status 2: Error: ./my-course/ is not a directory
+DONE: 9 ok, 0 missing, 0 empty-words, 1 failed-examples, 0 unsupported
+narrative validation failed
+
+=== dogfood ===
+dogfood: using spec C:\Users\Graha\printing-press\.runstate\graha-59db7ab2\runs\20260614-093939\research\skool-openapi.json (--spec)
+Dogfood Report: skool-pp-cli
+================================
+
+Path Validity:     4/4 valid (PASS)
+
+Auth Protocol:     MATCH
+  Generated: Uses "unknown" prefix
+  Detail: no bot/bearer/basic scheme detected
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     GOOD
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: calls domain-specific Search methods (GOOD)
+  Domain tables: 1
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    5/5 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: WARN
+  - defaultSyncResources empty: sync command is a runtime no-op; store-dependent novel commands have no advertised population path
+  - 1 source client file(s) without rate-limit handling: internal/skoolx/apify.go — outbound HTTP without rate limiter (cliutil.AdaptiveLimiter or equivalent)
+
+=== workflow-verify ===
+Workflow Verification: skool-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+=== skool-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, unknown-command)
+
+=== scorecard ===
+Quality Scorecard: skool
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          10/10
+  MCP Desc Quality     0/10
+  MCP Token Efficiency 10/10
+  MCP Remote Transport 10/10
+  MCP Tool Design      7/10
+  MCP Surface Strategy N/A
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              5/10
+  Vision               9/10
+  Workflows            6/10
+  Insight              4/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           10/10
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           3/5
+  Dead Code               5/5
+
+  Total: 88/100 - Grade A
+  Note: omitted from denominator: mcp_surface_strategy, live_api_verification
+
+Sample Output Probe (live command sample)
+  Binary refresh: no_stage (no staged binary found)
+  Passed: 1/5  (20% pass rate)
+  Failures:
+    - Unanswered-post queue: exit 2: Error: no group id: pass --group <id> or set a default with `skool config set group_id <id>`
+    - Inbox triage: exit 4: Error: no active session and no credentials: set them with `skool config set email <addr>` and `skool config set password <pw>`, or export SKOOL_EMAIL/SKOOL_PASSWORD
+    - Member onboarding funnel: exit 4: Error: APIFY_API_TOKEN is not set — member admin, course publish, Auto DM, unanswered-post detection, and group status route through the Apify actor. Set it with `skool config set apify_token <token>` or export APIFY_API_TOKEN
+    - Posting cadence: exit 2: Error: no group id: pass --group <id> or set a default with `skool config set group_id <id>`
+
+Gaps:
+  - mcp_description_quality scored 0/10 - needs improvement
+  - insight scored 4/10 - needs improvement
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         23.345s
+  validate-narrative  FAIL    1         1.487s
+  dogfood           PASS    0         3.597s
+  workflow-verify   PASS    0         85ms
+  verify-skill      PASS    0         938ms
+  scorecard         PASS    0         804ms
+
+Verdict: FAIL (1/6 legs failed)

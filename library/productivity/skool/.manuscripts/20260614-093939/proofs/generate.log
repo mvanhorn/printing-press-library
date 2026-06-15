@@ -1,0 +1,64 @@
+PASS go mod tidy
+FAIL govulncheck ./...
+Error: validating generated project: gate "govulncheck ./..." failed: exit status 1
+=== Symbol Results ===
+
+Vulnerability #1: GO-2026-5039
+    Arbitrary inputs are included in errors without any escaping in
+    net/textproto
+  More info: https://pkg.go.dev/vuln/GO-2026-5039
+  Standard library
+    Found in: net/textproto@go1.26.3
+    Fixed in: net/textproto@go1.26.4
+    Example traces found:
+      #1: internal/cliutil/probe.go:92:16: cliutil.ProbeReachable calls io.Copy, which eventually calls textproto.Reader.ReadMIMEHeader
+
+Vulnerability #2: GO-2026-5037
+    Inefficient candidate hostname parsing in crypto/x509
+  More info: https://pkg.go.dev/vuln/GO-2026-5037
+  Standard library
+    Found in: crypto/x509@go1.26.3
+    Fixed in: crypto/x509@go1.26.4
+    Example traces found:
+      #1: internal/cliutil/probe.go:92:16: cliutil.ProbeReachable calls io.Copy, which eventually calls x509.Certificate.Verify
+      #2: internal/cliutil/probe.go:92:16: cliutil.ProbeReachable calls io.Copy, which eventually calls x509.Certificate.VerifyHostname
+      #3: internal/store/store.go:1465:23: store.Store.ResolveByName calls fmt.Sprintf, which eventually calls x509.HostnameError.Error
+
+Your code is affected by 2 vulnerabilities from the Go standard library.
+This scan also found 2 vulnerabilities in packages you import and 0
+vulnerabilities in modules you require, but your code doesn't appear to call
+these vulnerabilities.
+Use '-show verbose' for more details.
+
+exit status 3
+validating generated project: gate "govulncheck ./..." failed: exit status 1
+=== Symbol Results ===
+
+Vulnerability #1: GO-2026-5039
+    Arbitrary inputs are included in errors without any escaping in
+    net/textproto
+  More info: https://pkg.go.dev/vuln/GO-2026-5039
+  Standard library
+    Found in: net/textproto@go1.26.3
+    Fixed in: net/textproto@go1.26.4
+    Example traces found:
+      #1: internal/cliutil/probe.go:92:16: cliutil.ProbeReachable calls io.Copy, which eventually calls textproto.Reader.ReadMIMEHeader
+
+Vulnerability #2: GO-2026-5037
+    Inefficient candidate hostname parsing in crypto/x509
+  More info: https://pkg.go.dev/vuln/GO-2026-5037
+  Standard library
+    Found in: crypto/x509@go1.26.3
+    Fixed in: crypto/x509@go1.26.4
+    Example traces found:
+      #1: internal/cliutil/probe.go:92:16: cliutil.ProbeReachable calls io.Copy, which eventually calls x509.Certificate.Verify
+      #2: internal/cliutil/probe.go:92:16: cliutil.ProbeReachable calls io.Copy, which eventually calls x509.Certificate.VerifyHostname
+      #3: internal/store/store.go:1465:23: store.Store.ResolveByName calls fmt.Sprintf, which eventually calls x509.HostnameError.Error
+
+Your code is affected by 2 vulnerabilities from the Go standard library.
+This scan also found 2 vulnerabilities in packages you import and 0
+vulnerabilities in modules you require, but your code doesn't appear to call
+these vulnerabilities.
+Use '-show verbose' for more details.
+
+exit status 3

@@ -1,0 +1,22 @@
+// Copyright 2026 Zain Haseeb and contributors. Licensed under Apache-2.0. See LICENSE.
+
+package cli
+
+import (
+	"github.com/spf13/cobra"
+)
+
+func newClassroomCmd(flags *rootFlags) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "classroom",
+		Short: "Classroom (courses, modules, lessons) for a community",
+	}
+
+	cmd.AddCommand(newClassroomGetCourseCmd(flags))
+	cmd.AddCommand(newClassroomListCmd(flags))
+	cmd.AddCommand(newClassroomExportCmd(flags))
+	for _, sub := range newClassroomWriteCmds(flags) {
+		cmd.AddCommand(sub)
+	}
+	return cmd
+}
