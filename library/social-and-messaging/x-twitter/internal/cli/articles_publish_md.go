@@ -74,6 +74,7 @@ func newNovelArticlesPublishMdCmd(flags *rootFlags) *cobra.Command {
 	var post bool
 	var draft bool
 	var updateID string
+	var replaceUnknownEntities bool
 	cmd := &cobra.Command{
 		Use:     "articles-publish-md <markdown-file>",
 		Short:   "Convert a markdown file to an X Article (preview by default; --draft or --post to write)",
@@ -137,10 +138,11 @@ func newNovelArticlesPublishMdCmd(flags *rootFlags) *cobra.Command {
 					},
 				}
 				result, err := updateMarkdownArticle(cmd.Context(), deps, articleUpdateOptions{
-					articleID:    strings.TrimSpace(updateID),
-					title:        parsed.Frontmatter.Title,
-					coverPath:    parsed.Frontmatter.Cover,
-					contentState: cs,
+					articleID:              strings.TrimSpace(updateID),
+					title:                  parsed.Frontmatter.Title,
+					coverPath:              parsed.Frontmatter.Cover,
+					contentState:           cs,
+					replaceUnknownEntities: replaceUnknownEntities,
 				})
 				if err != nil {
 					return classifyAPIError(err, flags)
@@ -202,6 +204,7 @@ func newNovelArticlesPublishMdCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&draft, "draft", false, "Create the article as a draft without publishing")
 	cmd.Flags().BoolVar(&post, "post", false, "Create and publish the article publicly (default: preview only)")
 	cmd.Flags().StringVar(&updateID, "update", "", "Update an existing draft article by rest_id instead of creating a new draft")
+	cmd.Flags().BoolVar(&replaceUnknownEntities, "replace-unknown-entities", false, "With --update, proceed even when the target draft contains entity types the converter cannot reproduce")
 	return cmd
 }
 

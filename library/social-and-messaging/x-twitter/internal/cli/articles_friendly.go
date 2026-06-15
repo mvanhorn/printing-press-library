@@ -162,31 +162,39 @@ func printArticleMutationResponse(cmd *cobra.Command, flags *rootFlags, path str
 	return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 }
 
+func printArticleMutationDryRun(cmd *cobra.Command, flags *rootFlags, path string, body map[string]any, extra map[string]any) error {
+	selectedProfile := flags.profileName
+	if selectedProfile == "" {
+		selectedProfile = "default"
+	}
+	previewValue := map[string]any{
+		"dry_run": true,
+		"meta": map[string]any{
+			"auth_lane":        "x_articles_cookie",
+			"selected_profile": selectedProfile,
+		},
+		"mutation": true,
+		"request": map[string]any{
+			"body":   body,
+			"method": "POST",
+			"path":   path,
+		},
+		"sent": false,
+	}
+	for key, value := range extra {
+		previewValue[key] = value
+	}
+	preview, err := json.Marshal(previewValue)
+	if err != nil {
+		return err
+	}
+	return printArticleMutationResponse(cmd, flags, path, preview, 0)
+}
+
 func runArticleGraphQLMutation(cmd *cobra.Command, flags *rootFlags, opName string, body map[string]any) error {
 	path := client.ArticleOpURL(opName)
 	if flags.dryRun {
-		selectedProfile := flags.profileName
-		if selectedProfile == "" {
-			selectedProfile = "default"
-		}
-		preview, err := json.Marshal(map[string]any{
-			"dry_run": true,
-			"meta": map[string]any{
-				"auth_lane":        "x_articles_cookie",
-				"selected_profile": selectedProfile,
-			},
-			"mutation": true,
-			"request": map[string]any{
-				"body":   body,
-				"method": "POST",
-				"path":   path,
-			},
-			"sent": false,
-		})
-		if err != nil {
-			return err
-		}
-		return printArticleMutationResponse(cmd, flags, path, preview, 0)
+		return printArticleMutationDryRun(cmd, flags, path, body, nil)
 	}
 	c, err := flags.newClient()
 	if err != nil {

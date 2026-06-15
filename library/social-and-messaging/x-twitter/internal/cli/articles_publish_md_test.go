@@ -96,6 +96,31 @@ func TestArticlesPublishMdUpdateRejectsDraftFlag(t *testing.T) {
 	}
 }
 
+func TestArticlesPublishMdUpdateAcceptsReplaceUnknownEntitiesFlag(t *testing.T) {
+	dir := t.TempDir()
+	md := filepath.Join(dir, "article.md")
+	if err := os.WriteFile(md, []byte("---\ntitle: Dry Run\n---\n\nBody"), 0o600); err != nil {
+		t.Fatalf("write markdown: %v", err)
+	}
+
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"articles-publish-md", md, "--update", "123", "--replace-unknown-entities", "--dry-run", "--json"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("expected --replace-unknown-entities to be accepted on --update dry-run: %v\n%s", err, out.String())
+	}
+	var payload map[string]any
+	if err := json.Unmarshal(out.Bytes(), &payload); err != nil {
+		t.Fatalf("preview output is not JSON: %v\n%s", err, out.String())
+	}
+	if payload["article_id"] != "123" {
+		t.Fatalf("unexpected preview payload: %#v", payload)
+	}
+}
+
 func TestBindArticleMediaEntities(t *testing.T) {
 	contentState := MarkdownBodyToDraftJS("![one](./one.png)\n\n![two](./two.jpg)")
 	uploads := []string{}

@@ -104,3 +104,44 @@ func TestArticleFriendlyMutationDryRunDoesNotRequireAuth(t *testing.T) {
 		t.Fatalf("unexpected dry-run variables: %#v", vars)
 	}
 }
+
+func TestArticleCoverUploadDryRunUsesMutationEnvelope(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	t.Setenv("X_TWITTER_COOKIE_AUTH_TOKEN", "")
+	t.Setenv("X_TWITTER_COOKIE_CT0", "")
+	t.Setenv("X_TWITTER_BEARER_TOKEN", "")
+	t.Setenv("X_BEARER_TOKEN", "")
+
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"articles", "update-cover-media", "--id", "123", "--cover", "/tmp/cover.jpg", "--dry-run", "--json"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("dry-run cover update failed without auth: %v\n%s", err, out.String())
+	}
+
+	var envelope map[string]any
+	if err := json.Unmarshal(out.Bytes(), &envelope); err != nil {
+		t.Fatalf("dry-run output is not JSON: %v\n%s", err, out.String())
+	}
+	data, _ := envelope["data"].(map[string]any)
+	if data["sent"] != false || data["dry_run"] != true {
+		t.Fatalf("expected unsent dry-run preview, got %#v", data)
+	}
+	request, _ := data["request"].(map[string]any)
+	body, _ := request["body"].(map[string]any)
+	vars, _ := body["variables"].(map[string]any)
+	if vars["articleEntityId"] != "123" {
+		t.Fatalf("unexpected dry-run variables: %#v", vars)
+	}
+	coverMedia, _ := vars["coverMedia"].(map[string]any)
+	if coverMedia["media_id"] != "<uploaded-cover-media-id>" {
+		t.Fatalf("expected placeholder media id, got %#v", coverMedia)
+	}
+	upload, _ := data["would_upload"].(map[string]any)
+	if upload["path"] != "/tmp/cover.jpg" {
+		t.Fatalf("unexpected upload preview: %#v", upload)
+	}
+}

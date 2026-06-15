@@ -40,14 +40,16 @@ func newArticlesUpdateCoverMediaCmd(flags *rootFlags) *cobra.Command {
 						return err
 					}
 					if flags.dryRun {
-						preview := map[string]any{
-							"dry_run":       true,
-							"article_id":    articleID,
-							"cover":         coverPath,
-							"would_upload":  true,
-							"then_mutation": "ArticleEntityUpdateCoverMedia",
+						body, err := articleUpdateCoverRequestBody(articleID, "<uploaded-cover-media-id>")
+						if err != nil {
+							return err
 						}
-						return json.NewEncoder(cmd.OutOrStdout()).Encode(preview)
+						return printArticleMutationDryRun(cmd, flags, client.ArticleOpURL("ArticleEntityUpdateCoverMedia"), body, map[string]any{
+							"would_upload": map[string]any{
+								"media_category": "DraftTweetImage",
+								"path":           coverPath,
+							},
+						})
 					}
 					c, err := flags.newClient()
 					if err != nil {
