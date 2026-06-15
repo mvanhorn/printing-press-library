@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "wavespeed-daily-image-workflow",
+  "applied_at": "2026-06-09",
+  "base_run_id": "20260527-214905",
+  "base_printing_press_version": "4.18.1",
+  "summary": "WaveSpeed image-edit users need one-command model price discovery, enum-rich model help, reusable reference-image profiles, and one-step access to the latest downloaded output.",
+  "reason": "Daily blog-image iteration depends on comparing image-edit models by cost, choosing valid resolution/size values without guessing, reusing style anchors, checking price before submission, and opening the most recent result without parsing paths from command output.",
+  "files": [
+    "internal/cli/promoted_models.go",
+    "internal/cli/profile.go",
+    "internal/cli/root.go",
+    "internal/cli/run.go",
+    "internal/cli/run_test.go",
+    "README.md"
+  ],
+  "validated_outcome": "go test ./... and go vet ./... pass; CLI smoke verified profile save with positional image anchors, run --price-only --dry-run with the profile, models --help exposing --capability, and open --dry-run."
+}
