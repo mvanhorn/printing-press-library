@@ -50,6 +50,9 @@ func newNovelContributionsTotalsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("loading contributions: %w", err)
 			}
+			if len(records) == 0 {
+				hintIfResourceEmpty(cmd, db, "contributions")
+			}
 			type agg struct {
 				year             int
 				period           string

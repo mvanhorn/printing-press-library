@@ -3,7 +3,10 @@
 
 package cli
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestNovelContributionsTotalsAggregatesItems(t *testing.T) {
 	cases := []struct {
@@ -28,5 +31,20 @@ func TestNovelContributionsTotalsAggregatesItems(t *testing.T) {
 				t.Fatalf("row = %#v, want amount %v items %v", rows[0], tc.wantAmount, tc.wantItems)
 			}
 		})
+	}
+}
+
+func TestNovelContributionsTotalsHintsWhenContributionsUnsynced(t *testing.T) {
+	dbPath := newLDANovelTestDB(t)
+	seedLDANovelRecord(t, dbPath, "filings", "f1", `{"id":1,"filing_uuid":"f1","filing_year":2024,"filing_period":"mid_year"}`)
+	seedLDANovelSyncState(t, dbPath, "filings")
+
+	flags := &rootFlags{asJSON: true}
+	rows, stderr := runLDANovelRowsWithStderr(t, newNovelContributionsTotalsCmd(flags), "--db", dbPath, "--year", "2024")
+	if len(rows) != 0 {
+		t.Fatalf("rows = %#v, want no contribution totals", rows)
+	}
+	if !strings.Contains(stderr, "sync --resources contributions") {
+		t.Fatalf("stderr = %q, want targeted contributions sync hint", stderr)
 	}
 }

@@ -5,6 +5,7 @@ package cli
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -84,6 +85,14 @@ func newNovelEntitiesResolveCmd(flags *rootFlags) *cobra.Command {
 				}
 				addMatches(spec.kind, spec.resource, recs)
 			}
+			sort.SliceStable(rows, func(i, j int) bool {
+				left := ldaNumber(rows[i]["score"])
+				right := ldaNumber(rows[j]["score"])
+				if left != right {
+					return left > right
+				}
+				return fmt.Sprint(rows[i]["kind"], rows[i]["name"]) < fmt.Sprint(rows[j]["kind"], rows[j]["name"])
+			})
 			if len(rows) > limit && limit > 0 {
 				rows = rows[:limit]
 			}

@@ -55,6 +55,9 @@ func newNovelReportsQuarterCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("loading contributions: %w", err)
 			}
+			if len(contributions) == 0 {
+				hintIfResourceEmpty(cmd, db, "contributions")
+			}
 			type summary struct {
 				year               int
 				period             string

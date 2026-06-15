@@ -3,7 +3,10 @@
 
 package cli
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestNovelEntitiesResolveSearchesOfficialRecords(t *testing.T) {
 	cases := []struct {
@@ -49,5 +52,22 @@ func TestNovelEntitiesResolveRejectsDogfoodInvalidSentinel(t *testing.T) {
 	cmd.SetArgs([]string{"__printing_press_invalid__", "--db", dbPath})
 	if err := cmd.Execute(); err == nil {
 		t.Fatal("expected invalid sentinel to return an error")
+	}
+}
+
+func TestNovelEntitiesResolveSortsByScoreBeforeLimit(t *testing.T) {
+	dbPath := newLDANovelTestDB(t)
+	for i := 0; i < 5; i++ {
+		seedLDANovelRecord(t, dbPath, "registrants", fmt.Sprintf("r%d", i), fmt.Sprintf(`{"id":%d,"name":"Registrant %d","description":"Boeing policy notes"}`, i, i))
+	}
+	seedLDANovelRecord(t, dbPath, "clients", "client-exact", `{"id":99,"client_id":"C-99","name":"Boeing","url":"https://lda.gov/api/v1/clients/99/"}`)
+
+	flags := &rootFlags{asJSON: true}
+	rows := runLDANovelRows(t, newNovelEntitiesResolveCmd(flags), "Boeing", "--db", dbPath, "--limit", "3")
+	if len(rows) != 3 {
+		t.Fatalf("rows = %#v, want limit applied after sorting", rows)
+	}
+	if rows[0]["kind"] != "client" || rows[0]["score"].(float64) != 100 {
+		t.Fatalf("first row = %#v, want exact client match before lower-score FTS hits", rows[0])
 	}
 }

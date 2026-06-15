@@ -3,7 +3,10 @@
 
 package cli
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestNovelReportsQuarterSummarizesPeriod(t *testing.T) {
 	cases := []struct {
@@ -32,5 +35,23 @@ func TestNovelReportsQuarterSummarizesPeriod(t *testing.T) {
 				t.Fatalf("top_issue = %v, want Defense (1)", rows[0]["top_issue"])
 			}
 		})
+	}
+}
+
+func TestNovelReportsQuarterHintsWhenContributionsUnsynced(t *testing.T) {
+	dbPath := newLDANovelTestDB(t)
+	seedLDANovelRecord(t, dbPath, "filings", "f1", `{"id":1,"filing_uuid":"f1","filing_year":2024,"filing_period":"mid_year","filing_type":"MM"}`)
+	seedLDANovelSyncState(t, dbPath, "filings")
+
+	flags := &rootFlags{asJSON: true}
+	rows, stderr := runLDANovelRowsWithStderr(t, newNovelReportsQuarterCmd(flags), "--db", dbPath, "--year", "2024", "--period", "mid_year")
+	if len(rows) != 1 {
+		t.Fatalf("rows = %#v, want filing summary even without contributions", rows)
+	}
+	if rows[0]["contribution_items"].(float64) != 0 {
+		t.Fatalf("row = %#v, want zero contribution items", rows[0])
+	}
+	if !strings.Contains(stderr, "sync --resources contributions") {
+		t.Fatalf("stderr = %q, want targeted contributions sync hint", stderr)
 	}
 }

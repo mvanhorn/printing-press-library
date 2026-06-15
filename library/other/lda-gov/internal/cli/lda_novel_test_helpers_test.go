@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/other/lda-gov/internal/store"
 	"github.com/spf13/cobra"
@@ -38,7 +39,28 @@ func seedLDANovelRecord(t *testing.T, dbPath, resource, id, raw string) {
 	}
 }
 
+func seedLDANovelSyncState(t *testing.T, dbPath, resource string) {
+	t.Helper()
+	db, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf("open test store for sync state: %v", err)
+	}
+	defer db.Close()
+	if _, err := db.DB().Exec(
+		`INSERT INTO sync_state(resource_type, last_synced_at, total_count) VALUES (?, ?, ?)`,
+		resource, time.Now(), 1,
+	); err != nil {
+		t.Fatalf("seed sync state for %s: %v", resource, err)
+	}
+}
+
 func runLDANovelRows(t *testing.T, cmd *cobra.Command, args ...string) []map[string]any {
+	t.Helper()
+	rows, _ := runLDANovelRowsWithStderr(t, cmd, args...)
+	return rows
+}
+
+func runLDANovelRowsWithStderr(t *testing.T, cmd *cobra.Command, args ...string) ([]map[string]any, string) {
 	t.Helper()
 	var stdout, stderr bytes.Buffer
 	cmd.SetOut(&stdout)
@@ -51,7 +73,7 @@ func runLDANovelRows(t *testing.T, cmd *cobra.Command, args ...string) []map[str
 	if err := json.Unmarshal(stdout.Bytes(), &rows); err != nil {
 		t.Fatalf("decode stdout as rows: %v stdout=%s stderr=%s", err, stdout.String(), stderr.String())
 	}
-	return rows
+	return rows, stderr.String()
 }
 
 func requireLDANovelRow(t *testing.T, rows []map[string]any, key string, want any) map[string]any {

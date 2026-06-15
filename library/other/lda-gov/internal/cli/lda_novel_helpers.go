@@ -75,6 +75,19 @@ func searchLDARecords(db *store.Store, query, resource string, limit int) ([]lda
 	return records, nil
 }
 
+func hintIfResourceEmpty(cmd *cobra.Command, db *store.Store, resource string) bool {
+	resource = strings.TrimSpace(resource)
+	if cmd == nil || db == nil || resource == "" {
+		return false
+	}
+	count, err := db.Count(resource)
+	if err != nil || count > 0 {
+		return false
+	}
+	fmt.Fprintf(cmd.ErrOrStderr(), "hint: local store has no %s records. Run '%s sync --resources %s' before trusting %s results.\n", resource, ldaCLIName, resource, resource)
+	return true
+}
+
 func decodeLDARecord(data json.RawMessage) (ldaRecord, error) {
 	dec := json.NewDecoder(strings.NewReader(string(data)))
 	dec.UseNumber()
