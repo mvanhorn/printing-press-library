@@ -1,0 +1,70 @@
+{
+  "api_name": "cisa-kev",
+  "novelty_score": 6,
+  "alternatives": [
+    "The raw CISA JSON feed is easy to fetch but cumbersome for agents because the useful unit is each vulnerability, not the top-level catalog object.",
+    "General vulnerability tools such as NVD CLIs cover CVE metadata broadly, but they do not treat CISA KEV due dates and ransomware-use flags as the primary workflow."
+  ],
+  "gaps": [
+    "Raw feed output is a large nested JSON object with no focused filtering by vendor, product, CWE, due date, or ransomware use.",
+    "Operators need quick CVE lookup and due-soon triage without writing jq filters each time."
+  ],
+  "patterns": [
+    "Security analysts commonly pivot by CVE, vendor, product, CWE, ransomware status, date added, and remediation due date.",
+    "Agent workflows need compact JSON envelopes and predictable tabular output for patch-priority briefings."
+  ],
+  "recommendation": "Ship a read-only CISA KEV CLI that preserves the raw feed command and adds a flattened vulns command group for search, lookup, and due-date triage.",
+  "researched_at": "2026-06-15T15:00:21Z",
+  "novel_features": [
+    {
+      "name": "Flattened KEV vulnerability rows",
+      "command": "vulns list",
+      "description": "Flatten the CISA KEV feed into analyst-friendly vulnerability rows with vendor, product, CWE, due-date, and ransomware-use filters.",
+      "rationale": "The official feed returns a single top-level catalog object; analysts usually need row-level vulnerability triage."
+    },
+    {
+      "name": "KEV full-text search",
+      "command": "vulns search",
+      "description": "Search KEV entries across CVE IDs, vendors, products, vulnerability names, descriptions, required actions, notes, and CWEs.",
+      "rationale": "Avoids repeatedly hand-writing jq or grep pipelines against a large nested feed."
+    },
+    {
+      "name": "CVE one-look lookup",
+      "command": "vulns get",
+      "description": "Show one CISA KEV entry by CVE ID with normalized fields, catalog metadata, and parsed CWE output.",
+      "rationale": "A CVE is the natural incident-response pivot for enrichment and ticketing."
+    },
+    {
+      "name": "Due-date and ransomware triage",
+      "command": "vulns due",
+      "description": "Sort and filter due-soon or overdue KEV entries, including known-ransomware-only triage for patch-priority workflows.",
+      "rationale": "KEV due dates and ransomware-use flags are the feed's operational signal, not just metadata."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Flattened KEV vulnerability rows",
+      "command": "vulns list",
+      "description": "Flatten the CISA KEV feed into analyst-friendly vulnerability rows with vendor, product, CWE, due-date, and ransomware-use filters.",
+      "rationale": "Implemented as the default row-level triage command under the vulns command group."
+    },
+    {
+      "name": "KEV full-text search",
+      "command": "vulns search",
+      "description": "Search KEV entries across CVE IDs, vendors, products, vulnerability names, descriptions, required actions, notes, and CWEs.",
+      "rationale": "Implemented with case-insensitive search across all high-value KEV text fields."
+    },
+    {
+      "name": "CVE one-look lookup",
+      "command": "vulns get",
+      "description": "Show one CISA KEV entry by CVE ID with normalized fields, catalog metadata, and parsed CWE output.",
+      "rationale": "Implemented with typed not-found exit behavior for agent branching."
+    },
+    {
+      "name": "Due-date and ransomware triage",
+      "command": "vulns due",
+      "description": "Sort and filter due-soon or overdue KEV entries, including known-ransomware-only triage for patch-priority workflows.",
+      "rationale": "Implemented with due-before, overdue, and ransomware-only filters."
+    }
+  ]
+}

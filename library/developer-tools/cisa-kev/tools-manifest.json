@@ -1,0 +1,21 @@
+{
+  "api_name": "cisa-kev",
+  "base_url": "https://www.cisa.gov",
+  "description": "Public JSON feed for the CISA Known Exploited Vulnerabilities catalog. The catalog lists vulnerabilities known to be exploited in the wild and includes vendor, product, required-action, due-date, ransomware-use, CWE, and notes metadata.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "sites_get-known-exploited-vulnerabilities-catalog",
+      "description": "Returns the current CISA Known Exploited Vulnerabilities catalog, including catalog metadata and the full vulnerability list.",
+      "method": "GET",
+      "path": "/sites/default/files/feeds/known_exploited_vulnerabilities.json",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

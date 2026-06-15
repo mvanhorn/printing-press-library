@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-15T15:00:21.811835897Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "cisa-kev",
+  "display_name": "Cisa Known Exploited",
+  "cli_name": "cisa-kev-pp-cli",
+  "creator": {
+    "handle": "solomonneas",
+    "name": "Solomon Neas"
+  },
+  "owner": "solomonneas",
+  "printer": "solomonneas",
+  "printer_name": "Solomon Neas",
+  "spec_url": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
+  "spec_path": "cisa-kev.openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:45732b19f3686080cc2f3d7521e4120d65e5ab84c83f1f70deba3892875578bd",
+  "run_id": "20260615-150021",
+  "category": "developer-tools",
+  "description": "Public JSON feed for the CISA Known Exploited Vulnerabilities catalog.",
+  "mcp_binary": "cisa-kev-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Flattened KEV vulnerability rows",
+      "command": "vulns list",
+      "description": "Flatten the CISA KEV feed into analyst-friendly vulnerability rows with vendor, product, CWE, due-date, and ransomware-use filters."
+    },
+    {
+      "name": "KEV full-text search",
+      "command": "vulns search",
+      "description": "Search KEV entries across CVE IDs, vendors, products, vulnerability names, descriptions, required actions, notes, and CWEs."
+    },
+    {
+      "name": "CVE one-look lookup",
+      "command": "vulns get",
+      "description": "Show one CISA KEV entry by CVE ID with normalized fields, catalog metadata, and parsed CWE output."
+    },
+    {
+      "name": "Due-date and ransomware triage",
+      "command": "vulns due",
+      "description": "Sort and filter due-soon or overdue KEV entries, including known-ransomware-only triage for patch-priority workflows."
+    }
+  ]
+}

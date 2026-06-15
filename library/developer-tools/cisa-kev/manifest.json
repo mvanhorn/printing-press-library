@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "cisa-kev-pp-mcp",
+  "display_name": "Cisa Known Exploited",
+  "version": "0.0.0",
+  "description": "Public JSON feed for the CISA Known Exploited Vulnerabilities catalog.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/cisa-kev-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/cisa-kev-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

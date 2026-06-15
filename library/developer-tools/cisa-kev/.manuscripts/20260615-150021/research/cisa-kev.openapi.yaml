@@ -1,0 +1,118 @@
+openapi: 3.0.3
+info:
+  title: CISA Known Exploited Vulnerabilities Catalog
+  version: "1.0"
+  description: >
+    Public JSON feed for the CISA Known Exploited Vulnerabilities catalog. The
+    catalog lists vulnerabilities known to be exploited in the wild and includes
+    vendor, product, required-action, due-date, ransomware-use, CWE, and notes
+    metadata.
+  contact:
+    name: Cybersecurity and Infrastructure Security Agency
+    url: https://www.cisa.gov/known-exploited-vulnerabilities-catalog
+servers:
+  - url: https://www.cisa.gov
+    description: CISA public website
+paths:
+  /sites/default/files/feeds/known_exploited_vulnerabilities.json:
+    get:
+      operationId: getKnownExploitedVulnerabilitiesCatalog
+      summary: Fetch the CISA KEV catalog JSON feed
+      description: >
+        Returns the current CISA Known Exploited Vulnerabilities catalog,
+        including catalog metadata and the full vulnerability list.
+      tags:
+        - catalog
+      responses:
+        "200":
+          description: Current CISA KEV catalog
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KevCatalog"
+components:
+  schemas:
+    KevCatalog:
+      type: object
+      required:
+        - title
+        - catalogVersion
+        - dateReleased
+        - count
+        - vulnerabilities
+      properties:
+        title:
+          type: string
+          example: CISA Catalog of Known Exploited Vulnerabilities
+        catalogVersion:
+          type: string
+          description: Catalog version string published by CISA.
+          example: "2026.06.12"
+        dateReleased:
+          type: string
+          format: date-time
+          description: Timestamp when the feed was released.
+        count:
+          type: integer
+          description: Number of vulnerability entries in the feed.
+        vulnerabilities:
+          type: array
+          items:
+            $ref: "#/components/schemas/KevVulnerability"
+    KevVulnerability:
+      type: object
+      required:
+        - cveID
+        - vendorProject
+        - product
+        - vulnerabilityName
+        - dateAdded
+        - shortDescription
+        - requiredAction
+        - dueDate
+        - knownRansomwareCampaignUse
+        - notes
+      properties:
+        cveID:
+          type: string
+          description: CVE identifier.
+          pattern: "^CVE-[0-9]{4}-[0-9]+$"
+          example: CVE-2026-35273
+        vendorProject:
+          type: string
+          description: Affected vendor or project.
+        product:
+          type: string
+          description: Affected product.
+        vulnerabilityName:
+          type: string
+          description: Human-readable vulnerability name.
+        dateAdded:
+          type: string
+          format: date
+          description: Date the vulnerability was added to the KEV catalog.
+        shortDescription:
+          type: string
+          description: CISA's short description of the vulnerability.
+        requiredAction:
+          type: string
+          description: Required remediation or mitigation action.
+        dueDate:
+          type: string
+          format: date
+          description: CISA remediation due date.
+        knownRansomwareCampaignUse:
+          type: string
+          description: Whether CISA reports known ransomware campaign use.
+          enum:
+            - Known
+            - Unknown
+        notes:
+          type: string
+          description: Semicolon-separated advisory, directive, vendor, and NVD links.
+        cwes:
+          type: array
+          description: CWE identifiers associated with the vulnerability.
+          items:
+            type: string
+            pattern: "^CWE-[0-9]+$"
