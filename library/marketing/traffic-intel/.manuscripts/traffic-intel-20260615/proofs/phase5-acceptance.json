@@ -1,0 +1,23 @@
+{
+  "run_id": "traffic-intel-20260615",
+  "status": "accepted",
+  "checks": [
+    {
+      "name": "go test ./...",
+      "status": "passed"
+    },
+    {
+      "name": "agent-context",
+      "status": "passed"
+    },
+    {
+      "name": "sources doctor",
+      "status": "passed"
+    },
+    {
+      "name": "live ahrefs child sync",
+      "status": "passed",
+      "evidence": "temporary-home sync against bestself.co stored 3 Ahrefs pages"
+    }
+  ]
+}
