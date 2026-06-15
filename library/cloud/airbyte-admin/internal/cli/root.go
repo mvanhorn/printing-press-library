@@ -142,6 +142,13 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 		Short: "Inspect Airbyte workspaces, connectors, connections, jobs, and users",
 		Long: `Inspect Airbyte workspaces, connectors, connections, jobs, and users via the Airbyte Public API.
 
+Highlights (not in the official API docs):
+  - public list-sources   Lists Airbyte sources, with sibling destination and connection-detail commands for inspecting configured data movement.
+  - public list-jobs   Lists sync jobs with connection filters and pagination for troubleshooting recent ELT activity.
+  - public list-connector-definitions   Shows available source or destination connector definitions for a workspace or organization.
+  - public list-workspaces   Surfaces workspaces, users, organizations, permissions, and tags for Airbyte operational review.
+  - sync   Caches Airbyte read endpoints locally for offline search, export, and repeatable agent analysis.
+
 Add --agent to any command for JSON output + non-interactive mode.
 Run 'airbyte-admin-pp-cli doctor' to verify auth and connectivity.`,
 		SilenceUsage: true,

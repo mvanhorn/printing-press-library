@@ -22,6 +22,20 @@
         "internal/config/config_test.go"
       ],
       "validated_outcome": "Focused config tests cover auth header env, bearer token env, duplicate Bearer handling, config-file auth, and env override behavior."
+    },
+    {
+      "id": "airbyte-admin-review-dogfood-cleanup",
+      "summary": "Add canonical dogfood results and remove dead auth-format scaffolding found during review.",
+      "reason": "Greptile flagged the missing dogfood-results.json canonical artifact and identified an unused applyAuthFormat helper plus a redundant strings.ReplaceAll import guard. Running Printing Press dogfood produced the structural validation artifact and synced the generated novel-feature highlights.",
+      "files": [
+        "dogfood-results.json",
+        ".manuscripts/20260615-025831/research/research.json",
+        "README.md",
+        "SKILL.md",
+        "internal/cli/root.go",
+        "internal/config/config.go"
+      ],
+      "validated_outcome": "Printing Press dogfood reports PASS with zero dead flags, zero dead functions, command wiring 39/39 registered, MCP surface parity passing, and novel features 5/5 found."
     }
   ]
 }
