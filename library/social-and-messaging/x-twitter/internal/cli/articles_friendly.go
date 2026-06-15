@@ -163,11 +163,35 @@ func printArticleMutationResponse(cmd *cobra.Command, flags *rootFlags, path str
 }
 
 func runArticleGraphQLMutation(cmd *cobra.Command, flags *rootFlags, opName string, body map[string]any) error {
+	path := client.ArticleOpURL(opName)
+	if flags.dryRun {
+		selectedProfile := flags.profileName
+		if selectedProfile == "" {
+			selectedProfile = "default"
+		}
+		preview, err := json.Marshal(map[string]any{
+			"dry_run": true,
+			"meta": map[string]any{
+				"auth_lane":        "x_articles_cookie",
+				"selected_profile": selectedProfile,
+			},
+			"mutation": true,
+			"request": map[string]any{
+				"body":   body,
+				"method": "POST",
+				"path":   path,
+			},
+			"sent": false,
+		})
+		if err != nil {
+			return err
+		}
+		return printArticleMutationResponse(cmd, flags, path, preview, 0)
+	}
 	c, err := flags.newClient()
 	if err != nil {
 		return err
 	}
-	path := client.ArticleOpURL(opName)
 	data, statusCode, err := c.Post(cmd.Context(), path, body)
 	if err != nil {
 		return classifyAPIError(err, flags)

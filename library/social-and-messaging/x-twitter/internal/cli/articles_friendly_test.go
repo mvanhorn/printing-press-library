@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"testing"
 )
@@ -65,5 +66,41 @@ func TestArticleUpdateContentRequestBodyFromPreviewContentState(t *testing.T) {
 	if _, ok := requestState["entity_map"].([]draftEntity); !ok {
 		encoded, _ := json.Marshal(requestState)
 		t.Fatalf("expected snake_case entity_map in request state, got %s", encoded)
+	}
+}
+
+func TestArticleFriendlyMutationDryRunDoesNotRequireAuth(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	t.Setenv("X_TWITTER_COOKIE_AUTH_TOKEN", "")
+	t.Setenv("X_TWITTER_COOKIE_CT0", "")
+	t.Setenv("X_TWITTER_BEARER_TOKEN", "")
+	t.Setenv("X_BEARER_TOKEN", "")
+
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"articles", "delete", "--id", "123", "--dry-run", "--json"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("dry-run friendly delete failed without auth: %v\n%s", err, out.String())
+	}
+
+	var envelope map[string]any
+	if err := json.Unmarshal(out.Bytes(), &envelope); err != nil {
+		t.Fatalf("dry-run output is not JSON: %v\n%s", err, out.String())
+	}
+	data, _ := envelope["data"].(map[string]any)
+	if data["sent"] != false || data["dry_run"] != true {
+		t.Fatalf("expected unsent dry-run preview, got %#v", data)
+	}
+	request, _ := data["request"].(map[string]any)
+	if request["method"] != "POST" {
+		t.Fatalf("unexpected request preview: %#v", request)
+	}
+	body, _ := request["body"].(map[string]any)
+	vars, _ := body["variables"].(map[string]any)
+	if vars["articleEntityId"] != "123" {
+		t.Fatalf("unexpected dry-run variables: %#v", vars)
 	}
 }
