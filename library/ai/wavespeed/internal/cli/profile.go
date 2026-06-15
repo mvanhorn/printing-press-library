@@ -116,9 +116,20 @@ func ApplyProfileToFlags(cmd *cobra.Command, profile *Profile) error {
 		if flag.Changed {
 			continue
 		}
-		if err := flag.Value.Set(value); err != nil {
+		if isProfileArrayFlag(flag) && strings.HasPrefix(strings.TrimSpace(value), "[") {
+			var items []string
+			if err := json.Unmarshal([]byte(value), &items); err != nil {
+				return fmt.Errorf("parsing profile array value %s=%q: %w", name, value, err)
+			}
+			for _, item := range items {
+				if err := flag.Value.Set(item); err != nil {
+					return fmt.Errorf("applying profile value %s=%q: %w", name, item, err)
+				}
+			}
+		} else if err := flag.Value.Set(value); err != nil {
 			return fmt.Errorf("applying profile value %s=%q: %w", name, value, err)
 		}
+		flag.Changed = true
 	}
 	return nil
 }
@@ -165,6 +176,7 @@ Explicit flags override profile values.`,
 
 func newProfileSaveCmd(flags *rootFlags) *cobra.Command {
 	var description string
+	var runDefaults runCommandOptions
 	cmd := &cobra.Command{
 		Use:   "save <name> [--<flag> <value> ...]",
 		Short: "Save the current invocation's non-default flags as a named profile",
@@ -176,9 +188,14 @@ To avoid creating empty profiles, at least one non-default flag must be
 present (other than --profile and --config).`,
 		Example: `  wavespeed-pp-cli profile save my-defaults --json --compact
   wavespeed-pp-cli profile save tonight-defaults --region US`,
-		Args: cobra.ExactArgs(1),
+		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
+			if len(args) > 1 && cmd.Flags().Changed("images") {
+				runDefaults.images = append(runDefaults.images, args[1:]...)
+			} else if len(args) > 1 {
+				return fmt.Errorf("unexpected extra profile save args: %s", strings.Join(args[1:], ", "))
+			}
 			if strings.ContainsAny(name, `/\: `) {
 				return fmt.Errorf("profile name %q contains reserved characters", name)
 			}
@@ -187,7 +204,13 @@ present (other than --profile and --config).`,
 			skip := map[string]bool{"profile": true, "config": true, "help": true, "description": true}
 			visit := func(fl *pflag.Flag) {
 				if fl.Changed && !skip[fl.Name] {
-					values[fl.Name] = fl.Value.String()
+					if isProfileArrayFlag(fl) {
+						items := profileArrayValues(fl.Value.String())
+						raw, _ := json.Marshal(items)
+						values[fl.Name] = string(raw)
+					} else {
+						values[fl.Name] = fl.Value.String()
+					}
 				}
 			}
 			cmd.InheritedFlags().VisitAll(visit)
@@ -211,7 +234,37 @@ present (other than --profile and --config).`,
 		},
 	}
 	cmd.Flags().StringVar(&description, "description", "", "Short description shown in 'profile list'")
+	addRunInputFlags(cmd, &runDefaults)
 	return cmd
+}
+
+func isProfileArrayFlag(fl *pflag.Flag) bool {
+	if fl == nil {
+		return false
+	}
+	switch fl.Value.Type() {
+	case "stringArray", "stringSlice":
+		return true
+	default:
+		return false
+	}
+}
+
+func profileArrayValues(raw string) []string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return nil
+	}
+	if strings.HasPrefix(raw, "[") && strings.HasSuffix(raw, "]") {
+		var items []string
+		if err := json.Unmarshal([]byte(raw), &items); err == nil {
+			if len(items) == 0 {
+				return nil
+			}
+			return items
+		}
+	}
+	return []string{raw}
 }
 
 func newProfileUseCmd(flags *rootFlags) *cobra.Command {

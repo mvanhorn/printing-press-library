@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "wavespeed-run-download-recovery",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260527-214905",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Hardened run --download so completed prediction payloads print before download attempts and CDN downloads do not receive API credentials.",
+  "reason": "WaveSpeed completed predictions can include public CDN outputs plus API management URLs; attaching credentials to CDN requests or failing before printing the paid result loses the successful generation URL.",
+  "files": [
+    "internal/cli/run.go",
+    "internal/cli/run_test.go"
+  ],
+  "validated_outcome": "Regression tests cover positional --download path parsing, CDN downloads without Authorization, skipped prediction management URLs, and non-fatal post-success download warnings."
+}

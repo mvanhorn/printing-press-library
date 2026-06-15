@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "1.0.0"
+var version = "2026.6.2"
 
 type rootFlags struct {
 	asJSON     bool
@@ -256,6 +256,8 @@ Run 'wavespeed-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newPriceCmd(flags))
 	rootCmd.AddCommand(newUploadCmd(flags))
 	rootCmd.AddCommand(newDownloadCmd(flags))
+	rootCmd.AddCommand(newLastCmd(flags))
+	rootCmd.AddCommand(newOpenCmd(flags))
 	rootCmd.AddCommand(newAliasesCmd(flags))
 	rootCmd.AddCommand(newInitCmd(flags))
 	rootCmd.AddCommand(newAccountBalancePromotedCmd(flags))

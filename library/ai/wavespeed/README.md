@@ -192,6 +192,7 @@ Manage model pricing
 Model catalog and model metadata
 
 - **`wavespeed-pp-cli models`** - List available WaveSpeed models and their API schemas.
+- **`wavespeed-pp-cli models --capability image-edit`** - List image-editing models as `model_id`, price/base price, pricing formula, and resolution/size enums so you can compare cheaper options without guessing IDs.
 
 ### run
 
@@ -199,6 +200,10 @@ Submit generation tasks to slash-delimited WaveSpeed model paths.
 
 - **`wavespeed-pp-cli run <model-id> --input '<json>'`** - Submit a model run with JSON inputs.
 - **`wavespeed-pp-cli run <model-id> --input-file request.json --price --wait --download`** - Price, submit, poll, and download output URLs.
+- **`wavespeed-pp-cli run <model-id> --help-model`** - Show model inputs, valid enum values such as `resolution`/`size`, and pricing formula/base price guidance.
+- **`wavespeed-pp-cli run <model-id> --price-only`** - Estimate pricing with the same flags/profile as a real run, without submitting a prediction.
+- **`wavespeed-pp-cli profile save littlemight --images @style1.png @style2.png @style3.png`** then **`wavespeed-pp-cli run <model-id> --profile littlemight -p "..."`** - Reuse Little Might reference image anchors without retyping them.
+- **`wavespeed-pp-cli last`** / **`wavespeed-pp-cli open`** - Print or open the most recently downloaded output.
 
 ### prediction_deletions
 
