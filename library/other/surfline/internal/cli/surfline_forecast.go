@@ -290,22 +290,24 @@ func fetchSunlight(ctx context.Context, c *client.Client, spotID string, days in
 	return env.Data.Sunlight, nil
 }
 
-// isDaylight reports whether ts falls within any sunrise..sunset window. When no
-// sunlight data is available it returns true so the caller does not silently drop
-// every point.
+// isDaylight reports whether ts falls within any sunrise..sunset window. It
+// fails OPEN: when there is no usable sunlight data — empty slice, or every
+// entry has a zero sunrise/sunset — it returns true so the caller does not
+// silently drop every point. Only when at least one valid window exists is ts
+// actually tested against it.
 func isDaylight(ts int64, sun []sunlightPoint) bool {
-	if len(sun) == 0 {
-		return true
-	}
+	sawValid := false
 	for _, s := range sun {
 		if s.Sunrise == 0 || s.Sunset == 0 {
 			continue
 		}
+		sawValid = true
 		if ts >= s.Sunrise && ts <= s.Sunset {
 			return true
 		}
 	}
-	return false
+	// No usable sunlight windows → fail open rather than hiding every window.
+	return !sawValid
 }
 
 // nextTides returns up to n tide extremes (HIGH/LOW) at or after `from`.

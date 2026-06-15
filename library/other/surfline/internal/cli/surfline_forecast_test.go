@@ -101,6 +101,15 @@ func TestIsDaylight(t *testing.T) {
 	if !isDaylight(150, nil) {
 		t.Fatal("no sunlight data should default to daylight")
 	}
+	// Fail open: sunlight present but all-zero timestamps must not hide every point.
+	if !isDaylight(150, []sunlightPoint{{}, {Sunrise: 0, Sunset: 0}}) {
+		t.Fatal("all-zero sunlight entries should fail open (daylight)")
+	}
+	// A mix with one valid window still tests ts against the valid window.
+	mixed := []sunlightPoint{{}, {Sunrise: 100, Sunset: 200}}
+	if isDaylight(250, mixed) {
+		t.Fatal("250 outside the one valid window should be night")
+	}
 }
 
 func TestParseBuoys(t *testing.T) {
