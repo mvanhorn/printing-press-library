@@ -6,9 +6,15 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -102,14 +108,14 @@ func fileKeyFromPath(path string) string {
 
 // agentNodeSummary is a compact, agent-friendly projection of a Figma node.
 type agentNodeSummary struct {
-	ID                  string            `json:"id"`
-	Name                string            `json:"name"`
-	Type                string            `json:"type"`
-	Path                []string          `json:"path"`
-	Label               string            `json:"label"`
-	ParentID            string            `json:"parent_id,omitempty"`
-	ChildCount          int               `json:"child_count"`
-	AbsoluteBoundingBox map[string]any    `json:"absolute_bounding_box,omitempty"`
+	ID                  string         `json:"id"`
+	Name                string         `json:"name"`
+	Type                string         `json:"type"`
+	Path                []string       `json:"path"`
+	Label               string         `json:"label"`
+	ParentID            string         `json:"parent_id,omitempty"`
+	ChildCount          int            `json:"child_count"`
+	AbsoluteBoundingBox map[string]any `json:"absolute_bounding_box,omitempty"`
 }
 
 // buildAgentNodeIndex walks a Figma document tree depth-first and returns
@@ -259,6 +265,98 @@ func scoreAgentNode(query string, node agentNodeSummary) int {
 	return 0
 }
 
+func sanitizeFilename(s string) string {
+	var b strings.Builder
+	lastDash := false
+	for _, r := range strings.TrimSpace(s) {
+		ok := (r >= 'A' && r <= 'Z') || (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '.' || r == '_' || r == '-'
+		if !ok {
+			if !lastDash {
+				b.WriteByte('-')
+				lastDash = true
+			}
+			continue
+		}
+		b.WriteRune(r)
+		lastDash = r == '-'
+	}
+	out := strings.Trim(b.String(), "-.")
+	for strings.Contains(out, "--") {
+		out = strings.ReplaceAll(out, "--", "-")
+	}
+	if len(out) > 60 {
+		out = strings.Trim(out[:60], "-.")
+	}
+	if out == "" {
+		return "node"
+	}
+	return strings.ToLower(out)
+}
+
+var (
+	numericNodeNameRE = regexp.MustCompile(`^\d+$`)
+	groupNodeNameRE   = regexp.MustCompile(`^group \d+$`)
+	frameNodeNameRE   = regexp.MustCompile(`^frame \d+$`)
+)
+
+func isLikelyScreenNode(n agentNodeSummary) bool {
+	switch strings.ToUpper(strings.TrimSpace(n.Type)) {
+	case "GROUP", "VECTOR", "BOOLEAN_OPERATION":
+		return false
+	}
+	name := strings.ToLower(strings.TrimSpace(n.Name))
+	if numericNodeNameRE.MatchString(name) || groupNodeNameRE.MatchString(name) || frameNodeNameRE.MatchString(name) {
+		return false
+	}
+	stop := map[string]bool{
+		"status bar": true, "home indicator": true, "scrims": true, "wordmark": true,
+		"content container": true, "bottom nav (pain)": true, "button groups": true, "top": true,
+	}
+	return !stop[name]
+}
+
+func downloadToFile(httpClient *http.Client, srcURL, destPath string) (int64, error) {
+	if httpClient == nil {
+		httpClient = &http.Client{Timeout: 60 * time.Second}
+	}
+	resp, err := httpClient.Get(srcURL)
+	if err != nil {
+		return 0, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return 0, fmt.Errorf("download failed: HTTP %s", resp.Status)
+	}
+	if err := os.MkdirAll(filepath.Dir(destPath), 0o755); err != nil {
+		return 0, err
+	}
+	tmp := destPath + ".tmp"
+	f, err := os.Create(tmp)
+	if err != nil {
+		return 0, err
+	}
+	const maxDownloadBytes = int64(40 << 20)
+	n, copyErr := io.Copy(f, io.LimitReader(resp.Body, maxDownloadBytes+1))
+	closeErr := f.Close()
+	if copyErr != nil {
+		_ = os.Remove(tmp)
+		return n, copyErr
+	}
+	if n > maxDownloadBytes {
+		_ = os.Remove(tmp)
+		return 0, fmt.Errorf("render exceeded %d MiB cap", maxDownloadBytes>>20)
+	}
+	if closeErr != nil {
+		_ = os.Remove(tmp)
+		return n, closeErr
+	}
+	if err := os.Rename(tmp, destPath); err != nil {
+		_ = os.Remove(tmp)
+		return n, err
+	}
+	return n, nil
+}
+
 // agentMatch is the score-bearing projection used by find-node output.
 type agentMatch struct {
 	ID    string `json:"id"`
@@ -281,6 +379,7 @@ extract, or dev-mode dump.`,
 	}
 	cmd.AddCommand(newAgentOutlineCmd(flags))
 	cmd.AddCommand(newAgentFindNodeCmd(flags))
+	cmd.AddCommand(newAgentShotCmd(flags))
 	return cmd
 }
 
@@ -370,6 +469,205 @@ images, frame extract, or dev-mode dump.`,
 	cmd.Flags().StringVar(&types, "types", "CANVAS,SECTION,FRAME,INSTANCE,COMPONENT,GROUP", "Comma-separated node types to include")
 	cmd.Flags().IntVar(&limit, "limit", 200, "Max nodes to return (0 = unlimited)")
 	return cmd
+}
+
+func newAgentShotCmd(flags *rootFlags) *cobra.Command {
+	var max int
+	var scale float64
+	var format string
+	var depth int
+	var types string
+	var outDir string
+	var noDownload bool
+
+	cmd := &cobra.Command{
+		Use:   "shot <figma-url-or-key> [query]",
+		Short: "Resolve, render, and optionally download Figma node screenshots.",
+		Long: `Resolve a label (or node-id in a Figma URL), filter to screen-like nodes,
+render via /v1/images, and download render bytes to local files. Downloading is
+best-effort: when the render CDN is unreachable, output keeps the expiring URL
+and records download_error without failing the command.`,
+		Example: strings.Trim(`
+  figma-pp-cli agent shot abc123XyZ "Cash transfer Intro" --max 3 --agent
+  figma-pp-cli agent shot "https://www.figma.com/design/abc123XyZ/T?node-id=123-456" --agent
+  figma-pp-cli agent shot abc123XyZ Signup --no-download --agent
+`, "\n"),
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				return cmd.Help()
+			}
+			ref, err := parseFigmaRef(args[0])
+			if err != nil {
+				return usageErr(err)
+			}
+			query := ""
+			if len(args) >= 2 {
+				query = strings.Join(args[1:], " ")
+			}
+			if dryRunOK(flags) {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"dry_run": true, "command": "agent shot", "file_key": ref.FileKey,
+					"node_id": ref.NodeID, "query": query, "method": "GET",
+					"path":   "/v1/images/" + ref.FileKey,
+					"params": map[string]string{"format": format, "scale": fmt.Sprintf("%g", scale)},
+				}, flags)
+			}
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+
+			matches, ambiguous, err := resolveAgentShotMatches(flags, c, ref, query, types, depth, max)
+			if err != nil {
+				return err
+			}
+			if len(matches) == 0 || ambiguous {
+				out := map[string]any{
+					"file_key": ref.FileKey, "query": query, "count": 0, "ambiguous": ambiguous,
+					"images": []any{}, "next_steps": agentShotNextSteps(ref.FileKey, query, depth),
+				}
+				if ambiguous {
+					out["matches"] = matches
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+			}
+
+			ids := make([]string, 0, len(matches))
+			for _, m := range matches {
+				ids = append(ids, m.ID)
+			}
+			raw, err := c.Get("/v1/images/"+ref.FileKey, map[string]string{"ids": strings.Join(ids, ","), "format": format, "scale": fmt.Sprintf("%g", scale)})
+			if err != nil {
+				return classifyAPIError(err, flags)
+			}
+			var render struct {
+				Err    *string            `json:"err"`
+				Images map[string]*string `json:"images"`
+			}
+			if err := json.Unmarshal(raw, &render); err != nil {
+				return fmt.Errorf("decoding images response: %w", err)
+			}
+
+			timeout := flags.timeout
+			if timeout == 0 {
+				timeout = 60 * time.Second
+			}
+			dlClient := &http.Client{Timeout: timeout}
+			images := make([]map[string]any, 0, len(matches))
+			ext := strings.TrimPrefix(strings.ToLower(format), ".")
+			if ext == "" {
+				ext = "png"
+			}
+			for _, m := range matches {
+				item := map[string]any{"id": m.ID, "name": m.Name, "type": m.Type, "label": m.Label, "score": m.Score}
+				urlPtr := render.Images[m.ID]
+				if urlPtr == nil || *urlPtr == "" {
+					if render.Err != nil && *render.Err != "" {
+						item["render_error"] = *render.Err
+					} else {
+						item["render_error"] = "no image returned"
+					}
+					images = append(images, item)
+					continue
+				}
+				item["url"] = *urlPtr
+				if !noDownload {
+					dest := filepath.Join(outDir, sanitizeFilename(m.Label)+"-"+sanitizeFilename(m.ID)+"."+ext)
+					bytesWritten, err := downloadToFile(dlClient, *urlPtr, dest)
+					if err != nil {
+						item["download_error"] = err.Error()
+					} else {
+						item["path"] = dest
+						item["bytes"] = bytesWritten
+					}
+				}
+				images = append(images, item)
+			}
+
+			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+				"file_key": ref.FileKey, "query": query, "count": len(images), "ambiguous": false,
+				"out_dir": outDir, "images": images,
+				"next_steps": []string{
+					"Send a screenshot in Slack by attaching the local file at images[].path.",
+					"If path is missing, the render CDN was unreachable; use images[].url instead (it expires).",
+				},
+			}, flags)
+		},
+	}
+	cmd.Flags().IntVar(&max, "max", 3, "Max screenshots to render")
+	cmd.Flags().Float64Var(&scale, "scale", 2, "Image render scale")
+	cmd.Flags().StringVar(&format, "format", "png", "Image format")
+	cmd.Flags().IntVar(&depth, "depth", 3, "Max tree depth to request from the Figma file API")
+	cmd.Flags().StringVar(&types, "types", "SECTION,FRAME,COMPONENT,INSTANCE", "Comma-separated node types to include")
+	cmd.Flags().StringVar(&outDir, "out-dir", filepath.Join(os.TempDir(), "figma-pp-cli"), "Directory for downloaded screenshots")
+	cmd.Flags().BoolVar(&noDownload, "no-download", false, "Return render URLs without downloading image bytes")
+	return cmd
+}
+
+func resolveAgentShotMatches(flags *rootFlags, c interface {
+	Get(string, map[string]string) (json.RawMessage, error)
+}, ref figmaRef, query, types string, depth, max int) ([]agentMatch, bool, error) {
+	if max <= 0 {
+		max = 1
+	}
+	if query == "" && ref.NodeID != "" {
+		m, err := agentResolveDirectMatch(flags, c, ref)
+		if err != nil {
+			return nil, false, err
+		}
+		return []agentMatch{m}, false, nil
+	}
+	if query == "" {
+		return nil, false, usageErr(fmt.Errorf("a query is required (or supply a Figma URL with a node-id)"))
+	}
+	raw, err := c.Get("/v1/files/"+ref.FileKey, map[string]string{"depth": fmt.Sprintf("%d", depth)})
+	if err != nil {
+		return nil, false, classifyAPIError(err, flags)
+	}
+	var env struct {
+		Document map[string]any `json:"document"`
+	}
+	if err := json.Unmarshal(raw, &env); err != nil {
+		return nil, false, fmt.Errorf("decoding file response: %w", err)
+	}
+	nodes := buildAgentNodeIndex(env.Document, parseTypeSet(types), 0)
+	matches := []agentMatch{}
+	for _, n := range nodes {
+		s := scoreAgentNode(query, n)
+		if s > 0 && isLikelyScreenNode(n) {
+			matches = append(matches, agentMatch{ID: n.ID, Name: n.Name, Type: n.Type, Label: n.Label, Score: s})
+		}
+	}
+	sort.SliceStable(matches, func(i, j int) bool {
+		if matches[i].Score != matches[j].Score {
+			return matches[i].Score > matches[j].Score
+		}
+		if len(matches[i].Label) != len(matches[j].Label) {
+			return len(matches[i].Label) < len(matches[j].Label)
+		}
+		return matches[i].Label < matches[j].Label
+	})
+	if max == 1 && len(matches) >= 2 && matches[0].Score == matches[1].Score {
+		return matches[:2], true, nil
+	}
+	seen := map[string]bool{}
+	out := []agentMatch{}
+	for _, m := range matches {
+		if seen[m.ID] {
+			continue
+		}
+		seen[m.ID] = true
+		out = append(out, m)
+		if len(out) >= max {
+			break
+		}
+	}
+	return out, false, nil
+}
+
+func agentShotNextSteps(fileKey, query string, depth int) []string {
+	return []string{fmt.Sprintf("No screenshots rendered for %q. Run 'figma-pp-cli agent outline %s --depth %d --agent' to list available labels.", query, fileKey, depth)}
 }
 
 func newAgentFindNodeCmd(flags *rootFlags) *cobra.Command {
@@ -506,21 +804,19 @@ direct hit. Ambiguous ties are reported as candidates, never guessed.`,
 	return cmd
 }
 
-// agentFindNodeDirect resolves a node-id embedded in a Figma URL as a single
-// direct hit. It never invents a name: if the fetch fails or returns no
-// document, the caller surfaces the error normally.
-func agentFindNodeDirect(cmd *cobra.Command, flags *rootFlags, c interface{ Get(string, map[string]string) (json.RawMessage, error) }, ref figmaRef) error {
+func agentResolveDirectMatch(flags *rootFlags, c interface {
+	Get(string, map[string]string) (json.RawMessage, error)
+}, ref figmaRef) (agentMatch, error) {
 	raw, err := c.Get("/v1/files/"+ref.FileKey+"/nodes", map[string]string{"ids": ref.NodeID, "depth": "1"})
 	if err != nil {
-		return classifyAPIError(err, flags)
+		return agentMatch{}, classifyAPIError(err, flags)
 	}
 	var env struct {
 		Nodes map[string]json.RawMessage `json:"nodes"`
 	}
 	if err := json.Unmarshal(raw, &env); err != nil {
-		return fmt.Errorf("decoding nodes response: %w", err)
+		return agentMatch{}, fmt.Errorf("decoding nodes response: %w", err)
 	}
-
 	var doc map[string]any
 	for _, entryRaw := range env.Nodes {
 		var entry map[string]any
@@ -532,24 +828,23 @@ func agentFindNodeDirect(cmd *cobra.Command, flags *rootFlags, c interface{ Get(
 			break
 		}
 	}
-
 	if doc == nil {
-		// Figma returns {"nodes":{}} (invalid id not in the map) or
-		// {"nodes":{"<id>":null}} (id present but node deleted/hidden) for
-		// an unresolvable node-id. Treat both as "not found" instead of
-		// fabricating a match with empty name/type/label — otherwise agents
-		// receive a score-100 hit for a node that does not exist.
-		return fmt.Errorf("node %q not found in Figma file %s", ref.NodeID, ref.FileKey)
+		return agentMatch{}, fmt.Errorf("node %q not found in Figma file %s", ref.NodeID, ref.FileKey)
 	}
-
 	name, _ := doc["name"].(string)
 	nodeType, _ := doc["type"].(string)
-	hit := agentMatch{
-		ID:    ref.NodeID,
-		Name:  name,
-		Type:  nodeType,
-		Label: name,
-		Score: 100,
+	return agentMatch{ID: ref.NodeID, Name: name, Type: nodeType, Label: name, Score: 100}, nil
+}
+
+// agentFindNodeDirect resolves a node-id embedded in a Figma URL as a single
+// direct hit. It never invents a name: if the fetch fails or returns no
+// document, the caller surfaces the error normally.
+func agentFindNodeDirect(cmd *cobra.Command, flags *rootFlags, c interface {
+	Get(string, map[string]string) (json.RawMessage, error)
+}, ref figmaRef) error {
+	hit, err := agentResolveDirectMatch(flags, c, ref)
+	if err != nil {
+		return err
 	}
 	matches := []agentMatch{hit}
 	out := map[string]any{
