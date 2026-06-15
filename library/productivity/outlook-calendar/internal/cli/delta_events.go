@@ -28,10 +28,18 @@ func newDeltaEventsCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/me/events/delta"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "delta", path, map[string]string{
-				"$deltatoken": fmt.Sprintf("%v", flagDeltatoken),
-				"$top":        fmt.Sprintf("%v", flagTop),
-			}, nil, flagAll, "", "", "")
+			// PATCH(outlook-calendar-events-delta-prefer-pagesize): Microsoft Graph
+			// rejects $top on /me/events/delta (the SyncEvents resource) with
+			// ErrorInvalidUrlQuery — page size must be requested via the
+			// "Prefer: odata.maxpagesize=N" header instead. Send $top as that
+			// header, and omit an empty delta token so a fresh sync isn't sent
+			// "$deltatoken=".
+			params := map[string]string{}
+			if flagDeltatoken != "" {
+				params["$deltatoken"] = flagDeltatoken
+			}
+			headers := map[string]string{"Prefer": fmt.Sprintf("odata.maxpagesize=%d", flagTop)}
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "delta", path, params, headers, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
