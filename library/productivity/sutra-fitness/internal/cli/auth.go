@@ -39,7 +39,7 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 		Example: "  sutra-fitness-pp-cli auth setup\n  sutra-fitness-pp-cli auth setup --launch",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			w := cmd.OutOrStdout()
-			fmt.Fprintln(w, "Get a key at: https://us-central1-sutra-prod.cloudfunctions.net/partnerApi/v0`")
+			fmt.Fprintln(w, "Get a key at: https://us-central1-sutra-prod.cloudfunctions.net/partnerApi/v0")
 			fmt.Fprintln(w, "")
 			fmt.Fprintln(w, "Then set:")
 			fmt.Fprintln(w, "  export SUTRA_API_KEY=\"<your-token>\"")
@@ -47,7 +47,7 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 			if !launch {
 				return nil
 			}
-			launchURL := "https://us-central1-sutra-prod.cloudfunctions.net/partnerApi/v0`"
+			launchURL := "https://us-central1-sutra-prod.cloudfunctions.net/partnerApi/v0"
 			if cliutil.IsVerifyEnv() {
 				fmt.Fprintf(w, "would launch: %s\n", launchURL)
 				return nil

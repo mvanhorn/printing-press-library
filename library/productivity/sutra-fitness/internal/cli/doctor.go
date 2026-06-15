@@ -174,7 +174,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				if header == "" {
 					report["auth"] = "not configured"
 					report["auth_hint"] = "export SUTRA_API_KEY=<your-key>"
-					report["auth_key_url"] = "https://us-central1-sutra-prod.cloudfunctions.net/partnerApi/v0`"
+					report["auth_key_url"] = "https://us-central1-sutra-prod.cloudfunctions.net/partnerApi/v0"
 				} else {
 					authConfigured = true
 					report["auth"] = "configured"

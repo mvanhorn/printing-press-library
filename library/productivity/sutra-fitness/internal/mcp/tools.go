@@ -448,19 +448,19 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
 					"\n      Set your API key: export SUTRA_API_KEY=<your-key>" +
-					"\n      Get a key at: https://us-central1-sutra-prod.cloudfunctions.net/partnerApi/v0`" +
+					"\n      Get a key at: https://us-central1-sutra-prod.cloudfunctions.net/partnerApi/v0" +
 					"\n      Run 'sutra-fitness-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
 				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your API key." +
 					"\n      Set it with: export SUTRA_API_KEY=<your-key>" +
-					"\n      Get a key at: https://us-central1-sutra-prod.cloudfunctions.net/partnerApi/v0`" +
+					"\n      Get a key at: https://us-central1-sutra-prod.cloudfunctions.net/partnerApi/v0" +
 					"\n      Run 'sutra-fitness-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource." +
 					"\n      Set it with: export SUTRA_API_KEY=<your-key>" +
-					"\n      Get a key at: https://us-central1-sutra-prod.cloudfunctions.net/partnerApi/v0`" +
+					"\n      Get a key at: https://us-central1-sutra-prod.cloudfunctions.net/partnerApi/v0" +
 					"\n      Run 'sutra-fitness-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
@@ -889,7 +889,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 					"description": "Set to your API credential.",
 				},
 			},
-			"key_url": "https://us-central1-sutra-prod.cloudfunctions.net/partnerApi/v0`",
+			"key_url": "https://us-central1-sutra-prod.cloudfunctions.net/partnerApi/v0",
 		},
 		"resources": []map[string]any{
 			{

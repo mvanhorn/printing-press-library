@@ -166,7 +166,16 @@ Use this command for behavioral at-risk clients. For hard date/credit expiry use
 				return fmt.Errorf("iterating clients: %w", err)
 			}
 			sort.SliceStable(out, func(i, j int) bool {
-				return out[i].DaysInactive > out[j].DaysInactive
+				// DaysInactive == -1 means no check-in on record — the most
+				// at-risk clients — so rank them above any finite inactivity.
+				di, dj := out[i].DaysInactive, out[j].DaysInactive
+				if di < 0 {
+					di = int(^uint(0) >> 1)
+				}
+				if dj < 0 {
+					dj = int(^uint(0) >> 1)
+				}
+				return di > dj
 			})
 
 			return emitAnalytics(cmd, flags, out)
