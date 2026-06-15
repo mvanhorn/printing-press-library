@@ -48,6 +48,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   mercury-pp-cli workflow payment-plan --kind transfer --source-account-id acct_src --destination-account-id acct_dst --amount 25 --agent
   ```
+
 - **`workflow archive`** — Syncs supported Mercury resources into a local SQLite store for offline search and analytics.
 
   _Reduces API calls and gives agents repeatable context._
@@ -55,6 +56,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   mercury-pp-cli workflow archive --agent
   ```
+
 - **`agent-context`** — Emits machine-readable command metadata for agents and MCP hosts.
 
   _Improves autonomous command selection and reduces context waste._
@@ -152,7 +154,6 @@ These capabilities aren't available in any other tool for this API.
 
 **statements** — Download account statements
 
-
 **transaction** — Manage transactions
 
 - `mercury-pp-cli transaction get-by-id` — Retrieve a single transaction by its ID. Returns full transaction details including attachments, check images, and...
@@ -183,6 +184,26 @@ These capabilities aren't available in any other tool for this API.
 - `mercury-pp-cli webhooks get-webhookendpointid` — Retrieve details of a specific webhook endpoint by ID
 - `mercury-pp-cli webhooks update` — Update the configuration of an existing webhook endpoint. A webhook that has been disabled due to consecutive...
 
+### Composite workflows
+
+Higher-value commands that compose existing reads. Read-only, all-accounts by default.
+
+- `mercury-pp-cli cash-runway` — Sum account balances and recent transactions into average weekly net burn and projected weeks of runway.
+
+```bash
+# Runway based on the last 12 weeks of burn
+mercury-pp-cli cash-runway --weeks 12 --json
+```
+
+Flags: `--weeks` (weeks of transactions to average burn over, default 8), `--account-id` (limit to one account; default all).
+
+- `mercury-pp-cli spend-by-category` — Roll up outflow by Mercury category over a period with a week-over-week delta, from one windowed transaction read. Outflows without a category fall into `uncategorized`.
+
+```bash
+mercury-pp-cli spend-by-category --days 7 --json
+```
+
+Flags: `--days` (length of the current period; the prior period of equal length precedes it, default 7), `--account-id` (limit to one account; default all).
 
 ### Finding the right command
 
@@ -216,6 +237,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
   ```bash
   mercury-pp-cli account mock-value --agent --select id,name,status
   ```
+
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
 - **Non-interactive** — never prompts, every input is a flag
@@ -246,16 +268,16 @@ mercury-pp-cli feedback list --json --limit 10
 
 Entries are stored locally at `~/.mercury-pp-cli/feedback.jsonl`. They are never POSTed unless `MERCURY_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `MERCURY_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
-Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
+Write what _surprised_ you, not a bug report. Short, specific, one line: that is the part that compounds.
 
 ## Output Delivery
 
 Every command accepts `--deliver <sink>`. The output goes to the named sink in addition to (or instead of) stdout, so agents can route command results without hand-piping. Three sinks are supported:
 
-| Sink | Effect |
-|------|--------|
-| `stdout` | Default; write to stdout only |
-| `file:<path>` | Atomically write output to `<path>` (tmp + rename) |
+| Sink            | Effect                                                                                          |
+| --------------- | ----------------------------------------------------------------------------------------------- |
+| `stdout`        | Default; write to stdout only                                                                   |
+| `file:<path>`   | Atomically write output to `<path>` (tmp + rename)                                              |
 | `webhook:<url>` | POST the output body to the URL (`application/json` or `application/x-ndjson` when `--compact`) |
 
 Unknown schemes are refused with a structured error naming the supported set. Webhook failures return non-zero and log the URL + HTTP status on stderr.
@@ -276,15 +298,15 @@ Explicit flags always win over profile values; profile values win over defaults.
 
 ## Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| 0 | Success |
-| 2 | Usage error (wrong arguments) |
-| 3 | Resource not found |
-| 4 | Authentication required |
-| 5 | API error (upstream issue) |
-| 7 | Rate limited (wait and retry) |
-| 10 | Config error |
+| Code | Meaning                       |
+| ---- | ----------------------------- |
+| 0    | Success                       |
+| 2    | Usage error (wrong arguments) |
+| 3    | Resource not found            |
+| 4    | Authentication required       |
+| 5    | API error (upstream issue)    |
+| 7    | Rate limited (wait and retry) |
+| 10   | Config error                  |
 
 ## Argument Parsing
 
@@ -293,6 +315,7 @@ Parse `$ARGUMENTS`:
 1. **Empty, `help`, or `--help`** → show `mercury-pp-cli --help` output
 2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → see Prerequisites above
 3. **Anything else** → Direct Use (execute as CLI command with `--agent`)
+
 ## MCP Server Installation
 
 1. Install the MCP server:

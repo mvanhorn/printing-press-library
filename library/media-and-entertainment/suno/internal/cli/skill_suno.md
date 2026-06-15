@@ -22,12 +22,12 @@ metadata:
 
 This skill drives the `suno-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer into a user bin directory:
    ```bash
-   npx -y @mvanhorn/printing-press-library install suno --cli-only
+   npx -y @mvanhorn/printing-press-library install suno --cli-only --bin-dir ~/.local/bin
    ```
 2. Verify: `suno-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
 If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
@@ -35,9 +35,7 @@ If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go in
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/cmd/suno-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Suno has no official API and every reverse-engineered client is abandoned and wrong in ways that matter today — broken pagination, broken cover, stale pre-2026 auth, no local persistence. This CLI is built from the current contract: it walks the real opaque feed cursor, sends the now-required cover title, tolerates the drifted billing schema, authenticates against the current auth.suno.com Clerk flow via your logged-in browser, and persists your whole library to local SQLite for offline grep, SQL, lineage, and analytics. Generate, extend, cover, remaster, stems, lyrics, download — all with --json, --select, --dry-run, and typed exit codes.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 

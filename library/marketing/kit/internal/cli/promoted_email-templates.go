@@ -97,6 +97,7 @@ func newEmailTemplatesPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	// Wire sibling endpoints and sub-resources as subcommands
+	cmd.AddCommand(newEmailTemplatesApplyCmd(flags))
 
 	return cmd
 }

@@ -15,6 +15,7 @@ func newSequencesCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.AddCommand(newSequencesCreateCmd(flags))
+	cmd.AddCommand(newSequencesBuildCmd(flags))
 	cmd.AddCommand(newSequencesDeleteCmd(flags))
 	cmd.AddCommand(newSequencesGetCmd(flags))
 	cmd.AddCommand(newSequencesListCmd(flags))

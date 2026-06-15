@@ -14,6 +14,7 @@ func newBroadcastsCmd(flags *rootFlags) *cobra.Command {
 		RunE:  parentNoSubcommandRunE(flags),
 	}
 
+	cmd.AddCommand(newBroadcastsComposeCmd(flags))
 	cmd.AddCommand(newBroadcastsCreateCmd(flags))
 	cmd.AddCommand(newBroadcastsDeleteCmd(flags))
 	cmd.AddCommand(newBroadcastsGetCmd(flags))

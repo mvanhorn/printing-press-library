@@ -23,9 +23,7 @@
   "mcp_ready": "full",
   "api_version": "1.0",
   "auth_type": "api_key",
-  "auth_env_vars": [
-    "ELEVENLABS_API_KEY"
-  ],
+  "auth_env_vars": ["ELEVENLABS_API_KEY"],
   "auth_key_url": "https://elevenlabs.io/app/settings/api-keys",
   "novel_features": [
     {
@@ -47,6 +45,11 @@
       "name": "Dialogue Cast",
       "command": "dialogue cast",
       "description": "Render speaker-labelled dialogue lines by resolving speaker-to-voice assignments and saving audio."
+    },
+    {
+      "name": "Voice budget",
+      "command": "voice-budget",
+      "description": "Compose the subscription and voices reads into remaining character credits, tier limits, reset timing, and voice-slot headroom before a large TTS batch."
     }
   ]
 }

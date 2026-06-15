@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "composite-review-fixes",
+  "applied_at": "2026-06-03",
+  "base_run_id": "",
+  "base_printing_press_version": "3.4.0",
+  "summary": "Address PR review on the composite commands: reject invalid --mode, add --mode to striking-distance, and decouple keyword-gap's target lookup from --limit via --target-limit.",
+  "reason": "validateCompositeMode now returns an error instead of warning so bad --mode values fail before hitting the API; striking-distance gains the --mode flag for parity with the other composites; keyword-gap fetches your own rankings under a separate --target-limit so keywords ranked beyond the first --limit rows are not reported as false gaps.",
+  "files": [
+    "internal/cli/composite_helpers.go",
+    "internal/cli/keyword_gap.go",
+    "internal/cli/striking_distance.go",
+    "internal/cli/link_intersect.go",
+    "internal/cli/composite_commands_test.go",
+    "SKILL.md",
+    "README.md"
+  ]
+}

@@ -58,9 +58,6 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			resources := []string{"account-activity", "activity", "activity-subscriptions", "chat", "compliance", "connections", "dm-events", "openapi-json", "tweets", "tweets-search-stream-rules", "tweets-search-stream-rules-counts", "usage", "users", "users-personalized-trends", "users-reposts-of-me", "webhooks"}
 			totalSynced := 0
 			syncEventWriter := cmd.OutOrStdout()
-			if flags.asJSON {
-				syncEventWriter = cmd.ErrOrStderr()
-			}
 
 			// --full clears the cursor here because syncResource reads
 			// existingCursor unconditionally; its full param only gates the

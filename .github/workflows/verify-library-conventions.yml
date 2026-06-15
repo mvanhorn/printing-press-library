@@ -71,14 +71,14 @@ jobs:
         if: github.event_name == 'pull_request'
         env:
           BASE_REF: ${{ github.base_ref }}
-          BASE_REPO: ${{ github.repository }}
+          BASE_REPO_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
         run: |
           set -euo pipefail
           # Single authoritative fetch of base. Downstream steps reuse
           # `refs/remotes/base/${BASE_REF}` so they all see the same
           # base commit even if `main` advances mid-job.
-          git remote add base "https://github.com/${BASE_REPO}.git" 2>/dev/null \
-            || git remote set-url base "https://github.com/${BASE_REPO}.git"
+          git remote add base "${BASE_REPO_URL}" 2>/dev/null \
+            || git remote set-url base "${BASE_REPO_URL}"
           git fetch --no-tags base "${BASE_REF}:refs/remotes/base/${BASE_REF}"
           echo "ref=refs/remotes/base/${BASE_REF}" >> "${GITHUB_OUTPUT}"
 

@@ -11691,19 +11691,13 @@
         "x-twitter",
         "X (Twitter)",
         "x-twitter-pp-cli",
-        "The only X CLI with an offline, searchable local mirror — full-text search and analytics over your archived posts without re-spending per-read API credits — plus a full-surface MCP server and honest tier/reachability diagnostics.",
-        "Offline thread reconstruction",
-        "thread show",
-        "Rebuild a full conversation thread from your locally synced posts — ordered and depth-tagged — without re-spending API read credits.",
+        "X v2 API mirror with first-class Articles support — tweets, users, lists, spaces, bookmarks, likes via the official OpenAPI; long-form Articles authoring via browser-sniffed editor endpoints (GraphQL with rotating operation hashes).",
         "Markdown to tweet thread",
         "thread compose",
-        "Split a markdown file into a numbered, 280-char-packed self-reply thread; prints by default and only posts with --post.",
+        "Split a markdown file into a numbered tweet thread. Atom-aware splitter honors paragraphs, list items, and code fences. Numbering suffix is reserved before packing so final tweet length stays within 280 chars.",
         "Markdown to X Article",
         "articles-publish-md",
-        "Parse a markdown file with YAML frontmatter into the Draft.js content_state JSON X's Articles editor accepts; previews by default; --draft saves a draft, --post publishes publicly.",
-        "Offline bookmark search",
-        "users bookmarks find",
-        "Search your synced bookmarks by keyword and/or author, offline — X has no bookmark search and its API exposes no bookmark timestamp, so the local store rebuilds the missing retrieval layer without re-spending read credits."
+        "Parse a markdown file with YAML frontmatter (title, cover, tags) and convert the body to Draft.js content_state JSON — the format X's Articles editor accepts server-side via ArticleEntityUpdateContent. Supports cover images, body images, paragraphs, H1/H2, ordered/unordered lists, blockquote, fenced code blocks, bold, and italic."
       ],
       "path": "library/social-and-messaging/x-twitter",
       "printer": "cathrynlavery",
@@ -11712,22 +11706,15 @@
         "handle": "cathrynlavery",
         "name": "Cathryn Lavery"
       },
-      "contributors": [
-        {
-          "handle": "tmchow",
-          "name": "Trevin Chow"
-        }
-      ],
       "mcp": {
         "binary": "x-twitter-pp-mcp",
         "transports": [
           "stdio"
         ],
-        "tool_count": 163,
+        "tool_count": 156,
         "public_tool_count": 0,
         "auth_type": "bearer_token",
         "env_vars": [
-          "X_BEARER_TOKEN",
           "X_OAUTH2_USER_TOKEN"
         ],
         "mcp_ready": "full",

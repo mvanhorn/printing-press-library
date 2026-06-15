@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "snapshot",
+  "applied_at": "2026-06-03",
+  "base_run_id": "",
+  "base_printing_press_version": "3.4.0",
+  "summary": "Add a top-level snapshot command that combines Site Explorer authority, backlinks, and metrics report sections.",
+  "reason": "This read-only report card composes existing domain-rating, backlinks-stats, and metrics endpoints, preserving partial results by filling failed sections with null and returning warnings instead of failing the whole command.",
+  "files": [
+    "internal/cli/composite_helpers.go",
+    "internal/cli/composite_commands_test.go",
+    "internal/cli/snapshot.go",
+    "internal/cli/root.go",
+    ".printing-press.json",
+    "SKILL.md",
+    "README.md"
+  ]
+}

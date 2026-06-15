@@ -39,14 +39,19 @@ If `--version` reports "command not found" after install, the runtime cannot see
 
 ## Agentic Kit Workflows
 
-Prefer these read-only workflows before raw endpoint mirrors when the user asks for planning, diagnosis, audit, support, or account context:
+Prefer these workflows before raw endpoint mirrors when the user asks for planning, diagnosis, audit, support, account context, or common multi-step writes:
 
 - `kit-pp-cli workflow creator-snapshot --agent` — one operating snapshot with account, growth, audience, content, webhook, and broadcast stats.
 - `kit-pp-cli workflow audience-health --agent` — subscriber status counts, growth stats, and largest tags by subscriber count.
 - `kit-pp-cli workflow content-inventory --agent` — sequences, sequence emails, snippets, forms, email templates, and recent broadcast stats for content planning.
 - `kit-pp-cli workflow subscriber-lookup --email <email> --agent` — one subscriber profile with custom fields, tags, attribution, and email stats.
+- `kit-pp-cli sequences build --file <path> --agent` — create a sequence shell and ordered emails from a YAML or JSON file; only the first email may use `delay_value: 0`.
+- `kit-pp-cli subscribers onboard --email-address <email> --tag <id-or-name> --sequence <id> --agent` — upsert, tag, and enroll a subscriber in one flow.
+- `kit-pp-cli broadcasts compose --file <path.md> --agent` — render Markdown to HTML and create a draft or scheduled broadcast. Use `send_at`, not `published_at`, for draft/schedule control.
+- `kit-pp-cli email-templates apply --template <id> --sequence <id> --agent` — sequence-only template application. Do not use this for broadcasts; set `--email-template-id` at broadcast creation.
+- `kit-pp-cli export --out <dir> --agent` — drain Kit cursor pagination and write JSONL exports.
 
-Use raw endpoint commands when the user needs a specific CRUD operation, exact endpoint parity, pagination beyond a workflow limit, or a write operation. These workflows call real Kit v4 endpoints; they are not cached summaries or mock payloads.
+Use raw endpoint commands when the user needs a specific CRUD operation or exact endpoint parity. These workflows call real Kit v4 endpoints; they are not cached summaries or mock payloads.
 
 ## Unique Capabilities
 
@@ -82,18 +87,63 @@ These capabilities aren't available in any other tool for this API.
   kit-pp-cli workflow content-inventory --agent
   ```
 
+### Content creation
+- **`sequences build`** — Create a sequence and its emails from a YAML or JSON file. Validates before any network call that only the first email uses `delay_value: 0`.
+
+  ```bash
+  kit-pp-cli sequences build --file welcome.yaml --agent
+  ```
+
+- **`broadcasts compose`** — Create a broadcast from Markdown front matter. Defaults `send_at` to `null` for drafts, `subscriber_filter` to `[]`, `public` to `false`, and renders the body to HTML.
+
+  ```bash
+  kit-pp-cli broadcasts compose --file update.md --agent
+  ```
+
+- **`email-templates apply`** — Validate a template id across full pagination and apply it to a sequence with a partial sequence update. Sequence-only by design.
+
+  ```bash
+  kit-pp-cli email-templates apply --template 1234 --sequence 5678 --agent
+  ```
+
+### Subscriber and purchase operations
+- **`subscribers onboard`** — Upsert a subscriber, resolve tag names across full tag pagination, add tags, and enroll in sequences. `--state` is create-only and is ignored by Kit for existing subscribers.
+
+  ```bash
+  kit-pp-cli subscribers onboard --email-address reader@example.com --tag welcome --sequence 123 --agent
+  ```
+
+- **`purchases log`** — Create a purchase from product flags, computing `subtotal` and `total` when omitted and sending product fields as `name`, `pid`, `lid`, `quantity`, `unit_price`, and `sku`.
+
+  ```bash
+  kit-pp-cli purchases log --email-address reader@example.com --transaction-id order-100 --product "Course:course-1:1:199.00" --agent
+  ```
+
+### Export
+- **`export`** — Drain Kit's `pagination.has_next_page` / `pagination.end_cursor` cursor shape and write JSONL files for subscribers, tags, sequences, forms, custom fields, and broadcasts.
+
+  ```bash
+  kit-pp-cli export --out ./kit-export --agent
+  ```
+
 ### Trends and ranking
 - **`growth-trends`** — Correlates account growth stats with broadcast performance over a date range. Optionally caches results via the typed `UpsertBroadcastsStats` write path.
 - **`tag-performance`** — Ranks tags by subscriber count with share-of-total percentages; optional `--subscriber-query` uses `SearchSubscribers` to narrow to a segment.
 
 ### MCP intent tools
 
-Four first-class MCP intent tools expose the workflow commands with typed input schemas and read-only annotations. Use these via the MCP server (`kit-pp-mcp`) when an agent host wants typed parameters and explicit safety hints:
+MCP intent tools expose the workflow commands with typed input schemas and safety annotations. Use these via the MCP server (`kit-pp-mcp`) when an agent host wants typed parameters and explicit safety hints:
 
 - `intent_workflow_creator_snapshot`
 - `intent_workflow_audience_health`
 - `intent_workflow_content_inventory`
 - `intent_workflow_subscriber_lookup`
+- `intent_sequences_build`
+- `intent_subscribers_onboard`
+- `intent_purchases_log`
+- `intent_broadcasts_compose`
+- `intent_email_templates_apply`
+- `intent_export`
 
 The MCP server supports both stdio and streamable HTTP transports (`--transport http --addr :7777` or `PP_MCP_TRANSPORT=http`).
 
@@ -117,6 +167,7 @@ The MCP server supports both stdio and streamable HTTP transports (`--transport 
 
 **broadcasts** — Manage broadcasts
 
+- `kit-pp-cli broadcasts compose` — Create a draft or scheduled broadcast from Markdown front matter
 - `kit-pp-cli broadcasts create` — Draft or schedule to send a broadcast to all or a subset of your subscribers.<br/><br/>To save a draft, set...
 - `kit-pp-cli broadcasts delete` — Delete a broadcast
 - `kit-pp-cli broadcasts get` — Get a broadcast
@@ -144,6 +195,11 @@ The MCP server supports both stdio and streamable HTTP transports (`--transport 
 **email-templates** — Manage email templates
 
 - `kit-pp-cli email-templates` — List email templates
+- `kit-pp-cli email-templates apply` — Apply an email template to a sequence
+
+**export** — Export paginated Kit resources to JSONL files
+
+- `kit-pp-cli export` — Export subscribers, tags, sequences, forms, custom fields, and broadcasts
 
 **forms** — Manage forms
 
@@ -156,6 +212,7 @@ The MCP server supports both stdio and streamable HTTP transports (`--transport 
 
 **purchases** — Manage purchases
 
+- `kit-pp-cli purchases log` — Create a purchase from friendly product and money flags
 - `kit-pp-cli purchases create` — Create a purchase
 - `kit-pp-cli purchases get` — Get a purchase
 - `kit-pp-cli purchases list` — List purchases
@@ -166,6 +223,7 @@ The MCP server supports both stdio and streamable HTTP transports (`--transport 
 
 **sequences** — Manage sequences
 
+- `kit-pp-cli sequences build` — Create a sequence shell and its emails from a file
 - `kit-pp-cli sequences create` — Creates an empty sequence — the container that holds sequence emails. After creating the shell, use [Create a...
 - `kit-pp-cli sequences delete` — Soft-deletes a sequence. The sequence is removed from active delivery immediately, with cleanup of associated state...
 - `kit-pp-cli sequences get` — Fetches a single sequence by `id`. Use this when you need the current schedule, the `active` / `repeat` / `hold`...
@@ -181,6 +239,7 @@ The MCP server supports both stdio and streamable HTTP transports (`--transport 
 
 **subscribers** — Manage subscribers
 
+- `kit-pp-cli subscribers onboard` — Upsert a subscriber, add tags, and enroll in sequences
 - `kit-pp-cli subscribers create` — Behaves as an upsert. If a subscriber with the provided email address does not exist, it creates one with the...
 - `kit-pp-cli subscribers create-filter` — Filter subscribers based on engagement
 - `kit-pp-cli subscribers get` — Get a subscriber

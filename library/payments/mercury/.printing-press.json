@@ -21,9 +21,7 @@
   "mcp_tool_count": 75,
   "mcp_ready": "full",
   "auth_type": "bearer_token",
-  "auth_env_vars": [
-    "MERCURY_BEARER_AUTH"
-  ],
+  "auth_env_vars": ["MERCURY_BEARER_AUTH"],
   "novel_features": [
     {
       "name": "Agent money movement plan",
@@ -39,6 +37,16 @@
       "name": "Structured command introspection",
       "command": "agent-context",
       "description": "Emits machine-readable command metadata for agents and MCP hosts."
+    },
+    {
+      "name": "Cash runway estimate",
+      "command": "cash-runway",
+      "description": "Compose account balances and recent transactions into average weekly net burn and projected weeks of runway."
+    },
+    {
+      "name": "Spend by category",
+      "command": "spend-by-category",
+      "description": "Roll up outflow by Mercury category over a period with a week-over-week delta from one windowed transaction read."
     }
   ]
 }

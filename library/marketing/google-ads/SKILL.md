@@ -494,6 +494,36 @@ If `--version` reports "command not found" after install, the runtime cannot see
 
 - `google-ads-pp-cli keyword_theme_constants` — Returns KeywordThemeConstant suggestions by keyword themes.
 
+### Composite workflows
+
+Higher-value commands that compose existing reads. Read-only.
+
+- `google-ads-pp-cli wasted-spend --customer-id <id>` — Run one `search_term_view` GAQL read and rank the search terms that spent money but produced zero conversions, so the weekly negative-keyword pass is one command.
+
+```bash
+# Terms that wasted at least $5 over the last 30 days, top 25
+google-ads-pp-cli wasted-spend --customer-id 1234567890 --days 30 --min-cost 5 --limit 25 --json
+```
+
+Flags: `--customer-id` (required), `--days` (look-back window, default 7), `--min-cost` (minimum wasted spend to include, default 1), `--limit` (max ranked rows, default 50).
+
+- `google-ads-pp-cli keyword-roi-tiers --customer-id <id>` — Run one `keyword_view` GAQL read and bucket each keyword into `scale` / `hold` / `cut` by ROAS (revenue ÷ cost), turning the weekly bid review into one screen.
+
+```bash
+# Scale above 4x ROAS, cut at or below 1x, last 30 days
+google-ads-pp-cli keyword-roi-tiers --customer-id 1234567890 --days 30 --scale-roas 4 --cut-roas 1 --json
+```
+
+Flags: `--customer-id` (required), `--days` (default 7), `--min-cost` (ignore keywords below this spend, default 1), `--scale-roas` (default 4), `--cut-roas` (default 1), `--limit` (default 50).
+
+- `google-ads-pp-cli paid-organic-overlap --customer-id <id> --gsc-file <export.json>` — Join live paid search terms against a Google Search Console query export and surface terms you pay for that you already rank for organically — candidates to stop paying for. No GSC call is made; the export is read from `--gsc-file`.
+
+```bash
+# Export GSC queries first (from the google-search-console CLI), then:
+google-ads-pp-cli paid-organic-overlap --customer-id 1234567890 --gsc-file gsc.json --max-position 5 --json
+```
+
+Flags: `--customer-id` (required), `--gsc-file` (required; JSON array, `{"rows":[...]}`, or `{"data":[...]}`), `--days` (paid look-back, default 7), `--max-position` (only count organic queries ranking at or above this position, default 10), `--limit` (default 50).
 
 ### Finding the right command
 
@@ -527,6 +557,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
   ```bash
   google-ads-pp-cli customers_google_ads search mock-value --agent --select id,name,status
   ```
+
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
 - **Non-interactive** — never prompts, every input is a flag
@@ -557,16 +588,16 @@ google-ads-pp-cli feedback list --json --limit 10
 
 Entries are stored locally at `~/.google-ads-pp-cli/feedback.jsonl`. They are never POSTed unless `GOOGLE_ADS_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `GOOGLE_ADS_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
-Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
+Write what _surprised_ you, not a bug report. Short, specific, one line: that is the part that compounds.
 
 ## Output Delivery
 
 Every command accepts `--deliver <sink>`. The output goes to the named sink in addition to (or instead of) stdout, so agents can route command results without hand-piping. Three sinks are supported:
 
-| Sink | Effect |
-|------|--------|
-| `stdout` | Default; write to stdout only |
-| `file:<path>` | Atomically write output to `<path>` (tmp + rename) |
+| Sink            | Effect                                                                                          |
+| --------------- | ----------------------------------------------------------------------------------------------- |
+| `stdout`        | Default; write to stdout only                                                                   |
+| `file:<path>`   | Atomically write output to `<path>` (tmp + rename)                                              |
 | `webhook:<url>` | POST the output body to the URL (`application/json` or `application/x-ndjson` when `--compact`) |
 
 Unknown schemes are refused with a structured error naming the supported set. Webhook failures return non-zero and log the URL + HTTP status on stderr.
@@ -589,25 +620,25 @@ Explicit flags always win over profile values; profile values win over defaults.
 
 For endpoints that submit long-running work, the generator detects the submit-then-poll pattern (a `job_id`/`task_id`/`operation_id` field in the response plus a sibling status endpoint) and wires up three extra flags on the submitting command:
 
-| Flag | Purpose |
-|------|---------|
-| `--wait` | Block until the job reaches a terminal status instead of returning the job ID immediately |
-| `--wait-timeout` | Maximum wait duration (default 10m, 0 means no timeout) |
-| `--wait-interval` | Initial poll interval (default 2s; grows with exponential backoff up to 30s) |
+| Flag              | Purpose                                                                                   |
+| ----------------- | ----------------------------------------------------------------------------------------- |
+| `--wait`          | Block until the job reaches a terminal status instead of returning the job ID immediately |
+| `--wait-timeout`  | Maximum wait duration (default 10m, 0 means no timeout)                                   |
+| `--wait-interval` | Initial poll interval (default 2s; grows with exponential backoff up to 30s)              |
 
 Use async submission without `--wait` when you want to fire-and-forget; use `--wait` when you want one command to return the finished artifact.
 
 ## Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| 0 | Success |
-| 2 | Usage error (wrong arguments) |
-| 3 | Resource not found |
-| 4 | Authentication required |
-| 5 | API error (upstream issue) |
-| 7 | Rate limited (wait and retry) |
-| 10 | Config error |
+| Code | Meaning                       |
+| ---- | ----------------------------- |
+| 0    | Success                       |
+| 2    | Usage error (wrong arguments) |
+| 3    | Resource not found            |
+| 4    | Authentication required       |
+| 5    | API error (upstream issue)    |
+| 7    | Rate limited (wait and retry) |
+| 10   | Config error                  |
 
 ## Argument Parsing
 
@@ -616,6 +647,7 @@ Parse `$ARGUMENTS`:
 1. **Empty, `help`, or `--help`** → show `google-ads-pp-cli --help` output
 2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → see Prerequisites above
 3. **Anything else** → Direct Use (execute as CLI command with `--agent`)
+
 ## MCP Server Installation
 
 1. Install the MCP server:

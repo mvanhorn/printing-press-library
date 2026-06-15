@@ -65,6 +65,21 @@
       "name": "Google Ads field catalog lookup",
       "command": "google-ads-fields search",
       "description": "Search Google Ads field metadata so agents can construct valid GAQL queries."
+    },
+    {
+      "name": "Wasted ad spend finder",
+      "command": "wasted-spend",
+      "description": "Compose one search_term_view GAQL read and rank search terms with spend but zero conversions, so negative keywords are obvious in one command."
+    },
+    {
+      "name": "Keyword ROI tiers",
+      "command": "keyword-roi-tiers",
+      "description": "Compose one keyword_view GAQL read and bucket keywords into scale / hold / cut by return on ad spend for a one-screen weekly bid review."
+    },
+    {
+      "name": "Paid/organic query overlap",
+      "command": "paid-organic-overlap",
+      "description": "Join live paid search terms against a Google Search Console export to surface queries you pay for that you already rank for organically."
     }
   ]
 }

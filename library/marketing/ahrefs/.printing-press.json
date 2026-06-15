@@ -53,6 +53,26 @@
       "name": "Keyword volume by country",
       "command": "keywords-explorer volume-by-country",
       "description": "Compare keyword search volume across countries from Ahrefs Keywords Explorer."
+    },
+    {
+      "name": "Competitor keyword gap",
+      "command": "keyword-gap",
+      "description": "Compare Site Explorer organic-keyword rows across your target and competitors to find competitor rankings you lack or rank worse for."
+    },
+    {
+      "name": "Striking-distance keywords",
+      "command": "striking-distance",
+      "description": "Find organic keywords ranking in positions 4 through 15 and sort them by volume-weighted opportunity."
+    },
+    {
+      "name": "Competitor link intersect",
+      "command": "link-intersect",
+      "description": "Derive referring domains from Site Explorer backlink rows and find domains linking competitors but not your target."
+    },
+    {
+      "name": "Site Explorer snapshot",
+      "command": "snapshot",
+      "description": "Combine domain rating, backlink stats, and organic/paid metrics into a partial-failure-tolerant report card."
     }
   ]
 }

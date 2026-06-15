@@ -136,7 +136,7 @@ func TestDoctorReportsProfileUserAndScopeMetadata(t *testing.T) {
 	home := t.TempDir()
 	configPath := writeDoctorConfig(t, t.TempDir(), server.URL, `access_token = "user"
 refresh_token = "refresh"
-token_expiry = 2026-06-08T12:00:00Z
+token_expiry = 2099-06-08T12:00:00Z
 scopes = ["tweet.read", "tweet.write", "users.read", "offline.access"]
 `)
 
@@ -158,7 +158,7 @@ scopes = ["tweet.read", "tweet.write", "users.read", "offline.access"]
 	if userLane["refresh_token_present"] != true {
 		t.Fatalf("refresh_token_present = %#v, want true", userLane["refresh_token_present"])
 	}
-	if got, _ := userLane["expires_at"].(string); got != "2026-06-08T12:00:00Z" {
+	if got, _ := userLane["expires_at"].(string); got != "2099-06-08T12:00:00Z" {
 		t.Fatalf("expires_at = %q", got)
 	}
 	missing, _ := userLane["missing_for"].(map[string]any)
