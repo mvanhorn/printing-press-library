@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-02T19:32:40.591028Z",
+  "printing_press_version": "4.20.1",
+  "api_name": "intervals-icu",
+  "display_name": "Intervals.icu",
+  "cli_name": "intervals-icu-pp-cli",
+  "creator": {
+    "handle": "milosm",
+    "name": "Milos Mladenovic"
+  },
+  "owner": "milosm",
+  "printer": "milosm",
+  "printer_name": "Milos Mladenovic",
+  "spec_path": "intervals-openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:849e64ddf41924e1ba6cc9724e64d666896a2d73a02dc779a43a83edee4beba6",
+  "run_id": "20260602-pp-intervals",
+  "category": "other",
+  "description": "The first intervals.icu CLI with a local training database — offline search, SQL, and fitness/form analytics no other tool has.",
+  "mcp_binary": "intervals-icu-pp-mcp",
+  "mcp_tool_count": 146,
+  "mcp_ready": "full",
+  "api_version": "v1.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "INTERVALS_ICU_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Local training database",
+      "command": "sync",
+      "description": "Sync your full activity, wellness, event, workout and gear history into a local SQLite database for offline search and SQL."
+    },
+    {
+      "name": "Fitness \u0026 form trend",
+      "command": "form",
+      "description": "Compute CTL (fitness), ATL (fatigue) and TSB/form from your synced activity load and show the trend."
+    },
+    {
+      "name": "Season curve comparison",
+      "command": "curve compare",
+      "description": "Compare best power/pace/HR curves between two date ranges from the local store."
+    },
+    {
+      "name": "Wellness vs load correlation",
+      "command": "wellness trends",
+      "description": "Correlate HRV / resting HR / sleep against training load over a window from the local store."
+    },
+    {
+      "name": "Calendar catch-up window",
+      "command": "since",
+      "description": "Show planned workouts, completed activities, and what was missed within a recent time window."
+    },
+    {
+      "name": "Gear mileage rollup",
+      "command": "gear status",
+      "description": "Roll up distance/time per gear component against reminders to flag what needs service or replacement."
+    }
+  ]
+}

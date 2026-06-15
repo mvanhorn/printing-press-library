@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-09T02:39:30Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "masterpark",
+  "display_name": "MasterPark",
+  "cli_name": "masterpark-pp-cli",
+  "creator": {
+    "handle": "bwishan",
+    "name": "Brian Wishan"
+  },
+  "owner": "bwishan",
+  "printer": "bwishan",
+  "printer_name": "Brian Wishan",
+  "spec_url": "https://www.masterparking.com/reservation/book/",
+  "spec_format": "browser-sniff/manual-netparkv2",
+  "spec_kind": "synthetic",
+  "spec_source": "browser-sniff/manual live MasterPark netParkV2 AJAX exploration",
+  "run_id": "manual-masterpark-20260609T023930Z",
+  "category": "travel",
+  "regions": [
+    "US-WA"
+  ],
+  "api_language": "en",
+  "description": "Unofficial CLI for MasterPark airport parking reservations, including locations, quotes, safe credential injection, profile sync, reservation dry-runs, and gated booking submission.",
+  "auth_type": "session_handshake",
+  "auth_preference": "command",
+  "auth_env_vars": [
+    "MASTERPARK_USERNAME",
+    "MASTERPARK_PASSWORD"
+  ],
+  "novel_features": [
+    {
+      "name": "Safe pay-at-lot reservation workflow",
+      "command": "reserve",
+      "description": "Composes reservations from live quotes and saved profile data, stays dry-run by default, requires --submit --yes for real bookings, and no-ops under PRINTING_PRESS_VERIFY=1."
+    },
+    {
+      "name": "Generic secret-command credential injection",
+      "command": "auth check",
+      "description": "Supports --username-command and --password-command so 1Password or any secret manager can inject credentials without printing or persisting passwords."
+    },
+    {
+      "name": "Saved non-secret customer and vehicle profile",
+      "command": "auth sync-profile",
+      "description": "Logs in once and stores only non-secret customer and vehicle defaults so future reservations can fill required fields without saving a password."
+    },
+    {
+      "name": "Fresh-booking verification caveat",
+      "command": "reservations list",
+      "description": "Documents that MasterPark's listReservations endpoint may lag or omit newly-created active reservations, so agents trust saveReservation responses and confirmation email immediately after booking."
+    }
+  ]
+}

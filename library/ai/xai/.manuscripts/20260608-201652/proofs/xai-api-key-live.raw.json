@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "source": "live"
+  },
+  "results": {
+    "redacted_api_key":"<REDACTED:xai-key>",
+    "user_id":"<REDACTED:user-id>",
+    "name":"<REDACTED:name>",
+    "create_time": "",
+    "modify_time": "",
+    "modified_by":"<REDACTED:modified-by>",
+    "team_id":"<REDACTED:team-id>",
+    "acls": [
+      "api-key:model:*",
+      "api-key:endpoint:*",
+      ""
+    ],
+    "api_key_id":"<REDACTED:api-key-id>",
+    "team_blocked": false,
+    "api_key_blocked": false,
+    "api_key_disabled": false
+  }
+}

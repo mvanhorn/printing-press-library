@@ -1,0 +1,337 @@
+{
+  "dir": "/Users/cathrynlavery/printing-press/library/1password",
+  "spec_path": "/Users/cathrynlavery/printing-press/library/1password/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "FAIL",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 19,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 65,
+    "dead": 13,
+    "items": [
+      "apiErr",
+      "authErr",
+      "classifyAPIError",
+      "dryRunOK",
+      "formatCLIParamValue",
+      "notFoundErr",
+      "printProvenance",
+      "rateLimitErr",
+      "unwrapSingleKeyArray",
+      "wantsHumanTable",
+      "wrapWithProvenance",
+      "writeAPIErrorEnvelope",
+      "writeNoop"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": false,
+    "detail": "sync uses domain-specific Upsert methods; search methods not found; 1 domain tables found; defaultSyncResources empty (sync command is a no-op)"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 53,
+      "registered": 53
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 22,
+    "found": 22
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 22,
+    "exempted_via_store": 1,
+    "suspicious": [
+      {
+        "command": "secrets resolve",
+        "file": "op_agent_commands.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "secrets read",
+        "file": "op_agent_commands.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "secrets explain",
+        "file": "op_agent_commands.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "secrets preflight",
+        "file": "op_agent_commands.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "env plan",
+        "file": "op_agent_commands.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "env inject",
+        "file": "op_agent_commands.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "items classify",
+        "file": "op_agent_commands.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "items duplicates",
+        "file": "op_agent_commands.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "items ownership",
+        "file": "op_agent_commands.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "cards audit",
+        "file": "audit.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "cards resolve",
+        "file": "op_agent_commands.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "documents inventory",
+        "file": "op_agent_commands.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "documents audit",
+        "file": "audit.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "share preflight",
+        "file": "op_agent_commands.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "share audit",
+        "file": "audit.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "policy check",
+        "file": "op_agent_commands.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "access scope",
+        "file": "op_agent_commands.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "agent grant-plan",
+        "file": "op_agent_commands.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "run plan",
+        "file": "op_agent_commands.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "audit stale",
+        "file": "op_agent_commands.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "audit misplaced",
+        "file": "op_agent_commands.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      }
+    ],
+    "missing_data_source_strategy": [
+      {
+        "command": "secrets resolve",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "secrets read",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "secrets explain",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "secrets preflight",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "env plan",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "env inject",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "items classify",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "items duplicates",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "items ownership",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "cards audit",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "cards resolve",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "documents inventory",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "documents audit",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "share preflight",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "share audit",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "policy check",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "access scope",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "rate-limit status",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "agent grant-plan",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "run plan",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "audit stale",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "audit misplaced",
+        "file": "op_agent_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      }
+    ]
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 28
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 28
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "13 dead helper functions found",
+    "defaultSyncResources empty: sync command is a runtime no-op; store-dependent novel commands have no advertised population path",
+    "21/22 novel features look reimplemented: secrets resolve (op_agent_commands.go) — hand-rolled response: no API client call, no store access; secrets read (op_agent_commands.go) — hand-rolled response: no API client call, no store access; secrets explain (op_agent_commands.go) — hand-rolled response: no API client call, no store access; secrets preflight (op_agent_commands.go) — hand-rolled response: no API client call, no store access; env plan (op_agent_commands.go) — hand-rolled response: no API client call, no store access; env inject (op_agent_commands.go) — hand-rolled response: no API client call, no store access; items classify (op_agent_commands.go) — hand-rolled response: no API client call, no store access; items duplicates (op_agent_commands.go) — hand-rolled response: no API client call, no store access; items ownership (op_agent_commands.go) — hand-rolled response: no API client call, no store access; cards audit (audit.go) — hand-rolled response: no API client call, no store access; cards resolve (op_agent_commands.go) — hand-rolled response: no API client call, no store access; documents inventory (op_agent_commands.go) — hand-rolled response: no API client call, no store access; documents audit (audit.go) — hand-rolled response: no API client call, no store access; share preflight (op_agent_commands.go) — hand-rolled response: no API client call, no store access; share audit (audit.go) — hand-rolled response: no API client call, no store access; policy check (op_agent_commands.go) — hand-rolled response: no API client call, no store access; access scope (op_agent_commands.go) — hand-rolled response: no API client call, no store access; agent grant-plan (op_agent_commands.go) — hand-rolled response: no API client call, no store access; run plan (op_agent_commands.go) — hand-rolled response: no API client call, no store access; audit stale (op_agent_commands.go) — hand-rolled response: no API client call, no store access; audit misplaced (op_agent_commands.go) — hand-rolled response: no API client call, no store access",
+    "22/22 novel features missing data-source strategy: secrets resolve (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; secrets read (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; secrets explain (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; secrets preflight (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; env plan (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; env inject (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; items classify (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; items duplicates (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; items ownership (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; cards audit (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; cards resolve (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; documents inventory (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; documents audit (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; share preflight (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; share audit (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; policy check (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; access scope (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; rate-limit status (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; agent grant-plan (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; run plan (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; audit stale (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation; audit misplaced (op_agent_commands.go) — missing // pp:data-source \u003cauto|local|live\u003e annotation"
+  ]
+}

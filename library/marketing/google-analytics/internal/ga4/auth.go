@@ -49,7 +49,10 @@ func MintToken(key ServiceAccountKey) (string, error) {
 		return "", err
 	}
 	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return "", APIError{Status: resp.StatusCode, Body: string(body)}
 	}

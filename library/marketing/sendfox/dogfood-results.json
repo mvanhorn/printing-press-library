@@ -1,0 +1,55 @@
+{
+  "dir": "/Users/knox/Developer/PrintingPress/printing-press-library-sendfox/library/marketing/sendfox",
+  "spec_path": "library/marketing/sendfox/spec.yaml",
+  "verdict": "PASS",
+  "level": "dry-run",
+  "generated_at": "2026-06-11T12:39:50-05:00",
+  "auth_check": {
+    "spec_scheme": "bearer_token",
+    "generated_format": "authorization bearer header",
+    "match": true,
+    "preferred_env_var": "SENDFOX_API_TOKEN",
+    "alias_env_vars": [
+      "SENDFOX_BEARER_AUTH"
+    ]
+  },
+  "command_smoke": {
+    "tested": 12,
+    "passed": 12,
+    "commands": [
+      "sendfox-pp-cli --help",
+      "sendfox-pp-cli --version",
+      "sendfox-pp-cli capabilities --agent --select capabilities",
+      "sendfox-pp-cli contacts audit-csv --file /tmp/sendfox-subscribers.csv --lists 123 --agent",
+      "sendfox-pp-cli contacts reconcile-csv --file /tmp/sendfox-subscribers.csv --lists 123 --dry-run --agent",
+      "sendfox-pp-cli workflow launch-plan --list-id 123 --csv /tmp/sendfox-subscribers.csv --dry-run --agent",
+      "sendfox-pp-cli webhooks handoff --endpoint https://example.com/api/sendfox/webhook --agent",
+      "sendfox-pp-cli workflow account-snapshot --dry-run --agent",
+      "sendfox-pp-cli contacts onboard --email reader@example.com --first-name Jane --lists 123,456 --dry-run --agent",
+      "sendfox-pp-cli forms generate --list-id 123 --title Join --agent --select list_id,output,note",
+      "go test ./...",
+      "go vet ./..."
+    ]
+  },
+  "live_api_smoke": {
+    "tested": 0,
+    "skipped": true,
+    "reason": "No SendFox token available without prompting for secret access."
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime."
+  },
+  "novel_features_check": {
+    "planned": 12,
+    "found": 12,
+    "pass": true
+  },
+  "safety": {
+    "no_binaries_committed": true,
+    "no_secret_values_committed": true,
+    "generated_catalog_artifacts_omitted": true,
+    "unsupported_campaign_and_webhook_writes_are_handoffs": true
+  }
+}

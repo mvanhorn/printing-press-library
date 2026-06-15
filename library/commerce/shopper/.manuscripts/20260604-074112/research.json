@@ -1,0 +1,190 @@
+{
+  "api_name": "shopper",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-04T11:02:47Z",
+  "novel_features": [
+    {
+      "name": "Charge \u0026 Edit Calendar",
+      "command": "charge-calendar",
+      "description": "Every upcoming cycle's charge date, edit-lock deadline, and delivery date in one timeline so you never miss an edit window or get surprised by a charge.",
+      "rationale": "Charge = delivery-7d and lock = delivery-5d (-3d Fresh) must be derived across many cycles by joining snapshotted delivery calendar with plan cadence; no single endpoint returns all your money/edit dates.",
+      "example": "shopper charge-calendar --weeks 8 --locking-soon --agent",
+      "why_it_matters": "Reach for this before any basket edit to answer 'can I still change the order / when does money leave the account'.",
+      "group": "Time \u0026 Money Clock"
+    },
+    {
+      "name": "Basket Diff",
+      "command": "basket diff",
+      "description": "Compares your current recurring basket against a previous cycle's snapshot to show exactly what was added, dropped, or re-quantified before the template locks.",
+      "rationale": "Requires two basket states over time; the API only returns the current /cart/summary and the web UI never persists last cycle's template.",
+      "example": "shopper basket diff --from last-cycle --to current --agent --select added,removed,price_changed",
+      "why_it_matters": "Reach for this to audit what changed before confirming a cycle, or to explain why this charge differs from the last.",
+      "group": "Basket Intelligence"
+    },
+    {
+      "name": "Price Watch",
+      "command": "price-watch",
+      "description": "Tracks the price history of the SKUs you actually buy and alerts when one rises or drops meaningfully versus your own purchase baseline.",
+      "rationale": "/catalog/search returns only today's price; a personal 'more expensive than I paid' baseline needs periodic local price snapshots the API never keeps.",
+      "example": "shopper price-watch --threshold 8% --since 60d --only-basket --agent",
+      "why_it_matters": "Reach for this before confirming a cycle to catch staples that quietly got pricier, or find real drops worth stocking up on.",
+      "group": "Price \u0026 Catalog Drift"
+    },
+    {
+      "name": "Restock Predictor",
+      "command": "restock predict",
+      "description": "Predicts when you'll run out of each staple from your historical buying cadence and suggests what to add to the upcoming basket.",
+      "rationale": "Needs a per-SKU purchase time series (cadence + quantity across cycles) joined against the current basket; no endpoint exposes a consumption model.",
+      "example": "shopper restock predict --horizon 14d --suggest-adds --agent",
+      "why_it_matters": "Reach for this to proactively fill the next basket so the household doesn't run out of cafe/arroz/fralda mid-cycle.",
+      "group": "Basket Intelligence"
+    },
+    {
+      "name": "Catalog Drift Detector",
+      "command": "catalog drift",
+      "description": "Flags products you buy that were discontinued, silently swapped, or kept their price while shrinking the pack, surfacing the real R$/kg or R$/L change.",
+      "rationale": "Detecting shrinkflation or disappearance requires comparing successive catalog snapshots (price, pack size, availability) per SKU and normalizing to unit price; a single /catalog/search call has no temporal reference.",
+      "example": "shopper catalog drift --metric per-unit --kind shrinkflation,discontinued --since 90d --agent",
+      "why_it_matters": "Reach for this when the user asks 'why is my bill the same but I have less', or to auto-find replacements for staples that vanished.",
+      "group": "Price \u0026 Catalog Drift"
+    },
+    {
+      "name": "Cashback Threshold Optimizer",
+      "command": "cashback optimize",
+      "description": "Computes the cheapest set of items to add (or whether to wait) to cross the next cashback tier, favoring things you'll need anyway.",
+      "rationale": "Combines current cart total, the active cashback rule, and predicted restock demand into a knapsack over your own demand; no endpoint computes cheapest add-ons to reach a tier.",
+      "example": "shopper cashback optimize --tier 2399 --reward 100 --prefer-restock --agent",
+      "why_it_matters": "Reach for this near the edit deadline to decide whether topping up the basket earns net-positive cashback without buying junk.",
+      "group": "Cashback Optimization"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Charge \u0026 Edit Calendar",
+      "command": "charge-calendar",
+      "description": "Every upcoming cycle's charge date, edit-lock deadline, and delivery date in one timeline so you never miss an edit window or get surprised by a charge.",
+      "rationale": "Charge = delivery-7d and lock = delivery-5d (-3d Fresh) must be derived across many cycles by joining snapshotted delivery calendar with plan cadence; no single endpoint returns all your money/edit dates.",
+      "example": "shopper charge-calendar --weeks 8 --locking-soon --agent",
+      "why_it_matters": "Reach for this before any basket edit to answer 'can I still change the order / when does money leave the account'.",
+      "group": "Time \u0026 Money Clock"
+    },
+    {
+      "name": "Basket Diff",
+      "command": "basket diff",
+      "description": "Compares your current recurring basket against a previous cycle's snapshot to show exactly what was added, dropped, or re-quantified before the template locks.",
+      "rationale": "Requires two basket states over time; the API only returns the current /cart/summary and the web UI never persists last cycle's template.",
+      "example": "shopper basket diff --from last-cycle --to current --agent --select added,removed,price_changed",
+      "why_it_matters": "Reach for this to audit what changed before confirming a cycle, or to explain why this charge differs from the last.",
+      "group": "Basket Intelligence"
+    },
+    {
+      "name": "Price Watch",
+      "command": "price-watch",
+      "description": "Tracks the price history of the SKUs you actually buy and alerts when one rises or drops meaningfully versus your own purchase baseline.",
+      "rationale": "/catalog/search returns only today's price; a personal 'more expensive than I paid' baseline needs periodic local price snapshots the API never keeps.",
+      "example": "shopper price-watch --threshold 8% --since 60d --only-basket --agent",
+      "why_it_matters": "Reach for this before confirming a cycle to catch staples that quietly got pricier, or find real drops worth stocking up on.",
+      "group": "Price \u0026 Catalog Drift"
+    },
+    {
+      "name": "Restock Predictor",
+      "command": "restock predict",
+      "description": "Predicts when you'll run out of each staple from your historical buying cadence and suggests what to add to the upcoming basket.",
+      "rationale": "Needs a per-SKU purchase time series (cadence + quantity across cycles) joined against the current basket; no endpoint exposes a consumption model.",
+      "example": "shopper restock predict --horizon 14d --suggest-adds --agent",
+      "why_it_matters": "Reach for this to proactively fill the next basket so the household doesn't run out of cafe/arroz/fralda mid-cycle.",
+      "group": "Basket Intelligence"
+    },
+    {
+      "name": "Catalog Drift Detector",
+      "command": "catalog drift",
+      "description": "Flags products you buy that were discontinued, silently swapped, or kept their price while shrinking the pack, surfacing the real R$/kg or R$/L change.",
+      "rationale": "Detecting shrinkflation or disappearance requires comparing successive catalog snapshots (price, pack size, availability) per SKU and normalizing to unit price; a single /catalog/search call has no temporal reference.",
+      "example": "shopper catalog drift --metric per-unit --kind shrinkflation,discontinued --since 90d --agent",
+      "why_it_matters": "Reach for this when the user asks 'why is my bill the same but I have less', or to auto-find replacements for staples that vanished.",
+      "group": "Price \u0026 Catalog Drift"
+    },
+    {
+      "name": "Cashback Threshold Optimizer",
+      "command": "cashback optimize",
+      "description": "Computes the cheapest set of items to add (or whether to wait) to cross the next cashback tier, favoring things you'll need anyway.",
+      "rationale": "Combines current cart total, the active cashback rule, and predicted restock demand into a knapsack over your own demand; no endpoint computes cheapest add-ons to reach a tier.",
+      "example": "shopper cashback optimize --tier 2399 --reward 100 --prefer-restock --agent",
+      "why_it_matters": "Reach for this near the edit deadline to decide whether topping up the basket earns net-positive cashback without buying junk.",
+      "group": "Cashback Optimization"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SHOPPER_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Shopper",
+    "headline": "The first CLI for Shopper — every catalog, cart, and delivery surface plus a local price/basket history the web app throws away each cycle.",
+    "value_prop": "Shopper's recurring basket, fixed charge-7-days-before clock, and drifting prices produce a time series the official app discards every cycle. This CLI keeps it in a local SQLite store, unlocking charge-calendar, basket diff, price-watch, restock prediction, catalog-drift detection, and cashback optimization — none of which any Shopper interface offers.",
+    "auth_narrative": "Shopper uses a Bearer JWT. Sign in at shopper.com.br in your browser, copy the token from the Authorization header of any siteapi.shopper.com.br request (DevTools \u003e Network), and set SHOPPER_TOKEN. The CLI also sends app-os-x-version and your store context automatically.",
+    "quickstart": [
+      {
+        "command": "shopper doctor --dry-run",
+        "comment": "Health check; verifies token + store context without a live call."
+      },
+      {
+        "command": "shopper catalog search arroz --agent",
+        "comment": "Search the catalog — the most common first action."
+      },
+      {
+        "command": "shopper cart summary --agent",
+        "comment": "See your current recurring basket total and item count."
+      },
+      {
+        "command": "shopper charge-calendar --weeks 8 --agent",
+        "comment": "See upcoming charge dates and edit deadlines."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 AUTH008 No Token",
+        "fix": "Set SHOPPER_TOKEN to a fresh Bearer JWT from a logged-in browser session (DevTools \u003e Network \u003e any siteapi request)."
+      },
+      {
+        "symptom": "Empty catalog/cart results",
+        "fix": "Select a store first: shopper features select \u003cid\u003e; the store context (x-store-id) is required for catalog and cart."
+      }
+    ],
+    "when_to_use": "Use this CLI to inspect and reason about a Shopper grocery subscription: search the catalog, read the recurring basket and delivery schedule, and answer cross-cycle questions about price changes, charge dates, restock timing, and cashback. It shines for questions the web UI can't answer because it only shows the current cycle.",
+    "anti_triggers": [
+      "Do not use this CLI to place or pay for an order — checkout/payment is intentionally out of scope.",
+      "Do not use it for non-Shopper grocery services (iFood, Daki, Rappi, Carrefour).",
+      "Do not use it to change account passwords or payment cards."
+    ],
+    "recipes": [
+      {
+        "title": "Find a staple and check your price baseline",
+        "command": "shopper catalog search 'cafe pilao' --agent --select results.name,results.price \u0026\u0026 shopper price-watch --only-basket --threshold 5%",
+        "explanation": "Search the catalog, then see whether your tracked staples drifted in price."
+      },
+      {
+        "title": "Pre-deadline cycle review",
+        "command": "shopper charge-calendar --locking-soon --agent \u0026\u0026 shopper basket diff --from last-cycle --to current --agent",
+        "explanation": "Check which cycle locks soon and audit what changed before it does."
+      },
+      {
+        "title": "Hit the cashback tier efficiently",
+        "command": "shopper cashback optimize --tier 2399 --reward 100 --prefer-restock --agent",
+        "explanation": "Decide the cheapest useful top-up to earn cashback."
+      }
+    ],
+    "trigger_phrases": [
+      "search shopper for arroz",
+      "what's in my shopper basket",
+      "when is my shopper charge",
+      "did my shopper prices go up",
+      "what should I restock on shopper",
+      "use shopper",
+      "run shopper"
+    ]
+  }
+}

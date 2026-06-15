@@ -26,50 +26,50 @@ git diff --check -> PASS
 
 ## Live smoke evidence
 
-Credentials used: local service-account resolution only; no secrets printed. Properties checked: BestSelf `280199692`, LittleMight `540652239`. Each row below exited 0 and has its full JSON response captured under `.manuscripts/ga4-20260612/proofs/live-smoke/`.
+Credentials used: local service-account resolution only; no secrets printed. Properties checked: an authorized GA4 property, a second authorized GA4 property. Each row below exited 0 and has its full JSON response captured under `.manuscripts/ga4-20260612/proofs/live-smoke/`.
 
 | Command proof | Exit | Captured result | File |
 | --- | ---: | --- | --- |
 | `agent-context` | 0 | json captured | `live-smoke/agent-context.json` |
 | `properties` | 0 | accountSummaries=3 | `live-smoke/properties.json` |
-| `280199692-property` | 0 | json captured | `live-smoke/280199692-property.json` |
-| `280199692-streams` | 0 | dataStreams=1 | `live-smoke/280199692-streams.json` |
-| `280199692-report` | 0 | rows=3 | `live-smoke/280199692-report.json` |
-| `280199692-pivot` | 0 | rows=3 | `live-smoke/280199692-pivot.json` |
-| `280199692-batch` | 0 | json captured | `live-smoke/280199692-batch.json` |
-| `280199692-realtime` | 0 | rows=3 | `live-smoke/280199692-realtime.json` |
-| `280199692-metadata` | 0 | dimensions=386, metrics=116 | `live-smoke/280199692-metadata.json` |
-| `280199692-compatibility` | 0 | json captured | `live-smoke/280199692-compatibility.json` |
-| `280199692-channels` | 0 | row_count=5 | `live-smoke/280199692-channels.json` |
-| `280199692-sources` | 0 | row_count=5 | `live-smoke/280199692-sources.json` |
-| `280199692-top-pages` | 0 | row_count=5 | `live-smoke/280199692-top-pages.json` |
-| `280199692-events` | 0 | rows=5 | `live-smoke/280199692-events.json` |
-| `280199692-conversions` | 0 | rows=5 | `live-smoke/280199692-conversions.json` |
-| `280199692-funnel` | 0 | funnel response captured | `live-smoke/280199692-funnel.json` |
-| `280199692-compare` | 0 | row_count=5 | `live-smoke/280199692-compare.json` |
-| `280199692-whats-changed` | 0 | movers=5 | `live-smoke/280199692-whats-changed.json` |
-| `280199692-revenue` | 0 | row_count=5 | `live-smoke/280199692-revenue.json` |
-| `280199692-audience` | 0 | row_count=5 | `live-smoke/280199692-audience.json` |
-| `280199692-cohort` | 0 | row_count=5 | `live-smoke/280199692-cohort.json` |
-| `540652239-property` | 0 | json captured | `live-smoke/540652239-property.json` |
-| `540652239-streams` | 0 | dataStreams=1 | `live-smoke/540652239-streams.json` |
-| `540652239-report` | 0 | rows=3 | `live-smoke/540652239-report.json` |
-| `540652239-pivot` | 0 | rows=3 | `live-smoke/540652239-pivot.json` |
-| `540652239-batch` | 0 | json captured | `live-smoke/540652239-batch.json` |
-| `540652239-realtime` | 0 | rows=0 | `live-smoke/540652239-realtime.json` |
-| `540652239-metadata` | 0 | dimensions=375, metrics=89 | `live-smoke/540652239-metadata.json` |
-| `540652239-compatibility` | 0 | json captured | `live-smoke/540652239-compatibility.json` |
-| `540652239-channels` | 0 | row_count=5 | `live-smoke/540652239-channels.json` |
-| `540652239-sources` | 0 | row_count=5 | `live-smoke/540652239-sources.json` |
-| `540652239-top-pages` | 0 | row_count=5 | `live-smoke/540652239-top-pages.json` |
-| `540652239-events` | 0 | rows=5 | `live-smoke/540652239-events.json` |
-| `540652239-conversions` | 0 | rows=0 | `live-smoke/540652239-conversions.json` |
-| `540652239-funnel` | 0 | funnel response captured | `live-smoke/540652239-funnel.json` |
-| `540652239-compare` | 0 | row_count=5 | `live-smoke/540652239-compare.json` |
-| `540652239-whats-changed` | 0 | movers=5 | `live-smoke/540652239-whats-changed.json` |
-| `540652239-revenue` | 0 | row_count=5 | `live-smoke/540652239-revenue.json` |
-| `540652239-audience` | 0 | row_count=5 | `live-smoke/540652239-audience.json` |
-| `540652239-cohort` | 0 | row_count=5 | `live-smoke/540652239-cohort.json` |
+| `$GA4_PROPERTY_ID-property` | 0 | json captured | `live-smoke/$GA4_PROPERTY_ID-property.json` |
+| `$GA4_PROPERTY_ID-streams` | 0 | dataStreams=1 | `live-smoke/$GA4_PROPERTY_ID-streams.json` |
+| `$GA4_PROPERTY_ID-report` | 0 | rows=3 | `live-smoke/$GA4_PROPERTY_ID-report.json` |
+| `$GA4_PROPERTY_ID-pivot` | 0 | rows=3 | `live-smoke/$GA4_PROPERTY_ID-pivot.json` |
+| `$GA4_PROPERTY_ID-batch` | 0 | json captured | `live-smoke/$GA4_PROPERTY_ID-batch.json` |
+| `$GA4_PROPERTY_ID-realtime` | 0 | rows=3 | `live-smoke/$GA4_PROPERTY_ID-realtime.json` |
+| `$GA4_PROPERTY_ID-metadata` | 0 | dimensions=386, metrics=116 | `live-smoke/$GA4_PROPERTY_ID-metadata.json` |
+| `$GA4_PROPERTY_ID-compatibility` | 0 | json captured | `live-smoke/$GA4_PROPERTY_ID-compatibility.json` |
+| `$GA4_PROPERTY_ID-channels` | 0 | row_count=5 | `live-smoke/$GA4_PROPERTY_ID-channels.json` |
+| `$GA4_PROPERTY_ID-sources` | 0 | row_count=5 | `live-smoke/$GA4_PROPERTY_ID-sources.json` |
+| `$GA4_PROPERTY_ID-top-pages` | 0 | row_count=5 | `live-smoke/$GA4_PROPERTY_ID-top-pages.json` |
+| `$GA4_PROPERTY_ID-events` | 0 | rows=5 | `live-smoke/$GA4_PROPERTY_ID-events.json` |
+| `$GA4_PROPERTY_ID-conversions` | 0 | rows=5 | `live-smoke/$GA4_PROPERTY_ID-conversions.json` |
+| `$GA4_PROPERTY_ID-funnel` | 0 | funnel response captured | `live-smoke/$GA4_PROPERTY_ID-funnel.json` |
+| `$GA4_PROPERTY_ID-compare` | 0 | row_count=5 | `live-smoke/$GA4_PROPERTY_ID-compare.json` |
+| `$GA4_PROPERTY_ID-whats-changed` | 0 | movers=5 | `live-smoke/$GA4_PROPERTY_ID-whats-changed.json` |
+| `$GA4_PROPERTY_ID-revenue` | 0 | row_count=5 | `live-smoke/$GA4_PROPERTY_ID-revenue.json` |
+| `$GA4_PROPERTY_ID-audience` | 0 | row_count=5 | `live-smoke/$GA4_PROPERTY_ID-audience.json` |
+| `$GA4_PROPERTY_ID-cohort` | 0 | row_count=5 | `live-smoke/$GA4_PROPERTY_ID-cohort.json` |
+| `$GA4_PROPERTY_ID_2-property` | 0 | json captured | `live-smoke/$GA4_PROPERTY_ID_2-property.json` |
+| `$GA4_PROPERTY_ID_2-streams` | 0 | dataStreams=1 | `live-smoke/$GA4_PROPERTY_ID_2-streams.json` |
+| `$GA4_PROPERTY_ID_2-report` | 0 | rows=3 | `live-smoke/$GA4_PROPERTY_ID_2-report.json` |
+| `$GA4_PROPERTY_ID_2-pivot` | 0 | rows=3 | `live-smoke/$GA4_PROPERTY_ID_2-pivot.json` |
+| `$GA4_PROPERTY_ID_2-batch` | 0 | json captured | `live-smoke/$GA4_PROPERTY_ID_2-batch.json` |
+| `$GA4_PROPERTY_ID_2-realtime` | 0 | rows=0 | `live-smoke/$GA4_PROPERTY_ID_2-realtime.json` |
+| `$GA4_PROPERTY_ID_2-metadata` | 0 | dimensions=375, metrics=89 | `live-smoke/$GA4_PROPERTY_ID_2-metadata.json` |
+| `$GA4_PROPERTY_ID_2-compatibility` | 0 | json captured | `live-smoke/$GA4_PROPERTY_ID_2-compatibility.json` |
+| `$GA4_PROPERTY_ID_2-channels` | 0 | row_count=5 | `live-smoke/$GA4_PROPERTY_ID_2-channels.json` |
+| `$GA4_PROPERTY_ID_2-sources` | 0 | row_count=5 | `live-smoke/$GA4_PROPERTY_ID_2-sources.json` |
+| `$GA4_PROPERTY_ID_2-top-pages` | 0 | row_count=5 | `live-smoke/$GA4_PROPERTY_ID_2-top-pages.json` |
+| `$GA4_PROPERTY_ID_2-events` | 0 | rows=5 | `live-smoke/$GA4_PROPERTY_ID_2-events.json` |
+| `$GA4_PROPERTY_ID_2-conversions` | 0 | rows=0 | `live-smoke/$GA4_PROPERTY_ID_2-conversions.json` |
+| `$GA4_PROPERTY_ID_2-funnel` | 0 | funnel response captured | `live-smoke/$GA4_PROPERTY_ID_2-funnel.json` |
+| `$GA4_PROPERTY_ID_2-compare` | 0 | row_count=5 | `live-smoke/$GA4_PROPERTY_ID_2-compare.json` |
+| `$GA4_PROPERTY_ID_2-whats-changed` | 0 | movers=5 | `live-smoke/$GA4_PROPERTY_ID_2-whats-changed.json` |
+| `$GA4_PROPERTY_ID_2-revenue` | 0 | row_count=5 | `live-smoke/$GA4_PROPERTY_ID_2-revenue.json` |
+| `$GA4_PROPERTY_ID_2-audience` | 0 | row_count=5 | `live-smoke/$GA4_PROPERTY_ID_2-audience.json` |
+| `$GA4_PROPERTY_ID_2-cohort` | 0 | row_count=5 | `live-smoke/$GA4_PROPERTY_ID_2-cohort.json` |
 
 ## Notes from live proof
 

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "xai",
+  "cli_name": "xai-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-08T21:25:57Z",
+  "source_commit": "f3e6406b3c342799debf6309eee191ebc094b39a",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260608-201652",
+  "changes": [
+    {
+      "title": "feat(xai): add xai",
+      "pr": 1110,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1110",
+      "commit": "f3e6406b3c342799debf6309eee191ebc094b39a"
+    }
+  ]
+}

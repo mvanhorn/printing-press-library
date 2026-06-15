@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "motohunt",
+  "cli_name": "motohunt-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-13T08:57:00Z",
+  "source_commit": "c99e2be84265388ac2ae40328ee60d06a2cf8c62",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260610-132752-motohunt",
+  "changes": [
+    {
+      "title": "feat(motohunt): add motohunt",
+      "pr": 1138,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1138",
+      "commit": "c99e2be84265388ac2ae40328ee60d06a2cf8c62"
+    }
+  ]
+}

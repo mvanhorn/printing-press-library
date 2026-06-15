@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "roadside-america",
+  "run_id": "20260606-102010",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 64,
+  "tests_passed": 64,
+  "tests_skipped": 37,
+  "auth_context": {
+    "type": "none"
+  }
+}

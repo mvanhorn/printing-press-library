@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-28T21:10:10.131364Z",
+  "printing_press_version": "4.16.0",
+  "api_name": "nypl-digital-collections",
+  "display_name": "Nypl Digital Collections",
+  "cli_name": "nypl-digital-collections-pp-cli",
+  "owner": "kierandotai",
+  "printer": "kierandotai",
+  "printer_name": "kierandotai",
+  "spec_url": "https://api.repo.nypl.org/",
+  "spec_path": "nypl-digital-collections-openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:6c8eb3eb321d226ee51878a622c3fb97ed42fa2c4929b9042e821b1d3837e1d0",
+  "run_id": "20260528-211010",
+  "category": "other",
+  "description": "New York Public Library Digital Collections API. Source docs: https://api.repo.nypl.org/.",
+  "mcp_binary": "nypl-digital-collections-pp-mcp",
+  "mcp_tool_count": 21,
+  "mcp_ready": "full",
+  "api_version": "2.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "NYPL_DIGITAL_COLLECTIONS_NYPL_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Story discovery plans",
+      "command": "stories discover",
+      "description": "Expand a seed person or topic into NYPL-friendly narrative clusters, related characters, and archive search queries."
+    },
+    {
+      "name": "Research plan execution",
+      "command": "search run-plan",
+      "description": "Execute or preview story discovery plans against NYPL item search with public-domain filtering and bounded per-query limits."
+    },
+    {
+      "name": "Local research workspaces",
+      "command": "workspace",
+      "description": "Save search runs and deduped evidence items into local reusable research workspaces."
+    },
+    {
+      "name": "Story dossiers",
+      "command": "stories dossier",
+      "description": "Emit Markdown or JSON research dossiers combining narrative clusters, related figures, search prompts, and ranked item candidates."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "cloudflare-pp-cli"
+display_name = "Cloudflare"
+description = "Cloudflare API for accounts, zones, DNS, Workers, Pages, R2, Email Routing, tunnels, and Zero Trust operations"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/cloudflare-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+CLOUDFLARE_API_TOKEN = true

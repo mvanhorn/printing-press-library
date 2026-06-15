@@ -1,0 +1,309 @@
+{
+  "api_name": "shipsgo",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "Soer-BV/ShipsGo",
+      "url": "https://github.com/Soer-BV/ShipsGo",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-04T15:05:00Z",
+  "novel_features": [
+    {
+      "name": "RFQ workspace",
+      "command": "rfq new",
+      "description": "Create, populate, and inspect an RFQ workspace that groups multiple tracked shipments under one quote slug.",
+      "rationale": "Maps to a local rfqs + rfq_members table plus a ShipsGo tag write — neither the ShipsGo API nor the dashboard exposes an RFQ-shaped object.",
+      "example": "shipsgo-pp-cli rfq new Q3-LCL-Asia --lane SHA-LAX --carriers COSCO,ONE,MSC",
+      "why_it_matters": "Reach for this when an agent needs to evaluate a freight quote against actual shipments — the RFQ slug becomes the join key for compare, digest, and follower fan-out.",
+      "group": "RFQ workflow"
+    },
+    {
+      "name": "RFQ carrier comparison",
+      "command": "rfq compare",
+      "description": "For one RFQ slug, group its shipments by carrier and emit mean actual transit days, ETA-vs-actual delta, and shipment count.",
+      "rationale": "Pure SQLite aggregation over RFQ-tagged rows — ShipsGo's dashboard groups by tag but does not compute the spread.",
+      "example": "shipsgo-pp-cli rfq compare Q3-LCL-Asia --format md --agent",
+      "why_it_matters": "This is the literal RFQ question: which carrier actually performs best on this lane. Use when an agent has to pick or recommend a carrier from a quote.",
+      "group": "RFQ workflow"
+    },
+    {
+      "name": "Lane statistics",
+      "command": "lane stats",
+      "description": "Across all locally tracked shipments on an origin→destination lane, report p50/p90 transit days with per-carrier breakdown.",
+      "rationale": "Lane-level aggregation has no equivalent in the ShipsGo API; it requires a join across the local shipment store.",
+      "example": "shipsgo-pp-cli lane stats SHA LAX --since 90d --json",
+      "why_it_matters": "Lane analytics are paywalled on commercial alternatives (Freightify, GoComet). Use when planning carrier mix on a specific port pair.",
+      "group": "Analytics"
+    },
+    {
+      "name": "ETA drift detector",
+      "command": "eta-drift",
+      "description": "List shipments whose ETA shifted by more than N days since the last sync — sorted by drift magnitude.",
+      "rationale": "Requires a shipment_eta_history table populated on every sync; the ShipsGo API returns only current ETA, never delta history.",
+      "example": "shipsgo-pp-cli eta-drift --threshold 2 --since 7d --json",
+      "why_it_matters": "Drift is the earliest signal of voyage trouble. Use as a watch query before customer-facing status digests.",
+      "group": "Analytics"
+    },
+    {
+      "name": "Credit budget guardrail",
+      "command": "credit-budget",
+      "description": "Read ShipsGo X-RateLimit-* headers from the last response, combine with local dedupe state, and refuse new POSTs when the reserve would be breached.",
+      "rationale": "The ShipsGo API exposes rate-limit headers per-request but provides no budgeting; this is a pure local state machine.",
+      "example": "shipsgo-pp-cli credit-budget --reserve 5 --json",
+      "why_it_matters": "Free tier is 3 credits and the rate limit is 100/min collective. Use before any batch POST loop.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Unified shipment book",
+      "command": "book",
+      "description": "Single view across ocean + air shipments, filterable by ETA window, status, tag, port, or carrier — backed by FTS5 and local indices.",
+      "rationale": "ShipsGo's dashboard paginates at 50 and has no unified ocean+air view; this is a single SELECT over the local union.",
+      "example": "shipsgo-pp-cli book --eta-within 7d --status sailing --json",
+      "why_it_matters": "Replaces the dashboard's daily 'what's arriving this week' query with a sub-second, agent-pipeable command.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Carrier reliability score",
+      "command": "reliability",
+      "description": "Median(actual_delivery − original_eta) and on-time percentage for a carrier, optionally scoped to a specific lane.",
+      "rationale": "ShipsGo exposes carriers as a static lookup; reliability requires historical actual-vs-promise from the local shipment history.",
+      "example": "shipsgo-pp-cli reliability COSCO --lane SHA-LAX --json",
+      "why_it_matters": "This is the single number that should decide every RFQ. Use when ranking carriers in a quote response.",
+      "group": "Analytics"
+    },
+    {
+      "name": "Webhook event tail",
+      "command": "webhook tail",
+      "description": "Tail the locally stored webhook_events table chronologically; supports --since, --shipment, and --watch.",
+      "rationale": "Webhook payloads must be ingested by user-controlled receivers; the local event log is the only queryable surface — ShipsGo offers no replay endpoint.",
+      "example": "shipsgo-pp-cli webhook tail --since 24h --shipment ship_abc123 --json",
+      "why_it_matters": "Use to audit milestone history when a customer disputes an ETA change.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pre-write dupe check",
+      "command": "dupe-check",
+      "description": "Look up a container number or AWB in the local store and exit non-zero with the existing shipment id if already tracked.",
+      "rationale": "Free-tier credits are scarce; the ShipsGo API charges per POST and has no native dedupe.",
+      "example": "shipsgo-pp-cli dupe-check MSCU1234567 --json",
+      "why_it_matters": "Use in any script that may POST a new shipment — saves a credit on every re-run.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "RFQ stakeholder digest",
+      "command": "digest",
+      "description": "Emit a structured table of shipment id, last milestone, current ETA, and ETA-delta since last digest, scoped to an RFQ or a time window.",
+      "rationale": "Local SELECT with no summarization — agents can pipe to a model if they want prose; the data layer is the local store, not a remote endpoint.",
+      "example": "shipsgo-pp-cli digest --rfq Q3-LCL-Asia --since 7d --format md",
+      "why_it_matters": "Use Friday afternoons to assemble the importer's weekly status update without screenshotting the dashboard.",
+      "group": "RFQ workflow"
+    },
+    {
+      "name": "RFQ follower fan-out",
+      "command": "followers-broadcast",
+      "description": "Add or remove one follower email across every shipment in an RFQ in one command, gated by credit-budget and --dry-run.",
+      "rationale": "ShipsGo's follower API is per-shipment; RFQ-scope batching requires the local rfq_members relation.",
+      "example": "shipsgo-pp-cli followers-broadcast Q3-LCL-Asia importer@example.com --dry-run",
+      "why_it_matters": "Use when a new stakeholder joins an RFQ — saves dozens of dashboard clicks.",
+      "group": "RFQ workflow"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "RFQ workspace",
+      "command": "rfq new",
+      "description": "Create, populate, and inspect an RFQ workspace that groups multiple tracked shipments under one quote slug.",
+      "rationale": "Maps to a local rfqs + rfq_members table plus a ShipsGo tag write — neither the ShipsGo API nor the dashboard exposes an RFQ-shaped object.",
+      "example": "shipsgo-pp-cli rfq new Q3-LCL-Asia --lane SHA-LAX --carriers COSCO,ONE,MSC",
+      "why_it_matters": "Reach for this when an agent needs to evaluate a freight quote against actual shipments — the RFQ slug becomes the join key for compare, digest, and follower fan-out.",
+      "group": "RFQ workflow"
+    },
+    {
+      "name": "RFQ carrier comparison",
+      "command": "rfq compare",
+      "description": "For one RFQ slug, group its shipments by carrier and emit mean actual transit days, ETA-vs-actual delta, and shipment count.",
+      "rationale": "Pure SQLite aggregation over RFQ-tagged rows — ShipsGo's dashboard groups by tag but does not compute the spread.",
+      "example": "shipsgo-pp-cli rfq compare Q3-LCL-Asia --format md --agent",
+      "why_it_matters": "This is the literal RFQ question: which carrier actually performs best on this lane. Use when an agent has to pick or recommend a carrier from a quote.",
+      "group": "RFQ workflow"
+    },
+    {
+      "name": "Lane statistics",
+      "command": "lane stats",
+      "description": "Across all locally tracked shipments on an origin→destination lane, report p50/p90 transit days with per-carrier breakdown.",
+      "rationale": "Lane-level aggregation has no equivalent in the ShipsGo API; it requires a join across the local shipment store.",
+      "example": "shipsgo-pp-cli lane stats SHA LAX --since 90d --json",
+      "why_it_matters": "Lane analytics are paywalled on commercial alternatives (Freightify, GoComet). Use when planning carrier mix on a specific port pair.",
+      "group": "Analytics"
+    },
+    {
+      "name": "ETA drift detector",
+      "command": "eta-drift",
+      "description": "List shipments whose ETA shifted by more than N days since the last sync — sorted by drift magnitude.",
+      "rationale": "Requires a shipment_eta_history table populated on every sync; the ShipsGo API returns only current ETA, never delta history.",
+      "example": "shipsgo-pp-cli eta-drift --threshold 2 --since 7d --json",
+      "why_it_matters": "Drift is the earliest signal of voyage trouble. Use as a watch query before customer-facing status digests.",
+      "group": "Analytics"
+    },
+    {
+      "name": "Credit budget guardrail",
+      "command": "credit-budget",
+      "description": "Read ShipsGo X-RateLimit-* headers from the last response, combine with local dedupe state, and refuse new POSTs when the reserve would be breached.",
+      "rationale": "The ShipsGo API exposes rate-limit headers per-request but provides no budgeting; this is a pure local state machine.",
+      "example": "shipsgo-pp-cli credit-budget --reserve 5 --json",
+      "why_it_matters": "Free tier is 3 credits and the rate limit is 100/min collective. Use before any batch POST loop.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Unified shipment book",
+      "command": "book",
+      "description": "Single view across ocean + air shipments, filterable by ETA window, status, tag, port, or carrier — backed by FTS5 and local indices.",
+      "rationale": "ShipsGo's dashboard paginates at 50 and has no unified ocean+air view; this is a single SELECT over the local union.",
+      "example": "shipsgo-pp-cli book --eta-within 7d --status sailing --json",
+      "why_it_matters": "Replaces the dashboard's daily 'what's arriving this week' query with a sub-second, agent-pipeable command.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Carrier reliability score",
+      "command": "reliability",
+      "description": "Median(actual_delivery − original_eta) and on-time percentage for a carrier, optionally scoped to a specific lane.",
+      "rationale": "ShipsGo exposes carriers as a static lookup; reliability requires historical actual-vs-promise from the local shipment history.",
+      "example": "shipsgo-pp-cli reliability COSCO --lane SHA-LAX --json",
+      "why_it_matters": "This is the single number that should decide every RFQ. Use when ranking carriers in a quote response.",
+      "group": "Analytics"
+    },
+    {
+      "name": "Webhook event tail",
+      "command": "webhook tail",
+      "description": "Tail the locally stored webhook_events table chronologically; supports --since, --shipment, and --watch.",
+      "rationale": "Webhook payloads must be ingested by user-controlled receivers; the local event log is the only queryable surface — ShipsGo offers no replay endpoint.",
+      "example": "shipsgo-pp-cli webhook tail --since 24h --shipment ship_abc123 --json",
+      "why_it_matters": "Use to audit milestone history when a customer disputes an ETA change.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pre-write dupe check",
+      "command": "dupe-check",
+      "description": "Look up a container number or AWB in the local store and exit non-zero with the existing shipment id if already tracked.",
+      "rationale": "Free-tier credits are scarce; the ShipsGo API charges per POST and has no native dedupe.",
+      "example": "shipsgo-pp-cli dupe-check MSCU1234567 --json",
+      "why_it_matters": "Use in any script that may POST a new shipment — saves a credit on every re-run.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "RFQ stakeholder digest",
+      "command": "digest",
+      "description": "Emit a structured table of shipment id, last milestone, current ETA, and ETA-delta since last digest, scoped to an RFQ or a time window.",
+      "rationale": "Local SELECT with no summarization — agents can pipe to a model if they want prose; the data layer is the local store, not a remote endpoint.",
+      "example": "shipsgo-pp-cli digest --rfq Q3-LCL-Asia --since 7d --format md",
+      "why_it_matters": "Use Friday afternoons to assemble the importer's weekly status update without screenshotting the dashboard.",
+      "group": "RFQ workflow"
+    },
+    {
+      "name": "RFQ follower fan-out",
+      "command": "followers-broadcast",
+      "description": "Add or remove one follower email across every shipment in an RFQ in one command, gated by credit-budget and --dry-run.",
+      "rationale": "ShipsGo's follower API is per-shipment; RFQ-scope batching requires the local rfq_members relation.",
+      "example": "shipsgo-pp-cli followers-broadcast Q3-LCL-Asia importer@example.com --dry-run",
+      "why_it_matters": "Use when a new stakeholder joins an RFQ — saves dozens of dashboard clicks.",
+      "group": "RFQ workflow"
+    }
+  ],
+  "narrative": {
+    "display_name": "ShipsGo",
+    "headline": "Every ShipsGo endpoint, plus an RFQ workspace, lane analytics, and an offline shipment book no other tool offers.",
+    "value_prop": "shipsgo wraps the full ShipsGo v2 API (ocean + air, 16 endpoints, all CRUD verbs) and layers on top a freight-RFQ workflow that lives entirely in your local SQLite store. Use `rfq compare` to score carriers against your own shipment history, `eta-drift` to catch slipping voyages before customers do, and `credit-budget` to never burn a free-tier credit on a duplicate container.",
+    "auth_narrative": "Authenticate by setting `SHIPSGO_USER_TOKEN` to an API token created at shipsgo.com/dashboard/air/integrations/api-tokens. The token sits in a single `X-Shipsgo-User-Token` header on every request — no OAuth, no refresh flow. Use `shipsgo-pp-cli doctor` to confirm the token is loaded and reachable.",
+    "quickstart": [
+      {
+        "command": "shipsgo-pp-cli doctor",
+        "comment": "Verify SHIPSGO_USER_TOKEN is set and api.shipsgo.com responds."
+      },
+      {
+        "command": "shipsgo-pp-cli sync --full",
+        "comment": "Mirror your shipments + carriers + airlines locally for sub-second queries."
+      },
+      {
+        "command": "shipsgo-pp-cli book --eta-within 7d --json",
+        "comment": "See every shipment arriving in the next week across ocean + air."
+      },
+      {
+        "command": "shipsgo-pp-cli rfq new Q3-LCL-Asia --lane SHA-LAX",
+        "comment": "Open an RFQ workspace for a Shanghai → LA Less-than-Container-Load quote."
+      },
+      {
+        "command": "shipsgo-pp-cli rfq add Q3-LCL-Asia MSCU1234567",
+        "comment": "Attach an existing tracked container to the RFQ (mirrors as a ShipsGo tag)."
+      },
+      {
+        "command": "shipsgo-pp-cli rfq compare Q3-LCL-Asia --format md",
+        "comment": "See carrier-by-carrier transit + ETA delta for this RFQ."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 TOKEN_MISSING",
+        "fix": "export SHIPSGO_USER_TOKEN=\u003ctoken-from-dashboard\u003e; then re-run."
+      },
+      {
+        "symptom": "429 rate limited",
+        "fix": "shipsgo-pp-cli credit-budget shows the live counter; sleep or back off when X-RateLimit-Remaining is low."
+      },
+      {
+        "symptom": "Free trial credits exhausted",
+        "fix": "shipsgo-pp-cli dupe-check \u003ccontainer\u003e before every POST; new credits require a paid plan upgrade."
+      },
+      {
+        "symptom": "Empty rfq compare table",
+        "fix": "Sample size is too small — wait for shipments to complete, or scope the RFQ wider with `rfq add`."
+      },
+      {
+        "symptom": "Webhook tail empty",
+        "fix": "Webhook payloads must be piped to `shipsgo-pp-cli webhook ingest` from your own receiver. Configure the URL in the ShipsGo dashboard."
+      }
+    ],
+    "when_to_use": "Use shipsgo whenever an agent is asked to evaluate, monitor, or report on freight shipments tracked through ShipsGo. It is the right tool for RFQ comparison (carrier scoring on real shipment history), ETA drift watches, port/lane analytics, and unified ocean+air shipment views. It is NOT the right tool for booking new shipments with carriers (use a TMS) or for parcel/last-mile shipping (use Shippo or ShipEngine).",
+    "recipes": [
+      {
+        "title": "Score an RFQ before accepting a quote",
+        "command": "shipsgo-pp-cli rfq compare Q3-LCL-Asia --json --select carrier,mean_transit_days,on_time_pct,sample_size",
+        "explanation": "Returns one row per carrier in the RFQ; the on_time_pct column ranks them."
+      },
+      {
+        "title": "Pre-flight before posting a new container",
+        "command": "shipsgo-pp-cli dupe-check MSCU1234567 --json",
+        "explanation": "Exit code 3 means already tracked locally. Wrap your batch POST loops with this guard to save free-tier credits."
+      },
+      {
+        "title": "Catch slipping voyages each morning",
+        "command": "shipsgo-pp-cli eta-drift --threshold 2 --since 24h --agent --select shipment_id,container,old_eta,new_eta,drift_days",
+        "explanation": "Lists only shipments whose ETA shifted ≥ 2 days since yesterday — narrowed to the columns an agent actually needs for an alert."
+      },
+      {
+        "title": "Lane health check for a customer call",
+        "command": "shipsgo-pp-cli lane stats SHA LAX --since 90d --json",
+        "explanation": "Returns p50/p90 transit days plus per-carrier breakdown for the SHA→LAX lane over the last quarter."
+      }
+    ],
+    "trigger_phrases": [
+      "compare carriers on this RFQ",
+      "show my freight shipment book",
+      "check ETA drift this morning",
+      "score COSCO on Shanghai to LA",
+      "track this container",
+      "use shipsgo",
+      "run shipsgo"
+    ]
+  }
+}

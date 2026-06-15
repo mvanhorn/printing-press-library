@@ -1,0 +1,532 @@
+name: openart
+display_name: OpenArt
+description: "Spend your OpenArt credits programmatically. Generate videos with Seedance, Kling, Veo and more from the terminal."
+version: "0.1.0"
+base_url: "https://openart.ai/suite/api"
+http_transport: browser-chrome
+health_check_path: "/user/my-info"
+required_headers:
+  - name: Accept
+    value: "application/json"
+  - name: Content-Type
+    value: "application/json"
+
+cli_description: "Generate videos and images on OpenArt from the terminal. Spend your existing OpenArt credits across Seedance, Kling, Veo, Wan, Grok Imagine and more."
+
+auth:
+  type: cookie
+  in: cookie
+  header: ""
+  format: ""
+  env_vars: []
+
+config:
+  format: toml
+  path: "~/.config/openart-pp-cli/config.toml"
+
+resources:
+  user:
+    description: "User identity, workspace, and credit balance"
+    endpoints:
+      info:
+        method: POST
+        path: "/user/my-info"
+        description: "Get current user identity, subscription, and credit balance"
+        body: []
+        response:
+          type: object
+          item: User
+
+      current_workspace:
+        method: POST
+        path: "/user/current-workspace"
+        description: "Get the active workspace for this session"
+        body:
+          - name: userId
+            type: string
+            required: false
+            default: ""
+            description: "User ID; pass empty string to use the session user"
+        response:
+          type: object
+          item: User
+
+      settings:
+        method: GET
+        path: "/user/settings"
+        description: "Get user settings"
+        response:
+          type: object
+          item: UserSettings
+
+      last_active:
+        method: GET
+        path: "/user/last-active"
+        description: "Heartbeat the active session"
+        response:
+          type: object
+          item: Empty
+
+  workspace:
+    description: "Workspaces and team membership"
+    endpoints:
+      list:
+        method: GET
+        path: "/workspace/list"
+        description: "List workspaces this user can access"
+        response:
+          type: array
+          item: Workspace
+
+      members:
+        method: GET
+        path: "/team/members"
+        description: "List members of the active workspace"
+        response:
+          type: array
+          item: TeamMember
+
+  project:
+    description: "Projects within a workspace"
+    endpoints:
+      list:
+        method: GET
+        path: "/projects"
+        description: "List projects in the active workspace"
+        response:
+          type: array
+          item: Project
+        response_path: data
+
+      default:
+        method: GET
+        path: "/projects/default"
+        description: "Get the default project ID for the active workspace"
+        response:
+          type: object
+          item: ProjectRef
+
+      folders:
+        method: GET
+        path: "/projects/{projectId}/folders"
+        description: "List folders inside a project"
+        params:
+          - name: projectId
+            type: string
+            required: true
+            positional: true
+            description: "Project ID"
+          - name: limit
+            type: int
+            default: 50
+            description: "Max folders to return"
+        response:
+          type: array
+          item: Folder
+        response_path: data
+
+  media:
+    description: "Generation history and uploaded media"
+    endpoints:
+      list:
+        method: GET
+        path: "/resources"
+        description: "List generated and uploaded resources (videos, images, audio) in the active project"
+        params:
+          - name: projectId
+            type: string
+            required: true
+            description: "Project ID (use 'openart-pp-cli project default' to discover)"
+          - name: limit
+            type: int
+            default: 20
+            description: "Page size (max 100)"
+          - name: cursor
+            type: string
+            description: "Pagination cursor from prior page"
+          - name: folderIdNull
+            type: bool
+            default: true
+            description: "Restrict to resources not in any folder"
+        pagination:
+          type: cursor
+          cursor_field: "cursor"
+          has_more_field: "hasMore"
+        response:
+          type: array
+          item: Resource
+        response_path: data
+
+      get:
+        method: GET
+        path: "/resources/{resourceId}"
+        description: "Get a single resource by ID. Use this to poll a generation in progress until status='completed' and url is populated."
+        params:
+          - name: resourceId
+            type: string
+            required: true
+            positional: true
+            description: "Resource ID returned by a generation submit"
+        response:
+          type: object
+          item: Resource
+        response_path: data
+
+  history:
+    description: "Generation history (submissions)"
+    endpoints:
+      get:
+        method: GET
+        path: "/history/{historyId}"
+        description: "Get a generation history entry by ID. Includes capability_id and the original input."
+        params:
+          - name: historyId
+            type: string
+            required: true
+            positional: true
+            description: "History ID returned by a generation submit"
+        response:
+          type: object
+          item: HistoryEntry
+        response_path: history
+
+  forms:
+    description: "Generation forms (submit a video, image, lipsync, motion-sync, etc.)"
+    endpoints:
+      submit:
+        method: POST
+        path: "/forms/creations/{capability_id}"
+        description: "Submit a generation. capability_id is '<model-slug>:<form-type>' URL-encoded (e.g. 'byte-plus-seedance-2:text2video'). Returns historyId + resourceIds; poll resources/<id> until status='completed'."
+        params:
+          - name: capability_id
+            type: string
+            required: true
+            positional: true
+            description: "Capability ID: '<model-slug>:<form-type>'. Examples: 'byte-plus-seedance-2:text2video', 'kling2-6:image2video', 'grok-imagine:text2video'."
+        body:
+          - name: prompt
+            type: string
+            required: true
+            description: "Text prompt describing the desired output"
+          - name: model
+            type: string
+            required: true
+            description: "Model slug (matches the slug part of capability_id)"
+          - name: projectId
+            type: string
+            required: true
+            description: "Project ID where the generation should be saved"
+          - name: videoCount
+            type: int
+            default: 1
+            description: "How many videos to generate in this submission"
+          - name: duration
+            type: int
+            default: 5
+            description: "Video duration in seconds (model-specific range)"
+          - name: aspectRatio
+            type: string
+            default: "16:9"
+            description: "Aspect ratio (e.g. 16:9, 9:16, 1:1)"
+          - name: resolution
+            type: string
+            default: "720p"
+            description: "Output resolution (e.g. 480p, 720p, 1080p, 4K)"
+          - name: autoEnhancePrompt
+            type: bool
+            default: false
+            description: "Run the prompt through OpenArt auto-polish before submitting"
+          - name: enableUnlimited
+            type: bool
+            default: true
+            description: "Use the user's subscription quota when available"
+          - name: folderId
+            type: string
+            description: "Optional folder ID to file the generation under"
+        response:
+          type: object
+          item: SubmitResponse
+
+  credits:
+    description: "Credit balance and ledger"
+    endpoints:
+      logs:
+        method: GET
+        path: "/credits/logs"
+        description: "Get the credit ledger (CONSUME, RECHARGE, REFUND entries)"
+        response:
+          type: array
+          item: CreditEntry
+        response_path: entries
+
+  upload:
+    description: "Upload reference images for image-to-video and other ref-based forms"
+    endpoints:
+      sign:
+        method: POST
+        path: "/upload/sign"
+        description: "Get a signed upload URL for a new reference image"
+        body:
+          - name: filename
+            type: string
+            required: true
+            description: "Filename including extension"
+          - name: contentType
+            type: string
+            required: true
+            description: "MIME type (e.g. image/png, image/jpeg)"
+        response:
+          type: object
+          item: SignedUpload
+
+      persist:
+        method: POST
+        path: "/upload/persist"
+        description: "Persist an uploaded image as a referencable asset"
+        body:
+          - name: url
+            type: string
+            required: true
+            description: "URL returned by upload/sign after successful PUT"
+          - name: projectId
+            type: string
+            required: true
+            description: "Project ID to file the asset under"
+        response:
+          type: object
+          item: UploadedAsset
+
+      list:
+        method: GET
+        path: "/uploaded-assets"
+        description: "List uploaded reference images"
+        params:
+          - name: projectId
+            type: string
+            required: true
+            description: "Project ID"
+          - name: limit
+            type: int
+            default: 20
+            description: "Page size"
+        response:
+          type: array
+          item: UploadedAsset
+        response_path: data
+
+  templates:
+    description: "Saved generation templates"
+    endpoints:
+      list:
+        method: GET
+        path: "/templates"
+        description: "List saved templates"
+        response:
+          type: array
+          item: Template
+        response_path: data
+
+  prompt:
+    description: "Prompt utilities (auto-polish, reverse from image)"
+    endpoints:
+      enhance:
+        method: POST
+        path: "/enhance-prompt"
+        description: "Auto-polish a prompt (LLM rewrite for better generation)"
+        body:
+          - name: prompt
+            type: string
+            required: true
+            description: "Original prompt"
+          - name: tool
+            type: string
+            default: "text-to-video"
+            description: "Target tool (text-to-video, text-to-image, etc.)"
+        response:
+          type: object
+          item: EnhancedPrompt
+
+      from_image:
+        method: POST
+        path: "/image-to-prompt"
+        description: "Reverse: extract a suggested prompt from an image URL"
+        body:
+          - name: imageUrl
+            type: string
+            required: true
+            description: "Public image URL to analyze"
+        response:
+          type: object
+          item: SuggestedPrompt
+
+types:
+  Empty:
+    fields: []
+
+  User:
+    fields:
+      - name: id
+        type: string
+      - name: displayName
+        type: string
+      - name: username
+        type: string
+      - name: free_credit_balance
+        type: int
+      - name: subscription_type
+        type: string
+      - name: subscription_active
+        type: bool
+      - name: isEmailSignUp
+        type: bool
+
+  UserSettings:
+    fields:
+      - name: language
+        type: string
+      - name: theme
+        type: string
+
+  Workspace:
+    fields:
+      - name: id
+        type: string
+      - name: team_id
+        type: string
+      - name: team_name
+        type: string
+      - name: team_description
+        type: string
+      - name: team_avatar
+        type: string
+
+  TeamMember:
+    fields:
+      - name: id
+        type: string
+      - name: displayName
+        type: string
+      - name: role
+        type: string
+      - name: email
+        type: string
+
+  Project:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: isDefault
+        type: bool
+
+  ProjectRef:
+    fields:
+      - name: projectId
+        type: string
+
+  Folder:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: projectId
+        type: string
+
+  Resource:
+    fields:
+      - name: id
+        type: string
+      - name: sourceType
+        type: string
+      - name: userId
+        type: string
+      - name: url
+        type: string
+      - name: thumbnailUrl
+        type: string
+      - name: resourceType
+        type: string
+      - name: status
+        type: string
+      - name: isStarred
+        type: bool
+      - name: isDownloaded
+        type: bool
+      - name: createdAt
+        type: int
+
+  HistoryEntry:
+    fields:
+      - name: id
+        type: string
+      - name: user_id
+        type: string
+      - name: capability_id
+        type: string
+      - name: request_form_id
+        type: string
+      - name: tool
+        type: string
+      - name: is_deleted
+        type: bool
+
+  SubmitResponse:
+    fields:
+      - name: historyId
+        type: string
+
+  CreditEntry:
+    fields:
+      - name: id
+        type: string
+      - name: sequenceId
+        type: int
+      - name: type
+        type: string
+      - name: amount
+        type: int
+      - name: balanceBefore
+        type: int
+      - name: balanceAfter
+        type: int
+
+  SignedUpload:
+    fields:
+      - name: uploadUrl
+        type: string
+      - name: assetUrl
+        type: string
+
+  UploadedAsset:
+    fields:
+      - name: id
+        type: string
+      - name: url
+        type: string
+      - name: resourceType
+        type: string
+      - name: status
+        type: string
+
+  Template:
+    fields:
+      - name: id
+        type: string
+      - name: tool
+        type: string
+      - name: name
+        type: string
+      - name: sortOrder
+        type: int
+
+  EnhancedPrompt:
+    fields:
+      - name: prompt
+        type: string
+
+  SuggestedPrompt:
+    fields:
+      - name: prompt
+        type: string

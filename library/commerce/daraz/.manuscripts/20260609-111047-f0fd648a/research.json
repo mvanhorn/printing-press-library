@@ -1,0 +1,267 @@
+{
+  "api_name": "daraz",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "oxylabs/lazada-scraper",
+      "url": "https://github.com/oxylabs/lazada-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "zohaibbashir/Daraz.pk-Web-Scraper",
+      "url": "https://github.com/zohaibbashir/Daraz.pk-Web-Scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "kazalnsl/daraz-scraper",
+      "url": "https://github.com/kazalnsl/daraz-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Yeasir-Hossain/daraz-scrapper",
+      "url": "https://github.com/Yeasir-Hossain/daraz-scrapper",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "abdulalikhan/DarazPK-API",
+      "url": "https://github.com/abdulalikhan/DarazPK-API",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-09T06:11:00Z",
+  "novel_features": [
+    {
+      "name": "Price history",
+      "command": "price-history",
+      "description": "See a product's recorded price trend and its lowest-ever price from your local store.",
+      "rationale": "Daraz shows only today's price; recording snapshots over runs is only possible with the local SQLite store.",
+      "example": "daraz-pp-cli price-history 599201597 --agent",
+      "why_it_matters": "Reach for this to judge whether a current price is actually low for that item, not just discounted on paper.",
+      "group": "Local price intelligence"
+    },
+    {
+      "name": "Price watch",
+      "command": "watch",
+      "description": "Record current prices for every item matching a search into the local store so price history builds over time.",
+      "rationale": "Requires persisting price snapshots locally across runs; no scraper keeps history.",
+      "example": "daraz-pp-cli watch \"gaming laptop\"",
+      "why_it_matters": "Run periodically on a query you care about; then price-history shows the trend for any item it captured.",
+      "group": "Local price intelligence"
+    },
+    {
+      "name": "Saved-search change alerts",
+      "command": "since",
+      "description": "Diff a saved search against its last local snapshot to show new listings and price moves since you last checked.",
+      "rationale": "Needs a stored prior snapshot of the query's results to diff against; a single API call cannot do this.",
+      "example": "daraz-pp-cli since \"gaming mouse\" --agent",
+      "why_it_matters": "Use to monitor a market over time instead of re-reading a full result list each run.",
+      "group": "Local price intelligence"
+    },
+    {
+      "name": "Real-deal ranking",
+      "command": "deals",
+      "description": "Rank a search by a composite of discount, rating, and units sold to surface genuinely good deals.",
+      "rationale": "Requires a local join and scoring across every scanned item, not the site's nominal % off ordering.",
+      "example": "daraz-pp-cli deals \"laptop\" --agent --select name,price,discountPct,rating",
+      "why_it_matters": "Use when the goal is the best-value item for a query, not raw listing order.",
+      "group": "Smart ranking"
+    },
+    {
+      "name": "Fake-discount / value detector",
+      "command": "value",
+      "description": "Flag inflated original-price discounts by comparing each item's claimed original price to the local median for that query.",
+      "rationale": "Detecting a fake markdown needs the query's market median computed locally across all results.",
+      "example": "daraz-pp-cli value \"power bank\" --agent",
+      "why_it_matters": "Use to avoid misleading discounts; it is the inverse of deals.",
+      "group": "Smart ranking"
+    },
+    {
+      "name": "Cross-seller compare",
+      "command": "compare",
+      "description": "Find the same item across sellers and show the cheapest and best-rated side by side.",
+      "rationale": "Requires a local join of the same query across sellers; no single endpoint returns this.",
+      "example": "daraz-pp-cli compare \"airpods pro\" --agent",
+      "why_it_matters": "Use to pick the best seller/listing for an item before buying.",
+      "group": "Smart ranking"
+    },
+    {
+      "name": "Seller scorecard",
+      "command": "seller stats",
+      "description": "Aggregate a seller's catalog from the local store: average rating, price range, listing count, discount pattern.",
+      "rationale": "Aggregating a seller's catalog requires the synced local store of their listings.",
+      "example": "daraz-pp-cli seller stats 1066739 --agent",
+      "why_it_matters": "Use to vet a seller's track record before trusting a listing.",
+      "group": "Seller trust"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Price history",
+      "command": "price-history",
+      "description": "See a product's recorded price trend and its lowest-ever price from your local store.",
+      "rationale": "Daraz shows only today's price; recording snapshots over runs is only possible with the local SQLite store.",
+      "example": "daraz-pp-cli price-history 599201597 --agent",
+      "why_it_matters": "Reach for this to judge whether a current price is actually low for that item, not just discounted on paper.",
+      "group": "Local price intelligence"
+    },
+    {
+      "name": "Price watch",
+      "command": "watch",
+      "description": "Record current prices for every item matching a search into the local store so price history builds over time.",
+      "rationale": "Requires persisting price snapshots locally across runs; no scraper keeps history.",
+      "example": "daraz-pp-cli watch \"gaming laptop\"",
+      "why_it_matters": "Run periodically on a query you care about; then price-history shows the trend for any item it captured.",
+      "group": "Local price intelligence"
+    },
+    {
+      "name": "Saved-search change alerts",
+      "command": "since",
+      "description": "Diff a saved search against its last local snapshot to show new listings and price moves since you last checked.",
+      "rationale": "Needs a stored prior snapshot of the query's results to diff against; a single API call cannot do this.",
+      "example": "daraz-pp-cli since \"gaming mouse\" --agent",
+      "why_it_matters": "Use to monitor a market over time instead of re-reading a full result list each run.",
+      "group": "Local price intelligence"
+    },
+    {
+      "name": "Real-deal ranking",
+      "command": "deals",
+      "description": "Rank a search by a composite of discount, rating, and units sold to surface genuinely good deals.",
+      "rationale": "Requires a local join and scoring across every scanned item, not the site's nominal % off ordering.",
+      "example": "daraz-pp-cli deals \"laptop\" --agent --select name,price,discountPct,rating",
+      "why_it_matters": "Use when the goal is the best-value item for a query, not raw listing order.",
+      "group": "Smart ranking"
+    },
+    {
+      "name": "Fake-discount / value detector",
+      "command": "value",
+      "description": "Flag inflated original-price discounts by comparing each item's claimed original price to the local median for that query.",
+      "rationale": "Detecting a fake markdown needs the query's market median computed locally across all results.",
+      "example": "daraz-pp-cli value \"power bank\" --agent",
+      "why_it_matters": "Use to avoid misleading discounts; it is the inverse of deals.",
+      "group": "Smart ranking"
+    },
+    {
+      "name": "Cross-seller compare",
+      "command": "compare",
+      "description": "Find the same item across sellers and show the cheapest and best-rated side by side.",
+      "rationale": "Requires a local join of the same query across sellers; no single endpoint returns this.",
+      "example": "daraz-pp-cli compare \"airpods pro\" --agent",
+      "why_it_matters": "Use to pick the best seller/listing for an item before buying.",
+      "group": "Smart ranking"
+    },
+    {
+      "name": "Seller scorecard",
+      "command": "seller stats",
+      "description": "Aggregate a seller's catalog from the local store: average rating, price range, listing count, discount pattern.",
+      "rationale": "Aggregating a seller's catalog requires the synced local store of their listings.",
+      "example": "daraz-pp-cli seller stats 1066739 --agent",
+      "why_it_matters": "Use to vet a seller's track record before trusting a listing.",
+      "group": "Seller trust"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Daraz.pk",
+    "headline": "Every Daraz product search, plus a local price database, real-deal ranking, and drop alerts no Daraz scraper has.",
+    "value_prop": "daraz-pp-cli searches Daraz.pk listings, reads reviews, and extracts product detail like any scraper — then keeps it in a local SQLite store so it can do what one-shot scrapers cannot: track price history (price-history), rank genuine deals over fake discounts (deals, value), diff a saved search over time (since), and vet sellers (seller stats). Read-only, no login required.",
+    "quickstart": [
+      {
+        "command": "daraz-pp-cli doctor --dry-run",
+        "comment": "Health check — confirms daraz.pk is reachable; needs no credentials."
+      },
+      {
+        "command": "daraz-pp-cli products --query \"gaming laptop\" --price 50000-150000 --sort priceasc",
+        "comment": "Core search with a PKR price range, cheapest first."
+      },
+      {
+        "command": "daraz-pp-cli reviews --item-id 599201597 --page-size 5",
+        "comment": "Read recent reviews for a product by its item ID."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Empty results for a query that has products on the site",
+        "fix": "Drop filters and retry: daraz-pp-cli products --query \"\u003ckeyword\u003e\" — then re-add --price."
+      },
+      {
+        "symptom": "price-history or since shows nothing",
+        "fix": "Populate the local store first: daraz-pp-cli watch \u003citemId\u003e (for price-history) or run the same search once before since."
+      },
+      {
+        "symptom": "reviews returns nothing",
+        "fix": "Confirm the numeric item ID from a product URL (the digits after -i in .../products/...-i\u003citemId\u003e.html)."
+      }
+    ],
+    "when_to_use": "Use daraz-pp-cli for shopper-side Daraz.pk research: finding products, comparing prices and sellers, reading reviews, and tracking whether a price is genuinely low over time. It is ideal for agents that need structured, filterable product data and offline price intelligence from a single keyword.",
+    "anti_triggers": [
+      "Do not use this CLI to place orders, manage a cart, or checkout — it is read-only.",
+      "Do not use it for order tracking, wishlists, or account actions that require a logged-in Daraz session.",
+      "Do not use it for seller/merchant operations — that is the separate Daraz Open Platform.",
+      "Do not use it for non-Pakistan marketplaces; it targets daraz.pk."
+    ],
+    "recipes": [
+      {
+        "title": "Agent-friendly search with field selection",
+        "command": "daraz-pp-cli deals \"wireless earbuds\" --agent --select name,price,discountPct,rating,url",
+        "explanation": "deals returns a flat, ranked array of listings, so --select trims each row to just the fields an agent needs and keeps payloads small."
+      },
+      {
+        "title": "Find the best-value items, not the biggest fake discount",
+        "command": "daraz-pp-cli deals \"power bank\" --agent --select name,price,discountPct,rating",
+        "explanation": "Ranks by a discount-times-rating-times-sales composite computed locally."
+      },
+      {
+        "title": "Start tracking a query's prices",
+        "command": "daraz-pp-cli watch \"gaming laptop\"",
+        "explanation": "Records current prices for the search so price-history builds a real trend over time."
+      },
+      {
+        "title": "See what changed in a market since last check",
+        "command": "daraz-pp-cli since \"gaming mouse\" --agent",
+        "explanation": "Diffs the current search against the last local snapshot for new listings and price moves."
+      }
+    ],
+    "trigger_phrases": [
+      "search daraz for",
+      "daraz price of",
+      "find deals on daraz",
+      "daraz reviews for",
+      "is this a good deal on daraz",
+      "use daraz",
+      "run daraz"
+    ]
+  }
+}

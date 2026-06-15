@@ -1,0 +1,173 @@
+{
+  "dir": "\u003ccli-dir\u003e/shipsgo-pp-cli",
+  "spec_path": "\u003ccli-dir\u003e/spec.json",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 8,
+    "valid": 8,
+    "valid_pct": 100
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 20,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 58,
+    "dead": 9,
+    "items": [
+      "emitMissingPaginationCursorWarning",
+      "emitMissingPaginationSignalWarning",
+      "emitPaginatedGetMaxPagesWarning",
+      "emitTruncationWarning",
+      "extractPaginatedItems",
+      "nextClientSidePaginationCursor",
+      "paginatedGet",
+      "paginationCursorToken",
+      "rawAtPath"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 0,
+    "sync_file_emitted": false,
+    "sync_resources_present": false,
+    "detail": "sync Upsert calls not found; search methods not found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 7,
+    "valid_examples": 7,
+    "missing": [
+      "digest",
+      "followers-broadcast",
+      "reliability"
+    ],
+    "detail": "7/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 56,
+      "registered": 56
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 11,
+    "found": 11
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 11,
+    "exempted_via_store": 0,
+    "suspicious": [
+      {
+        "command": "rfq new",
+        "file": "rfq_new.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "rfq compare",
+        "file": "rfq_compare.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "lane stats",
+        "file": "lane_stats.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "eta-drift",
+        "file": "eta_drift.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "credit-budget",
+        "file": "credit_budget.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "book",
+        "file": "book.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "reliability",
+        "file": "reliability.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "webhook tail",
+        "file": "webhook_tail.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "dupe-check",
+        "file": "dupe_check.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "digest",
+        "file": "digest.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "followers-broadcast",
+        "file": "followers_broadcast.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      }
+    ]
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 48
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 48
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "9 dead helper functions found",
+    "sync uses generic Upsert only",
+    "11/11 novel features look reimplemented: rfq new (rfq_new.go) — hand-rolled response: no API client call, no store access; rfq compare (rfq_compare.go) — hand-rolled response: no API client call, no store access; lane stats (lane_stats.go) — hand-rolled response: no API client call, no store access; eta-drift (eta_drift.go) — hand-rolled response: no API client call, no store access; credit-budget (credit_budget.go) — hand-rolled response: no API client call, no store access; book (book.go) — hand-rolled response: no API client call, no store access; reliability (reliability.go) — hand-rolled response: no API client call, no store access; webhook tail (webhook_tail.go) — hand-rolled response: no API client call, no store access; dupe-check (dupe_check.go) — hand-rolled response: no API client call, no store access; digest (digest.go) — hand-rolled response: no API client call, no store access; followers-broadcast (followers_broadcast.go) — hand-rolled response: no API client call, no store access"
+  ]
+}

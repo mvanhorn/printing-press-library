@@ -1,0 +1,94 @@
+name: roadside-america
+display_name: Roadside America
+description: "Discover offbeat, community-sourced roadside attractions from RoadsideAmerica.com — nearby, by state, by superlative category, with full writeups. Polite, cached, agent-native."
+version: "0.1.0"
+category: travel
+base_url: "https://www.roadsideamerica.com"
+http_transport: standard
+health_check_path: "/robots.txt"
+required_headers:
+  - name: User-Agent
+    value: "roadside-america-pp-cli/0.1.0 (user-initiated roadside-attraction lookup; polite, cached, rate-limited)"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/roadside-america-pp-cli/config.toml"
+
+resources:
+  raw:
+    description: "Raw RoadsideAmerica.com passthrough (HTML link/page extraction). Prefer the top-level near / state / show / category commands for structured output."
+    endpoints:
+      by-state:
+        method: GET
+        path: "/map/attractionsByState.php"
+        description: "Raw attraction links for a US/Canada state (HTML fragment)."
+        params:
+          - name: state
+            type: string
+            required: true
+            description: "Two-letter state or province code, e.g. TX, CA, ON"
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/tip", "/story"]
+      nearby:
+        method: GET
+        path: "/map/nearbyAttractions.php"
+        description: "Raw nearby attraction links for coordinates (HTML fragment)."
+        params:
+          - name: long
+            type: float
+            required: true
+            description: "Longitude (decimal degrees)"
+          - name: lat
+            type: float
+            required: true
+            description: "Latitude (decimal degrees)"
+          - name: delta
+            type: float
+            required: false
+            default: 0.5
+            description: "Bounding half-size in degrees (radius proxy)"
+          - name: id
+            type: int
+            required: false
+            default: 0
+            description: "Reference attraction id (0 for none)"
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/tip", "/story"]
+      detail:
+        method: GET
+        path: "/tip/{id}"
+        description: "Raw attraction detail page (HTML)."
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Attraction id"
+        response_format: html
+        html_extract:
+          mode: page
+
+types:
+  Attraction:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: street
+        type: string
+      - name: city
+        type: string
+      - name: state
+        type: string
+      - name: distance
+        type: string
+      - name: source_url
+        type: string

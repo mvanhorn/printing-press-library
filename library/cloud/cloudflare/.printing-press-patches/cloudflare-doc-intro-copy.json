@@ -1,0 +1,13 @@
+{
+  "id": "cloudflare-doc-intro-copy",
+  "scope": "library/cloud/cloudflare docs and metadata",
+  "reason": "The printed Cloudflare CLI shipped vendor API-doc boilerplate as the catalog/skill introduction instead of explaining what the generated CLI is for.",
+  "behavior": "Cloudflare user-facing README, skill, MCP/tool metadata, and release description should describe the CLI as an agent-ready Cloudflare operations surface for accounts, zones, DNS, Workers, Pages, R2, tunnels, Zero Trust, token diagnostics, and infrastructure workflows.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    ".goreleaser.yaml",
+    "tools-manifest.json",
+    "internal/mcp/tools.go"
+  ]
+}

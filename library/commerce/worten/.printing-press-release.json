@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "worten",
+  "cli_name": "worten-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-14T20:32:19Z",
+  "source_commit": "8230ab7cc068200af623d48855b708cfc1ff4670",
+  "printing_press_version": "4.20.1",
+  "run_id": "20260604-224205",
+  "changes": [
+    {
+      "title": "feat(worten): add worten",
+      "pr": 1136,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1136",
+      "commit": "8230ab7cc068200af623d48855b708cfc1ff4670"
+    }
+  ]
+}

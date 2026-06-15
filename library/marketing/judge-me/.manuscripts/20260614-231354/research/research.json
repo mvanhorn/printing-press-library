@@ -1,0 +1,103 @@
+{
+  "api_name": "judge-me",
+  "novelty_score": 7,
+  "alternatives": null,
+  "gaps": null,
+  "patterns": null,
+  "recommendation": "proceed",
+  "researched_at": "2026-06-14T23:56:28Z",
+  "novel_features": [
+    {
+      "name": "Reputation summary",
+      "command": "reputation summary",
+      "description": "One read-only dashboard for store-level review count, rating, shop metadata, settings, and local review stats.",
+      "rationale": "Combines multiple Judge.me widget/shop/settings endpoints with the local review mirror so operators can see trust health without stitching API calls manually.",
+      "example": "judge-me-pp-cli reputation summary --agent",
+      "why_it_matters": "Use before campaigns or launch reviews to spot trust-presentation problems quickly.",
+      "group": "reputation"
+    },
+    {
+      "name": "Product reputation hotspots",
+      "command": "reputation products",
+      "description": "Ranks synced products by low-rating rate, average rating, verified rate, and newest review recency.",
+      "rationale": "Uses the local SQLite review mirror to compute product-level quality risk across review history, not just wrap a single endpoint.",
+      "example": "judge-me-pp-cli sync --resources reviews --max-pages 1 \u0026\u0026 judge-me-pp-cli reputation products --agent",
+      "why_it_matters": "Use weekly to find products dragging down customer trust.",
+      "group": "reputation"
+    },
+    {
+      "name": "Moderation attention queue",
+      "command": "reputation moderation-queue",
+      "description": "Surfaces low-rated, hidden, spam-marked, or not-yet-curated synced reviews for human attention.",
+      "rationale": "Turns raw review metadata into a support/moderation queue while staying read-only and local-first.",
+      "example": "judge-me-pp-cli reputation moderation-queue --agent",
+      "why_it_matters": "Use during support triage to prioritize reputation-impacting reviews.",
+      "group": "moderation"
+    },
+    {
+      "name": "Trust settings audit",
+      "command": "reputation settings-audit",
+      "description": "Audits Judge.me settings that affect trust presentation, including autopublish, picture reviews, star color, and admin email presence when returned.",
+      "rationale": "Converts settings endpoint data into operator-facing trust findings instead of dumping raw settings.",
+      "example": "judge-me-pp-cli reputation settings-audit --agent",
+      "why_it_matters": "Use after setup or theme changes to confirm trust display configuration.",
+      "group": "settings"
+    },
+    {
+      "name": "Product evidence view",
+      "command": "reputation product",
+      "description": "Fetches product-level count/histogram evidence when product ID is known and widget availability/byte evidence for handles or external IDs.",
+      "rationale": "Combines review count endpoint calls with widget endpoints to give a product trust evidence packet without mutating reviews.",
+      "example": "judge-me-pp-cli reputation product --handle example-product --agent",
+      "why_it_matters": "Use before merchandising or ad pushes to verify product social proof is present.",
+      "group": "product"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Reputation summary",
+      "command": "reputation summary",
+      "description": "One read-only dashboard for store-level review count, rating, shop metadata, settings, and local review stats.",
+      "rationale": "Combines multiple Judge.me widget/shop/settings endpoints with the local review mirror so operators can see trust health without stitching API calls manually.",
+      "example": "judge-me-pp-cli reputation summary --agent",
+      "why_it_matters": "Use before campaigns or launch reviews to spot trust-presentation problems quickly.",
+      "group": "reputation"
+    },
+    {
+      "name": "Product reputation hotspots",
+      "command": "reputation products",
+      "description": "Ranks synced products by low-rating rate, average rating, verified rate, and newest review recency.",
+      "rationale": "Uses the local SQLite review mirror to compute product-level quality risk across review history, not just wrap a single endpoint.",
+      "example": "judge-me-pp-cli sync --resources reviews --max-pages 1 \u0026\u0026 judge-me-pp-cli reputation products --agent",
+      "why_it_matters": "Use weekly to find products dragging down customer trust.",
+      "group": "reputation"
+    },
+    {
+      "name": "Moderation attention queue",
+      "command": "reputation moderation-queue",
+      "description": "Surfaces low-rated, hidden, spam-marked, or not-yet-curated synced reviews for human attention.",
+      "rationale": "Turns raw review metadata into a support/moderation queue while staying read-only and local-first.",
+      "example": "judge-me-pp-cli reputation moderation-queue --agent",
+      "why_it_matters": "Use during support triage to prioritize reputation-impacting reviews.",
+      "group": "moderation"
+    },
+    {
+      "name": "Trust settings audit",
+      "command": "reputation settings-audit",
+      "description": "Audits Judge.me settings that affect trust presentation, including autopublish, picture reviews, star color, and admin email presence when returned.",
+      "rationale": "Converts settings endpoint data into operator-facing trust findings instead of dumping raw settings.",
+      "example": "judge-me-pp-cli reputation settings-audit --agent",
+      "why_it_matters": "Use after setup or theme changes to confirm trust display configuration.",
+      "group": "settings"
+    },
+    {
+      "name": "Product evidence view",
+      "command": "reputation product",
+      "description": "Fetches product-level count/histogram evidence when product ID is known and widget availability/byte evidence for handles or external IDs.",
+      "rationale": "Combines review count endpoint calls with widget endpoints to give a product trust evidence packet without mutating reviews.",
+      "example": "judge-me-pp-cli reputation product --handle example-product --agent",
+      "why_it_matters": "Use before merchandising or ad pushes to verify product social proof is present.",
+      "group": "product"
+    }
+  ]
+}

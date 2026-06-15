@@ -1,0 +1,73 @@
+{
+  "api_name": "azure-cost-admin",
+  "novelty_score": 0,
+  "alternatives": null,
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Actual spend summary",
+      "command": "spend summary",
+      "description": "Queries Azure Cost Management for actual billed spend over a selected timeframe.",
+      "rationale": ""
+    },
+    {
+      "name": "Spend ownership breakdowns",
+      "command": "spend by-service",
+      "description": "Groups actual Azure spend by service, with sibling commands for resource groups and tag keys.",
+      "rationale": ""
+    },
+    {
+      "name": "Tag hygiene check",
+      "command": "tags untagged",
+      "description": "Uses Azure Resource Graph to find resources missing a requested owner, environment, or cost-center tag.",
+      "rationale": ""
+    },
+    {
+      "name": "Explainable cost anomaly scan",
+      "command": "anomalies",
+      "description": "Compares recent service spend against a prior window and reports large changes without modifying Azure.",
+      "rationale": ""
+    },
+    {
+      "name": "Retail price estimate helper",
+      "command": "price search",
+      "description": "Searches public Azure Retail Prices separately from actual billed spend so estimates do not get confused with invoice data.",
+      "rationale": ""
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Actual spend summary",
+      "command": "spend summary",
+      "description": "Queries Azure Cost Management for actual billed spend over a selected timeframe.",
+      "rationale": ""
+    },
+    {
+      "name": "Spend ownership breakdowns",
+      "command": "spend by-service",
+      "description": "Groups actual Azure spend by service, with sibling commands for resource groups and tag keys.",
+      "rationale": ""
+    },
+    {
+      "name": "Tag hygiene check",
+      "command": "tags untagged",
+      "description": "Uses Azure Resource Graph to find resources missing a requested owner, environment, or cost-center tag.",
+      "rationale": ""
+    },
+    {
+      "name": "Explainable cost anomaly scan",
+      "command": "anomalies",
+      "description": "Compares recent service spend against a prior window and reports large changes without modifying Azure.",
+      "rationale": ""
+    },
+    {
+      "name": "Retail price estimate helper",
+      "command": "price search",
+      "description": "Searches public Azure Retail Prices separately from actual billed spend so estimates do not get confused with invoice data.",
+      "rationale": ""
+    }
+  ]
+}

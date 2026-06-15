@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "xai-pp-mcp",
+  "display_name": "xAI",
+  "version": "0.0.0",
+  "description": "REST API for xAI compatible with other providers.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/xai-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/xai-pp-mcp",
+      "args": [],
+      "env": {
+        "XAI_API_KEY": "${user_config.xai_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "xai_api_key": {
+      "type": "string",
+      "title": "xAI API key",
+      "description": "Sets XAI_API_KEY for the xAI MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

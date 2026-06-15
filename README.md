@@ -139,6 +139,17 @@ Then use the focused slash skill directly:
 
 Each `/pp-<name>` skill is a focused interface for one CLI.
 
+## Private and optimized CLIs
+
+Most entries in this library are printed from a public API spec or captured interface and then published through the normal catalog/release flow. A few CLIs are private, composite, or deliberately optimized beyond the baseline generated surface. For those, treat the per-CLI README, SKILL, and `.printing-press.json` `visibility` / `novel_features` metadata as the source of truth.
+
+Known examples:
+
+- [`wavespeed`](library/ai/wavespeed/) — docs-derived WaveSpeed AI CLI with hand-optimized generation workflows: literal slash-delimited model runs, schema/price/upload/download helpers, production packs, batch runs, variants, composition, aspect reframing, brand profiles, and a local generation library.
+- [`traffic-intel`](library/marketing/traffic-intel/) — private, local-first composite SEO/revenue CLI that joins Google Search Console, GA4, and Ahrefs child CLI evidence into page, revenue, drop-explanation, refresh-queue, and weekly-digest workflows. It defaults to fixture/imported local data and only shells out to child CLIs when explicitly requested with `--source`, `--live`, or `--real`.
+
+When adding another private or heavily customized CLI, add it here with a short reason it differs from the normal generated catalog entry, and keep the detailed usage notes in that CLI's own README/SKILL.
+
 ## Catalog
 
 Tools grouped by category, sourced from [`registry.json`](registry.json). Each row links to the tool source, its focused direct-install skill, and the latest release.

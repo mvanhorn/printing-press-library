@@ -1,0 +1,16 @@
+version: 2
+project_name: azure-cost-admin
+
+builds:
+  - id: azure-cost-admin-pp-cli
+    main: ./cmd/azure-cost-admin-pp-cli
+    binary: azure-cost-admin-pp-cli
+    env:
+      - CGO_ENABLED=0
+
+archives:
+  - id: cli
+    ids:
+      - azure-cost-admin-pp-cli
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+

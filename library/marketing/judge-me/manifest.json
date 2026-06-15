@@ -1,0 +1,48 @@
+{
+  "manifest_version": "0.3",
+  "name": "judge-me-pp-mcp",
+  "display_name": "Judge Me",
+  "version": "0.0.0",
+  "description": "Our REST API lets you access to resources and perform actions on behalf of a store.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/judge-me-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/judge-me-pp-mcp",
+      "args": [],
+      "env": {
+        "JUDGE_ME_PRIVATE_APIKEY": "${user_config.judge_me_api_token}",
+        "JUDGE_ME_API_TOKEN": "${user_config.judge_me_api_token}",
+        "JUDGE_ME_SHOP_DOMAIN": "${user_config.judge_me_shop_domain}"
+      }
+    }
+  },
+  "user_config": {
+    "judge_me_api_token": {
+      "type": "string",
+      "title": "JUDGE_ME_API_TOKEN",
+      "description": "Judge.me API token sent as X-Api-Token.",
+      "sensitive": true,
+      "required": true
+    },
+    "judge_me_shop_domain": {
+      "type": "string",
+      "title": "JUDGE_ME_SHOP_DOMAIN",
+      "description": "Shop domain passed to Judge.me as shop_domain, e.g. example.myshopify.com.",
+      "sensitive": false,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

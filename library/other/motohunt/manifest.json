@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "motohunt-pp-mcp",
+  "display_name": "MotoHunt",
+  "version": "0.0.0",
+  "description": "Search motorcycle and ATV listings from the terminal — with MotoHunt's MSRP/average-price/deal-rating data exposed as structured fields no other tool gives you.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/motohunt-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/motohunt-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "judge-me",
+  "cli_name": "judge-me-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-15T00:49:10Z",
+  "source_commit": "ffaccaab7be047377412b5ee5282ae940e40987e",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260614-231354",
+  "changes": [
+    {
+      "title": "feat(judge-me): add judge-me",
+      "pr": 1170,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1170",
+      "commit": "ffaccaab7be047377412b5ee5282ae940e40987e"
+    }
+  ]
+}

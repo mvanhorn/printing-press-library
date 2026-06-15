@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-11T10:44:57Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "agent-desktop",
+  "display_name": "Agent Desktop",
+  "cli_name": "agent-desktop-pp-cli",
+  "creator": {
+    "handle": "lahfir",
+    "name": "Lahfir"
+  },
+  "owner": "lahfir",
+  "printer": "lahfir",
+  "printer_name": "Lahfir",
+  "spec_format": "external-cli",
+  "spec_source": "https://github.com/lahfir/agent-desktop/releases",
+  "run_id": "20260611T104457Z-agent-desktop-pp",
+  "category": "developer-tools",
+  "description": "Printing Press bridge for the Rust agent-desktop desktop automation CLI. Installs or delegates to the real remote package instead of reimplementing desktop automation.",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Remote release bootstrap",
+      "command": "install",
+      "description": "Installs the real agent-desktop package from the public npm/GitHub release channel, with explicit version pinning or latest resolution."
+    },
+    {
+      "name": "Agent-safe installation diagnosis",
+      "command": "doctor",
+      "description": "Reports whether the real agent-desktop binary is on PATH without mutating the host."
+    },
+    {
+      "name": "Exit-code preserving delegation",
+      "command": "run",
+      "description": "Delegates arguments to the real agent-desktop binary and preserves its exit code for agent retry logic."
+    },
+    {
+      "name": "Distribution context",
+      "command": "info",
+      "description": "Explains that this catalog entry is a bridge to the existing Rust CLI, npm package, and GitHub release assets."
+    }
+  ]
+}

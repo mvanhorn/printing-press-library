@@ -1,0 +1,64 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-06-08T22:51:29Z",
+  "elapsed_ms": 6668,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-08T22:51:29Z",
+      "elapsed_ms": 2617,
+      "command": "/Volumes/Cat_SSD/Developer/cli-printing-press/cli-printing-press verify --dir /Users/cathrynlavery/printing-press/library/1password --spec /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-1210c349/runs/20260608-165823-419b55df/pipeline/1password-op-spec.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-08T22:51:32Z",
+      "elapsed_ms": 251,
+      "command": "/Volumes/Cat_SSD/Developer/cli-printing-press/cli-printing-press validate-narrative --strict --full-examples --research /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-1210c349/runs/20260608-165823-419b55df/pipeline/research.json --binary /Users/cathrynlavery/printing-press/library/1password/1password-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-08T22:51:32Z",
+      "elapsed_ms": 1450,
+      "command": "/Volumes/Cat_SSD/Developer/cli-printing-press/cli-printing-press dogfood --dir /Users/cathrynlavery/printing-press/library/1password --spec /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-1210c349/runs/20260608-165823-419b55df/pipeline/1password-op-spec.yaml --research-dir /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-1210c349/runs/20260608-165823-419b55df/pipeline"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-08T22:51:33Z",
+      "elapsed_ms": 16,
+      "command": "/Volumes/Cat_SSD/Developer/cli-printing-press/cli-printing-press workflow-verify --dir /Users/cathrynlavery/printing-press/library/1password"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-08T22:51:33Z",
+      "elapsed_ms": 20,
+      "command": "/Volumes/Cat_SSD/Developer/cli-printing-press/cli-printing-press apify-audit --dir /Users/cathrynlavery/printing-press/library/1password --research-dir /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-1210c349/runs/20260608-165823-419b55df/pipeline"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-08T22:51:33Z",
+      "elapsed_ms": 2023,
+      "command": "/Volumes/Cat_SSD/Developer/cli-printing-press/cli-printing-press verify-skill --dir /Users/cathrynlavery/printing-press/library/1password"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-08T22:51:35Z",
+      "elapsed_ms": 287,
+      "command": "/Volumes/Cat_SSD/Developer/cli-printing-press/cli-printing-press scorecard --dir /Users/cathrynlavery/printing-press/library/1password --research-dir /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-1210c349/runs/20260608-165823-419b55df/pipeline --spec /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-1210c349/runs/20260608-165823-419b55df/pipeline/1password-op-spec.yaml --live-check"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+version: 2
+project_name: daraz-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: daraz-pp-cli
+    main: ./cmd/daraz-pp-cli
+    binary: daraz-pp-cli
+    flags:
+      - -trimpath
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/commerce/daraz/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: daraz-pp-mcp
+    main: ./cmd/daraz-pp-mcp
+    binary: daraz-pp-mcp
+    flags:
+      - -trimpath
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: daraz-pp-cli
+    repository:
+      owner: qazmataz
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Daraz product search, plus a local price database, real-deal ranking, and drop alerts no Daraz scraper has."
+    install: |
+      bin.install "daraz-pp-cli"
+      bin.install "daraz-pp-mcp"
