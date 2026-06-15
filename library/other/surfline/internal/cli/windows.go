@@ -90,10 +90,19 @@ func newNovelWindowsCmd(flags *rootFlags) *cobra.Command {
 			windIdx := windByTimestamp(winds)
 
 			view := windowsView{Spot: name, SpotID: spotID, Threshold: threshold, Windows: []windowBlock{}}
+			// Each forecast point represents one interval of conditions, so a
+			// window's duration is the span between its first and last good
+			// point PLUS one interval (the last point's own coverage).
+			stepSecs := int64(3600)
+			if len(waves) >= 2 {
+				if d := waves[1].Timestamp - waves[0].Timestamp; d > 0 {
+					stepSecs = d
+				}
+			}
 			var cur *windowBlock
 			flush := func() {
 				if cur != nil {
-					cur.Hours = float64(cur.EndTS-cur.StartTS) / 3600.0
+					cur.Hours = float64(cur.EndTS-cur.StartTS+stepSecs) / 3600.0
 					view.Windows = append(view.Windows, *cur)
 					cur = nil
 				}

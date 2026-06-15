@@ -23,9 +23,9 @@
     "surfline_access_token": {
       "type": "string",
       "title": "SURFLINE_ACCESS_TOKEN",
-      "description": "Sets SURFLINE_ACCESS_TOKEN for the Surfline MCP server.",
+      "description": "Optional. Sets SURFLINE_ACCESS_TOKEN for the Surfline MCP server; unlocks 7-17 day forecasts and premium cams. Basic forecasts work without it.",
       "sensitive": true,
-      "required": true
+      "required": false
     }
   },
   "compatibility": {
