@@ -36,3 +36,16 @@
   - `c02ac8c09` Chrome profile selection: broad multi-CLI auth update; only the X Articles user-id dependency was adapted here.
 - Validation planned/run on branch `upstream-sweep/20260606-x-twitter-articles`: `git diff --check`, `python3 .github/scripts/verify-skill/verify_skill.py --dir library/social-and-messaging/x-twitter/`, `go test ./...`, `go build ./...`, `go vet ./...`, and `govulncheck ./...` from the X/Twitter CLI root.
 - Policy: no public push; branch/PR target private fork `cathrynlavery/printing-press-library` only.
+
+## 2026-06-15T17:01:45Z — WaveSpeed CLI 2026.6.2 private sync
+
+- Repo/path: `/Volumes/Cat SSD/Developer/PrintingPress/printing-press-library-private-wavespeed`.
+- Private target: `cathrynlavery/printing-press-library-private` (`PRIVATE`, default branch `main`).
+- Public upstream inspected: `mvanhorn/printing-press-library` (`upstream/main` at `2a98659ce5ec544408a1f5b27f58aa6240e4e00b`); push URL remained disabled and no push was made to mvanhorn.
+- Finding: private `main` (`7785f5a66d397a3f9b7b96e3e0fa981c27b182cf`) was missing WaveSpeed release metadata/version `2026.6.2` and latest WaveSpeed CLI refresh files.
+- Mutation: created branch `sync/wavespeed-2026-6-2-private`, synced `library/ai/wavespeed` from `upstream/main`, committed `2361518d6` (`feat(wavespeed): sync 2026.6.2 CLI refresh`), and pushed only to `git@github.com:cathrynlavery/printing-press-library-private.git`.
+- PR: `https://github.com/cathrynlavery/printing-press-library-private/pull/17`.
+- Verification:
+  - `git diff --quiet upstream/main -- library/ai/wavespeed` — PASS (synced WaveSpeed tree matches upstream after the branch changes).
+  - `go test ./...` from `library/ai/wavespeed` — PASS.
+  - `go run ./cmd/wavespeed-pp-cli --help` — confirmed top-level commands include `brand`, `plan`, `qa`, `pack`, `batch`, `variants`, `compose`, `aspects`, `restyle`, and `library`.
