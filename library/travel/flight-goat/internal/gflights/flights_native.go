@@ -763,8 +763,19 @@ func formatLegDateTime(dateAny, timeAny any) string {
 		month = int(numericFloat(d[1]))
 		day = int(numericFloat(d[2]))
 	}
-	if len(t) >= 2 {
+	// PATCH(#1084): Google's batchexecute payload is jspb-style — trailing
+	// zero-valued elements are dropped. A whole-hour departure/arrival such as
+	// 17:00 arrives as [17] (and 05:00 as [5]), NOT [17,0] / [5,0]. The minute
+	// is only present when non-zero. Requiring len(t) >= 2 here silently failed
+	// to read the hour for every whole-hour time and defaulted it to 00:00,
+	// fabricating ~10-14% of legs as midnight departures. Read the hour from
+	// t[0] whenever present and treat an omitted minute as 0. Times genuinely
+	// absent from the source (empty/missing array) still fall through to the
+	// all-zero guard below and return "" rather than a fabricated 00:00.
+	if len(t) >= 1 {
 		hour = int(numericFloat(t[0]))
+	}
+	if len(t) >= 2 {
 		min = int(numericFloat(t[1]))
 	}
 	if year == 0 && month == 0 && day == 0 && hour == 0 && min == 0 {

@@ -1,0 +1,106 @@
+{
+  "schema_version": "printing-press.cli/v1",
+  "api_name": "traffic-intel",
+  "cli_name": "traffic-intel-pp-cli",
+  "name": "traffic-intel-pp-cli",
+  "display_name": "Traffic Intel",
+  "description": "Private combined SEO and traffic intelligence CLI that joins Google Search Console, GA4, and Ahrefs child CLI evidence into local-first page, revenue, and refresh recommendations.",
+  "visibility": "private",
+  "category": "marketing",
+  "module": "traffic-intel",
+  "language": "go",
+  "entrypoint": "./cmd/traffic-intel-pp-cli",
+  "binary": "traffic-intel-pp-cli",
+  "owner": "cathrynlavery",
+  "owner_name": "Cathryn Lavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
+  "spec_format": "private-composite-cli",
+  "spec_source": "private traffic intelligence design brief",
+  "spec_checksum": "sha256:local-private-composite",
+  "printing_press_version": "4.20.1",
+  "run_id": "traffic-intel-20260615",
+  "generated_at": "2026-06-15T00:00:00Z",
+  "version": "0.1.0-private",
+  "auth_type": "child_cli",
+  "auth_env_vars": [
+    "GSC_SITE_URL",
+    "GA4_PROPERTY_ID",
+    "AHREFS_PROJECT",
+    "AHREFS_TARGET"
+  ],
+  "agent_context_command": "traffic-intel-pp-cli --agent agent-context",
+  "doctor_command": "traffic-intel-pp-cli --agent doctor",
+  "local_first": true,
+  "external_api_calls_in_mvp": false,
+  "state_dir_env": "TRAFFIC_INTEL_HOME",
+  "novel_features": [
+    {
+      "name": "Unified source sync",
+      "command": "sync",
+      "description": "sync imports fixture/local data or shells out to GSC, GA4, and Ahrefs child CLIs and normalizes page metrics into one local store"
+    },
+    {
+      "name": "Money pages",
+      "command": "money-pages",
+      "description": "money-pages ranks pages by revenue, conversions, sessions, clicks, and Ahrefs link context"
+    },
+    {
+      "name": "Query revenue",
+      "command": "query-revenue",
+      "description": "query-revenue finds matching pages and summarizes revenue evidence for a URL or topic fragment"
+    },
+    {
+      "name": "Explain drop",
+      "command": "explain-drop",
+      "description": "explain-drop combines click, session, revenue, and backlink deltas into a compact root-cause explanation"
+    },
+    {
+      "name": "Refresh queue",
+      "command": "refresh-queue",
+      "description": "refresh-queue prioritizes pages to update using lost clicks, revenue risk, and link value"
+    },
+    {
+      "name": "Weekly digest",
+      "command": "digest weekly",
+      "description": "digest weekly produces a local-first traffic and revenue summary that handles empty datasets cleanly"
+    }
+  ],
+  "sources": [
+    {
+      "name": "gsc",
+      "child_binary": "google-search-console-pp-cli",
+      "planned_command": "google-search-console-pp-cli webmasters query-search-analytics <site> --agent --dimensions [\"page\"] --start-date <start> --end-date <end> --type WEB",
+      "env": ["GSC_SITE_URL"]
+    },
+    {
+      "name": "ga4",
+      "child_binary": "google-analytics-pp-cli",
+      "planned_command": "google-analytics-pp-cli top-pages --agent --property <property> --start <start> --end <end>",
+      "env": ["GA4_PROPERTY_ID"]
+    },
+    {
+      "name": "ahrefs",
+      "child_binary": "ahrefs-pp-cli",
+      "planned_command": "ahrefs-pp-cli site-explorer top-pages --agent --target <target> --date <date> --select url,sum_traffic,keywords,referring_domains,top_keyword",
+      "env": ["AHREFS_PROJECT"]
+    }
+  ],
+  "verification": [
+    "gofmt -w ./cmd ./internal",
+    "go test ./...",
+    "go build ./cmd/traffic-intel-pp-cli",
+    "go run ./cmd/traffic-intel-pp-cli --agent agent-context",
+    "go run ./cmd/traffic-intel-pp-cli --agent sources doctor"
+  ]
+}

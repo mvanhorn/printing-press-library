@@ -1,0 +1,100 @@
+{
+  "period_a": {
+    "end": "yesterday",
+    "start": "7daysAgo"
+  },
+  "period_b": {
+    "end": "8daysAgo",
+    "start": "14daysAgo"
+  },
+  "property": "540652239",
+  "raw_row_count": 5,
+  "row_count": 5,
+  "rows": [
+    {
+      "key": "Direct",
+      "largest_pct_change": 0,
+      "sessionDefaultChannelGroup": "Direct",
+      "sessions": {
+        "current": 384,
+        "delta": 384,
+        "pct_change": 0,
+        "previous": 0
+      },
+      "totalUsers": {
+        "current": 338,
+        "delta": 338,
+        "pct_change": 0,
+        "previous": 0
+      }
+    },
+    {
+      "key": "Organic Search",
+      "largest_pct_change": 0,
+      "sessionDefaultChannelGroup": "Organic Search",
+      "sessions": {
+        "current": 169,
+        "delta": 169,
+        "pct_change": 0,
+        "previous": 0
+      },
+      "totalUsers": {
+        "current": 134,
+        "delta": 134,
+        "pct_change": 0,
+        "previous": 0
+      }
+    },
+    {
+      "key": "Referral",
+      "largest_pct_change": 0,
+      "sessionDefaultChannelGroup": "Referral",
+      "sessions": {
+        "current": 25,
+        "delta": 25,
+        "pct_change": 0,
+        "previous": 0
+      },
+      "totalUsers": {
+        "current": 20,
+        "delta": 20,
+        "pct_change": 0,
+        "previous": 0
+      }
+    },
+    {
+      "key": "Organic Social",
+      "largest_pct_change": 0,
+      "sessionDefaultChannelGroup": "Organic Social",
+      "sessions": {
+        "current": 20,
+        "delta": 20,
+        "pct_change": 0,
+        "previous": 0
+      },
+      "totalUsers": {
+        "current": 18,
+        "delta": 18,
+        "pct_change": 0,
+        "previous": 0
+      }
+    },
+    {
+      "key": "Unassigned",
+      "largest_pct_change": 0,
+      "sessionDefaultChannelGroup": "Unassigned",
+      "sessions": {
+        "current": 11,
+        "delta": 11,
+        "pct_change": 0,
+        "previous": 0
+      },
+      "totalUsers": {
+        "current": 9,
+        "delta": 9,
+        "pct_change": 0,
+        "previous": 0
+      }
+    }
+  ]
+}

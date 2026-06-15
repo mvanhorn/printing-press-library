@@ -31,7 +31,7 @@
     "x_oauth2_user_token": {
       "type": "string",
       "title": "X_OAUTH2_USER_TOKEN",
-      "description": "Optional. Optional OAuth2 user-context token. Unlocks v2 writes (post, like, repost, bookmark, follow, DM) and personal reads (me, mentions, home timeline, bookmarks). Sent as Authorization Bearer; obtain via auth login (OAuth2 + PKCE).",
+      "description": "Optional. OAuth2 user-context token. Unlocks v2 writes (post, like, repost, bookmark, follow, DM) and personal reads (me, mentions, home timeline, bookmarks). Sent as Authorization Bearer; obtain with `x-twitter-pp-cli auth oauth2-login` authorization-code + PKCE flow or import/set explicitly. auth login --chrome is cookie-only for X Articles.",
       "sensitive": true
     }
   },

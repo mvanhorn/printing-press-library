@@ -1,0 +1,53 @@
+{
+  "property": "280199692",
+  "report": "revenue",
+  "row_count": 5,
+  "rows": [
+    {
+      "aov": 49.192071648936164,
+      "averagePurchaseRevenue": 49.192071648936164,
+      "conversion_rate": 0,
+      "purchaseRevenue": 4624.054735,
+      "sessionDefaultChannelGroup": "Unassigned",
+      "sessions": 6214,
+      "transactions": 94
+    },
+    {
+      "aov": 80.61672691304348,
+      "averagePurchaseRevenue": 80.61672691304348,
+      "conversion_rate": 0,
+      "purchaseRevenue": 1854.1847189999999,
+      "sessionDefaultChannelGroup": "Email",
+      "sessions": 741,
+      "transactions": 23
+    },
+    {
+      "aov": 67.46854704761904,
+      "averagePurchaseRevenue": 67.46854704761904,
+      "conversion_rate": 0,
+      "purchaseRevenue": 1416.8394879999998,
+      "sessionDefaultChannelGroup": "Organic Search",
+      "sessions": 3170,
+      "transactions": 21
+    },
+    {
+      "aov": 52.50692307692308,
+      "averagePurchaseRevenue": 52.50692307692308,
+      "conversion_rate": 0,
+      "purchaseRevenue": 1365.18,
+      "sessionDefaultChannelGroup": "Cross-network",
+      "sessions": 1216,
+      "transactions": 26
+    },
+    {
+      "aov": 56.6128597,
+      "averagePurchaseRevenue": 56.6128597,
+      "conversion_rate": 0,
+      "purchaseRevenue": 1132.257194,
+      "sessionDefaultChannelGroup": "Paid Search",
+      "sessions": 367,
+      "transactions": 20
+    }
+  ],
+  "totals": []
+}

@@ -166,11 +166,11 @@ func mkKeyword(text string, micros int64, conv, value float64) gaqlKeywordRow {
 
 func TestScoreKeywordTiers(t *testing.T) {
 	rows := []gaqlKeywordRow{
-		mkKeyword("hero", 10000000, 8, 60),   // $10 cost, $60 rev → ROAS 6 → scale
-		mkKeyword("okay", 10000000, 3, 25),   // ROAS 2.5 → hold
-		mkKeyword("dog", 10000000, 0, 0),     // ROAS 0 → cut
-		mkKeyword("tiny", 100000, 1, 50),     // $0.10 < min-cost, dropped
-		mkKeyword("edge", 10000000, 4, 40),   // ROAS 4 == scale threshold → scale
+		mkKeyword("hero", 10000000, 8, 60), // $10 cost, $60 rev → ROAS 6 → scale
+		mkKeyword("okay", 10000000, 3, 25), // ROAS 2.5 → hold
+		mkKeyword("dog", 10000000, 0, 0),   // ROAS 0 → cut
+		mkKeyword("tiny", 100000, 1, 50),   // $0.10 < min-cost, dropped
+		mkKeyword("edge", 10000000, 4, 40), // ROAS 4 == scale threshold → scale
 	}
 	got := scoreKeywordTiers(rows, 1.0, 4.0, 1.0, 0)
 	if len(got) != 4 {

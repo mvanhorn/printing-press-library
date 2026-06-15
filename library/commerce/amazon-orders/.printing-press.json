@@ -49,7 +49,7 @@
       "description": "Most-ordered items by frequency or by total spend, ASIN-grouped across all history."
     },
     {
-      "name": "Subscribe \u0026 Save Detector",
+      "name": "Subscribe & Save Detector",
       "command": "subscribe-and-save",
       "description": "Recurring purchases inferred from order history (same ASIN ordered on a regular cadence)."
     },
@@ -67,6 +67,12 @@
       "name": "Late Shipments",
       "command": "late",
       "description": "Active shipments past their original estimated delivery date."
+    }
+  ],
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
     }
   ]
 }

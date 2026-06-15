@@ -1,0 +1,48 @@
+{
+  "property": "280199692",
+  "report": "sources",
+  "row_count": 5,
+  "rows": [
+    {
+      "conversion_rate": 0.12820078005765645,
+      "conversions": 756,
+      "sessionSourceMedium": "(not set)",
+      "sessions": 5897,
+      "totalRevenue": 4564.654735000001,
+      "totalUsers": 5686
+    },
+    {
+      "conversion_rate": 0.0406371911573472,
+      "conversions": 125,
+      "sessionSourceMedium": "google / organic",
+      "sessions": 3076,
+      "totalRevenue": 790.6185479999999,
+      "totalUsers": 2465
+    },
+    {
+      "conversion_rate": 0.11464133639043564,
+      "conversions": 350,
+      "sessionSourceMedium": "(direct) / (none)",
+      "sessions": 3053,
+      "totalRevenue": 1007.84,
+      "totalUsers": 2610
+    },
+    {
+      "conversion_rate": 0.16511483550589695,
+      "conversions": 266,
+      "sessionSourceMedium": "google / cpc",
+      "sessions": 1611,
+      "totalRevenue": 2432.937194,
+      "totalUsers": 1166
+    },
+    {
+      "conversion_rate": 0.4972477064220184,
+      "conversions": 271,
+      "sessionSourceMedium": "Klaviyo / email",
+      "sessions": 545,
+      "totalRevenue": 1018.0284610000001,
+      "totalUsers": 383
+    }
+  ],
+  "totals": []
+}

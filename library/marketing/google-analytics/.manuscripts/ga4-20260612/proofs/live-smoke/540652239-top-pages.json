@@ -1,0 +1,48 @@
+{
+  "property": "540652239",
+  "report": "top_pages",
+  "row_count": 5,
+  "rows": [
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "engagementRate": 0.41044776119402987,
+      "landingPagePlusQueryString": "/",
+      "sessions": 134,
+      "totalRevenue": 0
+    },
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "engagementRate": 0.2868217054263566,
+      "landingPagePlusQueryString": "/g-brain/",
+      "sessions": 129,
+      "totalRevenue": 0
+    },
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "engagementRate": 0.3157894736842105,
+      "landingPagePlusQueryString": "/agent-friendly-software/",
+      "sessions": 57,
+      "totalRevenue": 0
+    },
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "engagementRate": 0.03225806451612903,
+      "landingPagePlusQueryString": "(not set)",
+      "sessions": 31,
+      "totalRevenue": 0
+    },
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "engagementRate": 0.35714285714285715,
+      "landingPagePlusQueryString": "/how-to-run-ai-agents-across-multiple-macs/",
+      "sessions": 14,
+      "totalRevenue": 0
+    }
+  ],
+  "totals": []
+}

@@ -1,0 +1,36 @@
+version: 2
+project_name: google-analytics-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: google-analytics-pp-cli
+    main: ./cmd/google-analytics-pp-cli
+    binary: google-analytics-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/google-analytics/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: google-analytics-pp-cli
+    repository:
+      owner: user
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Agent-first Google Analytics 4 CLI with raw Data/Admin wrappers and novel analytics reports."
+    install: |
+      bin.install "google-analytics-pp-cli"

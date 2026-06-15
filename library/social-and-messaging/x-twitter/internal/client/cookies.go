@@ -102,6 +102,13 @@ func isAllowedAbsoluteHost(host string) bool {
 	return false
 }
 
+// IsAllowedAbsoluteHost reports whether an absolute raw/API URL host is on the
+// X/Twitter allowlist. CLI-side validators use this to fail before building a
+// request.
+func IsAllowedAbsoluteHost(host string) bool {
+	return isAllowedAbsoluteHost(host)
+}
+
 // hostFromURL extracts the hostname from a possibly-absolute URL. Empty if not parseable
 // or the URL is relative.
 func hostFromURL(u string) string {

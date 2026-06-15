@@ -1,0 +1,48 @@
+{
+  "property": "540652239",
+  "report": "channels",
+  "row_count": 5,
+  "rows": [
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "sessionDefaultChannelGroup": "Direct",
+      "sessions": 384,
+      "totalRevenue": 0,
+      "totalUsers": 338
+    },
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "sessionDefaultChannelGroup": "Organic Search",
+      "sessions": 169,
+      "totalRevenue": 0,
+      "totalUsers": 134
+    },
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "sessionDefaultChannelGroup": "Referral",
+      "sessions": 25,
+      "totalRevenue": 0,
+      "totalUsers": 20
+    },
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "sessionDefaultChannelGroup": "Organic Social",
+      "sessions": 20,
+      "totalRevenue": 0,
+      "totalUsers": 18
+    },
+    {
+      "conversion_rate": 0,
+      "conversions": 0,
+      "sessionDefaultChannelGroup": "Unassigned",
+      "sessions": 11,
+      "totalRevenue": 0,
+      "totalUsers": 9
+    }
+  ],
+  "totals": []
+}

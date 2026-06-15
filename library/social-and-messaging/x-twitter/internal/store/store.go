@@ -521,6 +521,68 @@ func (s *Store) migrate(ctx context.Context) error {
 			last_synced_at DATETIME,
 			total_count INTEGER DEFAULT 0
 		)`,
+		`CREATE TABLE IF NOT EXISTS post_collections (
+			name TEXT PRIMARY KEY,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE TABLE IF NOT EXISTS post_collection_items (
+			collection_name TEXT NOT NULL,
+			tweet_id TEXT NOT NULL,
+			tweet_json JSON NOT NULL,
+			note TEXT,
+			tags_json JSON,
+			source_url TEXT,
+			saved_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (collection_name, tweet_id),
+			FOREIGN KEY (collection_name) REFERENCES post_collections(name) ON DELETE CASCADE
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_post_collection_items_collection_saved ON post_collection_items(collection_name, saved_at)`,
+		`CREATE INDEX IF NOT EXISTS idx_post_collection_items_tweet ON post_collection_items(tweet_id)`,
+		`CREATE TABLE IF NOT EXISTS workflow_monitors (
+			name TEXT PRIMARY KEY,
+			kind TEXT NOT NULL,
+			query TEXT NOT NULL,
+			source_url TEXT,
+			account TEXT,
+			watermark_id TEXT,
+			last_run_at DATETIME,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_workflow_monitors_updated ON workflow_monitors(updated_at)`,
+		`CREATE TABLE IF NOT EXISTS workflow_monitor_results (
+			monitor_name TEXT NOT NULL,
+			tweet_id TEXT NOT NULL,
+			tweet_json JSON NOT NULL,
+			source_url TEXT,
+			seen_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			run_id TEXT,
+			PRIMARY KEY (monitor_name, tweet_id),
+			FOREIGN KEY (monitor_name) REFERENCES workflow_monitors(name) ON DELETE CASCADE
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_workflow_monitor_results_seen ON workflow_monitor_results(monitor_name, seen_at)`,
+		`CREATE TABLE IF NOT EXISTS post_performance_snapshots (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			tweet_id TEXT NOT NULL,
+			label TEXT,
+			captured_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			metrics_json JSON,
+			tweet_json JSON,
+			source_url TEXT,
+			post_age_seconds INTEGER,
+			source TEXT
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_post_performance_tweet_captured ON post_performance_snapshots(tweet_id, captured_at)`,
+		`CREATE INDEX IF NOT EXISTS idx_post_performance_captured ON post_performance_snapshots(captured_at)`,
+		`DELETE FROM post_performance_snapshots
+		 WHERE id NOT IN (
+		   SELECT MAX(id)
+		   FROM post_performance_snapshots
+		   GROUP BY tweet_id, COALESCE(label, '')
+		 )`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_post_performance_tweet_label_unique
+		 ON post_performance_snapshots(tweet_id, COALESCE(label, ''))`,
 		resourcesFTSCreateSQL,
 		`CREATE TABLE IF NOT EXISTS "account_activity" (
 			"id" TEXT PRIMARY KEY,

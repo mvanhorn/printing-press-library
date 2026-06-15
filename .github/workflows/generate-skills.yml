@@ -16,12 +16,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    # Share one push lane with generate-registry.yml. Both workflows
-    # commit generated artifacts back to main after library metadata
-    # changes, so queue them and check out main only after the lane is
-    # acquired.
+    # Queue skill regenerations, but do not share this group with sibling
+    # generated-artifact workflows. GitHub keeps only one pending run per
+    # concurrency group, so a shared group lets unrelated workflows evict a
+    # pending skills run. Push races with sibling workflows are handled by the
+    # rebase-before-push step below.
     concurrency:
-      group: generated-artifact-push-main
+      group: generate-skills-main
       cancel-in-progress: false
 
     steps:
@@ -48,13 +49,10 @@ jobs:
             echo "No skill changes to commit"
           else
             git commit -m "chore(skills): regenerate per-app skills [skip ci]"
-            # Defense-in-depth against the cross-workflow race with
-            # generate-registry.yml — the concurrency group serializes
-            # most runs, but a rebase before push handles the moment
-            # when the sibling workflow lands between our checkout and
-            # our push. The two workflows touch disjoint paths
-            # (cli-skills/ vs registry.json + README.md), so the rebase
-            # is conflict-free in practice.
+            # Defense-in-depth against sibling generated-artifact workflows
+            # landing between our checkout and push. They touch disjoint paths
+            # (cli-skills/ vs registry.json + README.md or library release
+            # metadata), so the rebase is conflict-free in practice.
             git pull --rebase origin main
             git push
           fi

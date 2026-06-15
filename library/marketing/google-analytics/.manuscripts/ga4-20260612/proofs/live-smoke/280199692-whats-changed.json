@@ -1,0 +1,103 @@
+{
+  "movers": [
+    {
+      "dimension": "sessionSourceMedium",
+      "key": "(not set)",
+      "largest_pct_change": -0.3538175046554935,
+      "sessionSourceMedium": "(not set)",
+      "sessions": {
+        "current": 743,
+        "delta": -380,
+        "pct_change": -0.3383793410507569,
+        "previous": 1123
+      },
+      "totalUsers": {
+        "current": 694,
+        "delta": -380,
+        "pct_change": -0.3538175046554935,
+        "previous": 1074
+      }
+    },
+    {
+      "dimension": "sessionDefaultChannelGroup",
+      "key": "Unassigned",
+      "largest_pct_change": -0.35304347826086957,
+      "sessionDefaultChannelGroup": "Unassigned",
+      "sessions": {
+        "current": 796,
+        "delta": -415,
+        "pct_change": -0.342691990090834,
+        "previous": 1211
+      },
+      "totalUsers": {
+        "current": 744,
+        "delta": -406,
+        "pct_change": -0.35304347826086957,
+        "previous": 1150
+      }
+    },
+    {
+      "dimension": "sessionSourceMedium",
+      "key": "google / organic",
+      "largest_pct_change": 0.19523809523809524,
+      "sessionSourceMedium": "google / organic",
+      "sessions": {
+        "current": 1196,
+        "delta": 168,
+        "pct_change": 0.16342412451361868,
+        "previous": 1028
+      },
+      "totalUsers": {
+        "current": 1004,
+        "delta": 164,
+        "pct_change": 0.19523809523809524,
+        "previous": 840
+      }
+    },
+    {
+      "dimension": "sessionDefaultChannelGroup",
+      "key": "Organic Search",
+      "largest_pct_change": 0.1793103448275862,
+      "sessionDefaultChannelGroup": "Organic Search",
+      "sessions": {
+        "current": 1222,
+        "delta": 147,
+        "pct_change": 0.13674418604651162,
+        "previous": 1075
+      },
+      "totalUsers": {
+        "current": 1026,
+        "delta": 156,
+        "pct_change": 0.1793103448275862,
+        "previous": 870
+      }
+    },
+    {
+      "dimension": "sessionDefaultChannelGroup",
+      "key": "Direct",
+      "largest_pct_change": -0.103125,
+      "sessionDefaultChannelGroup": "Direct",
+      "sessions": {
+        "current": 654,
+        "delta": -56,
+        "pct_change": -0.07887323943661972,
+        "previous": 710
+      },
+      "totalUsers": {
+        "current": 574,
+        "delta": -66,
+        "pct_change": -0.103125,
+        "previous": 640
+      }
+    }
+  ],
+  "period": {
+    "end": "yesterday",
+    "start": "7daysAgo"
+  },
+  "previous": {
+    "end": "8daysAgo",
+    "start": "14daysAgo"
+  },
+  "property": "280199692"
+}

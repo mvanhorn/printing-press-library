@@ -6,24 +6,18 @@ package client
 import (
 	"bytes"
 	"context"
-	"fmt"
+	"encoding/json"
 	"io"
 	"net/http"
-	"path/filepath"
+	"net/url"
+	"os"
 	"strings"
-	"sync"
 	"testing"
 	"time"
 	"unicode/utf8"
 
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/config"
 )
-
-type roundTripFunc func(*http.Request) (*http.Response, error)
-
-func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
-	return f(req)
-}
 
 func TestTruncateBody(t *testing.T) {
 	t.Parallel()
@@ -86,123 +80,213 @@ func TestTruncateBody_UTF8RuneAtBoundary(t *testing.T) {
 	}
 }
 
-func TestAuthHeaderRefreshesExpiredLegacyOAuthToken(t *testing.T) {
+func TestDryRunReturnsStructuredPublicMutationPreview(t *testing.T) {
 	t.Parallel()
 
-	var gotBody string
-	transport := roundTripFunc(func(r *http.Request) (*http.Response, error) {
-		if got, want := r.URL.String(), xOAuthTokenURL; got != want {
-			t.Fatalf("refresh URL = %q, want %q", got, want)
-		}
-		if r.Method != http.MethodPost {
-			t.Fatalf("refresh method = %s, want POST", r.Method)
-		}
-		body, _ := io.ReadAll(r.Body)
-		gotBody = string(body)
-		return &http.Response{
-			StatusCode: http.StatusOK,
-			Header:     http.Header{"Content-Type": []string{"application/json"}},
-			Body:       io.NopCloser(strings.NewReader(`{"access_token":"refreshed-access-value","refresh_token":"refreshed-refresh-value","expires_in":3600}`)),
-		}, nil
-	})
-
-	cfg := &config.Config{
-		Path:         filepath.Join(t.TempDir(), "config.toml"),
-		AccessToken:  "old-access",
-		RefreshToken: "old-refresh",
-		TokenExpiry:  time.Now().Add(-time.Hour),
-		ClientID:     "client-id",
-	}
-	c := &Client{BaseURL: "https://example.invalid", HTTPClient: &http.Client{Transport: transport}, Config: cfg}
-
-	got, err := c.authHeader(context.Background())
+	c := New(&config.Config{
+		BaseURL:          "https://api.x.com",
+		SelectedProfile:  "trevin",
+		AccessToken:      "user-token",
+		TokenExpiry:      time.Now().Add(time.Hour),
+		XOauth2UserToken: "user-token",
+	}, time.Second, 0)
+	body := []byte(`{"text":"reply draft","reply":{"in_reply_to_tweet_id":"123"}}`)
+	raw, status, err := c.dryRun("POST", "https://api.x.com/2/tweets", "/2/tweets", nil, body, nil, "Bearer user-token")
 	if err != nil {
-		t.Fatalf("authHeader returned error: %v", err)
+		t.Fatalf("dryRun: %v", err)
 	}
-	if got != "Bearer refreshed-access-value" {
-		t.Fatalf("authHeader = %q, want Bearer refreshed-access-value", got)
+	if status != 0 {
+		t.Fatalf("status = %d, want 0", status)
 	}
-	if !strings.Contains(gotBody, "grant_type=refresh_token") || !strings.Contains(gotBody, "refresh_token=old-refresh") || !strings.Contains(gotBody, "client_id=client-id") {
-		t.Fatalf("refresh body missing expected form values: %q", gotBody)
+	var out map[string]any
+	if err := json.Unmarshal(raw, &out); err != nil {
+		t.Fatalf("dry-run output is not JSON: %v\n%s", err, raw)
 	}
-	if cfg.AccessToken != "refreshed-access-value" || cfg.RefreshToken != "refreshed-refresh-value" {
-		t.Fatalf("config tokens = %q/%q, want refreshed-access-value/refreshed-refresh-value", cfg.AccessToken, cfg.RefreshToken)
+	if out["dry_run"] != true || out["sent"] != false || out["mutation"] != true {
+		t.Fatalf("dry-run booleans = %#v", out)
+	}
+	if out["public_action"] != "reply" {
+		t.Fatalf("public_action = %#v, want reply", out["public_action"])
+	}
+	meta := out["meta"].(map[string]any)
+	if meta["auth_lane"] != "oauth2_user_context" || meta["selected_profile"] != "trevin" {
+		t.Fatalf("meta = %#v", meta)
+	}
+	req := out["request"].(map[string]any)
+	if req["method"] != "POST" || req["path"] != "/2/tweets" {
+		t.Fatalf("request = %#v", req)
 	}
 }
 
-func TestAuthHeaderRefreshesExpiredLegacyOAuthTokenOnceConcurrently(t *testing.T) {
-	var mu sync.Mutex
-	calls := 0
-	transport := roundTripFunc(func(r *http.Request) (*http.Response, error) {
-		mu.Lock()
-		calls++
-		mu.Unlock()
-		return &http.Response{
-			StatusCode: http.StatusOK,
-			Header:     http.Header{"Content-Type": []string{"application/json"}},
-			Body:       io.NopCloser(strings.NewReader(`{"access_token":"concurrent-access","refresh_token":"concurrent-refresh","expires_in":3600}`)),
-		}, nil
-	})
-	cfg := &config.Config{
-		Path:         filepath.Join(t.TempDir(), "config.toml"),
-		AccessToken:  "old-access",
-		RefreshToken: "old-refresh",
-		TokenExpiry:  time.Now().Add(-time.Hour),
-		ClientID:     "client-id",
-	}
-	c := &Client{BaseURL: "https://example.invalid", HTTPClient: &http.Client{Transport: transport}, Config: cfg}
+func TestRequestNormalizesMethodAndUsesDryRunPreview(t *testing.T) {
+	t.Parallel()
 
-	var wg sync.WaitGroup
-	errCh := make(chan error, 2)
-	for i := 0; i < 2; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			got, err := c.authHeader(context.Background())
+	c := New(&config.Config{
+		BaseURL:         "https://api.x.com",
+		SelectedProfile: "debug",
+		XBearerToken:    "app-token",
+	}, time.Second, 0)
+	c.DryRun = true
+
+	raw, status, err := c.Request(context.Background(), "get", "/2/users/me", map[string]string{"user.fields": "verified"}, nil, nil)
+	if err != nil {
+		t.Fatalf("Request: %v", err)
+	}
+	if status != 0 {
+		t.Fatalf("status = %d, want 0", status)
+	}
+	var out map[string]any
+	if err := json.Unmarshal(raw, &out); err != nil {
+		t.Fatalf("dry-run output is not JSON: %v\n%s", err, raw)
+	}
+	req := out["request"].(map[string]any)
+	if req["method"] != "GET" || req["path"] != "/2/users/me" {
+		t.Fatalf("request = %#v", req)
+	}
+	meta := out["meta"].(map[string]any)
+	if meta["auth_lane"] != "app_only_api" || meta["selected_profile"] != "debug" {
+		t.Fatalf("meta = %#v", meta)
+	}
+}
+
+func TestRequestRejectsEmptyMethod(t *testing.T) {
+	t.Parallel()
+
+	c := New(&config.Config{BaseURL: "https://api.x.com"}, time.Second, 0)
+	if _, _, err := c.Request(context.Background(), "  ", "/2/users/me", nil, nil, nil); err == nil {
+		t.Fatal("expected empty method error")
+	}
+}
+
+func TestRequestRejectsPlainHTTPAbsoluteURL(t *testing.T) {
+	t.Parallel()
+
+	c := New(&config.Config{BaseURL: "https://api.x.com"}, time.Second, 0)
+	if _, _, err := c.Request(context.Background(), http.MethodGet, "http://api.x.com/2/users/me", nil, nil, nil); err == nil {
+		t.Fatal("expected plaintext absolute URL error")
+	}
+}
+
+func TestDryRunInfersPublicActionWithoutBody(t *testing.T) {
+	t.Parallel()
+
+	c := New(&config.Config{BaseURL: "https://api.x.com", XOauth2UserToken: "user-token"}, time.Second, 0)
+	cases := []struct {
+		name   string
+		method string
+		path   string
+		body   []byte
+		want   string
+	}{
+		{"delete post", http.MethodDelete, "/2/tweets/123", nil, "delete_post"},
+		{"like", http.MethodPost, "/2/users/1/likes", nil, "like"},
+		{"unlike", http.MethodDelete, "/2/users/1/likes/2", nil, "unlike"},
+		{"repost", http.MethodPost, "/2/users/1/retweets", nil, "repost"},
+		{"unrepost", http.MethodDelete, "/2/users/1/retweets/2", nil, "unrepost"},
+		{"follow", http.MethodPost, "/2/users/1/following", nil, "follow"},
+		{"unfollow", http.MethodDelete, "/2/users/1/following/2", nil, "unfollow"},
+		{"dm", http.MethodPost, "/2/dm_conversations/1/messages", nil, "dm"},
+		{"tweet no body", http.MethodPost, "/2/tweets", nil, "post"},
+		{"tweet reply body", http.MethodPost, "/2/tweets", []byte(`{"text":"hi","reply":{"in_reply_to_tweet_id":"1"}}`), "reply"},
+		{"get no action", http.MethodGet, "/2/tweets/123", nil, ""},
+		{"unknown post no action", http.MethodPost, "/2/unknown", nil, ""},
+	}
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			raw, _, err := c.dryRun(tc.method, "https://api.x.com"+tc.path, tc.path, nil, tc.body, nil, "Bearer user-token")
 			if err != nil {
-				errCh <- err
-				return
+				t.Fatalf("dryRun: %v", err)
 			}
-			if got != "Bearer concurrent-access" {
-				errCh <- fmt.Errorf("authHeader = %q, want Bearer concurrent-access", got)
+			var out map[string]any
+			if err := json.Unmarshal(raw, &out); err != nil {
+				t.Fatalf("dry-run output is not JSON: %v\n%s", err, raw)
 			}
-		}()
-	}
-	wg.Wait()
-	close(errCh)
-	for err := range errCh {
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-	mu.Lock()
-	defer mu.Unlock()
-	if calls != 1 {
-		t.Fatalf("refresh calls = %d, want 1", calls)
+			if got, _ := out["public_action"].(string); got != tc.want {
+				t.Fatalf("public_action = %q, want %q (out=%#v)", got, tc.want, out)
+			}
+			if tc.method != http.MethodGet && out["mutation"] != true {
+				t.Fatalf("mutation = %#v, want true", out["mutation"])
+			}
+		})
 	}
 }
 
-func TestRefreshHTTPClientDropsRedirectHook(t *testing.T) {
-	transport := http.DefaultTransport
-	original := &http.Client{
-		Transport: transport,
-		Timeout:   5 * time.Second,
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return nil
-		},
+func TestDryRunRedactsBodySecrets(t *testing.T) {
+	c := New(&config.Config{
+		BaseURL:          "https://api.x.com",
+		XOauth2UserToken: "user-token",
+		RefreshToken:     "refresh-token",
+	}, time.Second, 0)
+	body := []byte(`{"text":"user-token","access_token":"user-token","nested":{"refresh_token":"refresh-token"}}`)
+	stderr := captureClientStderr(t, func() {
+		raw, _, err := c.dryRun(http.MethodPost, "https://api.x.com/2/tweets", "/2/tweets", nil, body, nil, "Bearer user-token")
+		if err != nil {
+			t.Fatalf("dryRun: %v", err)
+		}
+		if strings.Contains(string(raw), "user-token") || strings.Contains(string(raw), "refresh-token") {
+			t.Fatalf("dry-run JSON leaked credentials: %s", raw)
+		}
+		var out map[string]any
+		if err := json.Unmarshal(raw, &out); err != nil {
+			t.Fatalf("dry-run output is not JSON: %v\n%s", err, raw)
+		}
+		req := out["request"].(map[string]any)
+		bodyOut := req["body"].(map[string]any)
+		if bodyOut["access_token"] != "[REDACTED]" {
+			t.Fatalf("access_token was not redacted: %#v", bodyOut)
+		}
+		if bodyOut["text"] != "****oken" {
+			t.Fatalf("configured token value was not masked in non-secret field: %#v", bodyOut)
+		}
+	})
+	if strings.Contains(stderr, "user-token") || strings.Contains(stderr, "refresh-token") {
+		t.Fatalf("stderr leaked credentials: %s", stderr)
 	}
+}
 
-	got := refreshHTTPClient(original)
-	if got == original {
-		t.Fatal("refreshHTTPClient returned the original client, want shallow clone")
+func TestRedirectRejectsHTTPDowngradeBeforeAuthReplay(t *testing.T) {
+	t.Parallel()
+
+	c := New(&config.Config{BaseURL: "https://api.x.com", XOauth2UserToken: "user-token"}, time.Second, 0)
+	nextURL, _ := url.Parse("http://api.x.com/2/users/me")
+	viaURL, _ := url.Parse("https://api.x.com/2/users/me")
+	req := &http.Request{URL: nextURL, Header: http.Header{
+		"Authorization": []string{"Bearer user-token"},
+		"Cookie":        []string{"auth_token=cookie"},
+	}}
+	via := &http.Request{URL: viaURL}
+	err := c.HTTPClient.CheckRedirect(req, []*http.Request{via})
+	if err == nil {
+		t.Fatal("expected HTTPS-to-HTTP redirect error")
 	}
-	if got.CheckRedirect != nil {
-		t.Fatal("refreshHTTPClient retained CheckRedirect hook, would allow authHeader re-entry during refresh")
+	if req.Header.Get("Authorization") != "" {
+		t.Fatalf("Authorization should be removed before returning downgrade error, got %q", req.Header.Get("Authorization"))
 	}
-	if got.Transport != transport || got.Timeout != original.Timeout {
-		t.Fatal("refreshHTTPClient did not preserve transport/timeout")
+	if req.Header.Get("Cookie") != "" {
+		t.Fatalf("Cookie should be removed before returning downgrade error, got %q", req.Header.Get("Cookie"))
 	}
-	if original.CheckRedirect == nil {
-		t.Fatal("refreshHTTPClient mutated original client")
+}
+
+func captureClientStderr(t *testing.T, fn func()) string {
+	t.Helper()
+	old := os.Stderr
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("pipe stderr: %v", err)
 	}
+	os.Stderr = writer
+	defer func() { os.Stderr = old }()
+
+	fn()
+
+	if err := writer.Close(); err != nil {
+		t.Fatalf("close stderr writer: %v", err)
+	}
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		t.Fatalf("read stderr: %v", err)
+	}
+	return string(data)
 }

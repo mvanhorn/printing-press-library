@@ -1,0 +1,14 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "unifiedScreenName"
+    }
+  ],
+  "kind": "analyticsData#runRealtimeReport",
+  "metricHeaders": [
+    {
+      "name": "activeUsers",
+      "type": "TYPE_INTEGER"
+    }
+  ]
+}
