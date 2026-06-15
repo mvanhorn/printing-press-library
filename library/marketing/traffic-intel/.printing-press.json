@@ -16,7 +16,7 @@
     {
       "name": "gsc",
       "child_binary": "google-search-console-pp-cli",
-      "planned_command": "google-search-console-pp-cli webmasters query-search-analytics <site> --agent --dimensions ["page"] --start-date <start> --end-date <end> --type WEB",
+      "planned_command": "google-search-console-pp-cli webmasters query-search-analytics <site> --agent --dimensions [\"page\"] --start-date <start> --end-date <end> --type WEB",
       "env": ["GSC_SITE_URL"]
     },
     {
