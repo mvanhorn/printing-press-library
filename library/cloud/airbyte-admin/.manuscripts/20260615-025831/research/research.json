@@ -1,0 +1,90 @@
+{
+  "api_name": "airbyte-admin",
+  "novelty_score": 4,
+  "alternatives": [
+    {
+      "name": "Airbyte UI",
+      "summary": "Useful for manual administration, but not ideal for agents or scripts that need structured terminal output."
+    },
+    {
+      "name": "Airbyte API directly",
+      "summary": "Complete and official, but agents need repeated curl scaffolding, auth handling, output selection, and local archival behavior."
+    }
+  ],
+  "gaps": [
+    "The official public OpenAPI spec does not declare security schemes even though protected Airbyte deployments need Authorization headers for most operational endpoints."
+  ],
+  "patterns": [
+    "Read-only source and destination inventory",
+    "Sync job inspection",
+    "Connector metadata lookup",
+    "Workspace and access review",
+    "Agent-friendly local export and sync"
+  ],
+  "recommendation": "Ship as a read-only Airbyte Admin CLI in the cloud category, generated from Airbyte's official Public API spec and patched only to document/support optional Authorization headers.",
+  "researched_at": "2026-06-15T02:58:31Z",
+  "novel_features": [
+    {
+      "name": "Source and destination inventory",
+      "command": "public list-sources",
+      "description": "Lists Airbyte sources, with sibling destination and connection-detail commands for inspecting configured data movement.",
+      "rationale": "Sources and destinations show the edges of Airbyte data movement and are useful for incident response, migration review, and agent summaries."
+    },
+    {
+      "name": "Sync job visibility",
+      "command": "public list-jobs",
+      "description": "Lists sync jobs with connection filters and pagination for troubleshooting recent ELT activity.",
+      "rationale": "Data engineers often need to inspect recent sync history without opening the UI."
+    },
+    {
+      "name": "Connector catalog lookup",
+      "command": "public list-connector-definitions",
+      "description": "Shows available source or destination connector definitions for a workspace or organization.",
+      "rationale": "Connector discovery helps engineers understand what sources and destinations a workspace can support."
+    },
+    {
+      "name": "Workspace and access audit",
+      "command": "public list-workspaces",
+      "description": "Surfaces workspaces, users, organizations, permissions, and tags for Airbyte operational review.",
+      "rationale": "Workspace and access metadata lets agents answer governance and ownership questions without changing Airbyte state."
+    },
+    {
+      "name": "Agent-ready local archive",
+      "command": "sync",
+      "description": "Caches Airbyte read endpoints locally for offline search, export, and repeatable agent analysis.",
+      "rationale": "Local archival makes repeated agent analysis cheaper, faster, and less dependent on live API availability."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Source and destination inventory",
+      "command": "public list-sources",
+      "description": "Lists Airbyte sources, with sibling destination and connection-detail commands for inspecting configured data movement.",
+      "rationale": "Generated from Airbyte's official Public API source, destination, and connection-detail endpoints."
+    },
+    {
+      "name": "Sync job visibility",
+      "command": "public list-jobs",
+      "description": "Lists sync jobs with connection filters and pagination for troubleshooting recent ELT activity.",
+      "rationale": "Generated from Airbyte's official Public API jobs endpoints."
+    },
+    {
+      "name": "Connector catalog lookup",
+      "command": "public list-connector-definitions",
+      "description": "Shows available source or destination connector definitions for a workspace or organization.",
+      "rationale": "Generated from Airbyte's official Public API connector definition endpoint."
+    },
+    {
+      "name": "Workspace and access audit",
+      "command": "public list-workspaces",
+      "description": "Surfaces workspaces, users, organizations, permissions, and tags for Airbyte operational review.",
+      "rationale": "Generated from Airbyte's official Public API workspace, user, organization, permission, and tag endpoints."
+    },
+    {
+      "name": "Agent-ready local archive",
+      "command": "sync",
+      "description": "Caches Airbyte read endpoints locally for offline search, export, and repeatable agent analysis.",
+      "rationale": "Uses the generated Printing Press sync/export/search support for read-only endpoint data."
+    }
+  ]
+}
