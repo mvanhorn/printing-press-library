@@ -67,7 +67,9 @@ func evaluateRule(cmd *cobra.Command, flags *rootFlags, r alertRule, days int) (
 			continue
 		}
 		wd, hasWind := windIdx[wv.Timestamp]
-		if r.MaxWind > 0 && hasWind && wd.Speed > r.MaxWind {
+		// Fail closed: if a max-wind threshold is set but wind data is missing,
+		// don't fire — we can't confirm the wind is calm. (Mirrors OffshoreOnly.)
+		if r.MaxWind > 0 && (!hasWind || wd.Speed > r.MaxWind) {
 			continue
 		}
 		if r.OffshoreOnly && (!hasWind || wd.DirectionType != "Offshore") {
