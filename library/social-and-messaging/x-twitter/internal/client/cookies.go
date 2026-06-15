@@ -72,8 +72,8 @@ func userIDFromTWID(twid string) string {
 		twid = decoded
 	}
 	twid = strings.Trim(twid, `"`)
-	twid = strings.TrimPrefix(twid, "u%3D")
 	twid = strings.TrimPrefix(twid, "u=")
+	twid = strings.TrimPrefix(twid, "u%3D")
 	if twid == "" {
 		return ""
 	}

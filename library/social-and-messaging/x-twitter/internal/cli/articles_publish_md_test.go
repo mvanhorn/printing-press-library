@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -70,6 +71,28 @@ func TestArticlesPublishMdUpdateDryRunWithFilePrintsPreview(t *testing.T) {
 	}
 	if payload["article_id"] != "123" || payload["title"] != "Dry Run" || payload["cover"] != "./cover.jpg" {
 		t.Fatalf("unexpected preview payload: %#v", payload)
+	}
+}
+
+func TestArticlesPublishMdUpdateRejectsDraftFlag(t *testing.T) {
+	dir := t.TempDir()
+	md := filepath.Join(dir, "article.md")
+	if err := os.WriteFile(md, []byte("---\ntitle: Dry Run\n---\n\nBody"), 0o600); err != nil {
+		t.Fatalf("write markdown: %v", err)
+	}
+
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"articles-publish-md", md, "--update", "123", "--draft"})
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatalf("expected --update --draft to fail")
+	}
+	if !strings.Contains(err.Error(), "--update cannot be combined with --draft") {
+		t.Fatalf("unexpected error: %v", err)
 	}
 }
 
@@ -357,6 +380,22 @@ func TestMarkdownBodyToDraftJSInlineCode(t *testing.T) {
 	}
 	style := blk.InlineStyleRanges[0]
 	if style.Offset != 4 || style.Length != 16 || style.Style != "CODE" {
+		t.Fatalf("unexpected CODE style range: %#v", style)
+	}
+}
+
+func TestMarkdownBodyToDraftJSEmptyInlineCode(t *testing.T) {
+	contentState := MarkdownBodyToDraftJS("Run `` now")
+
+	blk := contentState.Blocks[0]
+	if blk.Text != "Run  now" {
+		t.Fatalf("unexpected text: %q", blk.Text)
+	}
+	if len(blk.InlineStyleRanges) != 1 {
+		t.Fatalf("expected one empty inline code style, got %d", len(blk.InlineStyleRanges))
+	}
+	style := blk.InlineStyleRanges[0]
+	if style.Offset != 4 || style.Length != 0 || style.Style != "CODE" {
 		t.Fatalf("unexpected CODE style range: %#v", style)
 	}
 }

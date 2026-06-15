@@ -102,6 +102,9 @@ func newNovelArticlesPublishMdCmd(flags *rootFlags) *cobra.Command {
 				if post {
 					return usageErr(fmt.Errorf("--update cannot be combined with --post; use `articles update-md --article-id %s --republish` for published articles", strings.TrimSpace(updateID)))
 				}
+				if draft {
+					return usageErr(fmt.Errorf("--update cannot be combined with --draft; --update already targets an existing draft (id %s); drop --draft", strings.TrimSpace(updateID)))
+				}
 				payload := map[string]any{
 					"article_id":    strings.TrimSpace(updateID),
 					"title":         parsed.Frontmatter.Title,
@@ -817,7 +820,7 @@ func extractInlineSpans(s string) (string, []inlineStyle, []linkSpan) {
 	for i < len(s) {
 		if s[i] == '`' {
 			end := strings.Index(s[i+1:], "`")
-			if end > 0 {
+			if end >= 0 {
 				inner := s[i+1 : i+1+end]
 				offset := utf16Len(out.String())
 				out.WriteString(inner)
@@ -928,7 +931,7 @@ func extractInlineStyles(s string) (string, []inlineStyle) {
 	for i < len(s) {
 		if s[i] == '`' {
 			end := strings.Index(s[i+1:], "`")
-			if end > 0 {
+			if end >= 0 {
 				inner := s[i+1 : i+1+end]
 				offset := utf16Len(out.String())
 				out.WriteString(inner)
