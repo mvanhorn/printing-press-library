@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "agent-node-discovery",
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260509-190854",
+  "base_printing_press_version": "4.2.0",
+  "summary": "Added read-only agent outline and find-node commands for compact Figma node label discovery.",
+  "reason": "Figma's REST node/image/frame commands require node IDs, but agents usually receive full Figma URLs or human labels. The new commands parse Figma URLs, build compact path labels from shallow file trees, and resolve label queries to node IDs without exposing write operations.",
+  "files": [
+    "internal/cli/agent.go",
+    "internal/cli/agent_test.go",
+    "internal/cli/root.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go test ./internal/cli, go test ./..., go vet ./..., go build ./cmd/figma-pp-cli, and help/version smoke checks pass. Command-path tests use httptest.Server with FIGMA_BASE_URL; no live Figma credential is required for tests."
+}

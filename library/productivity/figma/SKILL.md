@@ -184,6 +184,19 @@ figma-pp-cli which "<capability in your own words>"
 
 ## Recipes
 
+### Resolve Figma labels to node ids first
+
+Most `figma-pp-cli` commands need raw node ids, but agents usually start from a full Figma URL or a human label like "Prototype". Resolve the label first, then pass the returned `id` to `files nodes`, `images`, `frame extract`, or `dev-mode dump`:
+
+```bash
+# List a file's structure with compact path labels
+figma-pp-cli agent outline <figma-url-or-key> --depth 2 --agent
+
+# Resolve a label (e.g. "Prototype") to a node id
+figma-pp-cli agent find-node <figma-url-or-key> "Prototype" --depth 3 --agent
+```
+
+`agent outline` returns `{file_key, nodes: [{id, name, type, label, child_count}]}` with human-readable path labels like `🕹️ Prototype / Prototype / Signup`. `agent find-node` ranks matches and reports `ambiguous: true` when labels tie — it never guesses, so read `best.id` (or pick from `matches`) and pass it downstream. Both accept raw file keys or full `figma.com/design/...` and `figma.com/file/...` URLs (including `?node-id=`).
 
 ### Extract a frame for an AI codegen prompt
 
