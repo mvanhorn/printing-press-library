@@ -329,6 +329,25 @@ func TestMarkdownBodyToDraftJSMultipleLinks(t *testing.T) {
 	}
 }
 
+func TestMarkdownBodyToDraftJSNestedBracketLinkText(t *testing.T) {
+	contentState := MarkdownBodyToDraftJS("[text [note](inner)](https://outer.example) done")
+
+	blk := contentState.Blocks[0]
+	if blk.Text != "text [note](inner) done" {
+		t.Fatalf("unexpected text: %q", blk.Text)
+	}
+	if len(blk.EntityRanges) != 1 || len(contentState.EntityMap) != 1 {
+		t.Fatalf("expected one outer link entity, got %d ranges / %d entities", len(blk.EntityRanges), len(contentState.EntityMap))
+	}
+	er := blk.EntityRanges[0]
+	if er["key"] != 0 || er["offset"] != 0 || er["length"] != 18 {
+		t.Fatalf("unexpected entity range: %#v", er)
+	}
+	if contentState.EntityMap[0].Value.Data["url"] != "https://outer.example" {
+		t.Fatalf("unexpected entity url: %#v", contentState.EntityMap[0].Value.Data["url"])
+	}
+}
+
 func TestMarkdownBodyToDraftJSLinkMultibyteOffsets(t *testing.T) {
 	// Two emoji (2 UTF-16 units each) + space = offset 5; link text
 	// "café ☕" = 6 UTF-16 units (é and ☕ are BMP, 1 unit each).
