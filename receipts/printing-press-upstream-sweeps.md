@@ -135,3 +135,21 @@
   - `python3 .github/scripts/verify-skill/verify_skill_test.py` — pass (`Ran 9 tests ... OK`).
   - `git diff --check origin/main...HEAD -- .github/workflows/generate-registry.yml .github/workflows/generate-skills.yml .github/workflows/normalize-patches.yml` — pass.
 - Policy: no public upstream push/PR; branch/PR targets private `cathrynlavery/printing-press-library` only.
+
+## 2026-06-15 — Blu-ray MCP catalog search
+
+- Base private branch: `origin/main`
+- Upstream range inspected: `2f5f13550..upstream/main` as of 2026-06-15 preflight (`2a98659ce` public HEAD), with no bulk merge/rebase from `mvanhorn/*`.
+- Candidate commits considered:
+  - `a8fef3616` fix(blu-ray): MCP search queries the disc catalog, not the empty generic index — ported; narrow data-path correctness fix so MCP `search` uses `releases_catalog`/`releases_fts` via `SearchCatalog` and shares the CLI search FTS normalizer.
+  - `144399ad1` test(blu-ray): table-driven unit tests for watch check alert logic — deferred; useful but separate test-hardening surface.
+  - `b6b4bffd5` fix(blu-ray): leave release-ledger + runtime version at published base — skipped for this sweep; release metadata/versioning surface, not part of the MCP search behavior fix.
+  - Worten and Judge.me new-CLI batches plus generated registry/skills/release-ledger commits — skipped; product/reprint-sized or generated noise, not a narrow private-fork maintenance port.
+- Validation run on branch `upstream-sweep/20260615-blu-ray-mcp-search`:
+  - `git diff --check origin/main...HEAD` — pass.
+  - `python3 .github/scripts/verify-skill/verify_skill.py --dir library/media-and-entertainment/blu-ray/` — pass (`All checks passed`).
+  - `(cd library/media-and-entertainment/blu-ray && go test -count=1 ./internal/cli ./internal/mcp ./internal/store)` — pass.
+  - `(cd library/media-and-entertainment/blu-ray && go test -count=1 ./...)` — pass.
+  - `(cd library/media-and-entertainment/blu-ray && go build ./...)` — pass.
+  - `(cd library/media-and-entertainment/blu-ray && go vet ./...)` — pass.
+- Policy: no public upstream push/PR; branch/PR targets private `cathrynlavery/printing-press-library` only.
