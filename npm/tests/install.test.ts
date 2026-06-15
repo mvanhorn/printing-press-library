@@ -77,7 +77,7 @@ test("install command installs binary and skill", async () => {
   assert.match(stdout.join("\n"), /Installed espn/);
 });
 
-test("install command forwards repeatable agent targets including codex alias", async () => {
+test("install command forwards multiple -a/--agent values to installSkill", async () => {
   const skillCalls: Array<{ skillName: string; agents: string[] }> = [];
   const command = createInstallCommand({
     fetchRegistry: async () => registry,
