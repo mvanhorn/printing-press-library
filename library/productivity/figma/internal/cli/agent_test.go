@@ -400,6 +400,51 @@ func TestAgentFindNodeCommandNoMatches(t *testing.T) {
 	}
 }
 
+func TestAgentFindNodeCommandDirectHit(t *testing.T) {
+	srv := newFakeFigmaServer(t)
+	defer srv.Close()
+	setFigmaTestEnv(t, srv.URL)
+
+	// URL carries node-id=1-2 (normalized to 1:2) and no query → the
+	// direct-hit branch must resolve via /v1/files/<key>/nodes instead of
+	// the label-scoring path.
+	out, err := runAgentRoot(t, []string{
+		"agent", "find-node",
+		"https://www.figma.com/design/testKey/X?node-id=1-2",
+		"--agent",
+	})
+	if err != nil {
+		t.Fatalf("agent find-node (direct-hit) failed: %v\n%s", err, out)
+	}
+	var res map[string]any
+	if err := json.Unmarshal([]byte(out), &res); err != nil {
+		t.Fatalf("decoding find-node direct-hit output: %v\n%s", err, out)
+	}
+	if res["node_id"] != "1:2" {
+		t.Errorf("node_id = %v, want 1:2 (normalized from URL 1-2)", res["node_id"])
+	}
+	if res["match_count"].(float64) != 1 {
+		t.Errorf("match_count = %v, want 1 for direct hit", res["match_count"])
+	}
+	if res["ambiguous"] != false {
+		t.Errorf("ambiguous = %v, want false for a single direct hit", res["ambiguous"])
+	}
+	best, ok := res["best"].(map[string]any)
+	if !ok {
+		t.Fatalf("best is not an object: %T", res["best"])
+	}
+	if best["id"] != "1:2" {
+		t.Errorf("best.id = %v, want 1:2", best["id"])
+	}
+	if best["score"].(float64) != 100 {
+		t.Errorf("best.score = %v, want 100 (direct hit)", best["score"])
+	}
+	matches, _ := res["matches"].([]any)
+	if len(matches) != 1 {
+		t.Errorf("matches len = %d, want 1", len(matches))
+	}
+}
+
 func TestAgentOutlineAcceptsURL(t *testing.T) {
 	srv := newFakeFigmaServer(t)
 	defer srv.Close()
