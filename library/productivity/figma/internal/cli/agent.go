@@ -533,6 +533,15 @@ func agentFindNodeDirect(cmd *cobra.Command, flags *rootFlags, c interface{ Get(
 		}
 	}
 
+	if doc == nil {
+		// Figma returns {"nodes":{}} (invalid id not in the map) or
+		// {"nodes":{"<id>":null}} (id present but node deleted/hidden) for
+		// an unresolvable node-id. Treat both as "not found" instead of
+		// fabricating a match with empty name/type/label — otherwise agents
+		// receive a score-100 hit for a node that does not exist.
+		return fmt.Errorf("node %q not found in Figma file %s", ref.NodeID, ref.FileKey)
+	}
+
 	name, _ := doc["name"].(string)
 	nodeType, _ := doc["type"].(string)
 	hit := agentMatch{

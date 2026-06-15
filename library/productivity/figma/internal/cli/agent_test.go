@@ -243,6 +243,24 @@ func figmaFileFixture() string {
 }`
 }
 
+// newFakeFigmaMissingNodeServer returns a fake Figma server whose
+// /v1/files/<key>/nodes endpoint returns the given raw JSON body. This lets
+// tests simulate both Figma invalid-id shapes: {} (id not in the map) and
+// {"nodes":{"<id>":null}} (id present but node deleted/hidden).
+func newFakeFigmaMissingNodeServer(t *testing.T, nodesBody string) *httptest.Server {
+	t.Helper()
+	mux := http.NewServeMux()
+	mux.HandleFunc("/v1/files/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if strings.HasSuffix(r.URL.Path, "/nodes") {
+			_, _ = w.Write([]byte(nodesBody))
+			return
+		}
+		_, _ = w.Write([]byte(figmaFileFixture()))
+	})
+	return httptest.NewServer(mux)
+}
+
 func newFakeFigmaServer(t *testing.T) *httptest.Server {
 	t.Helper()
 	mux := http.NewServeMux()
@@ -442,6 +460,44 @@ func TestAgentFindNodeCommandDirectHit(t *testing.T) {
 	matches, _ := res["matches"].([]any)
 	if len(matches) != 1 {
 		t.Errorf("matches len = %d, want 1", len(matches))
+	}
+}
+
+func TestAgentFindNodeCommandDirectHitMissing(t *testing.T) {
+	cases := []struct {
+		name      string
+		nodesBody string // raw /v1/files/<key>/nodes response
+	}{
+		{
+			// Figma shape when the node-id is not in the file at all.
+			name:      "empty nodes map",
+			nodesBody: `{"nodes":{}}`,
+		},
+		{
+			// Figma shape when the id is present but the node was
+			// deleted/hidden — value is a JSON null.
+			name:      "null node entry",
+			nodesBody: `{"nodes":{"99:99":null}}`,
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			srv := newFakeFigmaMissingNodeServer(t, tc.nodesBody)
+			defer srv.Close()
+			setFigmaTestEnv(t, srv.URL)
+
+			_, err := runAgentRoot(t, []string{
+				"agent", "find-node",
+				"https://www.figma.com/design/testKey/X?node-id=99-99",
+				"--agent",
+			})
+			if err == nil {
+				t.Fatalf("expected an error for missing node, got nil (fake successful match)")
+			}
+			if !strings.Contains(err.Error(), "not found") {
+				t.Errorf("error = %q, want it to mention 'not found'", err.Error())
+			}
+		})
 	}
 }
 
