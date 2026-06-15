@@ -208,7 +208,7 @@
         "comment": "Rank results by approval rate to find the best deck."
       },
       {
-        "command": "ankiweb-pp-cli shared info 241428882",
+        "command": "ankiweb-pp-cli shared get 241428882",
         "comment": "See full detail and reviews for one deck."
       },
       {

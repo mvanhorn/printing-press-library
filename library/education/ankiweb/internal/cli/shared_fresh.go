@@ -16,6 +16,7 @@ type freshDeck struct {
 	ModifiedDate string `json:"modified_date"`
 }
 
+// pp:data-source auto
 func newSharedFreshCmd(flags *rootFlags) *cobra.Command {
 	var since string
 

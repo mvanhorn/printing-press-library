@@ -4,13 +4,13 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/education/ankiweb/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/education/ankiweb/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/education/ankiweb/internal/store"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/education/ankiweb/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/education/ankiweb/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/education/ankiweb/internal/store"
 	"github.com/spf13/cobra"
 	"io"
 	"net/url"

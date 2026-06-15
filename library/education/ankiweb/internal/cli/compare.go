@@ -23,6 +23,7 @@ type comparedDeck struct {
 	ModifiedDate string  `json:"modified_date"`
 }
 
+// pp:data-source live
 func newCompareCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "compare <id> <id> [...]",

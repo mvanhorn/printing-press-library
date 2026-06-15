@@ -17,6 +17,7 @@ type rankedDeck struct {
 	TotalVotes   int     `json:"total_votes"`
 }
 
+// pp:data-source auto
 func newSharedRankCmd(flags *rootFlags) *cobra.Command {
 	var minVotes int
 	var hasAudio, hasImages bool

@@ -19,6 +19,7 @@ type driftResult struct {
 	Note      string `json:"note"`
 }
 
+// pp:data-source local
 func newDriftCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "drift",

@@ -29,6 +29,7 @@ type watchChange struct {
 // table so multiple watched terms don't collide.
 func watchResourceType(term string) string { return "watch:" + term }
 
+// pp:data-source live
 func newWatchCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var sinceLastSync bool

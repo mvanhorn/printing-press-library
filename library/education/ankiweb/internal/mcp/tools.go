@@ -13,14 +13,14 @@ import (
 	"strings"
 	"time"
 
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/education/ankiweb/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/education/ankiweb/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/education/ankiweb/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/education/ankiweb/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/education/ankiweb/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/education/ankiweb/internal/store"
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterTools registers all API operations as MCP tools.
@@ -440,13 +440,13 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Approval-rate ranking", "command": "shared rank", "description": "Rank shared decks by approval rate (upvotes vs downvotes) with a minimum-vote floor", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Audio/image coverage filter", "command": "shared search", "description": "Filter shared decks by whether they include audio or images, critical for language learners.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Side-by-side deck comparison", "command": "compare", "description": "Compare multiple shared decks in one table: approval rate, note count, audio/image coverage, and freshness.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Freshness ranking", "command": "shared fresh", "description": "Rank or filter shared decks by last-modified date to surface actively maintained decks.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "New-deck drift watch", "command": "watch", "description": "Show shared decks that are new or changed for a search term since your last sync.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Owned-deck download drift", "command": "drift", "description": "Track download-count changes on the decks you've published, between syncs.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Discovery briefing", "command": "brief", "description": "One digest for a topic: top decks by approval rate, audio coverage, the freshest deck", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Approval-rate ranking", "command": "shared rank", "description": "Rank shared decks by approval rate (upvotes vs downvotes) with a minimum-vote floor, instead of the raw vote counts the website shows.", "rationale": "Requires computing upvotes/(upvotes+downvotes) across the local catalog snapshot — a quality signal the AnkiWeb SPA never surfaces.", "via": "mcp-command-mirror"},
+			{"name": "Audio/image coverage filter", "command": "shared search", "description": "Filter shared decks by whether they include audio or images, critical for language learners.", "rationale": "Filters on the audio/images note-count fields decoded from the protobuf list response; the web UI exposes no such filter.", "via": "mcp-command-mirror"},
+			{"name": "Side-by-side deck comparison", "command": "compare", "description": "Compare multiple shared decks in one table: approval rate, note count, audio/image coverage, and freshness.", "rationale": "Joins multiple cached deck rows from the local store — there is no compare view on AnkiWeb or in any other tool.", "via": "mcp-command-mirror"},
+			{"name": "Freshness ranking", "command": "shared fresh", "description": "Rank or filter shared decks by last-modified date to surface actively maintained decks.", "rationale": "Orders the local catalog by the decoded modified timestamp; the SPA only shows a date column you can't query.", "via": "mcp-command-mirror"},
+			{"name": "New-deck drift watch", "command": "watch", "description": "Show shared decks that are new or changed for a search term since your last sync.", "rationale": "Diffs the current catalog result against the last SQLite snapshot — impossible without a local persisted store.", "via": "mcp-command-mirror"},
+			{"name": "Owned-deck download drift", "command": "drift", "description": "Track download-count changes on the decks you've published, between syncs.", "rationale": "Builds a local time series of your shared decks' download counts; AnkiWeb shows only the current number.", "via": "mcp-command-mirror"},
+			{"name": "Discovery briefing", "command": "brief", "description": "One digest for a topic: top decks by approval rate, audio coverage, the freshest deck, and how many are new since last sync.", "rationale": "Mechanically composes the ranking, coverage, freshness, and drift primitives into a single agent-friendly summary.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
 			{"topic": "Approval-rate ranking", "insight": ""},

@@ -1,22 +1,17 @@
 {
-  "schema_version": 1,
-  "generated_at": "2026-05-26T01:29:51.352069Z",
-  "printing_press_version": "4.16.0",
   "api_name": "ankiweb",
-  "display_name": "Ankiweb",
-  "cli_name": "ankiweb-pp-cli",
-  "printer": "paulb",
-  "printer_name": "Paul Bockewitz",
-  "run_id": "20260525-182034",
-  "category": "education",
-  "mcp_binary": "ankiweb-pp-mcp",
-  "mcp_tool_count": 4,
-  "mcp_public_tool_count": 3,
-  "mcp_ready": "partial",
-  "auth_type": "cookie",
   "auth_env_vars": [
     "ANKIWEB_COOKIES"
   ],
+  "auth_type": "cookie",
+  "category": "education",
+  "cli_name": "ankiweb-pp-cli",
+  "display_name": "Ankiweb",
+  "generated_at": "2026-05-26T01:29:51.352069Z",
+  "mcp_binary": "ankiweb-pp-mcp",
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "partial",
+  "mcp_tool_count": 4,
   "novel_features": [
     {
       "name": "Approval-rate ranking",
@@ -54,10 +49,9 @@
       "description": "One digest for a topic: top decks by approval rate, audio coverage, the freshest deck, and how many are new since last sync."
     }
   ],
-  "contributors": [
-    {
-      "handle": "tmchow",
-      "name": "Trevin Chow"
-    }
-  ]
+  "printer": "paulbockewitz",
+  "printer_name": "Paul Bockewitz",
+  "printing_press_version": "4.16.0",
+  "run_id": "20260525-182034",
+  "schema_version": 1
 }

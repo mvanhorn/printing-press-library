@@ -6,8 +6,7 @@ Every existing Anki CLI wraps the desktop AnkiConnect add-on; none touches ankiw
 
 Learn more at [AnkiWeb](https://ankiweb.net).
 
-Created by [@paulb](https://github.com/paulb) (Paul Bockewitz).
-Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
+Printed by [@paulbockewitz](https://github.com/paulbockewitz) (Paul Bockewitz).
 
 ## Install
 
@@ -36,15 +35,9 @@ npx -y @mvanhorn/printing-press-library install ankiweb --agent claude-code
 npx -y @mvanhorn/printing-press-library install ankiweb --agent claude-code --agent codex
 ```
 
-### Without Node (Go fallback)
+### Without Node
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/education/ankiweb/cmd/ankiweb-pp-cli@latest
-```
-
-This installs the CLI only — no skill.
+The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
 
 ### Pre-built binary
 
@@ -52,14 +45,6 @@ Download a pre-built binary for your platform from the [latest release](https://
 
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes
-
-Install the CLI binary first. The installer writes binaries to a per-user managed bin directory by default: `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows.
-
-```bash
-npx -y @mvanhorn/printing-press-library install ankiweb --cli-only
-```
-
-Then install the focused Hermes skill.
 
 From the Hermes CLI:
 
@@ -73,17 +58,13 @@ Inside a Hermes chat session:
 /skills install mvanhorn/printing-press-library/cli-skills/pp-ankiweb --force
 ```
 
-Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
-
 ## Install for OpenClaw
 
-Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
+Tell your OpenClaw agent (copy this):
 
-```bash
-npx -y @mvanhorn/printing-press-library install ankiweb --agent openclaw
 ```
-
-Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
+Install the pp-ankiweb skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-ankiweb. The skill defines how its required CLI can be installed.
+```
 
 ## Use with Claude Desktop
 
@@ -128,8 +109,6 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 AnkiWeb uses a session cookie, not an API key. Run `auth login --chrome` to import your logged-in ankiweb.net session, or set ANKIWEB_COOKIES. Public shared-deck search and info need no login.
 
-The editor commands (`notetypes`, `notes add`) run on **ankiuser.net**, which AnkiWeb authenticates with a **separate** session cookie from ankiweb.net. Set it via `ANKIUSER_COOKIES` (or the config `ankiuser_cookies` key): open `https://ankiuser.net` while logged in and copy that domain's `ankiweb` cookie. The ankiweb.net cookie does not work for these commands (the editor returns HTTP 404).
-
 ## Quick Start
 
 ```bash
@@ -140,7 +119,7 @@ ankiweb-pp-cli shared search spanish
 ankiweb-pp-cli shared rank spanish --min-votes 20
 
 # See full detail and reviews for one deck.
-ankiweb-pp-cli shared info 241428882
+ankiweb-pp-cli shared get 241428882
 
 # Import your ankiweb.net session for your own decks.
 ankiweb-pp-cli auth login --chrome
@@ -215,6 +194,7 @@ These capabilities aren't available in any other tool for this API.
 
 ## Recipes
 
+
 ### Find the best audio-rich Spanish deck
 
 ```bash
@@ -264,8 +244,9 @@ Your cloud-synced decks and study stats (requires AnkiWeb login)
 Browse, search, and download public shared decks (no login required)
 
 - **`ankiweb-pp-cli shared download`** - Download a shared deck .apkg. NOTE: requires a signed ?t= token minted client-side (op=sdd); without it the endpoint returns 400/503.
-- **`ankiweb-pp-cli shared info`** - Full detail + reviews for one shared deck (protobuf response)
+- **`ankiweb-pp-cli shared get`** - Full detail + reviews for one shared deck (protobuf response)
 - **`ankiweb-pp-cli shared search`** - Search the shared-deck catalog by keyword (protobuf response)
+
 
 ## Output Formats
 
@@ -331,7 +312,6 @@ Environment variables:
 
 ### API-specific
 - **decks list returns 403 / not authenticated** — Run `ankiweb-pp-cli auth login --chrome` to import your ankiweb.net session cookie, or set ANKIWEB_COOKIES.
-- **notetypes / notes add say "no ankiuser.net session cookie configured"** — These run on ankiuser.net, which needs a separate cookie. Open `https://ankiuser.net` while logged in, copy that domain's `ankiweb` cookie, and set `ANKIUSER_COOKIES='ankiweb=…'`.
 - **shared download fails with a token error** — Deck download requires a signed token AnkiWeb mints in-browser; this is a known limitation — download the deck from ankiweb.net directly for now.
 - **search returns nothing** — An empty search term returns no results; provide a keyword, e.g. `shared search spanish`.
 

@@ -13,9 +13,10 @@ import (
 
 func newSharedInfoCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:         "info <sharedId>",
+		Use:         "get <sharedId>",
+		Aliases:     []string{"info"},
 		Short:       "Full detail (title, description, counts, review count) for one shared deck",
-		Example:     "  ankiweb-pp-cli shared info 241428882",
+		Example:     "  ankiweb-pp-cli shared get 241428882",
 		Annotations: map[string]string{"pp:endpoint": "shared.info", "pp:method": "GET", "pp:path": "/svc/shared/item-info", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

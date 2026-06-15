@@ -32,6 +32,7 @@ type briefReport struct {
 	NewSinceLastSync *int           `json:"new_since_last_sync,omitempty"`
 }
 
+// pp:data-source auto
 func newBriefCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 

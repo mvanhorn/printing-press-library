@@ -25,13 +25,15 @@ This skill drives the `ankiweb-pp-cli` binary. **You must verify the CLI is inst
 2. Verify: `ankiweb-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/education/ankiweb/cmd/ankiweb-pp-cli@latest
 ```
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
+
+Every existing Anki CLI wraps the desktop AnkiConnect add-on; none touches ankiweb.net. AnkiWeb CLI talks directly to the website's service layer, decodes its protobuf responses, and keeps a local SQLite catalog so you can rank decks by approval rate, filter by audio coverage, compare candidates side by side, and watch for new decks since your last sync.
 
 ## When to Use This CLI
 
@@ -117,7 +119,7 @@ This CLI was generated with browser-observed traffic context.
 **shared** — Browse, search, and download public shared decks (no login required)
 
 - `ankiweb-pp-cli shared download` — Download a shared deck .apkg. NOTE: requires a signed ?
-- `ankiweb-pp-cli shared info` — Full detail + reviews for one shared deck (protobuf response)
+- `ankiweb-pp-cli shared get` — Full detail + reviews for one shared deck (protobuf response)
 - `ankiweb-pp-cli shared search` — Search the shared-deck catalog by keyword (protobuf response)
 
 

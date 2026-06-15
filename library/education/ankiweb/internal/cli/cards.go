@@ -24,6 +24,7 @@ func newCardsCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
+// pp:data-source live
 func newCardsSearchCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "search [query]",
