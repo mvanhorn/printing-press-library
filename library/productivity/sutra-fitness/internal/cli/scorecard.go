@@ -121,6 +121,7 @@ Use this command to rank instructor performance. For per-slot capacity use
 				                      AND c.start_time < strftime('%Y-%m-%dT%H:%M:%SZ','now')) THEN 1 ELSE 0 END) AS no_shows
 				FROM reservations r
 				JOIN classes c ON r.classes_id = c.id
+				WHERE COALESCE(c.canceled,0)=0 AND COALESCE(c.deleted,0)=0
 				GROUP BY instructor`)
 			if err != nil {
 				return fmt.Errorf("querying reservations: %w", err)
