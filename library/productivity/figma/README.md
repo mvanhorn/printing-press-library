@@ -146,6 +146,20 @@ figma-pp-cli comments-audit --older-than 14d --group-by file,author
 These capabilities aren't available in any other tool for this API.
 
 ### Agent-native plumbing
+- **`agent outline`** — List a Figma file's nodes with compact, human-readable path labels (`🕹️ Prototype / Prototype / Signup`) and their ids.
+
+  _First call when an agent needs to navigate a Figma file by label. Accepts a raw file key or a full `figma.com` URL and returns compact JSON `{file_key, nodes: [{id, name, type, label, child_count}]}` instead of a raw REST tree._
+
+  ```bash
+  figma-pp-cli agent outline "https://www.figma.com/design/abc123/My-File" --depth 2 --agent
+  ```
+- **`agent find-node`** — Resolve a human label (e.g. "Prototype") into a Figma node id, with ranked candidates.
+
+  _Use when an agent has a label but not an id. Returns `{best, matches, ambiguous}` — ties are reported as candidates, never guessed. Pass the returned id to `files nodes`, `images`, `frame extract`, or `dev-mode dump`._
+
+  ```bash
+  figma-pp-cli agent find-node abc123 "Prototype" --depth 3 --agent
+  ```
 - **`frame extract`** — Extract a single frame as a compact codegen-ready payload that fuses simplified node tree, in-scope variables, dev resources, and Code Connect mappings.
 
   _First call when an AI agent needs Figma frame context for code generation — returns a compact payload that fits in the context window instead of the raw 10MB file response._
