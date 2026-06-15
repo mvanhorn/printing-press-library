@@ -10,7 +10,7 @@ tags:
   - agent-skill
   - tool-discovery
   - install
-version: 0.2.1
+version: 0.2.2
 metadata:
   hermes:
     tags:
@@ -59,6 +59,7 @@ The library is an open-source catalog of focused CLIs and matching agent skills 
 
 4. Install through the library installer when the selected tool is useful.
    - The default primitive is `npx -y @mvanhorn/printing-press-library install <slug>`.
+   - In Codex, use `npx -y @mvanhorn/printing-press-library install <slug> --agent codex` when the user wants the focused skill installed for Codex.
    - In OpenClaw, use `npx -y @mvanhorn/printing-press-library install <slug> --agent openclaw` so the focused skill is materialized under OpenClaw's managed skills root; the installer defaults the Go binary into a per-user bin directory.
    - The install command installs both the CLI and the matching focused agent skill.
    - `install <slug>` is idempotent: re-running it on an already-installed tool refreshes the Go binary and overwrites/re-adds the focused skill in place.
@@ -70,12 +71,14 @@ The library is an open-source catalog of focused CLIs and matching agent skills 
 
 5. Make the newly installed skill visible to the running agent.
    - Most agent harnesses snapshot available skills at session start. After installing or refreshing a focused skill, start a fresh session or reload skills before trying to invoke it.
+   - In Codex, start a fresh Codex thread or restart/reload the Codex session so it reloads the skill list.
    - In Hermes CLI sessions, use `/reload-skills` when available, or exit and start a new `hermes` session.
    - In Hermes gateway sessions, use `/restart` from the gateway chat or `hermes gateway restart` from a shell so the gateway process reloads installed skills.
    - In OpenClaw, assume the current agent session may not see newly installed skills until the OpenClaw session or gateway is restarted.
 
 6. Verify before claiming success.
    - If installing a CLI, run its `--help` or an equivalent harmless command.
+   - For Codex skill visibility, run `npx -y skills@latest list -g -a codex --json` and confirm the expected `printing-press-library` or `pp-*` skill is present.
    - If installing a skill, verify the destination harness can see it after the session reload/restart when the harness has a verification command.
    - If using a credentialed CLI, confirm required environment variables without printing secrets.
 
@@ -130,6 +133,15 @@ For the skill half, the installer shells out through the Vercel Agent Skills-com
 npx -y skills@latest add mvanhorn/printing-press-library/cli-skills/pp-<slug> -g -y
 ```
 
+For Codex, target the same install through `skills` with `-a codex`:
+
+```bash
+npx -y skills@latest add mvanhorn/printing-press-library/skills/printing-press-library -g -y -a codex
+npx -y skills@latest add mvanhorn/printing-press-library/cli-skills/pp-<slug> -g -y -a codex
+npx -y @mvanhorn/printing-press-library install <slug> --agent codex
+npx -y skills@latest list -g -a codex --json
+```
+
 So the catalog installer is still the right top-level command: it installs the CLI, then installs the focused skill globally using the same agent-skills mechanism rather than asking the agent to hand-roll a separate skill install path.
 
 The install operation is idempotent and works as a reinstall for one tool. Re-running `install <slug>` uses `go install <module>@latest` for the binary and re-adds the focused skill non-interactively, overwriting the existing install in place. No uninstall-first step is needed.
@@ -173,7 +185,7 @@ npx -y @mvanhorn/printing-press-library install flight-goat
 
 Use the install line printed by `search` or `list` output. Do not synthesize harness-specific direct skill install commands as the default path; those are only for explicit skill-only workflows.
 
-After install or update, assume the focused skill may not be visible to the currently running agent until skills are reloaded or the session restarts. Hermes CLI sessions can use `/reload-skills` or start a new session. Hermes gateway sessions should use `/restart` or `hermes gateway restart`. OpenClaw agents should restart the current session or gateway if the newly installed focused skill is not visible immediately.
+After install or update, assume the focused skill may not be visible to the currently running agent until skills are reloaded or the session restarts. Codex users should start a fresh Codex thread or restart/reload Codex so the skill list is rebuilt. Hermes CLI sessions can use `/reload-skills` or start a new session. Hermes gateway sessions should use `/restart` or `hermes gateway restart`. OpenClaw agents should restart the current session or gateway if the newly installed focused skill is not visible immediately.
 
 ## Hermes-native usage
 

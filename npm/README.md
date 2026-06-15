@@ -72,6 +72,12 @@ npx -y @mvanhorn/printing-press-library install espn
 npx -y @mvanhorn/printing-press-library install airbnb-pp-cli
 ```
 
+Target Codex explicitly when you want the focused skill installed for Codex:
+
+```bash
+npx -y @mvanhorn/printing-press-library install espn --agent codex
+```
+
 Several at once (bundles and CLI names mix freely):
 
 ```bash
@@ -111,6 +117,7 @@ npx -y @mvanhorn/printing-press-library install espn --skill-only
 
 # Constrain skill installation to a specific agent (repeatable)
 npx -y @mvanhorn/printing-press-library install espn --agent claude-code
+npx -y @mvanhorn/printing-press-library install espn --agent codex
 
 # Override the default binary directory when you need a specific install target
 npx -y @mvanhorn/printing-press-library install espn --bin-dir /path/to/bin
@@ -128,6 +135,34 @@ npx -y @mvanhorn/printing-press-library search sports --registry-url https://exa
 ```
 
 `--cli-only` and `--skill-only` are mutually exclusive. They both work with bundles — `… install starter-pack --cli-only` installs four binaries with no skills, useful for CI machines that don't run Claude Code.
+
+## Codex skills
+
+Codex can install the catalog discovery skill directly through the upstream `skills` CLI:
+
+```bash
+npx -y skills@latest add mvanhorn/printing-press-library/skills/printing-press-library -g -y -a codex
+```
+
+Install a focused `pp-*` skill without the Go binary when Codex only needs the agent instructions:
+
+```bash
+npx -y skills@latest add mvanhorn/printing-press-library/cli-skills/pp-espn -g -y -a codex
+```
+
+Install both the CLI and focused skill through this package:
+
+```bash
+npx -y @mvanhorn/printing-press-library install espn --agent codex
+```
+
+Verify what Codex can see:
+
+```bash
+npx -y skills@latest list -g -a codex --json
+```
+
+Restart Codex or start a fresh Codex thread after installing or refreshing skills. Running Codex sessions may have already snapshotted the available skill list.
 
 ## Bundles
 

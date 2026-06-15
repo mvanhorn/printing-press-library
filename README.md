@@ -27,13 +27,19 @@ clawhub install printing-press-library
 Humans and agents on Vercel Agent Skills-compatible harnesses can install the same discovery skill from this repo:
 
 ```bash
-npx skills add mvanhorn/printing-press-library/skills/printing-press-library -g -y
+npx -y skills@latest add mvanhorn/printing-press-library/skills/printing-press-library -g -y
 ```
 
 Or from the repo root by selecting the catalog skill explicitly:
 
 ```bash
-npx skills add mvanhorn/printing-press-library -g -y --skill printing-press-library
+npx -y skills@latest add mvanhorn/printing-press-library -g -y --skill printing-press-library
+```
+
+Codex users can target Codex explicitly:
+
+```bash
+npx -y skills@latest add mvanhorn/printing-press-library/skills/printing-press-library -g -y -a codex
 ```
 
 Hermes users can install it from the command line:
@@ -53,7 +59,13 @@ Once you know the specific tool you want, install the focused skill directly.
 For Vercel Agent Skills-compatible harnesses:
 
 ```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-espn -g -y
+npx -y skills@latest add mvanhorn/printing-press-library/cli-skills/pp-espn -g -y
+```
+
+For Codex:
+
+```bash
+npx -y skills@latest add mvanhorn/printing-press-library/cli-skills/pp-espn -g -y -a codex
 ```
 
 For Hermes from the command line:
@@ -67,6 +79,14 @@ For Hermes from inside the chat TUI:
 ```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-espn
 ```
+
+Verify Codex-visible skills with:
+
+```bash
+npx -y skills@latest list -g -a codex --json
+```
+
+Restart Codex or start a fresh Codex thread after installing or refreshing skills so the running session reloads the skill list.
 
 The existing npm installer remains the right path for humans, scripts, and CLI-first setup.
 
@@ -88,6 +108,12 @@ One tool:
 
 ```bash
 npx -y @mvanhorn/printing-press-library install espn
+```
+
+Install a CLI and its focused skill for Codex:
+
+```bash
+npx -y @mvanhorn/printing-press-library install espn --agent codex
 ```
 
 Several at once (bundles and CLI names mix freely):

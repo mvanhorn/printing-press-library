@@ -77,6 +77,30 @@ test("install command installs binary and skill", async () => {
   assert.match(stdout.join("\n"), /Installed espn/);
 });
 
+test("install command forwards repeatable agent targets including codex alias", async () => {
+  const skillCalls: Array<{ skillName: string; agents: string[] }> = [];
+  const command = createInstallCommand({
+    fetchRegistry: async () => registry,
+    resolveModulePath: async () => null,
+    detectGo: async () => ({ installed: true, version: "1.23.4" }),
+    goInstall: async () => ok(),
+    goInstallDir: async () => goBinDir("/Users/example/go/bin"),
+    commandOnPath: async () => "/Users/example/.local/bin/espn-pp-cli",
+    home: "/Users/example",
+    env: {},
+    mkdir: async () => {},
+    installSkill: async (skillName, agents) => {
+      skillCalls.push({ skillName, agents });
+      return ok();
+    },
+    stdout: () => {},
+    stderr: () => {},
+  });
+
+  assert.equal(await command(["espn", "-a", "codex", "--agent", "claude-code"]), 0);
+  assert.deepEqual(skillCalls, [{ skillName: "pp-espn", agents: ["codex", "claude-code"] }]);
+});
+
 test("install command reports unknown CLIs", async () => {
   const stderr: string[] = [];
   const command = createInstallCommand({
