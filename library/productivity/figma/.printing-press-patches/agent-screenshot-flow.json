@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "agent-screenshot-flow",
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260509-190854",
+  "base_printing_press_version": "4.2.0",
+  "summary": "Added read-only 'agent shot' command: resolve a label or URL node-id, filter to screen-like nodes, render via /v1/images, and download PNGs to local files in one call.",
+  "reason": "Turning a human prompt into a Slack-ready screenshot previously required 4-5 separate CLI calls across agent turns, and no command could produce a local image file (images emits expiring S3 URLs only). agent shot collapses the flow into one read-only call and returns both a local file path and the URL fallback.",
+  "files": [
+    "internal/cli/agent.go",
+    "internal/cli/agent_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go test ./internal/cli, go test ./..., go vet ./..., go build ./cmd/figma-pp-cli, help/version smoke checks, and verify_skill.py pass. Command-path tests use httptest.Server (file tree + /v1/images + render bytes) with FIGMA_BASE_URL; no live Figma credential is required."
+}

@@ -5,8 +5,10 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -97,10 +99,10 @@ func TestBuildAgentNodeIndexIncludesPathLabels(t *testing.T) {
 						"parentId": "0:1",
 						"children": []any{
 							map[string]any{
-								"id":            "1:2",
-								"name":          "Signup",
-								"type":          "FRAME",
-								"parentId":      "1:1",
+								"id":       "1:2",
+								"name":     "Signup",
+								"type":     "FRAME",
+								"parentId": "1:1",
 								"children": []any{
 									map[string]any{"id": "1:3", "name": "Email", "type": "TEXT"},
 									map[string]any{"id": "1:4", "name": "Submit", "type": "RECTANGLE"},
@@ -206,6 +208,43 @@ func TestScoreAgentNodeFindsTokenMatchesInLabel(t *testing.T) {
 	}
 }
 
+func TestSanitizeFilename(t *testing.T) {
+	cases := []struct{ in, want string }{
+		{"🕹️ Prototype / Prototype / Signup", "prototype-prototype-signup"},
+		{"  ...///  ", "node"},
+		{"A B__C.png", "a-b__c.png"},
+	}
+	for _, tc := range cases {
+		if got := sanitizeFilename(tc.in); got != tc.want {
+			t.Errorf("sanitizeFilename(%q) = %q, want %q", tc.in, got, tc.want)
+		}
+	}
+	long := strings.Repeat("a", 80)
+	if got := sanitizeFilename(long); len(got) != 60 {
+		t.Errorf("long sanitized len = %d, want 60", len(got))
+	}
+}
+
+func TestIsLikelyScreenNode(t *testing.T) {
+	accept := agentNodeSummary{Name: "Cash transfer Intro", Type: "FRAME"}
+	if !isLikelyScreenNode(accept) {
+		t.Fatalf("expected %q to be screen-like", accept.Name)
+	}
+	cases := []agentNodeSummary{
+		{Name: "1", Type: "FRAME"},
+		{Name: "Group 13", Type: "FRAME"},
+		{Name: "Status Bar", Type: "FRAME"},
+		{Name: "Home Indicator", Type: "FRAME"},
+		{Name: "Screen", Type: "GROUP"},
+		{Name: "Screen", Type: "VECTOR"},
+	}
+	for _, tc := range cases {
+		if isLikelyScreenNode(tc) {
+			t.Errorf("isLikelyScreenNode(%+v) = true, want false", tc)
+		}
+	}
+}
+
 // ---- Command-level tests with a fake Figma server ----
 
 // figmaFileFixture returns a Figma /v1/files/<key> response with two pages,
@@ -259,6 +298,44 @@ func newFakeFigmaMissingNodeServer(t *testing.T, nodesBody string) *httptest.Ser
 		_, _ = w.Write([]byte(figmaFileFixture()))
 	})
 	return httptest.NewServer(mux)
+}
+
+func newFakeFigmaShotServer(t *testing.T) *httptest.Server {
+	t.Helper()
+	mux := http.NewServeMux()
+	var base string
+	mux.HandleFunc("/v1/files/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if strings.HasSuffix(r.URL.Path, "/nodes") {
+			ids := r.URL.Query().Get("ids")
+			fmt.Fprintf(w, `{"nodes":{%q:{"document":{"id":%q,"name":"Signup","type":"FRAME"}}}}`, ids, ids)
+			return
+		}
+		_, _ = w.Write([]byte(figmaFileFixture()))
+	})
+	mux.HandleFunc("/v1/images/", func(w http.ResponseWriter, r *http.Request) {
+		ids := strings.Split(r.URL.Query().Get("ids"), ",")
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"err":null,"images":{`))
+		for i, id := range ids {
+			if i > 0 {
+				_, _ = w.Write([]byte(","))
+			}
+			fmt.Fprintf(w, `%q:%q`, id, base+"/render/"+id+".png")
+		}
+		_, _ = w.Write([]byte(`}}`))
+	})
+	mux.HandleFunc("/render/", func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.Path, "2:4") {
+			http.Error(w, "blocked", http.StatusServiceUnavailable)
+			return
+		}
+		w.Header().Set("Content-Type", "image/png")
+		_, _ = w.Write([]byte("\x89PNG\r\n\x1a\nFAKEPNGBYTES"))
+	})
+	srv := httptest.NewServer(mux)
+	base = srv.URL
+	return srv
 }
 
 func newFakeFigmaServer(t *testing.T) *httptest.Server {
@@ -315,7 +392,7 @@ func TestAgentOutlineCommand(t *testing.T) {
 	defer srv.Close()
 	setFigmaTestEnv(t, srv.URL)
 
-	out, err := runAgentRoot(t, []string{"agent", "outline", "testKey", "--depth", "5", "--agent"})
+	out, err := runAgentRoot(t, []string{"agent", "outline", "testKey", "--depth", "5", "--agent", "--no-cache"})
 	if err != nil {
 		t.Fatalf("agent outline failed: %v\n%s", err, out)
 	}
@@ -360,7 +437,7 @@ func TestAgentFindNodeCommandAmbiguous(t *testing.T) {
 	defer srv.Close()
 	setFigmaTestEnv(t, srv.URL)
 
-	out, err := runAgentRoot(t, []string{"agent", "find-node", "testKey", "Prototype", "--depth", "5", "--agent"})
+	out, err := runAgentRoot(t, []string{"agent", "find-node", "testKey", "Prototype", "--depth", "5", "--agent", "--no-cache"})
 	if err != nil {
 		t.Fatalf("agent find-node failed: %v\n%s", err, out)
 	}
@@ -398,7 +475,7 @@ func TestAgentFindNodeCommandNoMatches(t *testing.T) {
 	defer srv.Close()
 	setFigmaTestEnv(t, srv.URL)
 
-	out, err := runAgentRoot(t, []string{"agent", "find-node", "testKey", "zzznope", "--agent"})
+	out, err := runAgentRoot(t, []string{"agent", "find-node", "testKey", "zzznope", "--agent", "--no-cache"})
 	if err != nil {
 		t.Fatalf("agent find-node (no match) failed: %v\n%s", err, out)
 	}
@@ -429,7 +506,7 @@ func TestAgentFindNodeCommandDirectHit(t *testing.T) {
 	out, err := runAgentRoot(t, []string{
 		"agent", "find-node",
 		"https://www.figma.com/design/testKey/X?node-id=1-2",
-		"--agent",
+		"--agent", "--no-cache",
 	})
 	if err != nil {
 		t.Fatalf("agent find-node (direct-hit) failed: %v\n%s", err, out)
@@ -509,7 +586,7 @@ func TestAgentOutlineAcceptsURL(t *testing.T) {
 	out, err := runAgentRoot(t, []string{
 		"agent", "outline",
 		"https://www.figma.com/design/testKey/Whatever?node-id=1-2",
-		"--agent",
+		"--agent", "--no-cache",
 	})
 	if err != nil {
 		t.Fatalf("agent outline (URL) failed: %v\n%s", err, out)
@@ -520,5 +597,144 @@ func TestAgentOutlineAcceptsURL(t *testing.T) {
 	}
 	if res["file_key"] != "testKey" {
 		t.Errorf("file_key = %v, want testKey (parsed from URL)", res["file_key"])
+	}
+}
+
+func TestAgentShotDownloadsFile(t *testing.T) {
+	srv := newFakeFigmaShotServer(t)
+	defer srv.Close()
+	setFigmaTestEnv(t, srv.URL)
+	outDir := t.TempDir()
+
+	out, err := runAgentRoot(t, []string{"agent", "shot", "testKey", "Signup", "--max", "1", "--out-dir", outDir, "--agent", "--no-cache"})
+	if err != nil {
+		t.Fatalf("agent shot failed: %v\n%s", err, out)
+	}
+	var res map[string]any
+	if err := json.Unmarshal([]byte(out), &res); err != nil {
+		t.Fatalf("decoding shot output: %v\n%s", err, out)
+	}
+	if res["count"].(float64) != 1 {
+		t.Fatalf("count = %v, want 1", res["count"])
+	}
+	images := res["images"].([]any)
+	img := images[0].(map[string]any)
+	if img["url"] == "" {
+		t.Errorf("url missing: %+v", img)
+	}
+	path, _ := img["path"].(string)
+	if path == "" {
+		t.Fatalf("path missing: %+v", img)
+	}
+	st, err := os.Stat(path)
+	if err != nil {
+		t.Fatalf("stat downloaded file: %v", err)
+	}
+	if st.Size() == 0 {
+		t.Fatalf("downloaded file is empty")
+	}
+}
+
+func TestAgentShotNoDownloadReturnsURLOnly(t *testing.T) {
+	srv := newFakeFigmaShotServer(t)
+	defer srv.Close()
+	setFigmaTestEnv(t, srv.URL)
+	outDir := t.TempDir()
+
+	out, err := runAgentRoot(t, []string{"agent", "shot", "testKey", "Signup", "--max", "1", "--out-dir", outDir, "--no-download", "--agent", "--no-cache"})
+	if err != nil {
+		t.Fatalf("agent shot --no-download failed: %v\n%s", err, out)
+	}
+	var res map[string]any
+	if err := json.Unmarshal([]byte(out), &res); err != nil {
+		t.Fatalf("decoding shot output: %v\n%s", err, out)
+	}
+	img := res["images"].([]any)[0].(map[string]any)
+	if img["url"] == "" {
+		t.Errorf("url missing: %+v", img)
+	}
+	if _, ok := img["path"]; ok {
+		t.Errorf("path present with --no-download: %+v", img)
+	}
+	entries, err := os.ReadDir(outDir)
+	if err != nil {
+		t.Fatalf("ReadDir: %v", err)
+	}
+	if len(entries) != 0 {
+		t.Fatalf("expected no files, got %d", len(entries))
+	}
+}
+
+func TestAgentShotAmbiguousMaxOneDoesNotRender(t *testing.T) {
+	srv := newFakeFigmaShotServer(t)
+	defer srv.Close()
+	setFigmaTestEnv(t, srv.URL)
+
+	out, err := runAgentRoot(t, []string{"agent", "shot", "testKey", "Prototype", "--max", "1", "--agent", "--no-cache"})
+	if err != nil {
+		t.Fatalf("agent shot ambiguous failed: %v\n%s", err, out)
+	}
+	var res map[string]any
+	if err := json.Unmarshal([]byte(out), &res); err != nil {
+		t.Fatalf("decoding shot output: %v\n%s", err, out)
+	}
+	if res["ambiguous"] != true {
+		t.Fatalf("ambiguous = %v, want true", res["ambiguous"])
+	}
+	if got := len(res["images"].([]any)); got != 0 {
+		t.Fatalf("images len = %d, want 0", got)
+	}
+	if got := len(res["matches"].([]any)); got < 2 {
+		t.Fatalf("matches len = %d, want >=2", got)
+	}
+}
+
+func TestAgentShotDownloadFailureKeepsURL(t *testing.T) {
+	srv := newFakeFigmaShotServer(t)
+	defer srv.Close()
+	setFigmaTestEnv(t, srv.URL)
+
+	out, err := runAgentRoot(t, []string{"agent", "shot", "testKey", "Login", "--max", "1", "--out-dir", t.TempDir(), "--agent", "--no-cache"})
+	if err != nil {
+		t.Fatalf("agent shot download failure should still exit 0: %v\n%s", err, out)
+	}
+	var res map[string]any
+	if err := json.Unmarshal([]byte(out), &res); err != nil {
+		t.Fatalf("decoding shot output: %v\n%s", err, out)
+	}
+	img := res["images"].([]any)[0].(map[string]any)
+	if img["url"] == "" {
+		t.Fatalf("url missing after download failure: %+v", img)
+	}
+	if _, ok := img["path"]; ok {
+		t.Fatalf("path present after download failure: %+v", img)
+	}
+	if errText, _ := img["download_error"].(string); !strings.Contains(errText, "503") {
+		t.Fatalf("download_error = %q, want HTTP 503", errText)
+	}
+}
+
+func TestAgentShotNoMatch(t *testing.T) {
+	srv := newFakeFigmaShotServer(t)
+	defer srv.Close()
+	setFigmaTestEnv(t, srv.URL)
+
+	out, err := runAgentRoot(t, []string{"agent", "shot", "testKey", "zzznope", "--agent", "--no-cache"})
+	if err != nil {
+		t.Fatalf("agent shot no-match failed: %v\n%s", err, out)
+	}
+	var res map[string]any
+	if err := json.Unmarshal([]byte(out), &res); err != nil {
+		t.Fatalf("decoding shot output: %v\n%s", err, out)
+	}
+	if res["count"].(float64) != 0 {
+		t.Fatalf("count = %v, want 0", res["count"])
+	}
+	if got := len(res["images"].([]any)); got != 0 {
+		t.Fatalf("images len = %d, want 0", got)
+	}
+	steps := res["next_steps"].([]any)
+	if len(steps) == 0 || !strings.Contains(steps[0].(string), "agent outline") {
+		t.Fatalf("next_steps = %+v, want agent outline hint", steps)
 	}
 }
