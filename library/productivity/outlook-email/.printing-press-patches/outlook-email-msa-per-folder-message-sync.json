@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "outlook-email-msa-per-folder-message-sync",
+  "applied_at": "2026-06-14",
+  "base_run_id": "20260512-172123",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Populate the message store on personal Microsoft (MSA) accounts via per-folder sync; drop the non-existent /me/messages/delta resource; add a sync --folder flag.",
+  "reason": "The generated sync emitted a dependent resource named \"folders\" that fetched /me/mailFolders/{id}/messages but wrote the results back into the folders table, leaving the messages table empty. It also listed a \"messages-delta\" resource pointing at /me/messages/delta, which Microsoft Graph does not implement (message change-tracking exists only per-folder at /me/mailFolders/{id}/messages/delta), so it returned HTTP 400 on every account. On personal Microsoft accounts the global /me/messages collection also returns empty. Net effect: the local message store never populated on MSA, disabling every store-backed feature (since, senders, followup, waiting, digest, stale-unread, quiet, conversations). The fix renames the dependent resource to \"messages\" (ordered before attachments, which iterates the messages table as its parent), drops the messages-delta resource, and adds --folder to scope a sync to a single mail folder via /me/mailFolders/{folder}/messages.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "Patch-relevant checks pass: go build ./..., go vet, --help, --version, manifest, phase5, transcendence. Three checks (go mod tidy, govulncheck stdlib advisories GO-2026-5039/5037, and a SKILL.md install-section drift) fail identically on the clean upstream baseline and are pre-existing / unrelated to this patch. Live test on a personal MSA mailbox: `sync --folder inbox` stored 10 messages and a full sync stored 129 records across 8 resources with 0 errors — previously the messages-delta resource returned HTTP 400 and the messages table held a single row.",
+  "findings_addressed": ["F1-msa-message-sync-empty", "F2-messages-delta-http-400", "F3-no-folder-scope-flag"]
+}

@@ -36,6 +36,7 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var maxPages int
 	var latestOnly bool
 	var strict bool
+	var folder string
 
 	cmd := &cobra.Command{
 		Use:   "sync",
@@ -134,6 +135,28 @@ Exit codes & warnings:
 					return fmt.Errorf("invalid --since value %q: %w", since, err)
 				}
 				sinceTS = ts.Format(time.RFC3339)
+			}
+
+			// PATCH(outlook-email-msa-per-folder-message-sync): --folder scopes
+			// the entire sync to messages from one mail folder, via
+			// /me/mailFolders/{folder}/messages. Accepts a well-known name
+			// (inbox, sentitems, archive, deleteditems, drafts) or a folder ID.
+			// This is the reliable path on personal Microsoft accounts (MSA),
+			// where the global /me/messages and /me/messages/delta endpoints
+			// return empty / HTTP 400.
+			if folder != "" {
+				started := time.Now()
+				res := syncFolderMessages(c, db, folder, sinceTS, maxPages)
+				if res.Err != nil {
+					return res.Err
+				}
+				if humanFriendly {
+					fmt.Fprintf(os.Stderr, "Sync complete: %d messages from folder %q (%.1fs)\n", res.Count, folder, time.Since(started).Seconds())
+				} else {
+					fmt.Fprintf(os.Stdout, `{"event":"sync_summary","total_records":%d,"resources":1,"success":1,"warned":0,"errored":0,"duration_ms":%d}`+"\n",
+						res.Count, time.Since(started).Milliseconds())
+				}
+				return nil
 			}
 
 			// Worker pool: produce resources, N workers consume
@@ -280,6 +303,7 @@ Exit codes & warnings:
 	cmd.Flags().IntVar(&maxPages, "max-pages", 100, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
 	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
 	cmd.Flags().BoolVar(&strict, "strict", false, "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).")
+	cmd.Flags().StringVar(&folder, "folder", "", "Sync messages from a single mail folder only (well-known name like 'inbox', or a folder ID). Uses /me/mailFolders/{folder}/messages.")
 
 	return cmd
 }
@@ -832,7 +856,12 @@ func defaultSyncResources() []string {
 		"folders-delta",
 		"inference",
 		"messages",
-		"messages-delta",
+		// PATCH(outlook-email-msa-per-folder-message-sync): dropped
+		// "messages-delta". Microsoft Graph has no /me/messages/delta endpoint
+		// (message change-tracking exists only per-folder at
+		// /me/mailFolders/{id}/messages/delta), so this resource returned
+		// HTTP 400 on every account. Per-folder message sync (see
+		// dependentResourceDefs) populates the message store instead.
 		"rules",
 	}
 }
@@ -856,6 +885,91 @@ func syncResourcePath(resource string) (string, error) {
 	return "", fmt.Errorf("unknown sync resource %q", resource)
 }
 
+// syncFolderMessages syncs messages from a single mail folder into the local
+// store. The folder may be a well-known name (inbox, sentitems, archive,
+// deleteditems, drafts) or a folder ID; Microsoft Graph accepts both in the
+// /me/mailFolders/{folder}/messages path. Added by
+// PATCH(outlook-email-msa-per-folder-message-sync) to back the sync --folder
+// flag — the dependable path on personal Microsoft accounts, where the global
+// message endpoints are unavailable.
+func syncFolderMessages(c interface {
+	Get(string, map[string]string) (json.RawMessage, error)
+	RateLimit() float64
+}, db *store.Store, folder, sinceTS string, maxPages int) syncResult {
+	started := time.Now()
+	const resource = "messages"
+
+	if !humanFriendly {
+		fmt.Fprintf(os.Stdout, `{"event":"sync_start","resource":"%s","folder":"%s"}`+"\n", resource, strings.ReplaceAll(folder, `"`, `\"`))
+	}
+
+	path := "/me/mailFolders/" + folder + "/messages"
+	pageSize := determinePaginationDefaults()
+	cursor := ""
+	pagesFetched := 0
+	lastNextCursor := ""
+	var totalCount int
+
+	for {
+		params := map[string]string{}
+		params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
+		if cursor != "" {
+			params[pageSize.cursorParam] = cursor
+		}
+		if sinceTS != "" {
+			params[determineSinceParam()] = sinceTS
+		}
+
+		data, err := c.Get(path, params)
+		if err != nil {
+			if !humanFriendly {
+				fmt.Fprintf(os.Stdout, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
+			}
+			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("fetching messages for folder %q: %w", folder, err), Duration: time.Since(started)}
+		}
+
+		items, nextCursor, hasMore := extractPageItems(data, pageSize.cursorParam)
+		if len(items) == 0 {
+			break
+		}
+
+		stored, _, err := upsertResourceBatch(db, resource, items)
+		if err != nil {
+			if !humanFriendly {
+				fmt.Fprintf(os.Stdout, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
+			}
+			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("upserting messages for folder %q: %w", folder, err), Duration: time.Since(started)}
+		}
+
+		totalCount += stored
+		if !humanFriendly {
+			fmt.Fprintf(os.Stdout, `{"event":"sync_progress","resource":"%s","fetched":%d}`+"\n", resource, totalCount)
+		}
+
+		pagesFetched++
+		if maxPages > 0 && pagesFetched >= maxPages {
+			break
+		}
+		// Sticky-cursor guard: stop if the API echoes the same next cursor.
+		if nextCursor != "" && nextCursor == lastNextCursor {
+			break
+		}
+		lastNextCursor = nextCursor
+		if !hasMore || len(items) < pageSize.limit || nextCursor == "" {
+			break
+		}
+		cursor = nextCursor
+	}
+
+	_ = db.SaveSyncState(resource, "", totalCount)
+
+	if !humanFriendly {
+		fmt.Fprintf(os.Stdout, `{"event":"sync_complete","resource":"%s","total":%d,"duration_ms":%d}`+"\n", resource, totalCount, time.Since(started).Milliseconds())
+	}
+
+	return syncResult{Resource: resource, Count: totalCount, Duration: time.Since(started)}
+}
+
 // dependentResourceDef describes a child resource that requires iterating parent IDs to sync.
 type dependentResourceDef struct {
 	Name          string
@@ -866,8 +980,16 @@ type dependentResourceDef struct {
 
 func dependentResourceDefs() []dependentResourceDef {
 	return []dependentResourceDef{
+		// PATCH(outlook-email-msa-per-folder-message-sync): sync messages per
+		// mail folder. The generator emitted Name:"folders" for this entry,
+		// which wrote the fetched messages back into the folders table and left
+		// the messages table empty. On personal Microsoft accounts (MSA) the
+		// global /me/messages (empty) and /me/messages/delta (HTTP 400) paths
+		// do not populate the store, so per-folder iteration is the only path
+		// that works. Ordered BEFORE attachments because attachments iterates
+		// the messages table as its parent and so needs messages populated first.
+		{Name: "messages", ParentTable: "folders", ParentIDParam: "folder_id", PathTemplate: "/me/mailFolders/{folder_id}/messages"},
 		{Name: "attachments", ParentTable: "messages", ParentIDParam: "message_id", PathTemplate: "/me/messages/{message_id}/attachments"},
-		{Name: "folders", ParentTable: "folders", ParentIDParam: "folder_id", PathTemplate: "/me/mailFolders/{folder_id}/messages"},
 	}
 }
 
