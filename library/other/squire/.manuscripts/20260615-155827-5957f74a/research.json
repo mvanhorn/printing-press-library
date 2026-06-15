@@ -1,0 +1,177 @@
+{
+  "api_name": "squire",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-15T20:10:00Z",
+  "novel_features": [
+    {
+      "name": "Soonest-available barber across shops",
+      "command": "soonest",
+      "description": "Find the barber who can cut your hair soonest across several shops, ranked by next open slot.",
+      "rationale": "Squire shows one shop at a time with no cross-shop availability view; this fetches live next-available-time across N shops and sorts ascending.",
+      "example": "squire-pp-cli soonest --near barber-theory-toronto --service Haircut --agent",
+      "why_it_matters": "Reach for this when the user wants the earliest appointment and doesn't care which shop — the website cannot answer this.",
+      "group": "Cross-shop discovery"
+    },
+    {
+      "name": "Cross-shop compare",
+      "command": "compare",
+      "description": "Put two or more named shops side by side on average price, rating, review count, and staff size.",
+      "rationale": "Requires a local join across mirrored services, reviews, and shops that the API only exposes per-shop.",
+      "example": "squire-pp-cli compare barber-theory-toronto another-shop-route --json",
+      "why_it_matters": "Use when the user has specific shops in mind and wants a head-to-head; not for ranking an unknown set.",
+      "group": "Cross-shop discovery"
+    },
+    {
+      "name": "Cheapest service in an area",
+      "command": "cheapest",
+      "description": "Rank shops by the lowest price for one service category (e.g. Haircut) across a city or near a shop.",
+      "rationale": "Local FTS over service name/category plus a sort on integer-cent cost across shops; the site has no price sort or cross-shop view.",
+      "example": "squire-pp-cli cheapest Haircut --near toronto --limit 10 --json",
+      "why_it_matters": "Use when price is the deciding factor for a single service the user wants.",
+      "group": "Price intelligence"
+    },
+    {
+      "name": "Watch a shop for drift",
+      "command": "watch",
+      "description": "Snapshot a shop's prices, staff, and rating; on re-run, diff against the last snapshot and show what changed.",
+      "rationale": "Stateful over-time snapshot diff is impossible on the stateless website; powered by the local SQLite mirror.",
+      "example": "squire-pp-cli watch barber-theory-toronto --json",
+      "why_it_matters": "Use to detect cents-level price moves, added/removed barbers, or rating shifts at one shop over time.",
+      "group": "Price intelligence"
+    },
+    {
+      "name": "City shop ranking by rating confidence",
+      "command": "roster",
+      "description": "Rank the best shops in a city by rating weighted by review volume, with Squire's AI review summary attached.",
+      "rationale": "Confidence-weighted ranking (rating x log(reviews)) across mirrored shops; AI summary is passed through verbatim, no LLM.",
+      "example": "squire-pp-cli roster --city-id 66e194c2-9cc3-4859-b2cf-c3da22df3582 --lat 21.3069 --lon -157.8583 --min-reviews 25 --limit 10 --agent",
+      "why_it_matters": "Use when relocating or exploring a new area and you want quality-ranked shops in one view.",
+      "group": "Cross-shop discovery"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Soonest-available barber across shops",
+      "command": "soonest",
+      "description": "Find the barber who can cut your hair soonest across several shops, ranked by next open slot.",
+      "rationale": "Squire shows one shop at a time with no cross-shop availability view; this fetches live next-available-time across N shops and sorts ascending.",
+      "example": "squire-pp-cli soonest --near barber-theory-toronto --service Haircut --agent",
+      "why_it_matters": "Reach for this when the user wants the earliest appointment and doesn't care which shop — the website cannot answer this.",
+      "group": "Cross-shop discovery"
+    },
+    {
+      "name": "Cross-shop compare",
+      "command": "compare",
+      "description": "Put two or more named shops side by side on average price, rating, review count, and staff size.",
+      "rationale": "Requires a local join across mirrored services, reviews, and shops that the API only exposes per-shop.",
+      "example": "squire-pp-cli compare barber-theory-toronto another-shop-route --json",
+      "why_it_matters": "Use when the user has specific shops in mind and wants a head-to-head; not for ranking an unknown set.",
+      "group": "Cross-shop discovery"
+    },
+    {
+      "name": "Cheapest service in an area",
+      "command": "cheapest",
+      "description": "Rank shops by the lowest price for one service category (e.g. Haircut) across a city or near a shop.",
+      "rationale": "Local FTS over service name/category plus a sort on integer-cent cost across shops; the site has no price sort or cross-shop view.",
+      "example": "squire-pp-cli cheapest Haircut --near toronto --limit 10 --json",
+      "why_it_matters": "Use when price is the deciding factor for a single service the user wants.",
+      "group": "Price intelligence"
+    },
+    {
+      "name": "Watch a shop for drift",
+      "command": "watch",
+      "description": "Snapshot a shop's prices, staff, and rating; on re-run, diff against the last snapshot and show what changed.",
+      "rationale": "Stateful over-time snapshot diff is impossible on the stateless website; powered by the local SQLite mirror.",
+      "example": "squire-pp-cli watch barber-theory-toronto --json",
+      "why_it_matters": "Use to detect cents-level price moves, added/removed barbers, or rating shifts at one shop over time.",
+      "group": "Price intelligence"
+    },
+    {
+      "name": "City shop ranking by rating confidence",
+      "command": "roster",
+      "description": "Rank the best shops in a city by rating weighted by review volume, with Squire's AI review summary attached.",
+      "rationale": "Confidence-weighted ranking (rating x log(reviews)) across mirrored shops; AI summary is passed through verbatim, no LLM.",
+      "example": "squire-pp-cli roster --city-id 66e194c2-9cc3-4859-b2cf-c3da22df3582 --lat 21.3069 --lon -157.8583 --min-reviews 25 --limit 10 --agent",
+      "why_it_matters": "Use when relocating or exploring a new area and you want quality-ranked shops in one view.",
+      "group": "Cross-shop discovery"
+    }
+  ],
+  "narrative": {
+    "display_name": "Squire",
+    "headline": "Every barbershop on Squire, queryable from the terminal — cross-shop price compare, soonest-available barber, and review rankings the website never built.",
+    "value_prop": "squire-pp-cli mirrors Squire's barbershop discovery API into a local SQLite store so you can do what getsquire.com cannot: compare named shops side by side, find the cheapest haircut in a city, rank shops by rating confidence, and watch a shop for price or staff drift. All read-only, no account required.",
+    "quickstart": [
+      {
+        "command": "squire-pp-cli doctor --dry-run",
+        "comment": "Confirm the CLI is wired up and the API is reachable (no auth needed)."
+      },
+      {
+        "command": "squire-pp-cli compare barber-theory-toronto cadmen-barbershop-toronto-toronto --json",
+        "comment": "Put two shops head to head on price, rating, and staff (live; no sync needed)."
+      },
+      {
+        "command": "squire-pp-cli soonest barber-theory-toronto --json",
+        "comment": "Rank a shop's barbers by their next open slot."
+      },
+      {
+        "command": "squire-pp-cli cheapest Haircut --near barber-theory-toronto --json",
+        "comment": "Find the cheapest haircut-category service across the given shops."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "A services command returns 500 'invalid input syntax for type uuid'",
+        "fix": "Pass the shop UUID, not the slug, to service commands; run 'squire-pp-cli resolve \u003cslug\u003e' to get the UUID (or use the slug-aware compound commands which resolve it for you)."
+      },
+      {
+        "symptom": "Compound commands return empty results",
+        "fix": "The compound commands (compare/soonest/cheapest/roster) are live and need no sync; ensure the shop slug or UUID is correct (try 'squire-pp-cli directory list-public --term \u003cname\u003e')."
+      },
+      {
+        "symptom": "Reviews command returns only 5 results",
+        "fix": "Reviews paginate via --limit and --skip; raise --limit or page with --skip."
+      }
+    ],
+    "when_to_use": "Use squire-pp-cli when you need to compare barbershops on Squire across price, rating, staff, or availability — tasks the website only answers one shop at a time. It is ideal for finding the soonest appointment across shops, the cheapest service in a city, or auditing a shop's listing against competitors over time.",
+    "anti_triggers": [
+      "Do not use this CLI to book or pay for an appointment — it is read-only and unauthenticated.",
+      "Do not use it for non-Squire barbershops or salons on other platforms (Booksy, Fresha, Vagaro).",
+      "Do not use it to manage a shop's own bookings or staff — that is the Squire Commander app's job."
+    ],
+    "recipes": [
+      {
+        "title": "Find the soonest haircut near a shop",
+        "command": "squire-pp-cli soonest --near barber-theory-toronto --service Haircut --agent",
+        "explanation": "Ranks barbers across nearby shops by their next open slot."
+      },
+      {
+        "title": "Cheapest Haircut \u0026 Beard in a city",
+        "command": "squire-pp-cli cheapest \"Haircut \u0026 Beard\" --near toronto --limit 10 --json",
+        "explanation": "Sorts shops by the lowest price for that service category."
+      },
+      {
+        "title": "Triage shops in a new city",
+        "command": "squire-pp-cli roster --city-id 66e194c2-9cc3-4859-b2cf-c3da22df3582 --lat 21.3069 --lon -157.8583 --min-reviews 25 --agent --select ranked.name,ranked.rating,ranked.num_ratings",
+        "explanation": "Ranks shops by rating confidence and narrows the agent payload to the fields that matter."
+      },
+      {
+        "title": "Detect price changes at your usual shop",
+        "command": "squire-pp-cli watch barber-theory-toronto --json",
+        "explanation": "Diffs the current snapshot against the last run and reports cents-level changes."
+      }
+    ],
+    "trigger_phrases": [
+      "soonest barber near me",
+      "compare barbershops on squire",
+      "cheapest haircut in",
+      "best rated barbershop in",
+      "watch this barbershop for price changes",
+      "use squire",
+      "run squire"
+    ]
+  }
+}

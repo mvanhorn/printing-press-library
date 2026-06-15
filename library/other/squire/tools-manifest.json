@@ -1,0 +1,209 @@
+{
+  "api_name": "squire",
+  "base_url": "https://api.getsquire.com",
+  "description": "Every barbershop on Squire, queryable from the terminal — cross-shop price compare, soonest-available barber, and review rankings the website never built.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "directory_list_public",
+      "description": "GET /v1/search/public. Optional: term. Returns array of Public.",
+      "method": "GET",
+      "path": "/v1/search/public",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "term",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "discover_list_city",
+      "description": "GET /discover/api/city. Required: id, name, slug, stateId. Returns the City.",
+      "method": "GET",
+      "path": "/discover/api/city",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "stateId",
+          "type": "string",
+          "location": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "discover_list_shops",
+      "description": "GET /discover/api/shops. Optional: cityId, lat, lon (plus 1 more). Returns array of ShopList.",
+      "method": "GET",
+      "path": "/discover/api/shops",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "cityId",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "lat",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "lon",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "reviews_get_shop",
+      "description": "GET /v1/reviews/shop/{shop_id}. Required: shop_id. Optional: limit, skip. Returns array of ShopReview.",
+      "method": "GET",
+      "path": "/v1/reviews/shop/{shop_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "The shop_id path segment",
+          "required": true
+        },
+        {
+          "name": "skip",
+          "type": "integer",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "shop_get_details",
+      "description": "GET /v1/shop/{shop_id}/details. Required: shop_id. Returns array of DetailPhoto.",
+      "method": "GET",
+      "path": "/v1/shop/{shop_id}/details",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "The shop_id path segment",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shop_get_next_available_time",
+      "description": "GET /v1/shop/{shop_id}/barber/{barber_id}/next-available-time. Required: barber_id, shop_id. Returns the NextAvailableTime.",
+      "method": "GET",
+      "path": "/v1/shop/{shop_id}/barber/{barber_id}/next-available-time",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "barber_id",
+          "type": "string",
+          "location": "path",
+          "description": "The barber_id path segment",
+          "required": true
+        },
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "The shop_id path segment",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shop_get_professional",
+      "description": "GET /v1/shop/{shop_id}/details/professional. Required: shop_id. Returns array of Professional.",
+      "method": "GET",
+      "path": "/v1/shop/{shop_id}/details/professional",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "The shop_id path segment",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shop_get_service",
+      "description": "GET /v2/shop/{shop_id}/service. Required: shop_id. Returns array of ServiceAssignment.",
+      "method": "GET",
+      "path": "/v2/shop/{shop_id}/service",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "The shop_id path segment",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shop_get_service_2",
+      "description": "GET /v2/shop/{shop_id}/barber/{barber_id}/service. Required: barber_id, shop_id. Returns array of ServiceCategory.",
+      "method": "GET",
+      "path": "/v2/shop/{shop_id}/barber/{barber_id}/service",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "barber_id",
+          "type": "string",
+          "location": "path",
+          "description": "The barber_id path segment",
+          "required": true
+        },
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "The shop_id path segment",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

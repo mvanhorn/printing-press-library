@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "squire",
+  "run_id": "20[redacted-phone]27-5957f74a",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 71,
+  "tests_passed": 71,
+  "tests_skipped": 42,
+  "auth_context": {
+    "type": "none"
+  }
+}

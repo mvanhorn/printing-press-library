@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-15T20:51:06.412953Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "squire",
+  "display_name": "Squire",
+  "cli_name": "squire-pp-cli",
+  "creator": {
+    "handle": "devbasu",
+    "name": "Dev Basu"
+  },
+  "owner": "devbasu",
+  "printer": "devbasu",
+  "printer_name": "Dev Basu",
+  "spec_path": "squire-browser-sniff-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:1c62d4bd8fa3951c188481f43bba1d6b7e18d207f658e7d6863e583001d67822",
+  "run_id": "20260615-155827-5957f74a",
+  "category": "other",
+  "description": "Every barbershop on Squire, queryable from the terminal — cross-shop price compare, soonest-available barber, and review rankings the website never built.",
+  "mcp_binary": "squire-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_public_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Soonest-available barber across shops",
+      "command": "soonest",
+      "description": "Find the barber who can cut your hair soonest across several shops, ranked by next open slot."
+    },
+    {
+      "name": "Cross-shop compare",
+      "command": "compare",
+      "description": "Put two or more named shops side by side on average price, rating, review count, and staff size."
+    },
+    {
+      "name": "Cheapest service in an area",
+      "command": "cheapest",
+      "description": "Rank shops by the lowest price for one service category (e.g. Haircut) across a city or near a shop."
+    },
+    {
+      "name": "Watch a shop for drift",
+      "command": "watch",
+      "description": "Snapshot a shop's prices, staff, and rating; on re-run, diff against the last snapshot and show what changed."
+    },
+    {
+      "name": "City shop ranking by rating confidence",
+      "command": "roster",
+      "description": "Rank the best shops in a city by rating weighted by review volume, with Squire's AI review summary attached."
+    }
+  ]
+}

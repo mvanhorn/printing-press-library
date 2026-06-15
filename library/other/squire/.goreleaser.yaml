@@ -1,0 +1,51 @@
+version: 2
+project_name: squire-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: squire-pp-cli
+    main: ./cmd/squire-pp-cli
+    binary: squire-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/squire/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: squire-pp-mcp
+    main: ./cmd/squire-pp-mcp
+    binary: squire-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: squire-pp-cli
+    repository:
+      owner: devbasu
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every barbershop on Squire, queryable from the terminal — cross-shop price compare, soonest-available barber"
+    install: |
+      bin.install "squire-pp-cli"
+      bin.install "squire-pp-mcp"

@@ -1,0 +1,1096 @@
+name: squire
+description: Discovered API spec for getsquire
+version: 0.1.0
+base_url: https://api.getsquire.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "limit" from query: search input'
+    - 'rejected auth candidate "page" from query: search input'
+    - 'rejected auth candidate "term" from query: search input'
+config:
+    format: toml
+    path: ~/.config/squire-pp-cli/config.toml
+resources:
+    discover:
+        description: Operations on shops
+        endpoints:
+            list_city:
+                method: GET
+                path: /discover/api/city
+                base_url: https://getsquire.com
+                description: GET /discover/api/city
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: uuid
+                    - name: name
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: slug
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: stateId
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: uuid
+                body: []
+                response:
+                    type: object
+                    item: City
+                pagination: null
+            list_shops:
+                method: GET
+                path: /discover/api/shops
+                base_url: https://getsquire.com
+                description: GET /discover/api/shops
+                params:
+                    - name: cityId
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: lat
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: lon
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: ShopList
+                pagination: null
+                response_path: list
+    reviews:
+        description: Operations on shop
+        endpoints:
+            get_shop:
+                method: GET
+                path: /v1/reviews/shop/{shop_id}
+                description: GET /v1/reviews/shop/{shop_id}
+                params:
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: shop_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The shop_id path segment
+                      fields: []
+                    - name: skip
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: ShopReview
+                pagination: null
+                response_path: reviews
+    directory:
+        description: Operations on public
+        endpoints:
+            list_public:
+                method: GET
+                path: /v1/search/public
+                description: GET /v1/search/public
+                params:
+                    - name: term
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: Public
+                pagination: null
+    shop:
+        description: Operations on details
+        endpoints:
+            get_details:
+                method: GET
+                path: /v1/shop/{shop_id}/details
+                description: GET /v1/shop/{shop_id}/details
+                params:
+                    - name: shop_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The shop_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: DetailPhoto
+                pagination: null
+                response_path: photos
+            get_next_available_time:
+                method: GET
+                path: /v1/shop/{shop_id}/barber/{barber_id}/next-available-time
+                description: GET /v1/shop/{shop_id}/barber/{barber_id}/next-available-time
+                params:
+                    - name: barber_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The barber_id path segment
+                      fields: []
+                    - name: shop_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The shop_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: NextAvailableTime
+                pagination: null
+            get_professional:
+                method: GET
+                path: /v1/shop/{shop_id}/details/professional
+                description: GET /v1/shop/{shop_id}/details/professional
+                params:
+                    - name: shop_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The shop_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: Professional
+                pagination: null
+            get_service:
+                method: GET
+                path: /v2/shop/{shop_id}/service
+                description: GET /v2/shop/{shop_id}/service
+                params:
+                    - name: shop_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The shop_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: ServiceAssignment
+                pagination: null
+                response_path: assignments
+            get_service_2:
+                method: GET
+                path: /v2/shop/{shop_id}/barber/{barber_id}/service
+                description: GET /v2/shop/{shop_id}/barber/{barber_id}/service
+                params:
+                    - name: barber_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The barber_id path segment
+                      fields: []
+                    - name: shop_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The shop_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: ServiceCategory
+                pagination: null
+                response_path: categories
+types:
+    Address:
+        fields:
+            - name: city
+              type: string
+            - name: cityRoute
+              type: string
+            - name: country
+              type: string
+            - name: id
+              type: string
+              format: uuid
+            - name: neighborhood
+              type: string
+            - name: state
+              type: string
+            - name: street
+              type: string
+            - name: zip
+              type: string
+    Barber:
+        fields:
+            - name: advanceBookDays
+              type: integer
+            - name: advanceBookMins
+              type: integer
+            - name: advanceCancelMins
+              type: integer
+            - name: allowMultipleServices
+              type: bool
+            - name: assignedServices
+              type: array
+            - name: barberId
+              type: string
+              format: uuid
+            - name: bookNoPay
+              type: bool
+            - name: bookingInterval
+              type: integer
+            - name: brandId
+              type: string
+              format: uuid
+            - name: canCustomerCancel
+              type: bool
+            - name: color
+              type: string
+            - name: commissionPercentage
+              type: integer
+            - name: confirmed
+              type: bool
+            - name: createdAt
+              type: string
+              format: date-time
+            - name: customerReminder
+              type: ref:CustomerReminder
+            - name: days_on
+              type: '[]ref:DaysOn'
+            - name: earlyTipping
+              type: bool
+            - name: emailVerified
+              type: bool
+            - name: enabled
+              type: bool
+            - name: firstName
+              type: string
+            - name: id
+              type: string
+              format: uuid
+            - name: isUnsubscribed
+              type: bool
+            - name: lastName
+              type: string
+            - name: lateTipping
+              type: bool
+            - name: minServiceLen
+              type: integer
+            - name: notifications
+              type: ref:Notifications
+            - name: oldRoutes
+              type: array
+            - name: order
+              type: integer
+            - name: permissions
+              type: ref:Permissions
+            - name: phoneVerified
+              type: bool
+            - name: productCommissionPercentage
+              type: integer
+            - name: remindCustomerMins
+              type: integer
+            - name: requirePasscode
+              type: bool
+            - name: route
+              type: string
+            - name: schedules
+              type: '[]ref:Schedule'
+            - name: shop
+              type: ref:Shop
+            - name: shopId
+              type: string
+              format: uuid
+            - name: shortLink
+              type: string
+              format: url
+            - name: timeTrackRoles
+              type: ref:TimeTrackRoles
+            - name: tipEnabled
+              type: bool
+            - name: trackEmployeeTime
+              type: bool
+            - name: updatedAt
+              type: string
+              format: date-time
+            - name: useServiceDurationForTimes
+              type: bool
+    Barber2:
+        fields:
+            - name: firstName
+              type: string
+            - name: id
+              type: string
+              format: uuid
+            - name: lastName
+              type: string
+            - name: photoThumbnail
+              type: string
+              format: url
+            - name: photoUrl
+              type: string
+              format: url
+    City:
+        fields:
+            - name: id
+              type: string
+              format: uuid
+            - name: name
+              type: string
+            - name: slug
+              type: string
+            - name: stateId
+              type: string
+              format: uuid
+    Customer:
+        fields:
+            - name: firstName
+              type: string
+            - name: id
+              type: string
+              format: uuid
+            - name: lastName
+              type: string
+    CustomerReminder:
+        fields:
+            - name: barber_reminder
+              type: object
+            - name: reminder
+              type: object
+    DaysOn:
+        fields:
+            - name: barberId
+              type: string
+              format: uuid
+            - name: createdAt
+              type: string
+              format: date-time
+            - name: day
+              type: string
+              format: date-time
+            - name: finishHour
+              type: integer
+            - name: finishMinute
+              type: integer
+            - name: id
+              type: string
+              format: uuid
+            - name: startHour
+              type: integer
+            - name: startMinute
+              type: integer
+            - name: updatedAt
+              type: string
+              format: date-time
+    DetailPhoto:
+        fields:
+            - name: createdAt
+              type: string
+              format: date-time
+            - name: enabled
+              type: bool
+            - name: id
+              type: string
+              format: uuid
+            - name: image
+              type: string
+            - name: order
+              type: integer
+            - name: shop_photos
+              type: ref:ShopPhotos
+            - name: thumbnail
+              type: string
+              format: url
+            - name: thumbnailImage
+              type: string
+            - name: updatedAt
+              type: string
+              format: date-time
+            - name: url
+              type: string
+              format: url
+    Entity:
+        fields:
+            - name: address
+              type: object
+            - name: addressId
+              type: string
+              format: uuid
+            - name: adpReport
+              type: bool
+            - name: adultsOnly
+              type: bool
+            - name: advanceBookDays
+              type: integer
+            - name: advanceBookMins
+              type: integer
+            - name: advanceCancelMins
+              type: integer
+            - name: afterpayEnabled
+              type: bool
+            - name: allowBookAndReserve
+              type: bool
+            - name: allowBookWithAnyBarber
+              type: bool
+            - name: allowInPersonPayments
+              type: bool
+            - name: allowMultipleServices
+              type: bool
+            - name: applyCNPRateToChargeLink
+              type: bool
+            - name: barberCount
+              type: integer
+            - name: barberSpecificGC
+              type: bool
+            - name: blockNoShowFromBookNoPay
+              type: bool
+            - name: bnplFlatFee
+              type: integer
+            - name: bnplPercentFee
+              type: number
+            - name: bookNoPay
+              type: bool
+            - name: bookingCodeEnabled
+              type: bool
+            - name: bookingInterval
+              type: integer
+            - name: boothRentalEnabled
+              type: bool
+            - name: brand
+              type: object
+            - name: brandId
+              type: string
+              format: uuid
+            - name: calculateHourlyWages
+              type: bool
+            - name: calculateTaxFromNetAmount
+              type: bool
+            - name: canCustomerCancel
+              type: bool
+            - name: cashDrawerEnabled
+              type: bool
+            - name: cashTipsEnabled
+              type: bool
+            - name: chargeNoShows
+              type: bool
+            - name: commissionSplits
+              type: bool
+            - name: commissionSplitsAutoDeposit
+              type: bool
+            - name: commissionSplitsCashToBarbersProducts
+              type: bool
+            - name: commissionSplitsCashToBarbersServices
+              type: bool
+            - name: commissionSplitsShopPaysFees
+              type: bool
+            - name: countUnmarkedAppointments
+              type: bool
+            - name: createdAt
+              type: string
+              format: date-time
+            - name: cumulativeCommission
+              type: bool
+            - name: currency
+              type: string
+            - name: customerBookingFee
+              type: integer
+            - name: customerGiftCardEnabled
+              type: bool
+            - name: customerReminder
+              type: object
+            - name: dailyPayroll
+              type: bool
+            - name: dailyPayrollTipFee
+              type: integer
+            - name: dateFormat
+              type: string
+            - name: days_off
+              type: array
+            - name: defaultCashDrawerBalance
+              type: integer
+            - name: earlyTipping
+              type: bool
+            - name: email
+              type: string
+              format: email
+            - name: enabled
+              type: bool
+            - name: flatTipTier1
+              type: integer
+            - name: flatTipTier2
+              type: integer
+            - name: flatTipTier3
+              type: integer
+            - name: flatTipTier4
+              type: integer
+            - name: flatTipsThreshold
+              type: integer
+            - name: frontendFlags
+              type: object
+            - name: giftCardEnabled
+              type: bool
+            - name: giftCardTipsEnabled
+              type: bool
+            - name: googleEcosystem
+              type: bool
+            - name: googleReviewEnabled
+              type: bool
+            - name: grossUpFees
+              type: bool
+            - name: hadFirstTransaction
+              type: bool
+            - name: id
+              type: string
+              format: uuid
+            - name: includeChargeLinkInNotification
+              type: bool
+            - name: includeTaxInTipCalculation
+              type: bool
+            - name: inventoryAlertEmail
+              type: string
+              format: email
+            - name: inventoryAlertPhone
+              type: string
+            - name: isUnsubscribed
+              type: bool
+            - name: kind
+              type: integer
+            - name: kioskEnabled
+              type: bool
+            - name: lateTipping
+              type: bool
+            - name: legacyCommanderUser
+              type: bool
+            - name: legacyCustomerBookingFeeCalculation
+              type: bool
+            - name: location
+              type: object
+            - name: minInterval
+              type: integer
+            - name: minServiceLen
+              type: integer
+            - name: mobileAppCta
+              type: bool
+            - name: name
+              type: string
+            - name: noDefaultTip
+              type: bool
+            - name: noExtrasForBookNoPay
+              type: bool
+            - name: notifications
+              type: object
+            - name: oldRoutes
+              type: array
+            - name: paymentProcessor
+              type: string
+            - name: paymentProcessorReader
+              type: string
+            - name: permissionPasscodeEnabled
+              type: bool
+            - name: phone
+              type: string
+            - name: photos
+              type: array
+            - name: portfolioImageUrls
+              type: array
+            - name: prepayOnlyThreshold
+              type: integer
+            - name: productSalesToShop
+              type: bool
+            - name: ratings
+              type: object
+            - name: readerLocationId
+              type: string
+            - name: readerTipsEnabled
+              type: bool
+            - name: readerlessPos
+              type: bool
+            - name: remindCustomerMins
+              type: integer
+            - name: reportEmails
+              type: array
+            - name: requestCardForInPersonPayments
+              type: bool
+            - name: requiresPartialDeposits
+              type: bool
+            - name: requiresPrepayment
+              type: bool
+            - name: requiresWaiver
+              type: bool
+            - name: rewardsEnabled
+              type: bool
+            - name: roundUpTips
+              type: bool
+            - name: route
+              type: string
+            - name: schedules
+              type: array
+            - name: sendEmailReports
+              type: bool
+            - name: sendGCNotificationsToCommissionBarbers
+              type: bool
+            - name: sendMonthlyFeesReport
+              type: bool
+            - name: settings
+              type: object
+            - name: shareGiftCards
+              type: bool
+            - name: shopOrder
+              type: integer
+            - name: shopPaysTipFees
+              type: bool
+            - name: showOnBrandPage
+              type: bool
+            - name: showOnCustomApp
+              type: bool
+            - name: sortKind
+              type: integer
+            - name: splitPaymentsEnabled
+              type: bool
+            - name: squireEcosystem
+              type: bool
+            - name: staticMap
+              type: object
+            - name: staticMapId
+              type: string
+              format: uuid
+            - name: timeTrackingEnabled
+              type: bool
+            - name: timezone
+              type: string
+            - name: tipEnabled
+              type: bool
+            - name: tipOnProduct
+              type: bool
+            - name: tipTier1
+              type: integer
+            - name: tipTier2
+              type: integer
+            - name: tipTier3
+              type: integer
+            - name: tipTier4
+              type: integer
+            - name: updatedAt
+              type: string
+              format: date-time
+            - name: useQuickBooks
+              type: bool
+            - name: useServiceDurationForTimes
+              type: bool
+            - name: userCount
+              type: integer
+            - name: verified
+              type: bool
+            - name: waitingListEnabled
+              type: bool
+            - name: waitingListFee
+              type: integer
+            - name: waiting_lists
+              type: array
+            - name: waiverLanguage
+              type: string
+            - name: walkInOnly
+              type: bool
+            - name: webReader
+              type: bool
+            - name: website
+              type: string
+            - name: yelpRating
+              type: integer
+    Geoloc:
+        fields:
+            - name: lat
+              type: number
+            - name: lon
+              type: number
+    Location:
+        fields:
+            - name: coordinates
+              type: array
+    NextAvailableTime:
+        fields:
+            - name: time
+              type: string
+              format: date-time
+    Notifications:
+        fields:
+            - name: arrived
+              type: object
+            - name: cancel
+              type: object
+            - name: confirm
+              type: object
+            - name: rebookingReminder
+              type: object
+            - name: reminder
+              type: object
+            - name: reschedule
+              type: object
+    Permissions:
+        fields:
+            - name: appointments
+              type: object
+            - name: autoPayout
+              type: object
+            - name: bankAccount
+              type: object
+            - name: cashRegister
+              type: object
+            - name: clients
+              type: object
+            - name: customCharge
+              type: object
+            - name: engage
+              type: object
+            - name: profile
+              type: object
+            - name: register
+              type: object
+            - name: reports
+              type: object
+            - name: services
+              type: object
+            - name: supplyStore
+              type: object
+            - name: workHours
+              type: object
+    Professional:
+        fields:
+            - name: barber
+              type: ref:Barber
+            - name: defaultServiceName
+              type: string
+            - name: instagramImages
+              type: array
+            - name: nextAvailableTime
+              type: string
+              format: date-time
+            - name: nextAvailableTimeText
+              type: string
+    Public:
+        fields:
+            - name: formattedResult
+              type: string
+            - name: id
+              type: string
+              format: uuid
+            - name: isFullMatch
+              type: bool
+            - name: isStrictMatch
+              type: bool
+            - name: isWordMatch
+              type: bool
+            - name: position
+              type: integer
+            - name: result
+              type: ref:Result
+            - name: shopId
+              type: string
+              format: uuid
+            - name: source
+              type: ref:Source
+            - name: sourceResult
+              type: string
+            - name: type
+              type: string
+    Result:
+        fields:
+            - name: alias
+              type: array
+    Review:
+        fields:
+            - name: createdAt
+              type: string
+              format: date-time
+            - name: flagged
+              type: bool
+            - name: id
+              type: string
+              format: uuid
+            - name: ratedAt
+              type: string
+              format: date-time
+            - name: rating
+              type: integer
+            - name: review
+              type: string
+    Schedule:
+        fields:
+            - name: barber_schedules
+              type: object
+            - name: createdAt
+              type: string
+              format: date-time
+            - name: id
+              type: string
+              format: uuid
+            - name: startDate
+              type: string
+              format: date-time
+            - name: updatedAt
+              type: string
+              format: date-time
+            - name: workdays
+              type: array
+    ServiceAssignment:
+        fields:
+            - name: assigneeId
+              type: string
+              format: uuid
+            - name: assignmentId
+              type: string
+              format: uuid
+            - name: assignmentType
+              type: string
+            - name: brandId
+              type: string
+              format: uuid
+            - name: createdAt
+              type: string
+              format: date-time
+            - name: duration
+              type: integer
+            - name: locationId
+              type: string
+              format: uuid
+            - name: order
+              type: integer
+            - name: parentId
+              type: string
+              format: uuid
+            - name: serviceId
+              type: string
+              format: uuid
+            - name: taxes
+              type: '[]ref:Taxe'
+            - name: updatedAt
+              type: string
+              format: date-time
+    ServiceCategory:
+        fields:
+            - name: id
+              type: string
+              format: uuid
+            - name: name
+              type: string
+    Shop:
+        fields:
+            - name: id
+              type: string
+              format: uuid
+            - name: settings
+              type: object
+            - name: timezone
+              type: string
+    ShopList:
+        fields:
+            - name: distance
+              type: number
+            - name: entity
+              type: ref:Entity
+    ShopPhotos:
+        fields:
+            - name: createdAt
+              type: string
+              format: date-time
+            - name: photoId
+              type: string
+              format: uuid
+            - name: shopId
+              type: string
+              format: uuid
+            - name: updatedAt
+              type: string
+              format: date-time
+    ShopReview:
+        fields:
+            - name: appointmentId
+              type: string
+              format: uuid
+            - name: barber
+              type: ref:Barber2
+            - name: createdAt
+              type: string
+              format: date-time
+            - name: customer
+              type: ref:Customer
+            - name: id
+              type: string
+              format: uuid
+            - name: review
+              type: ref:Review
+            - name: shopId
+              type: string
+              format: uuid
+    Source:
+        fields:
+            - name: address
+              type: ref:Address
+            - name: alias
+              type: string
+            - name: brandId
+              type: string
+              format: uuid
+            - name: email
+              type: string
+              format: email
+            - name: enabled
+              type: bool
+            - name: geoloc
+              type: ref:Geoloc
+            - name: heading
+              type: string
+            - name: instagram
+              type: string
+            - name: kind
+              type: integer
+            - name: location
+              type: ref:Location
+            - name: name
+              type: string
+            - name: objectID
+              type: string
+              format: uuid
+            - name: oldRoutes
+              type: array
+            - name: phone
+              type: string
+            - name: photos
+              type: array
+            - name: public
+              type: string
+            - name: route
+              type: string
+            - name: squireEcosystem
+              type: bool
+            - name: tags
+              type: array
+            - name: timezone
+              type: string
+            - name: type
+              type: string
+            - name: website
+              type: string
+              format: url
+            - name: yelpID
+              type: string
+            - name: yelpRating
+              type: integer
+    Taxe:
+        fields:
+            - name: addToPrice
+              type: bool
+            - name: assignmentId
+              type: string
+              format: uuid
+            - name: assignments
+              type: array
+            - name: brandId
+              type: string
+              format: uuid
+            - name: createdAt
+              type: string
+              format: date-time
+            - name: enabled
+              type: bool
+            - name: externalOrdersOnly
+              type: bool
+            - name: id
+              type: string
+              format: uuid
+            - name: name
+              type: string
+            - name: originalId
+              type: string
+              format: uuid
+            - name: ownerId
+              type: string
+              format: uuid
+            - name: ownerType
+              type: string
+            - name: parentId
+              type: string
+              format: uuid
+            - name: percentage
+              type: integer
+            - name: taxable
+              type: array
+            - name: updatedAt
+              type: string
+              format: date-time
+    TimeTrackRoles:
+        fields:
+            - name: admin
+              type: bool
+            - name: gm
+              type: bool
+            - name: manager
+              type: bool
+            - name: meeting
+              type: bool
+            - name: receptionist
+              type: bool
+            - name: serviceProvider
+              type: bool
+            - name: splitSales
+              type: bool

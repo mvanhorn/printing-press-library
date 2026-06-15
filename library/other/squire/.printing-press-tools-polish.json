@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-06-15T20:50:07.465907Z",
+  "cli_dir": "\u003ccli-dir\u003e/squire-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-06-15T20:44:22.71091Z"
+  }
+}
