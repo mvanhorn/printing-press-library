@@ -16,19 +16,19 @@
     {
       "name": "gsc",
       "child_binary": "google-search-console-pp-cli",
-      "planned_command": "google-search-console-pp-cli export pages --json",
+      "planned_command": "google-search-console-pp-cli webmasters query-search-analytics <site> --agent --dimensions ["page"] --start-date <start> --end-date <end> --type WEB",
       "env": ["GSC_SITE_URL"]
     },
     {
       "name": "ga4",
       "child_binary": "google-analytics-pp-cli",
-      "planned_command": "google-analytics-pp-cli export landing-pages --json",
+      "planned_command": "google-analytics-pp-cli top-pages --agent --property <property> --start <start> --end <end>",
       "env": ["GA4_PROPERTY_ID"]
     },
     {
       "name": "ahrefs",
       "child_binary": "ahrefs-pp-cli",
-      "planned_command": "ahrefs-pp-cli export pages --json",
+      "planned_command": "ahrefs-pp-cli site-explorer top-pages --agent --target <target> --date <date> --select url,sum_traffic,keywords,referring_domains,top_keyword",
       "env": ["AHREFS_PROJECT"]
     }
   ],

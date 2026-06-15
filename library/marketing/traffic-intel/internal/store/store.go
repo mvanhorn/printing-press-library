@@ -235,9 +235,9 @@ func page(url, title string, clicks, impressions int, ctr, position float64, ses
 		Sessions: sessions, Conversions: conversions, Revenue: revenue, PreviousClicks: previousClicks,
 		PreviousSessions: previousSessions, PreviousRevenue: previousRevenue, Backlinks: backlinks, RefDomains: refDomains,
 		Sources: MetricSources{
-			GSC:    GSCMetrics{Clicks: clicks, Impressions: impressions, CTR: ctr, Position: position, PreviousClicks: previousClicks, QuerySample: keyword, ChildCLICommand: "google-search-console-pp-cli export pages --json"},
-			GA4:    GA4Metrics{Sessions: sessions, Conversions: conversions, Revenue: revenue, PreviousSessions: previousSessions, PreviousRevenue: previousRevenue, ChildCLICommand: "google-analytics-pp-cli export landing-pages --json"},
-			Ahrefs: AhrefsMetrics{Backlinks: backlinks, RefDomains: refDomains, TopKeyword: keyword, ChildCLICommand: "ahrefs-pp-cli export pages --json"},
+			GSC:    GSCMetrics{Clicks: clicks, Impressions: impressions, CTR: ctr, Position: position, PreviousClicks: previousClicks, QuerySample: keyword, ChildCLICommand: "google-search-console-pp-cli webmasters query-search-analytics <site> --agent --dimensions [\\\"page\\\"]"},
+			GA4:    GA4Metrics{Sessions: sessions, Conversions: conversions, Revenue: revenue, PreviousSessions: previousSessions, PreviousRevenue: previousRevenue, ChildCLICommand: "google-analytics-pp-cli top-pages --agent"},
+			Ahrefs: AhrefsMetrics{Backlinks: backlinks, RefDomains: refDomains, TopKeyword: keyword, ChildCLICommand: "ahrefs-pp-cli site-explorer top-pages --agent"},
 		},
 		UpdatedAt: now.Format(time.RFC3339),
 	}

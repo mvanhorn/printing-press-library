@@ -2,7 +2,7 @@
 
 Private Printing Press MVP CLI for combined Google Search Console (GSC), Google Analytics 4 (GA4), and Ahrefs-style traffic intelligence.
 
-The MVP is **local-first**: it never calls external APIs by itself. `sync` loads a generic ecommerce/SEO fixture by default or imports local JSON. Future sync work can shell out to child CLIs (`google-search-console-pp-cli`, `google-analytics-pp-cli`, `ahrefs-pp-cli`) once those private adapters are available.
+The MVP is **local-first**: it never calls external APIs by itself. `sync` loads a generic ecommerce/SEO fixture by default or imports local JSON. When explicitly requested with `--source`, `--live`, or `--real`, it shells out to child CLIs (`google-search-console-pp-cli`, `google-analytics-pp-cli`, `ahrefs-pp-cli`) in agent/JSON mode and stores normalized local results.
 
 ## Printing Press metadata
 
@@ -34,6 +34,7 @@ traffic-intel-pp-cli --agent sources doctor
 ```bash
 traffic-intel-pp-cli profile save --name site --site https://example.com --ga-property 123 --ahrefs-project example
 traffic-intel-pp-cli --profile site sync
+traffic-intel-pp-cli --profile site sync --source all
 traffic-intel-pp-cli --profile site money-pages --limit 5
 traffic-intel-pp-cli --profile site query-revenue jackets
 traffic-intel-pp-cli --profile site explain-drop
@@ -56,7 +57,9 @@ Optional env vars used for profile defaults or future child CLI sync:
 - `TRAFFIC_INTEL_HOME`
 - `GSC_SITE_URL`
 - `GA4_PROPERTY_ID`
-- `AHREFS_PROJECT`
+- `AHREFS_PROJECT` / `AHREFS_TARGET`
+
+Child CLI sync is opt-in. `sync --source all` runs all three child commands; `--source gsc`, `--source ga4`, and `--source ahrefs` run one source. `--live` and `--real` are aliases for `--source all`. Fixture mode remains the default when none of those flags are present.
 
 ## Import format
 

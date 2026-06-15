@@ -25,11 +25,11 @@ Top-level `PageMetrics` fields remain available for simple ranking, while `sourc
 
 This scaffold does not import sibling `internal` packages and does not call APIs. Future adapters should shell out to private child CLIs and ingest JSON:
 
-- `google-search-console-pp-cli export pages --json`
-- `google-analytics-pp-cli export landing-pages --json`
-- `ahrefs-pp-cli export pages --json`
+- `google-search-console-pp-cli webmasters query-search-analytics <site> --agent --dimensions ["page"] --start-date <start> --end-date <end> --type WEB`
+- `google-analytics-pp-cli top-pages --agent --property <property> --start <start> --end <end>`
+- `ahrefs-pp-cli site-explorer top-pages --agent --target <target> --date <date> --select url,sum_traffic,keywords,referring_domains,top_keyword`
 
-Use `sources doctor` to discover whether those binaries are on `PATH` and whether expected env vars (`GSC_SITE_URL`, `GA4_PROPERTY_ID`, `AHREFS_PROJECT`) are present.
+Use `sources doctor` to discover whether those binaries are on `PATH` and whether expected env vars (`GSC_SITE_URL`, `GA4_PROPERTY_ID`, `AHREFS_PROJECT` / `AHREFS_TARGET`) are present.
 
 ## Commands
 
