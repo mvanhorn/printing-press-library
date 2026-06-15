@@ -29,38 +29,6 @@ type fetchFail struct {
 	Error    string `json:"error"`
 }
 
-func fetchSeriesObservations(cmd *cobra.Command, flags *rootFlags, seriesID, start, end string, limit int) ([]fredObservation, error) {
-	ctx, cancel := boundCtx(cmd.Context(), flags)
-	defer cancel()
-	c, err := flags.newClient()
-	if err != nil {
-		return nil, err
-	}
-	params := map[string]string{
-		"series_id":  seriesID,
-		"file_type":  "json",
-		"sort_order": "asc",
-	}
-	if start != "" {
-		params["observation_start"] = start
-	}
-	if end != "" {
-		params["observation_end"] = end
-	}
-	if limit > 0 {
-		params["limit"] = fmt.Sprintf("%d", limit)
-	}
-	data, err := c.Get(ctx, "/series/observations", params)
-	if err != nil {
-		return nil, classifyAPIError(err, flags)
-	}
-	var env observationsEnvelope
-	if err := json.Unmarshal(data, &env); err != nil {
-		return nil, apiErr(fmt.Errorf("parsing observations for %s: %w", seriesID, err))
-	}
-	return env.Observations, nil
-}
-
 // pp:data-source live
 func newNovelSeriesCompareCmd(flags *rootFlags) *cobra.Command {
 	var flagStart string
@@ -84,10 +52,44 @@ func newNovelSeriesCompareCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("at least two series ids are required, e.g. UNRATE CPIAUCSL"))
 			}
 
+			// Build the HTTP client and bound context once, then reuse across the
+			// fan-out so we don't reconstruct a client per series.
+			ctx, cancel := boundCtx(cmd.Context(), flags)
+			defer cancel()
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			fetch := func(seriesID string) ([]fredObservation, error) {
+				params := map[string]string{
+					"series_id":  seriesID,
+					"file_type":  "json",
+					"sort_order": "asc",
+				}
+				if flagStart != "" {
+					params["observation_start"] = flagStart
+				}
+				if flagEnd != "" {
+					params["observation_end"] = flagEnd
+				}
+				if flagLimit > 0 {
+					params["limit"] = fmt.Sprintf("%d", flagLimit)
+				}
+				data, err := c.Get(ctx, "/series/observations", params)
+				if err != nil {
+					return nil, classifyAPIError(err, flags)
+				}
+				var env observationsEnvelope
+				if err := json.Unmarshal(data, &env); err != nil {
+					return nil, apiErr(fmt.Errorf("parsing observations for %s: %w", seriesID, err))
+				}
+				return env.Observations, nil
+			}
+
 			byDate := map[string]map[string]string{}
 			failures := make([]fetchFail, 0)
 			for _, id := range args {
-				obs, err := fetchSeriesObservations(cmd, flags, id, flagStart, flagEnd, flagLimit)
+				obs, err := fetch(id)
 				if err != nil {
 					failures = append(failures, fetchFail{SeriesID: id, Error: err.Error()})
 					continue

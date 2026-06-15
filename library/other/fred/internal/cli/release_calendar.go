@@ -56,6 +56,11 @@ func newNovelReleaseCalendarCmd(flags *rootFlags) *cobra.Command {
 			// The /releases/dates feed with no-data dates is heavy; curtail the
 			// window and row count under the live-dogfood matrix's flat timeout.
 			limit := flagLimit
+			if limit <= 0 {
+				// Guard against --limit 0 (or negative) becoming a literal
+				// limit=0 query param FRED would reject; fall back to the default.
+				limit = 100
+			}
 			if cliutil.IsDogfoodEnv() {
 				if flagDays > 1 {
 					flagDays = 1
