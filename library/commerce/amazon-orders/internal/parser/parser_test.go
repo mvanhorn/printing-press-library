@@ -47,6 +47,10 @@ func TestExtractMoney(t *testing.T) {
 		{"TOTAL $51.46 SHIP TO", 51.46},
 		{"$1,234.56", 1234.56},
 		{"-$5.00", -5.0},
+		{"TOTAL ₹1,234.56 SHIP TO", 1234.56},
+		{"TOTAL Rs. 999.00", 999.00},
+		{"TOTAL INR 2,500.00", 2500.00},
+		{"-₹5.00", -5.0},
 		{"no money here", 0},
 		{"$ 12.34 spaced", 12.34},
 	}
@@ -54,6 +58,28 @@ func TestExtractMoney(t *testing.T) {
 		got := ExtractMoney(tt.in)
 		if got != tt.want {
 			t.Errorf("ExtractMoney(%q) = %v, want %v", tt.in, got, tt.want)
+		}
+	}
+}
+
+func TestExtractMoneyWithCurrency(t *testing.T) {
+	tests := []struct {
+		in           string
+		wantAmount   float64
+		wantCurrency string
+		wantOK       bool
+	}{
+		{"TOTAL ₹1,234.56", 1234.56, "INR", true},
+		{"TOTAL Rs. 999.00", 999.00, "INR", true},
+		{"TOTAL INR 2,500.00", 2500.00, "INR", true},
+		{"TOTAL $51.46", 51.46, "USD", true},
+		{"TOTAL £12.34", 12.34, "GBP", true},
+		{"no money", 0, "", false},
+	}
+	for _, tt := range tests {
+		gotAmount, gotCurrency, gotOK := ExtractMoneyWithCurrency(tt.in)
+		if gotOK != tt.wantOK || gotAmount != tt.wantAmount || gotCurrency != tt.wantCurrency {
+			t.Errorf("ExtractMoneyWithCurrency(%q) = (%v, %q, %v), want (%v, %q, %v)", tt.in, gotAmount, gotCurrency, gotOK, tt.wantAmount, tt.wantCurrency, tt.wantOK)
 		}
 	}
 }
@@ -145,6 +171,31 @@ func TestParseOrderListMinimal(t *testing.T) {
 	}
 	if len(o.ASINs) != 1 || o.ASINs[0] != "B0EXAMPLE1" {
 		t.Errorf("ASINs = %v, want [B0EXAMPLE1]", o.ASINs)
+	}
+}
+
+func TestParseOrderListINRTotalAndCurrency(t *testing.T) {
+	html := `<html><body>
+<div class="order-card js-order-card">
+  <span>ORDER PLACED</span><span>May 5, 2026</span>
+  <span>TOTAL</span><span>₹1,234.56</span>
+  <span>SHIP TO</span><span>Test User</span>
+  <span>ORDER # 111-1111111-1111111</span>
+</div>
+</body></html>`
+	page, err := ParseOrderList([]byte(html))
+	if err != nil {
+		t.Fatalf("ParseOrderList: %v", err)
+	}
+	if len(page.Orders) != 1 {
+		t.Fatalf("got %d orders, want 1", len(page.Orders))
+	}
+	o := page.Orders[0]
+	if o.Total != 1234.56 {
+		t.Errorf("Total = %v, want 1234.56", o.Total)
+	}
+	if o.Currency != "INR" {
+		t.Errorf("Currency = %q, want INR", o.Currency)
 	}
 }
 

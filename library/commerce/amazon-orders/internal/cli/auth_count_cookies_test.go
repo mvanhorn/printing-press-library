@@ -1,11 +1,15 @@
 package cli
 
 import (
+	"bytes"
 	"database/sql"
+	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/config"
 	_ "modernc.org/sqlite"
 )
 
@@ -72,5 +76,97 @@ func TestCountCookiesForDomain_MissingFile(t *testing.T) {
 		if info, err := os.Stat(e); err == nil && info.ModTime().Unix() < 1 {
 			t.Errorf("leftover temp file: %s", e)
 		}
+	}
+}
+
+func TestCookieDomainFromBaseURL_Marketplaces(t *testing.T) {
+	tests := []struct {
+		name    string
+		baseURL string
+		want    string
+	}{
+		{"default US", "https://www.amazon.com", ".amazon.com"},
+		{"india", "https://www.amazon.in", ".amazon.in"},
+		{"india without scheme", "amazon.in", ".amazon.in"},
+		{"uk", "https://www.amazon.co.uk", ".amazon.co.uk"},
+		{"australia", "https://www.amazon.com.au", ".amazon.com.au"},
+		{"japan", "https://www.amazon.co.jp", ".amazon.co.jp"},
+		{"subdomain", "https://smile.amazon.com/gp/your-account/order-history", ".amazon.com"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := cookieDomainFromBaseURL(tt.baseURL)
+			if err != nil {
+				t.Fatalf("cookieDomainFromBaseURL(%q) error: %v", tt.baseURL, err)
+			}
+			if got != tt.want {
+				t.Fatalf("cookieDomainFromBaseURL(%q) = %q, want %q", tt.baseURL, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestCookieDomainFromConfig_UsesBaseURL(t *testing.T) {
+	cfg := &config.Config{BaseURL: "https://www.amazon.in"}
+	got, err := cookieDomainFromConfig(cfg)
+	if err != nil {
+		t.Fatalf("cookieDomainFromConfig() error: %v", err)
+	}
+	if got != ".amazon.in" {
+		t.Fatalf("cookieDomainFromConfig() = %q, want .amazon.in", got)
+	}
+}
+
+func TestNormalizeAmazonCookieDomain_RejectsInvalidDomains(t *testing.T) {
+	for _, domain := range []string{"example.com", "amazon.evil.com", "amazon.phishing.io", "notamazon.in"} {
+		t.Run(domain, func(t *testing.T) {
+			if _, err := normalizeAmazonCookieDomain(domain); err == nil {
+				t.Fatalf("normalizeAmazonCookieDomain(%q) succeeded, want error", domain)
+			}
+		})
+	}
+}
+
+func TestCookieDomainFromConfig_InvalidBaseURLSurfacesError(t *testing.T) {
+	cfg := &config.Config{BaseURL: "https://www.amazon.evil.com"}
+	if _, err := cookieDomainFromConfig(cfg); err == nil {
+		t.Fatal("cookieDomainFromConfig() succeeded, want error")
+	}
+}
+
+func TestValidateBrowserSessionOrWarnClearsProofAndReturnsFalse(t *testing.T) {
+	cfg := &config.Config{Path: filepath.Join(t.TempDir(), "config.toml")}
+	if err := writeBrowserSessionProof(cfg, []byte("{}\n")); err != nil {
+		t.Fatalf("write proof: %v", err)
+	}
+
+	var out bytes.Buffer
+	ok := validateBrowserSessionOrWarn(&out, cfg, func() error {
+		return errors.New("validation blocked")
+	})
+	if ok {
+		t.Fatal("validateBrowserSessionOrWarn returned true, want false")
+	}
+	text := out.String()
+	if !strings.Contains(text, "Warning: saved cookies but could not validate") {
+		t.Fatalf("missing warning output: %s", text)
+	}
+	if strings.Contains(text, "failed") {
+		t.Fatalf("output used fatal failed wording: %s", text)
+	}
+	if _, err := os.Stat(browserSessionProofPath(cfg)); !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("proof was not cleared, stat err=%v", err)
+	}
+}
+
+func TestValidateBrowserSessionOrWarnReturnsTrueOnSuccess(t *testing.T) {
+	cfg := &config.Config{Path: filepath.Join(t.TempDir(), "config.toml")}
+	var out bytes.Buffer
+	ok := validateBrowserSessionOrWarn(&out, cfg, func() error { return nil })
+	if !ok {
+		t.Fatal("validateBrowserSessionOrWarn returned false, want true")
+	}
+	if !strings.Contains(out.String(), "valid") {
+		t.Fatalf("missing success output: %s", out.String())
 	}
 }

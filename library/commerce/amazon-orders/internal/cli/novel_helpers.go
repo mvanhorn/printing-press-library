@@ -42,6 +42,16 @@ func fetchOrderListPages(ctx context.Context, c *client.Client, timeFilter strin
 			}
 			break
 		}
+		// A logged-out/expired session is answered with HTTP 200 and an Amazon
+		// sign-in/claim page. On the first page that's an auth failure; surface
+		// it instead of rolling up an empty spend report. On later pages, stop
+		// and return what we have.
+		if ierr := parser.AuthInterstitialError(raw); ierr != nil {
+			if page == 0 {
+				return nil, ierr
+			}
+			break
+		}
 		listPage, perr := parser.ParseOrderList(raw)
 		if perr != nil {
 			return nil, perr
