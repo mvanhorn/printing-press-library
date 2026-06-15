@@ -122,7 +122,7 @@ JSON`)
 {"rows":[{"landing_page":"/p1","sessions":30,"transactions":2,"total_revenue":"199.50","previous_sessions":42,"previous_revenue":250},{"landing_page":"/p2","sessions":7,"revenue":15}]}
 JSON`)
 	installFakeChild("ahrefs-pp-cli", `cat <<'JSON'
-{"data":[{"page":"/p1","backlinks":8,"referring_domains":4,"top_keyword":"widgets"}]}
+{"results":{"pages":[{"page":"/p1","backlinks":8,"referring_domains":4,"top_keyword":"widgets"}]}}
 JSON`)
 	t.Setenv("PATH", binDir+string(os.PathListSeparator)+os.Getenv("PATH"))
 	t.Setenv("CHILD_LOG", logPath)

@@ -519,7 +519,7 @@ func findRows(v any) []any {
 				return rows
 			}
 		}
-		for _, key := range []string{"data", "response", "result"} {
+		for _, key := range []string{"results", "data", "response", "result"} {
 			if nested, ok := x[key]; ok {
 				if rows := findRows(nested); len(rows) > 0 {
 					return rows
