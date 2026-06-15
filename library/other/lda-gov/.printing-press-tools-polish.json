@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-06-15T01:37:50.371801Z",
+  "cli_dir": "\u003ccli-dir\u003e/lda-gov-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 3,
+    "captured": "2026-06-15T01:36:31.255288Z"
+  }
+}
