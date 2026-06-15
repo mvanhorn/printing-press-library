@@ -1464,7 +1464,7 @@ func schemaHelpText(schema json.RawMessage) string {
 		if def, ok := prop["default"]; ok {
 			fmt.Fprintf(&b, " default=%v", def)
 		}
-		if enum, ok := prop["enum"].([]any); ok && len(enum) > 0 {
+		if enum, ok := prop["enum"].([]any); ok && len(enum) > 0 && len(enum) <= 20 {
 			parts := make([]string, 0, len(enum))
 			for _, item := range enum {
 				parts = append(parts, fmt.Sprintf("%v", item))
@@ -1670,7 +1670,7 @@ func modelMatchesCapability(model map[string]any, capability string) bool {
 	}
 	switch capability {
 	case "image-edit", "image_edit", "edit", "image-to-image", "i2i":
-		if strings.Contains(text, "image-to-image") || strings.Contains(text, "image edit") || strings.Contains(text, "edit") {
+		if strings.Contains(text, "image-to-image") || strings.Contains(text, "image edit") || strings.Contains(text, "image editing") {
 			return true
 		}
 		return fieldNames["image"] || fieldNames["images"] || fieldNames["reference_images"] || fieldNames["reference_image"]

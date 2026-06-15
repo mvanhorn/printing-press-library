@@ -49,3 +49,16 @@
   - `git diff --quiet upstream/main -- library/ai/wavespeed` — PASS (synced WaveSpeed tree matches upstream after the branch changes).
   - `go test ./...` from `library/ai/wavespeed` — PASS.
   - `go run ./cmd/wavespeed-pp-cli --help` — confirmed top-level commands include `brand`, `plan`, `qa`, `pack`, `batch`, `variants`, `compose`, `aspects`, `restyle`, and `library`.
+
+## 2026-06-15T17:17:36Z — PR #17 review follow-up
+
+- PR reviewed: `https://github.com/cathrynlavery/printing-press-library-private/pull/17`.
+- Comments inspected: issue comment from `greptile-apps`, latest review, unresolved review threads, and status check rollup.
+- Findings addressed:
+  - Added `HOME` isolation to `TestRunDownloadFailureReportsPartialSuccesses` so partial-download state writes stay in a temp home.
+  - Capped legacy `schemaHelpText` enum display at 20 values.
+  - Narrowed `models --capability image-edit` text matching from any `edit` substring to image-specific phrases.
+- Verification:
+  - `git diff --check` — PASS.
+  - `cd library/ai/wavespeed && go test ./...` — PASS.
+- Policy confirmation: private branch only; no public/mvanhorn push.
