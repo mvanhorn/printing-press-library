@@ -45,7 +45,7 @@ brews:
       owner: user
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Google Photos Library and Picker APIs for app-created media, albums, uploads, and user-selected media."
+    description: "Manage Google Photos app-created albums and media, upload files, and handle Picker sessions from terminal-friendly commands."
     install: |
       bin.install "google-photos-pp-cli"
       bin.install "google-photos-pp-mcp"

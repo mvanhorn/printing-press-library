@@ -4,7 +4,7 @@
   "cli_name": "traffic-intel-pp-cli",
   "name": "traffic-intel-pp-cli",
   "display_name": "Traffic Intel",
-  "description": "Private combined SEO and traffic intelligence CLI that joins Google Search Console, GA4, and Ahrefs child CLI evidence into local-first page, revenue, and refresh recommendations.",
+  "description": "Join Google Search Console, GA4, and Ahrefs evidence into local-first page, revenue, and refresh recommendations for SEO/content operations.",
   "visibility": "private",
   "category": "marketing",
   "module": "traffic-intel",
@@ -81,19 +81,25 @@
       "name": "gsc",
       "child_binary": "google-search-console-pp-cli",
       "planned_command": "google-search-console-pp-cli webmasters query-search-analytics <site> --agent --dimensions [\"page\"] --start-date <start> --end-date <end> --type WEB",
-      "env": ["GSC_SITE_URL"]
+      "env": [
+        "GSC_SITE_URL"
+      ]
     },
     {
       "name": "ga4",
       "child_binary": "google-analytics-pp-cli",
       "planned_command": "google-analytics-pp-cli top-pages --agent --property <property> --start <start> --end <end>",
-      "env": ["GA4_PROPERTY_ID"]
+      "env": [
+        "GA4_PROPERTY_ID"
+      ]
     },
     {
       "name": "ahrefs",
       "child_binary": "ahrefs-pp-cli",
       "planned_command": "ahrefs-pp-cli site-explorer top-pages --agent --target <target> --date <date> --select url,sum_traffic,keywords,referring_domains,top_keyword",
-      "env": ["AHREFS_PROJECT"]
+      "env": [
+        "AHREFS_PROJECT"
+      ]
     }
   ],
   "verification": [
@@ -102,5 +108,6 @@
     "go build ./cmd/traffic-intel-pp-cli",
     "go run ./cmd/traffic-intel-pp-cli --agent agent-context",
     "go run ./cmd/traffic-intel-pp-cli --agent sources doctor"
-  ]
+  ],
+  "catalog_description": "Join Google Search Console, GA4, and Ahrefs evidence into local-first page, revenue, and refresh recommendations for SEO/content operations."
 }

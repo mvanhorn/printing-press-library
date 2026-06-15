@@ -18,7 +18,7 @@
   "run_id": "20260529-212647",
   "catalog_entry": "vestaboard",
   "category": "devices",
-  "description": "Read, render, and write your Vestaboard from the terminal — with a board preview and character-code table no other Vestaboard tool ships.",
+  "description": "Read, preview, render, and write Vestaboard messages from the terminal, including character-code lookup for precise board output.",
   "mcp_binary": "vestaboard-pp-mcp",
   "mcp_tool_count": 5,
   "mcp_public_tool_count": 1,
@@ -48,5 +48,6 @@
       "command": "characters",
       "description": "Print the full Vestaboard character-code table (code to glyph) for hand-building a character-array message."
     }
-  ]
+  ],
+  "catalog_description": "Read, preview, render, and write Vestaboard messages from the terminal, including character-code lookup for precise board output."
 }

@@ -45,7 +45,7 @@ brews:
       owner: user
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "A read-mostly Marketplace CLI with local watches, seller workflow helpers, and explicit write checkpoints."
+    description: "Search, draft, publish, mirror, and monitor Facebook Marketplace listings with seller helpers and explicit write checkpoints."
     install: |
       bin.install "facebook-marketplace-pp-cli"
       bin.install "facebook-marketplace-pp-mcp"

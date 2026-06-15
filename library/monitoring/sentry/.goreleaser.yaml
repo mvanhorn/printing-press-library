@@ -45,7 +45,7 @@ brews:
       owner: cathryn-lavery
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Sentry Public API
+    description: "Inspect Sentry organizations, projects, issues, events, releases, and Seer metadata for error tracking and performance monitoring."
 
 Authentication: use an Authorization: Bearer token. The generated CLI reads SENTRY_AUTH_TOKEN for live Sentry API calls."
     install: |
