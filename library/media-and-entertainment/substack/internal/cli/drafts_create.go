@@ -168,6 +168,8 @@ Second paragraph."
 			if resolvedPath, err := c.DisplayURLForPath(path); err == nil {
 				displayPath = resolvedPath
 			}
+			// DisplayURLForPath uses the same template resolution as c.Post below; if it
+			// fails, c.Post will return that error before printing the JSON envelope.
 			var body map[string]any
 
 			if stdinBody {
