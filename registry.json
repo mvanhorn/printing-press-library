@@ -12459,7 +12459,7 @@
       "name": "ufo-goat",
       "category": "other",
       "api": "War.gov UFO",
-      "description": "Browse, search, and download declassified UAP files from the War.gov PURSUE archive",
+      "description": "Browse, search, and download declassified UAP files from the War.gov PURSUE archive, organized by government release tranche, with a configurable manifest source",
       "search_terms": [
         "ufo-goat",
         "War.gov UFO",
@@ -12484,7 +12484,17 @@
         "See which agency contributed what: file counts, types, date ranges, and coverage analysis",
         "Location Intelligence",
         "locations",
-        "Aggregate incidents by geographic location for mapping and spatial analysis"
+        "Aggregate incidents by geographic location for mapping and spatial analysis",
+        "releases",
+        "release tranche",
+        "batch",
+        "sources",
+        "configurable source",
+        "releases diff",
+        "releases check",
+        "what just dropped",
+        "Browse the archive by government release tranche",
+        "List the manifest sources the CLI can sync from"
       ],
       "path": "library/other/ufo-goat",
       "printer": "davemorin",
@@ -12503,7 +12513,9 @@
         "auth_type": "none",
         "env_vars": [],
         "mcp_ready": "full",
-        "spec_format": "internal"
+        "spec_format": "internal",
+        "manifest_checksum": "sha256:ef34a3bd193952b6e8a4dbaff370eb9595b0371d460b59aaee1bf42b0dfde4d6",
+        "manifest_url": "library/other/ufo-goat/tools-manifest.json"
       }
     },
     {

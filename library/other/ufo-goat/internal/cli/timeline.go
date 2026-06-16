@@ -14,6 +14,7 @@ import (
 func newTimelineCmd(flags *rootFlags) *cobra.Command {
 	var flagAfter string
 	var flagBefore string
+	var flagRelease int
 	var dbPath string
 
 	cmd := &cobra.Command{
@@ -50,6 +51,17 @@ Filter by date range with --after and --before.`,
 			files, err := db.GetTimeline(flagAfter, flagBefore)
 			if err != nil {
 				return err
+			}
+
+			// Optional: narrow the timeline to a single release tranche.
+			if flagRelease > 0 {
+				filtered := files[:0]
+				for _, f := range files {
+					if f.ReleaseBatch == flagRelease {
+						filtered = append(filtered, f)
+					}
+				}
+				files = filtered
 			}
 
 			if len(files) == 0 {
@@ -118,7 +130,8 @@ Filter by date range with --after and --before.`,
 
 	cmd.Flags().StringVar(&flagAfter, "after", "", "Show incidents after this date (YYYY-MM-DD)")
 	cmd.Flags().StringVar(&flagBefore, "before", "", "Show incidents before this date (YYYY-MM-DD)")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
+	cmd.Flags().IntVar(&flagRelease, "release", 0, "Limit to incidents from a specific release tranche number")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Override the synced SQLite store path (default: ~/.local/share/ufo-goat-pp-cli/data.db)")
 
 	return cmd
 }

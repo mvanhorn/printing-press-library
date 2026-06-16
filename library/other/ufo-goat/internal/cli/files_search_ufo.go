@@ -14,6 +14,7 @@ import (
 
 func newUFOFilesSearchCmd(flags *rootFlags) *cobra.Command {
 	var flagLimit int
+	var flagRelease int
 	var dbPath string
 
 	cmd := &cobra.Command{
@@ -56,6 +57,17 @@ using SQLite FTS5 full-text search. Supports stemming and prefix matching.`,
 				return fmt.Errorf("searching files: %w", err)
 			}
 
+			// Optional: restrict matches to a single release tranche.
+			if flagRelease > 0 {
+				filtered := files[:0]
+				for _, f := range files {
+					if f.ReleaseBatch == flagRelease {
+						filtered = append(filtered, f)
+					}
+				}
+				files = filtered
+			}
+
 			if len(files) == 0 {
 				fmt.Fprintf(cmd.OutOrStdout(), "No files match %q\n", query)
 				return nil
@@ -77,6 +89,10 @@ using SQLite FTS5 full-text search. Supports stemming and prefix matching.`,
 			if flags.csv {
 				data, _ := json.Marshal(files)
 				return printCSV(cmd.OutOrStdout(), json.RawMessage(data))
+			}
+			if flags.plain {
+				data, _ := json.Marshal(files)
+				return printPlain(cmd.OutOrStdout(), json.RawMessage(data))
 			}
 
 			// Table output
@@ -104,8 +120,9 @@ using SQLite FTS5 full-text search. Supports stemming and prefix matching.`,
 		},
 	}
 
-	cmd.Flags().IntVar(&flagLimit, "limit", 50, "Maximum number of results")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
+	cmd.Flags().IntVar(&flagLimit, "limit", 50, "Maximum number of matching files to return in the results")
+	cmd.Flags().IntVar(&flagRelease, "release", 0, "Limit matches to a specific release tranche number")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Override the synced SQLite store path (default: ~/.local/share/ufo-goat-pp-cli/data.db)")
 
 	return cmd
 }
