@@ -1,0 +1,6 @@
+builds:
+  - id: ads-intel-pp-cli
+    main: ./cmd/ads-intel-pp-cli
+    binary: ads-intel-pp-cli
+    goos: [darwin, linux]
+    goarch: [amd64, arm64]
