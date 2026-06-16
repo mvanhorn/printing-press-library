@@ -930,7 +930,9 @@ func scanPythonSDKNames(target string) ([]string, error) {
 		files = append(files, target)
 	}
 	names := map[string]bool{}
-	importRe := regexp.MustCompile(`from\s+claude_agent_sdk\s+import\s+([^\n#]+)`)
+	// Match both single-line imports and the common parenthesized multi-line
+	// form: `from claude_agent_sdk import (\n    A,\n    B,\n)`.
+	importRe := regexp.MustCompile(`from\s+claude_agent_sdk\s+import\s+(\([^)]*\)|[^\n#]+)`)
 	qualifiedRe := regexp.MustCompile(`claude_agent_sdk\.([A-Za-z_][A-Za-z0-9_]*)`)
 	for _, file := range files {
 		info, err := os.Stat(file)
@@ -946,7 +948,11 @@ func scanPythonSDKNames(target string) ([]string, error) {
 		}
 		text := string(data)
 		for _, m := range importRe.FindAllStringSubmatch(text, -1) {
-			for _, part := range strings.Split(m[1], ",") {
+			clause := strings.Trim(m[1], "()")
+			for _, part := range strings.Split(clause, ",") {
+				// Drop any trailing line comment, then take the bound name
+				// (left of " as ") and strip surrounding whitespace/newlines.
+				part = strings.SplitN(part, "#", 2)[0]
 				name := strings.TrimSpace(strings.Split(part, " as ")[0])
 				if name != "" && name != "*" {
 					names[name] = true
