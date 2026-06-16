@@ -20,9 +20,10 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
+
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/config"
-	"time"
 )
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"
@@ -569,7 +570,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			if ctxErr := ctx.Err(); ctxErr != nil {
 				return nil, 0, ctxErr
 			}
-			lastErr = fmt.Errorf("%s %s: %w", method, c.displayURL(path, authHeader), c.maskError(err, authHeader))
+			lastErr = fmt.Errorf("%s %s: %w", method, c.displayURL(targetURL, authHeader), c.maskError(err, authHeader))
 			continue
 		}
 
@@ -605,7 +606,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 
 		apiErr := &APIError{
 			Method:     method,
-			Path:       c.displayURL(path, authHeader),
+			Path:       c.displayURL(targetURL, authHeader),
 			StatusCode: resp.StatusCode,
 			Body:       c.maskCredentialText(truncateBody(respBody), authHeader),
 		}
