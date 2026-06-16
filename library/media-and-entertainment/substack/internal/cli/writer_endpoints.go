@@ -126,9 +126,9 @@ func publicationIDFromProfile(raw []byte, subdomain string) (string, error) {
 			if !ok {
 				continue
 			}
-			id := jsonNumberString(pub["id"])
+			id := jsonNumberString(pub["publication_id"])
 			if id == "" {
-				id = jsonNumberString(pub["publication_id"])
+				id = jsonNumberString(pub["id"])
 			}
 			if id != "" && publicationMatchesSubdomain(pub, wantSubdomain) {
 				return id, nil

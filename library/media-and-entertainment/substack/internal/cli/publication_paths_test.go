@@ -8,8 +8,11 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 )
+
+var processStderrMu sync.Mutex
 
 func TestRootCmdRegistersSubdomainFlag(t *testing.T) {
 	t.Parallel()
@@ -71,8 +74,7 @@ func TestDraftCreateDryRunJSONReportsGlobalWriterURL(t *testing.T) {
 func TestImagesDryRunUsesGlobalUploadEndpoint(t *testing.T) {
 	t.Setenv("SUBSTACK_CONFIG", filepath.Join(t.TempDir(), "missing.toml"))
 
-	stderr, restore := captureProcessStderr(t)
-	defer restore()
+	restoreStderr := captureProcessStderr(t)
 
 	root := RootCmd()
 	var stdout, cmdStderr bytes.Buffer
@@ -87,9 +89,10 @@ func TestImagesDryRunUsesGlobalUploadEndpoint(t *testing.T) {
 	})
 
 	if err := root.Execute(); err != nil {
-		t.Fatalf("execute dry-run: %v; cmd stderr=%s; process stderr=%s", err, cmdStderr.String(), stderr())
+		got := restoreStderr()
+		t.Fatalf("execute dry-run: %v; cmd stderr=%s; process stderr=%s", err, cmdStderr.String(), got)
 	}
-	got := stderr()
+	got := restoreStderr()
 	if !strings.Contains(got, "POST https://substack.com/api/v1/image") {
 		t.Fatalf("stderr = %q, want global image upload endpoint", got)
 	}
@@ -143,11 +146,24 @@ func TestPublicationIDFromProfileMatchesPrimaryPublication(t *testing.T) {
 	}
 }
 
-func captureProcessStderr(t *testing.T) (func() string, func()) {
+func TestPublicationIDFromProfilePrefersPublicationID(t *testing.T) {
+	raw := []byte(`{"publicationUsers":[{"id":111,"publication_id":7019888,"subdomain":"trevinsays"}]}`)
+	got, err := publicationIDFromProfile(raw, "trevinsays")
+	if err != nil {
+		t.Fatalf("publicationIDFromProfile returned error: %v", err)
+	}
+	if got != "7019888" {
+		t.Fatalf("publication id = %q, want publication_id 7019888 instead of row id 111", got)
+	}
+}
+
+func captureProcessStderr(t *testing.T) func() string {
 	t.Helper()
+	processStderrMu.Lock()
 	old := os.Stderr
 	r, w, err := os.Pipe()
 	if err != nil {
+		processStderrMu.Unlock()
 		t.Fatalf("pipe stderr: %v", err)
 	}
 	os.Stderr = w
@@ -157,13 +173,14 @@ func captureProcessStderr(t *testing.T) (func() string, func()) {
 		_, _ = buf.ReadFrom(r)
 		close(done)
 	}()
-	restore := func() {
+	return func() string {
 		_ = w.Close()
 		os.Stderr = old
 		<-done
 		_ = r.Close()
+		processStderrMu.Unlock()
+		return buf.String()
 	}
-	return buf.String, restore
 }
 
 func TestSyncResourcePathPublicationScopedResourcesUsePublicationHost(t *testing.T) {
