@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "agent-index-files",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260509-190854",
+  "base_printing_press_version": "4.2.0",
+  "summary": "Preserve an agent-facing file index command that generates known-files maps from Figma project/team metadata without indexing stale node trees.",
+  "reason": "Agents need to resolve human file names to file keys across large teams; the durable behavior is read-only project/team listing plus a strictly additive local known-files merge that preserves operator notes.",
+  "files": [
+    "internal/cli/agent.go",
+    "internal/cli/agent_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go test ./internal/cli passes with fake project/team servers covering project indexing, team walks, alias collisions, and additive --merge-into behavior."
+}
