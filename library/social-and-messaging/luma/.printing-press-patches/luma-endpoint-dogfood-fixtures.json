@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "luma-endpoint-dogfood-fixtures",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260616-093926-b732f35f",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Add pp:happy-args fixtures to events get / places get / places calendars, a require-one-selector guard to places get, and pp:no-error-path-probe to tail.",
+  "reason": "Live dogfood synthesized placeholder ids/UUIDs the API 4xx-rejects; these endpoints need real fixtures. places get with no selector returned an opaque API 400 instead of a usage error; tail tolerates an initial fetch failure by design.",
+  "files": ["internal/cli/events_get.go", "internal/cli/places_get.go", "internal/cli/places_calendars.go", "internal/cli/tail.go"],
+  "validated_outcome": "Full live dogfood 76/76 after fixtures + guard.",
+  "upstream_issue": ""
+}

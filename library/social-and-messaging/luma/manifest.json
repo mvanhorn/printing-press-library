@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "luma-pp-mcp",
+  "display_name": "Luma",
+  "version": "0.0.0",
+  "description": "Browse, search, and export public Luma events from one Go binary — no account, no API key, plus offline full-text search the public API doesn't have.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/luma-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/luma-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
