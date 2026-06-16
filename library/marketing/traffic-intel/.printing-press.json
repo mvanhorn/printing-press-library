@@ -83,12 +83,12 @@
     {
       "name": "Opportunity gap",
       "command": "opportunity-gap",
-      "description": "opportunity-gap ranks high-impression near-ranking pages by expected CTR gap, GA4 business value, and Ahrefs link context"
+      "description": "opportunity-gap ranks high-impression near-ranking pages by expected CTR gap, GA4 business value, and Ahrefs link context, with explicit defend/move Strike Zone/ignore labels"
     },
     {
       "name": "Quick wins",
       "command": "quick-wins",
-      "description": "quick-wins surfaces near-page-one pages with weak CTR and conversion or revenue value"
+      "description": "quick-wins surfaces near-page-one pages with weak CTR and conversion or revenue value, with explicit defend/move Strike Zone/ignore labels"
     },
     {
       "name": "Revenue at risk",
@@ -138,7 +138,7 @@
     {
       "name": "Weekly digest",
       "command": "digest weekly",
-      "description": "digest weekly leads with movers and produces a local-first traffic and revenue summary that handles empty datasets cleanly"
+      "description": "digest weekly leads with status header, date-range fallback, movers, and a local-first traffic and revenue summary"
     }
   ],
   "sources": [

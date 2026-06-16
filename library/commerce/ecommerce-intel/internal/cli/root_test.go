@@ -96,8 +96,22 @@ func TestSyncAndCommerceCommands(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if strings.Contains(opps, "%!s(<nil>)") || !strings.Contains(opps, "inventory	") {
+	if strings.Contains(opps, "%!s(<nil>)") || !strings.Contains(opps, "Fix-first	inventory	") {
 		t.Fatalf("opportunities formatting/type regression: %s", opps)
+	}
+	got, err = run(t, home, "--profile", "demo", "--agent", "dashboard")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"status_header"`) || !strings.Contains(got, `"date_range_used"`) {
+		t.Fatalf("dashboard missing status header: %s", got)
+	}
+	got, err = run(t, home, "--profile", "demo", "--agent", "action-plan")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"tier"`) || !strings.Contains(got, `"dependencies"`) || !strings.Contains(got, `"status_header"`) {
+		t.Fatalf("action plan missing tiers/dependencies/status: %s", got)
 	}
 	if _, err := run(t, filepath.Join(home, "missing"), "money-products"); err == nil {
 		t.Fatal("expected missing data error")

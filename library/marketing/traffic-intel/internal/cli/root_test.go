@@ -183,6 +183,9 @@ func TestSyncWritesProvenanceSnapshotsAndMovers(t *testing.T) {
 	if !strings.Contains(got, `"movers"`) || !strings.Contains(got, `"recommended_next_command":"traffic-intel-pp-cli movers --profile custom"`) {
 		t.Fatalf("digest did not lead with movers: %s", got)
 	}
+	if !strings.Contains(got, `"status_header"`) || !strings.Contains(got, `"date_range_used"`) {
+		t.Fatalf("digest missing status header: %s", got)
+	}
 }
 
 func TestNovelCommandsUseCrossSourceSignals(t *testing.T) {
@@ -312,6 +315,14 @@ func TestNovelCommandsUseCrossSourceSignals(t *testing.T) {
 	}
 	if !strings.Contains(got, `"estimated_click_gain"`) || !strings.Contains(got, `"estimated_revenue_gain"`) {
 		t.Fatalf("forecast impact missing estimates: %s", got)
+	}
+
+	got, err = run(t, home, "--profile", "custom", "--agent", "opportunity-gap")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"strike_zone_filter"`) || !strings.Contains(got, `move_5_20_strike_zone`) {
+		t.Fatalf("opportunity gap missing Strike Zone framing: %s", got)
 	}
 
 	got, err = run(t, home, "--profile", "custom", "--agent", "stale-winners")

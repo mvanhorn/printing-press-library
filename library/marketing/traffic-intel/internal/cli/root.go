@@ -902,15 +902,16 @@ func opportunityGapCmd(f *rootFlags) *cobra.Command {
 		}
 		ps := sortedPages(d, opportunityScore)
 		rows := []map[string]any{}
-		lines := []string{"url\tscore\tposition\tctr_gap\trevenue\tquery"}
+		lines := []string{"url\tscore\tposition\tstrike_zone_filter\tctr_gap\trevenue\tquery"}
 		for _, p := range ps {
 			score := opportunityScore(p)
 			if score <= 0 {
 				continue
 			}
 			row := pageOpportunityRow(p, len(rows)+1, score)
+			row["strike_zone_filter"] = strikeZoneLabel(p.Position)
 			rows = append(rows, row)
-			lines = append(lines, fmt.Sprintf("%s\t%.1f\t%.1f\t%.3f\t%.2f\t%s", p.URL, score, p.Position, ctrGap(p), p.Revenue, primaryTopic(p)))
+			lines = append(lines, fmt.Sprintf("%s\t%.1f\t%.1f\t%s\t%.3f\t%.2f\t%s", p.URL, score, p.Position, row["strike_zone_filter"], ctrGap(p), p.Revenue, primaryTopic(p)))
 			if limit > 0 && len(rows) >= limit {
 				break
 			}
@@ -930,7 +931,7 @@ func quickWinsCmd(f *rootFlags) *cobra.Command {
 		}
 		ps := sortedPages(d, quickWinScore)
 		rows := []map[string]any{}
-		lines := []string{"url\tscore\tposition\tctr\texpected_ctr\tnext_action"}
+		lines := []string{"url\tscore\tposition\tstrike_zone_filter\tctr\texpected_ctr\tnext_action"}
 		for _, p := range ps {
 			score := quickWinScore(p)
 			if score <= 0 {
@@ -938,21 +939,22 @@ func quickWinsCmd(f *rootFlags) *cobra.Command {
 			}
 			expected := expectedCTR(p.Position)
 			row := map[string]any{
-				"rank":         len(rows) + 1,
-				"url":          p.URL,
-				"title":        p.Title,
-				"query":        primaryTopic(p),
-				"score":        score,
-				"position":     p.Position,
-				"ctr":          normalizedCTR(p.CTR),
-				"expected_ctr": expected,
-				"ctr_gap":      ctrGap(p),
-				"revenue":      p.Revenue,
-				"conversions":  p.Conversions,
-				"next_action":  "test title/meta angle, add internal links, and refresh above-the-fold answer",
+				"rank":               len(rows) + 1,
+				"url":                p.URL,
+				"title":              p.Title,
+				"query":              primaryTopic(p),
+				"score":              score,
+				"position":           p.Position,
+				"ctr":                normalizedCTR(p.CTR),
+				"expected_ctr":       expected,
+				"ctr_gap":            ctrGap(p),
+				"revenue":            p.Revenue,
+				"conversions":        p.Conversions,
+				"strike_zone_filter": strikeZoneLabel(p.Position),
+				"next_action":        "test title/meta angle, add internal links, and refresh above-the-fold answer",
 			}
 			rows = append(rows, row)
-			lines = append(lines, fmt.Sprintf("%s\t%.1f\t%.1f\t%.3f\t%.3f\t%s", p.URL, score, p.Position, normalizedCTR(p.CTR), expected, row["next_action"]))
+			lines = append(lines, fmt.Sprintf("%s\t%.1f\t%.1f\t%s\t%.3f\t%.3f\t%s", p.URL, score, p.Position, row["strike_zone_filter"], normalizedCTR(p.CTR), expected, row["next_action"]))
 			if limit > 0 && len(rows) >= limit {
 				break
 			}
@@ -1321,7 +1323,8 @@ func digestCmd(f *rootFlags) *cobra.Command {
 			topMoneyPage = sortedPages(d, func(p store.PageMetrics) float64 { return p.Revenue })[0].URL
 		}
 		confidence := confidenceForData(d)
-		digest := map[string]any{"profile": d.Profile, "synced_at": d.SyncedAt, "pages": len(d.Pages), "clicks": clicks, "sessions": sessions, "revenue": revenue, "top_money_page": topMoneyPage, "recommended_next_command": "traffic-intel-pp-cli movers --profile " + d.Profile, "confidence": confidence}
+		header := statusHeader(d, "digest weekly", "read-only")
+		digest := map[string]any{"profile": d.Profile, "synced_at": d.SyncedAt, "pages": len(d.Pages), "clicks": clicks, "sessions": sessions, "revenue": revenue, "top_money_page": topMoneyPage, "recommended_next_command": "traffic-intel-pp-cli movers --profile " + d.Profile, "confidence": confidence, "status_header": header}
 		moverLine := "movers: no prior snapshot yet"
 		if snaps, err := st(f).LatestSnapshots(f.profile, 2); err == nil && len(snaps) > 1 {
 			movers := buildMovers(snaps[0], snaps[1], 5)
@@ -1331,7 +1334,9 @@ func digestCmd(f *rootFlags) *cobra.Command {
 		if len(d.Pages) == 0 {
 			digest["note"] = "no pages in local dataset; run sync --import with page metrics or sync without --import for the fixture"
 		}
-		return out(cmd, f, digest, fmt.Sprintf("Weekly digest for %s\nAct on what's already moving.\nconfidence: %s\n%s\npages: %d\nclicks: %d\nsessions: %d\nrevenue: %.2f\ntop money page: %s\n", d.Profile, confidence.Summary, moverLine, len(d.Pages), clicks, sessions, revenue, topMoneyPage))
+		lines := append([]string{"Weekly digest for " + d.Profile}, statusHuman(header)...)
+		lines = append(lines, "Act on what's already moving.", moverLine, fmt.Sprintf("pages: %d", len(d.Pages)), fmt.Sprintf("clicks: %d", clicks), fmt.Sprintf("sessions: %d", sessions), fmt.Sprintf("revenue: %.2f", revenue), fmt.Sprintf("top money page: %s", topMoneyPage))
+		return out(cmd, f, digest, strings.Join(lines, "\n")+"\n")
 	}})
 	return cmd
 }

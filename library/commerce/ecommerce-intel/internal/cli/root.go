@@ -356,8 +356,11 @@ func dashboardCmd(f *rootFlags) *cobra.Command {
 		}
 		revenue, prev := totals(d)
 		risk := inventoryRisks(d)
-		res := map[string]any{"profile": d.Profile, "revenue": revenue, "previous_revenue": prev, "revenue_delta": revenue - prev, "products": len(d.Products), "pages": len(d.Pages), "categories": len(d.Categories), "email_flows": len(d.Emails), "inventory_risks": len(risk), "geo_score": geoScore(d)}
-		return out(cmd, f, res, fmt.Sprintf("Revenue %.2f (delta %.2f)\nproducts: %d\ninventory risks: %d\nGEO score: %d\n", revenue, revenue-prev, len(d.Products), len(risk), geoScore(d)))
+		header := statusHeader(d, "dashboard", "read-only")
+		res := map[string]any{"profile": d.Profile, "status_header": header, "revenue": revenue, "previous_revenue": prev, "revenue_delta": revenue - prev, "products": len(d.Products), "pages": len(d.Pages), "categories": len(d.Categories), "email_flows": len(d.Emails), "inventory_risks": len(risk), "geo_score": geoScore(d)}
+		lines := append([]string{"Dashboard"}, statusHuman(header)...)
+		lines = append(lines, fmt.Sprintf("Revenue %.2f (delta %.2f)", revenue, revenue-prev), fmt.Sprintf("products: %d", len(d.Products)), fmt.Sprintf("inventory risks: %d", len(risk)), fmt.Sprintf("GEO score: %d", geoScore(d)))
+		return out(cmd, f, res, strings.Join(lines, "\n")+"\n")
 	}}
 }
 func opportunitiesCmd(f *rootFlags) *cobra.Command {
@@ -368,12 +371,14 @@ func opportunitiesCmd(f *rootFlags) *cobra.Command {
 			return err
 		}
 		rows := opps(d)
+		confidence := confidenceForData(d)
+		decorateOpportunityRows(rows, confidence)
 		if limit > 0 && len(rows) > limit {
 			rows = rows[:limit]
 		}
-		lines := []string{"type\ttarget\timpact\taction"}
+		lines := []string{"tier\ttype\ttarget\timpact\tdependencies\taction"}
 		for _, r := range rows {
-			lines = append(lines, fmt.Sprintf("%s\t%s\t%.1f\t%s", r["type"], r["target"], r["impact"], r["action"]))
+			lines = append(lines, fmt.Sprintf("%s\t%s\t%s\t%.1f\t%s\t%s", r["tier"], r["type"], r["target"], r["impact"], strings.Join(r["dependencies"].([]string), ","), r["action"]))
 		}
 		return out(cmd, f, rows, strings.Join(lines, "\n")+"\n")
 	}}
@@ -387,15 +392,21 @@ func actionPlanCmd(f *rootFlags) *cobra.Command {
 			return err
 		}
 		rows := opps(d)
+		confidence := confidenceForData(d)
+		decorateOpportunityRows(rows, confidence)
+		header := statusHeader(d, "action-plan", "read-only")
 		plan := []map[string]any{}
 		for i, r := range rows {
 			if i >= 7 {
 				break
 			}
 			r["day"] = i + 1
+			r["status_header"] = header
 			plan = append(plan, r)
 		}
-		return out(cmd, f, plan, fmt.Sprintf("7-day plan with %d actions\n", len(plan)))
+		lines := append([]string{"7-day action plan"}, statusHuman(header)...)
+		lines = append(lines, fmt.Sprintf("actions: %d", len(plan)), "tiers: Fix-first -> Quick-win -> Strategic -> Refinement")
+		return out(cmd, f, plan, strings.Join(lines, "\n")+"\n")
 	}}
 }
 func moneyPagesCmd(f *rootFlags) *cobra.Command {
@@ -592,6 +603,8 @@ func digestCmd(f *rootFlags) *cobra.Command {
 		rev, prev := totals(d)
 		confidence := confidenceForData(d)
 		digest := map[string]any{"profile": d.Profile, "synced_at": d.SyncedAt, "revenue": rev, "previous_revenue": prev, "revenue_delta": rev - prev, "top_product": "", "inventory_risks": len(inventoryRisks(d)), "geo_score": geoScore(d), "recommended_next_command": "ecommerce-intel-pp-cli movers --profile " + d.Profile, "confidence": confidence}
+		header := statusHeader(d, "digest weekly", "read-only")
+		digest["status_header"] = header
 		moverLine := "movers: no prior snapshot yet"
 		if snaps, err := st(f).LatestSnapshots(f.profile, 2); err == nil && len(snaps) > 1 {
 			movers := buildMovers(snaps[0], snaps[1], 5)
@@ -603,7 +616,9 @@ func digestCmd(f *rootFlags) *cobra.Command {
 			sort.Slice(ps, func(i, j int) bool { return ps[i].Revenue > ps[j].Revenue })
 			digest["top_product"] = ps[0].Handle
 		}
-		return out(cmd, f, digest, fmt.Sprintf("Weekly ecommerce digest for %s\nAct on what's already moving.\nconfidence: %s\n%s\nrevenue: %.2f\ndelta: %.2f\ntop product: %s\nGEO score: %d\n", d.Profile, confidence.Summary, moverLine, rev, rev-prev, digest["top_product"], geoScore(d)))
+		lines := append([]string{"Weekly ecommerce digest for " + d.Profile}, statusHuman(header)...)
+		lines = append(lines, "Act on what's already moving.", moverLine, fmt.Sprintf("revenue: %.2f", rev), fmt.Sprintf("delta: %.2f", rev-prev), fmt.Sprintf("top product: %s", digest["top_product"]), fmt.Sprintf("GEO score: %d", geoScore(d)))
+		return out(cmd, f, digest, strings.Join(lines, "\n")+"\n")
 	}})
 	return cmd
 }

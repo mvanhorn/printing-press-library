@@ -131,3 +131,54 @@ func missingEvidenceRow(kind string, p store.PageMetrics) map[string]any {
 func canComputeDerived(p store.PageMetrics) bool {
 	return p.Impressions > 0 && p.Revenue > 0
 }
+
+func statusHeader(d store.DataSet, command, mode string) map[string]any {
+	confidence := confidenceForData(d)
+	requested, used, reason := analysisWindow(len(d.Pages))
+	return map[string]any{
+		"profile":          d.Profile,
+		"command":          command,
+		"mode":             mode,
+		"synced_at":        d.SyncedAt,
+		"date_range":       d.Provenance.DateRange,
+		"date_range_used":  used,
+		"range_fallback":   map[string]any{"requested": requested, "used": used, "reason": reason},
+		"source_coverage":  confidence.SourceCoverage,
+		"confidence_level": confidence.Level,
+		"confidence_score": confidence.Score,
+	}
+}
+
+func statusHuman(header map[string]any) []string {
+	fallback := header["range_fallback"].(map[string]any)
+	return []string{
+		fmt.Sprintf("profile: %s", header["profile"]),
+		fmt.Sprintf("mode: %s", header["mode"]),
+		fmt.Sprintf("date range used: %s (%s)", header["date_range_used"], fallback["reason"]),
+		fmt.Sprintf("confidence: %s/%v", header["confidence_level"], header["confidence_score"]),
+		fmt.Sprintf("source coverage: %v", header["source_coverage"]),
+	}
+}
+
+func analysisWindow(entities int) (string, string, string) {
+	requested := "last_30d"
+	switch {
+	case entities < 3:
+		return requested, "last_12mo", "thin sample; widened from 30d to 12mo"
+	case entities < 10:
+		return requested, "last_90d", "thin sample; widened from 30d to 90d"
+	default:
+		return requested, requested, "30d sample is sufficient"
+	}
+}
+
+func strikeZoneLabel(position float64) string {
+	switch {
+	case position > 0 && position < 5:
+		return "defend_1_4"
+	case position >= 5 && position <= 20:
+		return "move_5_20_strike_zone"
+	default:
+		return "ignore_21_plus"
+	}
+}

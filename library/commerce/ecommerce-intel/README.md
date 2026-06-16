@@ -44,8 +44,8 @@ Environment variables are presence-checked only: `ECOMMERCE_INTEL_HOME`, `SHOPIF
 - `movers` — snapshot diff for commerce climbers, droppers, new Strike Zone entrants, and new revenue-at-risk products/pages/categories
 - `confidence` — High/Medium/Low/Broken trust score with source coverage, freshness, tracking, and schema checks
 - `dashboard` — KPI overview
-- `opportunities` — prioritized revenue/SEO/email/inventory/GEO opportunities
-- `action-plan` — 7-day action plan
+- `opportunities` — prioritized revenue/SEO/email/inventory/GEO opportunities tiered as Fix-first, Quick-win, Strategic, or Refinement with dependencies
+- `action-plan` — 7-day action plan with profile/date-range/source-coverage/confidence/mode status header and tiered dependencies
 - `money-pages` — rank pages by revenue
 - `money-products` — rank products by revenue and margin
 - `query-revenue` — revenue lookup by product/page/category query
@@ -61,7 +61,9 @@ Environment variables are presence-checked only: `ECOMMERCE_INTEL_HOME`, `SHOPIF
 - `restock-winners` — high-margin, high-velocity products to protect before stockout or decay
 - `cannibalization` — substitute/duplicate products competing for the same query or category
 - `category-clusters` — collection-level revenue, sessions, clicks, backlinks, and decay rollups
-- `digest weekly` — mover-led weekly executive digest
+- `digest weekly` — mover-led weekly executive digest with profile/date-range/source-coverage/confidence/mode status header
+
+`dashboard`, `action-plan`, and `digest weekly` include a status header with profile, date range used, source coverage, confidence, and mode. Reports start from a 30-day window, widen to 90 days or 12 months when the local sample is thin, and announce the range used.
 - `geo-audit` — llms.txt, structured data, product facts, buying guides, ChatGPT, Perplexity, and Google AI Overviews readiness
 
 ## GEO / answer-engine readiness

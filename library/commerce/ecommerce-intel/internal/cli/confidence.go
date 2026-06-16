@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -143,4 +144,88 @@ func productMissingEvidenceRow(kind string, p store.Product) map[string]any {
 
 func canComputeProductDerived(p store.Product) bool {
 	return p.Revenue > 0 && (p.SearchClicks > 0 || p.SearchPosition > 0)
+}
+
+func statusHeader(d store.DataSet, command, mode string) map[string]any {
+	confidence := confidenceForData(d)
+	entities := len(d.Products) + len(d.Pages) + len(d.Categories) + len(d.Emails)
+	requested, used, reason := analysisWindow(entities)
+	return map[string]any{
+		"profile":          d.Profile,
+		"command":          command,
+		"mode":             mode,
+		"synced_at":        d.SyncedAt,
+		"date_range":       d.Provenance.DateRange,
+		"date_range_used":  used,
+		"range_fallback":   map[string]any{"requested": requested, "used": used, "reason": reason},
+		"source_coverage":  confidence.SourceCoverage,
+		"confidence_level": confidence.Level,
+		"confidence_score": confidence.Score,
+	}
+}
+
+func statusHuman(header map[string]any) []string {
+	fallback := header["range_fallback"].(map[string]any)
+	return []string{
+		fmt.Sprintf("profile: %s", header["profile"]),
+		fmt.Sprintf("mode: %s", header["mode"]),
+		fmt.Sprintf("date range used: %s (%s)", header["date_range_used"], fallback["reason"]),
+		fmt.Sprintf("confidence: %s/%v", header["confidence_level"], header["confidence_score"]),
+		fmt.Sprintf("source coverage: %v", header["source_coverage"]),
+	}
+}
+
+func analysisWindow(entities int) (string, string, string) {
+	requested := "last_30d"
+	switch {
+	case entities < 3:
+		return requested, "last_12mo", "thin sample; widened from 30d to 12mo"
+	case entities < 10:
+		return requested, "last_90d", "thin sample; widened from 30d to 90d"
+	default:
+		return requested, requested, "30d sample is sufficient"
+	}
+}
+
+func decorateOpportunityRows(rows []map[string]any, confidence intelcli.ConfidenceReport) {
+	for _, row := range rows {
+		tier := "Refinement"
+		deps := []string{}
+		switch row["type"] {
+		case "inventory", "revenue-drop":
+			tier = "Fix-first"
+		case "email":
+			tier = "Quick-win"
+		case "geo":
+			tier = "Strategic"
+		}
+		if confidence.BlocksDerivedMetrics() {
+			deps = append(deps, "close tracking gap before trusting forecast magnitude")
+		}
+		if row["type"] == "geo" {
+			deps = append(deps, "confirm product facts and structured data before scaling content recommendations")
+		}
+		row["tier"] = tier
+		row["dependencies"] = deps
+	}
+	sort.SliceStable(rows, func(i, j int) bool {
+		left, right := tierOrder(fmt.Sprint(rows[i]["tier"])), tierOrder(fmt.Sprint(rows[j]["tier"]))
+		if left == right {
+			return asFloat(rows[i]["impact"]) > asFloat(rows[j]["impact"])
+		}
+		return left < right
+	})
+}
+
+func tierOrder(tier string) int {
+	switch tier {
+	case "Fix-first":
+		return 0
+	case "Quick-win":
+		return 1
+	case "Strategic":
+		return 2
+	default:
+		return 3
+	}
 }

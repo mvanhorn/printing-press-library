@@ -57,6 +57,8 @@ Child CLI JSON must include a supported `schema_version`; unknown or missing chi
 
 Every sync preserves the latest `<profile>-data.json` file and appends a dated snapshot under `snapshots/<profile>/` with schema version, source command versions, date range, and input hashes. Retention keeps daily snapshots for 30 days and weekly snapshots after that. Mover and outcome notes append to `learnings/<profile>.md`.
 
+`dashboard`, `action-plan`, and `digest weekly` include a status header with profile, date range used, source coverage, confidence, and mode. `opportunities` and `action-plan` tier rows as Fix-first, Quick-win, Strategic, or Refinement and include dependency notes such as closing tracking gaps before trusting forecasts.
+
 ```bash
 ecommerce-intel-pp-cli sync --profile store --source shopify --shop example.myshopify.com
 ecommerce-intel-pp-cli sync --profile store --source gsc --site sc-domain:example.com

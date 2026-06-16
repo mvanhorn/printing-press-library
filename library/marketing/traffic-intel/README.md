@@ -82,8 +82,8 @@ Child CLI output must include a supported `schema_version` before it can feed co
 
 - `movers` diffs the latest snapshot against the previous snapshot for climbers, droppers, new Strike Zone entrants (GSC position 5-20), and new revenue-at-risk pages.
 - `confidence` scores the profile as High, Medium, Low, or Broken from source coverage, freshness, sample size, revenue/conversion/search evidence, and tracking/schema checks.
-- `opportunity-gap` ranks high-impression pages in positions 4-20 where CTR trails the expected curve and GA4/Ahrefs value makes the upside worth chasing.
-- `quick-wins` surfaces near-page-one pages with weak CTR and conversion or revenue value.
+- `opportunity-gap` ranks high-impression pages in positions 4-20 where CTR trails the expected curve and GA4/Ahrefs value makes the upside worth chasing; each row labels defend 1-4 / move 5-20 Strike Zone / ignore 21+.
+- `quick-wins` surfaces near-page-one pages with weak CTR and conversion or revenue value; each row labels defend 1-4 / move 5-20 Strike Zone / ignore 21+.
 - `revenue-at-risk` ranks pages where lost clicks, sessions, or revenue overlap with meaningful commercial value.
 - `refresh-brief <url-or-topic>` generates an agent-ready page brief with likely issue, metrics, recommended actions, and follow-up commands.
 - `cannibalization` groups pages competing for the same query/topic and recommends a canonical URL.
@@ -93,7 +93,7 @@ Child CLI output must include a supported `schema_version` before it can feed co
 - `experiment-plan <url-or-topic>` turns one page into title, meta, content, and measurement tests.
 - `forecast-impact` estimates click, conversion, and revenue upside from closing CTR gaps.
 - `stale-winners` finds valuable pages to refresh before visible decline.
-- `digest weekly` leads with movers and recommends acting on pages already changing.
+- `digest weekly` leads with a status header, movers, date-range fallback used, and recommends acting on pages already changing.
 
 ## Import format
 

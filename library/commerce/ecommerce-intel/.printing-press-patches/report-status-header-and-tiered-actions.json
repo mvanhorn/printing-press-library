@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "report-status-header-and-tiered-actions",
+  "applied_at": "2026-06-16",
+  "base_run_id": "ecommerce-intel-20260615",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Ecommerce dashboard, action plan, and digest reports must lead with status context while opportunities/action plans use tiered priorities and dependencies.",
+  "reason": "Agents need profile, range, coverage, confidence, and mode before acting on reports, and ecommerce actions should be presented as Fix-first, Quick-win, Strategic, or Refinement with dependencies surfaced.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/confidence.go"
+  ],
+  "validated_outcome": "go test ./... covers dashboard/action-plan status headers and opportunity tiers."
+}

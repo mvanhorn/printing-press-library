@@ -63,4 +63,6 @@ Child CLI JSON must include a supported `schema_version`; unknown or missing chi
 - `experiment-plan <url-or-topic>` — title, meta, content, and measurement tests for one page.
 - `forecast-impact` — confidence-gated estimated click, conversion, and revenue upside from CTR-gap closure.
 - `stale-winners` — high-value pages to refresh before visible decay.
-- `digest weekly` — mover-led weekly summary; safe for empty datasets.
+- `digest weekly` — mover-led weekly summary with profile, date-range fallback, source coverage, confidence, and mode; safe for empty datasets.
+
+`opportunity-gap` and `quick-wins` label every row with defend 1-4, move 5-20 Strike Zone, or ignore 21+ framing. This is presentation-only; it does not change the scoring math.

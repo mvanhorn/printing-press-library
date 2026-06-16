@@ -36,7 +36,7 @@
     {"name": "Snapshot movers", "command": "movers", "description": "diffs the latest commerce snapshot against the previous snapshot for climbers, droppers, new Strike Zone entrants, and new revenue-at-risk products/pages/categories while appending learnings"},
     {"name": "Confidence gate", "command": "confidence", "description": "scores source coverage, freshness, sample size, revenue/conversion/search evidence, tracking checks, and child schema support before derived metrics are trusted"},
     {"name": "Money products", "command": "money-products", "description": "ranks products by revenue and margin with inventory and SEO context"},
-    {"name": "Opportunity queue", "command": "opportunities", "description": "prioritizes revenue, inventory, email, category, product, and GEO actions"},
+    {"name": "Opportunity queue", "command": "opportunities", "description": "prioritizes revenue, inventory, email, category, product, and GEO actions into Fix-first, Quick-win, Strategic, and Refinement tiers with dependencies"},
     {"name": "GEO audit", "command": "geo-audit", "description": "assesses llms.txt, structured data, product facts, buying guides, and ChatGPT/Perplexity/AI Overviews readiness"},
     {"name": "Inventory risk", "command": "inventory-risk", "description": "flags stockouts and low days-of-stock that threaten revenue"},
     {"name": "Source coverage", "command": "source-coverage", "description": "audits product, page, category, and email-flow evidence across Shopify, Klaviyo, GA4, GSC, and Ahrefs"},
@@ -46,7 +46,7 @@
     {"name": "Restock winners", "command": "restock-winners", "description": "prioritizes high-margin, high-velocity products before stockout or decay"},
     {"name": "Cannibalization", "command": "cannibalization", "description": "detects products competing for the same query/category and recommends a canonical product"},
     {"name": "Category clusters", "command": "category-clusters", "description": "aggregates revenue, sessions, clicks, backlinks, and decay by collection"},
-    {"name": "Weekly digest", "command": "digest weekly", "description": "leads with movers and produces a compact weekly ecommerce summary"}
+    {"name": "Weekly digest", "command": "digest weekly", "description": "leads with status header, date-range fallback, movers, and a compact weekly ecommerce summary"}
   ],
   "sources": [
     {"name": "shopify", "child_binary": "shopify-pp-cli", "planned_command": "shopify-pp-cli products list --agent --all --data-source live", "env": ["SHOPIFY_SHOP", "SHOPIFY_ACCESS_TOKEN"]},
