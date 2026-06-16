@@ -18,6 +18,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -28,6 +29,9 @@ const (
 	maxVerifyFileSize   = 5 * 1024 * 1024
 	maxVerifyFiles      = 10000
 	maxVerifyDepth      = 20
+
+	// maxDocsFetchConcurrency bounds simultaneous docs-page HTTP requests.
+	maxDocsFetchConcurrency = 4
 )
 
 type docsPage struct {
@@ -436,6 +440,21 @@ func runDocsAuditLinks(cmd *cobra.Command, flags *rootFlags) error {
 	return emitDocsView(cmd, flags, map[string]any{"broken_links": broken, "checked_pages": len(corpus.Pages)})
 }
 
+// docsBaselinePath returns the per-user path for the diff baseline. It prefers
+// the user cache dir (0700) so the file is not world-readable or clobberable by
+// other users on a shared machine, falling back to the temp dir only if no
+// cache dir is available.
+func docsBaselinePath() string {
+	const name = "claude-agent-sdk-python-docs-pp-cli-baseline.json"
+	if dir, err := os.UserCacheDir(); err == nil {
+		appDir := filepath.Join(dir, "claude-agent-sdk-python-docs-pp-cli")
+		if mkErr := os.MkdirAll(appDir, 0700); mkErr == nil {
+			return filepath.Join(appDir, name)
+		}
+	}
+	return filepath.Join(os.TempDir(), name)
+}
+
 func runDocsDiff(cmd *cobra.Command, flags *rootFlags, since string) error {
 	ctx, cancel := boundCtx(cmd.Context(), flags)
 	defer cancel()
@@ -450,9 +469,9 @@ func runDocsDiff(cmd *cobra.Command, flags *rootFlags, since string) error {
 	for _, sec := range corpus.Sections {
 		current["section:"+sec.Page+"#"+sec.Anchor] = hashString(sec.Body)
 	}
-	baselinePath := filepath.Join(os.TempDir(), "claude-agent-sdk-python-docs-pp-cli-baseline.json")
+	baselinePath := docsBaselinePath()
 	var baseline map[string]string
-	if data, err := os.ReadFile(baselinePath); err == nil { // #nosec G304 -- baselinePath is constructed from os.TempDir plus a fixed filename.
+	if data, err := os.ReadFile(baselinePath); err == nil { // #nosec G304 -- baselinePath is a fixed filename inside the per-user cache dir.
 		_ = json.Unmarshal(data, &baseline)
 	}
 	added, changed, removed := diffHashes(baseline, current)
@@ -507,10 +526,15 @@ func loadDocsCorpus(ctx context.Context) (docsCorpus, error) {
 	pages := make([]docsPage, len(knownDocsPages))
 	var wg sync.WaitGroup
 	errs := make(chan error, len(knownDocsPages))
+	// Cap concurrent fetches so we don't open one socket per page at once;
+	// keeps load on the docs host bounded regardless of corpus size.
+	sem := make(chan struct{}, maxDocsFetchConcurrency)
 	for i, page := range knownDocsPages {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
 			content, err := fetchDocsPath(ctx, page.Path)
 			if err != nil {
 				errs <- err
@@ -552,6 +576,15 @@ func loadDocsCorpus(ctx context.Context) (docsCorpus, error) {
 func fetchDocsPath(ctx context.Context, path string) (string, error) {
 	var lastErr error
 	for attempt := 0; attempt < 3; attempt++ {
+		if attempt > 0 {
+			// Exponential backoff (200ms, 400ms) before retrying transient
+			// failures so we don't hammer the server on 429/5xx.
+			select {
+			case <-ctx.Done():
+				return "", ctx.Err()
+			case <-time.After(time.Duration(200*(1<<(attempt-1))) * time.Millisecond):
+			}
+		}
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, docsBaseURL+path, nil)
 		if err != nil {
 			return "", err
