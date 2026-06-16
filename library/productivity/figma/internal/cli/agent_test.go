@@ -409,6 +409,144 @@ func runAgentRoot(t *testing.T, args []string) (string, error) {
 	return out.String(), err
 }
 
+func newFakeFigmaProjectsServer(t *testing.T) *httptest.Server {
+	t.Helper()
+	mux := http.NewServeMux()
+	mux.HandleFunc("/v1/teams/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"name":"Design (READY)","projects":[{"id":"P1","name":"App"},{"id":"P2","name":"Marketing"}]}`))
+	})
+	mux.HandleFunc("/v1/projects/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if strings.Contains(r.URL.Path, "P1") {
+			_, _ = w.Write([]byte(`{"name":"App","files":[{"key":"AAA","name":"PaiN (1.7) — V2","last_modified":"2026-06-16T10:00:00Z"},{"key":"BBB","name":"PaiN (1.7) — V2","last_modified":"2026-06-15T10:00:00Z"}]}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"name":"Marketing","files":[{"key":"CCC","name":"Brand Site","last_modified":"2026-06-10T10:00:00Z"}]}`))
+	})
+	return httptest.NewServer(mux)
+}
+
+func TestParseProjectTeamRef(t *testing.T) {
+	cases := []struct{ in, kind, id string }{
+		{"https://www.figma.com/files/project/P123/My-Project", "project", "P123"},
+		{"https://www.figma.com/files/team/T123/Team", "team", "T123"},
+		{"https://www.figma.com/files/org/team/T999/Team", "team", "T999"},
+	}
+	for _, tc := range cases {
+		kind, id, err := parseProjectTeamRef(tc.in)
+		if err != nil {
+			t.Fatalf("parseProjectTeamRef(%q): %v", tc.in, err)
+		}
+		if kind != tc.kind || id != tc.id {
+			t.Errorf("parseProjectTeamRef(%q) = (%q,%q), want (%q,%q)", tc.in, kind, id, tc.kind, tc.id)
+		}
+	}
+	if _, _, err := parseProjectTeamRef("https://www.figma.com/design/abc/File"); err == nil {
+		t.Fatalf("expected junk URL error")
+	}
+}
+
+func TestSlugifyAliasCollisions(t *testing.T) {
+	entries := buildKnownFilesEntries([]figmaFileMeta{{Key: "AAA", Name: "PaiN (1.7) — V2"}, {Key: "BBB", Name: "PaiN (1.7) — V2"}}, "App")
+	if entries["pain-1-7-v2"].FileKey != "AAA" {
+		t.Fatalf("first collision key = %+v, want AAA", entries["pain-1-7-v2"])
+	}
+	if entries["pain-1-7-v2-2"].FileKey != "BBB" {
+		t.Fatalf("second collision key = %+v, want BBB", entries["pain-1-7-v2-2"])
+	}
+}
+
+func TestIndexFilesProject(t *testing.T) {
+	srv := newFakeFigmaProjectsServer(t)
+	defer srv.Close()
+	setFigmaTestEnv(t, srv.URL)
+	out, err := runAgentRoot(t, []string{"agent", "index-files", "--project", "P1", "--agent", "--no-cache"})
+	if err != nil {
+		t.Fatalf("agent index-files project failed: %v\n%s", err, out)
+	}
+	var res struct {
+		Files map[string]knownFile `json:"files"`
+	}
+	if err := json.Unmarshal([]byte(out), &res); err != nil {
+		t.Fatalf("decoding output: %v\n%s", err, out)
+	}
+	if len(res.Files) != 2 {
+		t.Fatalf("files len = %d, want 2: %+v", len(res.Files), res.Files)
+	}
+	if got := res.Files["pain-1-7-v2"]; got.FileKey != "AAA" || !strings.Contains(got.URL, "AAA") {
+		t.Fatalf("first file = %+v, want AAA URL", got)
+	}
+	if got := res.Files["pain-1-7-v2"].Aliases; len(got) < 2 || got[1] != strings.ToLower("PaiN (1.7) — V2") {
+		t.Fatalf("aliases = %#v, want lowercased display alias", got)
+	}
+}
+
+func TestIndexFilesTeamWalksProjects(t *testing.T) {
+	srv := newFakeFigmaProjectsServer(t)
+	defer srv.Close()
+	setFigmaTestEnv(t, srv.URL)
+	out, err := runAgentRoot(t, []string{"agent", "index-files", "--team", "T1", "--agent", "--no-cache"})
+	if err != nil {
+		t.Fatalf("agent index-files team failed: %v\n%s", err, out)
+	}
+	var res struct {
+		Files map[string]knownFile `json:"files"`
+	}
+	if err := json.Unmarshal([]byte(out), &res); err != nil {
+		t.Fatalf("decoding output: %v\n%s", err, out)
+	}
+	if len(res.Files) != 3 {
+		t.Fatalf("files len = %d, want 3: %+v", len(res.Files), res.Files)
+	}
+	if res.Files["brand-site"].Project != "Marketing" || res.Files["pain-1-7-v2"].Project != "App" {
+		t.Fatalf("project names missing: %+v", res.Files)
+	}
+}
+
+func TestIndexFilesMergeIntoAdditive(t *testing.T) {
+	srv := newFakeFigmaProjectsServer(t)
+	defer srv.Close()
+	setFigmaTestEnv(t, srv.URL)
+	path := filepath.Join(t.TempDir(), "known-files.json")
+	initial := `{"_comment":"keep","files":{"pain-1-7-v2":{"file_key":"OLD","name":"Old Pain","url":"https://example.com","aliases":["pain"],"notes":"hand note"}},"owner":"agent"}`
+	if err := os.WriteFile(path, []byte(initial), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	out, err := runAgentRoot(t, []string{"agent", "index-files", "--project", "P1", "--merge-into", path, "--agent", "--no-cache"})
+	if err != nil {
+		t.Fatalf("merge failed: %v\n%s", err, out)
+	}
+	var summary map[string]any
+	if err := json.Unmarshal([]byte(out), &summary); err != nil {
+		t.Fatalf("decoding summary: %v", err)
+	}
+	if summary["added"].(float64) != 1 || summary["skipped"].(float64) != 1 || summary["updated"].(float64) != 0 {
+		t.Fatalf("summary = %+v, want added=1 skipped=1 updated=0", summary)
+	}
+	var doc struct {
+		Files map[string]map[string]any `json:"files"`
+	}
+	b, _ := os.ReadFile(path)
+	if err := json.Unmarshal(b, &doc); err != nil {
+		t.Fatalf("decoding merged file: %v\n%s", err, b)
+	}
+	if doc.Files["pain-1-7-v2"]["file_key"] != "OLD" || doc.Files["pain-1-7-v2"]["notes"] != "hand note" {
+		t.Fatalf("existing entry not preserved: %+v", doc.Files["pain-1-7-v2"])
+	}
+	out, err = runAgentRoot(t, []string{"agent", "index-files", "--project", "P1", "--merge-into", path, "--force", "--agent", "--no-cache"})
+	if err != nil {
+		t.Fatalf("force merge failed: %v\n%s", err, out)
+	}
+	b, _ = os.ReadFile(path)
+	if err := json.Unmarshal(b, &doc); err != nil {
+		t.Fatalf("decoding force merged file: %v", err)
+	}
+	if doc.Files["pain-1-7-v2"]["file_key"] != "AAA" || doc.Files["pain-1-7-v2"]["notes"] != "hand note" {
+		t.Fatalf("force entry did not update while preserving notes: %+v", doc.Files["pain-1-7-v2"])
+	}
+}
+
 func TestAgentOutlineCommand(t *testing.T) {
 	srv := newFakeFigmaServer(t)
 	defer srv.Close()

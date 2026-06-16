@@ -168,6 +168,14 @@ These capabilities aren't available in any other tool for this API.
   figma-pp-cli agent shot abc123 "Cash transfer Intro" --max 3 --agent
   figma-pp-cli agent shot abc123 "Onboarding" --children --max 5 --agent
   ```
+- **`agent index-files`** — List files in a Figma project or team and emit known-files entries keyed by alias.
+
+  _Use to populate an agent known-files.json without hand-curating every file. Requires token scopes that can read project and file metadata (`projects:read` / `file_metadata:read`). Output is file-level only; keep screen labels live via `agent outline`, `agent find-node`, or `agent shot`. `--merge-into` updates an existing known-files.json additively: existing aliases and hand-written `notes` are preserved unless `--force` is set._
+
+  ```bash
+  figma-pp-cli agent index-files --project 123 --agent
+  figma-pp-cli agent index-files --team 456 --merge-into ./known-files.json
+  ```
 - **`frame extract`** — Extract a single frame as a compact codegen-ready payload that fuses simplified node tree, in-scope variables, dev resources, and Code Connect mappings.
 
   _First call when an AI agent needs Figma frame context for code generation — returns a compact payload that fits in the context window instead of the raw 10MB file response._

@@ -198,6 +198,18 @@ figma-pp-cli agent find-node <figma-url-or-key> "Prototype" --depth 3 --agent
 
 `agent outline` returns `{file_key, nodes: [{id, name, type, label, child_count}]}` with human-readable path labels like `🕹️ Prototype / Prototype / Signup`. `agent find-node` ranks matches and reports `ambiguous: true` when labels tie — it never guesses, so read `best.id` (or pick from `matches`) and pass it downstream. Both accept raw file keys or full `figma.com/design/...` and `figma.com/file/...` URLs (including `?node-id=`).
 
+### Index project/team files for known-files maps
+
+```bash
+# Emit file-level known-files entries for one project
+figma-pp-cli agent index-files --project <project-id> --agent
+
+# Walk every project in a team and additively merge into an existing map
+figma-pp-cli agent index-files --team <team-id> --merge-into ./known-files.json --agent
+```
+
+`agent index-files` lists Figma files and emits the known-files shape `{files: {alias: {file_key, name, url, aliases}}}`. It is file-level only: do not use it for screens/nodes, which should stay live through `agent outline`, `agent find-node`, and `agent shot`. `--merge-into` preserves existing aliases and hand-written `notes`; add `--force` only when you intentionally want generated metadata to overwrite existing aliases while keeping `notes`. The token needs Figma project/file metadata read scopes (`projects:read` / `file_metadata:read`).
+
 ### One-shot screenshot from a prompt
 
 ```bash

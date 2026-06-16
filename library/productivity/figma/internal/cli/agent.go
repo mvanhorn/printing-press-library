@@ -108,6 +108,107 @@ func fileKeyFromPath(path string) string {
 	}
 }
 
+// parseProjectTeamRef extracts a Figma project or team id from a Figma files URL.
+func parseProjectTeamRef(raw string) (kind string, id string, err error) {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return "", "", fmt.Errorf("empty Figma project/team URL")
+	}
+	u, err := url.Parse(raw)
+	if err != nil || (u.Scheme != "http" && u.Scheme != "https") {
+		return "", "", fmt.Errorf("expected a Figma project or team URL")
+	}
+	host := strings.TrimPrefix(strings.ToLower(u.Hostname()), "www.")
+	if host != "figma.com" {
+		return "", "", fmt.Errorf("not a Figma URL (host %q)", u.Host)
+	}
+	segments := strings.Split(strings.Trim(u.Path, "/"), "/")
+	for i := 0; i < len(segments)-1; i++ {
+		switch strings.ToLower(segments[i]) {
+		case "project":
+			if segments[i+1] != "" {
+				return "project", segments[i+1], nil
+			}
+		case "team":
+			if segments[i+1] != "" {
+				return "team", segments[i+1], nil
+			}
+		}
+	}
+	return "", "", fmt.Errorf("could not find a project or team id in Figma URL %q", raw)
+}
+
+func slugifyAlias(name string) string {
+	alias := strings.ToLower(sanitizeFilename(name))
+	alias = strings.ReplaceAll(alias, ".", "-")
+	alias = strings.Trim(alias, "-")
+	alias = regexp.MustCompile(`-+`).ReplaceAllString(alias, "-")
+	if alias == "" {
+		return "file"
+	}
+	return alias
+}
+
+type knownFile struct {
+	FileKey      string   `json:"file_key"`
+	Name         string   `json:"name"`
+	URL          string   `json:"url"`
+	LastModified string   `json:"last_modified,omitempty"`
+	Project      string   `json:"project,omitempty"`
+	Aliases      []string `json:"aliases"`
+}
+
+type figmaFileMeta struct {
+	Key          string `json:"key"`
+	Name         string `json:"name"`
+	LastModified string `json:"last_modified"`
+	ThumbnailURL string `json:"thumbnail_url,omitempty"`
+}
+
+type figmaProjectMeta struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+func buildKnownFilesEntries(files []figmaFileMeta, project string) map[string]knownFile {
+	entries := make(map[string]knownFile, len(files))
+	for _, f := range files {
+		base := slugifyAlias(f.Name)
+		alias := base
+		for n := 2; alias == "" || entries[alias].FileKey != ""; n++ {
+			if base == "" {
+				base = "file"
+			}
+			alias = fmt.Sprintf("%s-%d", base, n)
+		}
+		aliases := dedupeStrings([]string{base, strings.ToLower(strings.TrimSpace(f.Name))})
+		entry := knownFile{
+			FileKey:      f.Key,
+			Name:         f.Name,
+			URL:          "https://www.figma.com/design/" + f.Key + "/" + url.PathEscape(f.Name),
+			LastModified: f.LastModified,
+			Project:      project,
+			Aliases:      aliases,
+		}
+		entries[alias] = entry
+	}
+	return entries
+}
+
+func dedupeStrings(values []string) []string {
+	seen := map[string]bool{}
+	out := make([]string, 0, len(values))
+	for _, v := range values {
+		v = strings.TrimSpace(v)
+		if v == "" || seen[v] {
+			continue
+		}
+		seen[v] = true
+		out = append(out, v)
+	}
+	return out
+}
+
 // agentNodeSummary is a compact, agent-friendly projection of a Figma node.
 type agentNodeSummary struct {
 	ID                  string         `json:"id"`
@@ -489,7 +590,243 @@ extract, or dev-mode dump.`,
 	cmd.AddCommand(newAgentOutlineCmd(flags))
 	cmd.AddCommand(newAgentFindNodeCmd(flags))
 	cmd.AddCommand(newAgentShotCmd(flags))
+	cmd.AddCommand(newAgentIndexFilesCmd(flags))
 	return cmd
+}
+
+func newAgentIndexFilesCmd(flags *rootFlags) *cobra.Command {
+	var projectID string
+	var teamID string
+	var mergeInto string
+	var force bool
+
+	cmd := &cobra.Command{
+		Use:   "index-files (--project <id> | --team <id> | <project-or-team-url>)",
+		Short: "Build known-files entries from Figma projects or teams.",
+		Long: `List Figma files for a project, or walk every project in a team, and emit
+an agent-friendly known-files.json shape. This indexes files only; node/screen
+labels stay live through agent outline, find-node, and shot.`,
+		Example: strings.Trim(`
+  figma-pp-cli agent index-files --project 123 --agent
+  figma-pp-cli agent index-files --team 456 --merge-into ./known-files.json
+  figma-pp-cli agent index-files "https://www.figma.com/files/project/123/App" --agent
+`, "\n"),
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			kind, id := "", ""
+			switch {
+			case strings.TrimSpace(projectID) != "":
+				kind, id = "project", strings.TrimSpace(projectID)
+			case strings.TrimSpace(teamID) != "":
+				kind, id = "team", strings.TrimSpace(teamID)
+			case len(args) > 0:
+				var err error
+				kind, id, err = parseProjectTeamRef(args[0])
+				if err != nil {
+					return usageErr(err)
+				}
+			default:
+				return usageErr(fmt.Errorf("provide --project, --team, or a Figma project/team URL"))
+			}
+			if dryRunOK(flags) {
+				paths := []string{"/v1/projects/" + id + "/files"}
+				if kind == "team" {
+					paths = []string{"/v1/teams/" + id + "/projects", "/v1/projects/<project_id>/files"}
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "command": "agent index-files", "source": map[string]string{"kind": kind, "id": id}, "method": "GET", "paths": paths}, flags)
+			}
+
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			entries := map[string]knownFile{}
+			errs := []map[string]string{}
+			sourceName := ""
+			if kind == "project" {
+				name, files, err := fetchProjectFiles(c, id)
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+				sourceName = name
+				entries = buildKnownFilesEntries(files, name)
+			} else {
+				name, projects, err := fetchTeamProjects(c, id)
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+				sourceName = name
+				for _, p := range projects {
+					_, files, err := fetchProjectFiles(c, p.ID)
+					if err != nil {
+						errs = append(errs, map[string]string{"project_id": p.ID, "project": p.Name, "error": err.Error()})
+						continue
+					}
+					mergeKnownFileMaps(entries, buildKnownFilesEntries(files, p.Name))
+				}
+			}
+
+			out := map[string]any{"_comment": "Generated by figma-pp-cli agent index-files. File-level only; use agent outline/find-node/shot for live node labels.", "source": map[string]string{"kind": kind, "id": id, "name": sourceName}, "generated_at": time.Now().UTC().Format(time.RFC3339), "files": entries}
+			if len(errs) > 0 {
+				out["errors"] = errs
+			}
+			if mergeInto == "" {
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+			}
+			added, skipped, updated, final, err := mergeKnownFiles(mergeInto, entries, force)
+			if err != nil {
+				return err
+			}
+			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"merged_into": mergeInto, "added": added, "skipped": skipped, "updated": updated, "files": final}, flags)
+		},
+	}
+	cmd.Flags().StringVar(&projectID, "project", "", "Figma project id to index")
+	cmd.Flags().StringVar(&teamID, "team", "", "Figma team id to walk")
+	cmd.Flags().StringVar(&mergeInto, "merge-into", "", "Known-files JSON path to update additively")
+	cmd.Flags().BoolVar(&force, "force", false, "Overwrite existing aliases when merging, preserving notes when possible")
+	return cmd
+}
+
+func fetchProjectFiles(c *client.Client, id string) (string, []figmaFileMeta, error) {
+	raw, err := c.Get("/v1/projects/"+id+"/files", nil)
+	if err != nil {
+		return "", nil, err
+	}
+	var env struct {
+		Name  string          `json:"name"`
+		Files []figmaFileMeta `json:"files"`
+	}
+	if err := json.Unmarshal(raw, &env); err != nil {
+		return "", nil, fmt.Errorf("decoding project files response: %w", err)
+	}
+	return env.Name, env.Files, nil
+}
+
+func fetchTeamProjects(c *client.Client, id string) (string, []figmaProjectMeta, error) {
+	raw, err := c.Get("/v1/teams/"+id+"/projects", nil)
+	if err != nil {
+		return "", nil, err
+	}
+	var env struct {
+		Name     string             `json:"name"`
+		Projects []figmaProjectMeta `json:"projects"`
+	}
+	if err := json.Unmarshal(raw, &env); err != nil {
+		return "", nil, fmt.Errorf("decoding team projects response: %w", err)
+	}
+	return env.Name, env.Projects, nil
+}
+
+func mergeKnownFileMaps(dst, src map[string]knownFile) {
+	keys := make([]string, 0, len(src))
+	for k := range src {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		alias := k
+		base := k
+		for n := 2; dst[alias].FileKey != ""; n++ {
+			alias = fmt.Sprintf("%s-%d", base, n)
+		}
+		dst[alias] = src[k]
+	}
+}
+
+func mergeKnownFiles(path string, generated map[string]knownFile, force bool) (added, skipped, updated int, final map[string]json.RawMessage, err error) {
+	type knownFilesDoc struct {
+		Comment string                     `json:"_comment,omitempty"`
+		Files   map[string]json.RawMessage `json:"files"`
+		Extra   map[string]json.RawMessage `json:"-"`
+	}
+	var doc knownFilesDoc
+	doc.Files = map[string]json.RawMessage{}
+	doc.Extra = map[string]json.RawMessage{}
+	if b, readErr := os.ReadFile(path); readErr == nil {
+		var raw map[string]json.RawMessage
+		if err := json.Unmarshal(b, &raw); err != nil {
+			return 0, 0, 0, nil, fmt.Errorf("decoding %s: %w", path, err)
+		}
+		for k, v := range raw {
+			switch k {
+			case "_comment":
+				_ = json.Unmarshal(v, &doc.Comment)
+			case "files":
+				if err := json.Unmarshal(v, &doc.Files); err != nil {
+					return 0, 0, 0, nil, fmt.Errorf("decoding %s files: %w", path, err)
+				}
+			default:
+				doc.Extra[k] = v
+			}
+		}
+	} else if !os.IsNotExist(readErr) {
+		return 0, 0, 0, nil, readErr
+	}
+	if doc.Comment == "" {
+		doc.Comment = "Known Figma files for agent resolution. Generated entries are file-level only."
+	}
+
+	keys := make([]string, 0, len(generated))
+	for k := range generated {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, alias := range keys {
+		gen := generated[alias]
+		genRaw, err := json.Marshal(gen)
+		if err != nil {
+			return 0, 0, 0, nil, err
+		}
+		existing, ok := doc.Files[alias]
+		if !ok {
+			doc.Files[alias] = genRaw
+			added++
+			continue
+		}
+		if !force {
+			skipped++
+			continue
+		}
+		var existingObj map[string]json.RawMessage
+		if json.Unmarshal(existing, &existingObj) == nil {
+			if notes, ok := existingObj["notes"]; ok {
+				var genObj map[string]json.RawMessage
+				if json.Unmarshal(genRaw, &genObj) == nil {
+					if _, hasNotes := genObj["notes"]; !hasNotes {
+						genObj["notes"] = notes
+						genRaw, err = json.Marshal(genObj)
+						if err != nil {
+							return 0, 0, 0, nil, err
+						}
+					}
+				}
+			}
+		}
+		doc.Files[alias] = genRaw
+		updated++
+	}
+
+	out := map[string]any{"_comment": doc.Comment, "files": doc.Files}
+	for k, v := range doc.Extra {
+		out[k] = v
+	}
+	body, err := json.MarshalIndent(out, "", "  ")
+	if err != nil {
+		return 0, 0, 0, nil, err
+	}
+	body = append(body, '\n')
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return 0, 0, 0, nil, err
+	}
+	tmp := path + ".tmp"
+	if err := os.WriteFile(tmp, body, 0o644); err != nil {
+		return 0, 0, 0, nil, err
+	}
+	if err := os.Rename(tmp, path); err != nil {
+		_ = os.Remove(tmp)
+		return 0, 0, 0, nil, err
+	}
+	return added, skipped, updated, doc.Files, nil
 }
 
 func newAgentOutlineCmd(flags *rootFlags) *cobra.Command {
