@@ -5,10 +5,14 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
+	"sort"
 	"strconv"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/cloud/vercel-admin/internal/client"
 	"github.com/spf13/cobra"
 )
 
@@ -26,6 +30,7 @@ type opsFailureBrief struct {
 	Events     []map[string]any     `json:"events,omitempty"`
 	Checks     []map[string]any     `json:"checks,omitempty"`
 	Logs       []map[string]any     `json:"logs,omitempty"`
+	Warnings   []string             `json:"warnings,omitempty"`
 }
 
 func newOpsCmd(flags *rootFlags) *cobra.Command {
@@ -104,17 +109,27 @@ func newOpsFailureBriefCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			eventsRaw, err := c.Get(context.Background(), "/v3/deployments/"+deploymentID+"/events", nil)
+			var warnings []string
+			eventsRaw, ok, warning, err := optionalOpsGet(c, "/v3/deployments/"+deploymentID+"/events")
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			checksRaw, err := c.Get(context.Background(), "/v2/deployments/"+deploymentID+"/check-runs", nil)
+			if !ok {
+				warnings = append(warnings, warning)
+			}
+			checksRaw, ok, warning, err := optionalOpsGet(c, "/v2/deployments/"+deploymentID+"/check-runs")
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			logsRaw, err := c.Get(context.Background(), "/v1/projects/"+projectID+"/deployments/"+deploymentID+"/runtime-logs", nil)
+			if !ok {
+				warnings = append(warnings, warning)
+			}
+			logsRaw, ok, warning, err := optionalOpsGet(c, "/v1/projects/"+projectID+"/deployments/"+deploymentID+"/runtime-logs")
 			if err != nil {
 				return classifyAPIError(err, flags)
+			}
+			if !ok {
+				warnings = append(warnings, warning)
 			}
 			var deployment map[string]any
 			if err := json.Unmarshal(deploymentRaw, &deployment); err != nil {
@@ -125,12 +140,27 @@ func newOpsFailureBriefCmd(flags *rootFlags) *cobra.Command {
 				Events:     objectListFromEnvelope(eventsRaw, "events"),
 				Checks:     objectListFromEnvelope(checksRaw, "checks"),
 				Logs:       objectListFromEnvelope(logsRaw, "logs"),
+				Warnings:   warnings,
 			}
 			return printOpsJSON(cmd, out, flags)
 		},
 	}
 	cmd.Flags().StringVar(&projectID, "project-id", "", "Project ID used for runtime logs")
 	return cmd
+}
+
+func optionalOpsGet(c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
+}, path string) (json.RawMessage, bool, string, error) {
+	raw, err := c.Get(context.Background(), path, nil)
+	if err == nil {
+		return raw, true, "", nil
+	}
+	var apiErr *client.APIError
+	if errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusNotFound {
+		return nil, false, fmt.Sprintf("%s returned HTTP 404; omitted from brief", path), nil
+	}
+	return nil, false, "", err
 }
 
 func deploymentSummaryFromMap(item map[string]any) opsDeploymentSummary {
@@ -160,7 +190,13 @@ func objectListFromEnvelope(raw json.RawMessage, keys ...string) []map[string]an
 			}
 		}
 	}
-	for _, v := range envelope {
+	fallbackKeys := make([]string, 0, len(envelope))
+	for key := range envelope {
+		fallbackKeys = append(fallbackKeys, key)
+	}
+	sort.Strings(fallbackKeys)
+	for _, key := range fallbackKeys {
+		v := envelope[key]
 		if err := json.Unmarshal(v, &arr); err == nil {
 			return arr
 		}
