@@ -601,7 +601,7 @@ func newAgentIndexFilesCmd(flags *rootFlags) *cobra.Command {
 	var force bool
 
 	cmd := &cobra.Command{
-		Use:   "index-files (--project <id> | --team <id> | <project-or-team-url>)",
+		Use:   "index-files [project-or-team-url]",
 		Short: "Build known-files entries from Figma projects or teams.",
 		Long: `List Figma files for a project, or walk every project in a team, and emit
 an agent-friendly known-files.json shape. This indexes files only; node/screen
