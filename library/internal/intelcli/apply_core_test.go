@@ -54,6 +54,12 @@ func TestApplyCoreLiveGates(t *testing.T) {
 	if err := RequireTypedConfirm("apply", "", "APPLY TEST acct"); err == nil || !strings.Contains(err.Error(), `typed confirmation`) {
 		t.Fatalf("expected typed confirmation refusal, got %v", err)
 	}
+	if err := RequireApplyConfidence(ConfidenceReport{Level: ConfidenceLow}); err == nil || !strings.Contains(err.Error(), "tracking confidence") {
+		t.Fatalf("expected confidence refusal, got %v", err)
+	}
+	if err := RequireApplyConfidence(ConfidenceReport{Level: ConfidenceMedium}); err != nil {
+		t.Fatalf("medium confidence should pass apply gate: %v", err)
+	}
 	if got := ApplyMode(false); got != ApplyModeDryRun {
 		t.Fatalf("dry-run mode = %q", got)
 	}

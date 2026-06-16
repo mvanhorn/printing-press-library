@@ -84,6 +84,13 @@ func EnforceChangeCap(planned, max int) error {
 	return nil
 }
 
+func RequireApplyConfidence(report ConfidenceReport) error {
+	if report.BlocksDerivedMetrics() {
+		return fmt.Errorf("refusing apply: tracking confidence is %s; fix confidence before mutation", report.Level)
+	}
+	return nil
+}
+
 func ApplyMode(liveApproved bool) string {
 	if liveApproved {
 		return ApplyModeLiveApproved

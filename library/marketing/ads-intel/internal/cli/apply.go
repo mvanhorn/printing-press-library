@@ -162,8 +162,8 @@ func runApplyNegativeKeyword(cmd *cobra.Command, f *rootFlags, opts applyOptions
 		return err
 	}
 	conf := confidenceReportForData(dset)
-	if conf.BlocksDerivedMetrics() {
-		return fmt.Errorf("refusing apply: tracking confidence is %s; fix confidence before mutation", conf.Level)
+	if err := intelcli.RequireApplyConfidence(conf); err != nil {
+		return err
 	}
 	policy, err := loadApplyPolicy(opts.policyPath)
 	if err != nil {
