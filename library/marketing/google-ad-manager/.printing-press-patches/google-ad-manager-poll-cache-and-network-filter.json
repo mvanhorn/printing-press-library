@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "google-ad-manager-poll-cache-and-network-filter",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260616-124304-8944dbb7",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Use c.GetNoCache (not the cached c.Get) in pollReportOperation so the report poll loop is not pinned to a stale 'done:false' snapshot by the 5-min HTTP cache TTL; and pass the resolved networkCode (not the raw --network flag) to loadEntityRows in 'since' so env-var-only network selection still prefix-filters the local mirror.",
+  "reason": "Both flagged P1 during library review (PR #1243): the cached GET would lock report run/rerun/watch until cache expiry, and 'since' with only GOOGLE_AD_MANAGER_NETWORK_CODE set (no --network flag) would emit changes for every network in the mirror, not just the refreshed one.",
+  "files": ["internal/cli/gam_helpers.go", "internal/cli/since.go"],
+  "validated_outcome": "go build clean; report polling fetches fresh operation status each interval; 'since' filters mirror rows to the resolved network prefix."
+}
