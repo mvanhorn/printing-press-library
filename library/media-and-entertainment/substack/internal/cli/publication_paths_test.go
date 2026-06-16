@@ -5,6 +5,7 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -29,7 +30,7 @@ func TestPublicationAPIPath(t *testing.T) {
 	}
 }
 
-func TestDraftCreateDryRunJSONReportsResolvedPublicationURL(t *testing.T) {
+func TestDraftCreateDryRunJSONReportsGlobalWriterURL(t *testing.T) {
 	t.Setenv("SUBSTACK_CONFIG", filepath.Join(t.TempDir(), "missing.toml"))
 
 	root := RootCmd()
@@ -38,6 +39,7 @@ func TestDraftCreateDryRunJSONReportsResolvedPublicationURL(t *testing.T) {
 	root.SetErr(&stderr)
 	root.SetArgs([]string{
 		"--subdomain", "trevinsays",
+		"--publication-id", "7019888",
 		"drafts", "create",
 		"--title", "CLI verification dry-run",
 		"--body", "Verification only.",
@@ -58,12 +60,110 @@ func TestDraftCreateDryRunJSONReportsResolvedPublicationURL(t *testing.T) {
 	if !envelope.DryRun {
 		t.Fatalf("dry_run = false, want true; stdout=%s", stdout.String())
 	}
-	if strings.Contains(envelope.Path, "{publication}") {
-		t.Fatalf("path = %q, still contains unresolved publication placeholder", envelope.Path)
+	if strings.Contains(envelope.Path, "trevinsays.substack.com") || strings.Contains(envelope.Path, "{publication}") {
+		t.Fatalf("path = %q, want global writer endpoint without publication host", envelope.Path)
 	}
-	if got, want := envelope.Path, "https://trevinsays.substack.com/api/v1/drafts"; got != want {
+	if got, want := envelope.Path, "https://substack.com/api/v1/drafts?publication_id=7019888"; got != want {
 		t.Fatalf("path = %q, want %q", got, want)
 	}
+}
+
+func TestImagesDryRunUsesGlobalUploadEndpoint(t *testing.T) {
+	t.Setenv("SUBSTACK_CONFIG", filepath.Join(t.TempDir(), "missing.toml"))
+
+	stderr, restore := captureProcessStderr(t)
+	defer restore()
+
+	root := RootCmd()
+	var stdout, cmdStderr bytes.Buffer
+	root.SetOut(&stdout)
+	root.SetErr(&cmdStderr)
+	root.SetArgs([]string{
+		"--subdomain", "trevinsays",
+		"images",
+		"--image", "data:image/png;base64,AAAA",
+		"--dry-run",
+		"--agent",
+	})
+
+	if err := root.Execute(); err != nil {
+		t.Fatalf("execute dry-run: %v; cmd stderr=%s; process stderr=%s", err, cmdStderr.String(), stderr())
+	}
+	got := stderr()
+	if !strings.Contains(got, "POST https://substack.com/api/v1/image") {
+		t.Fatalf("stderr = %q, want global image upload endpoint", got)
+	}
+	if strings.Contains(got, "trevinsays.substack.com") || strings.Contains(got, "{publication}") {
+		t.Fatalf("stderr = %q, should not use publication-host image endpoint", got)
+	}
+}
+
+func TestDraftCreateDryRunWithoutPublicationIDDoesNotLookupLiveProfile(t *testing.T) {
+	t.Setenv("SUBSTACK_CONFIG", filepath.Join(t.TempDir(), "missing.toml"))
+	t.Setenv("SUBSTACK_BASE_URL", "http://127.0.0.1:1")
+
+	root := RootCmd()
+	var stdout, stderr bytes.Buffer
+	root.SetOut(&stdout)
+	root.SetErr(&stderr)
+	root.SetArgs([]string{
+		"--subdomain", "trevinsays",
+		"drafts", "create",
+		"--title", "CLI verification dry-run",
+		"--body", "Verification only.",
+		"--dry-run",
+		"--agent",
+	})
+
+	if err := root.Execute(); err != nil {
+		t.Fatalf("execute dry-run without publication id should not perform live lookup: %v; stderr=%s", err, stderr.String())
+	}
+	var envelope struct {
+		Path string `json:"path"`
+	}
+	if err := json.Unmarshal(bytes.TrimSpace(stdout.Bytes()), &envelope); err != nil {
+		t.Fatalf("parse stdout JSON %q: %v", stdout.String(), err)
+	}
+	if !strings.HasPrefix(envelope.Path, "https://substack.com/api/v1/drafts?publication_id=") {
+		t.Fatalf("path = %q, want global dry-run drafts route", envelope.Path)
+	}
+	if strings.Contains(envelope.Path, "trevinsays.substack.com") {
+		t.Fatalf("path = %q, should not use publication host", envelope.Path)
+	}
+}
+
+func TestPublicationIDFromProfileMatchesPrimaryPublication(t *testing.T) {
+	raw := []byte(`{"primaryPublication":{"id":7019888,"subdomain":"trevinsays","custom_domain":"trevinsays.com"}}`)
+	got, err := publicationIDFromProfile(raw, "trevinsays")
+	if err != nil {
+		t.Fatalf("publicationIDFromProfile returned error: %v", err)
+	}
+	if got != "7019888" {
+		t.Fatalf("publication id = %q, want 7019888", got)
+	}
+}
+
+func captureProcessStderr(t *testing.T) (func() string, func()) {
+	t.Helper()
+	old := os.Stderr
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("pipe stderr: %v", err)
+	}
+	os.Stderr = w
+	var buf bytes.Buffer
+	done := make(chan struct{})
+	go func() {
+		_, _ = buf.ReadFrom(r)
+		close(done)
+	}()
+	restore := func() {
+		_ = w.Close()
+		os.Stderr = old
+		<-done
+		_ = r.Close()
+	}
+	return buf.String, restore
 }
 
 func TestSyncResourcePathPublicationScopedResourcesUsePublicationHost(t *testing.T) {
