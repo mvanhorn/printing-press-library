@@ -472,7 +472,12 @@ func runDocsDiff(cmd *cobra.Command, flags *rootFlags, since string) error {
 	baselinePath := docsBaselinePath()
 	var baseline map[string]string
 	if data, err := os.ReadFile(baselinePath); err == nil { // #nosec G304 -- baselinePath is a fixed filename inside the per-user cache dir.
-		_ = json.Unmarshal(data, &baseline)
+		if unmErr := json.Unmarshal(data, &baseline); unmErr != nil {
+			// The baseline file exists but is unreadable (e.g. a truncated
+			// write from an interrupted run). Surface it instead of silently
+			// reporting every entry as "added" against a nil baseline.
+			return fmt.Errorf("baseline %s exists but is not valid JSON: %w", baselinePath, unmErr)
+		}
 	}
 	added, changed, removed := diffHashes(baseline, current)
 	return emitDocsView(cmd, flags, map[string]any{
