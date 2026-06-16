@@ -57,7 +57,7 @@ func newNovelDriftCmd(flags *rootFlags) *cobra.Command {
 			defer db.Close()
 
 			var distinctDates int
-			if err := db.DB().QueryRowContext(ctx, `SELECT COUNT(DISTINCT captured_on) FROM niche_snapshots`).Scan(&distinctDates); err != nil {
+			if err := db.DB().QueryRowContext(ctx, `SELECT COUNT(DISTINCT captured_on) FROM niche_snapshots WHERE captured_on >= ?`, sinceDate).Scan(&distinctDates); err != nil {
 				return err
 			}
 

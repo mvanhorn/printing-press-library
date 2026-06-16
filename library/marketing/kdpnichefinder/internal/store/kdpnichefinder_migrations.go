@@ -22,13 +22,13 @@ func (s *Store) EnsureKDPSchema(ctx context.Context) error {
 	}
 	if _, err := s.db.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS niche_snapshots (
 		book_id TEXT NOT NULL,
-		bucket TEXT,
+		bucket TEXT NOT NULL DEFAULT '',
 		captured_on TEXT NOT NULL,
 		estimated_monthly_sales INTEGER,
 		estimated_monthly_revenue REAL,
 		price TEXT,
 		title TEXT,
-		PRIMARY KEY (book_id, captured_on)
+		PRIMARY KEY (book_id, bucket, captured_on)
 	)`); err != nil {
 		return fmt.Errorf("create niche_snapshots: %w", err)
 	}

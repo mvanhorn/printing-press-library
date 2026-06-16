@@ -103,41 +103,51 @@ func newNovelSaturationCmd(flags *rootFlags) *cobra.Command {
 			out := make([]satRow, 0, len(bucketOrder))
 			for _, b := range bucketOrder {
 				ba := buckets[b]
-				numPubs := len(ba.byPub)
-				if flagLimit > 0 && numPubs > flagLimit {
-					numPubs = flagLimit
-				}
-				topPub := ""
-				topRev := 0.0
+				// HHI is an order-independent sum over ALL publishers; the top
+				// publisher is chosen deterministically (highest revenue, ties
+				// broken by name) so identical inputs always produce identical
+				// output. num_publishers always reports the true count.
 				hhi := 0.0
+				pubs := make([]string, 0, len(ba.byPub))
 				for pub, rev := range ba.byPub {
+					pubs = append(pubs, pub)
 					if ba.totalRev > 0 {
 						share := rev / ba.totalRev
 						hhi += share * share
 					}
-					if rev > topRev || (rev == topRev && topPub == "") {
-						topRev = rev
-						topPub = pub
-					}
 				}
+				sort.Slice(pubs, func(i, j int) bool {
+					ri, rj := ba.byPub[pubs[i]], ba.byPub[pubs[j]]
+					if ri != rj {
+						return ri > rj
+					}
+					return pubs[i] < pubs[j]
+				})
+				topPub := ""
 				topShare := 0.0
-				if ba.totalRev > 0 {
-					topShare = topRev / ba.totalRev
+				if len(pubs) > 0 {
+					topPub = pubs[0]
+					if ba.totalRev > 0 {
+						topShare = ba.byPub[topPub] / ba.totalRev
+					}
 				}
 				out = append(out, satRow{
 					Bucket:                   b,
 					NumBooks:                 ba.numBooks,
-					NumPublishers:            numPubs,
+					NumPublishers:            len(ba.byPub),
 					TopPublisher:             topPub,
 					TopPublisherRevenueShare: topShare,
 					ConcentrationHHI:         hhi,
 				})
+				if flagLimit > 0 && len(out) >= flagLimit {
+					break
+				}
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 		},
 	}
 	cmd.Flags().StringVar(&flagType, "type", "", "Limit to a single bucket (evergreen, fresh_money, hidden_gems, high_ticket)")
-	cmd.Flags().IntVar(&flagLimit, "limit", 0, "Cap the publisher count reported per bucket (0 = count all)")
+	cmd.Flags().IntVar(&flagLimit, "limit", 0, "Cap the number of bucket rows returned (0 = all)")
 	cmd.Flags().StringVar(&flagDB, "db", "", "Path to the local mirror database (defaults to the standard location)")
 	return cmd
 }
