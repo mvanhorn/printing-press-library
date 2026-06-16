@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -526,12 +527,15 @@ func loadDocsCorpus(ctx context.Context) (docsCorpus, error) {
 	}
 	wg.Wait()
 	close(errs)
-	if err := <-errs; err != nil {
-		return docsCorpus{}, err
+	var fetchErrs []error
+	for err := range errs {
+		fetchErrs = append(fetchErrs, err)
 	}
-	for i, page := range pages {
-		page.URL = docsBaseURL + page.Path
-		if page.Content == "" {
+	if len(fetchErrs) > 0 {
+		return docsCorpus{}, errors.Join(fetchErrs...)
+	}
+	for i := range pages {
+		if pages[i].Content == "" {
 			return docsCorpus{}, fmt.Errorf("fetching %s: empty docs page", knownDocsPages[i].Path)
 		}
 	}

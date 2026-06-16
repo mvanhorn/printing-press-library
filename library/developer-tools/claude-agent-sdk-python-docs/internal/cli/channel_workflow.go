@@ -62,6 +62,18 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 				syncEventWriter = cmd.ErrOrStderr()
 			}
 
+			// Empty-archive hint: this spec exposes no bulk-list endpoints, so
+			// `workflow archive` cannot populate the store on its own. Emit a
+			// one-line note so users and agents understand the runtime no-op
+			// instead of seeing only "Archived 0 items". Mirrors newSyncCmd.
+			if len(resources) == 0 {
+				if flags.asJSON {
+					fmt.Fprintln(cmd.ErrOrStderr(), `{"event":"sync_warning","reason":"no_bulk_list_endpoints","detail":"no default sync resources in spec; populate the store via single-fetch commands such as 'read' or 'pages'"}`)
+				} else {
+					fmt.Fprintln(cmd.ErrOrStderr(), "claude-agent-sdk-python-docs-pp-cli workflow archive: no bulk-list endpoints in spec; nothing to archive. Populate the store via single-fetch commands such as 'read' or 'pages'.")
+				}
+			}
+
 			// --full clears the cursor here because syncResource reads
 			// existingCursor unconditionally; its full param only gates the
 			// since filter, not cursor reset. Mirrors newSyncCmd's pattern.
