@@ -73,7 +73,10 @@ func newNovelIcsCmd(flags *rootFlags) *cobra.Command {
 				filter = "category:" + flagCategory
 			}
 
-			entries, ferr := fetchEventEntries(ctx, c, params, flagLimit, scanPagesForEnv(flagMaxScanPages))
+			// Page size is the upstream fetch batch; it is intentionally decoupled
+			// from --limit (the output cap applied after window filtering below).
+			const icsPageSize = 50
+			entries, ferr := fetchEventEntries(ctx, c, params, icsPageSize, scanPagesForEnv(flagMaxScanPages))
 			if ferr != nil && len(entries) == 0 {
 				return classifyAPIError(ferr, flags)
 			}
@@ -81,12 +84,16 @@ func newNovelIcsCmd(flags *rootFlags) *cobra.Command {
 			now := time.Now()
 			kept := make([]lumaEntry, 0, len(entries))
 			for _, e := range entries {
-				if t, ok := e.startTime(); ok {
-					if !withinWindow(t, now, window) {
-						continue
-					}
-					kept = append(kept, e)
+				// An event with no parseable start_at cannot become a VEVENT
+				// (DTSTART is required by RFC 5545), so it is excluded by design.
+				t, ok := e.startTime()
+				if !ok {
+					continue
 				}
+				if !withinWindow(t, now, window) {
+					continue
+				}
+				kept = append(kept, e)
 			}
 			if flagLimit > 0 && len(kept) > flagLimit {
 				kept = kept[:flagLimit]

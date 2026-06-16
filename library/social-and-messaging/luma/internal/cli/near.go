@@ -7,13 +7,14 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"sort"
 	"time"
 
 	"github.com/spf13/cobra"
 
-	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/luma/internal/store"
+	"luma-pp-cli/internal/store"
 )
 
 type nearView struct {
@@ -149,5 +150,5 @@ func newNovelNearCmd(flags *rootFlags) *cobra.Command {
 }
 
 func round1(f float64) float64 {
-	return float64(int(f*10+0.5)) / 10
+	return math.Round(f*10) / 10
 }

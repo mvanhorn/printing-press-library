@@ -108,10 +108,19 @@ func newNovelAgendaCmd(flags *rootFlags) *cobra.Command {
 			now := time.Now()
 			kept := make([]lumaEntry, 0, len(all))
 			for _, e := range all {
-				if t, ok := e.startTime(); ok {
-					if !withinWindow(t, now, window) {
+				t, ok := e.startTime()
+				if !ok {
+					// No parseable start_at: a window query is time-bounded, so an
+					// undateable event cannot satisfy it — drop it. With no window,
+					// keep it (it sorts last) so the unfiltered agenda is complete.
+					if window > 0 {
 						continue
 					}
+					kept = append(kept, e)
+					continue
+				}
+				if !withinWindow(t, now, window) {
+					continue
 				}
 				kept = append(kept, e)
 			}
