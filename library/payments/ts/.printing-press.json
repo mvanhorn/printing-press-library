@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-16T08:46:27.508513Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "ts",
+  "display_name": "TreasurySpring",
+  "cli_name": "ts-pp-cli",
+  "creator": {
+    "name": "Dickie",
+    "handle": "Dickie101"
+  },
+  "printer_name": "Dickie",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:9a98ba93023e679c8ca72afbe88a00631cced81c98cda9cca84aa478819e47d5",
+  "run_id": "20260616-092323-ts",
+  "category": "payments",
+  "description": "Every TreasurySpring read endpoint, plus a local SQLite mirror that answers portfolio-level questions no single API call can: maturity ladders, obligor concentration, consolidated book, and event diffs.",
+  "mcp_binary": "ts-pp-mcp",
+  "mcp_tool_count": 26,
+  "mcp_ready": "full",
+  "api_version": "v0.6.20",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "TS_BEARER_TOKEN",
+    "TS_CLIENT_ID",
+    "TS_CLIENT_SECRET"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "TS_BEARER_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true,
+      "description": "Pre-minted bearer token. OR set TS_CLIENT_ID + TS_CLIENT_SECRET and run `ts auth login`."
+    },
+    {
+      "name": "TS_CLIENT_ID",
+      "kind": "auth_flow_input",
+      "required": false,
+      "sensitive": false,
+      "description": "OAuth2 client id; used by `ts auth login` to mint a token at /oauth/token."
+    },
+    {
+      "name": "TS_CLIENT_SECRET",
+      "kind": "auth_flow_input",
+      "required": false,
+      "sensitive": true,
+      "description": "OAuth2 client secret; used by `ts auth login`."
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Cash-flow forecast / maturity ladder",
+      "command": "ladder",
+      "description": "Week-by-week projection of cash landing back, with maturities shifted to real settlement dates across all entities."
+    },
+    {
+      "name": "Obligor concentration",
+      "command": "concentration",
+      "description": "Total credit exposure to each obligor as a share of the consolidated book, flagging self-set limit breaches."
+    },
+    {
+      "name": "Consolidated group book",
+      "command": "book",
+      "description": "One portfolio across every legal entity: total invested, weighted-average yield/maturity, currency split."
+    }
+  ],
+  "printer": "Dickie101"
+}

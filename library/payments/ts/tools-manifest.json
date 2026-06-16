@@ -1,0 +1,616 @@
+{
+  "api_name": "ts",
+  "base_url": "https://api.treasuryspring.com/api/v1",
+  "description": "Every TreasurySpring read endpoint, plus a local SQLite mirror that answers portfolio-level questions no single API call can: maturity ladders, obligor concentration, consolidated book, and event diffs.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "TS_BEARER_TOKEN",
+      "TS_CLIENT_ID",
+      "TS_CLIENT_SECRET"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TS_BEARER_TOKEN",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true,
+        "description": "Pre-minted bearer token. OR set TS_CLIENT_ID + TS_CLIENT_SECRET and run `ts auth login`."
+      },
+      {
+        "name": "TS_CLIENT_ID",
+        "kind": "auth_flow_input",
+        "required": false,
+        "sensitive": false,
+        "description": "OAuth2 client id; used by `ts auth login` to mint a token at /oauth/token."
+      },
+      {
+        "name": "TS_CLIENT_SECRET",
+        "kind": "auth_flow_input",
+        "required": false,
+        "sensitive": true,
+        "description": "OAuth2 client secret; used by `ts auth login`."
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "cell_get",
+      "description": "Retrieves data for a single Cell. Required: code. Returns the Cell.",
+      "method": "GET",
+      "path": "/cell/{code}",
+      "params": [
+        {
+          "name": "code",
+          "type": "string",
+          "location": "path",
+          "description": "Cell code",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "entity_get",
+      "description": "Retrieves data for a single Entity if the user has permission to view it. Required: code. Returns array of EntityBankAccount.",
+      "method": "GET",
+      "path": "/entity/{code}",
+      "params": [
+        {
+          "name": "code",
+          "type": "string",
+          "location": "path",
+          "description": "Entity code",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "entity_get-entities",
+      "description": "Retrieves a list of all entities that the user has permission to view. Returns array of Entity.",
+      "method": "GET",
+      "path": "/entity",
+      "params": []
+    },
+    {
+      "name": "entity_permissions_get-entity-user",
+      "description": "Retrieves a list of all users who have access to an entity and the permissions they have. Required: code. Returns array of EntityUser.",
+      "method": "GET",
+      "path": "/entity/{code}/permissions",
+      "params": [
+        {
+          "name": "code",
+          "type": "string",
+          "location": "path",
+          "description": "Entity code",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "event_checkpoint",
+      "description": "Delete a named event checkpoint. If `expected_checkpoint_version` is supplied, the request uses it as an optimistic lock and returns 409 Conflict if the checkpoint has been modified since you last read it. Required: name. Optional: expected_checkpoint_version. Destructive.",
+      "method": "DELETE",
+      "path": "/event/checkpoint/{name}",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "expected_checkpoint_version",
+          "type": "string",
+          "location": "query",
+          "description": "Optional checkpointVersion from your last read of this checkpoint. If supplied, it is used as an optimistic lock."
+        }
+      ]
+    },
+    {
+      "name": "event_checkpoint-checkpoint",
+      "description": "Return a single event checkpoint by name. Required: name. Returns the GetCheckpointResponse.",
+      "method": "GET",
+      "path": "/event/checkpoint/{name}",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "event_checkpoint-checkpoint-2",
+      "description": "Advance the checkpoint to a new cursor position. Supply the `new_cursor` to move to. If you also provide the `expected_checkpoint_version` from the last read, the request uses it as an optimistic lock and returns 409 Conflict if the checkpoint has changed since you last read it. Required: name, new_cursor. Optional: expected_checkpoint_version.",
+      "method": "PATCH",
+      "path": "/event/checkpoint/{name}",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "expected_checkpoint_version",
+          "type": "string",
+          "location": "body",
+          "description": "Optional checkpointVersion value from your last read of this checkpoint. If supplied and it no longer matches the current version, the request returns 409 Conflict."
+        },
+        {
+          "name": "new_cursor",
+          "type": "string",
+          "location": "body",
+          "description": "New cursor token (ev1.*) to advance the checkpoint to",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "event_checkpoint-checkpoint-3",
+      "description": "Create a new named event checkpoint, or return the existing one if it already exists. On creation, the cursor is initialised to initial_cursor if provided, or to the current end of the event stream otherwise. initial_cursor is ignored if the checkpoint already exists. Required: name. Returns the updated UpsertCheckpointResponse.",
+      "method": "PUT",
+      "path": "/event/checkpoint/{name}",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "event_checkpoints",
+      "description": "Return all event checkpoints for the authenticated user, ordered by name. Optional: name_prefix, limit (default: 100). Returns array of CheckpointData.",
+      "method": "GET",
+      "path": "/event/checkpoint",
+      "params": [
+        {
+          "name": "name_prefix",
+          "type": "string",
+          "location": "query",
+          "description": "Filter checkpoints whose name starts with this prefix"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of checkpoints to return"
+        }
+      ]
+    },
+    {
+      "name": "event_get",
+      "description": "Return a page of events from the stream. Supports cursor-based pagination with an optional timestamp lower bound. Optional: start_cursor, end_cursor, min_created_at (plus 1 more). Returns array of EventGetItem.",
+      "method": "GET",
+      "path": "/event",
+      "params": [
+        {
+          "name": "start_cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Return events after this cursor (exclusive)"
+        },
+        {
+          "name": "end_cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Return events up to and including this cursor"
+        },
+        {
+          "name": "min_created_at",
+          "type": "string",
+          "location": "query",
+          "description": "Return events created after this timestamp. ISO 8601 datetime in any timezone. When using a timezone offset, percent-encode the + as %2B (e.g. %2B01:00), or use the Z suffix for UTC."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max events to return"
+        }
+      ]
+    },
+    {
+      "name": "health_get",
+      "description": "Perform a health check by returning a JSON response with a status code of 200 (OK). Returns the HealthCheck.",
+      "method": "GET",
+      "path": "/health",
+      "params": []
+    },
+    {
+      "name": "holding_get",
+      "description": "Retrieves a list of all holdings that the user has permission to view. Optional: entity_code, min_subscription_date, max_subscription_date (plus 5 more). Returns array of Holding.",
+      "method": "GET",
+      "path": "/holding",
+      "params": [
+        {
+          "name": "entity_code",
+          "type": "string",
+          "location": "query",
+          "description": "Parameter to filter holdings by entity code"
+        },
+        {
+          "name": "min_subscription_date",
+          "type": "string",
+          "location": "query",
+          "description": "Parameter to filter holdings by minimum subscription date"
+        },
+        {
+          "name": "max_subscription_date",
+          "type": "string",
+          "location": "query",
+          "description": "Parameter to filter holdings by maximum subscription date"
+        },
+        {
+          "name": "min_maturity_date",
+          "type": "string",
+          "location": "query",
+          "description": "Parameter to filter holdings by minimum maturity date"
+        },
+        {
+          "name": "max_maturity_date",
+          "type": "string",
+          "location": "query",
+          "description": "Parameter to filter holdings by maximum maturity date"
+        },
+        {
+          "name": "min_modified_date",
+          "type": "string",
+          "location": "query",
+          "description": "Parameter to filter holdings by modification date"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size used for pagination"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination"
+        }
+      ]
+    },
+    {
+      "name": "holding_get-entitycode",
+      "description": "Retrieves data for a single holding if the user has permission to view it. Required: entity_code, holding_uid. Returns the SingleHolding.",
+      "method": "GET",
+      "path": "/holding/{entity_code}/{holding_uid}",
+      "params": [
+        {
+          "name": "entity_code",
+          "type": "string",
+          "location": "path",
+          "description": "Entity code",
+          "required": true
+        },
+        {
+          "name": "holding_uid",
+          "type": "string",
+          "location": "path",
+          "description": "Holding uid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "holding_maturity-action_get",
+      "description": "Get a list of maturity actions for a specific holding. Required: entity_code, holding_uid. Returns array of MaturityAction.",
+      "method": "GET",
+      "path": "/holding/{entity_code}/{holding_uid}/maturity-action",
+      "params": [
+        {
+          "name": "entity_code",
+          "type": "string",
+          "location": "path",
+          "description": "Entity code",
+          "required": true
+        },
+        {
+          "name": "holding_uid",
+          "type": "string",
+          "location": "path",
+          "description": "Holding uid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "holding_maturity-action_put",
+      "description": "Updates the maturity action for an existing holding. This operation applies to the entire holding amount and will overwrite any next actions that have been set. For more granular control over next actions, use the TreasurySpring portal. Required: entity_code, holding_uid, action. Optional: indicationUid, reason. Returns array of MaturityAction.",
+      "method": "PUT",
+      "path": "/holding/{entity_code}/{holding_uid}/maturity-action",
+      "params": [
+        {
+          "name": "entity_code",
+          "type": "string",
+          "location": "path",
+          "description": "Entity code",
+          "required": true
+        },
+        {
+          "name": "holding_uid",
+          "type": "string",
+          "location": "path",
+          "description": "uid of the holding whose maturity action is being modified.",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "The maturity action to change to",
+          "required": true
+        },
+        {
+          "name": "indicationUid",
+          "type": "string",
+          "location": "body",
+          "description": "The uid of indication to switch to (Required if action is set to SWITCH)"
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "body",
+          "description": "Reason for redemption if choosing to redeem cash"
+        }
+      ]
+    },
+    {
+      "name": "holidays_get",
+      "description": "Retrieves a list of all holidays for a given year. Required: year. Returns array of Holiday.",
+      "method": "GET",
+      "path": "/holidays/{year}",
+      "params": [
+        {
+          "name": "year",
+          "type": "int",
+          "location": "path",
+          "description": "Year",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "indication_get",
+      "description": "Retrieves a list of all Indications that the user has permission to view. Required: code. Returns array of Indication.",
+      "method": "GET",
+      "path": "/indication/{code}",
+      "params": [
+        {
+          "name": "code",
+          "type": "string",
+          "location": "path",
+          "description": "Entity code",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "oauth_post-token",
+      "description": "Obtain an access token using the client credentials grant type. Required: client_id, client_secret, grant_type. Returns the new TokenResponse.",
+      "method": "POST",
+      "path": "/oauth/token",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "string",
+          "location": "body",
+          "description": "The client id.",
+          "required": true
+        },
+        {
+          "name": "client_secret",
+          "type": "string",
+          "location": "body",
+          "description": "The client secret for client credentials flow.",
+          "required": true
+        },
+        {
+          "name": "grant_type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of grant being requested.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "obligor-exposure_get",
+      "description": "Get data for obligor exposure by code. Required: code. Returns the ObligorExposure.",
+      "method": "GET",
+      "path": "/obligor-exposure/{code}",
+      "params": [
+        {
+          "name": "code",
+          "type": "string",
+          "location": "path",
+          "description": "Obligor code",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscribe_post",
+      "description": "Subscribe to an FTF. Required: amount, entityCode, indicationUid. Optional: maturityAction (default: Roll), source, subscriptionDate (plus 1 more). Returns the new Subscription.",
+      "method": "POST",
+      "path": "/subscribe",
+      "params": [
+        {
+          "name": "amount",
+          "type": "float",
+          "location": "body",
+          "description": "Subscription amount in the currency of the indication",
+          "required": true
+        },
+        {
+          "name": "entityCode",
+          "type": "string",
+          "location": "body",
+          "description": "Subscribing entity code",
+          "required": true
+        },
+        {
+          "name": "indicationUid",
+          "type": "string",
+          "location": "body",
+          "description": "Uid of the indication to subscribe to.",
+          "required": true
+        },
+        {
+          "name": "maturityAction",
+          "type": "string",
+          "location": "body",
+          "description": "Maturity action type"
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "Source of funds"
+        },
+        {
+          "name": "subscriptionDate",
+          "type": "string",
+          "location": "body",
+          "description": "The date to subscribe to the FTF. A list of possible dates can be found in the subscriptionDates field for the indication. If no date provided, this will default to today."
+        },
+        {
+          "name": "withdrawal_date",
+          "type": "string",
+          "location": "body",
+          "description": "Date to withdraw, applicable only if maturity action is set to REDEEM"
+        }
+      ]
+    },
+    {
+      "name": "subscription_get",
+      "description": "Retrieves a list of all subscriptions that the user has permission to view. Optional: entity_code, min_subscription_date, max_subscription_date (plus 4 more). Returns array of Subscription.",
+      "method": "GET",
+      "path": "/subscription",
+      "params": [
+        {
+          "name": "entity_code",
+          "type": "string",
+          "location": "query",
+          "description": "Parameter to filter subscriptions by entity code"
+        },
+        {
+          "name": "min_subscription_date",
+          "type": "string",
+          "location": "query",
+          "description": "Parameter to filter subscriptions by minimum subscription date"
+        },
+        {
+          "name": "max_subscription_date",
+          "type": "string",
+          "location": "query",
+          "description": "Parameter to filter subscriptions by maximum subscription date"
+        },
+        {
+          "name": "min_maturity_date",
+          "type": "string",
+          "location": "query",
+          "description": "Parameter to filter subscriptions by minimum maturity date"
+        },
+        {
+          "name": "max_maturity_date",
+          "type": "string",
+          "location": "query",
+          "description": "Parameter to filter subscriptions by maximum maturity date"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size used for pagination"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination"
+        }
+      ]
+    },
+    {
+      "name": "task_get",
+      "description": "Retrieves a list of all pending tasks that the user has. Returns array of Task.",
+      "method": "GET",
+      "path": "/task",
+      "params": []
+    },
+    {
+      "name": "task_get-uid",
+      "description": "Retrieves a pending task by uid. Required: uid. Returns the Task.",
+      "method": "GET",
+      "path": "/task/{uid}",
+      "params": [
+        {
+          "name": "uid",
+          "type": "string",
+          "location": "path",
+          "description": "Task uid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "task_post",
+      "description": "Used to approve or deny a pending task. Required: uid, data. Returns the new SubmitTaskResponse.",
+      "method": "POST",
+      "path": "/task/{uid}",
+      "params": [
+        {
+          "name": "uid",
+          "type": "string",
+          "location": "path",
+          "description": "Task uid",
+          "required": true
+        },
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "A JSON object containing the form data to be submitted for the task. The structure of the JSON object depends on the task type and can be found in the task properties.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhook_delete",
+      "description": "Deregister an existing webhook for a user. Returns the DeleteWebhookResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/webhook",
+      "params": []
+    },
+    {
+      "name": "webhook_post",
+      "description": "Register a url to a user for webhook notifications. Required: url. Returns the new WebhookResponse.",
+      "method": "POST",
+      "path": "/webhook",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Webhook URL",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

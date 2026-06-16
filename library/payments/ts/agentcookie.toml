@@ -1,0 +1,18 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "ts-pp-cli"
+display_name = "TreasurySpring"
+description = "Every TreasurySpring read endpoint, plus a local SQLite mirror that answers portfolio-level questions no single API call can: maturity ladders, obligor concentration, consolidated book, and event diffs."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/ts-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+TS_BEARER_TOKEN = true
+TS_CLIENT_ID = false
+TS_CLIENT_SECRET = true

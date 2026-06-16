@@ -1,0 +1,139 @@
+{
+  "api_name": "ts",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-16T08:25:00Z",
+  "novel_features": [
+    {
+      "name": "Cash-flow forecast / maturity ladder",
+      "command": "ladder",
+      "description": "Week-by-week projection of cash landing back, with maturities shifted to real settlement dates across all entities.",
+      "rationale": "Joins holdings' maturity dates to the holidays settlement calendar and buckets by adjusted date; no single API call applies the calendar or aggregates into time buckets.",
+      "example": "ts ladder --by week --currency USD --json",
+      "why_it_matters": "Reach for this to answer 'when does liquidity arrive' instead of reading raw per-holding maturity dates.",
+      "group": "Local mirror that compounds"
+    },
+    {
+      "name": "Obligor concentration",
+      "command": "concentration",
+      "description": "Total credit exposure to each obligor as a share of the consolidated book, flagging self-set limit breaches.",
+      "rationale": "Rolls up holdings + open subscriptions by obligor across every entity and computes the share denominator; the API is strictly entity-scoped.",
+      "example": "ts concentration --by obligor --limit 10% --json",
+      "why_it_matters": "Reach for this for group-wide counterparty risk; per-entity obligor-exposure calls cannot see the consolidated position.",
+      "group": "Local mirror that compounds"
+    },
+    {
+      "name": "Consolidated group book",
+      "command": "book",
+      "description": "One portfolio across every legal entity: total invested, weighted-average yield/maturity, currency split.",
+      "rationale": "Unions holdings across all mirrored entities with amount-weighted aggregates; API forces one-entity-per-call.",
+      "example": "ts book --group-by currency,maturity-bucket --json",
+      "why_it_matters": "Reach for this for the group-treasurer view no single login or call returns.",
+      "group": "Local mirror that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cash-flow forecast / maturity ladder",
+      "command": "ladder",
+      "description": "Week-by-week projection of cash landing back, with maturities shifted to real settlement dates across all entities.",
+      "rationale": "Joins holdings' maturity dates to the holidays settlement calendar and buckets by adjusted date; no single API call applies the calendar or aggregates into time buckets.",
+      "example": "ts ladder --by week --currency USD --json",
+      "why_it_matters": "Reach for this to answer 'when does liquidity arrive' instead of reading raw per-holding maturity dates.",
+      "group": "Local mirror that compounds"
+    },
+    {
+      "name": "Obligor concentration",
+      "command": "concentration",
+      "description": "Total credit exposure to each obligor as a share of the consolidated book, flagging self-set limit breaches.",
+      "rationale": "Rolls up holdings + open subscriptions by obligor across every entity and computes the share denominator; the API is strictly entity-scoped.",
+      "example": "ts concentration --by obligor --limit 10% --json",
+      "why_it_matters": "Reach for this for group-wide counterparty risk; per-entity obligor-exposure calls cannot see the consolidated position.",
+      "group": "Local mirror that compounds"
+    },
+    {
+      "name": "Consolidated group book",
+      "command": "book",
+      "description": "One portfolio across every legal entity: total invested, weighted-average yield/maturity, currency split.",
+      "rationale": "Unions holdings across all mirrored entities with amount-weighted aggregates; API forces one-entity-per-call.",
+      "example": "ts book --group-by currency,maturity-bucket --json",
+      "why_it_matters": "Reach for this for the group-treasurer view no single login or call returns.",
+      "group": "Local mirror that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "TS_BEARER_TOKEN"
+  },
+  "narrative": {
+    "display_name": "TreasurySpring",
+    "headline": "Every TreasurySpring read and write endpoint, plus a local SQLite mirror that answers portfolio-level questions no single API call can: maturity ladders, obligor concentration, and a consolidated group book.",
+    "value_prop": "ts mirrors your entities, indications, holdings, subscriptions and obligor exposures into local SQLite, then joins across them offline. Run `ts ladder` for a settlement-adjusted cash-flow forecast, `ts concentration --by obligor` for group-wide credit risk, or `ts book` for the consolidated portfolio across every entity. Agent-native: --json, --select, typed exit codes.",
+    "auth_narrative": "TreasurySpring uses OAuth2 client-credentials. Set TS_CLIENT_ID and TS_CLIENT_SECRET, then `ts auth login` exchanges them at /oauth/token for a bearer token cached locally. Alternatively set TS_BEARER_TOKEN with a pre-minted token. Use the sandbox with --base-url or TS_ENV=sandbox.",
+    "quickstart": [
+      {
+        "command": "ts doctor --dry-run",
+        "comment": "Health check: confirms config and reachability without needing a token."
+      },
+      {
+        "command": "ts auth login",
+        "comment": "Exchange client_id/secret for a bearer token."
+      },
+      {
+        "command": "ts sync",
+        "comment": "Mirror entities, holdings, indications, subscriptions and events into local SQLite."
+      },
+      {
+        "command": "ts ladder --by week --json",
+        "comment": "Settlement-adjusted cash-flow forecast across all entities."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 / Authorization field missing",
+        "fix": "Run `ts auth login` (or set TS_BEARER_TOKEN). Every endpoint, including health, needs a bearer token."
+      },
+      {
+        "symptom": "Empty ladder/concentration output",
+        "fix": "Run `ts sync` first; transcendence commands read the local mirror."
+      },
+      {
+        "symptom": "Testing against sandbox",
+        "fix": "Set TS_ENV=sandbox or pass --base-url https://api.sandbox.treasuryspring.com/api/v1."
+      }
+    ],
+    "when_to_use": "Use ts to inspect a TreasurySpring treasury book from the command line or an agent: list available products and yields, monitor live holdings, project cash flows by maturity, measure obligor concentration, and track lifecycle events. Best when you need portfolio-level answers that span entities or resources, or scriptable/offline access the portal and per-call API do not give.",
+    "anti_triggers": [
+      "Do not use ts to place real subscriptions or change maturity actions unless the write surface was explicitly enabled and you intend to commit capital.",
+      "Do not use ts for non-TreasurySpring treasury data; it only mirrors the TreasurySpring Public API."
+    ],
+    "recipes": [
+      {
+        "title": "Group-wide credit concentration",
+        "command": "ts concentration --by obligor --limit 10% --json --select obligor,exposure,share",
+        "explanation": "Consolidated obligor exposure with limit-breach flags; --select narrows the deeply nested rollup."
+      },
+      {
+        "title": "Cash-flow forecast by week",
+        "command": "ts ladder --by week --currency USD --json",
+        "explanation": "Settlement-adjusted maturity ladder across all entities, bucketed by week."
+      },
+      {
+        "title": "Consolidated group book",
+        "command": "ts book --group-by currency --json",
+        "explanation": "Total invested and weighted-average yield/maturity across every legal entity."
+      }
+    ],
+    "trigger_phrases": [
+      "treasuryspring holdings",
+      "what's maturing",
+      "obligor concentration",
+      "available yields",
+      "cash flow forecast",
+      "use ts",
+      "run treasuryspring cli"
+    ]
+  }
+}

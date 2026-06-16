@@ -1,0 +1,5229 @@
+{
+  "components": {
+    "schemas": {
+      "AdjustedEvent": {
+        "description": "One or more holding attributes were amended.",
+        "properties": {
+          "cost": {
+            "description": "Updated principal amount in the holding's currency.",
+            "examples": [
+              "10000.00"
+            ],
+            "format": "decimal",
+            "type": "string"
+          },
+          "currency": {
+            "description": "Three-letter currency code for the holding.",
+            "examples": [
+              "GBP"
+            ],
+            "type": "string"
+          },
+          "cursor": {
+            "description": "Opaque pagination token for this event. Pass as start_cursor on the next request to retrieve events that occurred after this one.",
+            "examples": [
+              "ev1.abc123.xyz789"
+            ],
+            "type": "string"
+          },
+          "entityCode": {
+            "description": "Code identifying the organisation (client) this event belongs to.",
+            "examples": [
+              "TEST001"
+            ],
+            "type": "string"
+          },
+          "eventType": {
+            "const": "ADJUSTED",
+            "type": "string"
+          },
+          "holdingUid": {
+            "description": "Unique identifier of the holding.",
+            "examples": [
+              "6e69e21342a24bbdaf9fe4e8a9995fda"
+            ],
+            "type": "string"
+          },
+          "maturityDate": {
+            "description": "Updated maturity date (YYYY-MM-DD).",
+            "examples": [
+              "2025-01-01"
+            ],
+            "type": "string"
+          },
+          "maturityValue": {
+            "description": "Expected or actual maturity value (principal plus interest) in the holding's currency.",
+            "examples": [
+              "10250.00"
+            ],
+            "format": "decimal",
+            "type": "string"
+          },
+          "obligorExposureCode": {
+            "description": "Code identifying the obligor exposure (counterparty) for this holding.",
+            "examples": [
+              "BACR"
+            ],
+            "type": "string"
+          },
+          "previousMaturityDate": {
+            "description": "Maturity date (YYYY-MM-DD) before the amendment.",
+            "examples": [
+              "2024-12-01"
+            ],
+            "type": "string"
+          },
+          "previousMaturityValue": {
+            "description": "Expected maturity value before the amendment.",
+            "examples": [
+              "10200.00"
+            ],
+            "format": "decimal",
+            "type": "string"
+          },
+          "previousSubscriptionDate": {
+            "description": "Subscription date (YYYY-MM-DD) before the amendment.",
+            "examples": [
+              "2023-12-01"
+            ],
+            "type": "string"
+          },
+          "subscriptionDate": {
+            "description": "Updated subscription date (YYYY-MM-DD).",
+            "examples": [
+              "2024-01-01"
+            ],
+            "type": "string"
+          },
+          "uid": {
+            "description": "Unique identifier for this event record.",
+            "examples": [
+              "00000000000000000000000000000001"
+            ],
+            "type": "string"
+          },
+          "yield": {
+            "description": "Current yield for the holding at the time of the event.",
+            "examples": [
+              "4.000000"
+            ],
+            "format": "decimal",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uid",
+          "cursor",
+          "entityCode",
+          "obligorExposureCode",
+          "maturityValue",
+          "yield",
+          "eventType",
+          "currency",
+          "holdingUid",
+          "cost",
+          "subscriptionDate",
+          "maturityDate",
+          "previousMaturityDate",
+          "previousMaturityValue",
+          "previousSubscriptionDate"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Events"
+        ]
+      },
+      "CancelledEvent": {
+        "description": "A previously issued holding was cancelled.",
+        "properties": {
+          "cost": {
+            "description": "Principal amount that was invested in the cancelled holding.",
+            "examples": [
+              "10000.00"
+            ],
+            "format": "decimal",
+            "type": "string"
+          },
+          "currency": {
+            "description": "Three-letter currency code for the holding.",
+            "examples": [
+              "GBP"
+            ],
+            "type": "string"
+          },
+          "cursor": {
+            "description": "Opaque pagination token for this event. Pass as start_cursor on the next request to retrieve events that occurred after this one.",
+            "examples": [
+              "ev1.abc123.xyz789"
+            ],
+            "type": "string"
+          },
+          "entityCode": {
+            "description": "Code identifying the organisation (client) this event belongs to.",
+            "examples": [
+              "TEST001"
+            ],
+            "type": "string"
+          },
+          "eventType": {
+            "const": "CANCELLED",
+            "type": "string"
+          },
+          "holdingUid": {
+            "description": "Unique identifier of the cancelled holding.",
+            "examples": [
+              "6e69e21342a24bbdaf9fe4e8a9995fda"
+            ],
+            "type": "string"
+          },
+          "uid": {
+            "description": "Unique identifier for this event record.",
+            "examples": [
+              "00000000000000000000000000000001"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "uid",
+          "cursor",
+          "entityCode",
+          "eventType",
+          "currency",
+          "holdingUid",
+          "cost"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Events"
+        ]
+      },
+      "CashMovedEvent": {
+        "description": "Cash was deposited into or withdrawn from the client's account.",
+        "properties": {
+          "amount": {
+            "description": "Net cash amount. Positive indicates a deposit; negative indicates a withdrawal.",
+            "examples": [
+              "10000.00"
+            ],
+            "format": "decimal",
+            "type": "string"
+          },
+          "currency": {
+            "description": "Three-letter currency code for the cash movement.",
+            "examples": [
+              "GBP"
+            ],
+            "type": "string"
+          },
+          "cursor": {
+            "description": "Opaque pagination token for this event. Pass as start_cursor on the next request to retrieve events that occurred after this one.",
+            "examples": [
+              "ev1.abc123.xyz789"
+            ],
+            "type": "string"
+          },
+          "entityCode": {
+            "description": "Code identifying the organisation (client) this event belongs to.",
+            "examples": [
+              "TEST001"
+            ],
+            "type": "string"
+          },
+          "eventType": {
+            "const": "CASH_MOVED",
+            "type": "string"
+          },
+          "uid": {
+            "description": "Unique identifier for this event record.",
+            "examples": [
+              "00000000000000000000000000000001"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "uid",
+          "cursor",
+          "entityCode",
+          "eventType",
+          "currency",
+          "amount"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Events"
+        ]
+      },
+      "Cell": {
+        "description": "Cell schema.",
+        "properties": {
+          "allowedObligors": {
+            "description": "List of allowed obligors",
+            "items": {
+              "$ref": "#/components/schemas/allowedObligorExposures"
+            },
+            "type": "array"
+          },
+          "code": {
+            "description": "Cell Code",
+            "examples": [
+              "Example-IC"
+            ],
+            "type": "string"
+          },
+          "documents": {
+            "description": "Cell Documents",
+            "items": {
+              "$ref": "#/components/schemas/CellDocuments"
+            },
+            "type": "array"
+          },
+          "name": {
+            "description": "Cell Name",
+            "examples": [
+              "TreasurySpring Example FTF IC"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "documents",
+          "allowedObligors"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Cells"
+        ]
+      },
+      "CellDocuments": {
+        "description": "CellDocuments schema.",
+        "properties": {
+          "name": {
+            "description": "Document Name",
+            "examples": [
+              "Factsheet"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Cells"
+        ]
+      },
+      "CheckpointData": {
+        "properties": {
+          "checkpointVersion": {
+            "description": "Opaque version token (ec1.*) representing the current state of this checkpoint. Pass this as expected_checkpoint_version when advancing the cursor via PATCH — if the checkpoint has changed since you read it, the request will return 409 Conflict.",
+            "examples": [
+              "ec1...."
+            ],
+            "type": "string"
+          },
+          "cursor": {
+            "description": "Opaque cursor token (ev1.*) pointing to the current stream position",
+            "examples": [
+              "ev1...."
+            ],
+            "type": "string"
+          },
+          "name": {
+            "description": "Checkpoint name",
+            "examples": [
+              "my-checkpoint"
+            ],
+            "type": "string"
+          },
+          "uid": {
+            "description": "Unique identifier for the checkpoint",
+            "examples": [
+              "01JKXYZ..."
+            ],
+            "type": "string"
+          },
+          "updatedAt": {
+            "description": "ISO 8601 timestamp of the last update",
+            "examples": [
+              "2024-01-01T00:00:00Z"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "uid",
+          "name",
+          "cursor",
+          "checkpointVersion",
+          "updatedAt"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Event Checkpoints"
+        ]
+      },
+      "CheckpointRef": {
+        "properties": {
+          "name": {
+            "description": "Name of the checkpoint",
+            "type": "string"
+          },
+          "uid": {
+            "description": "Unique identifier of the checkpoint",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uid",
+          "name"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Event Checkpoints"
+        ]
+      },
+      "CurrencyConvertedEvent": {
+        "description": "Cash was converted from one currency to another.",
+        "properties": {
+          "cursor": {
+            "description": "Opaque pagination token for this event. Pass as start_cursor on the next request to retrieve events that occurred after this one.",
+            "examples": [
+              "ev1.abc123.xyz789"
+            ],
+            "type": "string"
+          },
+          "entityCode": {
+            "description": "Code identifying the organisation (client) this event belongs to.",
+            "examples": [
+              "TEST001"
+            ],
+            "type": "string"
+          },
+          "eventType": {
+            "const": "CURRENCY_CONVERTED",
+            "type": "string"
+          },
+          "fromAmount": {
+            "description": "Amount in the source currency before conversion.",
+            "examples": [
+              "12500.00"
+            ],
+            "format": "decimal",
+            "type": "string"
+          },
+          "fromCurrency": {
+            "description": "Source currency code.",
+            "examples": [
+              "USD"
+            ],
+            "type": "string"
+          },
+          "fxRate": {
+            "description": "Exchange rate applied in the conversion.",
+            "examples": [
+              "0.800000"
+            ],
+            "format": "decimal",
+            "type": "string"
+          },
+          "toAmount": {
+            "description": "Amount in the target currency after conversion.",
+            "examples": [
+              "10000.00"
+            ],
+            "format": "decimal",
+            "type": "string"
+          },
+          "toCurrency": {
+            "description": "Target currency code.",
+            "examples": [
+              "GBP"
+            ],
+            "type": "string"
+          },
+          "uid": {
+            "description": "Unique identifier for this event record.",
+            "examples": [
+              "00000000000000000000000000000001"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "uid",
+          "cursor",
+          "entityCode",
+          "eventType",
+          "fromCurrency",
+          "toCurrency",
+          "fromAmount",
+          "toAmount",
+          "fxRate"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Events"
+        ]
+      },
+      "DeleteCheckpointResponse": {
+        "properties": {
+          "checkpoint": {
+            "$ref": "#/components/schemas/CheckpointRef"
+          },
+          "deleted": {
+            "description": "Always True on success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "checkpoint",
+          "deleted"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Event Checkpoints"
+        ]
+      },
+      "DeleteWebhookResponse": {
+        "properties": {
+          "email": {
+            "description": "Users Email",
+            "examples": [
+              "redacted@example.com"
+            ],
+            "type": "string"
+          },
+          "url": {
+            "description": "Webhook URL",
+            "examples": [
+              "https://example.com/webhook"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Webhooks"
+        ]
+      },
+      "Entity": {
+        "description": "Entity schema.",
+        "properties": {
+          "accountManager": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EntityAccountManager"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Entity Account Manager"
+          },
+          "address": {
+            "description": "Entity Address",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "bankAccounts": {
+            "description": "List of bank accounts for the entity",
+            "items": {
+              "$ref": "#/components/schemas/EntityBankAccount"
+            },
+            "type": "array"
+          },
+          "code": {
+            "description": "Entity Code",
+            "examples": [
+              "TEST0001"
+            ],
+            "type": "string"
+          },
+          "countryCode": {
+            "description": "Country code",
+            "examples": [
+              "GB"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "currency": {
+            "description": "Default Currency",
+            "examples": [
+              "GBP"
+            ],
+            "type": "string"
+          },
+          "name": {
+            "description": "Entity Name",
+            "examples": [
+              "TreasurySpring Limited"
+            ],
+            "type": "string"
+          },
+          "onboarding": {
+            "description": "True if entity is in the process of onboarding",
+            "type": "boolean"
+          },
+          "status": {
+            "description": "Entity Status",
+            "examples": [
+              "ACTIVE",
+              "PENDING"
+            ],
+            "type": "string"
+          },
+          "type": {
+            "description": "Description of the Entity Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "status",
+          "type",
+          "onboarding",
+          "currency",
+          "bankAccounts"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Entities"
+        ]
+      },
+      "EntityAccountManager": {
+        "description": "EntityAccountManager schema.",
+        "properties": {
+          "email": {
+            "description": "Account Manager Email",
+            "examples": [
+              "redacted@example.com"
+            ],
+            "type": "string"
+          },
+          "name": {
+            "description": "Account Manager Name",
+            "examples": [
+              "example"
+            ],
+            "type": "string"
+          },
+          "phone": {
+            "description": "Account phone number",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "email",
+          "name"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Entities"
+        ]
+      },
+      "EntityBankAccount": {
+        "description": "EntityBankAccount schema.",
+        "properties": {
+          "currency": {
+            "description": "Bank Account currency",
+            "examples": [
+              "GBP"
+            ],
+            "type": "string"
+          },
+          "lastDigits": {
+            "description": "last 4 digits of the account number",
+            "examples": [
+              "1234"
+            ],
+            "type": "string"
+          },
+          "uid": {
+            "description": "Bank Account uid",
+            "examples": [
+              "3e3020d02361470fa5839b2a456102b7"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "uid",
+          "currency",
+          "lastDigits"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Entities"
+        ]
+      },
+      "EntityUser": {
+        "description": "EntityUser schema.",
+        "properties": {
+          "permissions": {
+            "description": "List of permissions assigned to the user",
+            "examples": [
+              [
+                "view:holdings",
+                "view:profile"
+              ]
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EntityUserStatus",
+            "description": "User status",
+            "examples": [
+              "Active"
+            ]
+          },
+          "user": {
+            "description": "User Email",
+            "examples": [
+              "redacted@example.com"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "user",
+          "permissions",
+          "status"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Entities"
+        ]
+      },
+      "EntityUserStatus": {
+        "enum": [
+          "Pending",
+          "Active"
+        ],
+        "type": "string",
+        "x-tags": [
+          "Entities"
+        ]
+      },
+      "EventPageInfo": {
+        "description": "Pagination metadata for cursor-based event queries.",
+        "properties": {
+          "endCursor": {
+            "description": "Stable fence cursor representing the head of the stream at the time of the request. Use this as end_cursor on subsequent requests to retrieve only new events.",
+            "examples": [
+              "ev1.abc123.xyz789"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "hasNextPage": {
+            "description": "True if there are more events beyond the current page.",
+            "examples": [
+              false
+            ],
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Maximum number of events returned per request.",
+            "examples": [
+              1000
+            ],
+            "type": "integer"
+          },
+          "pageEndCursor": {
+            "description": "Cursor of the last event on the current page. Pass as start_cursor to fetch the next page.",
+            "examples": [
+              "ev1.abc123.xyz789"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "startCursor": {
+            "description": "Cursor of the first event on the current page.",
+            "examples": [
+              "ev1.abc123.xyz789"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "totalCount": {
+            "description": "Total number of events matching the current filters and cursor range.",
+            "examples": [
+              42
+            ],
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "hasNextPage",
+          "limit"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Event Checkpoints"
+        ]
+      },
+      "EventsResponse": {
+        "description": "Response for GET /event.",
+        "properties": {
+          "events": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "ADJUSTED": "#/components/schemas/AdjustedEvent",
+                  "CANCELLED": "#/components/schemas/CancelledEvent",
+                  "CASH_MOVED": "#/components/schemas/CashMovedEvent",
+                  "CURRENCY_CONVERTED": "#/components/schemas/CurrencyConvertedEvent",
+                  "EXTENDED": "#/components/schemas/ExtendedEvent",
+                  "FINALIZED": "#/components/schemas/FinalizedEvent",
+                  "ISSUED": "#/components/schemas/IssuedEvent",
+                  "REDEEMED": "#/components/schemas/RedeemedEvent",
+                  "SPLIT": "#/components/schemas/SplitEvent",
+                  "SUBSCRIBED": "#/components/schemas/SubscribedEvent"
+                },
+                "propertyName": "eventType"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/SubscribedEvent"
+                },
+                {
+                  "$ref": "#/components/schemas/IssuedEvent"
+                },
+                {
+                  "$ref": "#/components/schemas/SplitEvent"
+                },
+                {
+                  "$ref": "#/components/schemas/ExtendedEvent"
+                },
+                {
+                  "$ref": "#/components/schemas/FinalizedEvent"
+                },
+                {
+                  "$ref": "#/components/schemas/AdjustedEvent"
+                },
+                {
+                  "$ref": "#/components/schemas/CurrencyConvertedEvent"
+                },
+                {
+                  "$ref": "#/components/schemas/CashMovedEvent"
+                },
+                {
+                  "$ref": "#/components/schemas/RedeemedEvent"
+                },
+                {
+                  "$ref": "#/components/schemas/CancelledEvent"
+                }
+              ]
+            },
+            "type": "array"
+          },
+          "pageInfo": {
+            "$ref": "#/components/schemas/EventPageInfo"
+          }
+        },
+        "required": [
+          "events",
+          "pageInfo"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Event Checkpoints"
+        ]
+      },
+      "ExtendedEvent": {
+        "description": "A holding's maturity date was extended.",
+        "properties": {
+          "currency": {
+            "description": "Three-letter currency code for the holding.",
+            "examples": [
+              "GBP"
+            ],
+            "type": "string"
+          },
+          "cursor": {
+            "description": "Opaque pagination token for this event. Pass as start_cursor on the next request to retrieve events that occurred after this one.",
+            "examples": [
+              "ev1.abc123.xyz789"
+            ],
+            "type": "string"
+          },
+          "entityCode": {
+            "description": "Code identifying the organisation (client) this event belongs to.",
+            "examples": [
+              "TEST001"
+            ],
+            "type": "string"
+          },
+          "eventType": {
+            "const": "EXTENDED",
+            "type": "string"
+          },
+          "extensionOptionDate": {
+            "description": "Updated extension option date (YYYY-MM-DD) after the change. Null if none applies.",
+            "examples": [
+              "2025-02-15"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "holdingUid": {
+            "description": "Unique identifier of the holding.",
+            "examples": [
+              "6e69e21342a24bbdaf9fe4e8a9995fda"
+            ],
+            "type": "string"
+          },
+          "maturityDate": {
+            "description": "Updated maturity date (YYYY-MM-DD) after the extension.",
+            "examples": [
+              "2025-06-01"
+            ],
+            "type": "string"
+          },
+          "maturityValue": {
+            "description": "Expected or actual maturity value (principal plus interest) in the holding's currency.",
+            "examples": [
+              "10250.00"
+            ],
+            "format": "decimal",
+            "type": "string"
+          },
+          "obligorExposureCode": {
+            "description": "Code identifying the obligor exposure (counterparty) for this holding.",
+            "examples": [
+              "BACR"
+            ],
+            "type": "string"
+          },
+          "previousExtensionOptionDate": {
+            "description": "Extension option date (YYYY-MM-DD) before the change. Null if none was previously set.",
+            "examples": [
+              "2024-11-15"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "previousMaturityDate": {
+            "description": "Maturity date (YYYY-MM-DD) before the extension.",
+            "examples": [
+              "2024-12-01"
+            ],
+            "type": "string"
+          },
+          "uid": {
+            "description": "Unique identifier for this event record.",
+            "examples": [
+              "00000000000000000000000000000001"
+            ],
+            "type": "string"
+          },
+          "yield": {
+            "description": "Current yield for the holding at the time of the event.",
+            "examples": [
+              "4.000000"
+            ],
+            "format": "decimal",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uid",
+          "cursor",
+          "entityCode",
+          "obligorExposureCode",
+          "maturityValue",
+          "yield",
+          "eventType",
+          "currency",
+          "holdingUid",
+          "maturityDate",
+          "previousMaturityDate"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Events"
+        ]
+      },
+      "FinalizedEvent": {
+        "description": "A holding was confirmed as closed at maturity.",
+        "properties": {
+          "currency": {
+            "description": "Three-letter currency code for the holding.",
+            "examples": [
+              "GBP"
+            ],
+            "type": "string"
+          },
+          "cursor": {
+            "description": "Opaque pagination token for this event. Pass as start_cursor on the next request to retrieve events that occurred after this one.",
+            "examples": [
+              "ev1.abc123.xyz789"
+            ],
+            "type": "string"
+          },
+          "entityCode": {
+            "description": "Code identifying the organisation (client) this event belongs to.",
+            "examples": [
+              "TEST001"
+            ],
+            "type": "string"
+          },
+          "eventType": {
+            "const": "FINALIZED",
+            "type": "string"
+          },
+          "finalized": {
+            "description": "Always true — confirms the holding is closed at maturity.",
+            "examples": [
+              true
+            ],
+            "type": "boolean"
+          },
+          "holdingUid": {
+            "description": "Unique identifier of the holding.",
+            "examples": [
+              "6e69e21342a24bbdaf9fe4e8a9995fda"
+            ],
+            "type": "string"
+          },
+          "maturityDate": {
+            "description": "Date (YYYY-MM-DD) the holding matured.",
+            "examples": [
+              "2025-01-01"
+            ],
+            "type": "string"
+          },
+          "maturityValue": {
+            "description": "Expected or actual maturity value (principal plus interest) in the holding's currency.",
+            "examples": [
+              "10250.00"
+            ],
+            "format": "decimal",
+            "type": "string"
+          },
+          "obligorExposureCode": {
+            "description": "Code identifying the obligor exposure (counterparty) for this holding.",
+            "examples": [
+              "BACR"
+            ],
+            "type": "string"
+          },
+          "uid": {
+            "description": "Unique identifier for this event record.",
+            "examples": [
+              "00000000000000000000000000000001"
+            ],
+            "type": "string"
+          },
+          "yield": {
+            "description": "Current yield for the holding at the time of the event.",
+            "examples": [
+              "4.000000"
+            ],
+            "format": "decimal",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uid",
+          "cursor",
+          "entityCode",
+          "obligorExposureCode",
+          "maturityValue",
+          "yield",
+          "eventType",
+          "currency",
+          "holdingUid",
+          "maturityDate",
+          "finalized"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Events"
+        ]
+      },
+      "GetCheckpointResponse": {
+        "properties": {
+          "checkpoint": {
+            "$ref": "#/components/schemas/CheckpointData"
+          }
+        },
+        "required": [
+          "checkpoint"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Event Checkpoints"
+        ]
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "HealthCheck": {
+        "description": "Response model to validate and return when performing a health check.",
+        "properties": {
+          "status": {
+            "default": "OK",
+            "description": "Health Status",
+            "examples": [
+              "OK"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "x-tags": [
+          "Healthcheck"
+        ]
+      },
+      "Holding": {
+        "description": "Holding schema.",
+        "properties": {
+          "calendars": {
+            "description": "List of calendars followed by product",
+            "examples": [
+              [
+                "TreasurySpring",
+                "United Kingdom"
+              ]
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "cellCode": {
+            "description": "Cell Code",
+            "examples": [
+              "Example-IC"
+            ],
+            "type": "string"
+          },
+          "cost": {
+            "description": "Holding initial cost",
+            "examples": [
+              5000
+            ],
+            "type": "number"
+          },
+          "currency": {
+            "description": "Holding currency",
+            "examples": [
+              "GBP"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cutoffDatetime": {
+            "description": "Cutoff date with timezone information",
+            "examples": [
+              "2024-04-15T12:15:00"
+            ],
+            "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "entityCode": {
+            "description": "Investing Entity Code",
+            "examples": [
+              "TEST0001"
+            ],
+            "type": "string"
+          },
+          "extendedMaturityDate": {
+            "description": "New maturity date for an extension (extendables only)",
+            "examples": [
+              "2025-01-01"
+            ],
+            "format": "date",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "extensionOptionDate": {
+            "description": "Extension option date (extendables only)",
+            "examples": [
+              "2025-01-01"
+            ],
+            "format": "date",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "extensionStartDate": {
+            "description": "Start date for an extension (extendables only)",
+            "examples": [
+              "2025-01-01"
+            ],
+            "format": "date",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "extensionStartValue": {
+            "description": "Initial value for current extension (extendables only)",
+            "examples": [
+              5000
+            ],
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "finalYield": {
+            "description": "Final period yield (extendables only)",
+            "examples": [
+              0
+            ],
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "finalized": {
+            "description": "True if this is the final extension (extendables only)",
+            "examples": [
+              true
+            ],
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "isOnBalanceSheet": {
+            "description": "True if holding value can be counted for balance sheet calculations, False otherwise",
+            "examples": [
+              true
+            ],
+            "type": "boolean"
+          },
+          "issueDate": {
+            "description": "Date the FTF was issued, otherwise known as Subscription date",
+            "examples": [
+              "2024-01-01"
+            ],
+            "format": "date",
+            "type": "string"
+          },
+          "maturityActions": {
+            "description": "Maturity actions (next actions) for this holding — what happens to the holding's value at maturity. Upcoming for live holdings; reflects the action(s) applied for matured or redeemed holdings. Empty if no actions are set.",
+            "items": {
+              "$ref": "#/components/schemas/MaturityAction"
+            },
+            "type": "array"
+          },
+          "maturityDate": {
+            "description": "Date the FTF holding will mature",
+            "examples": [
+              "2025-01-01"
+            ],
+            "format": "date",
+            "type": "string"
+          },
+          "maturityValue": {
+            "description": "Value at maturity",
+            "examples": [
+              7000
+            ],
+            "type": "number"
+          },
+          "maturityValueAdjustment": {
+            "description": "Adjustment on the maturity value (usually 0)",
+            "examples": [
+              0
+            ],
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "mmyA365F": {
+            "description": "Simple yield",
+            "examples": [
+              5.5
+            ],
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "name": {
+            "description": "FTF name",
+            "examples": [
+              "TreasurySpring Bluebird-IC GBP-BACR-1M/TEST0001/2024-5-14/2024-6-14"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nextFinalYield": {
+            "description": "Next final period yield (extendables only)",
+            "examples": [
+              5.5
+            ],
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "nextYield": {
+            "description": "Next extension yield (extendables only)",
+            "examples": [
+              5.5
+            ],
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "obligorExposureCode": {
+            "description": "Obligor Exposure Code",
+            "examples": [
+              "BACR[GC]"
+            ],
+            "type": "string"
+          },
+          "pricePerShare": {
+            "description": "Price per share",
+            "examples": [
+              10
+            ],
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "productCode": {
+            "description": "The FTF product code",
+            "examples": [
+              "GBP-BACR[GC]-3M"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "$ref": "#/components/schemas/HoldingStatusEnum",
+            "description": "The current status of the holding",
+            "examples": [
+              "Issued"
+            ]
+          },
+          "subscriptionUid": {
+            "description": "The unique identifier for the subscription associated with the holding.",
+            "examples": [
+              "dade0389c66241bd8366b017f1ffe19a"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "description": "The type of product, Fixed or Extendable",
+            "examples": [
+              "Fixed"
+            ],
+            "type": "string"
+          },
+          "uid": {
+            "description": "The unique identifier for the holding",
+            "examples": [
+              "c660adab8e394383a3f839dd9d66bf9e"
+            ],
+            "type": "string"
+          },
+          "value": {
+            "description": "Current value",
+            "examples": [
+              6000
+            ],
+            "type": "number"
+          },
+          "yield": {
+            "description": "The current yield",
+            "examples": [
+              5
+            ],
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "uid",
+          "type",
+          "entityCode",
+          "cellCode",
+          "obligorExposureCode",
+          "status",
+          "cost",
+          "value",
+          "maturityValue",
+          "issueDate",
+          "maturityDate",
+          "calendars",
+          "isOnBalanceSheet"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Holdings"
+        ]
+      },
+      "HoldingStatusEnum": {
+        "enum": [
+          "Cash",
+          "Pending",
+          "PendingWithdrawal",
+          "Issued",
+          "Redeemed",
+          "Cancelled",
+          "CutOff",
+          "Processing"
+        ],
+        "type": "string",
+        "x-tags": [
+          "Holdings"
+        ]
+      },
+      "Holiday": {
+        "description": "Holidays schema.",
+        "properties": {
+          "country": {
+            "description": "Counry/Calendar this holiday belongs to",
+            "examples": [
+              "United Kingdom"
+            ],
+            "type": "string"
+          },
+          "date": {
+            "description": "Date of holiday",
+            "examples": [
+              "2000-01-01"
+            ],
+            "format": "date",
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of holiday",
+            "examples": [
+              "New year"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "country",
+          "date",
+          "name"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Calendar"
+        ]
+      },
+      "Indication": {
+        "description": "Indication schema.",
+        "properties": {
+          "calendars": {
+            "description": "List of calendars followed by product",
+            "examples": [
+              [
+                "TreasurySpring",
+                "United Kingdom"
+              ]
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "cellCode": {
+            "description": "Cell Code",
+            "examples": [
+              "Example-IC"
+            ],
+            "type": "string"
+          },
+          "created": {
+            "description": "Indication creation date",
+            "examples": [
+              "2024-01-01T00:00:00"
+            ],
+            "format": "date-time",
+            "type": "string"
+          },
+          "currency": {
+            "description": "FTF currency",
+            "examples": [
+              "GBP"
+            ],
+            "type": "string"
+          },
+          "cutoffTime": {
+            "description": "Time of day (London time) at which subscription cut-off occurs for this product. Combine with the chosen subscriptionDate to compute the cut-off datetime.",
+            "examples": [
+              "12:15:00"
+            ],
+            "format": "time",
+            "type": "string"
+          },
+          "enabled": {
+            "description": "Contols if the indication is enabled or set to notify me",
+            "examples": [
+              true
+            ],
+            "type": "boolean"
+          },
+          "enforceMaximum": {
+            "description": "Enforce maximum investment amount (if not enforced any subscription above maximum is subject to review)",
+            "examples": [
+              true
+            ],
+            "type": "boolean"
+          },
+          "enforceMinimum": {
+            "description": "Enforce minimum investment amount (if not enforced any subscription below minimum is subject to review)",
+            "examples": [
+              true
+            ],
+            "type": "boolean"
+          },
+          "expiry": {
+            "description": "Indication depricated after expriring (rates subject to change)",
+            "examples": [
+              "2025-01-01T00:00:00"
+            ],
+            "format": "date-time",
+            "type": "string"
+          },
+          "extensionDays": {
+            "description": "Extension frequency (in days) (extendables only)",
+            "examples": [
+              7
+            ],
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "finalDays": {
+            "description": "Final period (in days) (extendables only)",
+            "examples": [
+              45
+            ],
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "indicativeFinalYield": {
+            "description": "Final period yield (extendables only)",
+            "examples": [
+              5.5
+            ],
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "indicativeYield": {
+            "description": "Indicative yield",
+            "examples": [
+              5.5
+            ],
+            "type": "number"
+          },
+          "issueDate": {
+            "description": "Issue date of the FTF",
+            "examples": [
+              "2024-01-01"
+            ],
+            "format": "date",
+            "type": "string"
+          },
+          "maturityDate": {
+            "description": "Maturity date of the FTF",
+            "examples": [
+              "2025-01-01"
+            ],
+            "format": "date",
+            "type": "string"
+          },
+          "maximum": {
+            "description": "Maximum Investment amount (in Millions)",
+            "examples": [
+              100
+            ],
+            "type": "number"
+          },
+          "minExtensions": {
+            "description": "Minimum extensions to remove dropdown rate (extendables only)",
+            "examples": [
+              7
+            ],
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "minimum": {
+            "description": "Minimum investment amount (in Millions)",
+            "examples": [
+              10
+            ],
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "nbPenaltyExtensions": {
+            "description": "Minimum extensions to remove penalty spread (extendables only)",
+            "examples": [
+              7
+            ],
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "obligorExposureCode": {
+            "description": "Obligor Exposure Code",
+            "examples": [
+              "BACR"
+            ],
+            "type": "string"
+          },
+          "optionDate": {
+            "description": "Extension option date (extendables only)",
+            "examples": [
+              "2025-01-01"
+            ],
+            "format": "date",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "productCode": {
+            "description": "Product Code",
+            "examples": [
+              "GBP-BACR[GC]-3M"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "restricted": {
+            "description": "Controls if the indication is restricted for a particular entity",
+            "examples": [
+              false
+            ],
+            "type": "boolean"
+          },
+          "sector": {
+            "description": "Product Sector",
+            "examples": [
+              "Financial"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "subscriptionDates": {
+            "description": "List of subscription dates",
+            "examples": [
+              [
+                "2024-01-01"
+              ]
+            ],
+            "items": {
+              "format": "date",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "term": {
+            "description": "The product term",
+            "examples": [
+              "3m"
+            ],
+            "type": "string"
+          },
+          "type": {
+            "description": "FTF type",
+            "examples": [
+              "Fixed"
+            ],
+            "type": "string"
+          },
+          "uid": {
+            "description": "Indication uid",
+            "examples": [
+              "8ca8f50d3ef44a43962998a5533f0cfa"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "uid",
+          "type",
+          "currency",
+          "issueDate",
+          "subscriptionDates",
+          "cutoffTime",
+          "maturityDate",
+          "indicativeYield",
+          "maximum",
+          "cellCode",
+          "obligorExposureCode",
+          "enabled",
+          "term",
+          "restricted",
+          "calendars",
+          "enforceMinimum",
+          "enforceMaximum"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Indications"
+        ]
+      },
+      "IssuedEvent": {
+        "description": "A holding was issued (moved from subscription to active).",
+        "properties": {
+          "cost": {
+            "description": "Principal amount invested in the holding's currency.",
+            "examples": [
+              "10000.00"
+            ],
+            "format": "decimal",
+            "type": "string"
+          },
+          "currency": {
+            "description": "Three-letter currency code for the holding.",
+            "examples": [
+              "GBP"
+            ],
+            "type": "string"
+          },
+          "cursor": {
+            "description": "Opaque pagination token for this event. Pass as start_cursor on the next request to retrieve events that occurred after this one.",
+            "examples": [
+              "ev1.abc123.xyz789"
+            ],
+            "type": "string"
+          },
+          "entityCode": {
+            "description": "Code identifying the organisation (client) this event belongs to.",
+            "examples": [
+              "TEST001"
+            ],
+            "type": "string"
+          },
+          "eventType": {
+            "const": "ISSUED",
+            "type": "string"
+          },
+          "holdingUid": {
+            "description": "Unique identifier of the holding.",
+            "examples": [
+              "6e69e21342a24bbdaf9fe4e8a9995fda"
+            ],
+            "type": "string"
+          },
+          "issueDate": {
+            "description": "Date (YYYY-MM-DD) the holding was issued.",
+            "examples": [
+              "2024-01-01"
+            ],
+            "type": "string"
+          },
+          "maturityDate": {
+            "description": "Date (YYYY-MM-DD) the holding is scheduled to mature.",
+            "examples": [
+              "2025-01-01"
+            ],
+            "type": "string"
+          },
+          "maturityValue": {
+            "description": "Expected or actual maturity value (principal plus interest) in the holding's currency.",
+            "examples": [
+              "10250.00"
+            ],
+            "format": "decimal",
+            "type": "string"
+          },
+          "obligorExposureCode": {
+            "description": "Code identifying the obligor exposure (counterparty) for this holding.",
+            "examples": [
+              "BACR"
+            ],
+            "type": "string"
+          },
+          "productCode": {
+            "description": "Identifier of the product this holding is in.",
+            "examples": [
+              "GBP-BACR[GC]-3M"
+            ],
+            "type": "string"
+          },
+          "subscriptionUid": {
+            "description": "Unique identifier of the subscription.",
+            "examples": [
+              "dade0389c66241bd8366b017f1ffe19a"
+            ],
+            "type": "string"
+          },
+          "uid": {
+            "description": "Unique identifier for this event record.",
+            "examples": [
+              "00000000000000000000000000000001"
+            ],
+            "type": "string"
+          },
+          "yield": {
+            "description": "Current yield for the holding at the time of the event.",
+            "examples": [
+              "4.000000"
+            ],
+            "format": "decimal",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uid",
+          "cursor",
+          "entityCode",
+          "obligorExposureCode",
+          "maturityValue",
+          "yield",
+          "eventType",
+          "currency",
+          "holdingUid",
+          "subscriptionUid",
+          "productCode",
+          "cost",
+          "issueDate",
+          "maturityDate"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Events"
+        ]
+      },
+      "ListCheckpointsResponse": {
+        "properties": {
+          "checkpoints": {
+            "items": {
+              "$ref": "#/components/schemas/CheckpointData"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "checkpoints"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Event Checkpoints"
+        ]
+      },
+      "MaturityAction": {
+        "description": "MaturityAction schema.",
+        "properties": {
+          "amount": {
+            "description": "Amount",
+            "examples": [
+              5000
+            ],
+            "type": "number"
+          },
+          "currency": {
+            "description": "Currency",
+            "examples": [
+              "GBP"
+            ],
+            "type": "string"
+          },
+          "holdingUid": {
+            "description": "Holding uid",
+            "examples": [
+              "74628ebad0f54881b3c76acf146eb3c3"
+            ],
+            "type": "string"
+          },
+          "subscriptionUid": {
+            "description": "The unique identifier for the subscription associated with the maturity action, if any.",
+            "examples": [
+              "dade0389c66241bd8366b017f1ffe19a"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "description": "Maturity Action type",
+            "examples": [
+              "ROLL"
+            ],
+            "type": "string"
+          },
+          "uid": {
+            "description": "Maturity Action uid",
+            "examples": [
+              "96cd54e5ddfd41b0a77afef15a96660d"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "uid",
+          "type",
+          "amount",
+          "currency",
+          "holdingUid"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Holdings"
+        ]
+      },
+      "MaturityActionEnum": {
+        "enum": [
+          "ROLL",
+          "SWITCH",
+          "HOLD",
+          "REDEEM"
+        ],
+        "type": "string",
+        "x-tags": [
+          "Holdings"
+        ]
+      },
+      "ObligorExposure": {
+        "description": "Obligor Exposure schema.",
+        "properties": {
+          "assetDescription": {
+            "description": "Underlying Asset Description",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "code": {
+            "description": "Obligor Exposure Code",
+            "examples": [
+              "BACR[GC]"
+            ],
+            "type": "string"
+          },
+          "creditUrl": {
+            "description": "Obligor Credit Rating URL",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "description": "Obligor Description",
+            "examples": [
+              "Barclays Bank Plc provides banking and financial services as part of the Barclays plc group."
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "lei": {
+            "description": "Legal Entity Identifier for the Obligor",
+            "examples": [
+              "529900T8BM49AURSDO55"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "description": "Obligor Exposure Name",
+            "examples": [
+              "Barclays Bank Plc [Gov secured]"
+            ],
+            "type": "string"
+          },
+          "obligorCode": {
+            "description": "Obligor Code",
+            "examples": [
+              "BACR"
+            ],
+            "type": "string"
+          },
+          "sector": {
+            "description": "Obligor Exposure Sector",
+            "examples": [
+              "Secured Financial"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "url": {
+            "description": "Obligor URL",
+            "examples": [
+              "https://home.barclays/"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "obligorCode"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Obligor Exposure"
+        ]
+      },
+      "PageInfo": {
+        "description": "PageInfo schema.",
+        "properties": {
+          "hasNextPage": {
+            "description": "Boolean indicating if there is a next page of items available",
+            "examples": [
+              true
+            ],
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "hasPreviousPage": {
+            "description": "boolean indicating if there is a previous page",
+            "examples": [
+              false
+            ],
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "limit": {
+            "description": "Limit or page size set (used for pagination)",
+            "examples": [
+              100
+            ],
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "offset": {
+            "description": "Offset of items (used for pagination)",
+            "examples": [
+              0
+            ],
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "totalCount": {
+            "description": "Total number of items available",
+            "examples": [
+              200
+            ],
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "hasNextPage",
+          "hasPreviousPage",
+          "limit",
+          "offset",
+          "totalCount"
+        ],
+        "type": "object"
+      },
+      "PaginatedHoldings": {
+        "description": "PaginatedHoldings schema.",
+        "properties": {
+          "holdings": {
+            "items": {
+              "$ref": "#/components/schemas/Holding"
+            },
+            "type": "array"
+          },
+          "pageInfo": {
+            "$ref": "#/components/schemas/PageInfo"
+          },
+          "valueDate": {
+            "description": "Date of the response (London timezone)",
+            "examples": [
+              "2025-01-01"
+            ],
+            "format": "date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "pageInfo",
+          "holdings",
+          "valueDate"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Holdings"
+        ]
+      },
+      "PaginatedSubscriptions": {
+        "description": "PaginatedSubscriptions schema.",
+        "properties": {
+          "pageInfo": {
+            "$ref": "#/components/schemas/PageInfo"
+          },
+          "subscriptions": {
+            "items": {
+              "$ref": "#/components/schemas/Subscription"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "pageInfo",
+          "subscriptions"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Subscriptions"
+        ]
+      },
+      "PatchCheckpointBody": {
+        "properties": {
+          "expected_checkpoint_version": {
+            "description": "Optional checkpointVersion value from your last read of this checkpoint. If supplied and it no longer matches the current version, the request returns 409 Conflict.",
+            "examples": [
+              "ec1...."
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "new_cursor": {
+            "description": "New cursor token (ev1.*) to advance the checkpoint to",
+            "examples": [
+              "ev1...."
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "new_cursor"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Event Checkpoints"
+        ]
+      },
+      "PatchCheckpointResponse": {
+        "properties": {
+          "checkpoint": {
+            "$ref": "#/components/schemas/CheckpointData"
+          }
+        },
+        "required": [
+          "checkpoint"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Event Checkpoints"
+        ]
+      },
+      "PutCheckpointBody": {
+        "properties": {
+          "initial_cursor": {
+            "description": "Cursor token (ev1.*) to initialise the checkpoint at. Only used when the checkpoint is created — ignored if it already exists. If omitted on creation, defaults to the current end of the event stream.",
+            "examples": [
+              "ev1...."
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "type": "object",
+        "x-tags": [
+          "Event Checkpoints"
+        ]
+      },
+      "ReasonEnum": {
+        "enum": [
+          "Funds returning shortly",
+          "Better terms elsewhere",
+          "Receipt of interest payment",
+          "Switching FTF product",
+          "Treasury Operations changed",
+          "Need proceeds"
+        ],
+        "type": "string",
+        "x-tags": [
+          "Tasks"
+        ]
+      },
+      "RedeemedEvent": {
+        "description": "A holding was redeemed at maturity and proceeds were returned to the client.",
+        "properties": {
+          "cost": {
+            "description": "Principal amount that was invested.",
+            "examples": [
+              "10000.00"
+            ],
+            "format": "decimal",
+            "type": "string"
+          },
+          "currency": {
+            "description": "Three-letter currency code for the holding.",
+            "examples": [
+              "GBP"
+            ],
+            "type": "string"
+          },
+          "cursor": {
+            "description": "Opaque pagination token for this event. Pass as start_cursor on the next request to retrieve events that occurred after this one.",
+            "examples": [
+              "ev1.abc123.xyz789"
+            ],
+            "type": "string"
+          },
+          "entityCode": {
+            "description": "Code identifying the organisation (client) this event belongs to.",
+            "examples": [
+              "TEST001"
+            ],
+            "type": "string"
+          },
+          "eventType": {
+            "const": "REDEEMED",
+            "type": "string"
+          },
+          "fxCurrency": {
+            "description": "Currency in which the redemption proceeds were paid out, when this differs from the holding's currency (FX redemption). Null for standard same-currency redemptions.",
+            "examples": [
+              "USD"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fxValue": {
+            "description": "Amount paid out in fxCurrency. Null for standard same-currency redemptions.",
+            "examples": [
+              "12500.00"
+            ],
+            "format": "decimal",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "holdingUid": {
+            "description": "Unique identifier of the holding.",
+            "examples": [
+              "6e69e21342a24bbdaf9fe4e8a9995fda"
+            ],
+            "type": "string"
+          },
+          "maturityValue": {
+            "description": "Expected or actual maturity value (principal plus interest) in the holding's currency.",
+            "examples": [
+              "10250.00"
+            ],
+            "format": "decimal",
+            "type": "string"
+          },
+          "obligorExposureCode": {
+            "description": "Code identifying the obligor exposure (counterparty) for this holding.",
+            "examples": [
+              "BACR"
+            ],
+            "type": "string"
+          },
+          "uid": {
+            "description": "Unique identifier for this event record.",
+            "examples": [
+              "00000000000000000000000000000001"
+            ],
+            "type": "string"
+          },
+          "yield": {
+            "description": "Current yield for the holding at the time of the event.",
+            "examples": [
+              "4.000000"
+            ],
+            "format": "decimal",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uid",
+          "cursor",
+          "entityCode",
+          "obligorExposureCode",
+          "maturityValue",
+          "yield",
+          "eventType",
+          "currency",
+          "holdingUid",
+          "cost"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Events"
+        ]
+      },
+      "SingleHolding": {
+        "description": "Single Holding schema.",
+        "properties": {
+          "holding": {
+            "$ref": "#/components/schemas/Holding"
+          },
+          "valueDate": {
+            "description": "Date of the response (London timezone)",
+            "examples": [
+              "2025-01-01"
+            ],
+            "format": "date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "holding",
+          "valueDate"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Holdings"
+        ]
+      },
+      "SplitEvent": {
+        "description": "A holding was split into two separate holdings.",
+        "properties": {
+          "cost": {
+            "description": "Remaining principal amount on the original holding after the split.",
+            "examples": [
+              "5000.00"
+            ],
+            "format": "decimal",
+            "type": "string"
+          },
+          "currency": {
+            "description": "Three-letter currency code for the holding.",
+            "examples": [
+              "GBP"
+            ],
+            "type": "string"
+          },
+          "cursor": {
+            "description": "Opaque pagination token for this event. Pass as start_cursor on the next request to retrieve events that occurred after this one.",
+            "examples": [
+              "ev1.abc123.xyz789"
+            ],
+            "type": "string"
+          },
+          "entityCode": {
+            "description": "Code identifying the organisation (client) this event belongs to.",
+            "examples": [
+              "TEST001"
+            ],
+            "type": "string"
+          },
+          "eventType": {
+            "const": "SPLIT",
+            "type": "string"
+          },
+          "holdingUid": {
+            "description": "Unique identifier of the original holding.",
+            "examples": [
+              "6e69e21342a24bbdaf9fe4e8a9995fda"
+            ],
+            "type": "string"
+          },
+          "maturityValue": {
+            "description": "Expected or actual maturity value (principal plus interest) in the holding's currency.",
+            "examples": [
+              "10250.00"
+            ],
+            "format": "decimal",
+            "type": "string"
+          },
+          "obligorExposureCode": {
+            "description": "Code identifying the obligor exposure (counterparty) for this holding.",
+            "examples": [
+              "BACR"
+            ],
+            "type": "string"
+          },
+          "splitCost": {
+            "description": "Principal amount assigned to the new holding created by the split.",
+            "examples": [
+              "5000.00"
+            ],
+            "format": "decimal",
+            "type": "string"
+          },
+          "splitHoldingUid": {
+            "description": "Unique identifier of the new holding created by the split.",
+            "examples": [
+              "c660adab8e394383a3f839dd9d66bf9e"
+            ],
+            "type": "string"
+          },
+          "uid": {
+            "description": "Unique identifier for this event record.",
+            "examples": [
+              "00000000000000000000000000000001"
+            ],
+            "type": "string"
+          },
+          "yield": {
+            "description": "Current yield for the holding at the time of the event.",
+            "examples": [
+              "4.000000"
+            ],
+            "format": "decimal",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uid",
+          "cursor",
+          "entityCode",
+          "obligorExposureCode",
+          "maturityValue",
+          "yield",
+          "eventType",
+          "currency",
+          "holdingUid",
+          "cost",
+          "splitHoldingUid",
+          "splitCost"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Events"
+        ]
+      },
+      "SubmitTaskBody": {
+        "description": "Submit task body schema.",
+        "properties": {
+          "data": {
+            "additionalProperties": true,
+            "description": "A JSON object containing the form data to be submitted for the task. The structure of the JSON object depends on the task type and can be found in the task properties.",
+            "examples": [
+              {
+                "approved": true
+              }
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Tasks"
+        ]
+      },
+      "SubmitTaskResponse": {
+        "description": "Submit task response schema.",
+        "properties": {
+          "error": {
+            "description": "Error message if the task was not successfully submitted.",
+            "examples": [
+              null
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "success": {
+            "description": "Indicates if the task was successfully submitted or not.",
+            "examples": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Tasks"
+        ]
+      },
+      "SubscribedEvent": {
+        "description": "A new holding subscription was placed.",
+        "properties": {
+          "cost": {
+            "description": "Principal amount invested in the holding's currency.",
+            "examples": [
+              "10000.00"
+            ],
+            "format": "decimal",
+            "type": "string"
+          },
+          "currency": {
+            "description": "Three-letter currency code for the holding.",
+            "examples": [
+              "GBP"
+            ],
+            "type": "string"
+          },
+          "cursor": {
+            "description": "Opaque pagination token for this event. Pass as start_cursor on the next request to retrieve events that occurred after this one.",
+            "examples": [
+              "ev1.abc123.xyz789"
+            ],
+            "type": "string"
+          },
+          "entityCode": {
+            "description": "Code identifying the organisation (client) this event belongs to.",
+            "examples": [
+              "TEST001"
+            ],
+            "type": "string"
+          },
+          "eventType": {
+            "const": "SUBSCRIBED",
+            "type": "string"
+          },
+          "holdingUid": {
+            "description": "Unique identifier of the holding.",
+            "examples": [
+              "6e69e21342a24bbdaf9fe4e8a9995fda"
+            ],
+            "type": "string"
+          },
+          "maturityDate": {
+            "description": "Date (YYYY-MM-DD) the holding is scheduled to mature.",
+            "examples": [
+              "2025-01-01"
+            ],
+            "type": "string"
+          },
+          "maturityValue": {
+            "description": "Expected or actual maturity value (principal plus interest) in the holding's currency.",
+            "examples": [
+              "10250.00"
+            ],
+            "format": "decimal",
+            "type": "string"
+          },
+          "obligorExposureCode": {
+            "description": "Code identifying the obligor exposure (counterparty) for this holding.",
+            "examples": [
+              "BACR"
+            ],
+            "type": "string"
+          },
+          "productCode": {
+            "description": "Identifier of the product this holding is in.",
+            "examples": [
+              "GBP-BACR[GC]-3M"
+            ],
+            "type": "string"
+          },
+          "subscriptionDate": {
+            "description": "Date (YYYY-MM-DD) the subscription was originally placed.",
+            "examples": [
+              "2024-01-01"
+            ],
+            "type": "string"
+          },
+          "subscriptionUid": {
+            "description": "Unique identifier of the subscription.",
+            "examples": [
+              "dade0389c66241bd8366b017f1ffe19a"
+            ],
+            "type": "string"
+          },
+          "uid": {
+            "description": "Unique identifier for this event record.",
+            "examples": [
+              "00000000000000000000000000000001"
+            ],
+            "type": "string"
+          },
+          "yield": {
+            "description": "Current yield for the holding at the time of the event.",
+            "examples": [
+              "4.000000"
+            ],
+            "format": "decimal",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uid",
+          "cursor",
+          "entityCode",
+          "obligorExposureCode",
+          "maturityValue",
+          "yield",
+          "eventType",
+          "currency",
+          "holdingUid",
+          "subscriptionUid",
+          "productCode",
+          "cost",
+          "subscriptionDate",
+          "maturityDate"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Events"
+        ]
+      },
+      "Subscription": {
+        "description": "Subscription schema.",
+        "properties": {
+          "amount": {
+            "description": "Subscription amount",
+            "examples": [
+              1000
+            ],
+            "type": "number"
+          },
+          "cellCode": {
+            "description": "Cell code",
+            "examples": [
+              "Example-IC"
+            ],
+            "type": "string"
+          },
+          "currency": {
+            "description": "Subscription currency",
+            "examples": [
+              "GBP"
+            ],
+            "type": "string"
+          },
+          "cutoffDatetime": {
+            "description": "Cut-off datetime for this subscription (timezone aware). Last point at which the subscription's maturity action can be changed before TreasurySpring locks it in.",
+            "examples": [
+              "2024-01-01T12:15:00"
+            ],
+            "format": "date-time",
+            "type": "string"
+          },
+          "entityCode": {
+            "description": "Subscribing Entity Code",
+            "examples": [
+              "TEST0001"
+            ],
+            "type": "string"
+          },
+          "holdingUid": {
+            "description": "Holding uid",
+            "examples": [
+              "6e69e21342a24bbdaf9fe4e8a9995fda"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "indicationUid": {
+            "description": "Indication uid",
+            "examples": [
+              "ef8b318a15b04784ba86c8667727d78b"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "maturityAction": {
+            "description": "Maturity action",
+            "examples": [
+              "Roll"
+            ],
+            "type": "string"
+          },
+          "maturityDate": {
+            "description": "Date the holding will mature",
+            "examples": [
+              "2025-01-01"
+            ],
+            "type": "string"
+          },
+          "obligorExposureCode": {
+            "description": "Obligor exposure code",
+            "examples": [
+              "BACR[GC]"
+            ],
+            "type": "string"
+          },
+          "productCode": {
+            "description": "Product code",
+            "examples": [
+              "GBP-BACR[GC]-3M"
+            ],
+            "type": "string"
+          },
+          "releaserEmail": {
+            "description": "Releaser email",
+            "examples": [
+              "redacted@example.com"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "signerEmail": {
+            "description": "Signer email",
+            "examples": [
+              "redacted@example.com"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source": {
+            "description": "Source of funds",
+            "examples": [
+              "As per Master Subscription Agreement"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SubscriptionStatusEnum",
+            "description": "Status of the subscription",
+            "examples": [
+              "PENDING"
+            ]
+          },
+          "subscriptionDate": {
+            "description": "The date to subscribe to the indication",
+            "examples": [
+              "2024-01-01"
+            ],
+            "format": "date",
+            "type": "string"
+          },
+          "uid": {
+            "description": "Subscription uid",
+            "examples": [
+              "8a1f37f521f146dbaa4a333d0bc26158"
+            ],
+            "type": "string"
+          },
+          "yield": {
+            "description": "Yield",
+            "examples": [
+              5
+            ],
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "uid",
+          "amount",
+          "entityCode",
+          "maturityAction",
+          "source",
+          "subscriptionDate",
+          "cutoffDatetime",
+          "status",
+          "currency",
+          "cellCode",
+          "maturityDate",
+          "obligorExposureCode",
+          "productCode"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Subscriptions"
+        ]
+      },
+      "SubscriptionBody": {
+        "description": "SubscriptionBody schema.",
+        "properties": {
+          "amount": {
+            "description": "Subscription amount in the currency of the indication",
+            "examples": [
+              1000
+            ],
+            "type": "number"
+          },
+          "entityCode": {
+            "description": "Subscribing entity code",
+            "examples": [
+              "TEST0001"
+            ],
+            "type": "string"
+          },
+          "indicationUid": {
+            "description": "Uid of the indication to subscribe to.",
+            "examples": [
+              "539e30e363b549bf80a0961fd0242809"
+            ],
+            "type": "string"
+          },
+          "maturityAction": {
+            "$ref": "#/components/schemas/SubscriptionMaturityActionEnum",
+            "default": "Roll",
+            "description": "Maturity action type",
+            "examples": [
+              "Roll"
+            ]
+          },
+          "source": {
+            "default": "As per Master Subscription Agreement",
+            "description": "Source of funds",
+            "examples": [
+              "As per Master Subscription Agreement"
+            ],
+            "type": "string"
+          },
+          "subscriptionDate": {
+            "description": "The date to subscribe to the FTF. A list of possible dates can be found in the subscriptionDates field for the indication. If no date provided, this will default to today.",
+            "examples": [
+              "2024-01-01"
+            ],
+            "format": "date",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "withdrawal_date": {
+            "description": "Date to withdraw, applicable only if maturity action is set to REDEEM",
+            "examples": [
+              "2025-01-01"
+            ],
+            "format": "date",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "entityCode",
+          "indicationUid",
+          "amount"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Subscriptions"
+        ]
+      },
+      "SubscriptionMaturityActionEnum": {
+        "enum": [
+          "Roll",
+          "Hold",
+          "Redeem"
+        ],
+        "type": "string",
+        "x-tags": [
+          "Subscriptions"
+        ]
+      },
+      "SubscriptionStatusEnum": {
+        "enum": [
+          "PENDING",
+          "ACCEPTED",
+          "DECLINED",
+          "CANCELLED",
+          "EXPIRED"
+        ],
+        "type": "string",
+        "x-tags": [
+          "Subscriptions"
+        ]
+      },
+      "Task": {
+        "description": "Task schema.",
+        "properties": {
+          "data": {
+            "additionalProperties": true,
+            "description": "A JSON object containing the task data, structured in JSON Schema format. This field includes a detailed schema representation of the task, as well as an embedded HTML description for visual rendering. The schema contains metadata about the form, including labels, input elements, and structure, which can be used to render a dynamic form in a UI.",
+            "examples": [
+              {
+                "schema": {
+                  "description": "<table>\n <tbody>\n <tr>\n <th>User: </th>\n <td>redacted@example.com</td>\n </tr>\n <tr>\n <th>First name: </th>\n <td>John</td>\n </tr>\n <tr>\n <th>Last name: </th>\n <td>Doe</td>\n </tr>\n <tr>\n <th>Role: </th>\n <td>None</td>\n </tr>\n <tr>\n <th>Entity: </th>\n <td>TEST0001</td>\n </tr>\n <tr>\n <th>Branding: </th>\n <td>None</td>\n </tr>\n <tr>\n <th>Include in default mailing list: </th>\n <td>True</td>\n </tr>\n <tr>\n <th>Phone: </th>\n <td>None</td>\n </tr>\n <tr>\n <th>Send welcome email: </th>\n <td>True</td>\n </tr>\n </tbody>\n</table>",
+                  "properties": {
+                    "approve": {
+                      "type": "boolean"
+                    }
+                  },
+                  "type": "object"
+                },
+                "ui": {}
+              }
+            ],
+            "type": "object"
+          },
+          "expiry": {
+            "description": "The expiry date of the task.",
+            "examples": [
+              "2024-01-01T00:00:00"
+            ],
+            "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "uid": {
+            "description": "Task uid",
+            "examples": [
+              "edd29e94ebe2417f8fedbcbdc039da84"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "uid",
+          "data",
+          "expiry"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Tasks"
+        ]
+      },
+      "TokenResponse": {
+        "description": "Response model to validate and return for oauth post notification requests.",
+        "properties": {
+          "access_token": {
+            "description": "access token - can then be used directly to access protected endpoints",
+            "examples": [
+              "19fececa27edf4638a1c0024ee2ea7136"
+            ],
+            "type": "string"
+          },
+          "expires_in": {
+            "description": "token expiry in seconds",
+            "examples": [
+              3600
+            ],
+            "type": "integer"
+          },
+          "refresh_token": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "token_type": {
+            "description": "token type, currently always bearer",
+            "examples": [
+              "bearer"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "access_token",
+          "expires_in",
+          "token_type"
+        ],
+        "type": "object",
+        "x-tags": [
+          "OAuth"
+        ]
+      },
+      "UpdateMaturityActionBody": {
+        "description": "UpdateMaturityActionBody schema.",
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/MaturityActionEnum",
+            "description": "The maturity action to change to",
+            "examples": [
+              "ROLL"
+            ]
+          },
+          "indicationUid": {
+            "description": "The uid of indication to switch to (Required if action is set to SWITCH)",
+            "examples": [
+              "f952ed5df4g84f8gh148f4f8sf6g4"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReasonEnum"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Reason for redemption if choosing to redeem cash",
+            "examples": [
+              "Need proceeds"
+            ]
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Holdings"
+        ]
+      },
+      "UpdateMaturityActionResponse": {
+        "description": "UpdateMaturityActionResponse schema.",
+        "properties": {
+          "entityCode": {
+            "description": "Entity Code",
+            "examples": [
+              "TEST0001"
+            ],
+            "type": "string"
+          },
+          "holdingUid": {
+            "description": "Holding uid",
+            "examples": [
+              "16cdb3fe25e743fc9eed4b9742869424"
+            ],
+            "type": "string"
+          },
+          "maturityActions": {
+            "description": "List of maturity actions",
+            "items": {
+              "$ref": "#/components/schemas/MaturityAction"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "entityCode",
+          "holdingUid",
+          "maturityActions"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Holdings"
+        ]
+      },
+      "UpsertCheckpointResponse": {
+        "properties": {
+          "checkpoint": {
+            "$ref": "#/components/schemas/CheckpointData"
+          },
+          "created": {
+            "description": "True if the checkpoint was newly created, False if it already existed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "checkpoint",
+          "created"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Event Checkpoints"
+        ]
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "type": "object"
+      },
+      "WebhookResponse": {
+        "properties": {
+          "email": {
+            "description": "Email",
+            "examples": [
+              "redacted@example.com"
+            ],
+            "type": "string"
+          },
+          "url": {
+            "description": "Webhook URL",
+            "examples": [
+              "https://example.com/webhook"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "url"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Webhooks"
+        ]
+      },
+      "WebhookUrlBody": {
+        "properties": {
+          "url": {
+            "description": "Webhook URL",
+            "examples": [
+              "https://example.com/webhook"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Webhooks"
+        ]
+      },
+      "allowedObligorExposures": {
+        "description": "allowedObligorExposures schema.",
+        "properties": {
+          "code": {
+            "description": "Obligor Code",
+            "examples": [
+              "BACR"
+            ],
+            "type": "string"
+          },
+          "name": {
+            "description": "Obligor Name",
+            "examples": [
+              "Barclays Bank Plc"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ],
+        "type": "object",
+        "x-tags": [
+          "Indications"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "basicAuth": {
+        "description": "Base64-encoded `client_id:client_secret` (sent as `Authorization: Basic <base64>`). Used by the OAuth token-exchange endpoint.",
+        "scheme": "basic",
+        "type": "http"
+      },
+      "bearerAuth": {
+        "description": "API Key or OAuth access token (sent as `Authorization: Bearer <token>`).",
+        "scheme": "bearer",
+        "type": "http",
+        "x-auth-vars": [
+          {
+            "name": "TS_BEARER_TOKEN",
+            "kind": "per_call",
+            "required": false,
+            "sensitive": true,
+            "description": "Pre-minted bearer token. OR set TS_CLIENT_ID + TS_CLIENT_SECRET and run `ts auth login`."
+          },
+          {
+            "name": "TS_CLIENT_ID",
+            "kind": "auth_flow_input",
+            "required": false,
+            "sensitive": false,
+            "description": "OAuth2 client id; used by `ts auth login` to mint a token at /oauth/token."
+          },
+          {
+            "name": "TS_CLIENT_SECRET",
+            "kind": "auth_flow_input",
+            "required": false,
+            "sensitive": true,
+            "description": "OAuth2 client secret; used by `ts auth login`."
+          }
+        ]
+      }
+    }
+  },
+  "info": {
+    "contact": {
+      "email": "redacted@example.com",
+      "name": "API Support",
+      "url": "https://treasuryspring.com/"
+    },
+    "description": "TreasurySpring's Public API provides access to an authorised user's data, including holdings, entities, cells, obligor exposures, subscriptions, tasks, and more.",
+    "summary": "**REST API for integration with TreasurySpring**",
+    "title": "TreasurySpring Public API",
+    "version": "v0.6.20",
+    "x-logo": {
+      "altText": "TreasurySpring logo",
+      "url": "/assets/TS_Logo.png"
+    }
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/cell/{code}": {
+      "get": {
+        "description": "Retrieves data for a single Cell.",
+        "operationId": "get.cell",
+        "parameters": [
+          {
+            "description": "Cell code",
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "description": "Cell code",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cell"
+                }
+              }
+            },
+            "description": "Cell information"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get a single cell by code",
+        "tags": [
+          "Cells"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X GET 'https://api.treasuryspring.com/api/v1/cell/Example-IC' \\\n    -H 'accept: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf'\n"
+          }
+        ]
+      }
+    },
+    "/entity": {
+      "get": {
+        "description": "Retrieves a list of all entities that the user has permission to view.",
+        "operationId": "get.entities",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Entity"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "List of entities"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get a list of all entities",
+        "tags": [
+          "Entities"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X GET 'https://api.treasuryspring.com/api/v1/entity' \\\n    -H 'accept: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf'\n"
+          }
+        ]
+      }
+    },
+    "/entity/{code}": {
+      "get": {
+        "description": "Retrieves data for a single Entity if the user has permission to view it.",
+        "operationId": "get.entity",
+        "parameters": [
+          {
+            "description": "Entity code",
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "description": "Entity code",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Entity"
+                }
+              }
+            },
+            "description": "Entity information"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get a single entity by entity code",
+        "tags": [
+          "Entities"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X GET 'https://api.treasuryspring.com/api/v1/entity/TEST0001' \\\n    -H 'accept: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf'\n"
+          }
+        ]
+      }
+    },
+    "/entity/{code}/permissions": {
+      "get": {
+        "description": "Retrieves a list of all users who have access to an entity and the permissions they have.",
+        "operationId": "get.entity_user_permissions",
+        "parameters": [
+          {
+            "description": "Entity code",
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "description": "Entity code",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EntityUser"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "List of users and associated permissions"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "List all users and permissions for an entity",
+        "tags": [
+          "Entities"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X GET 'https://api.treasuryspring.com/api/v1/entity/TEST0001/permissions' \\\n    -H 'accept: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf'\n"
+          }
+        ]
+      }
+    },
+    "/event": {
+      "get": {
+        "description": "Return a page of events from the stream.\n\nSupports cursor-based pagination with an optional timestamp lower bound.",
+        "operationId": "get.events",
+        "parameters": [
+          {
+            "description": "Return events after this cursor (exclusive)",
+            "in": "query",
+            "name": "start_cursor",
+            "required": false,
+            "schema": {
+              "description": "Return events after this cursor (exclusive)",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "description": "Return events up to and including this cursor",
+            "in": "query",
+            "name": "end_cursor",
+            "required": false,
+            "schema": {
+              "description": "Return events up to and including this cursor",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "description": "Return events created after this timestamp. ISO 8601 datetime in any timezone. When using a timezone offset, percent-encode the + as %2B (e.g. %2B01:00), or use the Z suffix for UTC.",
+            "examples": {
+              "no_timezone": {
+                "summary": "No timezone (treated as UTC)",
+                "value": "2024-01-01T00:00:00"
+              },
+              "utc_z": {
+                "summary": "UTC (Z suffix)",
+                "value": "2024-01-01T00:00:00Z"
+              },
+              "with_offset": {
+                "summary": "Timezone offset (+ must be encoded as %2B in the URL)",
+                "value": "2024-01-01T01:00:00+01:00"
+              }
+            },
+            "in": "query",
+            "name": "min_created_at",
+            "required": false,
+            "schema": {
+              "description": "Return events created after this timestamp. ISO 8601 datetime in any timezone. When using a timezone offset, percent-encode the + as %2B (e.g. %2B01:00), or use the Z suffix for UTC.",
+              "format": "date-time",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "description": "Max events to return",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 1000,
+              "description": "Max events to return",
+              "maximum": 10000,
+              "minimum": 1,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventsResponse"
+                }
+              }
+            },
+            "description": "Event stream with pagination"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get a list of events",
+        "tags": [
+          "Events"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X GET 'https://api.treasuryspring.com/api/v1/event?limit=100&start_cursor=ev1.abc123.xyz789' \\\n    -H 'accept: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf'\n"
+          }
+        ]
+      }
+    },
+    "/event/checkpoint": {
+      "get": {
+        "description": "Return all event checkpoints for the authenticated user, ordered by name.",
+        "operationId": "get.event.checkpoints",
+        "parameters": [
+          {
+            "description": "Filter checkpoints whose name starts with this prefix",
+            "in": "query",
+            "name": "name_prefix",
+            "required": false,
+            "schema": {
+              "description": "Filter checkpoints whose name starts with this prefix",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "description": "Maximum number of checkpoints to return",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "description": "Maximum number of checkpoints to return",
+              "maximum": 1000,
+              "minimum": 1,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListCheckpointsResponse"
+                }
+              }
+            },
+            "description": "List of checkpoints for the authenticated user"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "List event checkpoints",
+        "tags": [
+          "Event Checkpoints"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X GET 'https://api.treasuryspring.com/api/v1/event/checkpoint?limit=100' \\\n    -H 'accept: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf'\n"
+          }
+        ]
+      }
+    },
+    "/event/checkpoint/{name}": {
+      "delete": {
+        "description": "Delete a named event checkpoint.\n\nIf `expected_checkpoint_version` is supplied, the request uses it as an optimistic\nlock and returns 409 Conflict if the checkpoint has been modified since you last read it.",
+        "operationId": "delete.event.checkpoint",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional checkpointVersion from your last read of this checkpoint. If supplied, it is used as an optimistic lock.",
+            "in": "query",
+            "name": "expected_checkpoint_version",
+            "required": false,
+            "schema": {
+              "description": "Optional checkpointVersion from your last read of this checkpoint. If supplied, it is used as an optimistic lock.",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteCheckpointResponse"
+                }
+              }
+            },
+            "description": "Deletion confirmation"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Delete an event checkpoint",
+        "tags": [
+          "Event Checkpoints"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "curl -X DELETE 'https://api.treasuryspring.com/api/v1/event/checkpoint/daily-sync?expected_checkpoint_version=ec1.abc123.xyz789' \\\n    -H 'accept: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf'\n"
+          }
+        ]
+      },
+      "get": {
+        "description": "Return a single event checkpoint by name.",
+        "operationId": "get.event.checkpoint",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetCheckpointResponse"
+                }
+              }
+            },
+            "description": "Checkpoint state"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get an event checkpoint by name",
+        "tags": [
+          "Event Checkpoints"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X GET 'https://api.treasuryspring.com/api/v1/event/checkpoint/daily-sync' \\\n    -H 'accept: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf'\n"
+          }
+        ]
+      },
+      "patch": {
+        "description": "Advance the checkpoint to a new cursor position.\n\nSupply the `new_cursor` to move to. If you also provide the\n`expected_checkpoint_version` from the last read, the request uses it as an optimistic\nlock and returns 409 Conflict if the checkpoint has changed since you last read it.",
+        "operationId": "patch.event.checkpoint",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchCheckpointBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchCheckpointResponse"
+                }
+              }
+            },
+            "description": "Updated checkpoint state"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Advance an event checkpoint cursor",
+        "tags": [
+          "Event Checkpoints"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X PATCH 'https://api.treasuryspring.com/api/v1/event/checkpoint/daily-sync' \\\n    -H 'accept: application/json' \\\n    -H 'Content-Type: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf' \\\n    -d '{\n        \"expected_checkpoint_version\": \"ec1.abc123.xyz789\",\n        \"new_cursor\": \"ev1.def456.xyz789\"\n    }'\n"
+          }
+        ]
+      },
+      "put": {
+        "description": "Create a new named event checkpoint, or return the existing one if it already exists.\n\nOn creation, the cursor is initialised to initial_cursor if provided, or to the current\nend of the event stream otherwise. initial_cursor is ignored if the checkpoint already exists.",
+        "operationId": "put.event.checkpoint",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/PutCheckpointBody"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpsertCheckpointResponse"
+                }
+              }
+            },
+            "description": "Checkpoint state with created flag"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Create or get an event checkpoint",
+        "tags": [
+          "Event Checkpoints"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X PUT 'https://api.treasuryspring.com/api/v1/event/checkpoint/daily-sync' \\\n    -H 'accept: application/json' \\\n    -H 'Content-Type: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf' \\\n    -d '{\n        \"initial_cursor\": \"ev1.abc123.xyz789\"\n    }'\n"
+          }
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "description": "Perform a health check by returning a JSON response with a status code of 200 (OK).",
+        "operationId": "get.health",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthCheck"
+                }
+              }
+            },
+            "description": "Return HTTP Status Code 200 (OK)"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Perform a Health Check",
+        "tags": [
+          "Healthcheck"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X GET 'https://api.treasuryspring.com/api/v1/health' \\\n    -H 'accept: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf'\n"
+          },
+          {
+            "label": "Python",
+            "lang": "Python",
+            "source": "\nimport requests\n\nurl = 'https://api.treasuryspring.com/api/v1/health'\nheaders = {\n    'accept': 'application/json',\n    'Authorization': 'Bearer 215ced3397d7049289b0bf6ce72dbbfcf'\n}\n\nresponse = requests.get(url, headers=headers)\nprint(response.json())\n"
+          }
+        ]
+      }
+    },
+    "/holding": {
+      "get": {
+        "description": "Retrieves a list of all holdings that the user has permission to view.",
+        "operationId": "get.holdings",
+        "parameters": [
+          {
+            "description": "Parameter to filter holdings by entity code",
+            "in": "query",
+            "name": "entity_code",
+            "required": false,
+            "schema": {
+              "description": "Parameter to filter holdings by entity code",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "description": "Parameter to filter holdings by minimum subscription date",
+            "example": "2025-01-01",
+            "in": "query",
+            "name": "min_subscription_date",
+            "required": false,
+            "schema": {
+              "description": "Parameter to filter holdings by minimum subscription date",
+              "format": "date",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "description": "Parameter to filter holdings by maximum subscription date",
+            "example": "2025-02-01",
+            "in": "query",
+            "name": "max_subscription_date",
+            "required": false,
+            "schema": {
+              "description": "Parameter to filter holdings by maximum subscription date",
+              "format": "date",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "description": "Parameter to filter holdings by minimum maturity date",
+            "example": "2025-01-01",
+            "in": "query",
+            "name": "min_maturity_date",
+            "required": false,
+            "schema": {
+              "description": "Parameter to filter holdings by minimum maturity date",
+              "format": "date",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "description": "Parameter to filter holdings by maximum maturity date",
+            "example": "2025-02-01",
+            "in": "query",
+            "name": "max_maturity_date",
+            "required": false,
+            "schema": {
+              "description": "Parameter to filter holdings by maximum maturity date",
+              "format": "date",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "description": "Parameter to filter holdings by modification date",
+            "example": "2025-01-01",
+            "in": "query",
+            "name": "min_modified_date",
+            "required": false,
+            "schema": {
+              "description": "Parameter to filter holdings by modification date",
+              "format": "date",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "description": "Page size used for pagination",
+            "example": 100,
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "description": "Page size used for pagination",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Offset used for pagination",
+            "example": 0,
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "description": "Offset used for pagination",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedHoldings"
+                }
+              }
+            },
+            "description": "List of holdings"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get a list of all holdings",
+        "tags": [
+          "Holdings"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "curl -X GET 'https://api.treasuryspring.com/api/v1/holding?entity_code=TEST0001&min_maturity_date=2025-01-01&min_modified_date=2025-01-01&limit=10&offset=0' \\\n    -H 'accept: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf'\n"
+          }
+        ]
+      }
+    },
+    "/holding/{entity_code}/{holding_uid}": {
+      "get": {
+        "description": "Retrieves data for a single holding if the user has permission to view it.",
+        "operationId": "get.holding",
+        "parameters": [
+          {
+            "description": "Entity code",
+            "example": "TEST0001",
+            "in": "path",
+            "name": "entity_code",
+            "required": true,
+            "schema": {
+              "description": "Entity code",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Holding uid",
+            "example": "0cf3256ab8744fe293a5011cbebda7f1",
+            "in": "path",
+            "name": "holding_uid",
+            "required": true,
+            "schema": {
+              "description": "Holding uid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SingleHolding"
+                }
+              }
+            },
+            "description": "Holding information"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get a single holding by id",
+        "tags": [
+          "Holdings"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X GET 'https://api.treasuryspring.com/api/v1/holding/TEST0001/9r8e6g4ab8744fe24f8r511cbebda7f1' \\\n    -H 'accept: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf'\n"
+          }
+        ]
+      }
+    },
+    "/holding/{entity_code}/{holding_uid}/maturity-action": {
+      "get": {
+        "description": "Get a list of maturity actions for a single holding",
+        "operationId": "get.maturity_actions",
+        "parameters": [
+          {
+            "description": "Entity code",
+            "example": "TEST0001",
+            "in": "path",
+            "name": "entity_code",
+            "required": true,
+            "schema": {
+              "description": "Entity code",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Holding uid",
+            "example": "0cf3256ab8744fe293a5011cbebda7f1",
+            "in": "path",
+            "name": "holding_uid",
+            "required": true,
+            "schema": {
+              "description": "Holding uid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MaturityAction"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Maturity actions"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get a list of maturity actions for a specific holding",
+        "tags": [
+          "Holdings"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X GET 'https://api.treasuryspring.com/api/v1/holding/TEST0001/9r8e6g4ab8744fe24f8r511cbebda7f1/maturity-action' \\\n    -H 'accept: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf'\n"
+          }
+        ]
+      },
+      "put": {
+        "description": "Updates the maturity action for an existing holding. This operation applies to the entire holding amount and\nwill overwrite any next actions that have been set. For more granular control over next actions, use the\nTreasurySpring portal.",
+        "operationId": "put.maturity_action",
+        "parameters": [
+          {
+            "description": "Entity code",
+            "example": "TEST0001",
+            "in": "path",
+            "name": "entity_code",
+            "required": true,
+            "schema": {
+              "description": "Entity code",
+              "type": "string"
+            }
+          },
+          {
+            "description": "uid of the holding whose maturity action is being modified.",
+            "example": "0cf3256ab8744fe293a5011cbebda7f1",
+            "in": "path",
+            "name": "holding_uid",
+            "required": true,
+            "schema": {
+              "description": "uid of the holding whose maturity action is being modified.",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMaturityActionBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateMaturityActionResponse"
+                }
+              }
+            },
+            "description": "Maturity actions"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Update the maturity action for a holding",
+        "tags": [
+          "Holdings"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X PUT 'https://api.treasuryspring.com/api/v1/holding/TEST0001/9r8e6g4ab8744fe24f8r511cbebda7f1/maturity-action' \\\n    -H 'accept: application/json' \\\n    -H 'Content-Type: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf' \\\n    -d '{\n        \"reason\": \"Funds returning shortly\",\n        \"action\": \"HOLD\"\n    }'\n"
+          }
+        ]
+      }
+    },
+    "/holidays/{year}": {
+      "get": {
+        "description": "Retrieves a list of all holidays for a given year.",
+        "operationId": "get.holidays",
+        "parameters": [
+          {
+            "description": "Year",
+            "in": "path",
+            "name": "year",
+            "required": true,
+            "schema": {
+              "description": "Year",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Holiday"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "List of holidays"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get all holidays for a given year",
+        "tags": [
+          "Calendar"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X GET 'https://api.treasuryspring.com/api/v1/holidays/2025' \\\n    -H 'accept: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf'\n"
+          }
+        ]
+      }
+    },
+    "/indication/{code}": {
+      "get": {
+        "description": "Retrieves a list of all Indications that the user has permission to view.",
+        "operationId": "get.indications",
+        "parameters": [
+          {
+            "description": "Entity code",
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "description": "Entity code",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Indication"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "List of indications"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get a list of all indications",
+        "tags": [
+          "Indications"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X GET 'https://api.treasuryspring.com/api/v1/indication/TEST0001' \\\n    -H 'accept: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf'\n"
+          }
+        ]
+      }
+    },
+    "/oauth/token": {
+      "post": {
+        "description": "Obtain an access token using the client credentials grant type.",
+        "operationId": "post.token",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "client_id": {
+                    "description": "The client id.",
+                    "example": "0fd5a813dca24bd09fdd04b8a5f3fc98",
+                    "type": "string"
+                  },
+                  "client_secret": {
+                    "description": "The client secret for client credentials flow.",
+                    "example": "6bcbe24146864fddbff048173006d9f9",
+                    "type": "string"
+                  },
+                  "grant_type": {
+                    "description": "The type of grant being requested.",
+                    "example": "client_credentials",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "grant_type",
+                  "client_id",
+                  "client_secret"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            },
+            "description": "Client Credentials"
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "summary": "Get OAuth Access Token",
+        "tags": [
+          "OAuth"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "curl --location 'https://api.treasuryspring.com/oauth/token' \\\n--header 'Authorization: Basic MTM4Zjc3ZmY5MTc5NGQ0ZTg5MDYxYWJkNGE2ZDk1NDY6TlRobE9Ea3lNMlF0TjJFd05TMDBPRFJsTFdFek9EWXRPRFF5WldVOVpqQXlPV005' \\\n--header 'Content-Type: application/x-www-form-urlencoded' \\\n--data-urlencode 'grant_type=client_credentials' \\\n--data-urlencode 'client_id=138f77ff91794d4e89061abd4a6d9546' \\\n--data-urlencode 'client_secret=NThlODkyM2QtN2EwNS00ODRlLWEzODYtODQyZWU9ZjAyOWM9'\n"
+          },
+          {
+            "label": "Python",
+            "lang": "Python",
+            "source": "\nimport requests\nfrom requests.auth import HTTPBasicAuth\n\n\nCLIENT_ID = \"0fd5a813dca24bd09fdd04b8a5f3fc98\"\nCLIENT_SECRET = \"6bcbe24146864fddbff048173006d9f9\"\nENVIRONMENT_URL = \"https://api.treasuryspring.com\"\n\ndef get_token():\n    client_credentials_endpoint = f\"{ENVIRONMENT_URL}/oauth/token\"\n    basic = HTTPBasicAuth(CLIENT_ID, CLIENT_SECRET)\n    headers = {\n        \"Content-Type\": \"application/x-www-form-urlencoded\",\n    }\n\n    body = {\n        \"grant_type\": \"client_credentials\",\n        \"client_id\": CLIENT_ID,\n        \"client_secret\": CLIENT_SECRET,\n    }\n    response = requests.post(\n        client_credentials_endpoint, headers=headers, data=body, auth=basic\n    )\n    res_json = response.json()\n    token = res_json[\"access_token\"]\n    return token\n\nif __name__ == \"__main__\":\n    token = get_token()\n"
+          }
+        ]
+      },
+      "servers": [
+        {
+          "description": "Production OAuth",
+          "url": "https://api.treasuryspring.com"
+        },
+        {
+          "description": "Sandbox OAuth",
+          "url": "https://api.sandbox.treasuryspring.com"
+        }
+      ]
+    },
+    "/obligor-exposure/{code}": {
+      "get": {
+        "description": "Retrieves data for a single Obligor.",
+        "operationId": "get.obligor_exposure",
+        "parameters": [
+          {
+            "description": "Obligor code",
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "description": "Obligor code",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObligorExposure"
+                }
+              }
+            },
+            "description": "Retrieves obligor exposure information."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get data for obligor exposure by code",
+        "tags": [
+          "Obligor Exposure"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X GET 'https://api.treasuryspring.com/api/v1/obligor-exposure/BACR\\[GC\\]' \\\n    -H 'accept: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf'\n"
+          }
+        ]
+      }
+    },
+    "/subscribe": {
+      "post": {
+        "description": "Subscribe to an FTF",
+        "operationId": "post.subscribe",
+        "parameters": [
+          {
+            "description": "Idempotency Key used to ensure that the same request is not processed more than once. If the same request is received more than once, the second request will be ignored. **Each valid new request must have a different Idempotency Key** (*It is recomended to use a UUID as the Idempotency Key*)",
+            "example": "1063fdc18c7b44e193a01c4f3834907b",
+            "in": "header",
+            "name": "idempotency-key",
+            "required": true,
+            "schema": {
+              "description": "Idempotency Key used to ensure that the same request is not processed more than once. If the same request is received more than once, the second request will be ignored. **Each valid new request must have a different Idempotency Key** (*It is recomended to use a UUID as the Idempotency Key*)",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriptionBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Subscription"
+                }
+              }
+            },
+            "description": "Subscription details"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Subscribe to an FTF",
+        "tags": [
+          "Subscriptions"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X POST 'https://api.treasuryspring.com/api/v1/subscribe' \\\n    -H 'accept: application/json' \\\n    -H 'Content-Type: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf' \\\n    -H 'Idempotency-Key: 89ca0f719d8d4506b76e89fb9bb03e83' \\\n    -d '{\n        \"entityCode\": \"TEST0001\",\n        \"indicationUid\": \"539e30e363b549bf80a0961fd0242809\",\n        \"amount\": 1000,\n        \"maturityAction\": \"ROLL\",\n        \"subscriptionDate\": \"2024-01-01\",\n        \"source\": \"As per Master Subscription Agreement\"\n    }'\n"
+          }
+        ]
+      }
+    },
+    "/subscription": {
+      "get": {
+        "description": "Retrieves a list of all subscriptions that the user has permission to view.",
+        "operationId": "get.subscriptions",
+        "parameters": [
+          {
+            "description": "Parameter to filter subscriptions by entity code",
+            "in": "query",
+            "name": "entity_code",
+            "required": false,
+            "schema": {
+              "description": "Parameter to filter subscriptions by entity code",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "description": "Parameter to filter subscriptions by minimum subscription date",
+            "example": "2025-01-01",
+            "in": "query",
+            "name": "min_subscription_date",
+            "required": false,
+            "schema": {
+              "description": "Parameter to filter subscriptions by minimum subscription date",
+              "format": "date",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "description": "Parameter to filter subscriptions by maximum subscription date",
+            "example": "2025-02-01",
+            "in": "query",
+            "name": "max_subscription_date",
+            "required": false,
+            "schema": {
+              "description": "Parameter to filter subscriptions by maximum subscription date",
+              "format": "date",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "description": "Parameter to filter subscriptions by minimum maturity date",
+            "example": "2025-01-01",
+            "in": "query",
+            "name": "min_maturity_date",
+            "required": false,
+            "schema": {
+              "description": "Parameter to filter subscriptions by minimum maturity date",
+              "format": "date",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "description": "Parameter to filter subscriptions by maximum maturity date",
+            "example": "2025-02-01",
+            "in": "query",
+            "name": "max_maturity_date",
+            "required": false,
+            "schema": {
+              "description": "Parameter to filter subscriptions by maximum maturity date",
+              "format": "date",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "description": "Page size used for pagination",
+            "example": 100,
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "description": "Page size used for pagination",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Offset used for pagination",
+            "example": 0,
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "description": "Offset used for pagination",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedSubscriptions"
+                }
+              }
+            },
+            "description": "List of subscriptions"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get a list of all subscriptions",
+        "tags": [
+          "Subscriptions"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X GET 'https://api.treasuryspring.com/api/v1/subscription?entity_code=TEST0001&limit=10&offset=0' \\\n    -H 'accept: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf'\n"
+          }
+        ]
+      }
+    },
+    "/task": {
+      "get": {
+        "description": "Retrieves a list of all pending tasks that the user has.",
+        "operationId": "get.tasks",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Task"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "List of pending tasks"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get a list of all pending tasks",
+        "tags": [
+          "Tasks"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X GET 'https://api.treasuryspring.com/api/v1/task' \\\n    -H 'accept: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf'\n"
+          }
+        ]
+      }
+    },
+    "/task/{uid}": {
+      "get": {
+        "description": "Retrieves a pending task by uid.",
+        "operationId": "get.task",
+        "parameters": [
+          {
+            "description": "Task uid",
+            "in": "path",
+            "name": "uid",
+            "required": true,
+            "schema": {
+              "description": "Task uid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            },
+            "description": "Info on pending task"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get single pending task",
+        "tags": [
+          "Tasks"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X GET 'https://api.treasuryspring.com/api/v1/task/eab64d0f8h9c48038ce0dk451c77hg98' \\\n    -H 'accept: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf'\n"
+          }
+        ]
+      },
+      "post": {
+        "description": "Used to approve or deny a pending task.",
+        "operationId": "post.task",
+        "parameters": [
+          {
+            "description": "Task uid",
+            "in": "path",
+            "name": "uid",
+            "required": true,
+            "schema": {
+              "description": "Task uid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitTaskBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitTaskResponse"
+                }
+              }
+            },
+            "description": "Status of submitted task"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Submit a task",
+        "tags": [
+          "Tasks"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X POST 'https://api.treasuryspring.com/api/v1/task/eab64d0f8h9c48038ce0dk451c77hg98' \\\n    -H 'accept: application/json' \\\n    -H 'Content-Type: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf' \\\n    -d '{\n        \"data\": {\n            \"approved\": true\n        }\n    }'\n"
+          }
+        ]
+      }
+    },
+    "/webhook": {
+      "delete": {
+        "description": "Deregister an existing webhook for a user",
+        "operationId": "delete.webhook",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteWebhookResponse"
+                }
+              }
+            },
+            "description": "Webhook details"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Deregister an existing webhook for a user",
+        "tags": [
+          "Webhooks"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X DELETE 'https://api.treasuryspring.com/api/v1/webhook' \\\n    -H 'accept: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf'\n"
+          }
+        ]
+      },
+      "post": {
+        "description": "Register a url to a user for webhook notifications",
+        "operationId": "post.webhook",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookUrlBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookResponse"
+                }
+              }
+            },
+            "description": "Webhook details"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Register a url to a user for webhook notifications",
+        "tags": [
+          "Webhooks"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "Curl",
+            "lang": "Curl",
+            "source": "\ncurl -X POST 'https://api.treasuryspring.com/api/v1/webhook' \\\n    -H 'accept: application/json' \\\n    -H 'Content-Type: application/json' \\\n    -H 'Authorization: Bearer 215ced3397d7049289b0bf6ce72dbbfcf' \\\n    -d '{\n        \"url\": \"https://example.com\"\n    }'\n"
+          }
+        ]
+      }
+    }
+  },
+  "servers": [
+    {
+      "description": "Production Server",
+      "url": "https://api.treasuryspring.com/api/v1"
+    },
+    {
+      "description": "Sandbox Server",
+      "url": "https://api.sandbox.treasuryspring.com/api/v1"
+    }
+  ],
+  "tags": [
+    {
+      "description": "TreasurySpring's Public API provides access to an authorised user's data, including holdings, entities, cells, obligor exposures, subscriptions, tasks, and more.\n\n### Authentication\n\nAuthentication for TreasurySpring's Public API is available via two OAuth grant types, depending on the use case:\n\n- Client Credentials: for TreasurySpring users accessing their own data. Client Credentials can be accessed via the Account Information section of the TreasurySpring Portal.\n- Code Authorisation: for systems integrating shared users with TreasurySpring. Contact TreasurySpring for more technical information on this integration flow.\n\n### Sandbox Environment\n\nA sandbox environment is available for testing purposes. It allows users to experiment with the API without affecting production data.\n\nYou can also optionally request an API Key for ease of testing in the sandbox environment, while OAuth 2.0 is required for production data.",
+      "name": "Introduction"
+    },
+    {
+      "description": "A subscription is the request to invest in an FTF. A holding is the live investment record created once an accepted subscription has been processed.\n\nAfter calling `/subscribe`, use `/subscription` to track the returned `subscription.uid` until `holdingUid` is available. Once `holdingUid` exists, use `/holding/{entity_code}/{holdingUid}` or `/holding` and treat the holding as the source of truth.\n\nThe diagrams below show the typical lifecycle for Fixed and Extendable holdings. Boxes represent object statuses, and arrows represent lifecycle processes that move a holding from one status to another. Where a lifecycle process emits a public `/event`, the event type is shown in green on the arrow. Dashed connectors provide context, such as a rolled holding continuing through the same lifecycle, and do not represent public events.\n\n### How to Read the Statuses\n\n`Pending` means the holding has been created from an accepted subscription, but has not yet been issued.\n\n`Issued` means the holding is live. While a holding is issued, its economics or structure may still change through lifecycle processes such as adjustment or split.\n\n`CutOff` means the holding has reached its cut-off point. The maturity action is locked and can no longer be changed through the API. From this point, TreasurySpring processing determines the next lifecycle step, such as redemption, roll, extension, or finalization depending on the product type and maturity action. `CutOff` is a holding status, not currently a public event.\n\n`Redeemed` means the holding has completed its lifecycle and has been redeemed.\n\n### Maturity Actions\n\nA holding's maturity action is the instruction for what happens to its value when it matures. Every holding exposes its current action(s) as `maturityActions` (see the Holding model); a holding may have more than one when its value is split across actions. The maturity action is what determines which lifecycle process runs at cut-off:\n\n- `HOLD` — mature to cash, held within the cell.\n- `REDEEM` — mature and withdraw the proceeds to the entity's bank account.\n- `ROLL` — reinvest into a new holding of the same FTF.\n- `SWITCH` — reinvest into a different FTF.\n\nWhile a holding is `Issued`, the action can be changed via `PUT /holding/{entity_code}/{holding_uid}/maturity-action`. Once the holding reaches `CutOff` the action is locked and TreasurySpring processing applies it. After maturity, `maturityActions` continues to reflect the action(s) that were applied.\n\n### Fixed Holding Lifecycle\n\nFixed holdings have a simpler lifecycle: they are created, issued, reach cut-off, and are then either redeemed or rolled into a new holding.\n\n![Fixed holding lifecycle](/assets/fixed-holding-lifecycle.svg)\n\n### Extendable Holding Lifecycle\n\nExtendable holdings follow the same initial lifecycle, but may move from cut-off back to issued when extended. This can happen multiple times before the holding enters its final period and is eventually redeemed or rolled. The final-period boxes represent the same holding after `Finalize`; a new holding is only created when a holding is rolled.\n\n![Extendable holding lifecycle](/assets/extendable-holding-lifecycle.svg)\n\nThe table below summarises the lifecycle processes shown in the diagrams. These process names are descriptive labels used in this guide; they may not exactly match internal TreasurySpring task names. Some transitions are initiated by API activity, while others are TreasurySpring scheduled or operational processes based on the current holding state and selected maturity action. The public event column shows the `/event` type emitted when that process produces an event. If no event is listed for a status change, query `/holding` to observe the latest state.\n\n| Lifecycle process | Applies to | Main effect | What drives it | Public event |\n|---|---|---|---|---|\n| Subscribe | Fixed, Extendable | Creates a holding from an accepted subscription | Client request (via portal or API) followed by accepted subscription processing | `SUBSCRIBED` |\n| Issue | Fixed, Extendable | Moves holding `Pending` to `Issued` | TreasurySpring issue processing | `ISSUED` |\n| Adjust | Fixed, Extendable | Updates holding economics or key dates | TreasurySpring operational change while the holding is issued | `ADJUSTED` |\n| Split | Fixed, Extendable | Splits one holding into separate holdings | TreasurySpring operational change while the holding is issued | `SPLIT` |\n| Cut off | Fixed, Extendable | Moves holding `Issued` to `CutOff` | Scheduled TreasurySpring process once the holding reaches `cutoffDatetime` | |\n| Redeem | Fixed, Extendable | Moves holding `CutOff` to `Redeemed` | TreasurySpring maturity processing based on the selected maturity action | `REDEEMED` |\n| Roll | Fixed; Extendable final period only | Creates the next holding from a cut-off holding | TreasurySpring maturity processing based on the selected maturity action | `SUBSCRIBED`, then `ISSUED` |\n| Extend | Extendable only | Continues the holding with a new maturity date | TreasurySpring extendable maturity processing before the final period | `EXTENDED` |\n| Finalize | Extendable only | Moves the same holding from `CutOff` to `Issued` in its final period | TreasurySpring extendable maturity processing into the final period | `FINALIZED` |\n\nFor reconciliation, use public events to detect lifecycle changes and use `/holding/{entity_code}/{holdingUid}` to retrieve the current authoritative holding state.",
+      "name": "FTF Lifecycle"
+    },
+    {
+      "description": "OAuth 2.0 endpoint to exchange your Client Credentials for a token. This token can then be used to access the API.",
+      "name": "OAuth"
+    },
+    {
+      "description": "Get information about holdings. For how subscriptions become holdings and how holdings move through their lifecycle, see the FTF Lifecycle section.",
+      "name": "Holdings"
+    },
+    {
+      "description": "Get information about Indications",
+      "name": "Indications"
+    },
+    {
+      "description": "Get information about Entities",
+      "name": "Entities"
+    },
+    {
+      "description": "Get information about Cells",
+      "name": "Cells"
+    },
+    {
+      "description": "Get information about Obligors",
+      "name": "Obligor Exposure"
+    },
+    {
+      "description": "FTF Subscriptions",
+      "name": "Subscriptions"
+    },
+    {
+      "description": "Get information about Pending Tasks",
+      "name": "Tasks"
+    },
+    {
+      "description": "Get Calendar information",
+      "name": "Calendar"
+    },
+    {
+      "description": "Stream of normalised events for integration and reconciliation",
+      "name": "Events"
+    },
+    {
+      "description": "Server-managed cursors for stateless event stream consumers.\n\nIn most cases, checkpoints are not needed. If your system can persist data locally (e.g. in a database, file, or key-value store), store the `cursor` value from `GET /event` yourself and pass it as `start_cursor` on the next request.\n\n**When to use checkpoints:**\n\nUse this endpoint if your system runs in an environment that cannot reliably persist state between invocations — for example, a stateless function, a script with no backing store, or a system that delegates position tracking to TreasurySpring entirely.\n\nA checkpoint is a named record stored server-side that remembers where your last successful sync run ended. Instead of storing the cursor yourself, you store it here and retrieve it at the start of each sync run:\n\n1. **Create** a checkpoint once: `PUT /event/checkpoint/{name}` — the cursor is initialised to the current end of the event stream.\n2. **Read** the checkpoint at the start of each sync run: `GET /event/checkpoint/{name}` → `cursor`, `checkpointVersion`.\n3. **Fetch events** from that cursor: `GET /event?start_cursor={cursor}`.\n4. **Advance** the checkpoint after successful processing: `PATCH /event/checkpoint/{name}` with `expectedCheckpointVersion` and `newCursor`. The `checkpointVersion` acts as a safety check — if another process has already advanced the checkpoint since you last read it, the request returns a 409 Conflict with the current state so you can reconcile before retrying.\n\nCheckpoints are scoped to the authenticated API user.",
+      "name": "Event Checkpoints"
+    },
+    {
+      "description": "Integrate with webhooks to receive notifications",
+      "name": "Webhooks"
+    },
+    {
+      "description": "Check the status of the API",
+      "name": "Healthcheck"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/Holding\" />",
+      "name": "Holding_model",
+      "x-displayName": "Holding"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/Indication\" />",
+      "name": "Indication_model",
+      "x-displayName": "Indication"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/Entity\" />",
+      "name": "Entity_model",
+      "x-displayName": "Entity"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/EntityUser\" />",
+      "name": "User_permissions_model",
+      "x-displayName": "User Permissions"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/Cell\" />",
+      "name": "Cell_model",
+      "x-displayName": "Cell"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/ObligorExposure\" />",
+      "name": "Obligor_model",
+      "x-displayName": "Obligor Exposure"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/Subscription\" />",
+      "name": "Subscription_model",
+      "x-displayName": "Subscription"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/Task\" />",
+      "name": "Task_model",
+      "x-displayName": "Task"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/Holiday\" />",
+      "name": "Holiday_model",
+      "x-displayName": "Holiday"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/PageInfo\" />",
+      "name": "PageInfo_model",
+      "x-displayName": "Page Info"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/CheckpointData\" />",
+      "name": "Checkpoint_model",
+      "x-displayName": "Event Checkpoint"
+    },
+    {
+      "description": "Events are discriminated by `eventType`. Each type carries a distinct set of fields; the common fields (`uid`, `cursor`, `entityCode`) appear on every event. See the per-type entries below for the full field list of each event type.",
+      "name": "Event_model",
+      "x-displayName": "Event: Overview"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/SubscribedEvent\" />",
+      "name": "SubscribedEvent_model",
+      "x-displayName": "Event: SUBSCRIBED"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/IssuedEvent\" />",
+      "name": "IssuedEvent_model",
+      "x-displayName": "Event: ISSUED"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/SplitEvent\" />",
+      "name": "SplitEvent_model",
+      "x-displayName": "Event: SPLIT"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/ExtendedEvent\" />",
+      "name": "ExtendedEvent_model",
+      "x-displayName": "Event: EXTENDED"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/FinalizedEvent\" />",
+      "name": "FinalizedEvent_model",
+      "x-displayName": "Event: FINALIZED"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/AdjustedEvent\" />",
+      "name": "AdjustedEvent_model",
+      "x-displayName": "Event: ADJUSTED"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/CurrencyConvertedEvent\" />",
+      "name": "CurrencyConvertedEvent_model",
+      "x-displayName": "Event: CURRENCY_CONVERTED"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/CashMovedEvent\" />",
+      "name": "CashMovedEvent_model",
+      "x-displayName": "Event: CASH_MOVED"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/RedeemedEvent\" />",
+      "name": "RedeemedEvent_model",
+      "x-displayName": "Event: REDEEMED"
+    },
+    {
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/CancelledEvent\" />",
+      "name": "CancelledEvent_model",
+      "x-displayName": "Event: CANCELLED"
+    },
+    {
+      "description": "TreasurySpring's MCP server lets AI agents (Claude, ChatGPT, Cursor, and other MCP-compatible clients) access an authorised user's read-only investment data via the [Model Context Protocol](https://modelcontextprotocol.io). It is a thin layer over the same GraphQL backend that powers the REST API, exposed via Streamable HTTP with OAuth 2.0.\n\n### Endpoint\n\n`https://api.treasuryspring.com/api/v1/mcp`\n\n### Connecting\n\n- **Claude.ai (web) and Claude Desktop:** Settings → Connectors → Add custom connector. Paste the endpoint URL above, then complete the OAuth flow with your TreasurySpring account.\n- **Cursor, VS Code, and other MCP clients:** Add a remote MCP server entry pointing to the endpoint URL. Most clients trigger the OAuth flow automatically on first connect.\n- **[MCP Inspector](https://github.com/modelcontextprotocol/inspector)** (for testing): run `npx @modelcontextprotocol/inspector` and point it at the endpoint URL.\n\n### Authentication\n\nOAuth 2.0 authorization code flow with PKCE, backed by Auth0. The server advertises [Dynamic Client Registration (RFC 7591)](https://www.rfc-editor.org/rfc/rfc7591) so MCP clients do not need a pre-configured `client_id`. Refresh tokens are issued for long-lived sessions; access tokens are scoped to the authenticated user's entities only.\n\n### Available tools\n\nAll tools are **read-only**. Most require an `entity_code`; call `get_entities` first to discover the codes accessible to your account.\n\n#### `get_holdings` — List Holdings\n\nRetrieve paginated holdings for a specific entity. A holding is an active investment position. Returns comprehensive data per holding: uid, type, currency, productCode, cellCode, obligorExposureCode, status, cost, value, maturityValue, issueDate, maturityDate, yield, and extension-related fields. Supports optional date filters: min/max subscription date, min/max maturity date, and min modified date (all YYYY-MM-DD). Use get_holding with a specific uid for a targeted single-record lookup.\n\n**Required:** `entity_code`\n\n**Optional:** `limit`, `max_maturity_date`, `max_subscription_date`, `min_maturity_date`, `min_modified_date`, `min_subscription_date`, `offset`\n\n#### `get_entities` — List Entities\n\nRetrieve paginated entities (client organisations) the user has access to. Returns a summary only: code and name. Use get_entity with the entity code to retrieve the full profile (address, currency, status, type, rating, account manager, restrictions).\n\n**Optional:** `limit`, `offset`\n\n#### `get_entity` — Get Entity\n\nRetrieve the full profile of a specific entity (client organisation) by code. Returns name, address, currency, status, type, rating, account manager, restrictions, and family group. Use get_entities first to discover available entity codes.\n\n**Required:** `entity_code`\n\n#### `get_obligor_exposure` — Get Obligor Exposure\n\nRetrieve exposure information for a specific obligor (issuer/counterparty) by code. An obligor is the institution (e.g. a bank) that issues the investment product. Returns risk limits, credit details, and sector information.\n\n**Required:** `code`\n\n#### `get_indications` — List Indications\n\nRetrieve paginated indications (available investment opportunities) for a specific entity. An indication represents a product the entity can currently subscribe to. Returns a summary per indication only: uid, type, currency, productCode, indicativeYield, sector, term. Use get_indication with a uid for the full set of fields.\n\n**Required:** `entity_code`\n\n**Optional:** `limit`, `offset`\n\n#### `get_indication` — Get Indication\n\nRetrieve full details for a single indication by entity code and uid. Returns all fields: uid, type, currency, productCode, issueDate, subscriptionDates, optionDate, maturityDate, indicativeYield, maximum, cellCode, obligorExposureCode, enabled, term, restricted, calendars, sector, minimum, enforceMinimum, enforceMaximum, and extension-related fields (extensionDays, finalDays, minExtensions, nbPenaltyExtensions). Use get_indications first to browse available indications and obtain uids.\n\n**Required:** `entity_code`, `uid`\n\n#### `get_subscriptions` — List Subscriptions\n\nRetrieve paginated subscriptions (investment orders) for a specific entity. Returns full subscription details: uid, amount, yield, status, currency, productCode, cellCode, obligorExposureCode, subscriptionDate, maturityDate, maturityAction, indicationUid, signer, and releaser. Supports optional date filters: min/max subscription date and min/max maturity date (all YYYY-MM-DD). The holdingUid field links to the resulting active holding — pass it to get_holding to retrieve the live position.\n\n**Optional:** `entity_code`, `limit`, `max_maturity_date`, `max_subscription_date`, `min_maturity_date`, `min_subscription_date`, `offset`\n\n#### `get_holding` — Get Holding\n\nRetrieve a single holding by uid. Returns the same comprehensive fields as get_holdings (value, yield, maturity dates, extension details, etc.). Use this for a targeted lookup when you already have a uid — for example, from a subscription's holdingUid field.\n\n**Required:** `entity_code`, `uid`\n\n#### `get_cells` — List Fund Cells\n\nRetrieve all fund cells the user has access to. A cell is the investment fund vehicle that holds assets. Holdings and subscriptions each reference a specific cell via their cellCode field.\n\n### Example prompts\n\n- *\"Which entities do I have access to?\"*\n- *\"List my current holdings for entity ACME maturing before March 2027.\"*\n- *\"What investment indications are available for entity ACME today?\"*\n- *\"Has subscription `abcd1234` been issued as a live holding yet?\"*\n\n### Lifecycle\n\nHoldings returned by the MCP server follow the same lifecycle described in the [FTF Lifecycle](#tag/FTF-Lifecycle) section.\n\n### Privacy and data handling\n\nSee the [TreasurySpring privacy policy](https://treasuryspring.com/privacy-policy). The MCP server exposes the same investment data already accessible via the REST API; it introduces no additional data categories or sharing arrangements.",
+      "name": "MCP"
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "Guides",
+      "tags": [
+        "Introduction",
+        "FTF Lifecycle"
+      ]
+    },
+    {
+      "name": "Endpoints",
+      "tags": [
+        "OAuth",
+        "Holdings",
+        "Indications",
+        "Entities",
+        "Cells",
+        "Obligor Exposure",
+        "Subscriptions",
+        "Tasks",
+        "Calendar",
+        "Events",
+        "Event Checkpoints",
+        "Webhooks",
+        "Healthcheck"
+      ]
+    },
+    {
+      "name": "Models",
+      "tags": [
+        "Holding_model",
+        "Indication_model",
+        "Cell_model",
+        "Obligor_model",
+        "Subscription_model",
+        "Task_model",
+        "Entity_model",
+        "User_permissions_model",
+        "Holiday_model",
+        "PageInfo_model",
+        "Checkpoint_model"
+      ]
+    },
+    {
+      "name": "Event Models",
+      "tags": [
+        "Event_model",
+        "SubscribedEvent_model",
+        "IssuedEvent_model",
+        "SplitEvent_model",
+        "ExtendedEvent_model",
+        "FinalizedEvent_model",
+        "AdjustedEvent_model",
+        "CurrencyConvertedEvent_model",
+        "CashMovedEvent_model",
+        "RedeemedEvent_model",
+        "CancelledEvent_model"
+      ]
+    },
+    {
+      "name": "MCP",
+      "tags": [
+        "MCP"
+      ]
+    }
+  ]
+}

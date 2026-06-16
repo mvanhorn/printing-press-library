@@ -1,0 +1,51 @@
+{
+  "manifest_version": "0.3",
+  "name": "ts-pp-mcp",
+  "display_name": "TreasurySpring",
+  "version": "0.0.0",
+  "description": "Every TreasurySpring read endpoint, plus a local SQLite mirror that answers portfolio-level questions no single API call can: maturity ladders, obligor concentration, consolidated book, and event diffs.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ts-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ts-pp-mcp",
+      "args": [],
+      "env": {
+        "TS_BEARER_TOKEN": "${user_config.ts_bearer_token}",
+        "TS_CLIENT_ID": "${user_config.ts_client_id}",
+        "TS_CLIENT_SECRET": "${user_config.ts_client_secret}"
+      }
+    }
+  },
+  "user_config": {
+    "ts_bearer_token": {
+      "type": "string",
+      "title": "TS_BEARER_TOKEN",
+      "description": "Optional. Pre-minted bearer token. OR set TS_CLIENT_ID + TS_CLIENT_SECRET and run `ts auth login`.",
+      "sensitive": true
+    },
+    "ts_client_id": {
+      "type": "string",
+      "title": "TS_CLIENT_ID",
+      "description": "Optional. OAuth2 client id; used by `ts auth login` to mint a token at /oauth/token."
+    },
+    "ts_client_secret": {
+      "type": "string",
+      "title": "TS_CLIENT_SECRET",
+      "description": "Optional. OAuth2 client secret; used by `ts auth login`.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
