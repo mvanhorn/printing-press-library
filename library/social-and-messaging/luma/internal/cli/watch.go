@@ -111,7 +111,10 @@ func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			entries, ferr := fetchEventEntries(ctx, c, params, flagLimit, scanPagesForEnv(flagMaxScanPages))
+			// Page size is the upstream fetch batch, independent of --limit
+			// (the per-run tracking cap applied via dedupe/window below).
+			const watchPageSize = 50
+			entries, ferr := fetchEventEntries(ctx, c, params, watchPageSize, scanPagesForEnv(flagMaxScanPages))
 			if ferr != nil && len(entries) == 0 {
 				return classifyAPIError(ferr, flags)
 			}

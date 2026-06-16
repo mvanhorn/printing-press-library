@@ -76,9 +76,9 @@ func (e lumaEntry) startTime() (time.Time, bool) {
 	if t, err := time.Parse(time.RFC3339, e.Event.StartAt); err == nil {
 		return t, true
 	}
-	// Luma sends millisecond precision with a trailing Z, which RFC3339 above
-	// already accepts; this fallback covers any non-fractional variant.
-	if t, err := time.Parse("2006-01-02T15:04:05Z07:00", e.Event.StartAt); err == nil {
+	// Fallback for millisecond-precision variants (e.g. "2026-06-20T18:00:00.000Z")
+	// in case a future toolchain's strict RFC3339 rejects fractional seconds.
+	if t, err := time.Parse(time.RFC3339Nano, e.Event.StartAt); err == nil {
 		return t, true
 	}
 	return time.Time{}, false

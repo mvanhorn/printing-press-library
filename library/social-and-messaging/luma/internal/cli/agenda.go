@@ -92,10 +92,14 @@ func newNovelAgendaCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			maxScan := scanPagesForEnv(flagMaxScanPages)
+			// Page size is the upstream fetch batch, decoupled from --limit (the
+			// output cap applied after merge). Keeps --limit 0 from sending
+			// pagination_limit=0 to the API.
+			const agendaPageSize = 50
 			var all []lumaEntry
 			failures := make([]agendaFailure, 0)
 			for _, s := range sources {
-				entries, ferr := fetchEventEntries(ctx, c, s.params, flagLimit, maxScan)
+				entries, ferr := fetchEventEntries(ctx, c, s.params, agendaPageSize, maxScan)
 				// Keep entries fetched before an error so a late-page failure
 				// still contributes its earlier pages.
 				all = append(all, entries...)

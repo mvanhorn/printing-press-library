@@ -106,6 +106,9 @@ func newNovelNearCmd(flags *rootFlags) *cobra.Command {
 				}
 				matches = append(matches, e)
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating events: %w", err)
+			}
 
 			sort.SliceStable(matches, func(i, j int) bool {
 				di := haversineKm(flagLat, flagLng, matches[i].Event.Coordinate.Latitude, matches[i].Event.Coordinate.Longitude)
