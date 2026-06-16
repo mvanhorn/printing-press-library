@@ -40,7 +40,7 @@ func NewRootCmd() *cobra.Command {
 		}
 		return nil
 	}
-	cmd.AddCommand(agentContextCmd(f), doctorCmd(f), sourcesCmd(f), profileCmd(f), syncCmd(f), accountStatusCmd(f), confidenceCmd(f), auditCmd(f), quickWinsCmd(f), budgetShiftCmd(f))
+	cmd.AddCommand(agentContextCmd(f), doctorCmd(f), sourcesCmd(f), profileCmd(f), syncCmd(f), accountStatusCmd(f), confidenceCmd(f), auditCmd(f), quickWinsCmd(f), budgetShiftCmd(f), applyCmd(f))
 	return cmd
 }
 
@@ -58,7 +58,7 @@ func out(cmd *cobra.Command, f *rootFlags, v any, human string) error {
 
 func agentContextCmd(f *rootFlags) *cobra.Command {
 	return &cobra.Command{Use: "agent-context", Short: "Print machine-readable CLI context", RunE: func(cmd *cobra.Command, args []string) error {
-		ctx := map[string]any{"schema_version": "ads-intel.agent-context/v1", "name": "ads-intel-pp-cli", "version": version, "local_first": true, "read_only": true, "external_api_calls": false, "state_dir": f.home, "commands": []string{"sync", "account-status", "confidence", "audit", "quick-wins", "budget-shift"}, "source_plan": sourceChecks()}
+		ctx := map[string]any{"schema_version": "ads-intel.agent-context/v1", "name": "ads-intel-pp-cli", "version": version, "local_first": true, "read_only_default": true, "external_api_calls": "apply only with --live-approved and typed confirmation", "state_dir": f.home, "commands": []string{"sync", "account-status", "confidence", "audit", "quick-wins", "budget-shift", "apply negative-keyword", "apply undo"}, "source_plan": sourceChecks()}
 		return out(cmd, f, ctx, "")
 	}}
 }
@@ -82,7 +82,7 @@ type sourceCheck struct {
 
 func sourceChecks() []sourceCheck {
 	defs := []sourceCheck{
-		{Name: "google", ChildBinary: "google-ads-pp-cli", PlannedCommand: "google-ads-pp-cli sync --agent / google-ads-pp-cli wasted-spend --agent / keyword-roi-tiers --agent", CapabilityNote: "read APIs exist; generic mutate surfaces also exist but ads-intel v1 never calls them"},
+		{Name: "google", ChildBinary: "google-ads-pp-cli", PlannedCommand: "google-ads-pp-cli sync --agent / google-ads-pp-cli wasted-spend --agent / keyword-roi-tiers --agent / campaign-ad-group criteria mutate for exact negatives only", CapabilityNote: "read APIs plus the Phase 5 exact-negative apply path; no pause, budget, creative, or broad mutation"},
 		{Name: "meta", ChildBinary: "meta-ads-pp-cli", PlannedCommand: "meta-ads-pp-cli sync --agent / insights get-account <id> --agent / fatigue --agent / learning --agent", CapabilityNote: "read-heavy insights and local analytics are available"},
 		{Name: "amazon", ChildBinary: "amazon-ads-pp-cli", PlannedCommand: "amazon-ads-pp-cli sync --agent / reports download --agent / weekly-review --agent", CapabilityNote: "read reports plus many write surfaces exist; ads-intel v1 uses only read/local outputs"},
 	}
@@ -197,22 +197,40 @@ func accountHeader(d store.DataSet, command string) map[string]any {
 }
 
 func confidenceForData(d store.DataSet) string {
-	if len(d.Campaigns) == 0 || totalSpendAll(d) == 0 {
-		return "Broken"
-	}
-	hasCost, hasConv, hasRevenue := false, false, false
+	return string(confidenceReportForData(d).Level)
+}
+
+func confidenceReportForData(d store.DataSet) intelcli.ConfidenceReport {
+	hasCost, hasConv, hasRevenue, hasImpressions := false, false, false, false
 	for _, c := range d.Campaigns {
 		hasCost = hasCost || c.Spend > 0
 		hasConv = hasConv || c.Conversions > 0
 		hasRevenue = hasRevenue || c.Revenue > 0
+		hasImpressions = hasImpressions || c.Impressions > 0
 	}
-	if hasCost && hasConv && hasRevenue {
-		return "High"
+	coverage := map[string]float64{}
+	platforms := map[string]bool{}
+	for _, c := range d.Campaigns {
+		if c.Platform != "" {
+			platforms[c.Platform] = true
+		}
 	}
-	if hasCost && (hasConv || hasRevenue) {
-		return "Medium"
+	for _, platform := range []string{"google", "meta", "amazon"} {
+		if platforms[platform] {
+			coverage[platform] = 1
+		} else {
+			coverage[platform] = 0
+		}
 	}
-	return "Low"
+	return intelcli.EvaluateConfidence(intelcli.ConfidenceSignals{
+		Profile:              d.Profile,
+		SyncedAt:             d.SyncedAt,
+		Entities:             len(d.Campaigns) + len(d.SearchTerms) + len(d.Keywords),
+		SourceCoverage:       coverage,
+		HasRevenue:           hasRevenue,
+		HasConversions:       hasConv,
+		HasSearchImpressions: hasCost && hasImpressions,
+	}, time.Now().UTC())
 }
 
 func accountStatusCmd(f *rootFlags) *cobra.Command {
@@ -231,8 +249,9 @@ func confidenceCmd(f *rootFlags) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		res := withHeader(f, d, "confidence", map[string]any{"tracking_confidence": confidenceForData(d), "checks": []string{"cost rows present", "conversion signal present", "revenue signal present", "learning phase guarded"}})
-		return out(cmd, f, res, fmt.Sprintf("tracking confidence: %s\n", confidenceForData(d)))
+		report := confidenceReportForData(d)
+		res := withHeader(f, d, "confidence", map[string]any{"tracking_confidence": report.Level, "confidence_report": report, "checks": []string{"cost rows present", "conversion signal present", "revenue signal present", "learning phase guarded"}})
+		return out(cmd, f, res, fmt.Sprintf("tracking confidence: %s\n", report.Level))
 	}}
 }
 
