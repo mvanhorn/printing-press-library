@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "kdpnichefinder-csrf-writes",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260615-235211-3e30b66b",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Add Laravel X-XSRF-TOKEN header (parsed from the XSRF-TOKEN cookie) to the two POST commands (books save, folders create).",
+  "reason": "Laravel requires X-XSRF-TOKEN on state-changing requests; the generated POST commands sent no CSRF header and would 419.",
+  "files": ["internal/cli/kdpnichefinder_csrf.go", "internal/cli/promoted_books.go", "internal/cli/folders_create.go"],
+  "validated_outcome": "Live folders create returned 200 and created a real folder."
+}

@@ -1,0 +1,49 @@
+{
+  "endpoint": "GET /app/category/evergreen",
+  "method": "GET",
+  "raw_url": "https://kdpnichefinder.com/app/category/evergreen",
+  "status": 200,
+  "request_headers": {
+    ":authority": "kdpnichefinder.com",
+    ":method": "GET",
+    ":path": "/app/category/evergreen",
+    ":scheme": "https",
+    "accept": "text/html, application/xhtml+xml",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "cache-control": "no-cache",
+    "dnt": "1",
+    "pragma": "no-cache",
+    "priority": "u=1, i",
+    "referer": "https://kdpnichefinder.com/dashboard",
+    "sec-ch-ua": "\"Brave\";v=\"149\", \"Chromium\";v=\"149\", \"Not)A;Brand\";v=\"24\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"macOS\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin",
+    "sec-gpc": "1",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+    "x-inertia": "true",
+    "x-inertia-version": "48dd121c09af69aeaa0e9c68f4bb81b9",
+    "x-requested-with": "XMLHttpRequest",
+    "x-xsrf-token": "REDACTED"
+  },
+  "request_body": null,
+  "response_headers": {
+    "cache-control": "no-cache, private",
+    "content-encoding": "gzip",
+    "content-type": "application/json",
+    "date": "Tue, 16 Jun 2026 05:03:21 GMT",
+    "server": "nginx",
+    "strict-transport-security": "max-age=31536000",
+    "vary": "X-Inertia",
+    "x-inertia": "true",
+    "x-powered-by": "PHP/8.4.17"
+  },
+  "response_body": null,
+  "response_body_known": false,
+  "redactions": [
+    "request_headers.x-xsrf-token"
+  ]
+}

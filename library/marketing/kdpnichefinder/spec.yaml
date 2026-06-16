@@ -1,0 +1,174 @@
+name: kdpnichefinder
+description: "Research Amazon KDP book niches from KDP Niche Finder's curated buckets, offline."
+version: "0.1.0"
+base_url: "https://kdpnichefinder.com"
+http_transport: standard
+health_check_path: "/api/user"
+category: marketing
+
+required_headers:
+  - name: X-Requested-With
+    value: "XMLHttpRequest"
+
+auth:
+  type: cookie
+  header: Cookie
+  cookie_domain: kdpnichefinder.com
+  login_url: "https://kdpnichefinder.com/login"
+  login_complete_selector: "a[href*=logout]"
+
+config:
+  format: toml
+  path: "~/.config/kdpnichefinder-pp-cli/config.toml"
+
+resources:
+  niches:
+    description: "Browse curated KDP niche buckets (real Amazon books with estimated sales/revenue)"
+    endpoints:
+      browse:
+        method: GET
+        path: "/app/category/{type}"
+        description: "Browse a niche bucket: evergreen, fresh_money, hidden_gems, or high_ticket"
+        params:
+          - name: type
+            type: string
+            required: true
+            positional: true
+            description: "Niche bucket: evergreen | fresh_money | hidden_gems | high_ticket"
+            enum: [evergreen, fresh_money, hidden_gems, high_ticket]
+          - name: search
+            type: string
+            required: false
+            description: "Filter the bucket to titles matching this term"
+          - name: page
+            type: int
+            required: false
+            default: 1
+            description: "Page number (Laravel paginator)"
+        response:
+          type: array
+          item: Book
+        response_path: props.books.data
+        pagination:
+          type: page
+          has_more_field: props.books.next_page_url
+  categories:
+    description: "Niche bucket metadata"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/categories"
+        description: "List niche bucket categories (key, name, description)"
+        response:
+          type: array
+          item: Category
+  folders:
+    description: "Organize saved niches into folders"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/folders"
+        description: "List your folders"
+        response:
+          type: array
+          item: Folder
+      create:
+        method: POST
+        path: "/api/folders"
+        description: "Create a folder"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Folder name"
+        response:
+          type: object
+          item: Folder
+  books:
+    description: "Save and unsave niche books"
+    endpoints:
+      save:
+        method: POST
+        path: "/api/books/{book_id}/toggle-save"
+        description: "Toggle save/unsave a book; optionally into a folder"
+        params:
+          - name: book_id
+            type: string
+            required: true
+            positional: true
+            description: "Book ID"
+        body:
+          - name: folder_id
+            type: int
+            required: false
+            description: "Folder ID to save into (omit for default)"
+        response:
+          type: object
+          item: ToggleSave
+  saved:
+    description: "Your saved niche books"
+    endpoints:
+      list:
+        method: GET
+        path: "/app/saved-books"
+        description: "List your saved books"
+        response:
+          type: array
+          item: Book
+        response_path: props.books.data
+  user:
+    description: "Authenticated account"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/user"
+        description: "Show the authenticated user"
+        response:
+          type: object
+          item: User
+
+types:
+  Book:
+    fields:
+      - name: id
+        type: int
+      - name: title
+        type: string
+      - name: amazon_url
+        type: string
+      - name: image_url
+        type: string
+      - name: price
+        type: string
+      - name: publisher
+        type: string
+      - name: estimated_monthly_sales
+        type: int
+      - name: estimated_monthly_revenue
+        type: float
+  Category:
+    fields:
+      - name: key
+        type: string
+      - name: name
+        type: string
+      - name: description
+        type: string
+  Folder:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+  ToggleSave:
+    fields:
+      - name: saved
+        type: bool
+  User:
+    fields:
+      - name: name
+        type: string
+      - name: email
+        type: string
+      - name: image_url
+        type: string
