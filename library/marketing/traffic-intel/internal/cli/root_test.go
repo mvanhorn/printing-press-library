@@ -101,7 +101,7 @@ func TestSyncAndAnalysisCommands(t *testing.T) {
 	if got, err := run(t, home, "--profile", "demo", "sync"); err != nil || !strings.Contains(got, "synced 4 pages") {
 		t.Fatalf("sync failed: %v %s", err, got)
 	}
-	checks := [][]string{{"money-pages"}, {"query-revenue", "jackets"}, {"explain-drop"}, {"refresh-queue"}, {"opportunity-gap"}, {"quick-wins"}, {"revenue-at-risk"}, {"refresh-brief", "jackets"}, {"topic-clusters"}, {"digest", "weekly"}}
+	checks := [][]string{{"money-pages"}, {"query-revenue", "jackets"}, {"explain-drop"}, {"refresh-queue"}, {"opportunity-gap"}, {"quick-wins"}, {"revenue-at-risk"}, {"refresh-brief", "jackets"}, {"topic-clusters"}, {"source-coverage"}, {"internal-link-plan"}, {"experiment-plan", "jackets"}, {"forecast-impact"}, {"stale-winners"}, {"digest", "weekly"}}
 	for _, args := range checks {
 		got, err := run(t, home, append([]string{"--profile", "demo"}, args...)...)
 		if err != nil {
@@ -211,6 +211,46 @@ func TestNovelCommandsUseCrossSourceSignals(t *testing.T) {
 	}
 	if !strings.Contains(got, `"topic":"winter jackets"`) || !strings.Contains(got, `"lost_revenue":1500`) {
 		t.Fatalf("topic clusters missed aggregate risk: %s", got)
+	}
+
+	got, err = run(t, home, "--profile", "custom", "--agent", "source-coverage")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"complete":3`) || !strings.Contains(got, `"coverage_score":1`) {
+		t.Fatalf("source coverage missed complete rows: %s", got)
+	}
+
+	got, err = run(t, home, "--profile", "custom", "--agent", "internal-link-plan")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"from_url"`) || !strings.Contains(got, `"to_url"`) || !strings.Contains(got, `"anchor":"winter jackets"`) {
+		t.Fatalf("internal link plan missing link recommendation: %s", got)
+	}
+
+	got, err = run(t, home, "--profile", "custom", "--agent", "experiment-plan", "winter-jackets")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"title_tests"`) || !strings.Contains(got, `"primary_success_metric"`) {
+		t.Fatalf("experiment plan missing test fields: %s", got)
+	}
+
+	got, err = run(t, home, "--profile", "custom", "--agent", "forecast-impact")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"estimated_click_gain"`) || !strings.Contains(got, `"estimated_revenue_gain"`) {
+		t.Fatalf("forecast impact missing estimates: %s", got)
+	}
+
+	got, err = run(t, home, "--profile", "custom", "--agent", "stale-winners")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"preventive_action"`) || !strings.Contains(got, `"score"`) {
+		t.Fatalf("stale winners missing preventive fields: %s", got)
 	}
 }
 

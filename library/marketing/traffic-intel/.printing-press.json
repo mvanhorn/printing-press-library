@@ -101,6 +101,31 @@
       "description": "topic-clusters summarizes clicks, revenue, backlinks, and decay by inferred topic cluster"
     },
     {
+      "name": "Source coverage",
+      "command": "source-coverage",
+      "description": "source-coverage audits which pages have GSC, GA4, and Ahrefs evidence and which source syncs are missing"
+    },
+    {
+      "name": "Internal link plan",
+      "command": "internal-link-plan",
+      "description": "internal-link-plan recommends source and target pages for internal links using topic clusters, revenue, and link equity"
+    },
+    {
+      "name": "Experiment plan",
+      "command": "experiment-plan",
+      "description": "experiment-plan turns one page into title, meta, content, and measurement tests"
+    },
+    {
+      "name": "Forecast impact",
+      "command": "forecast-impact",
+      "description": "forecast-impact estimates click, conversion, and revenue upside from closing CTR gaps"
+    },
+    {
+      "name": "Stale winners",
+      "command": "stale-winners",
+      "description": "stale-winners finds high-value pages to refresh before visible decay"
+    },
+    {
       "name": "Weekly digest",
       "command": "digest weekly",
       "description": "digest weekly produces a local-first traffic and revenue summary that handles empty datasets cleanly"

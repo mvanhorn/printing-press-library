@@ -50,4 +50,9 @@ Use `sources doctor` to discover whether those binaries are on `PATH` and whethe
 - `refresh-brief <url-or-topic>` — agent-ready page refresh brief with likely issue and actions.
 - `cannibalization` — same-topic competing pages and canonical consolidation suggestions.
 - `topic-clusters` — traffic, revenue, backlink, and decay summaries by inferred topic.
+- `source-coverage` — page-level audit of GSC, GA4, and Ahrefs evidence gaps.
+- `internal-link-plan` — source and target page recommendations for internal links.
+- `experiment-plan <url-or-topic>` — title, meta, content, and measurement tests for one page.
+- `forecast-impact` — estimated click, conversion, and revenue upside from CTR-gap closure.
+- `stale-winners` — high-value pages to refresh before visible decay.
 - `digest weekly` — weekly summary; safe for empty datasets.

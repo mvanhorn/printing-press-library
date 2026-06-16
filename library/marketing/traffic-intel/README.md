@@ -45,6 +45,11 @@ traffic-intel-pp-cli --profile site quick-wins
 traffic-intel-pp-cli --profile site revenue-at-risk
 traffic-intel-pp-cli --profile site cannibalization
 traffic-intel-pp-cli --profile site topic-clusters
+traffic-intel-pp-cli --profile site source-coverage
+traffic-intel-pp-cli --profile site internal-link-plan
+traffic-intel-pp-cli --profile site experiment-plan /collections/winter-jackets
+traffic-intel-pp-cli --profile site forecast-impact
+traffic-intel-pp-cli --profile site stale-winners
 traffic-intel-pp-cli --profile site digest weekly
 ```
 
@@ -75,6 +80,11 @@ Child CLI sync is opt-in. `sync --source all` runs all three child commands and 
 - `refresh-brief <url-or-topic>` generates an agent-ready page brief with likely issue, metrics, recommended actions, and follow-up commands.
 - `cannibalization` groups pages competing for the same query/topic and recommends a canonical URL.
 - `topic-clusters` summarizes clicks, revenue, backlinks, and decay by inferred topic cluster.
+- `source-coverage` audits which pages have GSC, GA4, and Ahrefs evidence and what source sync is missing.
+- `internal-link-plan` recommends source and target pages for internal links based on topic, revenue, and link equity.
+- `experiment-plan <url-or-topic>` turns one page into title, meta, content, and measurement tests.
+- `forecast-impact` estimates click, conversion, and revenue upside from closing CTR gaps.
+- `stale-winners` finds valuable pages to refresh before visible decline.
 
 ## Import format
 

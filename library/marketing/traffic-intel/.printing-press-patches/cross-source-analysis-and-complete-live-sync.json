@@ -4,8 +4,8 @@
   "applied_at": "2026-06-16",
   "base_run_id": "traffic-intel-20260615",
   "base_printing_press_version": "4.20.1",
-  "summary": "Traffic Intel must preserve complete all-source live sync plus cross-source SEO/revenue analysis commands for opportunity, risk, refresh, cannibalization, and topic clustering.",
-  "reason": "The CLI is valuable as an operator layer only when it combines GSC, GA4, and Ahrefs evidence without silently replacing the local store with partial all-source data.",
+  "summary": "Traffic Intel must preserve complete all-source live sync plus cross-source SEO/revenue analysis commands for opportunity, risk, refresh, cannibalization, topic clustering, coverage, internal linking, experiments, forecasts, and stale winners.",
+  "reason": "The CLI is valuable as an operator layer only when it combines GSC, GA4, and Ahrefs evidence into actionable work queues without silently replacing the local store with partial all-source data.",
   "files": [
     "internal/cli/root.go",
     "internal/cli/root_test.go",
@@ -13,5 +13,5 @@
     "SKILL.md",
     ".printing-press.json"
   ],
-  "validated_outcome": "`go test ./...` covers complete all-source sync, intentional single-source sync, actionable missing-config errors, and the new analysis commands over fixture and imported datasets."
+  "validated_outcome": "`go test ./...` covers complete all-source sync, intentional single-source sync, actionable missing-config errors, and the analysis commands over fixture and imported datasets."
 }
