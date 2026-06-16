@@ -19,7 +19,7 @@ func newImagesPromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Upload an image; returns CDN URL. Body is data-URI JSON.",
 		Long:        "Upload an image; returns CDN URL. Body is data-URI JSON.",
 		Example:     "  substack-pp-cli images --image example-value",
-		Annotations: map[string]string{"pp:endpoint": "images.upload", "pp:method": "POST", "pp:path": "https://{publication}.substack.com/api/v1/image"},
+		Annotations: map[string]string{"pp:endpoint": "images.upload", "pp:method": "POST", "pp:path": "https://substack.com/api/v1/image"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with a required flag/body prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
@@ -36,7 +36,7 @@ func newImagesPromotedCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "https://{publication}.substack.com/api/v1/image"
+			path := globalAPIPath("/image")
 			params := map[string]string{}
 			// HasStore + non-GET falls through to a live API call here
 			// rather than through resolveRead (GET-only internally); a

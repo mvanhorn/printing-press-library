@@ -1,8 +1,0 @@
-version: 2
-project_name: qbo-pp-cli
-builds:
-  - id: qbo-pp-cli
-    main: ./cmd/qbo-pp-cli
-    binary: qbo-pp-cli
-    goos: [darwin, linux]
-    goarch: [amd64, arm64]

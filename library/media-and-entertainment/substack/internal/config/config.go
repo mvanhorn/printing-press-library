@@ -96,6 +96,9 @@ func Load(configPath string) (*Config, error) {
 	} else if verifyMode {
 		cfg.TemplateVars["publication"] = "publication_placeholder"
 	}
+	if v := strings.TrimSpace(os.Getenv("SUBSTACK_PUBLICATION_ID")); v != "" {
+		cfg.TemplateVars["publication_id"] = v
+	}
 	return cfg, nil
 }
 

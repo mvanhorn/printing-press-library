@@ -149,7 +149,7 @@ Second paragraph."
 		Annotations: map[string]string{
 			"pp:endpoint":  "drafts.create",
 			"pp:method":    "POST",
-			"pp:path":      "https://{publication}.substack.com/api/v1/drafts",
+			"pp:path":      "https://substack.com/api/v1/drafts?publication_id={publication_id}",
 			"pp:novel-ext": "full-field-coverage",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -163,13 +163,17 @@ Second paragraph."
 				return err
 			}
 
-			path := publicationAPIPath("/drafts")
-			displayPath := path
-			if resolvedPath, err := c.DisplayURLForPath(path); err == nil {
-				displayPath = resolvedPath
+			path := globalAPIPath("/drafts")
+			publicationID, err := writerPublicationID(cmd.Context(), c, flags)
+			if err != nil {
+				return err
 			}
-			// DisplayURLForPath uses the same template resolution as c.Post below; if it
-			// fails, c.Post will return that error before printing the JSON envelope.
+			params := map[string]string{"publication_id": publicationID}
+			displayPath := globalAPIPathWithParams("/drafts", params)
+			// c.PostWithParams resolves the same global writer endpoint below. In
+			// dry-run mode writerPublicationID returns a placeholder instead of
+			// performing a live profile lookup, so the displayed route remains
+			// accurate without creating a network side effect.
 			var body map[string]any
 
 			if stdinBody {
@@ -292,7 +296,7 @@ Second paragraph."
 				}
 			}
 
-			data, statusCode, err := c.Post(cmd.Context(), path, body)
+			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

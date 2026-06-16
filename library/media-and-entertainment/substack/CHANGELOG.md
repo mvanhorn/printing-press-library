@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.6.5 - 2026-06-16
+
+- fix(substack): route writer endpoints globally (#1240).
+
 ## 2026.6.4 - 2026-06-16
 
 - fix: resolve publication URL in Substack dry-run JSON (#1237).

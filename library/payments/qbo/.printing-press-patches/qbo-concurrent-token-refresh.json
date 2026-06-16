@@ -1,0 +1,34 @@
+{
+  "schema_version": 2,
+  "id": "qbo-concurrent-token-refresh",
+  "applied_at": "2026-06-09",
+  "base_run_id": "20260608-204910",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Concurrent OAuth token refresh with file locking and atomic config writes.",
+  "reason": "Prevent duplicate token refresh calls and config file corruption under concurrent process access. Provider-revoked tokens now recover correctly on 401 via the forceRefresh path.",
+  "files": [
+    "go.mod",
+    "go.sum",
+    "internal/client/client.go",
+    "internal/client/client_concurrency_test.go",
+    "internal/config/config.go"
+  ],
+  "changes": [
+    {
+      "file": "go.mod",
+      "description": "Add github.com/gofrs/flock v0.12.1 dependency."
+    },
+    {
+      "file": "internal/client/client.go",
+      "description": "Wrap refreshAccessToken in an exclusive flock on token.lock. Fix lockDir derivation (guard Path=='' before filepath.Dir). Add forceRefresh bool param: false on proactive/expiry path (short-circuit valid on-disk token), true on 401 path (always contact token endpoint to recover provider-revoked tokens). Guard bulk Config field assignments with Config.Lock/Unlock to eliminate data race."
+    },
+    {
+      "file": "internal/client/client_concurrency_test.go",
+      "description": "Add TestClient_ConcurrentTokenRefresh (goroutine storm, verifies exactly one token-endpoint call) and TestClient_ForceRefreshBypassesShortCircuit (verifies forceRefresh=true contacts endpoint even when local clock shows token as valid)."
+    },
+    {
+      "file": "internal/config/config.go",
+      "description": "Add sync.Mutex to Config struct with Lock/Unlock methods. Guard AuthHeader, SaveTokens, ClearTokens, and save (marshal step) with the mutex. Make save() atomic via write-to-temp + os.Rename. Guard save() against empty Path."
+    }
+  ]
+}

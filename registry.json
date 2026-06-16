@@ -9081,29 +9081,50 @@
     },
     {
       "name": "qbo",
-      "category": "accounting",
-      "api": "qbo",
+      "category": "payments",
+      "api": "QuickBooks Online",
       "description": "Fixture-first, read-only QuickBooks Online CLI for agents.",
       "search_terms": [
         "qbo",
+        "QuickBooks Online",
         "qbo-pp-cli",
-        "Fixture-first, read-only QuickBooks Online CLI for agents.",
-        "Fixture-only read surface",
-        "qbo-pp-cli status",
-        "Reports read-only, no-live-OAuth safety status for agent use.",
-        "Local JSON fixture reads",
-        "qbo-pp-cli accounts list --fixture testdata/fixtures/qbo/accounts.json",
-        "Reads deterministic local accounting fixtures without credentials or network access.",
-        "Report fixture reads",
-        "qbo-pp-cli reports trial-balance --fixture testdata/fixtures/qbo/trial_balance.json",
-        "Exposes accounting report fixtures as JSON envelopes for agent workflows."
+        "Interact with QuickBooks Online directly. Query ledger items, sync transactions locally, and run advanced reconciliation triage.",
+        "Changed entities check",
+        "changed",
+        "Show ledger entities modified since a duration or timestamp, using SQLite index searching.",
+        "Double-billing expense audit",
+        "duplicates",
+        "Find duplicate purchases or bills to prevent double-billing by auditing vendor and amount proximity.",
+        "Bank transaction reconciliation",
+        "reconcile",
+        "Find ledger candidates matching a bank transaction for reconciliation, optimized to avoid N+1 scans.",
+        "Net worth calculator",
+        "net-worth",
+        "Calculate net worth from asset and liability accounts using offline SQLite mirrors."
       ],
-      "path": "library/accounting/qbo",
-      "printer": "jeffreydebolt",
-      "printer_name": "Jeff DeBolt",
+      "path": "library/payments/qbo",
+      "printer": "kesslerio",
+      "printer_name": "Martin Kessler",
       "creator": {
-        "handle": "jeffreydebolt",
-        "name": "Jeff DeBolt"
+        "handle": "kesslerio",
+        "name": "Martin Kessler"
+      },
+      "mcp": {
+        "binary": "qbo-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 18,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "QBO_CLIENT_ID",
+          "QBO_CLIENT_SECRET",
+          "QBO_REALM_ID"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
       }
     },
     {

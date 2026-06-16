@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "substack",
   "cli_name": "substack-pp-cli",
-  "version": "2026.6.4",
-  "released_at": "2026-06-16T16:48:38Z",
-  "source_commit": "01006be954f397e06e9daec27485162d8909dc8b",
+  "version": "2026.6.5",
+  "released_at": "2026-06-16T18:55:32Z",
+  "source_commit": "01e543ef0a34061dbc95f4112986a87e3848ba8d",
   "printing_press_version": "4.19.0",
   "run_id": "20260531-014452",
   "changes": [
     {
-      "title": "fix: resolve publication URL in Substack dry-run JSON",
-      "pr": 1237,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1237",
-      "commit": "01006be954f397e06e9daec27485162d8909dc8b"
+      "title": "fix(substack): route writer endpoints globally",
+      "pr": 1240,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1240",
+      "commit": "01e543ef0a34061dbc95f4112986a87e3848ba8d"
     }
   ]
 }
