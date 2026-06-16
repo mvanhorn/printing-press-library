@@ -93,6 +93,20 @@ class AttributionVerifierTest(unittest.TestCase):
 
         self.assertEqual(0, verifier.run(base, "HEAD"))
 
+    def test_library_internal_shared_module_is_not_a_cli(self) -> None:
+        self.write("library/internal/intelcli/go.mod", "module example.com/internal/intelcli\n")
+        self.write("library/marketing/ads-intel/.printing-press.json", json.dumps({"api_name": "ads-intel", "printer": "tmchow", "printer_name": "Trevin Chow"}))
+        self.git("add", ".")
+        self.git("commit", "-m", "base")
+        base = self.git("rev-parse", "HEAD").stdout.strip()
+
+        self.git("switch", "-c", "feature")
+        self.write("library/internal/intelcli/apply_core.go", "package intelcli\n")
+        self.git("add", ".")
+        self.git("commit", "-m", "update shared intelcli")
+
+        self.assertEqual(0, verifier.run(base, "HEAD"))
+
 
 class SkillAuthorParsingTest(unittest.TestCase):
     PLAIN = '---\nname: pp-foo\nauthor: "Ada Lovelace"\n---\n\n# Foo\n'

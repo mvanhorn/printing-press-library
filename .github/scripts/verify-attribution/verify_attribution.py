@@ -91,6 +91,8 @@ def cli_root_for_path(path: str) -> tuple[str, str] | None:
     parts = path.split("/")
     if len(parts) < 4 or parts[0] != "library":
         return None
+    if parts[1] == "internal":
+        return None
     root = "/".join(parts[:3])
     rest = "/".join(parts[3:])
     return root, rest
