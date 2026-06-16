@@ -62,7 +62,7 @@ full field list.`,
 		Annotations: map[string]string{
 			"pp:endpoint":  "drafts.update",
 			"pp:method":    "PUT",
-			"pp:path":      "/drafts/{id}",
+			"pp:path":      "https://{publication}.substack.com/api/v1/drafts/{id}",
 			"pp:novel-ext": "full-field-coverage",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -74,7 +74,7 @@ full field list.`,
 				return err
 			}
 
-			path := "/drafts/{id}"
+			path := publicationAPIPath("/drafts/{id}")
 			path = replacePathParam(path, "id", args[0])
 			var body map[string]any
 

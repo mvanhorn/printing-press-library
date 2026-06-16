@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "subdomain-publication-routing",
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260531-014452",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Publication-scoped Substack commands must accept --subdomain and route through the {publication}.substack.com host.",
+  "reason": "The published draft authoring help documented --subdomain, but Cobra never registered the flag; hand-authored draft commands and sync refresh paths also used relative /drafts-style paths, so SUBSTACK_PUBLICATION could not steer those requests to the publication host.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/publication_paths.go",
+    "internal/cli/drafts_create.go",
+    "internal/cli/drafts_update.go",
+    "internal/cli/drafts_schedule.go",
+    "internal/cli/sync.go",
+    "internal/cli/publication_paths_test.go",
+    "internal/cli/sync_publication_context_test.go",
+    "internal/config/config.go",
+    "internal/config/substack_publication.go",
+    "internal/config/substack_publication_test.go"
+  ],
+  "validated_outcome": "Regression tests verify --subdomain is registered, invalid host-like values are rejected, and sync resource paths use https://{publication}.substack.com/api/v1."
+}

@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/spf13/cobra"
 	"io"
 	"net/url"
 	"os"
@@ -16,12 +15,14 @@ import (
 	"slices"
 	"strconv"
 	"strings"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/store"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // unresolvedPathKeyRE matches `{key}` placeholders left in a sync path
@@ -148,6 +149,15 @@ Resource scoping:
 				for k, v := range pathContext {
 					if !endpointTemplateVarSet[k] {
 						fmt.Fprintf(os.Stderr, "warning: --path-context key %q is not a known endpoint placeholder; this value will not be substituted into any request path\n", k)
+					}
+					if k == "publication" {
+						if flags.subdomain != "" && v != flags.subdomain {
+							return usageErr(fmt.Errorf("--path-context publication cannot override --subdomain; pass one publication binding"))
+						}
+						if err := c.Config.SetPublication(v); err != nil {
+							return usageErr(fmt.Errorf("--path-context publication: %w", err))
+						}
+						continue
 					}
 					c.Config.TemplateVars[k] = v
 				}
@@ -1267,16 +1277,16 @@ func knownSyncResourceNames() []string {
 func syncResourcePath(resource string) (string, error) {
 	paths := map[string]string{
 		"categories":      "/categories",
-		"drafts":          "/drafts",
+		"drafts":          publicationAPIPath("/drafts"),
 		"inbox":           "/reader/feed",
 		"inbox-posts":     "/reader/posts",
-		"posts":           "/archive",
-		"posts-published": "/post_management/published",
-		"posts-ranked":    "/publication/users/ranked",
+		"posts":           publicationAPIPath("/archive"),
+		"posts-published": publicationAPIPath("/post_management/published"),
+		"posts-ranked":    publicationAPIPath("/publication/users/ranked"),
 		"profiles":        "/handle/options",
-		"sections":        "/subscriptions",
-		"subs":            "/publication/users",
-		"tags":            "/publication/post-tag",
+		"sections":        publicationAPIPath("/subscriptions"),
+		"subs":            publicationAPIPath("/publication/users"),
+		"tags":            publicationAPIPath("/publication/post-tag"),
 	}
 	if p, ok := paths[resource]; ok {
 		return p, nil

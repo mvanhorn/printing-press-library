@@ -149,7 +149,7 @@ Second paragraph."
 		Annotations: map[string]string{
 			"pp:endpoint":  "drafts.create",
 			"pp:method":    "POST",
-			"pp:path":      "/drafts",
+			"pp:path":      "https://{publication}.substack.com/api/v1/drafts",
 			"pp:novel-ext": "full-field-coverage",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -163,7 +163,7 @@ Second paragraph."
 				return err
 			}
 
-			path := "/drafts"
+			path := publicationAPIPath("/drafts")
 			var body map[string]any
 
 			if stdinBody {

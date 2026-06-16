@@ -55,7 +55,7 @@ Requires --subdomain <publication-subdomain>.`,
 		Annotations: map[string]string{
 			"pp:endpoint": "drafts.schedule",
 			"pp:method":   "POST",
-			"pp:path":     "/drafts/{id}/scheduled_release",
+			"pp:path":     "https://{publication}.substack.com/api/v1/drafts/{id}/scheduled_release",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -73,7 +73,7 @@ Requires --subdomain <publication-subdomain>.`,
 				return usageErr(err)
 			}
 
-			path := "/drafts/" + args[0] + "/scheduled_release"
+			path := publicationAPIPath("/drafts/" + args[0] + "/scheduled_release")
 			body := map[string]any{
 				"trigger_at":    triggerAt.UTC().Format(time.RFC3339),
 				"post_audience": postAudience,
