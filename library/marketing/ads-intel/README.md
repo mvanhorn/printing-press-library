@@ -35,6 +35,8 @@ Live execution requires all of:
 
 The live path takes an advisory account lock, snapshots current negatives before writing, skips existing exact negatives idempotently, mutates one operation at a time through the Google Ads child CLI, re-queries to verify the negative exists, stores a best-effort reversal record, and appends successful live ops to `audit/apply.log`.
 
+The platform-agnostic safety controls are implemented through the shared `library/internal/intelcli` apply core so later intel CLIs reuse the same audited dry-run, live-approval, lock, snapshot, reversal, and audit primitives.
+
 `apply undo --reversal-id <id>` dry-runs the recorded inverse by default. Live undo uses the same allowlist and typed-confirm pattern, and remains best-effort rather than a clean rollback.
 
 ## Child CLI posture

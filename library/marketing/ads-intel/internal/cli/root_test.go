@@ -289,6 +289,21 @@ func TestApplyNegativeKeywordRefusesAllowlistAndCap(t *testing.T) {
 	}
 }
 
+func TestApplyNegativeKeywordRefusesLiveApprovedWithoutConfirm(t *testing.T) {
+	home := t.TempDir()
+	draft := syncedDraft(t, home)
+	mock := &mockGoogleAdsApplyClient{}
+	withMockGoogleAdsClient(t, mock)
+
+	got, err := run(t, home, "--profile", "demo", "apply", "negative-keyword", "--draft", draft, "--allow-account", "demo-account", "--live-approved")
+	if err == nil || !strings.Contains(err.Error(), "typed confirmation") {
+		t.Fatalf("expected typed confirmation refusal, err=%v output=%s", err, got)
+	}
+	if len(mock.added) != 0 {
+		t.Fatalf("live-approved without confirm should not mutate: %#v", mock.added)
+	}
+}
+
 func TestApplyNegativeKeywordPartialFailureContinues(t *testing.T) {
 	home := t.TempDir()
 	first := syncedDraft(t, home)

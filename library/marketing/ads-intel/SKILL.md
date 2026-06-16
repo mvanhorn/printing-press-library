@@ -11,6 +11,7 @@ Use `ads-intel-pp-cli` when an agent needs paid media audit context across Googl
 - Treat `negative_keyword_drafts` as local draft artifacts until `apply negative-keyword` dry-runs them.
 - `apply negative-keyword` supports only Google Ads exact-match negatives from confirmed wasters: spend >$10 and 0 conversions.
 - Live apply requires an account allowlist (`--allow-account` or apply policy), max-changes cap, idempotency check, advisory lock, pre-write snapshot, read-after-write verification, reversal registry, and append-only audit log.
+- The reusable safety machinery lives in the shared `library/internal/intelcli` apply core; ads-intel keeps only the Google Ads-specific draft, GAQL, and child-CLI mutation logic.
 - `apply undo` is best-effort only, not a guaranteed rollback; negative keywords can change auction eligibility.
 - Never recommend edits while a campaign is in active learning.
 

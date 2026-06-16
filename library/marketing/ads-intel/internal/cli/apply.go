@@ -1,10 +1,8 @@
 package cli
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -31,9 +29,8 @@ type applyOptions struct {
 }
 
 type applyPolicy struct {
-	SchemaVersion            string   `json:"schema_version,omitempty"`
+	intelcli.ApplyPolicyBase
 	AllowedGoogleAdsAccounts []string `json:"allowed_google_ads_accounts"`
-	MaxChangesPerRun         int      `json:"max_changes_per_run,omitempty"`
 }
 
 type negativeDraft struct {
@@ -172,8 +169,8 @@ func runApplyNegativeKeyword(cmd *cobra.Command, f *rootFlags, opts applyOptions
 	if err != nil {
 		return err
 	}
-	if opts.maxChangesPerRun <= 0 {
-		return fmt.Errorf("refusing apply: --max-changes-per-run must be at least 1")
+	if err := intelcli.ValidateMaxChanges(opts.maxChangesPerRun); err != nil {
+		return err
 	}
 	if policy.MaxChangesPerRun > 0 && !cmd.Flags().Changed("max-changes-per-run") {
 		opts.maxChangesPerRun = policy.MaxChangesPerRun
@@ -220,21 +217,20 @@ func runApplyNegativeKeyword(cmd *cobra.Command, f *rootFlags, opts applyOptions
 			Status:    "planned",
 		})
 	}
-	if len(plans) > opts.maxChangesPerRun {
-		return fmt.Errorf("refusing apply: %d planned changes exceeds max-changes-per-run cap %d", len(plans), opts.maxChangesPerRun)
+	if err := intelcli.EnforceChangeCap(len(plans), opts.maxChangesPerRun); err != nil {
+		return err
 	}
 	if opts.liveApproved {
 		want := applyConfirmPrefix + accountID
-		if strings.TrimSpace(opts.confirm) != want {
-			return fmt.Errorf("refusing live apply: typed confirmation must be exactly %q", want)
+		if err := intelcli.RequireTypedConfirm("apply", opts.confirm, want); err != nil {
+			return err
 		}
 	}
 
-	mode := "dry-run"
+	mode := intelcli.ApplyMode(opts.liveApproved)
 	var unlock func()
 	if opts.liveApproved {
-		mode = "live-approved"
-		unlock, err = acquireAccountLock(f.home, accountID)
+		unlock, err = intelcli.AcquireApplyLock(f.home, "google-ads", accountID)
 		if err != nil {
 			return err
 		}
@@ -253,7 +249,15 @@ func runApplyNegativeKeyword(cmd *cobra.Command, f *rootFlags, opts applyOptions
 			plans[i].Error = err.Error()
 			continue
 		}
-		snapshotPath, snapErr := writeApplySnapshot(f.home, f.profile, accountID, plans[i].Target, existing)
+		snapshotPath, snapErr := intelcli.WriteApplySnapshot(intelcli.ApplySnapshot{
+			SchemaVersion: "ads-intel.apply-snapshot/v1",
+			Home:          f.home,
+			Profile:       f.profile,
+			AccountID:     accountID,
+			Target:        plans[i].Target,
+			StateKey:      "negatives",
+			State:         existing,
+		})
 		if snapErr != nil {
 			plans[i].Status = "failed"
 			plans[i].Error = snapErr.Error()
@@ -364,8 +368,8 @@ func runApplyUndo(cmd *cobra.Command, f *rootFlags, opts applyOptions, reversalI
 	}
 	if opts.liveApproved {
 		want := undoConfirmPrefix + entry.AccountID
-		if strings.TrimSpace(opts.confirm) != want {
-			return fmt.Errorf("refusing live undo: typed confirmation must be exactly %q", want)
+		if err := intelcli.RequireTypedConfirm("undo", opts.confirm, want); err != nil {
+			return err
 		}
 	}
 	plan := applyPlan{
@@ -377,10 +381,9 @@ func runApplyUndo(cmd *cobra.Command, f *rootFlags, opts applyOptions, reversalI
 		Message:   "best-effort undo dry-run only; no write executed",
 		Reversal:  entry.ID,
 	}
-	mode := "dry-run"
+	mode := intelcli.ApplyMode(opts.liveApproved)
 	if opts.liveApproved {
-		mode = "live-approved"
-		unlock, err := acquireAccountLock(f.home, entry.AccountID)
+		unlock, err := intelcli.AcquireApplyLock(f.home, "google-ads", entry.AccountID)
 		if err != nil {
 			return err
 		}
@@ -410,28 +413,12 @@ func runApplyUndo(cmd *cobra.Command, f *rootFlags, opts applyOptions, reversalI
 }
 
 func loadApplyPolicy(path string) (applyPolicy, error) {
-	p := applyPolicy{SchemaVersion: "ads-intel.apply-policy/v1"}
-	b, err := os.ReadFile(path)
-	if errors.Is(err, os.ErrNotExist) {
-		return p, nil
-	}
-	if err != nil {
-		return p, err
-	}
-	if len(bytes.TrimSpace(b)) == 0 {
-		return p, nil
-	}
-	return p, json.Unmarshal(b, &p)
+	defaults := applyPolicy{ApplyPolicyBase: intelcli.ApplyPolicyBase{SchemaVersion: "ads-intel.apply-policy/v1"}}
+	return intelcli.LoadApplyPolicy(path, defaults)
 }
 
 func allowedAccountSet(policy applyPolicy, flags []string) map[string]bool {
-	out := map[string]bool{}
-	for _, account := range append(policy.AllowedGoogleAdsAccounts, flags...) {
-		if strings.TrimSpace(account) != "" {
-			out[strings.TrimSpace(account)] = true
-		}
-	}
-	return out
+	return intelcli.AllowlistSet(policy.AllowedGoogleAdsAccounts, flags)
 }
 
 func loadNegativeDraft(path string, dset store.DataSet) (negativeDraft, error) {
@@ -563,26 +550,6 @@ func findExistingNegative(items []negativeCriterion, target resolvedNegativeTarg
 	return nil
 }
 
-func writeApplySnapshot(home, profile, accountID string, target resolvedNegativeTarget, existing []negativeCriterion) (string, error) {
-	dir := filepath.Join(home, "snapshots", "apply", intelcli.SafeName(profile))
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return "", err
-	}
-	path := filepath.Join(dir, time.Now().UTC().Format("20060102T150405.000000000")+"-"+intelcli.SafeName(accountID)+".json")
-	body := map[string]any{
-		"schema_version": "ads-intel.apply-snapshot/v1",
-		"created_at":     time.Now().UTC(),
-		"account_id":     accountID,
-		"target":         target,
-		"negatives":      existing,
-	}
-	b, err := json.MarshalIndent(body, "", "  ")
-	if err != nil {
-		return "", err
-	}
-	return path, os.WriteFile(path, b, 0o644)
-}
-
 func writeReversal(home, profile, accountID string, plan applyPlan) (string, error) {
 	resourceName := ""
 	if plan.Result != nil {
@@ -602,77 +569,25 @@ func writeReversal(home, profile, accountID string, plan applyPlan) (string, err
 		UndoCommand:   fmt.Sprintf("ads-intel-pp-cli --profile %s apply undo --reversal-id %s", profile, id),
 		BestEffort:    true,
 	}
-	return id, appendJSONL(filepath.Join(home, "reversals", intelcli.SafeName(profile)+".jsonl"), entry)
+	return id, intelcli.AppendReversal(home, profile, entry)
 }
 
 func findReversal(home, profile, id string) (reversalEntry, error) {
-	path := filepath.Join(home, "reversals", intelcli.SafeName(profile)+".jsonl")
-	f, err := os.Open(path)
-	if err != nil {
-		return reversalEntry{}, err
-	}
-	defer f.Close()
-	sc := bufio.NewScanner(f)
-	for sc.Scan() {
-		var entry reversalEntry
-		if json.Unmarshal(sc.Bytes(), &entry) == nil && entry.ID == id {
-			return entry, nil
-		}
-	}
-	if err := sc.Err(); err != nil {
-		return reversalEntry{}, err
-	}
-	return reversalEntry{}, fmt.Errorf("reversal %q not found", id)
+	return intelcli.FindReversal[reversalEntry](home, profile, id)
 }
 
 func appendApplyAudit(home, action, accountID string, plan applyPlan) error {
-	entry := map[string]any{
-		"schema_version": "ads-intel.apply-audit/v1",
-		"at":             time.Now().UTC(),
-		"action":         action,
-		"account_id":     accountID,
-		"target":         plan.Target,
-		"operation":      plan.Operation,
-		"inverse":        plan.Inverse,
-		"status":         plan.Status,
-		"draft_path":     plan.DraftPath,
-		"result":         plan.Result,
-	}
-	return appendJSONL(filepath.Join(home, "audit", "apply.log"), entry)
-}
-
-func appendJSONL(path string, v any) error {
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-		return err
-	}
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	if _, err := f.Write(append(b, '\n')); err != nil {
-		return err
-	}
-	return nil
-}
-
-func acquireAccountLock(home, accountID string) (func(), error) {
-	dir := filepath.Join(home, "locks", "google-ads")
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return nil, err
-	}
-	path := filepath.Join(dir, intelcli.SafeName(accountID)+".lock")
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o644)
-	if err != nil {
-		return nil, fmt.Errorf("account %s is already locked for apply: %w", accountID, err)
-	}
-	_, _ = fmt.Fprintf(f, "pid=%d at=%s\n", os.Getpid(), time.Now().UTC().Format(time.RFC3339))
-	_ = f.Close()
-	return func() { _ = os.Remove(path) }, nil
+	return intelcli.AppendApplyAudit(home, intelcli.ApplyAuditEntry{
+		SchemaVersion: "ads-intel.apply-audit/v1",
+		Action:        action,
+		AccountID:     accountID,
+		Target:        plan.Target,
+		Operation:     plan.Operation,
+		Inverse:       plan.Inverse,
+		Status:        plan.Status,
+		DraftPath:     plan.DraftPath,
+		Result:        plan.Result,
+	})
 }
 
 func formatApplyResult(res applyResult) string {

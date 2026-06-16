@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "phase-6-shared-apply-core",
+  "applied_at": "2026-06-16",
+  "base_run_id": "ads-intel-20260616",
+  "base_printing_press_version": "4.20.1",
+  "summary": "The hardened apply safety primitives must live in the shared intelcli apply core, with ads-intel retaining only Google Ads-specific mutation logic.",
+  "reason": "Phase 6 expands write surfaces across intel CLIs; a regen must not duplicate typed-confirm, allowlist, cap, lock, snapshot, reversal, and audit machinery per CLI.",
+  "files": ["internal/cli/apply.go", "internal/cli/root_test.go"],
+  "validated_outcome": "Existing ads-intel apply behavior passes after refactoring onto library/internal/intelcli, with command-level coverage for live-approved without typed confirmation."
+}
