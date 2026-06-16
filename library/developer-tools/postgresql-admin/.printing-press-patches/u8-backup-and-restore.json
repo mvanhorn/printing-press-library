@@ -1,0 +1,34 @@
+{
+  "schema_version": 2,
+  "id": "u8-backup-and-restore",
+  "applied_at": "2026-06-16",
+  "base_run_id": "2026.6.1",
+  "base_printing_press_version": "3.9.0",
+  "summary": "Implements backup creation, listing, verification, and restoration operations via pg_dump and pg_restore wrappers.",
+  "reason": "PostgreSQL backup/restore management is a core administrative feature. The implementation wraps pg_dump and pg_restore for atomic writes, format detection, selective restoration, and integrity verification.",
+  "files": [
+    "internal/cli/backup.go",
+    "internal/cli/backup_test.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "All backup subcommands (create, list, verify, restore) integrate with root command and pass unit tests. Format detection, file validation, and command structure verified.",
+  "features": {
+    "backup_create": {
+      "description": "Create backups in custom, tar, or plaintext format with atomic writes and compression",
+      "flags": ["--format", "--output", "--check-disk-space", "--parallel", "--no-compress"]
+    },
+    "backup_list": {
+      "description": "List existing backups with sizes, timestamps, and verification status",
+      "flags": ["--dir"]
+    },
+    "backup_verify": {
+      "description": "Validate backup integrity via pg_restore --list or test restore",
+      "flags": ["--test-restore"]
+    },
+    "backup_restore": {
+      "description": "Restore from backup with optional schema/data-only selective restore",
+      "flags": ["--target-db", "--schema", "--force", "--data-only", "--schema-only", "--index-parallel"]
+    }
+  },
+  "test_coverage": "Unit tests for format detection, file validation, command structure, and helper functions. Integration tests skipped (require PostgreSQL fixture)."
+}

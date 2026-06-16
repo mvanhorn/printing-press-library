@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "u6-migration-management",
+  "applied_at": "2026-06-16",
+  "base_run_id": "unknown",
+  "base_printing_press_version": "unknown",
+  "summary": "Implement U6 Migration Management with full-featured database migration support including state tracking, safety checks, dry-run mode, and verification.",
+  "reason": "PostgreSQL admin CLI requires comprehensive migration management supporting apply, rollback, verify with checksum validation and concurrent operation safety. This is a core capability for database management workflows.",
+  "files": [
+    "internal/cli/migrations.go",
+    "internal/cli/migrations_test.go",
+    "schema_migrations.sql",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "All tests pass (15 unit tests for migrations), all 5 subcommands compile and execute successfully, --help shows complete documentation for each command.",
+  "upstream_issue": null
+}

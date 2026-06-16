@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-16T00:00:00Z",
+  "printing_press_version": "3.9.0",
+  "api_name": "postgresql-admin",
+  "display_name": "PostgreSQL Admin",
+  "cli_name": "postgresql-admin-pp-cli",
+  "creator": {
+    "handle": "kieran",
+    "name": "Kieran"
+  },
+  "spec_format": "internal",
+  "spec_source": "internal-yaml",
+  "auth_type": "password",
+  "auth_env_vars": [
+    "POSTGRESQL_HOST",
+    "POSTGRESQL_PORT",
+    "POSTGRESQL_USER",
+    "POSTGRESQL_PASSWORD",
+    "POSTGRESQL_DBNAME",
+    "POSTGRESQL_SSLMODE"
+  ],
+  "novel_features": [
+    {
+      "name": "doctor command",
+      "command": "doctor",
+      "description": "Validate PostgreSQL connectivity, authentication, and user permissions before running other commands"
+    },
+    {
+      "name": "safe query execution",
+      "command": "query execute",
+      "description": "Execute SELECT queries and EXPLAIN ANALYZE with guardrails blocking mutations and DDL"
+    },
+    {
+      "name": "schema introspection",
+      "command": "schema",
+      "description": "Explore tables, views, indexes, columns, constraints, and functions across all schemas"
+    },
+    {
+      "name": "replication monitoring",
+      "command": "replication status",
+      "description": "Monitor primary-replica topology, measure lag, and track replication slots"
+    },
+    {
+      "name": "migration management",
+      "command": "migrations",
+      "description": "Apply, rollback, and verify database migrations with checksum validation and concurrent safety"
+    },
+    {
+      "name": "backup and restore",
+      "command": "backup",
+      "description": "Create, verify, and restore PostgreSQL backups in multiple formats with selective restore support"
+    }
+  ]
+}
