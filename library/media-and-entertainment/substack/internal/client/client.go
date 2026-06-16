@@ -681,6 +681,26 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 	return json.RawMessage(`{"dry_run": true}`), 0, nil
 }
 
+// DisplayURLForPath resolves the same endpoint template variables the request
+// path uses and returns the URL shape safe for user-facing diagnostics.
+func (c *Client) DisplayURLForPath(path string) (string, error) {
+	var endpointVars map[string]string
+	if c.Config != nil {
+		endpointVars = c.Config.TemplateVars
+	}
+	var targetURL string
+	var err error
+	if isAbsoluteURL(path) {
+		targetURL, err = buildURL("", path, endpointVars)
+	} else {
+		targetURL, err = buildURL(c.BaseURL, path, endpointVars)
+	}
+	if err != nil {
+		return "", err
+	}
+	return c.displayURL(targetURL, ""), nil
+}
+
 func (c *Client) ConfiguredTimeout() time.Duration {
 	if c.HTTPClient != nil && c.HTTPClient.Timeout > 0 {
 		return c.HTTPClient.Timeout

@@ -164,6 +164,10 @@ Second paragraph."
 			}
 
 			path := publicationAPIPath("/drafts")
+			displayPath := path
+			if resolvedPath, err := c.DisplayURLForPath(path); err == nil {
+				displayPath = resolvedPath
+			}
 			var body map[string]any
 
 			if stdinBody {
@@ -305,7 +309,7 @@ Second paragraph."
 				envelope := map[string]any{
 					"action":   "post",
 					"resource": "drafts",
-					"path":     path,
+					"path":     displayPath,
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300,
 				}

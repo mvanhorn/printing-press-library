@@ -3,6 +3,9 @@
 package cli
 
 import (
+	"bytes"
+	"encoding/json"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -23,6 +26,43 @@ func TestPublicationAPIPath(t *testing.T) {
 	want := "https://{publication}.substack.com/api/v1/drafts"
 	if got != want {
 		t.Fatalf("publicationAPIPath = %q, want %q", got, want)
+	}
+}
+
+func TestDraftCreateDryRunJSONReportsResolvedPublicationURL(t *testing.T) {
+	t.Setenv("SUBSTACK_CONFIG", filepath.Join(t.TempDir(), "missing.toml"))
+
+	root := RootCmd()
+	var stdout, stderr bytes.Buffer
+	root.SetOut(&stdout)
+	root.SetErr(&stderr)
+	root.SetArgs([]string{
+		"--subdomain", "trevinsays",
+		"drafts", "create",
+		"--title", "CLI verification dry-run",
+		"--body", "Verification only.",
+		"--dry-run",
+		"--agent",
+	})
+
+	if err := root.Execute(); err != nil {
+		t.Fatalf("execute dry-run: %v; stderr=%s", err, stderr.String())
+	}
+	var envelope struct {
+		Path   string `json:"path"`
+		DryRun bool   `json:"dry_run"`
+	}
+	if err := json.Unmarshal(bytes.TrimSpace(stdout.Bytes()), &envelope); err != nil {
+		t.Fatalf("parse stdout JSON %q: %v", stdout.String(), err)
+	}
+	if !envelope.DryRun {
+		t.Fatalf("dry_run = false, want true; stdout=%s", stdout.String())
+	}
+	if strings.Contains(envelope.Path, "{publication}") {
+		t.Fatalf("path = %q, still contains unresolved publication placeholder", envelope.Path)
+	}
+	if got, want := envelope.Path, "https://trevinsays.substack.com/api/v1/drafts"; got != want {
+		t.Fatalf("path = %q, want %q", got, want)
 	}
 }
 
