@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-09T19:39:42.745136Z",
+  "printing_press_version": "4.20.1",
+  "api_name": "vapi",
+  "display_name": "Vapi",
+  "cli_name": "vapi-pp-cli",
+  "spec_url": "https://api.vapi.ai/api-json",
+  "spec_path": "vapi-openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:41ff41d79bde53c98136bfc1f8af28bc6ce907b6fa9c21c49ab35de2e82603ab",
+  "run_id": "20260609-193942",
+  "category": "ai",
+  "description": "Voice AI for developers.",
+  "mcp_binary": "vapi-pp-mcp",
+  "mcp_tool_count": 86,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "VAPI_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "dial",
+      "description": "Ergonomic outbound Vapi assistant calls with dry-run/yes guardrails, batch destinations, scheduling, and recording enabled by default.",
+      "command": "dial"
+    },
+    {
+      "name": "juno",
+      "description": "Cathryn's personal house-manager workflows for delegated calls, reservations, ordering, vendor quotes, follow-ups, and call status/recording review.",
+      "command": "juno"
+    },
+    {
+      "name": "juno followup",
+      "description": "Re-call or leave a message using the same assistant, destination, and Juno task variables from a previous call.",
+      "command": "juno followup"
+    },
+    {
+      "name": "juno status",
+      "description": "Poll call outcome, summarize status/transcript/cost, and download Vapi call recordings from the existing recording endpoints.",
+      "command": "juno status"
+    },
+    {
+      "name": "record-by-default",
+      "description": "Private outbound dial and Juno calls inject assistantOverrides.artifactPlan recording settings unless --no-record is passed.",
+      "command": "dial / juno --no-record"
+    },
+    {
+      "name": "juno setup",
+      "description": "Verify Juno assistant and phone-number readiness, then save assistant-id and phone-number-id into a reusable local profile.",
+      "command": "juno setup"
+    },
+    {
+      "name": "juno test-call",
+      "description": "Guarded recorded smoke-test call workflow that can dry-run the payload, place a live call with --yes, watch for completion, and download the recording.",
+      "command": "juno test-call"
+    },
+    {
+      "name": "juno report",
+      "description": "Summarize recent or explicit Juno call IDs with status, summary, duration, cost, transcript, and recording hints.",
+      "command": "juno report"
+    },
+    {
+      "name": "juno phone-numbers",
+      "description": "List Vapi phone numbers with focused outbound readiness hints for Juno setup.",
+      "command": "juno phone-numbers"
+    },
+    {
+      "name": "juno assistant",
+      "description": "Preview, create, or update the default Juno assistant prompt and artifact settings without hand-building assistant JSON.",
+      "command": "juno assistant"
+    }
+  ],
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  }
+}

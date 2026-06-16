@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "run_id": "20260609-193942",
+  "kind": "adopted-source-shipcheck",
+  "generated_at": "2026-06-16",
+  "status": "pass",
+  "notes": [
+    "Original archived research/manuscripts were not available; this proof records validation of the adopted and extended private source.",
+    "No live call was placed during PR packaging. Live recorded-call testing remains guarded by --yes and requires an explicit real destination number."
+  ],
+  "checks": [
+    {
+      "name": "go test",
+      "command": "go test ./...",
+      "status": "pass"
+    },
+    {
+      "name": "cli build",
+      "command": "go build -o /tmp/vapi-pp-cli-test ./cmd/vapi-pp-cli",
+      "status": "pass"
+    },
+    {
+      "name": "mcp build",
+      "command": "go build -o /tmp/vapi-pp-mcp-test ./cmd/vapi-pp-mcp",
+      "status": "pass"
+    },
+    {
+      "name": "skill verification",
+      "command": "python3 .github/scripts/verify-skill/verify_skill.py --dir library/ai/vapi --json",
+      "status": "pass"
+    },
+    {
+      "name": "dry-run coverage",
+      "command": "dial and juno setup/test-call/report/phone-numbers/assistant/followup/status dry-run or read-only smokes",
+      "status": "pass"
+    }
+  ]
+}

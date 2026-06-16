@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "run_id": "20260609-193942",
+  "status": "pass",
+  "source": "adopted-private-source",
+  "validated_at": "2026-06-16",
+  "checks": [
+    "go test ./...",
+    "go build ./cmd/vapi-pp-cli",
+    "go build ./cmd/vapi-pp-mcp",
+    "verify-skill",
+    "dry-run smokes for dial and Juno novel commands"
+  ]
+}
