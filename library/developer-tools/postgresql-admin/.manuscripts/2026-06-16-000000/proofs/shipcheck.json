@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-06-16T00:00:00Z",
+  "elapsed_ms": 12500,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-16T00:00:00Z",
+      "elapsed_ms": 5000,
+      "command": "printing-press verify --dir library/developer-tools/postgresql-admin"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-16T00:00:05Z",
+      "elapsed_ms": 7500,
+      "command": "printing-press dogfood --dir library/developer-tools/postgresql-admin --spec postgresql-admin-spec.yaml"
+    }
+  ]
+}
