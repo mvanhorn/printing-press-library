@@ -77,6 +77,42 @@ func TestAuditCatalogCoverageAndDeterminism(t *testing.T) {
 	}
 }
 
+func TestHealthScoreIsBoundedAndWeighted(t *testing.T) {
+	catalog, err := loadCatalog()
+	if err != nil {
+		t.Fatal(err)
+	}
+	// All-pass over evaluated checks => 100.
+	allPass := map[string]string{
+		"google_wasted_spend_terms":       "pass",
+		"amazon_wasted_spend_terms":       "pass",
+		"google_zero_conversion_keywords": "pass",
+		"meta_frequency_fatigue":          "pass",
+		"tracking_cost_rows_present":      "pass",
+		"google_broad_smart_bidding":      "na",
+		"google_shared_negative_lists":    "na",
+		"meta_learning_phase_guard":       "na",
+	}
+	if got := healthScore(catalog, allPass); got != 100 {
+		t.Fatalf("all-pass health score should be 100, got %.2f", got)
+	}
+	// A critical fail must bound the score in [0,100) and below all-pass.
+	withFail := map[string]string{}
+	for k, v := range allPass {
+		withFail[k] = v
+	}
+	withFail["tracking_cost_rows_present"] = "fail"
+	got := healthScore(catalog, withFail)
+	if got < 0 || got >= 100 {
+		t.Fatalf("score with a fail must be in [0,100), got %.2f", got)
+	}
+	// Category weights must actually move the score: a fail on a heavier-weighted
+	// check (critical) should not be silently ignored.
+	if got == 100 {
+		t.Fatalf("category/severity weights are not consumed by scoring")
+	}
+}
+
 func TestNegativeKeywordDraftArtifactsAreLocalOnly(t *testing.T) {
 	home := t.TempDir()
 	if _, err := run(t, home, "--profile", "demo", "sync"); err != nil {

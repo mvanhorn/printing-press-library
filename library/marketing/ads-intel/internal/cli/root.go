@@ -247,7 +247,7 @@ func auditCmd(f *rootFlags) *cobra.Command {
 			return err
 		}
 		res := withHeader(f, d, "audit", map[string]any{"audit": audit})
-		lines := []string{fmt.Sprintf("audit: %s score=%.1f", audit.Status, audit.Score)}
+		lines := []string{fmt.Sprintf("audit: %s grade=%s score=%.1f/100 (higher is better)", audit.Status, audit.Grade, audit.Score)}
 		for _, finding := range audit.Findings {
 			lines = append(lines, formatFinding(finding))
 		}

@@ -1,7 +1,8 @@
 {
   "schema_version": "ads-intel.audit-catalog/v1",
   "severity_multipliers": {"critical": 5, "high": 3, "medium": 1.5, "low": 0.5},
-  "status_bands": {"pass_below": 5, "warn_below": 15},
+  "waste_bands_pct": {"pass_below": 5, "warn_below": 15},
+  "health_bands": {"pass_min": 75, "warn_min": 50},
   "categories": {
     "google": {"waste": 40, "structure": 30, "tracking": 20, "learning": 10},
     "meta": {"fatigue": 35, "structure": 25, "tracking": 25, "learning": 15},

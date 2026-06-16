@@ -18,7 +18,8 @@ var catalogFS embed.FS
 type auditCatalog struct {
 	SchemaVersion       string                        `json:"schema_version"`
 	SeverityMultipliers map[string]float64            `json:"severity_multipliers"`
-	StatusBands         map[string]float64            `json:"status_bands"`
+	WasteBandsPct       map[string]float64            `json:"waste_bands_pct"`
+	HealthBands         map[string]float64            `json:"health_bands"`
 	Categories          map[string]map[string]float64 `json:"categories"`
 	Checks              []catalogCheck                `json:"checks"`
 }
@@ -45,11 +46,14 @@ type finding struct {
 }
 
 type auditResult struct {
-	Status         string    `json:"status"`
-	Score          float64   `json:"score"`
-	Findings       []finding `json:"findings"`
-	QuickWins      []finding `json:"quick_wins"`
-	NegativeDrafts []string  `json:"negative_keyword_drafts"`
+	Status         string            `json:"status"`
+	Score          float64           `json:"score"`
+	ScoreScale     string            `json:"score_scale"`
+	Grade          string            `json:"grade"`
+	CheckVerdicts  map[string]string `json:"check_verdicts"`
+	Findings       []finding         `json:"findings"`
+	QuickWins      []finding         `json:"quick_wins"`
+	NegativeDrafts []string          `json:"negative_keyword_drafts"`
 }
 
 func loadCatalog() (auditCatalog, error) {
@@ -70,6 +74,7 @@ func runAudit(d store.DataSet, home string) (auditResult, error) {
 	add := func(id, severity, platform, title string, impact float64, action string, eta, mins int) {
 		findings = append(findings, finding{ID: id, Severity: severity, Platform: platform, Title: title, Impact: impact, Action: action, Owner: platform + "-owner", ETADays: eta, FixMinutes: mins})
 	}
+	// --- Signals (computed once, drive both findings and check verdicts) ---
 	totalSpend := spendByPlatform(d)
 	wasted := map[string]float64{}
 	for _, term := range d.SearchTerms {
@@ -78,14 +83,13 @@ func runAudit(d store.DataSet, home string) (auditResult, error) {
 			add(term.Platform+"_negative_keyword_candidate", "high", term.Platform, "Negative keyword draft: "+term.Term, term.Spend, "write draft artifact only; no account mutation", 1, 10)
 		}
 	}
+	wastedPct := map[string]float64{}
 	for platform, spend := range wasted {
-		pct := percent(spend, totalSpend[platform])
-		if pct >= .05 {
-			add(platform+"_wasted_spend_terms", "high", platform, "Wasted search-term spend exceeds pass band", pct*100, "review draft negative candidates", 1, 10)
-		}
+		wastedPct[platform] = percent(spend, totalSpend[platform]) * 100
 	}
 	zeroConv := 0
 	for _, kw := range d.Keywords {
+		// Legacy BMM (broad + manual CPC) behaves like phrase match — never flag it.
 		if strings.EqualFold(kw.MatchType, "BROAD") && strings.EqualFold(kw.Bidding, "MANUAL_CPC") {
 			continue
 		}
@@ -93,18 +97,34 @@ func runAudit(d store.DataSet, home string) (auditResult, error) {
 			zeroConv++
 		}
 	}
+	metaFatigue := false
+	learningActive := false
+	for _, c := range d.Campaigns {
+		if c.Platform == "meta" && c.Frequency > 3 && c.CTR < .005 {
+			metaFatigue = true
+		}
+		if c.LearningPhase {
+			learningActive = true
+		}
+	}
+	trackingMissing := len(d.Campaigns) == 0 || totalSpendAll(d) == 0
+
+	// --- Findings (the problem list driving the report, quick-wins, drafts) ---
+	for platform, pct := range wastedPct {
+		if pct >= catalog.WasteBandsPct["pass_below"] {
+			add(platform+"_wasted_spend_terms", "high", platform, "Wasted search-term spend exceeds pass band", pct, "review draft negative candidates", 1, 10)
+		}
+	}
 	if zeroConv > 3 {
 		add("google_zero_conversion_keywords", "critical", "google", ">3 keywords have >100 clicks and 0 conversions", float64(zeroConv), "draft search-term cleanup; verify tracking first", 2, 12)
 	}
-	for _, c := range d.Campaigns {
-		if c.Platform == "meta" && c.Frequency > 3 && c.CTR < .005 {
-			add("meta_frequency_fatigue", "high", "meta", "Creative fatigue: frequency >3 and CTR <0.5%", c.Frequency, "refresh creative draft only", 3, 14)
-		}
-		if c.LearningPhase {
-			add("meta_learning_phase_guard", "critical", c.Platform, "Campaign is in active learning phase", 1, "do not recommend edits until learning exits", 0, 0)
-		}
+	if metaFatigue {
+		add("meta_frequency_fatigue", "high", "meta", "Creative fatigue: frequency >3 and CTR <0.5%", 1, "refresh creative draft only", 3, 14)
 	}
-	if len(d.Campaigns) == 0 || totalSpendAll(d) == 0 {
+	if learningActive {
+		add("meta_learning_phase_guard", "critical", "meta", "Campaign is in active learning phase", 1, "do not recommend edits until learning exits", 0, 0)
+	}
+	if trackingMissing {
 		add("tracking_cost_rows_present", "critical", "all", "Cost rows missing; CPA/ROAS math refused", 1, "sync cost rows before optimization", 1, 0)
 	}
 	for i := range findings {
@@ -116,7 +136,22 @@ func runAudit(d store.DataSet, home string) (auditResult, error) {
 			findings[i].DraftPath = path
 		}
 	}
-	score := scoreFindings(catalog, findings)
+
+	// --- Check verdicts → weighted 0-100 health score ---
+	verdicts := map[string]string{
+		"google_wasted_spend_terms":       wasteVerdict(wastedPct["google"], catalog),
+		"amazon_wasted_spend_terms":       wasteVerdict(wastedPct["amazon"], catalog),
+		"google_zero_conversion_keywords": passFail(zeroConv <= 3),
+		"meta_frequency_fatigue":          passFail(!metaFatigue),
+		"tracking_cost_rows_present":      passFail(!trackingMissing),
+		// Checks we cannot evaluate from available data are marked N/A and
+		// excluded from the score rather than fabricated as passing.
+		"google_broad_smart_bidding":   "na",
+		"google_shared_negative_lists": "na",
+		"meta_learning_phase_guard":    "na", // advisory guard, not a health dimension
+	}
+	score := healthScore(catalog, verdicts)
+
 	sortFindings(findings)
 	quick := quickWins(findings, catalog)
 	drafts := []string{}
@@ -125,22 +160,105 @@ func runAudit(d store.DataSet, home string) (auditResult, error) {
 			drafts = append(drafts, f.DraftPath)
 		}
 	}
-	return auditResult{Status: auditStatus(score, catalog), Score: score, Findings: findings, QuickWins: quick, NegativeDrafts: drafts}, nil
+	return auditResult{
+		Status:         healthStatus(score, catalog),
+		Score:          score,
+		ScoreScale:     "0-100 health (higher is better)",
+		Grade:          grade(score),
+		CheckVerdicts:  verdicts,
+		Findings:       findings,
+		QuickWins:      quick,
+		NegativeDrafts: drafts,
+	}, nil
 }
 
-func scoreFindings(c auditCatalog, findings []finding) float64 {
-	score := 0.0
-	for _, f := range findings {
-		score += c.SeverityMultipliers[f.Severity] * maxf(1, f.Impact)
+// healthScore computes a 0-100 weighted health score (higher is better) over
+// the catalog checks, weighting each by severity x category weight. N/A checks
+// are excluded from both numerator and denominator.
+func healthScore(c auditCatalog, verdicts map[string]string) float64 {
+	achieved, possible := 0.0, 0.0
+	for _, chk := range c.Checks {
+		v := verdicts[chk.ID]
+		if v == "" || v == "na" {
+			continue
+		}
+		w := c.SeverityMultipliers[chk.Severity] * categoryWeight(c, chk.Platform, chk.Category)
+		if w <= 0 {
+			continue
+		}
+		possible += w
+		switch v {
+		case "pass":
+			achieved += w
+		case "warn":
+			achieved += w * 0.5
+		}
 	}
-	return score
+	if possible == 0 {
+		return 100
+	}
+	return 100 * achieved / possible
 }
 
-func auditStatus(score float64, c auditCatalog) string {
-	if score < c.StatusBands["pass_below"] {
+// categoryWeight resolves a check's category weight. Platform "all" uses the
+// mean of that category across the per-platform weight tables.
+func categoryWeight(c auditCatalog, platform, category string) float64 {
+	if platform == "all" {
+		sum, n := 0.0, 0
+		for _, cats := range c.Categories {
+			if w, ok := cats[category]; ok {
+				sum += w
+				n++
+			}
+		}
+		if n > 0 {
+			return sum / float64(n)
+		}
+		return 0
+	}
+	if cats, ok := c.Categories[platform]; ok {
+		return cats[category]
+	}
+	return 0
+}
+
+func wasteVerdict(pct float64, c auditCatalog) string {
+	if pct < c.WasteBandsPct["pass_below"] {
+		return "pass"
+	}
+	if pct < c.WasteBandsPct["warn_below"] {
+		return "warn"
+	}
+	return "fail"
+}
+
+func passFail(ok bool) string {
+	if ok {
+		return "pass"
+	}
+	return "fail"
+}
+
+func grade(score float64) string {
+	switch {
+	case score >= 90:
+		return "A"
+	case score >= 75:
+		return "B"
+	case score >= 60:
+		return "C"
+	case score >= 40:
+		return "D"
+	default:
+		return "F"
+	}
+}
+
+func healthStatus(score float64, c auditCatalog) string {
+	if score >= c.HealthBands["pass_min"] {
 		return "PASS"
 	}
-	if score < c.StatusBands["warn_below"] {
+	if score >= c.HealthBands["warn_min"] {
 		return "WARN"
 	}
 	return "FAIL"
