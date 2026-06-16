@@ -927,6 +927,7 @@ func newAgentShotCmd(flags *rootFlags) *cobra.Command {
 	var noDownload bool
 	var batch int
 	var children bool
+	var root string
 
 	cmd := &cobra.Command{
 		Use:   "shot <figma-url-or-key> [query]",
@@ -939,6 +940,7 @@ and records download_error without failing the command.`,
   figma-pp-cli agent shot abc123XyZ "Cash transfer Intro" --max 3 --agent
   figma-pp-cli agent shot "https://www.figma.com/design/abc123XyZ/T?node-id=123-456" --agent
   figma-pp-cli agent shot abc123XyZ Signup --no-download --agent
+  figma-pp-cli agent shot abc123XyZ Welcome --root 1:10 --agent
 `, "\n"),
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -966,7 +968,7 @@ and records download_error without failing the command.`,
 				return err
 			}
 
-			matches, ambiguous, err := resolveAgentShotMatches(flags, c, ref, query, types, depth, max, children)
+			matches, ambiguous, err := resolveAgentShotMatches(flags, c, ref, query, types, depth, max, children, root)
 			if err != nil {
 				return err
 			}
@@ -1045,12 +1047,13 @@ and records download_error without failing the command.`,
 	cmd.Flags().BoolVar(&noDownload, "no-download", false, "Return render URLs without downloading image bytes")
 	cmd.Flags().IntVar(&batch, "batch", 2, "Node ids per render request; lower avoids Figma render timeouts")
 	cmd.Flags().BoolVar(&children, "children", false, "Render screen-like child frames when the top match is a page or section")
+	cmd.Flags().StringVar(&root, "root", "", "Node id to scope the search to a page/section subtree (skips the whole-file fetch)")
 	return cmd
 }
 
 func resolveAgentShotMatches(flags *rootFlags, c interface {
 	Get(string, map[string]string) (json.RawMessage, error)
-}, ref figmaRef, query, types string, depth, max int, children bool) ([]agentMatch, bool, error) {
+}, ref figmaRef, query, types string, depth, max int, children bool, root string) ([]agentMatch, bool, error) {
 	if max <= 0 {
 		max = 1
 	}
@@ -1064,17 +1067,33 @@ func resolveAgentShotMatches(flags *rootFlags, c interface {
 	if query == "" {
 		return nil, false, usageErr(fmt.Errorf("a query is required (or supply a Figma URL with a node-id)"))
 	}
-	raw, err := c.Get("/v1/files/"+ref.FileKey, map[string]string{"depth": fmt.Sprintf("%d", depth)})
-	if err != nil {
-		return nil, false, classifyAPIError(err, flags)
+	effectiveRoot := normalizeNodeID(strings.TrimSpace(root))
+	if effectiveRoot == "" && ref.NodeID != "" {
+		effectiveRoot = ref.NodeID
 	}
-	var env struct {
-		Document map[string]any `json:"document"`
+	var nodes []agentNodeSummary
+	if effectiveRoot != "" {
+		doc, err := fetchSubtreeDocument(c, ref.FileKey, effectiveRoot, depth)
+		if err != nil {
+			return nil, false, classifyAPIError(err, flags)
+		}
+		if doc == nil {
+			return nil, false, fmt.Errorf("root node %q not found in %s", effectiveRoot, ref.FileKey)
+		}
+		nodes = buildAgentNodeIndex(doc, parseTypeSet(types), 0)
+	} else {
+		raw, err := c.Get("/v1/files/"+ref.FileKey, map[string]string{"depth": fmt.Sprintf("%d", depth)})
+		if err != nil {
+			return nil, false, classifyAPIError(err, flags)
+		}
+		var env struct {
+			Document map[string]any `json:"document"`
+		}
+		if err := json.Unmarshal(raw, &env); err != nil {
+			return nil, false, fmt.Errorf("decoding file response: %w", err)
+		}
+		nodes = buildAgentNodeIndex(env.Document, parseTypeSet(types), 0)
 	}
-	if err := json.Unmarshal(raw, &env); err != nil {
-		return nil, false, fmt.Errorf("decoding file response: %w", err)
-	}
-	nodes := buildAgentNodeIndex(env.Document, parseTypeSet(types), 0)
 	matches := []agentMatch{}
 	for _, n := range nodes {
 		s := scoreAgentNode(query, n)
@@ -1098,25 +1117,10 @@ func resolveAgentShotMatches(flags *rootFlags, c interface {
 		top := matches[0]
 		topType := strings.ToUpper(strings.TrimSpace(top.Type))
 		if topType == "CANVAS" || topType == "SECTION" {
-			childMatches := []agentMatch{}
-			for _, n := range nodes {
-				childType := strings.ToUpper(strings.TrimSpace(n.Type))
-				if childType != "FRAME" && childType != "INSTANCE" && childType != "COMPONENT" {
-					continue
-				}
-				if !strings.HasPrefix(n.Label, top.Label+" / ") || !isLikelyScreenNode(n) {
-					continue
-				}
-				childMatches = append(childMatches, agentMatch{ID: n.ID, Name: n.Name, Type: n.Type, Label: n.Label, Score: top.Score})
+			childMatches, err := agentShotChildMatchesFromSubtree(c, ref.FileKey, top, depth)
+			if err != nil || len(childMatches) == 0 {
+				childMatches = agentShotChildMatchesFromIndex(nodes, top)
 			}
-			sort.SliceStable(childMatches, func(i, j int) bool {
-				depthI := strings.Count(strings.TrimPrefix(childMatches[i].Label, top.Label+" / "), " / ")
-				depthJ := strings.Count(strings.TrimPrefix(childMatches[j].Label, top.Label+" / "), " / ")
-				if depthI != depthJ {
-					return depthI < depthJ
-				}
-				return childMatches[i].Label < childMatches[j].Label
-			})
 			if len(childMatches) > 0 {
 				matches = childMatches
 			}
@@ -1275,6 +1279,94 @@ direct hit. Ambiguous ties are reported as candidates, never guessed.`,
 	return cmd
 }
 
+func decodeNodesDocument(raw json.RawMessage) (map[string]any, error) {
+	var env struct {
+		Nodes map[string]json.RawMessage `json:"nodes"`
+	}
+	if err := json.Unmarshal(raw, &env); err != nil {
+		return nil, err
+	}
+	for _, entryRaw := range env.Nodes {
+		if len(entryRaw) == 0 || string(entryRaw) == "null" {
+			continue
+		}
+		var entry map[string]any
+		if json.Unmarshal(entryRaw, &entry) != nil {
+			continue
+		}
+		if d, ok := entry["document"].(map[string]any); ok {
+			return d, nil
+		}
+	}
+	return nil, nil
+}
+
+// fetchSubtreeDocument fetches a single node's subtree via the nodes endpoint
+// and returns its document map. It returns (nil, nil) when the id is absent or
+// the node was deleted; callers decide whether that is an error.
+func fetchSubtreeDocument(c interface {
+	Get(string, map[string]string) (json.RawMessage, error)
+}, fileKey, nodeID string, depth int) (map[string]any, error) {
+	raw, err := c.Get("/v1/files/"+fileKey+"/nodes", map[string]string{"ids": normalizeNodeID(nodeID), "depth": fmt.Sprintf("%d", depth)})
+	if err != nil {
+		return nil, err
+	}
+	doc, err := decodeNodesDocument(raw)
+	if err != nil {
+		return nil, fmt.Errorf("decoding nodes response: %w", err)
+	}
+	return doc, nil
+}
+
+func agentShotChildMatchesFromSubtree(c interface {
+	Get(string, map[string]string) (json.RawMessage, error)
+}, fileKey string, top agentMatch, depth int) ([]agentMatch, error) {
+	doc, err := fetchSubtreeDocument(c, fileKey, top.ID, depth)
+	if err != nil || doc == nil {
+		return nil, err
+	}
+	return agentShotChildMatchesFromNodes(buildAgentNodeIndex(doc, nil, 0), top, false), nil
+}
+
+func agentShotChildMatchesFromIndex(nodes []agentNodeSummary, top agentMatch) []agentMatch {
+	return agentShotChildMatchesFromNodes(nodes, top, true)
+}
+
+func agentShotChildMatchesFromNodes(nodes []agentNodeSummary, top agentMatch, requirePrefix bool) []agentMatch {
+	childMatches := []agentMatch{}
+	for _, n := range nodes {
+		if n.ID == top.ID {
+			continue
+		}
+		childType := strings.ToUpper(strings.TrimSpace(n.Type))
+		if childType != "FRAME" && childType != "INSTANCE" && childType != "COMPONENT" {
+			continue
+		}
+		if requirePrefix && !strings.HasPrefix(n.Label, top.Label+" / ") {
+			continue
+		}
+		if !isLikelyScreenNode(n) {
+			continue
+		}
+		childMatches = append(childMatches, agentMatch{ID: n.ID, Name: n.Name, Type: n.Type, Label: n.Label, Score: top.Score})
+	}
+	sort.SliceStable(childMatches, func(i, j int) bool {
+		labelI := childMatches[i].Label
+		labelJ := childMatches[j].Label
+		if requirePrefix {
+			labelI = strings.TrimPrefix(labelI, top.Label+" / ")
+			labelJ = strings.TrimPrefix(labelJ, top.Label+" / ")
+		}
+		depthI := strings.Count(labelI, " / ")
+		depthJ := strings.Count(labelJ, " / ")
+		if depthI != depthJ {
+			return depthI < depthJ
+		}
+		return childMatches[i].Label < childMatches[j].Label
+	})
+	return childMatches
+}
+
 func agentResolveDirectMatch(flags *rootFlags, c interface {
 	Get(string, map[string]string) (json.RawMessage, error)
 }, ref figmaRef) (agentMatch, error) {
@@ -1282,22 +1374,9 @@ func agentResolveDirectMatch(flags *rootFlags, c interface {
 	if err != nil {
 		return agentMatch{}, classifyAPIError(err, flags)
 	}
-	var env struct {
-		Nodes map[string]json.RawMessage `json:"nodes"`
-	}
-	if err := json.Unmarshal(raw, &env); err != nil {
+	doc, err := decodeNodesDocument(raw)
+	if err != nil {
 		return agentMatch{}, fmt.Errorf("decoding nodes response: %w", err)
-	}
-	var doc map[string]any
-	for _, entryRaw := range env.Nodes {
-		var entry map[string]any
-		if json.Unmarshal(entryRaw, &entry) != nil {
-			continue
-		}
-		if d, ok := entry["document"].(map[string]any); ok {
-			doc = d
-			break
-		}
 	}
 	if doc == nil {
 		return agentMatch{}, fmt.Errorf("node %q not found in Figma file %s", ref.NodeID, ref.FileKey)

@@ -295,6 +295,34 @@ func figmaFileFixture() string {
 // /v1/files/<key>/nodes endpoint returns the given raw JSON body. This lets
 // tests simulate both Figma invalid-id shapes: {} (id not in the map) and
 // {"nodes":{"<id>":null}} (id present but node deleted/hidden).
+func figmaFixtureNode(t *testing.T, id string) map[string]any {
+	t.Helper()
+	var env struct {
+		Document map[string]any `json:"document"`
+	}
+	if err := json.Unmarshal([]byte(figmaFileFixture()), &env); err != nil {
+		t.Fatalf("decode fixture: %v", err)
+	}
+	var walk func(map[string]any) map[string]any
+	walk = func(n map[string]any) map[string]any {
+		if n["id"] == id {
+			return n
+		}
+		children, _ := n["children"].([]any)
+		for _, raw := range children {
+			child, _ := raw.(map[string]any)
+			if child == nil {
+				continue
+			}
+			if found := walk(child); found != nil {
+				return found
+			}
+		}
+		return nil
+	}
+	return walk(env.Document)
+}
+
 func newFakeFigmaMissingNodeServer(t *testing.T, nodesBody string) *httptest.Server {
 	t.Helper()
 	mux := http.NewServeMux()
@@ -325,7 +353,12 @@ func newFakeFigmaShotServerWithTimeout(t *testing.T, timeoutMultiID bool) *httpt
 		w.Header().Set("Content-Type", "application/json")
 		if strings.HasSuffix(r.URL.Path, "/nodes") {
 			ids := r.URL.Query().Get("ids")
-			fmt.Fprintf(w, `{"nodes":{%q:{"document":{"id":%q,"name":"Signup","type":"FRAME"}}}}`, ids, ids)
+			if doc := figmaFixtureNode(t, ids); doc != nil {
+				b, _ := json.Marshal(map[string]any{"nodes": map[string]any{ids: map[string]any{"document": doc}}})
+				_, _ = w.Write(b)
+				return
+			}
+			_, _ = w.Write([]byte(`{"nodes":{}}`))
 			return
 		}
 		_, _ = w.Write([]byte(figmaFileFixture()))
@@ -366,21 +399,14 @@ func newFakeFigmaServer(t *testing.T) *httptest.Server {
 	mux.HandleFunc("/v1/files/", func(w http.ResponseWriter, r *http.Request) {
 		// Distinguish /v1/files/<key> from /v1/files/<key>/nodes
 		if strings.HasSuffix(r.URL.Path, "/nodes") {
-			// Resolve a single node by id query for the direct-hit path.
 			ids := r.URL.Query().Get("ids")
-			type nodeEntry struct {
-				Document map[string]any `json:"document"`
-			}
-			out := struct {
-				Nodes map[string]nodeEntry `json:"nodes"`
-			}{
-				Nodes: map[string]nodeEntry{
-					ids: {Document: map[string]any{"id": ids, "name": "Prototype", "type": "SECTION"}},
-				},
-			}
 			w.Header().Set("Content-Type", "application/json")
-			b, _ := json.Marshal(out)
-			_, _ = w.Write(b)
+			if doc := figmaFixtureNode(t, ids); doc != nil {
+				b, _ := json.Marshal(map[string]any{"nodes": map[string]any{ids: map[string]any{"document": doc}}})
+				_, _ = w.Write(b)
+				return
+			}
+			_, _ = w.Write([]byte(`{"nodes":{}}`))
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -784,6 +810,148 @@ func TestDownloadToFileRejectsOversize(t *testing.T) {
 	}
 }
 
+func TestFetchSubtreeDocument(t *testing.T) {
+	srv := newFakeFigmaServer(t)
+	defer srv.Close()
+	setFigmaTestEnv(t, srv.URL)
+	flags := rootFlags{}
+	c, err := flags.newClient()
+	if err != nil {
+		t.Fatalf("new client: %v", err)
+	}
+	doc, err := fetchSubtreeDocument(c, "testKey", "1:10", 2)
+	if err != nil {
+		t.Fatalf("fetchSubtreeDocument: %v", err)
+	}
+	if doc == nil || doc["name"] != "Onboarding" {
+		t.Fatalf("doc = %+v, want Onboarding section", doc)
+	}
+	doc, err = fetchSubtreeDocument(c, "testKey", "99:99", 2)
+	if err != nil {
+		t.Fatalf("missing fetchSubtreeDocument: %v", err)
+	}
+	if doc != nil {
+		t.Fatalf("missing doc = %+v, want nil", doc)
+	}
+}
+
+func TestAgentShotRootScopesFetch(t *testing.T) {
+	var paths []string
+	var nodeIDs []string
+	mux := http.NewServeMux()
+	var base string
+	mux.HandleFunc("/v1/files/", func(w http.ResponseWriter, r *http.Request) {
+		paths = append(paths, r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		if strings.HasSuffix(r.URL.Path, "/nodes") {
+			ids := r.URL.Query().Get("ids")
+			nodeIDs = append(nodeIDs, ids)
+			b, _ := json.Marshal(map[string]any{"nodes": map[string]any{ids: map[string]any{"document": figmaFixtureNode(t, ids)}}})
+			_, _ = w.Write(b)
+			return
+		}
+		t.Fatalf("unexpected whole-file fetch: %s", r.URL.Path)
+	})
+	mux.HandleFunc("/v1/images/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		ids := r.URL.Query().Get("ids")
+		fmt.Fprintf(w, `{"err":null,"images":{%q:%q}}`, ids, base+"/render/"+ids+".png")
+	})
+	mux.HandleFunc("/render/", func(w http.ResponseWriter, r *http.Request) { _, _ = w.Write([]byte("png")) })
+	srv := httptest.NewServer(mux)
+	base = srv.URL
+	defer srv.Close()
+	setFigmaTestEnv(t, srv.URL)
+
+	out, err := runAgentRoot(t, []string{"agent", "shot", "testKey", "Welcome", "--root", "1:10", "--agent", "--no-cache", "--no-download"})
+	if err != nil {
+		t.Fatalf("agent shot --root failed: %v\n%s", err, out)
+	}
+	if len(paths) == 0 || paths[0] != "/v1/files/testKey/nodes" {
+		t.Fatalf("paths = %v, want first nodes request", paths)
+	}
+	for _, p := range paths {
+		if p == "/v1/files/testKey" {
+			t.Fatalf("unexpected whole-file request in paths: %v", paths)
+		}
+	}
+	if len(nodeIDs) == 0 || nodeIDs[0] != "1:10" {
+		t.Fatalf("nodeIDs = %v, want initial root 1:10", nodeIDs)
+	}
+
+	paths = nil
+	nodeIDs = nil
+	out, err = runAgentRoot(t, []string{"agent", "shot", "https://www.figma.com/design/testKey/X?node-id=1-10", "Welcome", "--agent", "--no-cache", "--no-download"})
+	if err != nil {
+		t.Fatalf("agent shot URL-root failed: %v\n%s", err, out)
+	}
+	for _, p := range paths {
+		if p == "/v1/files/testKey" {
+			t.Fatalf("unexpected whole-file request for URL root in paths: %v", paths)
+		}
+	}
+	if len(nodeIDs) == 0 || nodeIDs[0] != "1:10" {
+		t.Fatalf("URL-root nodeIDs = %v, want initial root 1:10", nodeIDs)
+	}
+}
+
+func TestAgentShotChildrenUsesSubtree(t *testing.T) {
+	var nodeIDs []string
+	mux := http.NewServeMux()
+	var base string
+	mux.HandleFunc("/v1/files/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if strings.HasSuffix(r.URL.Path, "/nodes") {
+			ids := r.URL.Query().Get("ids")
+			nodeIDs = append(nodeIDs, ids)
+			b, _ := json.Marshal(map[string]any{"nodes": map[string]any{ids: map[string]any{"document": figmaFixtureNode(t, ids)}}})
+			_, _ = w.Write(b)
+			return
+		}
+		_, _ = w.Write([]byte(figmaFileFixture()))
+	})
+	mux.HandleFunc("/v1/images/", func(w http.ResponseWriter, r *http.Request) {
+		ids := strings.Split(r.URL.Query().Get("ids"), ",")
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"err":null,"images":{`))
+		for i, id := range ids {
+			if i > 0 {
+				_, _ = w.Write([]byte(","))
+			}
+			fmt.Fprintf(w, `%q:%q`, id, base+"/render/"+id+".png")
+		}
+		_, _ = w.Write([]byte(`}}`))
+	})
+	srv := httptest.NewServer(mux)
+	base = srv.URL
+	defer srv.Close()
+	setFigmaTestEnv(t, srv.URL)
+
+	out, err := runAgentRoot(t, []string{"agent", "shot", "testKey", "Onboarding", "--children", "--max", "5", "--no-download", "--agent", "--no-cache"})
+	if err != nil {
+		t.Fatalf("agent shot --children failed: %v\n%s", err, out)
+	}
+	var res map[string]any
+	if err := json.Unmarshal([]byte(out), &res); err != nil {
+		t.Fatalf("decoding shot output: %v\n%s", err, out)
+	}
+	images := res["images"].([]any)
+	if len(images) != 3 {
+		t.Fatalf("images len = %d, want 3", len(images))
+	}
+	wantIDs := map[string]bool{"1:11": true, "1:12": true, "1:13": true}
+	for _, raw := range images {
+		img := raw.(map[string]any)
+		delete(wantIDs, img["id"].(string))
+	}
+	if len(wantIDs) != 0 {
+		t.Fatalf("missing child ids: %v; output=%s", wantIDs, out)
+	}
+	if len(nodeIDs) != 1 || nodeIDs[0] != "1:10" {
+		t.Fatalf("nodeIDs = %v, want [1:10]", nodeIDs)
+	}
+}
+
 func TestAgentShotDownloadsFile(t *testing.T) {
 	srv := newFakeFigmaShotServer(t)
 	defer srv.Close()
@@ -960,15 +1128,16 @@ func TestAgentShotChildrenRendersSectionScreens(t *testing.T) {
 	if len(images) != 3 {
 		t.Fatalf("images len = %d, want 3", len(images))
 	}
+	wantIDs := map[string]bool{"1:11": true, "1:12": true, "1:13": true}
 	for _, raw := range images {
 		img := raw.(map[string]any)
-		label, _ := img["label"].(string)
-		if !strings.HasPrefix(label, "🕹️ Prototype / Onboarding / ") {
-			t.Fatalf("label = %q, want Onboarding child", label)
-		}
+		delete(wantIDs, img["id"].(string))
 		if img["id"] == "1:10" || img["type"] == "SECTION" {
 			t.Fatalf("rendered section instead of child: %+v", img)
 		}
+	}
+	if len(wantIDs) != 0 {
+		t.Fatalf("missing child ids: %v", wantIDs)
 	}
 }
 

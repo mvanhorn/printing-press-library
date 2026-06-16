@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "agent-shot-subtree-fetch",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260509-190854",
+  "base_printing_press_version": "4.2.0",
+  "summary": "agent shot can scope label resolution and child expansion to Figma nodes subtrees instead of fetching the whole file tree.",
+  "reason": "Large Figma files make whole-file depth fetches the dominant screenshot latency; subtree fetches preserve the same node-id driven workflow while avoiding broad reads and deep --children depth requirements.",
+  "files": [
+    "internal/cli/agent.go",
+    "internal/cli/agent_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go test ./internal/cli passes with fake-server coverage asserting --root avoids /v1/files/<key> and --children fetches /v1/files/<key>/nodes for the matched section."
+}
