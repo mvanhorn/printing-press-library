@@ -6,9 +6,11 @@
   "display_name": "PostgreSQL Admin",
   "cli_name": "postgresql-admin-pp-cli",
   "creator": {
-    "handle": "kieran",
+    "handle": "kierandotai",
     "name": "Kieran"
   },
+  "printer": "kierandotai",
+  "printer_name": "Kieran",
   "spec_format": "internal",
   "spec_source": "internal-yaml",
   "auth_type": "password",
