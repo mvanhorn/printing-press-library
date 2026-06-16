@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "claude-agent-sdk-python-docs",
+  "run_id": "20260616-163051-a6293bcd",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 84,
+  "tests_passed": 84,
+  "tests_skipped": 49,
+  "auth_context": {
+    "type": "none"
+  }
+}
