@@ -14,7 +14,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"luma-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/luma/internal/store"
 )
 
 type nearView struct {
