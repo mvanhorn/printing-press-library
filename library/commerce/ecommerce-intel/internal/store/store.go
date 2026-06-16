@@ -85,50 +85,53 @@ type Product struct {
 }
 
 type Page struct {
-	URL               string  `json:"url"`
-	Title             string  `json:"title,omitempty"`
-	Type              string  `json:"type,omitempty"`
-	Revenue           float64 `json:"revenue"`
-	PreviousRevenue   float64 `json:"previous_revenue"`
-	Sessions          int     `json:"sessions"`
-	PreviousSessions  int     `json:"previous_sessions"`
-	SearchClicks      int     `json:"search_clicks"`
-	PreviousClicks    int     `json:"previous_clicks"`
-	SearchPosition    float64 `json:"search_position"`
-	Backlinks         int     `json:"backlinks"`
-	RefDomains        int     `json:"ref_domains"`
-	StructuredData    bool    `json:"structured_data"`
-	Answerable        bool    `json:"answerable"`
-	BuyingGuide       bool    `json:"buying_guide"`
-	PrimaryCollection string  `json:"primary_collection,omitempty"`
+	URL               string        `json:"url"`
+	Title             string        `json:"title,omitempty"`
+	Type              string        `json:"type,omitempty"`
+	Revenue           float64       `json:"revenue"`
+	PreviousRevenue   float64       `json:"previous_revenue"`
+	Sessions          int           `json:"sessions"`
+	PreviousSessions  int           `json:"previous_sessions"`
+	SearchClicks      int           `json:"search_clicks"`
+	PreviousClicks    int           `json:"previous_clicks"`
+	SearchPosition    float64       `json:"search_position"`
+	Backlinks         int           `json:"backlinks"`
+	RefDomains        int           `json:"ref_domains"`
+	StructuredData    bool          `json:"structured_data"`
+	Answerable        bool          `json:"answerable"`
+	BuyingGuide       bool          `json:"buying_guide"`
+	PrimaryCollection string        `json:"primary_collection,omitempty"`
+	Source            MetricSources `json:"sources"`
 }
 
 type Category struct {
-	Handle           string  `json:"handle"`
-	Title            string  `json:"title"`
-	URL              string  `json:"url,omitempty"`
-	Revenue          float64 `json:"revenue"`
-	PreviousRevenue  float64 `json:"previous_revenue"`
-	Sessions         int     `json:"sessions"`
-	SearchClicks     int     `json:"search_clicks"`
-	Products         int     `json:"products"`
-	OutOfStock       int     `json:"out_of_stock"`
-	HasBuyingGuide   bool    `json:"has_buying_guide"`
-	HasFAQ           bool    `json:"has_faq"`
-	StructuredData   bool    `json:"structured_data"`
-	AnswerabilityGap string  `json:"answerability_gap,omitempty"`
+	Handle           string        `json:"handle"`
+	Title            string        `json:"title"`
+	URL              string        `json:"url,omitempty"`
+	Revenue          float64       `json:"revenue"`
+	PreviousRevenue  float64       `json:"previous_revenue"`
+	Sessions         int           `json:"sessions"`
+	SearchClicks     int           `json:"search_clicks"`
+	Products         int           `json:"products"`
+	OutOfStock       int           `json:"out_of_stock"`
+	HasBuyingGuide   bool          `json:"has_buying_guide"`
+	HasFAQ           bool          `json:"has_faq"`
+	StructuredData   bool          `json:"structured_data"`
+	AnswerabilityGap string        `json:"answerability_gap,omitempty"`
+	Source           MetricSources `json:"sources"`
 }
 
 type EmailFlow struct {
-	Name            string  `json:"name"`
-	Type            string  `json:"type,omitempty"`
-	Revenue         float64 `json:"revenue"`
-	Recipients      int     `json:"recipients"`
-	OpenRate        float64 `json:"open_rate"`
-	ClickRate       float64 `json:"click_rate"`
-	ConversionRate  float64 `json:"conversion_rate"`
-	AttributedSales int     `json:"attributed_sales"`
-	NeedsAction     bool    `json:"needs_action"`
+	Name            string        `json:"name"`
+	Type            string        `json:"type,omitempty"`
+	Revenue         float64       `json:"revenue"`
+	Recipients      int           `json:"recipients"`
+	OpenRate        float64       `json:"open_rate"`
+	ClickRate       float64       `json:"click_rate"`
+	ConversionRate  float64       `json:"conversion_rate"`
+	AttributedSales int           `json:"attributed_sales"`
+	NeedsAction     bool          `json:"needs_action"`
+	Source          MetricSources `json:"sources"`
 }
 
 type Market struct {
@@ -298,15 +301,19 @@ func Fixture(profile string) DataSet {
 		product("jacket-002", "winter-shell-jacket", "Winter Shell Jacket", "/products/winter-shell-jacket", "Outerwear", "jackets", 249, 131, 38, 9.4, 54, 13446, 11240, 740, 680, .073, .025, 370, 330, 4.4, 64, 29, 1540, 120, true, false, false, false),
 		product("pack-003", "ultralight-day-pack", "Ultralight Day Pack", "/products/ultralight-day-pack", "Bags", "packs", 119, 55, 8, 4.2, 41, 4879, 7600, 430, 610, .095, .01, 160, 230, 8.7, 20, 11, 940, 88, false, false, false, true),
 	}, Pages: []Page{
-		{URL: "/collections/jackets", Title: "Jackets Collection", Type: "collection", Revenue: 23880, PreviousRevenue: 21600, Sessions: 1760, PreviousSessions: 1600, SearchClicks: 760, PreviousClicks: 610, SearchPosition: 4.6, Backlinks: 112, RefDomains: 51, StructuredData: true, Answerable: false, BuyingGuide: false, PrimaryCollection: "jackets"},
-		{URL: "/pages/shipping-returns", Title: "Shipping and Returns", Type: "page", Revenue: 4320, PreviousRevenue: 4100, Sessions: 510, PreviousSessions: 540, SearchClicks: 205, PreviousClicks: 240, SearchPosition: 5.5, Backlinks: 45, RefDomains: 26, StructuredData: false, Answerable: true},
+		{URL: "/collections/jackets", Title: "Jackets Collection", Type: "collection", Revenue: 23880, PreviousRevenue: 21600, Sessions: 1760, PreviousSessions: 1600, SearchClicks: 760, PreviousClicks: 610, SearchPosition: 4.6, Backlinks: 112, RefDomains: 51, StructuredData: true, Answerable: false, BuyingGuide: false, PrimaryCollection: "jackets", Source: fullEvidence()},
+		{URL: "/pages/shipping-returns", Title: "Shipping and Returns", Type: "page", Revenue: 4320, PreviousRevenue: 4100, Sessions: 510, PreviousSessions: 540, SearchClicks: 205, PreviousClicks: 240, SearchPosition: 5.5, Backlinks: 45, RefDomains: 26, StructuredData: false, Answerable: true, Source: fullEvidence()},
 	}, Categories: []Category{
-		{Handle: "jackets", Title: "Jackets", URL: "/collections/jackets", Revenue: 23880, PreviousRevenue: 21600, Sessions: 1760, SearchClicks: 760, Products: 18, OutOfStock: 2, HasBuyingGuide: false, HasFAQ: false, StructuredData: true, AnswerabilityGap: "missing comparison guide for answer engines"},
-		{Handle: "packs", Title: "Packs", URL: "/collections/packs", Revenue: 4879, PreviousRevenue: 7600, Sessions: 430, SearchClicks: 160, Products: 9, OutOfStock: 4, HasBuyingGuide: true, HasFAQ: false, StructuredData: false, AnswerabilityGap: "product availability and schema gaps"},
+		{Handle: "jackets", Title: "Jackets", URL: "/collections/jackets", Revenue: 23880, PreviousRevenue: 21600, Sessions: 1760, SearchClicks: 760, Products: 18, OutOfStock: 2, HasBuyingGuide: false, HasFAQ: false, StructuredData: true, AnswerabilityGap: "missing comparison guide for answer engines", Source: fullEvidence()},
+		{Handle: "packs", Title: "Packs", URL: "/collections/packs", Revenue: 4879, PreviousRevenue: 7600, Sessions: 430, SearchClicks: 160, Products: 9, OutOfStock: 4, HasBuyingGuide: true, HasFAQ: false, StructuredData: false, AnswerabilityGap: "product availability and schema gaps", Source: fullEvidence()},
 	}, Emails: []EmailFlow{
-		{Name: "Abandoned Checkout", Type: "flow", Revenue: 8200, Recipients: 2600, OpenRate: .44, ClickRate: .096, ConversionRate: .032, AttributedSales: 71},
-		{Name: "Post Purchase Cross-sell", Type: "flow", Revenue: 1700, Recipients: 1800, OpenRate: .37, ClickRate: .024, ConversionRate: .006, AttributedSales: 15, NeedsAction: true},
+		{Name: "Abandoned Checkout", Type: "flow", Revenue: 8200, Recipients: 2600, OpenRate: .44, ClickRate: .096, ConversionRate: .032, AttributedSales: 71, Source: MetricSources{Klaviyo: SourceEvidence{Synced: true, ChildCLICommand: "klaviyo-pp-cli report flow-comparison --agent"}}},
+		{Name: "Post Purchase Cross-sell", Type: "flow", Revenue: 1700, Recipients: 1800, OpenRate: .37, ClickRate: .024, ConversionRate: .006, AttributedSales: 15, NeedsAction: true, Source: MetricSources{Klaviyo: SourceEvidence{Synced: true, ChildCLICommand: "klaviyo-pp-cli report flow-comparison --agent"}}},
 	}, Markets: []Market{{Country: "US", Revenue: 39100, Sessions: 4200, ConversionRate: .039, Localized: true, CurrencyPresent: true, ShippingClarity: true, Hreflang: true}, {Country: "CA", Revenue: 5200, Sessions: 820, ConversionRate: .021, Localized: false, CurrencyPresent: true, ShippingClarity: false, Hreflang: false}}}
+}
+
+func fullEvidence() MetricSources {
+	return MetricSources{Shopify: SourceEvidence{Synced: true, ChildCLICommand: "shopify-pp-cli products list --agent"}, Klaviyo: SourceEvidence{Synced: true, ChildCLICommand: "klaviyo-pp-cli report flow-comparison --agent"}, GA4: SourceEvidence{Synced: true, ChildCLICommand: "google-analytics-pp-cli top-pages --agent"}, GSC: SourceEvidence{Synced: true, ChildCLICommand: "google-search-console-pp-cli webmasters query-search-analytics <site> --agent"}, Ahrefs: SourceEvidence{Synced: true, ChildCLICommand: "ahrefs-pp-cli site-explorer top-pages --agent"}}
 }
 
 func product(id, handle, title, url, vendor, category string, price, margin float64, inventory int, days float64, units int, revenue, prevRevenue float64, sessions, prevSessions int, cr, refund float64, clicks, prevClicks int, pos float64, backlinks, refDomains int, emailRevenue float64, emailClicks int, sd, facts, faq, guide bool) Product {

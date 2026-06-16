@@ -36,4 +36,19 @@ func TestSaveLoadProfileAndData(t *testing.T) {
 			t.Fatalf("source evidence not mirrored: %#v", p.Source)
 		}
 	}
+	for _, p := range loaded.Pages {
+		if !p.Source.GA4.Synced || !p.Source.GSC.Synced || !p.Source.Ahrefs.Synced {
+			t.Fatalf("page source evidence missing: %#v", p.Source)
+		}
+	}
+	for _, c := range loaded.Categories {
+		if !c.Source.Shopify.Synced || !c.Source.GA4.Synced {
+			t.Fatalf("category source evidence missing: %#v", c.Source)
+		}
+	}
+	for _, e := range loaded.Emails {
+		if !e.Source.Klaviyo.Synced {
+			t.Fatalf("email source evidence missing: %#v", e.Source)
+		}
+	}
 }

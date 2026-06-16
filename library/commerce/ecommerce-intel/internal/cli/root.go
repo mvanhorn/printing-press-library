@@ -40,7 +40,7 @@ func newRootCmd(f *rootFlags) *cobra.Command {
 		}
 		return nil
 	}
-	cmd.AddCommand(agentContextCmd(f), doctorCmd(f), sourcesCmd(f), profileCmd(f), syncCmd(f), dashboardCmd(f), opportunitiesCmd(f), actionPlanCmd(f), moneyPagesCmd(f), moneyProductsCmd(f), queryRevenueCmd(f), explainDropCmd(f), productActionsCmd(f), categoryActionsCmd(f), emailActionsCmd(f), inventoryRiskCmd(f), digestCmd(f), geoAuditCmd(f))
+	cmd.AddCommand(agentContextCmd(f), doctorCmd(f), sourcesCmd(f), profileCmd(f), syncCmd(f), dashboardCmd(f), opportunitiesCmd(f), actionPlanCmd(f), moneyPagesCmd(f), moneyProductsCmd(f), queryRevenueCmd(f), explainDropCmd(f), productActionsCmd(f), categoryActionsCmd(f), emailActionsCmd(f), inventoryRiskCmd(f), sourceCoverageCmd(f), merchandisingLinkPlanCmd(f), experimentPlanCmd(f), forecastImpactCmd(f), restockWinnersCmd(f), cannibalizationCmd(f), categoryClustersCmd(f), digestCmd(f), geoAuditCmd(f))
 	return cmd
 }
 func st(f *rootFlags) *store.Store { return store.New(f.home) }
@@ -57,7 +57,7 @@ func out(cmd *cobra.Command, f *rootFlags, v any, human string) error {
 
 func agentContextCmd(f *rootFlags) *cobra.Command {
 	return &cobra.Command{Use: "agent-context", Short: "Print machine-readable CLI context", RunE: func(cmd *cobra.Command, args []string) error {
-		ctx := map[string]any{"schema_version": "ecommerce-intel.agent-context/v1", "name": "ecommerce-intel-pp-cli", "version": version, "private": true, "local_first": true, "external_api_calls": false, "agent_flag": "sets --json --compact --no-input --yes --no-color", "state_dir": f.home, "geo_answer_engine_support": []string{"llms.txt/agents.md discovery", "structured data", "product facts", "reviews/FAQ answer blocks", "collection buying guides", "merchant feed parity", "ChatGPT readiness", "Perplexity readiness", "Google AI Overviews readiness"}, "geo_check_ids": []string{"storefront_llms_txt", "storefront_structured_data", "storefront_product_facts", "storefront_buying_guides", "pdp_product_schema", "pdp_product_facts", "pdp_faq_answers", "category_guides", "category_faqs", "answerability_score"}, "env": envMeta(), "commands": []string{"agent-context", "doctor", "sources doctor", "profile save/list/show/delete", "sync", "dashboard", "opportunities", "action-plan", "money-pages", "money-products", "query-revenue", "explain-drop", "product-actions", "category-actions", "email-actions", "inventory-risk", "digest weekly", "geo-audit"}, "source_plan": sourceChecks()}
+		ctx := map[string]any{"schema_version": "ecommerce-intel.agent-context/v1", "name": "ecommerce-intel-pp-cli", "version": version, "private": true, "local_first": true, "external_api_calls": false, "agent_flag": "sets --json --compact --no-input --yes --no-color", "state_dir": f.home, "geo_answer_engine_support": []string{"llms.txt/agents.md discovery", "structured data", "product facts", "reviews/FAQ answer blocks", "collection buying guides", "merchant feed parity", "ChatGPT readiness", "Perplexity readiness", "Google AI Overviews readiness"}, "geo_check_ids": []string{"storefront_llms_txt", "storefront_structured_data", "storefront_product_facts", "pdp_product_schema", "pdp_product_facts", "pdp_faq_answers", "category_guides", "category_faqs", "answerability_score"}, "env": envMeta(), "commands": agentCommands(), "source_plan": sourceChecks()}
 		return out(cmd, f, ctx, "")
 	}}
 }
@@ -110,7 +110,7 @@ type envCheck struct {
 }
 
 func sourceChecks() []sourceCheck {
-	defs := []sourceCheck{{Name: "shopify", ChildBinary: "shopify-pp-cli", Env: []envCheck{{Name: "SHOPIFY_SHOP"}, {Name: "SHOPIFY_ACCESS_TOKEN"}}, PlannedCommand: "shopify-pp-cli products/export --agent --shop <shop>", Note: "optional child CLI; fixture/import mode makes no network calls"}, {Name: "klaviyo", ChildBinary: "klaviyo-pp-cli", Env: []envCheck{{Name: "KLAVIYO_API_KEY"}, {Name: "KLAVIYO_ACCOUNT"}}, PlannedCommand: "klaviyo-pp-cli reporting flows --agent --account <account>", Note: "optional email source"}, {Name: "ga4", ChildBinary: "google-analytics-pp-cli", Env: []envCheck{{Name: "GA4_PROPERTY_ID"}}, PlannedCommand: "google-analytics-pp-cli ecommerce products --agent --property <property> --start <start> --end <end>", Note: "optional analytics source"}, {Name: "gsc", ChildBinary: "google-search-console-pp-cli", Env: []envCheck{{Name: "GSC_SITE_URL"}}, PlannedCommand: "google-search-console-pp-cli webmasters query-search-analytics <site> --agent --dimensions [\"page\"] --start-date <start> --end-date <end>", Note: "optional search source"}, {Name: "ahrefs", ChildBinary: "ahrefs-pp-cli", Env: []envCheck{{Name: "AHREFS_TARGET"}, {Name: "AHREFS_PROJECT"}}, PlannedCommand: "ahrefs-pp-cli site-explorer top-pages --agent --target <target>", Note: "optional link/keyword source"}}
+	defs := []sourceCheck{{Name: "shopify", ChildBinary: "shopify-pp-cli", Env: []envCheck{{Name: "SHOPIFY_SHOP"}, {Name: "SHOPIFY_ACCESS_TOKEN"}}, PlannedCommand: "shopify-pp-cli products list --agent --all --data-source live", Note: "optional child CLI; used by sync --source shopify/all"}, {Name: "klaviyo", ChildBinary: "klaviyo-pp-cli", Env: []envCheck{{Name: "KLAVIYO_API_KEY"}, {Name: "KLAVIYO_ACCOUNT"}}, PlannedCommand: "klaviyo-pp-cli report flow-comparison --agent --data-source live", Note: "optional email source"}, {Name: "ga4", ChildBinary: "google-analytics-pp-cli", Env: []envCheck{{Name: "GA4_PROPERTY_ID"}}, PlannedCommand: "google-analytics-pp-cli top-pages --agent --property <property> --start <start> --end <end>", Note: "optional analytics source"}, {Name: "gsc", ChildBinary: "google-search-console-pp-cli", Env: []envCheck{{Name: "GSC_SITE_URL"}}, PlannedCommand: "google-search-console-pp-cli webmasters query-search-analytics <site> --agent --dimensions [\"page\"] --start-date <start> --end-date <end>", Note: "optional search source"}, {Name: "ahrefs", ChildBinary: "ahrefs-pp-cli", Env: []envCheck{{Name: "AHREFS_TARGET"}, {Name: "AHREFS_PROJECT"}}, PlannedCommand: "ahrefs-pp-cli site-explorer top-pages --agent --target <target> --date <date>", Note: "optional link/keyword source"}}
 	for i := range defs {
 		if path, err := exec.LookPath(defs[i].ChildBinary); err == nil {
 			defs[i].Found = true
@@ -223,7 +223,9 @@ func first(vs ...string) string {
 func syncCmd(f *rootFlags) *cobra.Command {
 	var importPath, source string
 	var live, real bool
-	c := &cobra.Command{Use: "sync", Short: "Import local fixture, JSON data, or planned child CLI source metadata", RunE: func(cmd *cobra.Command, args []string) error {
+	var shop, klaviyoAccount, site, gaProperty, ahrefsTarget, startDate, endDate, ahrefsDate string
+	var limit int
+	c := &cobra.Command{Use: "sync", Short: "Import local fixture, JSON data, or opt-in child CLI data", RunE: func(cmd *cobra.Command, args []string) error {
 		var d store.DataSet
 		source = strings.ToLower(strings.TrimSpace(source))
 		if source == "" && (live || real) {
@@ -252,9 +254,33 @@ func syncCmd(f *rootFlags) *cobra.Command {
 			if !validSource(source) {
 				return fmt.Errorf("invalid --source %q: use all, shopify, klaviyo, ga4, gsc, or ahrefs", source)
 			}
-			d = store.Fixture(f.profile)
-			d.Source = "child-cli-plan:" + source
-			markSource(&d, source)
+			base, err := st(f).LoadData(f.profile)
+			if err != nil {
+				base = store.DataSet{Profile: f.profile, Source: "child-cli-empty-base"}
+			}
+			opts := childSyncOptions{Shop: shop, KlaviyoAccount: klaviyoAccount, Site: site, GAProperty: gaProperty, AhrefsTarget: ahrefsTarget, StartDate: startDate, EndDate: endDate, AhrefsDate: ahrefsDate, Limit: limit}
+			if p, err := st(f).GetProfile(f.profile); err == nil {
+				if opts.Shop == "" {
+					opts.Shop = p.ShopifyShop
+				}
+				if opts.KlaviyoAccount == "" {
+					opts.KlaviyoAccount = p.KlaviyoAccount
+				}
+				if opts.Site == "" {
+					opts.Site = first(p.GSCProperty, p.SiteURL)
+				}
+				if opts.GAProperty == "" {
+					opts.GAProperty = p.GAProperty
+				}
+				if opts.AhrefsTarget == "" {
+					opts.AhrefsTarget = p.AhrefsTarget
+				}
+			}
+			var syncErr error
+			d, syncErr = syncFromChildCLIs(f.profile, source, base, opts)
+			if syncErr != nil {
+				return syncErr
+			}
 		}
 		if err := st(f).SaveData(d); err != nil {
 			return err
@@ -262,9 +288,18 @@ func syncCmd(f *rootFlags) *cobra.Command {
 		return out(cmd, f, map[string]any{"profile": d.Profile, "products": len(d.Products), "pages": len(d.Pages), "categories": len(d.Categories), "emails": len(d.Emails), "source": d.Source, "synced_at": d.SyncedAt}, fmt.Sprintf("synced %d products, %d pages, %d categories for %s from %s\n", len(d.Products), len(d.Pages), len(d.Categories), d.Profile, d.Source))
 	}}
 	c.Flags().StringVar(&importPath, "import", "", "Import JSON DataSet")
-	c.Flags().StringVar(&source, "source", "", "Child source plan: all, shopify, klaviyo, ga4, gsc, ahrefs")
-	c.Flags().BoolVar(&live, "live", false, "Use planned child CLI mode (no network in MVP)")
-	c.Flags().BoolVar(&real, "real", false, "Alias for --live")
+	c.Flags().StringVar(&source, "source", "", "Real child CLI source to sync: all, shopify, klaviyo, ga4, gsc, ahrefs")
+	c.Flags().BoolVar(&live, "live", false, "Use child CLIs instead of the embedded fixture (same as --source all)")
+	c.Flags().BoolVar(&real, "real", false, "Use child CLIs instead of the embedded fixture (alias for --live)")
+	c.Flags().StringVar(&shop, "shop", "", "Shopify shop/domain (or SHOPIFY_SHOP/profile Shopify shop)")
+	c.Flags().StringVar(&klaviyoAccount, "klaviyo-account", "", "Klaviyo account/profile hint")
+	c.Flags().StringVar(&site, "site", "", "GSC site URL/property (or GSC_SITE_URL/profile site)")
+	c.Flags().StringVar(&gaProperty, "ga-property", "", "GA4 property id (or GA4_PROPERTY_ID/profile property)")
+	c.Flags().StringVar(&ahrefsTarget, "ahrefs-target", "", "Ahrefs target/domain (or AHREFS_TARGET/AHREFS_PROJECT/profile target)")
+	c.Flags().StringVar(&startDate, "start-date", "", "Start date for GSC/GA4 child sync (default: 7 completed days ago)")
+	c.Flags().StringVar(&endDate, "end-date", "", "End date for GSC/GA4/Ahrefs child sync (default: yesterday)")
+	c.Flags().StringVar(&ahrefsDate, "date", "", "Ahrefs snapshot date (default: --end-date/yesterday)")
+	c.Flags().IntVar(&limit, "limit", 1000, "Maximum rows per child source")
 	return c
 }
 func validSource(source string) bool {
@@ -273,28 +308,6 @@ func validSource(source string) bool {
 		return true
 	default:
 		return false
-	}
-}
-func markSource(d *store.DataSet, source string) {
-	if source == "" {
-		source = "all"
-	}
-	for i := range d.Products {
-		if source == "all" || source == "shopify" {
-			d.Products[i].Source.Shopify.Synced = true
-		}
-		if source == "all" || source == "klaviyo" {
-			d.Products[i].Source.Klaviyo.Synced = true
-		}
-		if source == "all" || source == "ga4" {
-			d.Products[i].Source.GA4.Synced = true
-		}
-		if source == "all" || source == "gsc" {
-			d.Products[i].Source.GSC.Synced = true
-		}
-		if source == "all" || source == "ahrefs" {
-			d.Products[i].Source.Ahrefs.Synced = true
-		}
 	}
 }
 func load(f *rootFlags) (store.DataSet, error) {
@@ -514,7 +527,25 @@ func emailActionsCmd(f *rootFlags) *cobra.Command {
 	})
 }
 func inventoryRiskCmd(f *rootFlags) *cobra.Command {
-	return simpleRowsCmd(f, "inventory-risk", "Inventory and demand risk", inventoryRisks)
+	var limit int
+	c := &cobra.Command{Use: "inventory-risk", Short: "Inventory and demand risk", RunE: func(cmd *cobra.Command, args []string) error {
+		d, err := load(f)
+		if err != nil {
+			return err
+		}
+		rows := inventoryRisks(d)
+		if limit > 0 && len(rows) > limit {
+			rows = rows[:limit]
+		}
+		lines := []string{"target\taction\timpact"}
+		for _, r := range rows {
+			target := fmt.Sprint(firstAny(r, "product", "target"))
+			lines = append(lines, fmt.Sprintf("%s\t%s\t%v", target, r["action"], r["impact"]))
+		}
+		return out(cmd, f, rows, strings.Join(lines, "\n")+"\n")
+	}}
+	c.Flags().IntVar(&limit, "limit", 10, "Rows to return")
+	return c
 }
 func digestCmd(f *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{Use: "digest", Short: "Generate digests"}
