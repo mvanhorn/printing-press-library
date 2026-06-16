@@ -1,0 +1,37 @@
+{
+  "schema_version": "printing-press.dogfood/v1",
+  "run_id": "amazon-operator-intel-20260616",
+  "status": "pass",
+  "mode": "private-composite-fixture",
+  "commands": [
+    {"command": "agent-context", "status": "pass"},
+    {"command": "doctor", "status": "pass"},
+    {"command": "sources doctor", "status": "pass"},
+    {"command": "sync", "status": "pass"},
+    {"command": "war-room", "status": "pass"},
+    {"command": "restock-or-kill", "status": "pass"},
+    {"command": "ad-spend-guardrail", "status": "pass"},
+    {"command": "sku-profit-truth", "status": "pass"},
+    {"command": "listing-triage", "status": "pass"},
+    {"command": "cash-leaks", "status": "pass"},
+    {"command": "search-term-actions", "status": "pass"},
+    {"command": "digest daily", "status": "pass"},
+    {"command": "digest weekly", "status": "pass"},
+    {"command": "operator-plan", "status": "pass"},
+    {"command": "cash-calendar", "status": "pass"},
+    {"command": "launch-readiness", "status": "pass"},
+    {"command": "rank-defense", "status": "pass"},
+    {"command": "bundle-opportunities", "status": "pass"},
+    {"command": "vendor-ops readiness", "status": "pass"},
+    {"command": "vendor-ops deductions", "status": "pass"},
+    {"command": "vendor-ops po-watch", "status": "pass"},
+    {"command": "vendor-ops scorecard", "status": "pass"}
+  ],
+  "notes": [
+    "Fixture and import sync make no child CLI calls.",
+    "Live sync is explicit and read-only.",
+    "Expected missing-config failure for sync --source all was verified."
+    ,"Existing Amazon Seller and Amazon Ads child CLIs reported configured auth via doctor and read-only discovery commands."
+    ,"Ads live sync preflights required normalized report files before running child analytics."
+  ]
+}

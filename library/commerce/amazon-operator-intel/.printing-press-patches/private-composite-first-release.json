@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "private-composite-first-release",
+  "applied_at": "2026-06-16",
+  "base_run_id": "amazon-operator-intel-20260616",
+  "base_printing_press_version": "4.20.1",
+  "summary": "This private composite CLI must remain local-first by default and only call Amazon Seller or Amazon Ads child CLIs on explicit live sync.",
+  "reason": "The operator workflow joins multiple private child CLI outputs and local files; preserving offline fixture/import behavior, source evidence, and read-only sync prevents accidental network calls or credential leakage.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/store/store.go",
+    "internal/store/fixture.go"
+  ],
+  "validated_outcome": "go test ./... covers offline sync, import sync, missing-config preflight, single-source merge, child stderr, parser behavior, local-file imports, and every required operator command over fixture data."
+}

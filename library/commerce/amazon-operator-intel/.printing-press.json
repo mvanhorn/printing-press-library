@@ -1,0 +1,97 @@
+{
+  "schema_version": "printing-press.cli/v1",
+  "api_name": "amazon-operator-intel",
+  "cli_name": "amazon-operator-intel-pp-cli",
+  "name": "amazon-operator-intel-pp-cli",
+  "display_name": "Amazon Operator Intel",
+  "description": "Private local-first Amazon operator control tower that joins Amazon Seller and Amazon Ads evidence into inventory, profitability, listing, and ad-spend decisions.",
+  "visibility": "private",
+  "category": "commerce",
+  "module": "amazon-operator-intel",
+  "language": "go",
+  "entrypoint": "./cmd/amazon-operator-intel-pp-cli",
+  "binary": "amazon-operator-intel-pp-cli",
+  "owner": "cathrynlavery",
+  "owner_name": "Cathryn Lavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
+  "spec_format": "private-composite-cli",
+  "spec_source": "~/.claude/plans/amazon-operator-intel.md",
+  "spec_checksum": "sha256:local-private-composite-amazon-operator-intel",
+  "printing_press_version": "4.20.1",
+  "run_id": "amazon-operator-intel-20260616",
+  "generated_at": "2026-06-16T00:00:00Z",
+  "version": "0.1.0-private",
+  "auth_type": "child_cli",
+  "auth_env_vars": [
+    "SP_API_LWA_CLIENT_ID",
+    "SP_API_LWA_CLIENT_SECRET",
+    "SP_API_REFRESH_TOKEN",
+    "AMAZON_ADS_CLIENT_ID",
+    "AMAZON_ADS_CLIENT_SECRET",
+    "AMAZON_ADS_REFRESH_TOKEN",
+    "AMAZON_ADS_PROFILE_ID"
+  ],
+  "agent_context_command": "amazon-operator-intel-pp-cli --agent agent-context",
+  "doctor_command": "amazon-operator-intel-pp-cli --agent doctor",
+  "local_first": true,
+  "external_api_calls_in_mvp": false,
+  "state_dir_env": "AMAZON_OPERATOR_INTEL_HOME",
+  "sources": [
+    {
+      "name": "seller",
+      "child_binary": "amazon-seller-pp-cli",
+      "planned_commands": [
+        "amazon-seller-pp-cli fba-inventory --agent --marketplace-ids <marketplace> --granularity-type Marketplace --granularity-id <marketplace>",
+        "amazon-seller-pp-cli profitability sku-pnl --agent --marketplace-id <marketplace> --days <days>",
+        "amazon-seller-pp-cli listing-intel health-audit --agent --marketplace-id <marketplace>",
+        "amazon-seller-pp-cli brand-analytics search-terms --agent --marketplace-id <marketplace> --period WEEK"
+      ],
+      "required_config": ["marketplace_id"]
+    },
+    {
+      "name": "ads",
+      "child_binary": "amazon-ads-pp-cli",
+      "planned_commands": [
+        "amazon-ads-pp-cli profiles list --agent",
+        "amazon-ads-pp-cli portfolio-dashboard --agent --report <campaign-performance.csv>",
+        "amazon-ads-pp-cli product-ad-profitability --agent --report <product-performance.csv>",
+        "amazon-ads-pp-cli search-term-mining --agent --report <search-term-report.csv>",
+        "amazon-ads-pp-cli wasted-spend --agent --report <search-term-report.csv>"
+      ],
+      "required_config": ["profile_id"]
+    }
+  ],
+  "novel_features": [
+    {"name": "War room", "command": "war-room", "description": "Daily sales, profit, inventory, ad waste, listing, reimbursement, and top-action control tower."},
+    {"name": "Restock or kill", "command": "restock-or-kill", "description": "SKU decision queue for restock, conserve inventory, pause ads, liquidate, fix listing, or monitor."},
+    {"name": "Ad spend guardrail", "command": "ad-spend-guardrail", "description": "Read-only guardrails for stockout spend, break-even ACOS, low-margin ads, no-sales waste, budget risk, and listing defects."},
+    {"name": "SKU profit truth", "command": "sku-profit-truth", "description": "Contribution margin after ads, fees, returns, reimbursements, and COGS."},
+    {"name": "Listing triage", "command": "listing-triage", "description": "Listing defects ranked by business impact."},
+    {"name": "Cash leaks", "command": "cash-leaks", "description": "Money-leak queue across ads, storage, stranded inventory, reimbursements, settlement gaps, returns, and low-margin SKUs."},
+    {"name": "Search term actions", "command": "search-term-actions", "description": "Promote, negate, rank, competitor/product targeting, and dependency actions from Ads and Brand Analytics evidence."},
+    {"name": "Operator plan", "command": "operator-plan", "description": "One-week owner/delegate execution plan composed from scoring outputs."},
+    {"name": "Cash calendar", "command": "cash-calendar", "description": "Cash pressure forecast from inventory, ad budgets, expected revenue, reimbursements, and storage/aging fees."},
+    {"name": "Launch readiness", "command": "launch-readiness", "description": "Inventory, listing, ads, margin, keyword, review, and 14-day launch checklist."},
+    {"name": "Rank defense", "command": "rank-defense", "description": "Tradeoff recommendations for defending, reducing, or stopping paid search-term spend."},
+    {"name": "Bundle opportunities", "command": "bundle-opportunities", "description": "Market-basket bundle/cross-sell/virtual-kit recommendations with rejection reasons."},
+    {"name": "Vendor ops", "command": "vendor-ops", "description": "Local-file vendor readiness, deductions, PO watch, and scorecard workflows without Vendor Central API calls."},
+    {"name": "Digest", "command": "digest daily, digest weekly", "description": "Owner-facing daily and weekly reports safe for empty datasets."}
+  ],
+  "verification": [
+    "gofmt -w ./cmd ./internal",
+    "go vet ./...",
+    "go test ./...",
+    "go build ./cmd/amazon-operator-intel-pp-cli"
+  ]
+}
