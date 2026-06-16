@@ -101,7 +101,7 @@ func TestSyncAndAnalysisCommands(t *testing.T) {
 	if got, err := run(t, home, "--profile", "demo", "sync"); err != nil || !strings.Contains(got, "synced 4 pages") {
 		t.Fatalf("sync failed: %v %s", err, got)
 	}
-	checks := [][]string{{"money-pages"}, {"query-revenue", "jackets"}, {"explain-drop"}, {"refresh-queue"}, {"opportunity-gap"}, {"quick-wins"}, {"revenue-at-risk"}, {"refresh-brief", "jackets"}, {"topic-clusters"}, {"source-coverage"}, {"internal-link-plan"}, {"experiment-plan", "jackets"}, {"forecast-impact"}, {"stale-winners"}, {"digest", "weekly"}}
+	checks := [][]string{{"movers"}, {"money-pages"}, {"query-revenue", "jackets"}, {"explain-drop"}, {"refresh-queue"}, {"opportunity-gap"}, {"quick-wins"}, {"revenue-at-risk"}, {"refresh-brief", "jackets"}, {"topic-clusters"}, {"source-coverage"}, {"internal-link-plan"}, {"experiment-plan", "jackets"}, {"forecast-impact"}, {"stale-winners"}, {"digest", "weekly"}}
 	for _, args := range checks {
 		got, err := run(t, home, append([]string{"--profile", "demo"}, args...)...)
 		if err != nil {
@@ -113,6 +113,75 @@ func TestSyncAndAnalysisCommands(t *testing.T) {
 	}
 	if _, err := run(t, filepath.Join(home, "missing"), "money-pages"); err == nil {
 		t.Fatal("expected missing data error")
+	}
+}
+
+func TestSyncWritesProvenanceSnapshotsAndMovers(t *testing.T) {
+	home := t.TempDir()
+	first := filepath.Join(home, "first.json")
+	second := filepath.Join(home, "second.json")
+	if err := os.WriteFile(first, []byte(`{
+	  "profile": "custom",
+	  "synced_at": "2026-06-01T00:00:00Z",
+	  "source": "test-first",
+	  "pages": [
+	    {"url":"/collections/jackets","title":"Jackets","clicks":80,"impressions":8000,"ctr":0.01,"position":22,"sessions":500,"conversions":10,"revenue":5000,"previous_clicks":90,"previous_sessions":520,"previous_revenue":5200,"sources":{"gsc":{"query_sample":"jackets"}}},
+	    {"url":"/blog/boots","title":"Boots","clicks":120,"impressions":9000,"ctr":0.013,"position":4,"sessions":600,"conversions":8,"revenue":3000,"previous_clicks":130,"previous_sessions":620,"previous_revenue":3400,"sources":{"gsc":{"query_sample":"boots"}}}
+	  ]
+	}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(second, []byte(`{
+	  "profile": "custom",
+	  "synced_at": "2026-06-08T00:00:00Z",
+	  "source": "test-second",
+	  "pages": [
+	    {"url":"/collections/jackets","title":"Jackets","clicks":160,"impressions":9000,"ctr":0.017,"position":12,"sessions":700,"conversions":12,"revenue":6200,"previous_clicks":80,"previous_sessions":500,"previous_revenue":5000,"sources":{"gsc":{"query_sample":"jackets"}}},
+	    {"url":"/blog/boots","title":"Boots","clicks":70,"impressions":8500,"ctr":0.008,"position":8,"sessions":420,"conversions":5,"revenue":2100,"previous_clicks":120,"previous_sessions":600,"previous_revenue":3000,"sources":{"gsc":{"query_sample":"boots"}}}
+	  ]
+	}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := run(t, home, "--profile", "custom", "sync", "--import", first); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := run(t, home, "--profile", "custom", "sync", "--import", second); err != nil {
+		t.Fatal(err)
+	}
+	snaps, err := store.New(home).LatestSnapshots("custom", 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(snaps) != 2 {
+		t.Fatalf("expected two snapshots, got %#v", snaps)
+	}
+	if snaps[0].SchemaVersion != store.SnapshotSchemaVersion || snaps[0].InputHashes["import_file"] == "" || snaps[0].DateRange.StartDate == "" {
+		t.Fatalf("snapshot missing provenance: %#v", snaps[0])
+	}
+	got, err := run(t, home, "--profile", "custom", "--agent", "movers")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc map[string]any
+	if err := json.Unmarshal([]byte(got), &doc); err != nil {
+		t.Fatalf("movers did not emit JSON: %v\n%s", err, got)
+	}
+	if !strings.Contains(got, `"new_strike_zone_entrants"`) || !strings.Contains(got, `"new_revenue_at_risk"`) {
+		t.Fatalf("movers missing sections: %s", got)
+	}
+	learning, err := os.ReadFile(store.New(home).LearningsPath("custom"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(learning), "Movers snapshot diff") {
+		t.Fatalf("movers did not append learnings: %s", learning)
+	}
+	got, err = run(t, home, "--profile", "custom", "--agent", "digest", "weekly")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"movers"`) || !strings.Contains(got, `"recommended_next_command":"traffic-intel-pp-cli movers --profile custom"`) {
+		t.Fatalf("digest did not lead with movers: %s", got)
 	}
 }
 

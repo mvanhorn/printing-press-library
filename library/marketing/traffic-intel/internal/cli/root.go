@@ -13,6 +13,7 @@ import (
 	"time"
 	"unicode"
 
+	"github.com/mvanhorn/printing-press-library/library/internal/intelcli"
 	"github.com/mvanhorn/printing-press-library/library/marketing/traffic-intel/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -43,7 +44,7 @@ func newRootCmd(f *rootFlags) *cobra.Command {
 		}
 		return nil
 	}
-	cmd.AddCommand(agentContextCmd(f), doctorCmd(f), sourcesCmd(f), profileCmd(f), syncCmd(f), moneyPagesCmd(f), queryRevenueCmd(f), explainDropCmd(f), refreshQueueCmd(f), opportunityGapCmd(f), quickWinsCmd(f), revenueAtRiskCmd(f), refreshBriefCmd(f), cannibalizationCmd(f), topicClustersCmd(f), sourceCoverageCmd(f), internalLinkPlanCmd(f), experimentPlanCmd(f), forecastImpactCmd(f), staleWinnersCmd(f), digestCmd(f))
+	cmd.AddCommand(agentContextCmd(f), doctorCmd(f), sourcesCmd(f), profileCmd(f), syncCmd(f), moversCmd(f), moneyPagesCmd(f), queryRevenueCmd(f), explainDropCmd(f), refreshQueueCmd(f), opportunityGapCmd(f), quickWinsCmd(f), revenueAtRiskCmd(f), refreshBriefCmd(f), cannibalizationCmd(f), topicClustersCmd(f), sourceCoverageCmd(f), internalLinkPlanCmd(f), experimentPlanCmd(f), forecastImpactCmd(f), staleWinnersCmd(f), digestCmd(f))
 	return cmd
 }
 func st(f *rootFlags) *store.Store { return store.New(f.home) }
@@ -81,6 +82,7 @@ func agentContextCmd(f *rootFlags) *cobra.Command {
 				{"name": "sources doctor", "safe_for_agents": true, "description": "source-specific child adapter status without printing secrets"},
 				{"name": "profile save/list/show/delete", "safe_for_agents": true, "description": "manage local profile metadata"},
 				{"name": "sync", "safe_for_agents": true, "description": "load embedded ecommerce fixture, local JSON import, or opt-in child CLI sync; all/live/real require all source configs"},
+				{"name": "movers", "safe_for_agents": true, "description": "diff latest snapshot against the previous snapshot for climbers, droppers, new Strike-Zone entrants, and new revenue-at-risk"},
 				{"name": "money-pages", "safe_for_agents": true, "description": "rank landing pages by GA4 revenue/conversions"},
 				{"name": "query-revenue", "safe_for_agents": true, "description": "sum revenue for matching URLs/titles"},
 				{"name": "explain-drop", "safe_for_agents": true, "description": "combine GSC/GA4/Ahrefs deltas into drop explanations"},
@@ -271,6 +273,8 @@ func syncCmd(f *rootFlags) *cobra.Command {
 	var limit int
 	c := &cobra.Command{Use: "sync", Short: "Import local fixture, JSON data, or real child CLI data", RunE: func(cmd *cobra.Command, args []string) error {
 		var d store.DataSet
+		inputHashes := map[string]string{}
+		sourceVersions := map[string]string{"traffic-intel-pp-cli": version}
 		source = strings.ToLower(strings.TrimSpace(source))
 		if source == "" && (live || real) {
 			source = "all"
@@ -280,11 +284,13 @@ func syncCmd(f *rootFlags) *cobra.Command {
 		}
 		if importPath == "" && source == "" {
 			d = store.Fixture(f.profile)
+			inputHashes["embedded_fixture"] = intelcli.HashJSON(d.Pages)
 		} else if importPath != "" {
 			b, err := os.ReadFile(importPath)
 			if err != nil {
 				return err
 			}
+			inputHashes["import_file"] = intelcli.HashBytes(b)
 			if err := json.Unmarshal(b, &d); err != nil {
 				var pages []store.PageMetrics
 				if err2 := json.Unmarshal(b, &pages); err2 != nil {
@@ -316,7 +322,10 @@ func syncCmd(f *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			inputHashes = d.Provenance.InputHashes
+			sourceVersions = intelcli.MergeStringMaps(sourceVersions, d.Provenance.SourceCommandVersions)
 		}
+		ensureSyncProvenance(&d, startDate, endDate, sourceVersions, inputHashes)
 		if err := st(f).SaveData(d); err != nil {
 			return err
 		}
@@ -375,12 +384,16 @@ func syncFromChildCLIs(profile, source string, opts childSyncOptions) (store.Dat
 	merged := map[string]store.PageMetrics{}
 	order := []string{}
 	used := []string{}
+	inputHashes := map[string]string{}
+	sourceVersions := map[string]string{}
 	for _, def := range defs {
-		pages, command, err := runChildSource(def)
+		pages, command, outputHash, childVersion, err := runChildSource(def)
 		if err != nil {
 			return store.DataSet{}, err
 		}
 		used = append(used, def.name)
+		inputHashes[def.name] = outputHash
+		sourceVersions[def.name] = childVersion
 		for _, page := range pages {
 			key := pageKey(page.URL)
 			if key == "" {
@@ -404,7 +417,19 @@ func syncFromChildCLIs(profile, source string, opts childSyncOptions) (store.Dat
 		}
 		pages = append(pages, p)
 	}
-	return store.DataSet{Profile: profile, SyncedAt: now, Source: "child-cli:" + strings.Join(used, "+"), Pages: pages}, nil
+	start, end := defaultDateRange(opts.StartDate, opts.EndDate)
+	return store.DataSet{
+		Profile:  profile,
+		SyncedAt: now,
+		Source:   "child-cli:" + strings.Join(used, "+"),
+		Provenance: store.DataProvenance{
+			SchemaVersion:         "traffic-intel.provenance/v1",
+			DateRange:             store.DateRange{StartDate: start, EndDate: end},
+			SourceCommandVersions: sourceVersions,
+			InputHashes:           inputHashes,
+		},
+		Pages: pages,
+	}, nil
 }
 
 func childSourceDefs(opts childSyncOptions) ([]childSourceDef, error) {
@@ -476,6 +501,27 @@ func defaultDateRange(start, end string) (string, string) {
 	return start, end
 }
 
+func ensureSyncProvenance(d *store.DataSet, startDate, endDate string, sourceVersions, inputHashes map[string]string) {
+	if d.Profile == "" {
+		d.Profile = "default"
+	}
+	if d.SyncedAt.IsZero() {
+		d.SyncedAt = time.Now().UTC()
+	}
+	if d.Provenance.SchemaVersion == "" {
+		d.Provenance.SchemaVersion = "traffic-intel.provenance/v1"
+	}
+	if d.Provenance.DateRange.StartDate == "" && d.Provenance.DateRange.EndDate == "" {
+		start, end := defaultDateRange(startDate, endDate)
+		d.Provenance.DateRange = store.DateRange{StartDate: start, EndDate: end}
+	}
+	d.Provenance.SourceCommandVersions = intelcli.MergeStringMaps(d.Provenance.SourceCommandVersions, sourceVersions)
+	d.Provenance.InputHashes = intelcli.MergeStringMaps(d.Provenance.InputHashes, inputHashes)
+	if len(d.Provenance.InputHashes) == 0 {
+		d.Provenance.InputHashes = map[string]string{"dataset": intelcli.HashJSON(d.Pages)}
+	}
+}
+
 func firstNonEmpty(values ...string) string {
 	for _, v := range values {
 		if strings.TrimSpace(v) != "" {
@@ -485,21 +531,21 @@ func firstNonEmpty(values ...string) string {
 	return ""
 }
 
-func runChildSource(def childSourceDef) ([]store.PageMetrics, string, error) {
+func runChildSource(def childSourceDef) ([]store.PageMetrics, string, string, string, error) {
 	command := def.binary + " " + strings.Join(def.args, " ")
 	c := exec.Command(def.binary, def.args...)
 	b, err := c.Output()
 	if err != nil {
 		if ee, ok := err.(*exec.ExitError); ok {
-			return nil, command, fmt.Errorf("%s failed: %w: %s", def.name, err, strings.TrimSpace(string(ee.Stderr)))
+			return nil, command, "", "", fmt.Errorf("%s failed: %w: %s", def.name, err, strings.TrimSpace(string(ee.Stderr)))
 		}
-		return nil, command, fmt.Errorf("%s failed: %w", def.name, err)
+		return nil, command, "", "", fmt.Errorf("%s failed: %w", def.name, err)
 	}
 	pages, err := parseChildPages(def.name, b)
 	if err != nil {
-		return nil, command, fmt.Errorf("%s returned invalid JSON: %w", def.name, err)
+		return nil, command, "", "", fmt.Errorf("%s returned invalid JSON: %w", def.name, err)
 	}
-	return pages, command, nil
+	return pages, command, intelcli.HashBytes(b), intelcli.ChildCLIVersion(def.binary), nil
 }
 
 func mergeSource(dst, src store.PageMetrics, source, command string) store.PageMetrics {
@@ -786,6 +832,11 @@ func explainDropCmd(f *rootFlags) *cobra.Command {
 					cause = "conversion or order-value decline"
 				}
 				explanations = append(explanations, map[string]any{"url": p.URL, "click_delta": clickDelta, "session_delta": sessionDelta, "revenue_delta": revenueDelta, "likely_cause": cause, "next_action": "refresh SERP, inspect changed queries, and update/relink page"})
+			}
+		}
+		if len(explanations) > 0 {
+			if err := st(f).AppendLearning(d.Profile, fmt.Sprintf("explain-drop found %d dropping pages for query %q; top target: %v", len(explanations), q, explanations[0]["url"])); err != nil {
+				return err
 			}
 		}
 		return out(cmd, f, explanations, fmt.Sprintf("found %d dropping pages\n", len(explanations)))
@@ -1132,6 +1183,9 @@ func experimentPlanCmd(f *rootFlags) *cobra.Command {
 			return fmt.Errorf("no page matching %q in profile %q", args[0], f.profile)
 		}
 		plan := experimentPlan(p)
+		if err := st(f).AppendLearning(d.Profile, fmt.Sprintf("experiment-plan generated for %s; success metric: %v", p.URL, plan["primary_success_metric"])); err != nil {
+			return err
+		}
 		human := fmt.Sprintf("Experiment plan: %s\nprimary query: %s\nsuccess metric: %s\n", p.URL, primaryTopic(p), plan["primary_success_metric"])
 		return out(cmd, f, plan, human)
 	}}
@@ -1224,11 +1278,17 @@ func digestCmd(f *rootFlags) *cobra.Command {
 		if len(d.Pages) > 0 {
 			topMoneyPage = sortedPages(d, func(p store.PageMetrics) float64 { return p.Revenue })[0].URL
 		}
-		digest := map[string]any{"profile": d.Profile, "synced_at": d.SyncedAt, "pages": len(d.Pages), "clicks": clicks, "sessions": sessions, "revenue": revenue, "top_money_page": topMoneyPage, "recommended_next_command": "traffic-intel-pp-cli refresh-queue --profile " + d.Profile}
+		digest := map[string]any{"profile": d.Profile, "synced_at": d.SyncedAt, "pages": len(d.Pages), "clicks": clicks, "sessions": sessions, "revenue": revenue, "top_money_page": topMoneyPage, "recommended_next_command": "traffic-intel-pp-cli movers --profile " + d.Profile}
+		moverLine := "movers: no prior snapshot yet"
+		if snaps, err := st(f).LatestSnapshots(f.profile, 2); err == nil && len(snaps) > 1 {
+			movers := buildMovers(snaps[0], snaps[1], 5)
+			digest["movers"] = map[string]any{"climbers": len(movers.Climbers), "droppers": len(movers.Droppers), "new_strike_zone_entrants": len(movers.NewStrikeZone), "new_revenue_at_risk": len(movers.NewRevenueAtRisk), "callouts": movers.Callouts}
+			moverLine = fmt.Sprintf("movers: %d climbers, %d droppers, %d new Strike Zone entrants, %d new revenue-at-risk", len(movers.Climbers), len(movers.Droppers), len(movers.NewStrikeZone), len(movers.NewRevenueAtRisk))
+		}
 		if len(d.Pages) == 0 {
 			digest["note"] = "no pages in local dataset; run sync --import with page metrics or sync without --import for the fixture"
 		}
-		return out(cmd, f, digest, fmt.Sprintf("Weekly digest for %s\npages: %d\nclicks: %d\nsessions: %d\nrevenue: %.2f\ntop money page: %s\n", d.Profile, len(d.Pages), clicks, sessions, revenue, topMoneyPage))
+		return out(cmd, f, digest, fmt.Sprintf("Weekly digest for %s\nAct on what's already moving.\n%s\npages: %d\nclicks: %d\nsessions: %d\nrevenue: %.2f\ntop money page: %s\n", d.Profile, moverLine, len(d.Pages), clicks, sessions, revenue, topMoneyPage))
 	}})
 	return cmd
 }

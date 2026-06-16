@@ -48,7 +48,12 @@
     {
       "name": "Unified source sync",
       "command": "sync",
-      "description": "sync imports fixture/local data or shells out to GSC, GA4, and Ahrefs child CLIs and normalizes page metrics into one local store"
+      "description": "sync imports fixture/local data or shells out to GSC, GA4, and Ahrefs child CLIs, normalizes page metrics into one local store, and appends provenance-rich dated snapshots"
+    },
+    {
+      "name": "Snapshot movers",
+      "command": "movers",
+      "description": "movers diffs the latest snapshot against the previous snapshot for climbers, droppers, new Strike Zone entrants, and new revenue-at-risk pages while appending learnings"
     },
     {
       "name": "Money pages",
@@ -128,7 +133,7 @@
     {
       "name": "Weekly digest",
       "command": "digest weekly",
-      "description": "digest weekly produces a local-first traffic and revenue summary that handles empty datasets cleanly"
+      "description": "digest weekly leads with movers and produces a local-first traffic and revenue summary that handles empty datasets cleanly"
     }
   ],
   "sources": [

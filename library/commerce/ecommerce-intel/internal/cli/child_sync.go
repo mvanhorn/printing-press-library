@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/ecommerce-intel/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/internal/intelcli"
 )
 
 type childSyncOptions struct {
@@ -60,17 +61,28 @@ func syncFromChildCLIs(profile, source string, base store.DataSet, opts childSyn
 		base.Profile = profile
 	}
 	used := []string{}
+	inputHashes := map[string]string{}
+	sourceVersions := map[string]string{}
 	for _, def := range defs {
-		entities, command, err := runChildSource(def)
+		entities, command, outputHash, childVersion, err := runChildSource(def)
 		if err != nil {
 			return store.DataSet{}, err
 		}
 		used = append(used, def.name)
+		inputHashes[def.name] = outputHash
+		sourceVersions[def.name] = childVersion
 		mergeChildEntities(&base, entities, def.name, command)
 	}
 	base.Profile = profile
 	base.Source = "child-cli:" + strings.Join(used, "+")
 	base.SyncedAt = time.Now().UTC()
+	start, end := defaultDateRange(opts.StartDate, opts.EndDate)
+	base.Provenance = store.DataProvenance{
+		SchemaVersion:         "ecommerce-intel.provenance/v1",
+		DateRange:             store.DateRange{StartDate: start, EndDate: end},
+		SourceCommandVersions: sourceVersions,
+		InputHashes:           inputHashes,
+	}
 	return base, nil
 }
 
@@ -146,18 +158,7 @@ func sourceConfigHint(source string) string {
 }
 
 func defaultDateRange(start, end string) (string, string) {
-	if end == "" {
-		end = time.Now().UTC().AddDate(0, 0, -1).Format("2006-01-02")
-	}
-	if start == "" {
-		t, err := time.Parse("2006-01-02", end)
-		if err == nil {
-			start = t.AddDate(0, 0, -7).Format("2006-01-02")
-		} else {
-			start = end
-		}
-	}
-	return start, end
+	return intelcli.DefaultDateRange(start, end)
 }
 
 func firstNonEmpty(values ...string) string {
@@ -169,7 +170,7 @@ func firstNonEmpty(values ...string) string {
 	return ""
 }
 
-func runChildSource(def childSourceDef) (childEntities, string, error) {
+func runChildSource(def childSourceDef) (childEntities, string, string, string, error) {
 	command := def.binary + " " + strings.Join(def.args, " ")
 	c := exec.Command(def.binary, def.args...)
 	if len(def.env) > 0 {
@@ -178,15 +179,15 @@ func runChildSource(def childSourceDef) (childEntities, string, error) {
 	b, err := c.Output()
 	if err != nil {
 		if ee, ok := err.(*exec.ExitError); ok {
-			return childEntities{}, command, fmt.Errorf("%s failed: %w: %s", def.name, err, strings.TrimSpace(string(ee.Stderr)))
+			return childEntities{}, command, "", "", fmt.Errorf("%s failed: %w: %s", def.name, err, strings.TrimSpace(string(ee.Stderr)))
 		}
-		return childEntities{}, command, fmt.Errorf("%s failed: %w", def.name, err)
+		return childEntities{}, command, "", "", fmt.Errorf("%s failed: %w", def.name, err)
 	}
 	entities, err := parseChildEntities(def.name, b)
 	if err != nil {
-		return childEntities{}, command, fmt.Errorf("%s returned invalid JSON: %w", def.name, err)
+		return childEntities{}, command, "", "", fmt.Errorf("%s returned invalid JSON: %w", def.name, err)
 	}
-	return entities, command, nil
+	return entities, command, intelcli.HashBytes(b), intelcli.ChildCLIVersion(def.binary), nil
 }
 
 func parseChildEntities(source string, b []byte) (childEntities, error) {

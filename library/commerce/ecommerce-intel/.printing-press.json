@@ -32,7 +32,8 @@
   "external_api_calls_in_mvp": false,
   "state_dir_env": "ECOMMERCE_INTEL_HOME",
   "novel_features": [
-    {"name": "Unified ecommerce live sync", "command": "sync", "description": "sync imports local fixture/JSON or shells out to Shopify, Klaviyo, GA4, GSC, and Ahrefs child CLIs and merges their --agent output"},
+    {"name": "Unified ecommerce live sync", "command": "sync", "description": "sync imports local fixture/JSON or shells out to Shopify, Klaviyo, GA4, GSC, and Ahrefs child CLIs, merges their --agent output, and appends provenance-rich dated snapshots"},
+    {"name": "Snapshot movers", "command": "movers", "description": "diffs the latest commerce snapshot against the previous snapshot for climbers, droppers, new Strike Zone entrants, and new revenue-at-risk products/pages/categories while appending learnings"},
     {"name": "Money products", "command": "money-products", "description": "ranks products by revenue and margin with inventory and SEO context"},
     {"name": "Opportunity queue", "command": "opportunities", "description": "prioritizes revenue, inventory, email, category, product, and GEO actions"},
     {"name": "GEO audit", "command": "geo-audit", "description": "assesses llms.txt, structured data, product facts, buying guides, and ChatGPT/Perplexity/AI Overviews readiness"},
@@ -44,7 +45,7 @@
     {"name": "Restock winners", "command": "restock-winners", "description": "prioritizes high-margin, high-velocity products before stockout or decay"},
     {"name": "Cannibalization", "command": "cannibalization", "description": "detects products competing for the same query/category and recommends a canonical product"},
     {"name": "Category clusters", "command": "category-clusters", "description": "aggregates revenue, sessions, clicks, backlinks, and decay by collection"},
-    {"name": "Weekly digest", "command": "digest weekly", "description": "produces a compact weekly ecommerce summary"}
+    {"name": "Weekly digest", "command": "digest weekly", "description": "leads with movers and produces a compact weekly ecommerce summary"}
   ],
   "sources": [
     {"name": "shopify", "child_binary": "shopify-pp-cli", "planned_command": "shopify-pp-cli products list --agent --all --data-source live", "env": ["SHOPIFY_SHOP", "SHOPIFY_ACCESS_TOKEN"]},

@@ -7,6 +7,7 @@ Private Printing Press CLI for local-first ecommerce intelligence across Shopify
 ```bash
 ecommerce-intel-pp-cli --agent agent-context
 ecommerce-intel-pp-cli sync
+ecommerce-intel-pp-cli movers
 ecommerce-intel-pp-cli dashboard
 ecommerce-intel-pp-cli opportunities
 ecommerce-intel-pp-cli geo-audit
@@ -26,6 +27,8 @@ Default behavior is local-first: fixture and JSON import modes make no external 
 
 `sync --source all` requires all five source configurations before it runs. A single source, such as `sync --source gsc --site sc-domain:example.com`, is allowed and merges into the existing local dataset while preserving unmatched pages/products as orphan evidence instead of deleting the rest of the store model.
 
+Every sync still updates `~/.ecommerce-intel-pp-cli/<profile>-data.json`, and also appends a dated snapshot under `snapshots/<profile>/`. Snapshots include schema version, source command versions, date range, and input hashes. Retention keeps daily snapshots for 30 days and weekly snapshots after that. The CLI also keeps `learnings/<profile>.md` for mover and outcome notes.
+
 Environment variables are presence-checked only: `ECOMMERCE_INTEL_HOME`, `SHOPIFY_SHOP`, `SHOPIFY_ACCESS_TOKEN`, `KLAVIYO_API_KEY`, `KLAVIYO_ACCOUNT`, `GA4_PROPERTY_ID`, `GSC_SITE_URL`, `AHREFS_TARGET`, `AHREFS_PROJECT`.
 
 ## Commands
@@ -35,6 +38,7 @@ Environment variables are presence-checked only: `ECOMMERCE_INTEL_HOME`, `SHOPIF
 - `sources doctor` — source adapter status and planned commands
 - `profile save/list/show/delete` — local profile metadata
 - `sync` — fixture/import or opt-in child CLI live sync
+- `movers` — snapshot diff for commerce climbers, droppers, new Strike Zone entrants, and new revenue-at-risk products/pages/categories
 - `dashboard` — KPI overview
 - `opportunities` — prioritized revenue/SEO/email/inventory/GEO opportunities
 - `action-plan` — 7-day action plan
@@ -53,7 +57,7 @@ Environment variables are presence-checked only: `ECOMMERCE_INTEL_HOME`, `SHOPIF
 - `restock-winners` — high-margin, high-velocity products to protect before stockout or decay
 - `cannibalization` — substitute/duplicate products competing for the same query or category
 - `category-clusters` — collection-level revenue, sessions, clicks, backlinks, and decay rollups
-- `digest weekly` — weekly executive digest
+- `digest weekly` — mover-led weekly executive digest
 - `geo-audit` — llms.txt, structured data, product facts, buying guides, ChatGPT, Perplexity, and Google AI Overviews readiness
 
 ## GEO / answer-engine readiness

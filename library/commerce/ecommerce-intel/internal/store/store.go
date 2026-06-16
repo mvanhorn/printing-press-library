@@ -9,6 +9,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/internal/intelcli"
 )
 
 type Profile struct {
@@ -28,16 +30,20 @@ type ProfilesFile struct {
 }
 
 type DataSet struct {
-	Profile    string      `json:"profile"`
-	SyncedAt   time.Time   `json:"synced_at"`
-	Source     string      `json:"source"`
-	Storefront Storefront  `json:"storefront"`
-	Products   []Product   `json:"products"`
-	Pages      []Page      `json:"pages"`
-	Categories []Category  `json:"categories"`
-	Emails     []EmailFlow `json:"emails"`
-	Markets    []Market    `json:"markets"`
+	Profile    string         `json:"profile"`
+	SyncedAt   time.Time      `json:"synced_at"`
+	Source     string         `json:"source"`
+	Provenance DataProvenance `json:"provenance,omitempty"`
+	Storefront Storefront     `json:"storefront"`
+	Products   []Product      `json:"products"`
+	Pages      []Page         `json:"pages"`
+	Categories []Category     `json:"categories"`
+	Emails     []EmailFlow    `json:"emails"`
+	Markets    []Market       `json:"markets"`
 }
+
+type DataProvenance = intelcli.DataProvenance
+type DateRange = intelcli.DateRange
 
 type Storefront struct {
 	Domain              string `json:"domain,omitempty"`
@@ -176,11 +182,7 @@ func (s *Store) dataPath(profile string) string {
 	return filepath.Join(s.Dir, safe(profile)+"-data.json")
 }
 func safe(v string) string {
-	v = strings.TrimSpace(strings.ToLower(v))
-	if v == "" {
-		return "default"
-	}
-	return strings.NewReplacer("/", "-", "\\", "-", ":", "-", " ", "-").Replace(v)
+	return intelcli.SafeName(v)
 }
 
 func (s *Store) LoadProfiles() (ProfilesFile, error) {
@@ -273,7 +275,13 @@ func (s *Store) SaveData(d DataSet) error {
 	if err := s.ensure(); err != nil {
 		return err
 	}
-	return writeJSON(s.dataPath(d.Profile), d)
+	if err := writeJSON(s.dataPath(d.Profile), d); err != nil {
+		return err
+	}
+	if err := s.SaveSnapshot(d); err != nil {
+		return err
+	}
+	return s.EnsureLearnings(d.Profile)
 }
 func (s *Store) LoadData(profile string) (DataSet, error) {
 	var d DataSet

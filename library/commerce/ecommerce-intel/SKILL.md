@@ -9,6 +9,7 @@ Use `ecommerce-intel-pp-cli` when an agent needs private ecommerce intelligence 
 - Use `sync --import <dataset.json>` for local client exports.
 - Use `sync --source <source>` for explicit child CLI live sync. `--live` and `--real` alias `--source all`; all-source sync requires Shopify, Klaviyo, GA4, GSC, and Ahrefs configuration before any child runs.
 - Single-source sync merges into the existing local dataset and preserves unmatched products/pages as orphan evidence rather than replacing the store model.
+- Run `movers` after at least two syncs to find commerce climbers, droppers, new Strike Zone entrants, and new revenue-at-risk surfaces.
 - Never print secrets. `doctor` and `sources doctor` report env var presence only.
 
 ## High-value workflows
@@ -17,6 +18,7 @@ Use `ecommerce-intel-pp-cli` when an agent needs private ecommerce intelligence 
 ecommerce-intel-pp-cli --agent agent-context
 ecommerce-intel-pp-cli --agent doctor
 ecommerce-intel-pp-cli sync --profile store
+ecommerce-intel-pp-cli movers --profile store
 ecommerce-intel-pp-cli dashboard --profile store
 ecommerce-intel-pp-cli opportunities --profile store --limit 5
 ecommerce-intel-pp-cli action-plan --profile store
@@ -48,6 +50,8 @@ ecommerce-intel-pp-cli category-clusters --profile store
 ## Source adapters
 
 The source adapters cover Shopify, Klaviyo, GA4, GSC, and Ahrefs child CLIs plus local JSON fixtures/import. Use `sources doctor` to confirm which optional binaries and env vars are available before live sync. Credentials and network access remain owned by the child CLIs.
+
+Every sync preserves the latest `<profile>-data.json` file and appends a dated snapshot under `snapshots/<profile>/` with schema version, source command versions, date range, and input hashes. Retention keeps daily snapshots for 30 days and weekly snapshots after that. Mover and outcome notes append to `learnings/<profile>.md`.
 
 ```bash
 ecommerce-intel-pp-cli sync --profile store --source shopify --shop example.myshopify.com

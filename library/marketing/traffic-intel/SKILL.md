@@ -8,6 +8,7 @@ Use `traffic-intel-pp-cli` when an agent needs a private, local-first view of tr
 - Run `traffic-intel-pp-cli --agent agent-context` before automated workflows and honor schema `traffic-intel.agent-context/v1`.
 - Run `traffic-intel-pp-cli --agent sources doctor` before live child CLI sync to check binary/env readiness.
 - Run `traffic-intel-pp-cli --profile <name> sync` before analysis commands if local data is missing.
+- Run `traffic-intel-pp-cli --profile <name> movers` after at least two syncs to identify climbers, droppers, new Strike Zone entrants, and new revenue-at-risk pages.
 - Prefer JSON via `--agent` for machine parsing.
 - Treat env var values as secrets; doctor output reports presence only.
 
@@ -20,6 +21,8 @@ The MVP combines local data shaped like:
 - Ahrefs: backlinks, referring domains, top keyword.
 
 Top-level `PageMetrics` fields remain available for simple ranking, while `sources.gsc`, `sources.ga4`, and `sources.ahrefs` preserve provenance for agents.
+
+Every sync preserves the latest `<profile>-data.json` file and appends a dated snapshot under `snapshots/<profile>/` with schema version, source command versions, date range, and input hashes. Retention keeps daily snapshots for 30 days and weekly snapshots after that. Mover and outcome notes append to `learnings/<profile>.md`.
 
 ## Child CLI Sync
 
@@ -40,6 +43,7 @@ Use `sources doctor` to discover whether those binaries are on `PATH` and whethe
 - `sources doctor` — source-specific child binary/env readiness table or JSON.
 - `profile save/list/show/delete` — profile state under `~/.traffic-intel-pp-cli`.
 - `sync` — embedded ecommerce fixture, `--import` local JSON, or opt-in child CLI sync.
+- `movers` — snapshot diff for climbers, droppers, new Strike Zone entrants, and new revenue-at-risk pages.
 - `money-pages` — revenue-ranked URLs.
 - `query-revenue` — revenue for matching URLs/titles.
 - `explain-drop` — local before/after drop explanations.
@@ -55,4 +59,4 @@ Use `sources doctor` to discover whether those binaries are on `PATH` and whethe
 - `experiment-plan <url-or-topic>` — title, meta, content, and measurement tests for one page.
 - `forecast-impact` — estimated click, conversion, and revenue upside from CTR-gap closure.
 - `stale-winners` — high-value pages to refresh before visible decay.
-- `digest weekly` — weekly summary; safe for empty datasets.
+- `digest weekly` — mover-led weekly summary; safe for empty datasets.

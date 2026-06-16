@@ -18,6 +18,7 @@ func agentCommands() []map[string]any {
 		{"name": "sources doctor", "safe_for_agents": true, "description": "source-specific child adapter status without printing secrets"},
 		{"name": "profile save/list/show/delete", "safe_for_agents": true, "description": "manage local profile metadata"},
 		{"name": "sync", "safe_for_agents": true, "description": "load embedded fixture, local JSON import, or opt-in child CLI sync"},
+		{"name": "movers", "safe_for_agents": true, "description": "diff latest snapshot against the previous snapshot for commerce climbers, droppers, new Strike-Zone entrants, and new revenue-at-risk"},
 		{"name": "dashboard", "safe_for_agents": true, "description": "commerce KPI overview"},
 		{"name": "opportunities", "safe_for_agents": true, "description": "prioritized revenue, SEO, GEO, email, and inventory opportunities"},
 		{"name": "action-plan", "safe_for_agents": true, "description": "7-day ecommerce action plan"},
@@ -130,6 +131,9 @@ func experimentPlanCmd(f *rootFlags) *cobra.Command {
 			return fmt.Errorf("no product matching %q in profile %q", args[0], f.profile)
 		}
 		plan := productExperimentPlan(p)
+		if err := st(f).AppendLearning(d.Profile, fmt.Sprintf("experiment-plan generated for %s; success metric: %v", first(p.Handle, p.Title), plan["primary_success_metric"])); err != nil {
+			return err
+		}
 		return out(cmd, f, plan, fmt.Sprintf("Experiment plan: %s\nsuccess metric: %s\n", first(p.Handle, p.Title), plan["primary_success_metric"]))
 	}}
 }
