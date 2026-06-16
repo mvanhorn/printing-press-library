@@ -16,5 +16,5 @@
     ".manuscripts/ga4-20260612/research/research.md",
     ".manuscripts/ga4-20260612/proofs/proofs.md"
   ],
-  "validated_outcome": "go test ./..., go build ./..., verify-skill, and 40 live smoke commands across two authorized GA4 properties passed."
+  "validated_outcome": "go test ./..., go build ./..., verify-skill, and 40 live smoke commands across BestSelf 280199692 and LittleMight 540652239 passed."
 }

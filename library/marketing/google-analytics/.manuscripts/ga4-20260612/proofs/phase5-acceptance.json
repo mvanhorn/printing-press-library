@@ -13,8 +13,8 @@
   "build": "pass",
   "live_smoke": {
     "properties": [
-      "$GA4_PROPERTY_ID",
-      "$GA4_PROPERTY_ID_2"
+      "280199692",
+      "540652239"
     ],
     "commands": 40,
     "failures": [],
