@@ -13,7 +13,7 @@ import (
 )
 
 const substackGlobalAPIBase = "https://substack.com/api/v1"
-const dryRunPublicationIDPlaceholder = "<resolved-at-runtime>"
+const dryRunPublicationIDPlaceholder = "dry-run-placeholder"
 
 func globalAPIPath(path string) string {
 	return substackGlobalAPIBase + path

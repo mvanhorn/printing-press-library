@@ -127,8 +127,8 @@ func TestDraftCreateDryRunWithoutPublicationIDDoesNotLookupLiveProfile(t *testin
 	if err := json.Unmarshal(bytes.TrimSpace(stdout.Bytes()), &envelope); err != nil {
 		t.Fatalf("parse stdout JSON %q: %v", stdout.String(), err)
 	}
-	if !strings.HasPrefix(envelope.Path, "https://substack.com/api/v1/drafts?publication_id=") {
-		t.Fatalf("path = %q, want global dry-run drafts route", envelope.Path)
+	if got, want := envelope.Path, "https://substack.com/api/v1/drafts?publication_id=dry-run-placeholder"; got != want {
+		t.Fatalf("path = %q, want %q", got, want)
 	}
 	if strings.Contains(envelope.Path, "trevinsays.substack.com") {
 		t.Fatalf("path = %q, should not use publication host", envelope.Path)
