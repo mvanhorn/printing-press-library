@@ -72,6 +72,7 @@ type RegistryEntry struct {
 	Description string   `json:"description"`
 	SearchTerms []string `json:"search_terms,omitempty"`
 	Path        string   `json:"path"`
+	Visibility  string   `json:"visibility,omitempty"`
 	sourceAPI   string
 	// Printer is the GitHub @handle of the human who originally ran the
 	// press for this CLI. Sourced verbatim from .printing-press.json's
@@ -148,6 +149,7 @@ type printingPressManifest struct {
 	AuthType           string   `json:"auth_type"`
 	AuthEnvVars        []string `json:"auth_env_vars"`
 	SpecFormat         string   `json:"spec_format"`
+	Visibility         string   `json:"visibility"`
 	NovelFeatures      []struct {
 		Name        string `json:"name"`
 		Command     string `json:"command"`
@@ -371,10 +373,11 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 	prior := existing[slug]
 
 	entry := RegistryEntry{
-		Name:     slug,
-		Category: category,
-		API:      apiDisplayName(pp, prior, slug),
-		Path:     filepath.ToSlash(dir),
+		Name:       slug,
+		Category:   category,
+		API:        apiDisplayName(pp, prior, slug),
+		Path:       filepath.ToSlash(dir),
+		Visibility: strings.TrimSpace(pp.Visibility),
 		sourceAPI: strings.TrimSpace(firstNonEmpty(
 			pp.DisplayName,
 			pp.APIName,
@@ -979,9 +982,13 @@ func renderCatalogTable(entries []RegistryEntry) string {
 	buf.WriteString("| Name | Skill | Release | What it does |\n")
 	buf.WriteString("|------|-------|---------|--------------|\n")
 	for _, e := range entries {
+		release := fmt.Sprintf("[latest](%s%s-current)", releaseTagURLBase, e.Name)
+		if strings.EqualFold(e.Visibility, "private") {
+			release = "private"
+		}
 		fmt.Fprintf(&buf,
-			"| [`%s`](%s/) | [`/pp-%s`](cli-skills/pp-%s/SKILL.md) | [latest](%s%s-current) | %s%s |\n",
-			e.Name, e.Path, e.Name, e.Name, releaseTagURLBase, e.Name, formatDescription(e.Description), printerSuffix(e),
+			"| [`%s`](%s/) | [`/pp-%s`](cli-skills/pp-%s/SKILL.md) | %s | %s%s |\n",
+			e.Name, e.Path, e.Name, e.Name, release, formatDescription(e.Description), printerSuffix(e),
 		)
 	}
 	return buf.String()
