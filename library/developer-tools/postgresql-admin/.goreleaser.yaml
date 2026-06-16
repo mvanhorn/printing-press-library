@@ -1,0 +1,8 @@
+version: 2
+project_name: postgresql-admin-pp-cli
+builds:
+  - id: postgresql-admin-pp-cli
+    main: ./cmd/postgresql-admin-pp-cli
+    binary: postgresql-admin-pp-cli
+    goos: [darwin, linux]
+    goarch: [amd64, arm64]

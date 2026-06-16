@@ -1,5 +1,6 @@
 {
   "schema_version": 1,
+  "run_id": "2026-06-16-000000",
   "generated_at": "2026-06-16T00:00:00Z",
   "printing_press_version": "3.9.0",
   "api_name": "postgresql-admin",
