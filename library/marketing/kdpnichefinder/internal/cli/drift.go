@@ -82,7 +82,7 @@ func newNovelDriftCmd(flags *rootFlags) *cobra.Command {
 				SELECT book_id, bucket, captured_on, estimated_monthly_sales, estimated_monthly_revenue, title
 				FROM niche_snapshots
 				WHERE captured_on >= ?
-				ORDER BY book_id, captured_on`, sinceDate)
+				ORDER BY book_id, bucket, captured_on`, sinceDate)
 			if err != nil {
 				return err
 			}
@@ -94,8 +94,12 @@ func newNovelDriftCmd(flags *rootFlags) *cobra.Command {
 				bucket  string
 				title   string
 			}
-			byBook := map[string][]snap{}
-			order := []string{}
+			// Key per (book_id, bucket): a book appearing in multiple buckets
+			// (the case `dupes` surfaces) keeps separate drift series so first
+			// vs last never compares revenue across different buckets.
+			type bookBucket struct{ id, bucket string }
+			byBook := map[bookBucket][]snap{}
+			order := []bookBucket{}
 			for rows.Next() {
 				var (
 					bookID  sql.NullString
@@ -108,11 +112,11 @@ func newNovelDriftCmd(flags *rootFlags) *cobra.Command {
 				if err := rows.Scan(&bookID, &bucket, &date, &sales, &revenue, &title); err != nil {
 					return err
 				}
-				id := bookID.String
-				if _, ok := byBook[id]; !ok {
-					order = append(order, id)
+				key := bookBucket{id: bookID.String, bucket: bucket.String}
+				if _, ok := byBook[key]; !ok {
+					order = append(order, key)
 				}
-				byBook[id] = append(byBook[id], snap{
+				byBook[key] = append(byBook[key], snap{
 					sales:   int(sales.Int64),
 					revenue: revenue.Float64,
 					bucket:  bucket.String,
@@ -123,8 +127,9 @@ func newNovelDriftCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			for _, id := range order {
-				snaps := byBook[id]
+			for _, key := range order {
+				id := key.id
+				snaps := byBook[key]
 				if len(snaps) < 2 {
 					continue
 				}
