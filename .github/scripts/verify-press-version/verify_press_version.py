@@ -53,6 +53,8 @@ def library_cli_dir_for(path: str) -> Path | None:
     parts = PurePosixPath(path).parts
     if len(parts) < 3 or parts[0] != "library":
         return None
+    if parts[1] == "internal":
+        return None
     return REPO_ROOT / parts[0] / parts[1] / parts[2]
 
 

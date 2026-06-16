@@ -132,6 +132,16 @@ class PublishPackageVerifierTest(unittest.TestCase):
         self.assertIn("### Publication Path", suggestions[0])
         self.assertIn("| `search` | Example search | Searches example data. |", suggestions[0])
 
+    def test_library_internal_shared_module_is_not_a_cli(self) -> None:
+        self.write("library/internal/intelcli/apply_core.go", "package intelcli\n")
+        self.git("add", ".")
+        self.git("commit", "-m", "update shared intelcli")
+
+        touched, files_by_dir = verifier.changed_cli_dirs(self.base)
+
+        self.assertEqual([], touched)
+        self.assertEqual({}, files_by_dir)
+
     def test_new_cli_directory_with_pp_cli_suffix_fails(self) -> None:
         cli_dir = self.tmp / "library" / "cloud" / "example-pp-cli"
         manifest = {

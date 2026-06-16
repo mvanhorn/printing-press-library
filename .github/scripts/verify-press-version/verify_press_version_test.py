@@ -103,6 +103,16 @@ class PressVersionVerifierTest(unittest.TestCase):
 
         self.assertEqual(0, self.run_quiet(base))
 
+    def test_library_internal_shared_module_is_not_a_cli(self) -> None:
+        base = self.commit_base()
+        self.git("switch", "-c", "feature")
+        self.write("library/internal/intelcli/apply_core.go", "package intelcli\n")
+        self.git("add", ".")
+        self.git("commit", "-m", "update shared intelcli")
+
+        self.assertEqual([], verifier.changed_cli_dirs(base))
+        self.assertEqual(0, self.run_quiet(base))
+
     def test_v_prefixed_newer_version_passes(self) -> None:
         base = self.commit_base()
         self.git("switch", "-c", "feature")
