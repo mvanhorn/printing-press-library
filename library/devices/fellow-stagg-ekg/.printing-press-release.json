@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "fellow-stagg-ekg",
+  "cli_name": "fellow-stagg-ekg-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-16T15:55:02Z",
+  "source_commit": "61c66be644223aab6fb8c98393a1971c09d84c1b",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260615-183500",
+  "changes": [
+    {
+      "title": "feat(fellow-stagg-ekg): add fellow-stagg-ekg",
+      "pr": 1215,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1215",
+      "commit": "61c66be644223aab6fb8c98393a1971c09d84c1b"
+    }
+  ]
+}
