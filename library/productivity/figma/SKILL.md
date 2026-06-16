@@ -202,9 +202,12 @@ figma-pp-cli agent find-node <figma-url-or-key> "Prototype" --depth 3 --agent
 
 ```bash
 figma-pp-cli agent shot <figma-url-or-key> "Cash transfer Intro" --max 3 --agent
+
+# For “a few screens of <page/section>”, render the section's child screens
+figma-pp-cli agent shot <figma-url-or-key> "Onboarding" --children --max 5 --agent
 ```
 
-Resolves the label (or a `?node-id=` in the URL), filters to screen-like nodes, renders PNGs, and downloads them to local files. Returns `{images: [{id, label, type, url, path}]}`. Attach `images[].path` directly in Slack. If `path` is missing, the render CDN was unreachable — use the (expiring) `url`. Render bytes come from a Figma S3 host distinct from `api.figma.com`; in brokered/egress-gateway setups that host must be allowed for local download to succeed, otherwise the command degrades to URL-only.
+Resolves the label (or a `?node-id=` in the URL), filters to screen-like nodes, renders PNGs, and downloads them to local files. Render requests are batched (`--batch`, default 2) and auto-split when Figma returns a render-timeout, so large multi-screen requests degrade to smaller renders instead of hard-failing. Add `--children` when the prompt asks for “a few screens of <page/section>” so one call renders screen-like frames under the matched page/section. Returns `{images: [{id, label, type, url, path}]}`. Attach `images[].path` directly in Slack. If `path` is missing, the render CDN was unreachable — use the (expiring) `url`. Render bytes come from a Figma S3 host distinct from `api.figma.com`; in brokered/egress-gateway setups that host must be allowed for local download to succeed, otherwise the command degrades to URL-only.
 
 ### Extract a frame for an AI codegen prompt
 

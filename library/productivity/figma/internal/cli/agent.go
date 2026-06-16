@@ -5,6 +5,7 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -16,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/figma/internal/client"
 	"github.com/spf13/cobra"
 )
 
@@ -315,6 +317,113 @@ func isLikelyScreenNode(n agentNodeSummary) bool {
 	return !stop[name]
 }
 
+func isRenderTimeoutError(err error) bool {
+	var apiErr *client.APIError
+	return errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusBadRequest && strings.Contains(strings.ToLower(apiErr.Body), "render timeout")
+}
+
+func isRenderTimeoutMessage(message string) bool {
+	return strings.Contains(strings.ToLower(message), "render timeout")
+}
+
+type renderImageResult struct {
+	Images map[string]*string
+	Errors map[string]string
+}
+
+// renderImages renders ids via /v1/images in batches, splitting a batch and
+// lowering scale once for single-id timeout failures. Render timeouts are
+// surfaced as nil URLs for unresolved ids; other errors are returned.
+func renderImages(c interface {
+	Get(string, map[string]string) (json.RawMessage, error)
+}, fileKey, format string, scale float64, ids []string, batch int) (map[string]*string, error) {
+	result, err := renderImagesDetailed(c, fileKey, format, scale, ids, batch)
+	if err != nil {
+		return nil, err
+	}
+	return result.Images, nil
+}
+
+func renderImagesDetailed(c interface {
+	Get(string, map[string]string) (json.RawMessage, error)
+}, fileKey, format string, scale float64, ids []string, batch int) (renderImageResult, error) {
+	if batch <= 0 {
+		batch = 1
+	}
+	result := renderImageResult{
+		Images: make(map[string]*string, len(ids)),
+		Errors: make(map[string]string),
+	}
+	var renderChunk func([]string, float64, bool) error
+	renderChunk = func(chunk []string, chunkScale float64, downgraded bool) error {
+		if len(chunk) == 0 {
+			return nil
+		}
+		raw, err := c.Get("/v1/images/"+fileKey, map[string]string{"ids": strings.Join(chunk, ","), "format": format, "scale": fmt.Sprintf("%g", chunkScale)})
+		if err != nil {
+			if isRenderTimeoutError(err) {
+				if len(chunk) > 1 {
+					mid := len(chunk) / 2
+					if err := renderChunk(chunk[:mid], chunkScale, downgraded); err != nil {
+						return err
+					}
+					return renderChunk(chunk[mid:], chunkScale, downgraded)
+				}
+				if !downgraded && chunkScale > 1 {
+					return renderChunk(chunk, 1, true)
+				}
+				result.Images[chunk[0]] = nil
+				result.Errors[chunk[0]] = "Render timeout, try requesting fewer or smaller images"
+				return nil
+			}
+			return err
+		}
+		var render struct {
+			Err    *string            `json:"err"`
+			Images map[string]*string `json:"images"`
+		}
+		if err := json.Unmarshal(raw, &render); err != nil {
+			return fmt.Errorf("decoding images response: %w", err)
+		}
+		if render.Err != nil && isRenderTimeoutMessage(*render.Err) {
+			if len(chunk) > 1 {
+				mid := len(chunk) / 2
+				if err := renderChunk(chunk[:mid], chunkScale, downgraded); err != nil {
+					return err
+				}
+				return renderChunk(chunk[mid:], chunkScale, downgraded)
+			}
+			if !downgraded && chunkScale > 1 {
+				return renderChunk(chunk, 1, true)
+			}
+			result.Images[chunk[0]] = nil
+			result.Errors[chunk[0]] = *render.Err
+			return nil
+		}
+		for id, url := range render.Images {
+			result.Images[id] = url
+		}
+		if render.Err != nil && *render.Err != "" {
+			for _, id := range chunk {
+				if url := result.Images[id]; url == nil || *url == "" {
+					result.Errors[id] = *render.Err
+				}
+			}
+		}
+		return nil
+	}
+	for start := 0; start < len(ids); start += batch {
+		end := start + batch
+		if end > len(ids) {
+			end = len(ids)
+		}
+		if err := renderChunk(ids[start:end], scale, false); err != nil {
+			return renderImageResult{}, err
+		}
+	}
+	return result, nil
+}
+
 func downloadToFile(httpClient *http.Client, srcURL, destPath string) (int64, error) {
 	if httpClient == nil {
 		httpClient = &http.Client{Timeout: 60 * time.Second}
@@ -479,6 +588,8 @@ func newAgentShotCmd(flags *rootFlags) *cobra.Command {
 	var types string
 	var outDir string
 	var noDownload bool
+	var batch int
+	var children bool
 
 	cmd := &cobra.Command{
 		Use:   "shot <figma-url-or-key> [query]",
@@ -518,7 +629,7 @@ and records download_error without failing the command.`,
 				return err
 			}
 
-			matches, ambiguous, err := resolveAgentShotMatches(flags, c, ref, query, types, depth, max)
+			matches, ambiguous, err := resolveAgentShotMatches(flags, c, ref, query, types, depth, max, children)
 			if err != nil {
 				return err
 			}
@@ -537,16 +648,9 @@ and records download_error without failing the command.`,
 			for _, m := range matches {
 				ids = append(ids, m.ID)
 			}
-			raw, err := c.Get("/v1/images/"+ref.FileKey, map[string]string{"ids": strings.Join(ids, ","), "format": format, "scale": fmt.Sprintf("%g", scale)})
+			renderResult, err := renderImagesDetailed(c, ref.FileKey, format, scale, ids, batch)
 			if err != nil {
 				return classifyAPIError(err, flags)
-			}
-			var render struct {
-				Err    *string            `json:"err"`
-				Images map[string]*string `json:"images"`
-			}
-			if err := json.Unmarshal(raw, &render); err != nil {
-				return fmt.Errorf("decoding images response: %w", err)
 			}
 
 			timeout := flags.timeout
@@ -561,10 +665,10 @@ and records download_error without failing the command.`,
 			}
 			for _, m := range matches {
 				item := map[string]any{"id": m.ID, "name": m.Name, "type": m.Type, "label": m.Label, "score": m.Score}
-				urlPtr := render.Images[m.ID]
+				urlPtr := renderResult.Images[m.ID]
 				if urlPtr == nil || *urlPtr == "" {
-					if render.Err != nil && *render.Err != "" {
-						item["render_error"] = *render.Err
+					if renderErr := renderResult.Errors[m.ID]; renderErr != "" {
+						item["render_error"] = renderErr
 					} else {
 						item["render_error"] = "no image returned"
 					}
@@ -602,12 +706,14 @@ and records download_error without failing the command.`,
 	cmd.Flags().StringVar(&types, "types", "SECTION,FRAME,COMPONENT,INSTANCE", "Comma-separated node types to include")
 	cmd.Flags().StringVar(&outDir, "out-dir", filepath.Join(os.TempDir(), "figma-pp-cli"), "Directory for downloaded screenshots")
 	cmd.Flags().BoolVar(&noDownload, "no-download", false, "Return render URLs without downloading image bytes")
+	cmd.Flags().IntVar(&batch, "batch", 2, "Node ids per render request; lower avoids Figma render timeouts")
+	cmd.Flags().BoolVar(&children, "children", false, "Render screen-like child frames when the top match is a page or section")
 	return cmd
 }
 
 func resolveAgentShotMatches(flags *rootFlags, c interface {
 	Get(string, map[string]string) (json.RawMessage, error)
-}, ref figmaRef, query, types string, depth, max int) ([]agentMatch, bool, error) {
+}, ref figmaRef, query, types string, depth, max int, children bool) ([]agentMatch, bool, error) {
 	if max <= 0 {
 		max = 1
 	}
@@ -650,6 +756,34 @@ func resolveAgentShotMatches(flags *rootFlags, c interface {
 	})
 	if max == 1 && len(matches) >= 2 && matches[0].Score == matches[1].Score {
 		return matches[:2], true, nil
+	}
+	if children && len(matches) > 0 {
+		top := matches[0]
+		topType := strings.ToUpper(strings.TrimSpace(top.Type))
+		if topType == "CANVAS" || topType == "SECTION" {
+			childMatches := []agentMatch{}
+			for _, n := range nodes {
+				childType := strings.ToUpper(strings.TrimSpace(n.Type))
+				if childType != "FRAME" && childType != "INSTANCE" && childType != "COMPONENT" {
+					continue
+				}
+				if !strings.HasPrefix(n.Label, top.Label+" / ") || !isLikelyScreenNode(n) {
+					continue
+				}
+				childMatches = append(childMatches, agentMatch{ID: n.ID, Name: n.Name, Type: n.Type, Label: n.Label, Score: top.Score})
+			}
+			sort.SliceStable(childMatches, func(i, j int) bool {
+				depthI := strings.Count(strings.TrimPrefix(childMatches[i].Label, top.Label+" / "), " / ")
+				depthJ := strings.Count(strings.TrimPrefix(childMatches[j].Label, top.Label+" / "), " / ")
+				if depthI != depthJ {
+					return depthI < depthJ
+				}
+				return childMatches[i].Label < childMatches[j].Label
+			})
+			if len(childMatches) > 0 {
+				matches = childMatches
+			}
+		}
 	}
 	seen := map[string]bool{}
 	out := []agentMatch{}
