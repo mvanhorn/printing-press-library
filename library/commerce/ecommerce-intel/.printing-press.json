@@ -32,19 +32,26 @@
   "external_api_calls_in_mvp": false,
   "state_dir_env": "ECOMMERCE_INTEL_HOME",
   "novel_features": [
-    {"name": "Unified ecommerce source plan", "command": "sync", "description": "sync imports local fixture/JSON or records Shopify, Klaviyo, GA4, GSC, and Ahrefs child CLI plans"},
+    {"name": "Unified ecommerce live sync", "command": "sync", "description": "sync imports local fixture/JSON or shells out to Shopify, Klaviyo, GA4, GSC, and Ahrefs child CLIs and merges their --agent output"},
     {"name": "Money products", "command": "money-products", "description": "ranks products by revenue and margin with inventory and SEO context"},
     {"name": "Opportunity queue", "command": "opportunities", "description": "prioritizes revenue, inventory, email, category, product, and GEO actions"},
     {"name": "GEO audit", "command": "geo-audit", "description": "assesses llms.txt, structured data, product facts, buying guides, and ChatGPT/Perplexity/AI Overviews readiness"},
     {"name": "Inventory risk", "command": "inventory-risk", "description": "flags stockouts and low days-of-stock that threaten revenue"},
+    {"name": "Source coverage", "command": "source-coverage", "description": "audits product, page, category, and email-flow evidence across Shopify, Klaviyo, GA4, GSC, and Ahrefs"},
+    {"name": "Merchandising link plan", "command": "merchandising-link-plan", "description": "recommends collection-to-PDP and PDP-to-PDP internal links by category, revenue, and link equity"},
+    {"name": "Experiment plan", "command": "experiment-plan", "description": "turns a product into PDP offer, schema, content, and measurement experiments"},
+    {"name": "Forecast impact", "command": "forecast-impact", "description": "estimates revenue upside from conversion, CTR, and inventory gaps"},
+    {"name": "Restock winners", "command": "restock-winners", "description": "prioritizes high-margin, high-velocity products before stockout or decay"},
+    {"name": "Cannibalization", "command": "cannibalization", "description": "detects products competing for the same query/category and recommends a canonical product"},
+    {"name": "Category clusters", "command": "category-clusters", "description": "aggregates revenue, sessions, clicks, backlinks, and decay by collection"},
     {"name": "Weekly digest", "command": "digest weekly", "description": "produces a compact weekly ecommerce summary"}
   ],
   "sources": [
-    {"name": "shopify", "child_binary": "shopify-pp-cli", "planned_command": "shopify-pp-cli products/export --agent --shop <shop>", "env": ["SHOPIFY_SHOP", "SHOPIFY_ACCESS_TOKEN"]},
-    {"name": "klaviyo", "child_binary": "klaviyo-pp-cli", "planned_command": "klaviyo-pp-cli reporting flows --agent --account <account>", "env": ["KLAVIYO_API_KEY", "KLAVIYO_ACCOUNT"]},
-    {"name": "ga4", "child_binary": "google-analytics-pp-cli", "planned_command": "google-analytics-pp-cli ecommerce products --agent --property <property>", "env": ["GA4_PROPERTY_ID"]},
-    {"name": "gsc", "child_binary": "google-search-console-pp-cli", "planned_command": "google-search-console-pp-cli webmasters query-search-analytics <site> --agent --dimensions [\"page\"]", "env": ["GSC_SITE_URL"]},
-    {"name": "ahrefs", "child_binary": "ahrefs-pp-cli", "planned_command": "ahrefs-pp-cli site-explorer top-pages --agent --target <target>", "env": ["AHREFS_TARGET", "AHREFS_PROJECT"]}
+    {"name": "shopify", "child_binary": "shopify-pp-cli", "planned_command": "shopify-pp-cli products list --agent --all --data-source live", "env": ["SHOPIFY_SHOP", "SHOPIFY_ACCESS_TOKEN"]},
+    {"name": "klaviyo", "child_binary": "klaviyo-pp-cli", "planned_command": "klaviyo-pp-cli report flow-comparison --agent --data-source live", "env": ["KLAVIYO_API_KEY", "KLAVIYO_ACCOUNT"]},
+    {"name": "ga4", "child_binary": "google-analytics-pp-cli", "planned_command": "google-analytics-pp-cli top-pages --agent --property <property> --start <start> --end <end>", "env": ["GA4_PROPERTY_ID"]},
+    {"name": "gsc", "child_binary": "google-search-console-pp-cli", "planned_command": "google-search-console-pp-cli webmasters query-search-analytics <site> --agent --dimensions [\"page\"] --start-date <start> --end-date <end>", "env": ["GSC_SITE_URL"]},
+    {"name": "ahrefs", "child_binary": "ahrefs-pp-cli", "planned_command": "ahrefs-pp-cli site-explorer top-pages --agent --target <target> --date <date>", "env": ["AHREFS_TARGET", "AHREFS_PROJECT"]}
   ],
-  "verification": ["gofmt -w ./cmd ./internal", "go test ./...", "go build ./cmd/ecommerce-intel-pp-cli", "go run ./cmd/ecommerce-intel-pp-cli --agent agent-context", "go run ./cmd/ecommerce-intel-pp-cli --agent sources doctor"]
+  "verification": ["gofmt -w ./cmd ./internal", "go test ./...", "go build ./cmd/ecommerce-intel-pp-cli", "go run ./cmd/ecommerce-intel-pp-cli --agent agent-context", "go run ./cmd/ecommerce-intel-pp-cli --agent sources doctor", "go run ./cmd/ecommerce-intel-pp-cli --agent source-coverage", "go run ./cmd/ecommerce-intel-pp-cli --agent forecast-impact"]
 }

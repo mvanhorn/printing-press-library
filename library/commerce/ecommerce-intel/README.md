@@ -12,17 +12,19 @@ ecommerce-intel-pp-cli opportunities
 ecommerce-intel-pp-cli geo-audit
 ```
 
-MVP/default behavior is local-first: fixture and JSON import modes make no external API calls. `sources doctor` documents optional child CLI adapters without printing secrets.
+Default behavior is local-first: fixture and JSON import modes make no external API calls. Live source sync is explicit through `sync --source <source>`, `sync --source all`, `--live`, or `--real`; credentials stay in the child CLIs and `sources doctor` reports only binary/env presence without printing secrets.
 
 ## Sources and adapters
 
-- Shopify: `shopify-pp-cli products/export --agent --shop <shop>`
-- Klaviyo: `klaviyo-pp-cli reporting flows --agent --account <account>`
-- GA4: `google-analytics-pp-cli ecommerce products --agent --property <property>`
-- GSC: `google-search-console-pp-cli webmasters query-search-analytics <site> --agent --dimensions ["page"]`
-- Ahrefs: `ahrefs-pp-cli site-explorer top-pages --agent --target <target>`
+- Shopify: `shopify-pp-cli products list --agent --all --data-source live`
+- Klaviyo: `klaviyo-pp-cli report flow-comparison --agent --data-source live`
+- GA4: `google-analytics-pp-cli top-pages --agent --property <property> --start <start> --end <end>`
+- GSC: `google-search-console-pp-cli webmasters query-search-analytics <site> --agent --dimensions ["page"] --start-date <start> --end-date <end>`
+- Ahrefs: `ahrefs-pp-cli site-explorer top-pages --agent --target <target> --date <date>`
 - Local JSON: `ecommerce-intel-pp-cli sync --import dataset.json`
 - Fixture: `ecommerce-intel-pp-cli sync`
+
+`sync --source all` requires all five source configurations before it runs. A single source, such as `sync --source gsc --site sc-domain:example.com`, is allowed and merges into the existing local dataset while preserving unmatched pages/products as orphan evidence instead of deleting the rest of the store model.
 
 Environment variables are presence-checked only: `ECOMMERCE_INTEL_HOME`, `SHOPIFY_SHOP`, `SHOPIFY_ACCESS_TOKEN`, `KLAVIYO_API_KEY`, `KLAVIYO_ACCOUNT`, `GA4_PROPERTY_ID`, `GSC_SITE_URL`, `AHREFS_TARGET`, `AHREFS_PROJECT`.
 
@@ -32,7 +34,7 @@ Environment variables are presence-checked only: `ECOMMERCE_INTEL_HOME`, `SHOPIF
 - `doctor` — local readiness checks
 - `sources doctor` — source adapter status and planned commands
 - `profile save/list/show/delete` — local profile metadata
-- `sync` — fixture/import/planned source sync
+- `sync` — fixture/import or opt-in child CLI live sync
 - `dashboard` — KPI overview
 - `opportunities` — prioritized revenue/SEO/email/inventory/GEO opportunities
 - `action-plan` — 7-day action plan
@@ -44,6 +46,13 @@ Environment variables are presence-checked only: `ECOMMERCE_INTEL_HOME`, `SHOPIF
 - `category-actions` — collection/category actions
 - `email-actions` — Klaviyo/email actions
 - `inventory-risk` — stockout/revenue protection queue
+- `source-coverage` — product/page/category/email evidence coverage across Shopify, Klaviyo, GA4, GSC, and Ahrefs
+- `merchandising-link-plan` — collection-to-PDP and PDP-to-PDP internal link recommendations
+- `experiment-plan` — PDP offer/content/schema/measurement experiments for one product
+- `forecast-impact` — estimated upside from conversion, CTR, and inventory gaps
+- `restock-winners` — high-margin, high-velocity products to protect before stockout or decay
+- `cannibalization` — substitute/duplicate products competing for the same query or category
+- `category-clusters` — collection-level revenue, sessions, clicks, backlinks, and decay rollups
 - `digest weekly` — weekly executive digest
 - `geo-audit` — llms.txt, structured data, product facts, buying guides, ChatGPT, Perplexity, and Google AI Overviews readiness
 

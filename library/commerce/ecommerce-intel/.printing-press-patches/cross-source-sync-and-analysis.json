@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "cross-source-sync-and-analysis",
+  "applied_at": "2026-06-16",
+  "base_run_id": "ecommerce-intel-20260615",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Ecommerce Intel must preserve opt-in child CLI live sync plus cross-source commerce analysis across products, pages, categories, and email flows.",
+  "reason": "The CLI is valuable as an operator layer only when Shopify, Klaviyo, GA4, GSC, and Ahrefs evidence is merged into the local store model with per-entity provenance while fixture/import modes remain offline.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/child_sync.go",
+    "internal/cli/ecommerce_analysis.go",
+    "internal/cli/root_test.go",
+    "internal/store/store.go",
+    "internal/store/store_test.go",
+    "README.md",
+    "SKILL.md",
+    ".printing-press.json"
+  ],
+  "validated_outcome": "`go test ./...` covers default offline sync, all-source missing-config errors, fake child CLI execution, merge/provenance behavior, parser aliases, and the new analysis commands over fixture data."
+}
