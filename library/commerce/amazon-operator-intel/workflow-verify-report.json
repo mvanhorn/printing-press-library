@@ -1,0 +1,16 @@
+{
+  "schema_version": "printing-press.workflow-verify/v1",
+  "run_id": "amazon-operator-intel-20260616",
+  "status": "pass",
+  "checks": [
+    {"name": "gofmt", "status": "pass", "command": "gofmt -w ./cmd ./internal"},
+    {"name": "go vet", "status": "pass", "command": "go vet ./..."},
+    {"name": "go test", "status": "pass", "command": "go test ./..."},
+    {"name": "go build", "status": "pass", "command": "go build -o /tmp/amazon-operator-intel-pp-cli ./cmd/amazon-operator-intel-pp-cli"},
+    {"name": "fixture smoke", "status": "pass", "command": "go run ./cmd/amazon-operator-intel-pp-cli sync && required --agent commands"},
+    {"name": "expected missing config failure", "status": "pass", "command": "go run ./cmd/amazon-operator-intel-pp-cli sync --source all"},
+    {"name": "child CLI doctors", "status": "pass", "command": "amazon-operator-intel-pp-cli --agent doctor --deep"},
+    {"name": "child CLI auth smoke", "status": "pass", "command": "amazon-seller-pp-cli sellers --agent && amazon-ads-pp-cli profiles list --agent"},
+    {"name": "ads report preflight", "status": "pass", "command": "amazon-operator-intel-pp-cli sync --source ads --ads-profile-id <profile> --ads-report-dir <empty-dir>"}
+  ]
+}
