@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.6.1"
+var version = "1.1.0"
 
 type rootFlags struct {
 	asJSON      bool
@@ -25,8 +25,6 @@ type rootFlags struct {
 	propertyID  string
 	credentials string
 	timeout     time.Duration
-	client      *ga4.Client
-	key         ga4.ServiceAccountKey
 }
 
 func RootCmd() *cobra.Command { var f rootFlags; return newRootCmd(&f) }
@@ -47,7 +45,7 @@ Property resolution for data commands: --property, then GA4_PROPERTY_ID. The CLI
 	cmd.PersistentFlags().BoolVar(&flags.yes, "yes", false, "Assume yes for safe non-mutating confirmations")
 	cmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Agent mode: --json --compact --no-input --yes")
 	cmd.PersistentFlags().StringVar(&flags.propertyID, "property", "", "GA4 numeric property ID (defaults to GA4_PROPERTY_ID)")
-	cmd.PersistentFlags().StringVar(&flags.credentials, "credentials", "", "Service-account JSON key path (defaults to GOOGLE_APPLICATION_CREDENTIALS)")
+	cmd.PersistentFlags().StringVar(&flags.credentials, "credentials", "", "Service-account JSON key path (defaults to GOOGLE_APPLICATION_CREDENTIALS, then /Users/knox/.agents/google-service-account.json if present)")
 	cmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 30*time.Second, "HTTP request timeout")
 	cmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		if flags.agent {
@@ -65,9 +63,6 @@ Property resolution for data commands: --property, then GA4_PROPERTY_ID. The CLI
 }
 
 func (f *rootFlags) newClient() (*ga4.Client, ga4.ServiceAccountKey, error) {
-	if f.client != nil {
-		return f.client, f.key, nil
-	}
 	var key ga4.ServiceAccountKey
 	path := credentialPath(f)
 	if path == "" {
@@ -84,9 +79,7 @@ func (f *rootFlags) newClient() (*ga4.Client, ga4.ServiceAccountKey, error) {
 	if err != nil {
 		return nil, key, err
 	}
-	f.client = ga4.NewClient(tok, f.timeout)
-	f.key = key
-	return f.client, key, nil
+	return ga4.NewClient(tok, f.timeout), key, nil
 }
 
 func output(cmd *cobra.Command, f *rootFlags, v any, human string) error {
@@ -120,6 +113,9 @@ func credentialPath(f *rootFlags) string {
 	}
 	if p := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"); p != "" {
 		return p
+	}
+	if _, err := os.Stat("/Users/knox/.agents/google-service-account.json"); err == nil {
+		return "/Users/knox/.agents/google-service-account.json"
 	}
 	return ""
 }

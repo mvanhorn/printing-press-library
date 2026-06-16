@@ -71,6 +71,61 @@
       "description": "refresh-queue prioritizes pages to update using lost clicks, revenue risk, and link value"
     },
     {
+      "name": "Opportunity gap",
+      "command": "opportunity-gap",
+      "description": "opportunity-gap ranks high-impression near-ranking pages by expected CTR gap, GA4 business value, and Ahrefs link context"
+    },
+    {
+      "name": "Quick wins",
+      "command": "quick-wins",
+      "description": "quick-wins surfaces near-page-one pages with weak CTR and conversion or revenue value"
+    },
+    {
+      "name": "Revenue at risk",
+      "command": "revenue-at-risk",
+      "description": "revenue-at-risk ranks pages where organic or session declines overlap with commercial value"
+    },
+    {
+      "name": "Refresh brief",
+      "command": "refresh-brief",
+      "description": "refresh-brief creates an agent-ready page brief with likely issue, metrics, recommended actions, and follow-up commands"
+    },
+    {
+      "name": "Cannibalization",
+      "command": "cannibalization",
+      "description": "cannibalization groups pages competing for the same query or topic and recommends a canonical URL"
+    },
+    {
+      "name": "Topic clusters",
+      "command": "topic-clusters",
+      "description": "topic-clusters summarizes clicks, revenue, backlinks, and decay by inferred topic cluster"
+    },
+    {
+      "name": "Source coverage",
+      "command": "source-coverage",
+      "description": "source-coverage audits which pages have GSC, GA4, and Ahrefs evidence and which source syncs are missing"
+    },
+    {
+      "name": "Internal link plan",
+      "command": "internal-link-plan",
+      "description": "internal-link-plan recommends source and target pages for internal links using topic clusters, revenue, and link equity"
+    },
+    {
+      "name": "Experiment plan",
+      "command": "experiment-plan",
+      "description": "experiment-plan turns one page into title, meta, content, and measurement tests"
+    },
+    {
+      "name": "Forecast impact",
+      "command": "forecast-impact",
+      "description": "forecast-impact estimates click, conversion, and revenue upside from closing CTR gaps"
+    },
+    {
+      "name": "Stale winners",
+      "command": "stale-winners",
+      "description": "stale-winners finds high-value pages to refresh before visible decay"
+    },
+    {
       "name": "Weekly digest",
       "command": "digest weekly",
       "description": "digest weekly produces a local-first traffic and revenue summary that handles empty datasets cleanly"
@@ -93,7 +148,7 @@
       "name": "ahrefs",
       "child_binary": "ahrefs-pp-cli",
       "planned_command": "ahrefs-pp-cli site-explorer top-pages --agent --target <target> --date <date> --select url,sum_traffic,keywords,referring_domains,top_keyword",
-      "env": ["AHREFS_PROJECT"]
+      "env": ["AHREFS_PROJECT", "AHREFS_TARGET"]
     }
   ],
   "verification": [

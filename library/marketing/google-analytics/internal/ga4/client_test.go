@@ -27,11 +27,11 @@ func TestRunReportPostsTypedRequest(t *testing.T) {
 	defer srv.Close()
 	c := NewClient("tok", time.Second)
 	c.DataBase = srv.URL
-	out, st, err := c.RunReport(context.Background(), "$GA4_PROPERTY_ID", RunReportRequest{Metrics: []Metric{{Name: "sessions"}}})
+	out, st, err := c.RunReport(context.Background(), "280199692", RunReportRequest{Metrics: []Metric{{Name: "sessions"}}})
 	if err != nil || st != 200 {
 		t.Fatalf("%d %v", st, err)
 	}
-	if !strings.Contains(seenPath, "/properties/$GA4_PROPERTY_ID:runReport") || seenAuth != "Bearer tok" {
+	if !strings.Contains(seenPath, "/properties/280199692:runReport") || seenAuth != "Bearer tok" {
 		t.Fatalf("path/auth %q %q", seenPath, seenAuth)
 	}
 	if len(out.Rows) != 1 {
@@ -49,27 +49,5 @@ func TestAPIErrorIncludesStatus(t *testing.T) {
 	}
 	if _, ok := err.(APIError); !ok {
 		t.Fatalf("want APIError, got %T", err)
-	}
-}
-
-func TestAccountSummariesPaginates(t *testing.T) {
-	seenTokens := []string{}
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		seenTokens = append(seenTokens, r.URL.Query().Get("pageToken"))
-		if r.URL.Query().Get("pageToken") == "next" {
-			_, _ = w.Write([]byte(`{"accountSummaries":[{"name":"accountSummaries/2"}]}`))
-			return
-		}
-		_, _ = w.Write([]byte(`{"accountSummaries":[{"name":"accountSummaries/1"}],"nextPageToken":"next"}`))
-	}))
-	defer srv.Close()
-	c := NewClient("tok", time.Second)
-	c.AdminBase = srv.URL
-	out, st, err := c.AccountSummaries(context.Background())
-	if err != nil || st != 200 {
-		t.Fatalf("%d %v", st, err)
-	}
-	if len(out.AccountSummaries) != 2 || len(seenTokens) != 2 || seenTokens[1] != "next" {
-		t.Fatalf("pagination failed: summaries=%#v tokens=%#v", out.AccountSummaries, seenTokens)
 	}
 }

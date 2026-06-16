@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/mvanhorn/printing-press-library/library/marketing/traffic-intel/internal/store"
 	"github.com/spf13/cobra"
@@ -42,7 +43,7 @@ func newRootCmd(f *rootFlags) *cobra.Command {
 		}
 		return nil
 	}
-	cmd.AddCommand(agentContextCmd(f), doctorCmd(f), sourcesCmd(f), profileCmd(f), syncCmd(f), moneyPagesCmd(f), queryRevenueCmd(f), explainDropCmd(f), refreshQueueCmd(f), digestCmd(f))
+	cmd.AddCommand(agentContextCmd(f), doctorCmd(f), sourcesCmd(f), profileCmd(f), syncCmd(f), moneyPagesCmd(f), queryRevenueCmd(f), explainDropCmd(f), refreshQueueCmd(f), opportunityGapCmd(f), quickWinsCmd(f), revenueAtRiskCmd(f), refreshBriefCmd(f), cannibalizationCmd(f), topicClustersCmd(f), sourceCoverageCmd(f), internalLinkPlanCmd(f), experimentPlanCmd(f), forecastImpactCmd(f), staleWinnersCmd(f), digestCmd(f))
 	return cmd
 }
 func st(f *rootFlags) *store.Store { return store.New(f.home) }
@@ -72,17 +73,29 @@ func agentContextCmd(f *rootFlags) *cobra.Command {
 				{"name": "TRAFFIC_INTEL_HOME", "required": false, "purpose": "override local state directory", "present": envPresent("TRAFFIC_INTEL_HOME")},
 				{"name": "GSC_SITE_URL", "required": false, "purpose": "default Search Console site URL for child CLI sync", "present": envPresent("GSC_SITE_URL")},
 				{"name": "GA4_PROPERTY_ID", "required": false, "purpose": "default GA4 property id for child CLI sync", "present": envPresent("GA4_PROPERTY_ID")},
-				{"name": "AHREFS_PROJECT", "required": false, "purpose": "default Ahrefs target/domain for child CLI sync", "present": envPresent("AHREFS_PROJECT") || envPresent("AHREFS_TARGET")},
+				{"name": "AHREFS_PROJECT", "required": false, "purpose": "default Ahrefs project/target for child CLI sync", "present": envPresent("AHREFS_PROJECT")},
+				{"name": "AHREFS_TARGET", "required": false, "purpose": "default Ahrefs target/domain for child CLI sync", "present": envPresent("AHREFS_TARGET")},
 			},
 			"commands": []map[string]any{
 				{"name": "doctor", "safe_for_agents": true, "description": "local readiness, env presence, and optional child binary discovery"},
 				{"name": "sources doctor", "safe_for_agents": true, "description": "source-specific child adapter status without printing secrets"},
 				{"name": "profile save/list/show/delete", "safe_for_agents": true, "description": "manage local profile metadata"},
-				{"name": "sync", "safe_for_agents": true, "description": "load embedded ecommerce fixture, local JSON import, or requested child CLI source sync"},
+				{"name": "sync", "safe_for_agents": true, "description": "load embedded ecommerce fixture, local JSON import, or opt-in child CLI sync; all/live/real require all source configs"},
 				{"name": "money-pages", "safe_for_agents": true, "description": "rank landing pages by GA4 revenue/conversions"},
 				{"name": "query-revenue", "safe_for_agents": true, "description": "sum revenue for matching URLs/titles"},
 				{"name": "explain-drop", "safe_for_agents": true, "description": "combine GSC/GA4/Ahrefs deltas into drop explanations"},
 				{"name": "refresh-queue", "safe_for_agents": true, "description": "prioritize refreshes from lost clicks, revenue, and link value"},
+				{"name": "opportunity-gap", "safe_for_agents": true, "description": "rank high-impression near-ranking pages by CTR gap and business value"},
+				{"name": "quick-wins", "safe_for_agents": true, "description": "surface pages with near-page-one positions, weak CTR, and conversion/revenue value"},
+				{"name": "revenue-at-risk", "safe_for_agents": true, "description": "rank pages where organic/session declines overlap with revenue or conversion value"},
+				{"name": "refresh-brief", "safe_for_agents": true, "description": "generate an agent-ready refresh brief for one URL or topic"},
+				{"name": "cannibalization", "safe_for_agents": true, "description": "detect pages competing for the same query/topic and rank by revenue impact"},
+				{"name": "topic-clusters", "safe_for_agents": true, "description": "summarize clicks, revenue, backlinks, and decay by inferred topic cluster"},
+				{"name": "source-coverage", "safe_for_agents": true, "description": "audit which pages have GSC, GA4, and Ahrefs evidence and what is missing"},
+				{"name": "internal-link-plan", "safe_for_agents": true, "description": "recommend source and target pages for internal links by topic, revenue, and link equity"},
+				{"name": "experiment-plan", "safe_for_agents": true, "description": "turn one page into title, meta, content, and measurement tests"},
+				{"name": "forecast-impact", "safe_for_agents": true, "description": "estimate click and revenue upside from closing CTR gaps"},
+				{"name": "stale-winners", "safe_for_agents": true, "description": "find high-value pages to refresh before visible decay"},
 				{"name": "digest weekly", "safe_for_agents": true, "description": "weekly local summary; handles empty datasets"},
 			},
 			"source_plan": []map[string]string{
@@ -344,18 +357,19 @@ func syncFromChildCLIs(profile, source string, opts childSyncOptions) (store.Dat
 	if err != nil {
 		return store.DataSet{}, err
 	}
-	if source != "all" {
-		found := false
-		for _, def := range defs {
-			if def.name == source {
-				defs = []childSourceDef{def}
-				found = true
-				break
-			}
+	switch source {
+	case "all":
+		if missing := missingChildSources(defs, "gsc", "ga4", "ahrefs"); len(missing) > 0 {
+			return store.DataSet{}, fmt.Errorf("--source all requires gsc, ga4, and ahrefs configuration; missing %s", strings.Join(missing, ", "))
 		}
-		if !found {
-			return store.DataSet{}, fmt.Errorf("unknown source %q (want all, gsc, ga4, or ahrefs)", source)
+	case "gsc", "ga4", "ahrefs":
+		def, ok := findChildSource(defs, source)
+		if !ok {
+			return store.DataSet{}, fmt.Errorf("source %q is not configured; %s", source, sourceConfigHint(source))
 		}
+		defs = []childSourceDef{def}
+	default:
+		return store.DataSet{}, fmt.Errorf("unknown source %q (want all, gsc, ga4, or ahrefs)", source)
 	}
 
 	merged := map[string]store.PageMetrics{}
@@ -412,10 +426,39 @@ func childSourceDefs(opts childSyncOptions) ([]childSourceDef, error) {
 	if ahrefsTarget != "" {
 		defs = append(defs, childSourceDef{name: "ahrefs", binary: "ahrefs-pp-cli", args: []string{"site-explorer", "top-pages", "--agent", "--target", ahrefsTarget, "--date", ahrefsDate, "--mode", "subdomains", "--protocol", "both", "--limit", strconv.Itoa(opts.Limit), "--select", "url,sum_traffic,keywords,referring_domains,top_keyword"}})
 	}
-	if len(defs) == 0 {
-		return nil, fmt.Errorf("no child sources configured; provide --site/--ga-property/--ahrefs-target, a saved profile, or GSC_SITE_URL/GA4_PROPERTY_ID/AHREFS_TARGET")
-	}
 	return defs, nil
+}
+
+func findChildSource(defs []childSourceDef, source string) (childSourceDef, bool) {
+	for _, def := range defs {
+		if def.name == source {
+			return def, true
+		}
+	}
+	return childSourceDef{}, false
+}
+
+func missingChildSources(defs []childSourceDef, sources ...string) []string {
+	missing := []string{}
+	for _, source := range sources {
+		if _, ok := findChildSource(defs, source); !ok {
+			missing = append(missing, source)
+		}
+	}
+	return missing
+}
+
+func sourceConfigHint(source string) string {
+	switch source {
+	case "gsc":
+		return "provide --site, a saved profile site, or GSC_SITE_URL"
+	case "ga4":
+		return "provide --ga-property, a saved profile GA property, or GA4_PROPERTY_ID"
+	case "ahrefs":
+		return "provide --ahrefs-target, a saved profile Ahrefs project, AHREFS_TARGET, or AHREFS_PROJECT"
+	default:
+		return "provide --site/--ga-property/--ahrefs-target, a saved profile, or source env vars"
+	}
 }
 
 func defaultDateRange(start, end string) (string, string) {
@@ -778,6 +821,390 @@ func refreshQueueCmd(f *rootFlags) *cobra.Command {
 	return c
 }
 
+func opportunityGapCmd(f *rootFlags) *cobra.Command {
+	var limit int
+	c := &cobra.Command{Use: "opportunity-gap", Short: "Rank high-upside organic opportunities", RunE: func(cmd *cobra.Command, args []string) error {
+		d, err := load(f)
+		if err != nil {
+			return err
+		}
+		ps := sortedPages(d, opportunityScore)
+		rows := []map[string]any{}
+		lines := []string{"url\tscore\tposition\tctr_gap\trevenue\tquery"}
+		for _, p := range ps {
+			score := opportunityScore(p)
+			if score <= 0 {
+				continue
+			}
+			row := pageOpportunityRow(p, len(rows)+1, score)
+			rows = append(rows, row)
+			lines = append(lines, fmt.Sprintf("%s\t%.1f\t%.1f\t%.3f\t%.2f\t%s", p.URL, score, p.Position, ctrGap(p), p.Revenue, primaryTopic(p)))
+			if limit > 0 && len(rows) >= limit {
+				break
+			}
+		}
+		return out(cmd, f, rows, strings.Join(lines, "\n")+"\n")
+	}}
+	c.Flags().IntVar(&limit, "limit", 10, "Rows to return")
+	return c
+}
+
+func quickWinsCmd(f *rootFlags) *cobra.Command {
+	var limit int
+	c := &cobra.Command{Use: "quick-wins", Short: "Find near-page-one pages with weak CTR and business value", RunE: func(cmd *cobra.Command, args []string) error {
+		d, err := load(f)
+		if err != nil {
+			return err
+		}
+		ps := sortedPages(d, quickWinScore)
+		rows := []map[string]any{}
+		lines := []string{"url\tscore\tposition\tctr\texpected_ctr\tnext_action"}
+		for _, p := range ps {
+			score := quickWinScore(p)
+			if score <= 0 {
+				continue
+			}
+			expected := expectedCTR(p.Position)
+			row := map[string]any{
+				"rank":         len(rows) + 1,
+				"url":          p.URL,
+				"title":        p.Title,
+				"query":        primaryTopic(p),
+				"score":        score,
+				"position":     p.Position,
+				"ctr":          normalizedCTR(p.CTR),
+				"expected_ctr": expected,
+				"ctr_gap":      ctrGap(p),
+				"revenue":      p.Revenue,
+				"conversions":  p.Conversions,
+				"next_action":  "test title/meta angle, add internal links, and refresh above-the-fold answer",
+			}
+			rows = append(rows, row)
+			lines = append(lines, fmt.Sprintf("%s\t%.1f\t%.1f\t%.3f\t%.3f\t%s", p.URL, score, p.Position, normalizedCTR(p.CTR), expected, row["next_action"]))
+			if limit > 0 && len(rows) >= limit {
+				break
+			}
+		}
+		return out(cmd, f, rows, strings.Join(lines, "\n")+"\n")
+	}}
+	c.Flags().IntVar(&limit, "limit", 10, "Rows to return")
+	return c
+}
+
+func revenueAtRiskCmd(f *rootFlags) *cobra.Command {
+	var limit int
+	c := &cobra.Command{Use: "revenue-at-risk", Short: "Rank organic declines that overlap with revenue value", RunE: func(cmd *cobra.Command, args []string) error {
+		d, err := load(f)
+		if err != nil {
+			return err
+		}
+		ps := sortedPages(d, revenueRiskScore)
+		rows := []map[string]any{}
+		lines := []string{"url\tscore\tlost_clicks\tlost_sessions\tlost_revenue\trevenue"}
+		for _, p := range ps {
+			score := revenueRiskScore(p)
+			if score <= 0 {
+				continue
+			}
+			row := map[string]any{
+				"rank":          len(rows) + 1,
+				"url":           p.URL,
+				"title":         p.Title,
+				"query":         primaryTopic(p),
+				"score":         score,
+				"lost_clicks":   max(0, p.PreviousClicks-p.Clicks),
+				"lost_sessions": max(0, p.PreviousSessions-p.Sessions),
+				"lost_revenue":  maxf(0, p.PreviousRevenue-p.Revenue),
+				"revenue":       p.Revenue,
+				"conversions":   p.Conversions,
+				"ref_domains":   p.RefDomains,
+				"next_action":   riskAction(p),
+			}
+			rows = append(rows, row)
+			lines = append(lines, fmt.Sprintf("%s\t%.1f\t%d\t%d\t%.2f\t%.2f", p.URL, score, row["lost_clicks"], row["lost_sessions"], row["lost_revenue"], p.Revenue))
+			if limit > 0 && len(rows) >= limit {
+				break
+			}
+		}
+		return out(cmd, f, rows, strings.Join(lines, "\n")+"\n")
+	}}
+	c.Flags().IntVar(&limit, "limit", 10, "Rows to return")
+	return c
+}
+
+func refreshBriefCmd(f *rootFlags) *cobra.Command {
+	return &cobra.Command{Use: "refresh-brief <url-or-topic>", Args: cobra.ExactArgs(1), Short: "Generate an agent-ready refresh brief for one page", RunE: func(cmd *cobra.Command, args []string) error {
+		d, err := load(f)
+		if err != nil {
+			return err
+		}
+		p, ok := findPage(d.Pages, args[0])
+		if !ok {
+			return fmt.Errorf("no page matching %q in profile %q", args[0], f.profile)
+		}
+		brief := refreshBrief(p)
+		human := fmt.Sprintf("Refresh brief: %s\nquery: %s\nlikely issue: %s\nnext: %s\n", p.URL, primaryTopic(p), brief["likely_issue"], firstAction(brief))
+		return out(cmd, f, brief, human)
+	}}
+}
+
+func cannibalizationCmd(f *rootFlags) *cobra.Command {
+	var limit int
+	c := &cobra.Command{Use: "cannibalization", Short: "Detect pages competing for the same query/topic", RunE: func(cmd *cobra.Command, args []string) error {
+		d, err := load(f)
+		if err != nil {
+			return err
+		}
+		groups := topicGroups(d.Pages, true)
+		rows := []map[string]any{}
+		for topic, ps := range groups {
+			if len(ps) < 2 {
+				continue
+			}
+			sort.Slice(ps, func(i, j int) bool { return businessValue(ps[i]) > businessValue(ps[j]) })
+			totalRevenue, totalClicks := 0.0, 0
+			pageRows := []map[string]any{}
+			for _, p := range ps {
+				totalRevenue += p.Revenue
+				totalClicks += p.Clicks
+				pageRows = append(pageRows, map[string]any{"url": p.URL, "title": p.Title, "clicks": p.Clicks, "position": p.Position, "revenue": p.Revenue, "query": primaryTopic(p)})
+			}
+			rows = append(rows, map[string]any{
+				"topic":              topic,
+				"pages":              pageRows,
+				"page_count":         len(ps),
+				"total_revenue":      totalRevenue,
+				"total_clicks":       totalClicks,
+				"canonical_url":      ps[0].URL,
+				"recommended_action": "choose a canonical page, consolidate overlapping intent, and add internal links from weaker pages",
+				"score":              totalRevenue + float64(totalClicks),
+			})
+		}
+		sort.Slice(rows, func(i, j int) bool { return rows[i]["score"].(float64) > rows[j]["score"].(float64) })
+		if limit > 0 && len(rows) > limit {
+			rows = rows[:limit]
+		}
+		lines := []string{"topic\tpages\ttotal_revenue\tcanonical_url"}
+		for _, row := range rows {
+			lines = append(lines, fmt.Sprintf("%s\t%d\t%.2f\t%s", row["topic"], row["page_count"], row["total_revenue"], row["canonical_url"]))
+		}
+		return out(cmd, f, rows, strings.Join(lines, "\n")+"\n")
+	}}
+	c.Flags().IntVar(&limit, "limit", 10, "Rows to return")
+	return c
+}
+
+func topicClustersCmd(f *rootFlags) *cobra.Command {
+	var limit int
+	c := &cobra.Command{Use: "topic-clusters", Short: "Summarize traffic, revenue, and decay by topic cluster", RunE: func(cmd *cobra.Command, args []string) error {
+		d, err := load(f)
+		if err != nil {
+			return err
+		}
+		groups := topicGroups(d.Pages, false)
+		rows := []map[string]any{}
+		for topic, ps := range groups {
+			clicks, impressions, sessions, conversions, refDomains := 0, 0, 0, 0, 0
+			lostClicks, lostSessions := 0, 0
+			revenue, lostRevenue := 0.0, 0.0
+			topURL := ""
+			topValue := -1.0
+			for _, p := range ps {
+				clicks += p.Clicks
+				impressions += p.Impressions
+				sessions += p.Sessions
+				conversions += p.Conversions
+				refDomains += p.RefDomains
+				lostClicks += max(0, p.PreviousClicks-p.Clicks)
+				lostSessions += max(0, p.PreviousSessions-p.Sessions)
+				revenue += p.Revenue
+				lostRevenue += maxf(0, p.PreviousRevenue-p.Revenue)
+				if value := businessValue(p); value > topValue {
+					topValue = value
+					topURL = p.URL
+				}
+			}
+			rows = append(rows, map[string]any{
+				"topic":            topic,
+				"page_count":       len(ps),
+				"clicks":           clicks,
+				"impressions":      impressions,
+				"sessions":         sessions,
+				"conversions":      conversions,
+				"revenue":          revenue,
+				"ref_domains":      refDomains,
+				"lost_clicks":      lostClicks,
+				"lost_sessions":    lostSessions,
+				"lost_revenue":     lostRevenue,
+				"top_url":          topURL,
+				"recommended_next": clusterAction(lostClicks, lostRevenue, revenue),
+				"score":            revenue + float64(clicks) + lostRevenue + float64(lostClicks*2),
+			})
+		}
+		sort.Slice(rows, func(i, j int) bool { return rows[i]["score"].(float64) > rows[j]["score"].(float64) })
+		if limit > 0 && len(rows) > limit {
+			rows = rows[:limit]
+		}
+		lines := []string{"topic\tpages\tclicks\trevenue\tlost_clicks\ttop_url"}
+		for _, row := range rows {
+			lines = append(lines, fmt.Sprintf("%s\t%d\t%d\t%.2f\t%d\t%s", row["topic"], row["page_count"], row["clicks"], row["revenue"], row["lost_clicks"], row["top_url"]))
+		}
+		return out(cmd, f, rows, strings.Join(lines, "\n")+"\n")
+	}}
+	c.Flags().IntVar(&limit, "limit", 10, "Rows to return")
+	return c
+}
+
+func sourceCoverageCmd(f *rootFlags) *cobra.Command {
+	var limit int
+	var missingOnly bool
+	c := &cobra.Command{Use: "source-coverage", Short: "Audit page coverage across GSC, GA4, and Ahrefs", RunE: func(cmd *cobra.Command, args []string) error {
+		d, err := load(f)
+		if err != nil {
+			return err
+		}
+		rows := []map[string]any{}
+		counts := map[string]int{"gsc": 0, "ga4": 0, "ahrefs": 0, "complete": 0, "partial": 0}
+		for _, p := range d.Pages {
+			row := coverageRow(p)
+			for _, source := range []string{"gsc", "ga4", "ahrefs"} {
+				if row[source+"_present"].(bool) {
+					counts[source]++
+				}
+			}
+			if len(row["missing_sources"].([]string)) == 0 {
+				counts["complete"]++
+			} else {
+				counts["partial"]++
+			}
+			if missingOnly && len(row["missing_sources"].([]string)) == 0 {
+				continue
+			}
+			rows = append(rows, row)
+		}
+		sort.Slice(rows, func(i, j int) bool {
+			return len(rows[i]["missing_sources"].([]string)) > len(rows[j]["missing_sources"].([]string))
+		})
+		if limit > 0 && len(rows) > limit {
+			rows = rows[:limit]
+		}
+		result := map[string]any{"profile": d.Profile, "pages": len(d.Pages), "summary": counts, "rows": rows}
+		lines := []string{"url\tcoverage\tmissing_sources"}
+		for _, row := range rows {
+			lines = append(lines, fmt.Sprintf("%s\t%.2f\t%s", row["url"], row["coverage_score"], strings.Join(row["missing_sources"].([]string), ",")))
+		}
+		return out(cmd, f, result, strings.Join(lines, "\n")+"\n")
+	}}
+	c.Flags().IntVar(&limit, "limit", 25, "Rows to return")
+	c.Flags().BoolVar(&missingOnly, "missing-only", false, "Only show pages missing one or more sources")
+	return c
+}
+
+func internalLinkPlanCmd(f *rootFlags) *cobra.Command {
+	var limit int
+	c := &cobra.Command{Use: "internal-link-plan", Short: "Recommend internal links from source pages to opportunity targets", RunE: func(cmd *cobra.Command, args []string) error {
+		d, err := load(f)
+		if err != nil {
+			return err
+		}
+		rows := internalLinkPlan(d.Pages)
+		if limit > 0 && len(rows) > limit {
+			rows = rows[:limit]
+		}
+		lines := []string{"from_url\tto_url\tanchor\treason"}
+		for _, row := range rows {
+			lines = append(lines, fmt.Sprintf("%s\t%s\t%s\t%s", row["from_url"], row["to_url"], row["anchor"], row["reason"]))
+		}
+		return out(cmd, f, rows, strings.Join(lines, "\n")+"\n")
+	}}
+	c.Flags().IntVar(&limit, "limit", 10, "Rows to return")
+	return c
+}
+
+func experimentPlanCmd(f *rootFlags) *cobra.Command {
+	return &cobra.Command{Use: "experiment-plan <url-or-topic>", Args: cobra.ExactArgs(1), Short: "Create title, meta, content, and measurement tests for one page", RunE: func(cmd *cobra.Command, args []string) error {
+		d, err := load(f)
+		if err != nil {
+			return err
+		}
+		p, ok := findPage(d.Pages, args[0])
+		if !ok {
+			return fmt.Errorf("no page matching %q in profile %q", args[0], f.profile)
+		}
+		plan := experimentPlan(p)
+		human := fmt.Sprintf("Experiment plan: %s\nprimary query: %s\nsuccess metric: %s\n", p.URL, primaryTopic(p), plan["primary_success_metric"])
+		return out(cmd, f, plan, human)
+	}}
+}
+
+func forecastImpactCmd(f *rootFlags) *cobra.Command {
+	var limit int
+	c := &cobra.Command{Use: "forecast-impact", Short: "Estimate clicks and revenue from closing CTR gaps", RunE: func(cmd *cobra.Command, args []string) error {
+		d, err := load(f)
+		if err != nil {
+			return err
+		}
+		ps := sortedPages(d, forecastScore)
+		rows := []map[string]any{}
+		lines := []string{"url\test_click_gain\test_revenue_gain\tctr_gap"}
+		for _, p := range ps {
+			row := forecastRow(p, len(rows)+1)
+			if row["estimated_click_gain"].(float64) <= 0 {
+				continue
+			}
+			rows = append(rows, row)
+			lines = append(lines, fmt.Sprintf("%s\t%.1f\t%.2f\t%.3f", row["url"], row["estimated_click_gain"], row["estimated_revenue_gain"], row["ctr_gap"]))
+			if limit > 0 && len(rows) >= limit {
+				break
+			}
+		}
+		return out(cmd, f, rows, strings.Join(lines, "\n")+"\n")
+	}}
+	c.Flags().IntVar(&limit, "limit", 10, "Rows to return")
+	return c
+}
+
+func staleWinnersCmd(f *rootFlags) *cobra.Command {
+	var limit int
+	c := &cobra.Command{Use: "stale-winners", Short: "Find high-value pages to refresh before visible decay", RunE: func(cmd *cobra.Command, args []string) error {
+		d, err := load(f)
+		if err != nil {
+			return err
+		}
+		ps := sortedPages(d, staleWinnerScore)
+		rows := []map[string]any{}
+		lines := []string{"url\tscore\trevenue\tclicks\tpreventive_action"}
+		for _, p := range ps {
+			score := staleWinnerScore(p)
+			if score <= 0 {
+				continue
+			}
+			row := map[string]any{
+				"rank":              len(rows) + 1,
+				"url":               p.URL,
+				"title":             p.Title,
+				"query":             primaryTopic(p),
+				"score":             score,
+				"revenue":           p.Revenue,
+				"clicks":            p.Clicks,
+				"sessions":          p.Sessions,
+				"conversions":       p.Conversions,
+				"ref_domains":       p.RefDomains,
+				"stale_days":        staleDays(p),
+				"preventive_action": staleWinnerAction(p),
+			}
+			rows = append(rows, row)
+			lines = append(lines, fmt.Sprintf("%s\t%.1f\t%.2f\t%d\t%s", p.URL, score, p.Revenue, p.Clicks, row["preventive_action"]))
+			if limit > 0 && len(rows) >= limit {
+				break
+			}
+		}
+		return out(cmd, f, rows, strings.Join(lines, "\n")+"\n")
+	}}
+	c.Flags().IntVar(&limit, "limit", 10, "Rows to return")
+	return c
+}
+
 func digestCmd(f *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{Use: "digest", Short: "Generate digests"}
 	cmd.AddCommand(&cobra.Command{Use: "weekly", Short: "Generate weekly traffic intelligence digest", RunE: func(cmd *cobra.Command, args []string) error {
@@ -805,6 +1232,554 @@ func digestCmd(f *rootFlags) *cobra.Command {
 	}})
 	return cmd
 }
+
+func pageOpportunityRow(p store.PageMetrics, rank int, score float64) map[string]any {
+	return map[string]any{
+		"rank":             rank,
+		"url":              p.URL,
+		"title":            p.Title,
+		"query":            primaryTopic(p),
+		"score":            score,
+		"impressions":      p.Impressions,
+		"clicks":           p.Clicks,
+		"position":         p.Position,
+		"ctr":              normalizedCTR(p.CTR),
+		"expected_ctr":     expectedCTR(p.Position),
+		"ctr_gap":          ctrGap(p),
+		"revenue":          p.Revenue,
+		"conversions":      p.Conversions,
+		"ref_domains":      p.RefDomains,
+		"recommended_next": "refresh title/meta, expand query coverage, and add internal links from related revenue pages",
+	}
+}
+
+func coverageRow(p store.PageMetrics) map[string]any {
+	gsc := hasGSC(p)
+	ga4 := hasGA4(p)
+	ahrefs := hasAhrefs(p)
+	missing := []string{}
+	if !gsc {
+		missing = append(missing, "gsc")
+	}
+	if !ga4 {
+		missing = append(missing, "ga4")
+	}
+	if !ahrefs {
+		missing = append(missing, "ahrefs")
+	}
+	coverage := float64(3-len(missing)) / 3
+	return map[string]any{
+		"url":             p.URL,
+		"title":           p.Title,
+		"query":           primaryTopic(p),
+		"gsc_present":     gsc,
+		"ga4_present":     ga4,
+		"ahrefs_present":  ahrefs,
+		"coverage_score":  coverage,
+		"missing_sources": missing,
+		"next_action":     coverageAction(missing),
+	}
+}
+
+func hasGSC(p store.PageMetrics) bool {
+	return p.Clicks != 0 || p.Impressions != 0 || p.Position != 0 || p.Sources.GSC.QuerySample != ""
+}
+
+func hasGA4(p store.PageMetrics) bool {
+	return p.Sessions != 0 || p.Conversions != 0 || p.Revenue != 0 || p.PreviousSessions != 0 || p.PreviousRevenue != 0
+}
+
+func hasAhrefs(p store.PageMetrics) bool {
+	return p.Backlinks != 0 || p.RefDomains != 0 || p.Sources.Ahrefs.TopKeyword != ""
+}
+
+func coverageAction(missing []string) string {
+	if len(missing) == 0 {
+		return "coverage complete"
+	}
+	return "sync " + strings.Join(missing, ",") + " evidence before relying on combined prioritization"
+}
+
+func internalLinkPlan(pages []store.PageMetrics) []map[string]any {
+	groups := topicGroups(pages, false)
+	rows := []map[string]any{}
+	for topic, ps := range groups {
+		if len(ps) < 2 {
+			continue
+		}
+		targets := append([]store.PageMetrics(nil), ps...)
+		sort.Slice(targets, func(i, j int) bool {
+			return opportunityScore(targets[i])+revenueRiskScore(targets[i]) > opportunityScore(targets[j])+revenueRiskScore(targets[j])
+		})
+		sources := append([]store.PageMetrics(nil), ps...)
+		sort.Slice(sources, func(i, j int) bool {
+			return linkSourceScore(sources[i]) > linkSourceScore(sources[j])
+		})
+		for _, target := range targets {
+			if opportunityScore(target)+revenueRiskScore(target) <= 0 {
+				continue
+			}
+			for _, source := range sources {
+				if source.URL == target.URL {
+					continue
+				}
+				rows = append(rows, map[string]any{
+					"topic":    topic,
+					"from_url": source.URL,
+					"to_url":   target.URL,
+					"anchor":   linkAnchor(target),
+					"score":    linkSourceScore(source) + opportunityScore(target) + revenueRiskScore(target),
+					"reason":   "same topic; source has traffic/link equity and target has upside or revenue risk",
+				})
+				break
+			}
+		}
+	}
+	if len(rows) == 0 {
+		rows = fallbackInternalLinks(pages)
+	}
+	sort.Slice(rows, func(i, j int) bool { return rows[i]["score"].(float64) > rows[j]["score"].(float64) })
+	return rows
+}
+
+func fallbackInternalLinks(pages []store.PageMetrics) []map[string]any {
+	if len(pages) < 2 {
+		return nil
+	}
+	sources := append([]store.PageMetrics(nil), pages...)
+	targets := append([]store.PageMetrics(nil), pages...)
+	sort.Slice(sources, func(i, j int) bool { return linkSourceScore(sources[i]) > linkSourceScore(sources[j]) })
+	sort.Slice(targets, func(i, j int) bool {
+		return opportunityScore(targets[i])+revenueRiskScore(targets[i]) > opportunityScore(targets[j])+revenueRiskScore(targets[j])
+	})
+	rows := []map[string]any{}
+	for _, target := range targets {
+		for _, source := range sources {
+			if source.URL == target.URL {
+				continue
+			}
+			rows = append(rows, map[string]any{
+				"topic":    clusterTopic(target),
+				"from_url": source.URL,
+				"to_url":   target.URL,
+				"anchor":   linkAnchor(target),
+				"score":    linkSourceScore(source) + opportunityScore(target) + revenueRiskScore(target),
+				"reason":   "best available source page has traffic/link equity and target has upside or risk",
+			})
+			break
+		}
+		if len(rows) >= 10 {
+			break
+		}
+	}
+	return rows
+}
+
+func linkSourceScore(p store.PageMetrics) float64 {
+	return float64(p.Clicks) + p.Revenue/25 + float64(p.RefDomains*10) + float64(p.Sessions)/5
+}
+
+func linkAnchor(p store.PageMetrics) string {
+	return firstNonEmpty(primaryTopic(p), normalizeTopic(p.Title), strings.Trim(strings.ReplaceAll(p.URL, "-", " "), "/"))
+}
+
+func experimentPlan(p store.PageMetrics) map[string]any {
+	query := primaryTopic(p)
+	return map[string]any{
+		"url":                    p.URL,
+		"title":                  p.Title,
+		"query":                  query,
+		"likely_issue":           likelyIssue(p),
+		"primary_success_metric": experimentMetric(p),
+		"title_tests": []string{
+			fmt.Sprintf("Lead with %q and a concrete product/category benefit", query),
+			"Test a comparison or buying-guide angle for higher-intent searchers",
+			"Add freshness or availability language if the page serves seasonal demand",
+		},
+		"meta_tests": []string{
+			"Mirror the primary query and mention the strongest conversion promise",
+			"Add shipping, returns, proof, or selection details that reduce click uncertainty",
+		},
+		"content_tests": []string{
+			"Move the clearest answer or product path above the fold",
+			"Add an FAQ or comparison section for secondary query intent",
+			"Add internal links from related high-authority pages",
+		},
+		"measurement": map[string]any{
+			"baseline_clicks":     p.Clicks,
+			"baseline_ctr":        normalizedCTR(p.CTR),
+			"baseline_revenue":    p.Revenue,
+			"minimum_runtime":     "14 days or one full weekly cycle",
+			"guardrail":           "do not change URL while Ahrefs ref_domains/backlinks are present",
+			"follow_up_commands":  []string{"traffic-intel-pp-cli forecast-impact --profile <profile>", "traffic-intel-pp-cli refresh-brief --profile <profile> " + strconv.Quote(p.URL)},
+			"expected_click_gain": forecastRow(p, 1)["estimated_click_gain"],
+		},
+	}
+}
+
+func experimentMetric(p store.PageMetrics) string {
+	switch {
+	case p.Revenue > 0:
+		return "organic revenue and CTR"
+	case p.Conversions > 0:
+		return "organic conversions and CTR"
+	case p.Impressions > 0:
+		return "CTR and clicks"
+	default:
+		return "sessions and engagement"
+	}
+}
+
+func forecastScore(p store.PageMetrics) float64 {
+	row := forecastRow(p, 0)
+	return row["estimated_revenue_gain"].(float64) + row["estimated_click_gain"].(float64)
+}
+
+func forecastRow(p store.PageMetrics, rank int) map[string]any {
+	gap := ctrGap(p)
+	clickGain := float64(p.Impressions) * gap
+	revenuePerClick := 0.0
+	if p.Clicks > 0 {
+		revenuePerClick = p.Revenue / float64(p.Clicks)
+	} else if p.Sessions > 0 {
+		revenuePerClick = p.Revenue / float64(p.Sessions)
+	}
+	conversionsPerClick := 0.0
+	if p.Clicks > 0 {
+		conversionsPerClick = float64(p.Conversions) / float64(p.Clicks)
+	}
+	return map[string]any{
+		"rank":                       rank,
+		"url":                        p.URL,
+		"title":                      p.Title,
+		"query":                      primaryTopic(p),
+		"impressions":                p.Impressions,
+		"position":                   p.Position,
+		"current_ctr":                normalizedCTR(p.CTR),
+		"expected_ctr":               expectedCTR(p.Position),
+		"ctr_gap":                    gap,
+		"estimated_click_gain":       clickGain,
+		"revenue_per_click":          revenuePerClick,
+		"estimated_revenue_gain":     clickGain * revenuePerClick,
+		"estimated_conversion_gain":  clickGain * conversionsPerClick,
+		"assumption":                 "forecast assumes current impressions and value per click hold while CTR closes to the position-based expected curve",
+		"recommended_validation_cmd": "traffic-intel-pp-cli experiment-plan --profile <profile> " + strconv.Quote(p.URL),
+	}
+}
+
+func staleWinnerScore(p store.PageMetrics) float64 {
+	value := businessValue(p)
+	if value <= 0 {
+		return 0
+	}
+	decayPenalty := float64(max(0, p.PreviousClicks-p.Clicks))*4 + maxf(0, p.PreviousRevenue-p.Revenue)
+	preventiveBoost := 100.0
+	if decayPenalty > 0 {
+		preventiveBoost = 25
+	}
+	return value + float64(p.Impressions)*0.01 + float64(staleDays(p))*2 + preventiveBoost - decayPenalty*0.1
+}
+
+func staleDays(p store.PageMetrics) int {
+	if p.UpdatedAt == "" {
+		return 0
+	}
+	t, err := time.Parse(time.RFC3339, p.UpdatedAt)
+	if err != nil {
+		return 0
+	}
+	days := int(time.Since(t).Hours() / 24)
+	if days < 0 {
+		return 0
+	}
+	return days
+}
+
+func staleWinnerAction(p store.PageMetrics) string {
+	switch {
+	case staleDays(p) > 60:
+		return "refresh examples, proof points, and internal links because the dataset timestamp is old"
+	case ctrGap(p) > 0:
+		return "preempt decay by testing title/meta and adding links while the page still has value"
+	case p.RefDomains > 0:
+		return "preserve URL and update content without disrupting backlink equity"
+	default:
+		return "schedule a light content refresh and re-sync after the next reporting cycle"
+	}
+}
+
+func opportunityScore(p store.PageMetrics) float64 {
+	if p.Impressions <= 0 || p.Position < 4 || p.Position > 20 {
+		return 0
+	}
+	gap := ctrGap(p)
+	if gap <= 0 {
+		return 0
+	}
+	return float64(p.Impressions)*gap*(1+businessValue(p)/1000) + float64(p.RefDomains*5)
+}
+
+func quickWinScore(p store.PageMetrics) float64 {
+	if p.Impressions <= 0 || p.Position < 3 || p.Position > 15 {
+		return 0
+	}
+	gap := ctrGap(p)
+	if gap <= 0 {
+		return 0
+	}
+	value := p.Revenue + float64(p.Conversions*100)
+	if value <= 0 {
+		value = float64(p.Sessions) * 0.5
+	}
+	return float64(p.Impressions)*gap + value/10 + float64(p.RefDomains)
+}
+
+func revenueRiskScore(p store.PageMetrics) float64 {
+	lostClicks := max(0, p.PreviousClicks-p.Clicks)
+	lostSessions := max(0, p.PreviousSessions-p.Sessions)
+	lostRevenue := maxf(0, p.PreviousRevenue-p.Revenue)
+	if lostClicks == 0 && lostSessions == 0 && lostRevenue == 0 {
+		return 0
+	}
+	value := p.Revenue + p.PreviousRevenue + float64(p.Conversions*100)
+	if value == 0 {
+		value = float64(p.Sessions+p.PreviousSessions) * 0.25
+	}
+	return lostRevenue + float64(lostClicks*5) + float64(lostSessions*2) + value*0.2 + float64(p.RefDomains*10)
+}
+
+func businessValue(p store.PageMetrics) float64 {
+	return p.Revenue + float64(p.Conversions*125) + float64(p.Sessions)*0.25 + float64(p.RefDomains*15)
+}
+
+func normalizedCTR(ctr float64) float64 {
+	if ctr > 1 {
+		return ctr / 100
+	}
+	if ctr < 0 {
+		return 0
+	}
+	return ctr
+}
+
+func ctrGap(p store.PageMetrics) float64 {
+	return maxf(0, expectedCTR(p.Position)-normalizedCTR(p.CTR))
+}
+
+func expectedCTR(position float64) float64 {
+	switch {
+	case position <= 0:
+		return 0
+	case position <= 1:
+		return 0.28
+	case position <= 2:
+		return 0.15
+	case position <= 3:
+		return 0.10
+	case position <= 4:
+		return 0.07
+	case position <= 5:
+		return 0.05
+	case position <= 10:
+		return 0.03
+	case position <= 20:
+		return 0.015
+	default:
+		return 0.005
+	}
+}
+
+func findPage(pages []store.PageMetrics, q string) (store.PageMetrics, bool) {
+	q = strings.ToLower(strings.TrimSpace(q))
+	if q == "" {
+		return store.PageMetrics{}, false
+	}
+	key := pageKey(q)
+	for _, p := range pages {
+		if strings.ToLower(p.URL) == q || pageKey(p.URL) == key {
+			return p, true
+		}
+	}
+	for _, p := range pages {
+		if pageMatches(p, q) {
+			return p, true
+		}
+	}
+	return store.PageMetrics{}, false
+}
+
+func pageMatches(p store.PageMetrics, q string) bool {
+	hay := strings.ToLower(strings.Join([]string{p.URL, p.Title, p.Sources.GSC.QuerySample, p.Sources.Ahrefs.TopKeyword}, " "))
+	return strings.Contains(hay, strings.ToLower(strings.TrimSpace(q)))
+}
+
+func refreshBrief(p store.PageMetrics) map[string]any {
+	actions := refreshActions(p)
+	return map[string]any{
+		"url":          p.URL,
+		"title":        p.Title,
+		"query":        primaryTopic(p),
+		"likely_issue": likelyIssue(p),
+		"metrics": map[string]any{
+			"clicks":            p.Clicks,
+			"previous_clicks":   p.PreviousClicks,
+			"click_delta":       p.Clicks - p.PreviousClicks,
+			"impressions":       p.Impressions,
+			"position":          p.Position,
+			"ctr":               normalizedCTR(p.CTR),
+			"expected_ctr":      expectedCTR(p.Position),
+			"sessions":          p.Sessions,
+			"previous_sessions": p.PreviousSessions,
+			"revenue":           p.Revenue,
+			"previous_revenue":  p.PreviousRevenue,
+			"revenue_delta":     p.Revenue - p.PreviousRevenue,
+			"conversions":       p.Conversions,
+			"ref_domains":       p.RefDomains,
+			"backlinks":         p.Backlinks,
+		},
+		"recommended_actions": actions,
+		"suggested_commands": []string{
+			"traffic-intel-pp-cli refresh-queue --profile <profile>",
+			"traffic-intel-pp-cli opportunity-gap --profile <profile>",
+			"traffic-intel-pp-cli query-revenue --profile <profile> " + strconv.Quote(primaryTopic(p)),
+		},
+	}
+}
+
+func refreshActions(p store.PageMetrics) []string {
+	actions := []string{}
+	if p.Position >= 4 && p.Position <= 20 {
+		actions = append(actions, "tighten title/H1 around the primary query and expand the section that answers search intent")
+	}
+	if ctrGap(p) > 0 {
+		actions = append(actions, "test a higher-intent title/meta description because CTR trails the expected curve")
+	}
+	if p.Clicks < p.PreviousClicks {
+		actions = append(actions, "inspect lost GSC queries and restore sections that matched those intents")
+	}
+	if p.Revenue < p.PreviousRevenue {
+		actions = append(actions, "audit product cards, offer clarity, and conversion path because revenue declined")
+	}
+	if p.RefDomains > 0 {
+		actions = append(actions, "preserve the URL and add internal links from related pages to protect backlink equity")
+	}
+	if len(actions) == 0 {
+		actions = append(actions, "refresh examples, add internal links, and re-check query coverage after the next sync")
+	}
+	return actions
+}
+
+func firstAction(brief map[string]any) string {
+	actions, _ := brief["recommended_actions"].([]string)
+	if len(actions) == 0 {
+		return ""
+	}
+	return actions[0]
+}
+
+func likelyIssue(p store.PageMetrics) string {
+	switch {
+	case p.Clicks < p.PreviousClicks && p.Position > 5:
+		return "organic ranking or CTR decline"
+	case p.Sessions < p.PreviousSessions:
+		return "analytics session decline"
+	case p.Revenue < p.PreviousRevenue:
+		return "conversion or order-value decline"
+	case ctrGap(p) > 0:
+		return "SERP CTR underperformance"
+	default:
+		return "maintenance refresh opportunity"
+	}
+}
+
+func riskAction(p store.PageMetrics) string {
+	switch {
+	case p.Revenue < p.PreviousRevenue:
+		return "refresh commercial intent and audit conversion path"
+	case p.Clicks < p.PreviousClicks:
+		return "recover lost queries and strengthen internal links"
+	case p.Sessions < p.PreviousSessions:
+		return "compare acquisition paths and check analytics landing page changes"
+	default:
+		return "monitor after next sync"
+	}
+}
+
+func clusterAction(lostClicks int, lostRevenue, revenue float64) string {
+	switch {
+	case lostRevenue > 0:
+		return "refresh revenue pages and inspect conversion path"
+	case lostClicks > 0:
+		return "recover search intent coverage and strengthen internal links"
+	case revenue > 0:
+		return "protect high-value pages with periodic content and link refreshes"
+	default:
+		return "expand pages with validated query demand"
+	}
+}
+
+func topicGroups(pages []store.PageMetrics, preferQuery bool) map[string][]store.PageMetrics {
+	groups := map[string][]store.PageMetrics{}
+	for _, p := range pages {
+		topic := ""
+		if preferQuery {
+			topic = normalizeTopic(firstNonEmpty(p.Sources.GSC.QuerySample, p.Sources.Ahrefs.TopKeyword))
+		}
+		if topic == "" {
+			topic = clusterTopic(p)
+		}
+		groups[topic] = append(groups[topic], p)
+	}
+	return groups
+}
+
+func clusterTopic(p store.PageMetrics) string {
+	if topic := normalizeTopic(firstNonEmpty(p.Sources.GSC.QuerySample, p.Sources.Ahrefs.TopKeyword, p.Title)); topic != "" {
+		return topic
+	}
+	if u, err := url.Parse(p.URL); err == nil {
+		parts := strings.Split(strings.Trim(u.Path, "/"), "/")
+		for _, part := range parts {
+			if topic := normalizeTopic(part); topic != "" {
+				return topic
+			}
+		}
+	}
+	return "uncategorized"
+}
+
+func primaryTopic(p store.PageMetrics) string {
+	return firstNonEmpty(p.Sources.GSC.QuerySample, p.Sources.Ahrefs.TopKeyword, normalizeTopic(p.Title), p.URL)
+}
+
+func normalizeTopic(s string) string {
+	tokens := topicTokens(s)
+	if len(tokens) == 0 {
+		return ""
+	}
+	if len(tokens) > 3 {
+		tokens = tokens[:3]
+	}
+	return strings.Join(tokens, " ")
+}
+
+func topicTokens(s string) []string {
+	stop := map[string]bool{
+		"a": true, "an": true, "and": true, "are": true, "best": true, "for": true, "from": true, "how": true, "of": true, "or": true, "page": true, "pages": true, "the": true, "to": true, "with": true,
+	}
+	parts := strings.FieldsFunc(strings.ToLower(s), func(r rune) bool {
+		return !unicode.IsLetter(r) && !unicode.IsDigit(r)
+	})
+	out := []string{}
+	for _, part := range parts {
+		if part == "" || stop[part] {
+			continue
+		}
+		out = append(out, part)
+	}
+	return out
+}
+
 func max(a, b int) int {
 	if a > b {
 		return a

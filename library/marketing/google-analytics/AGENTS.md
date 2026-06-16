@@ -17,5 +17,5 @@ Property resolution for data commands is `--property`, then `GA4_PROPERTY_ID`. D
 - `go test ./...`
 - `go build ./...`
 - `google-analytics-pp-cli agent-context --agent`
-- `google-analytics-pp-cli health --properties $GA4_PROPERTY_IDS --agent` when credentials/property grants are available
-- Live the first authorized property smoke: `channels`, `compare`, `whats-changed`, `funnel`
+- `google-analytics-pp-cli health --properties 280199692,540652239 --agent` when credentials/property grants are available
+- Live BestSelf smoke: `channels`, `compare`, `whats-changed`, `funnel`

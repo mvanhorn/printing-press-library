@@ -39,6 +39,17 @@ traffic-intel-pp-cli --profile site money-pages --limit 5
 traffic-intel-pp-cli --profile site query-revenue jackets
 traffic-intel-pp-cli --profile site explain-drop
 traffic-intel-pp-cli --profile site refresh-queue
+traffic-intel-pp-cli --profile site opportunity-gap
+traffic-intel-pp-cli --profile site refresh-brief /collections/winter-jackets
+traffic-intel-pp-cli --profile site quick-wins
+traffic-intel-pp-cli --profile site revenue-at-risk
+traffic-intel-pp-cli --profile site cannibalization
+traffic-intel-pp-cli --profile site topic-clusters
+traffic-intel-pp-cli --profile site source-coverage
+traffic-intel-pp-cli --profile site internal-link-plan
+traffic-intel-pp-cli --profile site experiment-plan /collections/winter-jackets
+traffic-intel-pp-cli --profile site forecast-impact
+traffic-intel-pp-cli --profile site stale-winners
 traffic-intel-pp-cli --profile site digest weekly
 ```
 
@@ -59,7 +70,21 @@ Optional env vars used for profile defaults or future child CLI sync:
 - `GA4_PROPERTY_ID`
 - `AHREFS_PROJECT` / `AHREFS_TARGET`
 
-Child CLI sync is opt-in. `sync --source all` runs all three child commands; `--source gsc`, `--source ga4`, and `--source ahrefs` run one source. `--live` and `--real` are aliases for `--source all`. Fixture mode remains the default when none of those flags are present.
+Child CLI sync is opt-in. `sync --source all` runs all three child commands and requires all three source configs; `--source gsc`, `--source ga4`, and `--source ahrefs` run one configured source. `--live` and `--real` are aliases for `--source all`. Fixture mode remains the default when none of those flags are present.
+
+## Novel analysis commands
+
+- `opportunity-gap` ranks high-impression pages in positions 4-20 where CTR trails the expected curve and GA4/Ahrefs value makes the upside worth chasing.
+- `quick-wins` surfaces near-page-one pages with weak CTR and conversion or revenue value.
+- `revenue-at-risk` ranks pages where lost clicks, sessions, or revenue overlap with meaningful commercial value.
+- `refresh-brief <url-or-topic>` generates an agent-ready page brief with likely issue, metrics, recommended actions, and follow-up commands.
+- `cannibalization` groups pages competing for the same query/topic and recommends a canonical URL.
+- `topic-clusters` summarizes clicks, revenue, backlinks, and decay by inferred topic cluster.
+- `source-coverage` audits which pages have GSC, GA4, and Ahrefs evidence and what source sync is missing.
+- `internal-link-plan` recommends source and target pages for internal links based on topic, revenue, and link equity.
+- `experiment-plan <url-or-topic>` turns one page into title, meta, content, and measurement tests.
+- `forecast-impact` estimates click, conversion, and revenue upside from closing CTR gaps.
+- `stale-winners` finds valuable pages to refresh before visible decline.
 
 ## Import format
 

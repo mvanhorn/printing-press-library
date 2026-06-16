@@ -15,7 +15,7 @@ The publishable command surface is split into:
 - Novel agent reports: `channels`, `sources`, `top-pages`, `events`, `conversions`, `funnel`, `compare`, `whats-changed`, `revenue`, `audience`, `cohort`.
 - Agent/operator utilities: `agent-context`, `health`, `doctor`.
 
-All data commands resolve property IDs as `--property` first, then `GA4_PROPERTY_ID`. Fleet checks can pass `health --properties` or set `GA4_PROPERTY_IDS`. Brand IDs such as two authorized GA4 properties are proof inputs only, not implementation defaults.
+All data commands resolve property IDs as `--property` first, then `GA4_PROPERTY_ID`. Fleet checks can pass `health --properties` or set `GA4_PROPERTY_IDS`. Brand IDs such as BestSelf `280199692` and LittleMight `540652239` are proof inputs only, not implementation defaults.
 
 ## Auth model
 
@@ -27,8 +27,9 @@ The CLI reads credentials in this order:
 
 1. `--credentials <service-account-json>`
 2. `GOOGLE_APPLICATION_CREDENTIALS`
+3. `/Users/knox/.agents/google-service-account.json` when present
 
-The service account JSON must include `client_email`, `private_key`, and `token_uri` (defaulting to `https://oauth2.googleapis.com/token` when omitted). The CLI signs an RS256 JWT assertion, exchanges it for an access token, and sends an `Authorization: Bearer <token>` header on every Google API request. Tokens and key material are never printed in proofs.
+The service account JSON must include `client_email`, `private_key`, and `token_uri` (defaulting to `https://oauth2.googleapis.com/token` when omitted). The CLI signs an RS256 JWT assertion, exchanges it for an access token, and sends `Authorization: Bearer <token>` on every Google API request. Tokens and key material are never printed in proofs.
 
 ## Property-level grant gotcha
 

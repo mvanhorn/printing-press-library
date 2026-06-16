@@ -39,6 +39,21 @@ func TestAgentModeContextIsJSON(t *testing.T) {
 	if _, ok := doc["source_plan"].([]any); !ok {
 		t.Fatalf("missing source_plan: %#v", doc)
 	}
+	envRows, ok := doc["env"].([]any)
+	if !ok {
+		t.Fatalf("missing env rows: %#v", doc)
+	}
+	foundAhrefsTarget := false
+	for _, row := range envRows {
+		m, _ := row.(map[string]any)
+		if m["name"] == "AHREFS_TARGET" {
+			foundAhrefsTarget = true
+			break
+		}
+	}
+	if !foundAhrefsTarget {
+		t.Fatalf("agent context missing AHREFS_TARGET env row: %#v", doc["env"])
+	}
 }
 
 func TestSourcesDoctorShowsPresenceWithoutSecrets(t *testing.T) {
@@ -86,7 +101,7 @@ func TestSyncAndAnalysisCommands(t *testing.T) {
 	if got, err := run(t, home, "--profile", "demo", "sync"); err != nil || !strings.Contains(got, "synced 4 pages") {
 		t.Fatalf("sync failed: %v %s", err, got)
 	}
-	checks := [][]string{{"money-pages"}, {"query-revenue", "jackets"}, {"explain-drop"}, {"refresh-queue"}, {"digest", "weekly"}}
+	checks := [][]string{{"money-pages"}, {"query-revenue", "jackets"}, {"explain-drop"}, {"refresh-queue"}, {"opportunity-gap"}, {"quick-wins"}, {"revenue-at-risk"}, {"refresh-brief", "jackets"}, {"topic-clusters"}, {"source-coverage"}, {"internal-link-plan"}, {"experiment-plan", "jackets"}, {"forecast-impact"}, {"stale-winners"}, {"digest", "weekly"}}
 	for _, args := range checks {
 		got, err := run(t, home, append([]string{"--profile", "demo"}, args...)...)
 		if err != nil {
@@ -98,6 +113,144 @@ func TestSyncAndAnalysisCommands(t *testing.T) {
 	}
 	if _, err := run(t, filepath.Join(home, "missing"), "money-pages"); err == nil {
 		t.Fatal("expected missing data error")
+	}
+}
+
+func TestNovelCommandsUseCrossSourceSignals(t *testing.T) {
+	home := t.TempDir()
+	fixture := filepath.Join(home, "pages.json")
+	body := `{
+	  "profile": "custom",
+	  "source": "test",
+	  "pages": [
+	    {
+	      "url": "/collections/winter-jackets",
+	      "title": "Winter Jackets",
+	      "clicks": 90,
+	      "impressions": 9000,
+	      "ctr": 0.01,
+	      "position": 6,
+	      "sessions": 500,
+	      "conversions": 8,
+	      "revenue": 4000,
+	      "previous_clicks": 150,
+	      "previous_sessions": 620,
+	      "previous_revenue": 5200,
+	      "ref_domains": 12,
+	      "sources": {
+	        "gsc": {"query_sample": "winter jackets"},
+	        "ahrefs": {"top_keyword": "winter jackets"}
+	      }
+	    },
+	    {
+	      "url": "/blog/best-winter-jackets",
+	      "title": "Best Winter Jackets",
+	      "clicks": 70,
+	      "impressions": 7000,
+	      "ctr": 0.01,
+	      "position": 8,
+	      "sessions": 300,
+	      "conversions": 2,
+	      "revenue": 900,
+	      "previous_clicks": 95,
+	      "previous_sessions": 330,
+	      "previous_revenue": 1200,
+	      "ref_domains": 6,
+	      "sources": {
+	        "gsc": {"query_sample": "winter jackets"},
+	        "ahrefs": {"top_keyword": "winter jackets"}
+	      }
+	    },
+	    {
+	      "url": "/products/trail-shoe",
+	      "title": "Trail Shoe",
+	      "clicks": 40,
+	      "impressions": 5000,
+	      "ctr": 0.008,
+	      "position": 9,
+	      "sessions": 220,
+	      "conversions": 5,
+	      "revenue": 2000,
+	      "previous_clicks": 35,
+	      "previous_sessions": 210,
+	      "previous_revenue": 1800,
+	      "ref_domains": 4,
+	      "sources": {
+	        "gsc": {"query_sample": "trail shoe"},
+	        "ahrefs": {"top_keyword": "trail shoe"}
+	      }
+	    }
+	  ]
+	}`
+	if err := os.WriteFile(fixture, []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := run(t, home, "--profile", "custom", "sync", "--import", fixture); err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := run(t, home, "--profile", "custom", "--agent", "cannibalization")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"topic":"winter jackets"`) || !strings.Contains(got, `"page_count":2`) {
+		t.Fatalf("cannibalization missed competing pages: %s", got)
+	}
+
+	got, err = run(t, home, "--profile", "custom", "--agent", "refresh-brief", "winter-jackets")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"likely_issue"`) || !strings.Contains(got, `"recommended_actions"`) {
+		t.Fatalf("refresh brief missing agent fields: %s", got)
+	}
+
+	got, err = run(t, home, "--profile", "custom", "--agent", "topic-clusters")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"topic":"winter jackets"`) || !strings.Contains(got, `"lost_revenue":1500`) {
+		t.Fatalf("topic clusters missed aggregate risk: %s", got)
+	}
+
+	got, err = run(t, home, "--profile", "custom", "--agent", "source-coverage")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"complete":3`) || !strings.Contains(got, `"coverage_score":1`) {
+		t.Fatalf("source coverage missed complete rows: %s", got)
+	}
+
+	got, err = run(t, home, "--profile", "custom", "--agent", "internal-link-plan")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"from_url"`) || !strings.Contains(got, `"to_url"`) || !strings.Contains(got, `"anchor":"winter jackets"`) {
+		t.Fatalf("internal link plan missing link recommendation: %s", got)
+	}
+
+	got, err = run(t, home, "--profile", "custom", "--agent", "experiment-plan", "winter-jackets")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"title_tests"`) || !strings.Contains(got, `"primary_success_metric"`) {
+		t.Fatalf("experiment plan missing test fields: %s", got)
+	}
+
+	got, err = run(t, home, "--profile", "custom", "--agent", "forecast-impact")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"estimated_click_gain"`) || !strings.Contains(got, `"estimated_revenue_gain"`) {
+		t.Fatalf("forecast impact missing estimates: %s", got)
+	}
+
+	got, err = run(t, home, "--profile", "custom", "--agent", "stale-winners")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"preventive_action"`) || !strings.Contains(got, `"score"`) {
+		t.Fatalf("stale winners missing preventive fields: %s", got)
 	}
 }
 
@@ -170,6 +323,48 @@ JSON`)
 		if !strings.Contains(log, want) {
 			t.Fatalf("child command %q missing from log:\n%s", want, log)
 		}
+	}
+}
+
+func TestSyncAllRequiresEverySourceConfigured(t *testing.T) {
+	home := t.TempDir()
+	got, err := run(t, home, "--profile", "partial", "--agent", "sync", "--source", "all", "--site", "sc-domain:example.com")
+	if err == nil {
+		t.Fatalf("sync --source all should require every source, got success: %s", got)
+	}
+	if !strings.Contains(err.Error(), "missing ga4, ahrefs") {
+		t.Fatalf("unexpected error: %v\n%s", err, got)
+	}
+	if _, loadErr := store.New(home).LoadData("partial"); loadErr == nil {
+		t.Fatal("partial all-source sync should not save a dataset")
+	}
+}
+
+func TestSyncSingleConfiguredSourceIsAllowed(t *testing.T) {
+	home := t.TempDir()
+	binDir := t.TempDir()
+	script := "#!/bin/sh\ncat <<'JSON'\n{\"pages\":[{\"url\":\"/only-gsc\",\"clicks\":3,\"impressions\":30}]}\nJSON\n"
+	if err := os.WriteFile(filepath.Join(binDir, "google-search-console-pp-cli"), []byte(script), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", binDir+string(os.PathListSeparator)+os.Getenv("PATH"))
+
+	got, err := run(t, home, "--profile", "gsc-only", "--agent", "sync", "--source", "gsc", "--site", "sc-domain:example.com")
+	if err != nil {
+		t.Fatalf("sync --source gsc failed: %v\n%s", err, got)
+	}
+	if !strings.Contains(got, `"source":"child-cli:gsc"`) || !strings.Contains(got, `"pages":1`) {
+		t.Fatalf("unexpected single-source summary: %s", got)
+	}
+}
+
+func TestSyncKnownSourceMissingConfigHasActionableError(t *testing.T) {
+	got, err := run(t, t.TempDir(), "--agent", "sync", "--source", "ga4")
+	if err == nil {
+		t.Fatalf("sync --source ga4 should require GA4 config, got success: %s", got)
+	}
+	if !strings.Contains(err.Error(), `source "ga4" is not configured`) || !strings.Contains(err.Error(), "GA4_PROPERTY_ID") {
+		t.Fatalf("unexpected error: %v\n%s", err, got)
 	}
 }
 

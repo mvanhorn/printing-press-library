@@ -8,7 +8,7 @@ Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery
 ## Install / build
 
 ```bash
-PP_LIBRARY_REPO=/path/to/printing-press-library pp-sync build google-analytics-pp-cli
+PP_LIBRARY_REPO=/Users/knox/Developer/PrintingPress/printing-press-library pp-sync build google-analytics-pp-cli
 ```
 
 ## Auth
@@ -17,7 +17,7 @@ Use a service-account JSON key with Analytics readonly scope. Set `GOOGLE_APPLIC
 
 Resolution order: `--credentials`, then `GOOGLE_APPLICATION_CREDENTIALS`. There is no implicit developer-local credential fallback.
 
-GA4 property resolution for data commands: `--property`, then `GA4_PROPERTY_ID`. The CLI does not hard-code the first authorized property or the second authorized property property IDs. For fleet health checks, pass explicit properties or set `GA4_PROPERTY_IDS`.
+GA4 property resolution for data commands: `--property`, then `GA4_PROPERTY_ID`. The CLI does not hard-code BestSelf or LittleMight property IDs. For fleet health checks, pass explicit properties or set `GA4_PROPERTY_IDS`.
 
 Important gotcha: Google Cloud API access is not GA4 property access. The service account must also be granted Viewer access inside each GA4 property. `health` / `doctor` distinguishes invalid credentials from property not shared / permission denied.
 
@@ -63,9 +63,9 @@ Every command inherits:
 
 ```bash
 google-analytics-pp-cli agent-context --agent
-google-analytics-pp-cli health --properties $GA4_PROPERTY_IDS --agent
-google-analytics-pp-cli channels --property $GA4_PROPERTY_ID --start 28daysAgo --end yesterday --agent
-google-analytics-pp-cli compare --property $GA4_PROPERTY_ID --metric sessions,totalRevenue --period wow --agent
-google-analytics-pp-cli whats-changed --property $GA4_PROPERTY_ID --agent
-google-analytics-pp-cli funnel --property $GA4_PROPERTY_ID --steps view_item,add_to_cart,begin_checkout,purchase --agent
+google-analytics-pp-cli health --properties 280199692,540652239 --agent
+google-analytics-pp-cli channels --property 280199692 --start 28daysAgo --end yesterday --agent
+google-analytics-pp-cli compare --property 280199692 --metric sessions,totalRevenue --period wow --agent
+google-analytics-pp-cli whats-changed --property 280199692 --agent
+google-analytics-pp-cli funnel --property 280199692 --steps view_item,add_to_cart,begin_checkout,purchase --agent
 ```

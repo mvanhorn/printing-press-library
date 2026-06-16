@@ -37,7 +37,7 @@ Use `google-analytics-pp-cli` for GA4-only analytics work. Search Console is cov
 - Service account key: `--credentials`, else `GOOGLE_APPLICATION_CREDENTIALS`.
 - Scope: `https://www.googleapis.com/auth/analytics.readonly`.
 - Property: pass `--property`, or set `GA4_PROPERTY_ID`.
-- Fleet health checks: `health --properties $GA4_PROPERTY_IDS --agent` or set `GA4_PROPERTY_IDS`.
+- Fleet health checks: `health --properties 280199692,540652239 --agent` or set `GA4_PROPERTY_IDS`.
 
 Durable gotcha: Google Cloud API access is not GA4 property access. The service account must be granted Viewer access inside the GA4 property. If `health` shows token/admin OK but a property check is 403/404, fix the GA4 property grant rather than rotating credentials.
 
@@ -45,7 +45,7 @@ Durable gotcha: Google Cloud API access is not GA4 property access. The service 
 
 ```bash
 google-analytics-pp-cli agent-context --agent
-google-analytics-pp-cli health --properties $GA4_PROPERTY_IDS --agent
+google-analytics-pp-cli health --properties 280199692,540652239 --agent
 google-analytics-pp-cli channels --property "$GA4_PROPERTY_ID" --start 28daysAgo --end yesterday --agent
 google-analytics-pp-cli sources --property "$GA4_PROPERTY_ID" --agent
 google-analytics-pp-cli top-pages --property "$GA4_PROPERTY_ID" --agent

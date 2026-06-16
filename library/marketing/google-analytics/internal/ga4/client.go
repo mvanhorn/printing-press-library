@@ -69,26 +69,9 @@ func (c *Client) RunFunnelReport(ctx context.Context, property string, req RunFu
 	return out, st, err
 }
 func (c *Client) AccountSummaries(ctx context.Context) (AccountSummariesResponse, int, error) {
-	var combined AccountSummariesResponse
-	lastStatus := 0
-	pageToken := ""
-	for {
-		target := c.AdminBase + "/accountSummaries?pageSize=200"
-		if pageToken != "" {
-			target += "&pageToken=" + url.QueryEscape(pageToken)
-		}
-		var page AccountSummariesResponse
-		st, err := c.get(ctx, target, &page)
-		lastStatus = st
-		if err != nil {
-			return combined, st, err
-		}
-		combined.AccountSummaries = append(combined.AccountSummaries, page.AccountSummaries...)
-		if page.NextPageToken == "" {
-			return combined, lastStatus, nil
-		}
-		pageToken = page.NextPageToken
-	}
+	var out AccountSummariesResponse
+	st, err := c.get(ctx, c.AdminBase+"/accountSummaries?pageSize=200", &out)
+	return out, st, err
 }
 func (c *Client) Property(ctx context.Context, property string) (Property, int, error) {
 	var out Property

@@ -5,7 +5,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/marketing/google-analytics/internal/ga4"
 )
@@ -29,10 +28,10 @@ func flattenRows(raw ga4.ReportResponse) []map[string]any {
 	return out
 }
 func flattenTotals(raw ga4.ReportResponse) []map[string]any {
-	r := raw
-	r.Rows = raw.Totals
-	r.DimensionHeaders = nil
-	return flattenRows(r)
+	copy := raw
+	copy.Rows = raw.Totals
+	copy.DimensionHeaders = nil
+	return flattenRows(copy)
 }
 func parseNum(s string) any {
 	if strings.Contains(s, ".") {
@@ -113,9 +112,6 @@ func trend(rows []map[string]any, metric string) map[string]any {
 	return map[string]any{"first": first, "last": last, "delta": delta, "pct_change": pct}
 }
 func inferPrevious(start, end, period string) (string, string) {
-	if ps, pe, ok := inferPreviousAbsolute(start, end); ok {
-		return ps, pe
-	}
 	switch period {
 	case "wow":
 		return "14daysAgo", "8daysAgo"
@@ -125,22 +121,6 @@ func inferPrevious(start, end, period string) (string, string) {
 		return "14daysAgo", "8daysAgo"
 	}
 }
-
-func inferPreviousAbsolute(start, end string) (string, string, bool) {
-	startDate, err := time.Parse("2006-01-02", start)
-	if err != nil {
-		return "", "", false
-	}
-	endDate, err := time.Parse("2006-01-02", end)
-	if err != nil || endDate.Before(startDate) {
-		return "", "", false
-	}
-	days := int(endDate.Sub(startDate).Hours()/24) + 1
-	previousEnd := startDate.AddDate(0, 0, -1)
-	previousStart := previousEnd.AddDate(0, 0, -(days - 1))
-	return previousStart.Format("2006-01-02"), previousEnd.Format("2006-01-02"), true
-}
-
 func toFloat(v any) float64 {
 	switch x := v.(type) {
 	case nil:

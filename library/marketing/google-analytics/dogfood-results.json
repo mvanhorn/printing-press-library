@@ -1,4 +1,5 @@
 {
   "status": "pass",
-  "notes": "Publish-grade rebuild validated with go test/build, verify-skill, lint, and redacted local smoke checks. Private live GA4 output is intentionally not committed."
+  "notes": "Publish-grade rebuild validated with go test/build, verify-skill, and live smoke across every command for BestSelf 280199692 and LittleMight 540652239.",
+  "live_smoke_evidence": ".manuscripts/ga4-20260612/proofs/live-smoke/live-smoke-status.tsv"
 }
