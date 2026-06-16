@@ -41,7 +41,7 @@ func newRootCmd(f *rootFlags) *cobra.Command {
 		}
 		return nil
 	}
-	cmd.AddCommand(agentContextCmd(f), doctorCmd(f), sourcesCmd(f), profileCmd(f), syncCmd(f), moversCmd(f), dashboardCmd(f), opportunitiesCmd(f), actionPlanCmd(f), moneyPagesCmd(f), moneyProductsCmd(f), queryRevenueCmd(f), explainDropCmd(f), productActionsCmd(f), categoryActionsCmd(f), emailActionsCmd(f), inventoryRiskCmd(f), sourceCoverageCmd(f), merchandisingLinkPlanCmd(f), experimentPlanCmd(f), forecastImpactCmd(f), restockWinnersCmd(f), cannibalizationCmd(f), categoryClustersCmd(f), digestCmd(f), geoAuditCmd(f))
+	cmd.AddCommand(agentContextCmd(f), doctorCmd(f), sourcesCmd(f), profileCmd(f), syncCmd(f), moversCmd(f), confidenceCmd(f), dashboardCmd(f), opportunitiesCmd(f), actionPlanCmd(f), moneyPagesCmd(f), moneyProductsCmd(f), queryRevenueCmd(f), explainDropCmd(f), productActionsCmd(f), categoryActionsCmd(f), emailActionsCmd(f), inventoryRiskCmd(f), sourceCoverageCmd(f), merchandisingLinkPlanCmd(f), experimentPlanCmd(f), forecastImpactCmd(f), restockWinnersCmd(f), cannibalizationCmd(f), categoryClustersCmd(f), digestCmd(f), geoAuditCmd(f))
 	return cmd
 }
 func st(f *rootFlags) *store.Store { return store.New(f.home) }
@@ -590,7 +590,8 @@ func digestCmd(f *rootFlags) *cobra.Command {
 			return err
 		}
 		rev, prev := totals(d)
-		digest := map[string]any{"profile": d.Profile, "synced_at": d.SyncedAt, "revenue": rev, "previous_revenue": prev, "revenue_delta": rev - prev, "top_product": "", "inventory_risks": len(inventoryRisks(d)), "geo_score": geoScore(d), "recommended_next_command": "ecommerce-intel-pp-cli movers --profile " + d.Profile}
+		confidence := confidenceForData(d)
+		digest := map[string]any{"profile": d.Profile, "synced_at": d.SyncedAt, "revenue": rev, "previous_revenue": prev, "revenue_delta": rev - prev, "top_product": "", "inventory_risks": len(inventoryRisks(d)), "geo_score": geoScore(d), "recommended_next_command": "ecommerce-intel-pp-cli movers --profile " + d.Profile, "confidence": confidence}
 		moverLine := "movers: no prior snapshot yet"
 		if snaps, err := st(f).LatestSnapshots(f.profile, 2); err == nil && len(snaps) > 1 {
 			movers := buildMovers(snaps[0], snaps[1], 5)
@@ -602,7 +603,7 @@ func digestCmd(f *rootFlags) *cobra.Command {
 			sort.Slice(ps, func(i, j int) bool { return ps[i].Revenue > ps[j].Revenue })
 			digest["top_product"] = ps[0].Handle
 		}
-		return out(cmd, f, digest, fmt.Sprintf("Weekly ecommerce digest for %s\nAct on what's already moving.\n%s\nrevenue: %.2f\ndelta: %.2f\ntop product: %s\nGEO score: %d\n", d.Profile, moverLine, rev, rev-prev, digest["top_product"], geoScore(d)))
+		return out(cmd, f, digest, fmt.Sprintf("Weekly ecommerce digest for %s\nAct on what's already moving.\nconfidence: %s\n%s\nrevenue: %.2f\ndelta: %.2f\ntop product: %s\nGEO score: %d\n", d.Profile, confidence.Summary, moverLine, rev, rev-prev, digest["top_product"], geoScore(d)))
 	}})
 	return cmd
 }

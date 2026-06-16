@@ -101,7 +101,7 @@ func TestSyncAndAnalysisCommands(t *testing.T) {
 	if got, err := run(t, home, "--profile", "demo", "sync"); err != nil || !strings.Contains(got, "synced 4 pages") {
 		t.Fatalf("sync failed: %v %s", err, got)
 	}
-	checks := [][]string{{"movers"}, {"money-pages"}, {"query-revenue", "jackets"}, {"explain-drop"}, {"refresh-queue"}, {"opportunity-gap"}, {"quick-wins"}, {"revenue-at-risk"}, {"refresh-brief", "jackets"}, {"topic-clusters"}, {"source-coverage"}, {"internal-link-plan"}, {"experiment-plan", "jackets"}, {"forecast-impact"}, {"stale-winners"}, {"digest", "weekly"}}
+	checks := [][]string{{"movers"}, {"confidence"}, {"money-pages"}, {"query-revenue", "jackets"}, {"explain-drop"}, {"refresh-queue"}, {"opportunity-gap"}, {"quick-wins"}, {"revenue-at-risk"}, {"refresh-brief", "jackets"}, {"topic-clusters"}, {"source-coverage"}, {"internal-link-plan"}, {"experiment-plan", "jackets"}, {"forecast-impact"}, {"stale-winners"}, {"digest", "weekly"}}
 	for _, args := range checks {
 		got, err := run(t, home, append([]string{"--profile", "demo"}, args...)...)
 		if err != nil {
@@ -323,6 +323,32 @@ func TestNovelCommandsUseCrossSourceSignals(t *testing.T) {
 	}
 }
 
+func TestConfidenceGateRefusesThinDerivedMetrics(t *testing.T) {
+	home := t.TempDir()
+	fixture := filepath.Join(home, "thin.json")
+	body := `{"profile":"thin","source":"test","pages":[{"url":"/thin","title":"Thin","clicks":4,"sessions":10,"conversions":0,"revenue":0}]}`
+	if err := os.WriteFile(fixture, []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := run(t, home, "--profile", "thin", "sync", "--import", fixture); err != nil {
+		t.Fatal(err)
+	}
+	got, err := run(t, home, "--profile", "thin", "--agent", "confidence")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"level":"Broken"`) && !strings.Contains(got, `"level":"Low"`) {
+		t.Fatalf("expected low/broken confidence: %s", got)
+	}
+	got, err = run(t, home, "--profile", "thin", "--agent", "forecast-impact")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"refused":true`) || !strings.Contains(got, `"fix_tracking_first"`) {
+		t.Fatalf("forecast did not refuse thin tracking: %s", got)
+	}
+}
+
 func TestSyncLiveChildCLIsNormalizesAndMergesSources(t *testing.T) {
 	home := t.TempDir()
 	binDir := t.TempDir()
@@ -338,13 +364,13 @@ func TestSyncLiveChildCLIsNormalizesAndMergesSources(t *testing.T) {
 		}
 	}
 	installFakeChild("google-search-console-pp-cli", `cat <<'JSON'
-{"pages":[{"url":"/p1","title":"Page One","clicks":"12","impressions":120,"ctr":0.1,"avg_position":3.5,"previous_clicks":20,"query_sample":"blue widgets"}]}
+{"schema_version":"google-search-console.search-analytics/v1","pages":[{"url":"/p1","title":"Page One","clicks":"12","impressions":120,"ctr":0.1,"avg_position":3.5,"previous_clicks":20,"query_sample":"blue widgets"}]}
 JSON`)
 	installFakeChild("google-analytics-pp-cli", `cat <<'JSON'
-{"rows":[{"landing_page":"/p1","sessions":30,"transactions":2,"total_revenue":"199.50","previous_sessions":42,"previous_revenue":250},{"landing_page":"/p2","sessions":7,"revenue":15}]}
+{"schema_version":"google-analytics.top-pages/v1","rows":[{"landing_page":"/p1","sessions":30,"transactions":2,"total_revenue":"199.50","previous_sessions":42,"previous_revenue":250},{"landing_page":"/p2","sessions":7,"revenue":15}]}
 JSON`)
 	installFakeChild("ahrefs-pp-cli", `cat <<'JSON'
-{"results":{"pages":[{"page":"/p1","backlinks":8,"referring_domains":4,"top_keyword":"widgets"}]}}
+{"schema_version":"ahrefs.top-pages/v1","results":{"pages":[{"page":"/p1","backlinks":8,"referring_domains":4,"top_keyword":"widgets"}]}}
 JSON`)
 	t.Setenv("PATH", binDir+string(os.PathListSeparator)+os.Getenv("PATH"))
 	t.Setenv("CHILD_LOG", logPath)
@@ -412,7 +438,7 @@ func TestSyncAllRequiresEverySourceConfigured(t *testing.T) {
 func TestSyncSingleConfiguredSourceIsAllowed(t *testing.T) {
 	home := t.TempDir()
 	binDir := t.TempDir()
-	script := "#!/bin/sh\ncat <<'JSON'\n{\"pages\":[{\"url\":\"/only-gsc\",\"clicks\":3,\"impressions\":30}]}\nJSON\n"
+	script := "#!/bin/sh\ncat <<'JSON'\n{\"schema_version\":\"google-search-console.search-analytics/v1\",\"pages\":[{\"url\":\"/only-gsc\",\"clicks\":3,\"impressions\":30}]}\nJSON\n"
 	if err := os.WriteFile(filepath.Join(binDir, "google-search-console-pp-cli"), []byte(script), 0o755); err != nil {
 		t.Fatal(err)
 	}

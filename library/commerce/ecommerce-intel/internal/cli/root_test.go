@@ -82,7 +82,7 @@ func TestSyncAndCommerceCommands(t *testing.T) {
 	if err != nil || !strings.Contains(got, "synced 3 products") {
 		t.Fatalf("sync failed: %v %s", err, got)
 	}
-	commands := [][]string{{"movers"}, {"dashboard"}, {"opportunities"}, {"action-plan"}, {"money-pages"}, {"money-products"}, {"query-revenue", "boot"}, {"explain-drop"}, {"product-actions"}, {"category-actions"}, {"email-actions"}, {"inventory-risk"}, {"source-coverage"}, {"merchandising-link-plan"}, {"experiment-plan", "boot"}, {"forecast-impact"}, {"restock-winners"}, {"cannibalization"}, {"category-clusters"}, {"digest", "weekly"}, {"geo-audit"}}
+	commands := [][]string{{"movers"}, {"confidence"}, {"dashboard"}, {"opportunities"}, {"action-plan"}, {"money-pages"}, {"money-products"}, {"query-revenue", "boot"}, {"explain-drop"}, {"product-actions"}, {"category-actions"}, {"email-actions"}, {"inventory-risk"}, {"source-coverage"}, {"merchandising-link-plan"}, {"experiment-plan", "boot"}, {"forecast-impact"}, {"restock-winners"}, {"cannibalization"}, {"category-clusters"}, {"digest", "weekly"}, {"geo-audit"}}
 	for _, args := range commands {
 		got, err := run(t, home, append([]string{"--profile", "demo"}, args...)...)
 		if err != nil {
@@ -202,6 +202,32 @@ func TestSyncWritesProvenanceSnapshotsAndMovers(t *testing.T) {
 	}
 }
 
+func TestConfidenceGateRefusesThinDerivedMetrics(t *testing.T) {
+	home := t.TempDir()
+	fixture := filepath.Join(home, "thin.json")
+	body := `{"profile":"thin","source":"test","products":[{"handle":"thin-product","title":"Thin Product","sessions":10,"search_clicks":0,"search_position":0,"conversion_rate":0,"revenue":0}]}`
+	if err := os.WriteFile(fixture, []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := run(t, home, "--profile", "thin", "sync", "--import", fixture); err != nil {
+		t.Fatal(err)
+	}
+	got, err := run(t, home, "--profile", "thin", "--agent", "confidence")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"level":"Broken"`) && !strings.Contains(got, `"level":"Low"`) {
+		t.Fatalf("expected low/broken confidence: %s", got)
+	}
+	got, err = run(t, home, "--profile", "thin", "--agent", "forecast-impact")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"refused":true`) || !strings.Contains(got, `"fix_tracking_first"`) {
+		t.Fatalf("forecast did not refuse thin tracking: %s", got)
+	}
+}
+
 func writeDataset(t *testing.T, path string, d store.DataSet) {
 	t.Helper()
 	b, err := json.Marshal(d)
@@ -264,19 +290,19 @@ func TestSyncLiveChildCLIsMergesSources(t *testing.T) {
 		}
 	}
 	installFakeChild("shopify-pp-cli", `cat <<'JSON'
-{"products":[{"id":"gid://shopify/Product/1","handle":"waterproof-hiking-boot","title":"Waterproof Hiking Boot","url":"/products/waterproof-hiking-boot","vendor":"Trail","product_type":"boots","price":"199","inventory_quantity":77},{"handle":"new-sock","title":"New Sock","url":"/products/new-sock","price":12,"inventory":40}]}
+{"schema_version":"shopify.products/v1","products":[{"id":"gid://shopify/Product/1","handle":"waterproof-hiking-boot","title":"Waterproof Hiking Boot","url":"/products/waterproof-hiking-boot","vendor":"Trail","product_type":"boots","price":"199","inventory_quantity":77},{"handle":"new-sock","title":"New Sock","url":"/products/new-sock","price":12,"inventory":40}]}
 JSON`)
 	installFakeChild("klaviyo-pp-cli", `cat <<'JSON'
-{"flows":[{"name":"Abandoned Checkout","revenue":9300,"recipients":1000,"open_rate":0.5,"click_rate":0.1,"conversion_rate":0.04,"attributed_sales":90},{"product_handle":"waterproof-hiking-boot","email_revenue":333,"email_clicks":22}]}
+{"schema_version":"klaviyo.flows/v1","flows":[{"name":"Abandoned Checkout","revenue":9300,"recipients":1000,"open_rate":0.5,"click_rate":0.1,"conversion_rate":0.04,"attributed_sales":90},{"product_handle":"waterproof-hiking-boot","email_revenue":333,"email_clicks":22}]}
 JSON`)
 	installFakeChild("google-analytics-pp-cli", `cat <<'JSON'
-{"rows":[{"landing_page":"/products/waterproof-hiking-boot","sessions":111,"total_revenue":2222,"previous_sessions":90,"previous_revenue":1800},{"landing_page":"/collections/jackets","sessions":22,"revenue":44}]}
+{"schema_version":"google-analytics.top-pages/v1","rows":[{"landing_page":"/products/waterproof-hiking-boot","sessions":111,"total_revenue":2222,"previous_sessions":90,"previous_revenue":1800},{"landing_page":"/collections/jackets","sessions":22,"revenue":44}]}
 JSON`)
 	installFakeChild("google-search-console-pp-cli", `cat <<'JSON'
-{"rows":[{"keys":["/products/waterproof-hiking-boot"],"clicks":55,"previous_clicks":44,"position":3.2}]}
+{"schema_version":"google-search-console.search-analytics/v1","rows":[{"keys":["/products/waterproof-hiking-boot"],"clicks":55,"previous_clicks":44,"position":3.2}]}
 JSON`)
 	installFakeChild("ahrefs-pp-cli", `cat <<'JSON'
-{"results":{"pages":[{"url":"/products/waterproof-hiking-boot","backlinks":7,"referring_domains":3}]}}
+{"schema_version":"ahrefs.top-pages/v1","results":{"pages":[{"url":"/products/waterproof-hiking-boot","backlinks":7,"referring_domains":3}]}}
 JSON`)
 	t.Setenv("PATH", binDir+string(os.PathListSeparator)+os.Getenv("PATH"))
 	t.Setenv("CHILD_LOG", logPath)

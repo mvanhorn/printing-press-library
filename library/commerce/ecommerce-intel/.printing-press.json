@@ -34,6 +34,7 @@
   "novel_features": [
     {"name": "Unified ecommerce live sync", "command": "sync", "description": "sync imports local fixture/JSON or shells out to Shopify, Klaviyo, GA4, GSC, and Ahrefs child CLIs, merges their --agent output, and appends provenance-rich dated snapshots"},
     {"name": "Snapshot movers", "command": "movers", "description": "diffs the latest commerce snapshot against the previous snapshot for climbers, droppers, new Strike Zone entrants, and new revenue-at-risk products/pages/categories while appending learnings"},
+    {"name": "Confidence gate", "command": "confidence", "description": "scores source coverage, freshness, sample size, revenue/conversion/search evidence, tracking checks, and child schema support before derived metrics are trusted"},
     {"name": "Money products", "command": "money-products", "description": "ranks products by revenue and margin with inventory and SEO context"},
     {"name": "Opportunity queue", "command": "opportunities", "description": "prioritizes revenue, inventory, email, category, product, and GEO actions"},
     {"name": "GEO audit", "command": "geo-audit", "description": "assesses llms.txt, structured data, product facts, buying guides, and ChatGPT/Perplexity/AI Overviews readiness"},
@@ -41,7 +42,7 @@
     {"name": "Source coverage", "command": "source-coverage", "description": "audits product, page, category, and email-flow evidence across Shopify, Klaviyo, GA4, GSC, and Ahrefs"},
     {"name": "Merchandising link plan", "command": "merchandising-link-plan", "description": "recommends collection-to-PDP and PDP-to-PDP internal links by category, revenue, and link equity"},
     {"name": "Experiment plan", "command": "experiment-plan", "description": "turns a product into PDP offer, schema, content, and measurement experiments"},
-    {"name": "Forecast impact", "command": "forecast-impact", "description": "estimates revenue upside from conversion, CTR, and inventory gaps"},
+    {"name": "Forecast impact", "command": "forecast-impact", "description": "refuses under Low/Broken confidence and skips products missing revenue or search evidence instead of fabricating derived estimates"},
     {"name": "Restock winners", "command": "restock-winners", "description": "prioritizes high-margin, high-velocity products before stockout or decay"},
     {"name": "Cannibalization", "command": "cannibalization", "description": "detects products competing for the same query/category and recommends a canonical product"},
     {"name": "Category clusters", "command": "category-clusters", "description": "aggregates revenue, sessions, clicks, backlinks, and decay by collection"},

@@ -183,11 +183,33 @@ func runChildSource(def childSourceDef) (childEntities, string, string, string, 
 		}
 		return childEntities{}, command, "", "", fmt.Errorf("%s failed: %w", def.name, err)
 	}
+	if err := validateChildSchema(def.name, b); err != nil {
+		return childEntities{}, command, "", "", err
+	}
 	entities, err := parseChildEntities(def.name, b)
 	if err != nil {
 		return childEntities{}, command, "", "", fmt.Errorf("%s returned invalid JSON: %w", def.name, err)
 	}
 	return entities, command, intelcli.HashBytes(b), intelcli.ChildCLIVersion(def.binary), nil
+}
+
+func validateChildSchema(source string, b []byte) error {
+	var payload map[string]any
+	if err := json.Unmarshal(b, &payload); err != nil {
+		return err
+	}
+	version := intelcli.ExtractSchemaVersion(payload)
+	supported := map[string][]string{
+		"shopify": {"shopify.products/v1", "shopify.rows/v1"},
+		"klaviyo": {"klaviyo.flows/v1", "klaviyo.rows/v1"},
+		"ga4":     {"google-analytics.top-pages/v1", "google-analytics.rows/v1"},
+		"gsc":     {"google-search-console.search-analytics/v1", "google-search-console.rows/v1"},
+		"ahrefs":  {"ahrefs.top-pages/v1", "ahrefs.rows/v1"},
+	}
+	if !intelcli.SupportedSchema(source, version, supported) {
+		return fmt.Errorf("%s child CLI output missing unsupported schema_version %q; confidence and movers require one of %s", source, version, strings.Join(supported[source], ", "))
+	}
+	return nil
 }
 
 func parseChildEntities(source string, b []byte) (childEntities, error) {

@@ -56,6 +56,11 @@
       "description": "movers diffs the latest snapshot against the previous snapshot for climbers, droppers, new Strike Zone entrants, and new revenue-at-risk pages while appending learnings"
     },
     {
+      "name": "Confidence gate",
+      "command": "confidence",
+      "description": "confidence scores source coverage, freshness, sample size, revenue/conversion/search evidence, tracking checks, and child schema support before derived metrics are trusted"
+    },
+    {
       "name": "Money pages",
       "command": "money-pages",
       "description": "money-pages ranks pages by revenue, conversions, sessions, clicks, and Ahrefs link context"
@@ -88,7 +93,7 @@
     {
       "name": "Revenue at risk",
       "command": "revenue-at-risk",
-      "description": "revenue-at-risk ranks pages where organic or session declines overlap with commercial value"
+      "description": "revenue-at-risk refuses under Low/Broken confidence and skips rows missing GA4 revenue or GSC evidence instead of fabricating derived risk"
     },
     {
       "name": "Refresh brief",
@@ -123,7 +128,7 @@
     {
       "name": "Forecast impact",
       "command": "forecast-impact",
-      "description": "forecast-impact estimates click, conversion, and revenue upside from closing CTR gaps"
+      "description": "forecast-impact refuses under Low/Broken confidence and skips rows missing GA4 revenue or GSC evidence instead of fabricating derived estimates"
     },
     {
       "name": "Stale winners",

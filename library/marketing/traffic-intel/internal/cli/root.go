@@ -44,7 +44,7 @@ func newRootCmd(f *rootFlags) *cobra.Command {
 		}
 		return nil
 	}
-	cmd.AddCommand(agentContextCmd(f), doctorCmd(f), sourcesCmd(f), profileCmd(f), syncCmd(f), moversCmd(f), moneyPagesCmd(f), queryRevenueCmd(f), explainDropCmd(f), refreshQueueCmd(f), opportunityGapCmd(f), quickWinsCmd(f), revenueAtRiskCmd(f), refreshBriefCmd(f), cannibalizationCmd(f), topicClustersCmd(f), sourceCoverageCmd(f), internalLinkPlanCmd(f), experimentPlanCmd(f), forecastImpactCmd(f), staleWinnersCmd(f), digestCmd(f))
+	cmd.AddCommand(agentContextCmd(f), doctorCmd(f), sourcesCmd(f), profileCmd(f), syncCmd(f), moversCmd(f), confidenceCmd(f), moneyPagesCmd(f), queryRevenueCmd(f), explainDropCmd(f), refreshQueueCmd(f), opportunityGapCmd(f), quickWinsCmd(f), revenueAtRiskCmd(f), refreshBriefCmd(f), cannibalizationCmd(f), topicClustersCmd(f), sourceCoverageCmd(f), internalLinkPlanCmd(f), experimentPlanCmd(f), forecastImpactCmd(f), staleWinnersCmd(f), digestCmd(f))
 	return cmd
 }
 func st(f *rootFlags) *store.Store { return store.New(f.home) }
@@ -83,6 +83,7 @@ func agentContextCmd(f *rootFlags) *cobra.Command {
 				{"name": "profile save/list/show/delete", "safe_for_agents": true, "description": "manage local profile metadata"},
 				{"name": "sync", "safe_for_agents": true, "description": "load embedded ecommerce fixture, local JSON import, or opt-in child CLI sync; all/live/real require all source configs"},
 				{"name": "movers", "safe_for_agents": true, "description": "diff latest snapshot against the previous snapshot for climbers, droppers, new Strike-Zone entrants, and new revenue-at-risk"},
+				{"name": "confidence", "safe_for_agents": true, "description": "assess source coverage, freshness, sample size, tracking signals, and schema contract support"},
 				{"name": "money-pages", "safe_for_agents": true, "description": "rank landing pages by GA4 revenue/conversions"},
 				{"name": "query-revenue", "safe_for_agents": true, "description": "sum revenue for matching URLs/titles"},
 				{"name": "explain-drop", "safe_for_agents": true, "description": "combine GSC/GA4/Ahrefs deltas into drop explanations"},
@@ -541,11 +542,31 @@ func runChildSource(def childSourceDef) ([]store.PageMetrics, string, string, st
 		}
 		return nil, command, "", "", fmt.Errorf("%s failed: %w", def.name, err)
 	}
+	if err := validateChildSchema(def.name, b); err != nil {
+		return nil, command, "", "", err
+	}
 	pages, err := parseChildPages(def.name, b)
 	if err != nil {
 		return nil, command, "", "", fmt.Errorf("%s returned invalid JSON: %w", def.name, err)
 	}
 	return pages, command, intelcli.HashBytes(b), intelcli.ChildCLIVersion(def.binary), nil
+}
+
+func validateChildSchema(source string, b []byte) error {
+	var payload map[string]any
+	if err := json.Unmarshal(b, &payload); err != nil {
+		return err
+	}
+	version := intelcli.ExtractSchemaVersion(payload)
+	supported := map[string][]string{
+		"gsc":    {"google-search-console.search-analytics/v1", "google-search-console.rows/v1"},
+		"ga4":    {"google-analytics.top-pages/v1", "google-analytics.rows/v1"},
+		"ahrefs": {"ahrefs.top-pages/v1", "ahrefs.rows/v1"},
+	}
+	if !intelcli.SupportedSchema(source, version, supported) {
+		return fmt.Errorf("%s child CLI output missing unsupported schema_version %q; confidence and movers require one of %s", source, version, strings.Join(supported[source], ", "))
+	}
+	return nil
 }
 
 func mergeSource(dst, src store.PageMetrics, source, command string) store.PageMetrics {
@@ -949,10 +970,18 @@ func revenueAtRiskCmd(f *rootFlags) *cobra.Command {
 		if err != nil {
 			return err
 		}
+		confidence := confidenceForData(d)
+		if confidence.BlocksDerivedMetrics() {
+			return out(cmd, f, derivedMetricRefusal(confidence), "fix tracking first: confidence is too low to compute revenue-at-risk\n")
+		}
 		ps := sortedPages(d, revenueRiskScore)
 		rows := []map[string]any{}
 		lines := []string{"url\tscore\tlost_clicks\tlost_sessions\tlost_revenue\trevenue"}
 		for _, p := range ps {
+			if !canComputeDerived(p) {
+				rows = append(rows, missingEvidenceRow("revenue-at-risk", p))
+				continue
+			}
 			score := revenueRiskScore(p)
 			if score <= 0 {
 				continue
@@ -969,6 +998,7 @@ func revenueAtRiskCmd(f *rootFlags) *cobra.Command {
 				"revenue":       p.Revenue,
 				"conversions":   p.Conversions,
 				"ref_domains":   p.RefDomains,
+				"confidence":    confidence.Level,
 				"next_action":   riskAction(p),
 			}
 			rows = append(rows, row)
@@ -1198,13 +1228,25 @@ func forecastImpactCmd(f *rootFlags) *cobra.Command {
 		if err != nil {
 			return err
 		}
+		confidence := confidenceForData(d)
+		if confidence.BlocksDerivedMetrics() {
+			return out(cmd, f, derivedMetricRefusal(confidence), "fix tracking first: confidence is too low to compute forecast-impact\n")
+		}
 		ps := sortedPages(d, forecastScore)
 		rows := []map[string]any{}
 		lines := []string{"url\test_click_gain\test_revenue_gain\tctr_gap"}
 		for _, p := range ps {
+			if !canComputeDerived(p) {
+				rows = append(rows, missingEvidenceRow("forecast-impact", p))
+				continue
+			}
 			row := forecastRow(p, len(rows)+1)
 			if row["estimated_click_gain"].(float64) <= 0 {
 				continue
+			}
+			row["confidence"] = confidence.Level
+			if confidence.Level == intelcli.ConfidenceMedium {
+				row["confidence_caveat"] = "Medium confidence: verify tracking before acting on forecast magnitude."
 			}
 			rows = append(rows, row)
 			lines = append(lines, fmt.Sprintf("%s\t%.1f\t%.2f\t%.3f", row["url"], row["estimated_click_gain"], row["estimated_revenue_gain"], row["ctr_gap"]))
@@ -1278,7 +1320,8 @@ func digestCmd(f *rootFlags) *cobra.Command {
 		if len(d.Pages) > 0 {
 			topMoneyPage = sortedPages(d, func(p store.PageMetrics) float64 { return p.Revenue })[0].URL
 		}
-		digest := map[string]any{"profile": d.Profile, "synced_at": d.SyncedAt, "pages": len(d.Pages), "clicks": clicks, "sessions": sessions, "revenue": revenue, "top_money_page": topMoneyPage, "recommended_next_command": "traffic-intel-pp-cli movers --profile " + d.Profile}
+		confidence := confidenceForData(d)
+		digest := map[string]any{"profile": d.Profile, "synced_at": d.SyncedAt, "pages": len(d.Pages), "clicks": clicks, "sessions": sessions, "revenue": revenue, "top_money_page": topMoneyPage, "recommended_next_command": "traffic-intel-pp-cli movers --profile " + d.Profile, "confidence": confidence}
 		moverLine := "movers: no prior snapshot yet"
 		if snaps, err := st(f).LatestSnapshots(f.profile, 2); err == nil && len(snaps) > 1 {
 			movers := buildMovers(snaps[0], snaps[1], 5)
@@ -1288,7 +1331,7 @@ func digestCmd(f *rootFlags) *cobra.Command {
 		if len(d.Pages) == 0 {
 			digest["note"] = "no pages in local dataset; run sync --import with page metrics or sync without --import for the fixture"
 		}
-		return out(cmd, f, digest, fmt.Sprintf("Weekly digest for %s\nAct on what's already moving.\n%s\npages: %d\nclicks: %d\nsessions: %d\nrevenue: %.2f\ntop money page: %s\n", d.Profile, moverLine, len(d.Pages), clicks, sessions, revenue, topMoneyPage))
+		return out(cmd, f, digest, fmt.Sprintf("Weekly digest for %s\nAct on what's already moving.\nconfidence: %s\n%s\npages: %d\nclicks: %d\nsessions: %d\nrevenue: %.2f\ntop money page: %s\n", d.Profile, confidence.Summary, moverLine, len(d.Pages), clicks, sessions, revenue, topMoneyPage))
 	}})
 	return cmd
 }

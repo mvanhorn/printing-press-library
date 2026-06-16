@@ -8,6 +8,7 @@ import (
 	"unicode"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/ecommerce-intel/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/internal/intelcli"
 	"github.com/spf13/cobra"
 )
 
@@ -19,6 +20,7 @@ func agentCommands() []map[string]any {
 		{"name": "profile save/list/show/delete", "safe_for_agents": true, "description": "manage local profile metadata"},
 		{"name": "sync", "safe_for_agents": true, "description": "load embedded fixture, local JSON import, or opt-in child CLI sync"},
 		{"name": "movers", "safe_for_agents": true, "description": "diff latest snapshot against the previous snapshot for commerce climbers, droppers, new Strike-Zone entrants, and new revenue-at-risk"},
+		{"name": "confidence", "safe_for_agents": true, "description": "assess source coverage, freshness, sample size, tracking signals, and schema contract support"},
 		{"name": "dashboard", "safe_for_agents": true, "description": "commerce KPI overview"},
 		{"name": "opportunities", "safe_for_agents": true, "description": "prioritized revenue, SEO, GEO, email, and inventory opportunities"},
 		{"name": "action-plan", "safe_for_agents": true, "description": "7-day ecommerce action plan"},
@@ -145,12 +147,24 @@ func forecastImpactCmd(f *rootFlags) *cobra.Command {
 		if err != nil {
 			return err
 		}
+		confidence := confidenceForData(d)
+		if confidence.BlocksDerivedMetrics() {
+			return out(cmd, f, derivedMetricRefusal(confidence), "fix tracking first: confidence is too low to compute forecast-impact\n")
+		}
 		rows := forecastRows(d)
 		if limit > 0 && len(rows) > limit {
 			rows = rows[:limit]
 		}
 		lines := []string{"product\test_revenue_gain\tprimary_gap"}
 		for _, row := range rows {
+			if row["skipped"] == true {
+				lines = append(lines, fmt.Sprintf("%s\tskipped\t%s", row["product"], row["skip_reason"]))
+				continue
+			}
+			row["confidence"] = confidence.Level
+			if confidence.Level == intelcli.ConfidenceMedium {
+				row["confidence_caveat"] = "Medium confidence: verify tracking before acting on forecast magnitude."
+			}
 			lines = append(lines, fmt.Sprintf("%s\t%.2f\t%s", row["product"], row["estimated_revenue_gain"], row["primary_gap"]))
 		}
 		return out(cmd, f, rows, strings.Join(lines, "\n")+"\n")
@@ -299,6 +313,10 @@ func productExperimentPlan(p store.Product) map[string]any {
 func forecastRows(d store.DataSet) []map[string]any {
 	rows := []map[string]any{}
 	for _, p := range d.Products {
+		if !canComputeProductDerived(p) {
+			rows = append(rows, productMissingEvidenceRow("forecast-impact", p))
+			continue
+		}
 		revenuePerSession := 0.0
 		if p.Sessions > 0 {
 			revenuePerSession = p.Revenue / float64(p.Sessions)

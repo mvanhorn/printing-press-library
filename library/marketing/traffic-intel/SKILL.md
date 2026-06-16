@@ -8,6 +8,7 @@ Use `traffic-intel-pp-cli` when an agent needs a private, local-first view of tr
 - Run `traffic-intel-pp-cli --agent agent-context` before automated workflows and honor schema `traffic-intel.agent-context/v1`.
 - Run `traffic-intel-pp-cli --agent sources doctor` before live child CLI sync to check binary/env readiness.
 - Run `traffic-intel-pp-cli --profile <name> sync` before analysis commands if local data is missing.
+- Run `traffic-intel-pp-cli --profile <name> confidence` before trusting forecast or revenue-risk output.
 - Run `traffic-intel-pp-cli --profile <name> movers` after at least two syncs to identify climbers, droppers, new Strike Zone entrants, and new revenue-at-risk pages.
 - Prefer JSON via `--agent` for machine parsing.
 - Treat env var values as secrets; doctor output reports presence only.
@@ -36,6 +37,8 @@ Use `sources doctor` to discover whether those binaries are on `PATH` and whethe
 
 `sync --source all`, `--live`, and `--real` require all three source configs. Use `--source gsc`, `--source ga4`, or `--source ahrefs` for an intentional single-source sync.
 
+Child CLI JSON must include a supported `schema_version`; unknown or missing child schemas fail closed before data feeds confidence, movers, or later apply surfaces.
+
 ## Commands
 
 - `agent-context` — schema-versioned machine context with commands, env presence, and child source plan.
@@ -44,6 +47,7 @@ Use `sources doctor` to discover whether those binaries are on `PATH` and whethe
 - `profile save/list/show/delete` — profile state under `~/.traffic-intel-pp-cli`.
 - `sync` — embedded ecommerce fixture, `--import` local JSON, or opt-in child CLI sync.
 - `movers` — snapshot diff for climbers, droppers, new Strike Zone entrants, and new revenue-at-risk pages.
+- `confidence` — High/Medium/Low/Broken trust score with source coverage, freshness, tracking, and schema checks.
 - `money-pages` — revenue-ranked URLs.
 - `query-revenue` — revenue for matching URLs/titles.
 - `explain-drop` — local before/after drop explanations.
@@ -57,6 +61,6 @@ Use `sources doctor` to discover whether those binaries are on `PATH` and whethe
 - `source-coverage` — page-level audit of GSC, GA4, and Ahrefs evidence gaps.
 - `internal-link-plan` — source and target page recommendations for internal links.
 - `experiment-plan <url-or-topic>` — title, meta, content, and measurement tests for one page.
-- `forecast-impact` — estimated click, conversion, and revenue upside from CTR-gap closure.
+- `forecast-impact` — confidence-gated estimated click, conversion, and revenue upside from CTR-gap closure.
 - `stale-winners` — high-value pages to refresh before visible decay.
 - `digest weekly` — mover-led weekly summary; safe for empty datasets.
