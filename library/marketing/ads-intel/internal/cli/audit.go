@@ -129,7 +129,7 @@ func runAudit(d store.DataSet, home string) (auditResult, error) {
 	}
 	for i := range findings {
 		if strings.Contains(findings[i].ID, "negative_keyword_candidate") {
-			path, err := writeNegativeDraft(home, d.Profile, findings[i])
+			path, err := writeNegativeDraft(home, d, findings[i])
 			if err != nil {
 				return auditResult{}, err
 			}
@@ -277,18 +277,58 @@ func quickWins(findings []finding, c auditCatalog) []finding {
 	return out
 }
 
-func writeNegativeDraft(home, profile string, f finding) (string, error) {
-	dir := filepath.Join(home, "drafts", profile)
+func writeNegativeDraft(home string, d store.DataSet, f finding) (string, error) {
+	dir := filepath.Join(home, "drafts", d.Profile)
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return "", err
 	}
 	path := filepath.Join(dir, f.ID+".json")
-	body := map[string]any{"draft_type": "negative_keyword_candidate", "read_only": true, "finding": f, "note": "Draft artifact only. Phase 4 writes nothing to ad accounts."}
+	target, evidence := buildNegativeDraftTarget(d, f)
+	body := map[string]any{
+		"draft_type": "negative_keyword_candidate",
+		"read_only":  true,
+		"finding":    f,
+		"target":     target,
+		"evidence":   evidence,
+		"apply_constraints": map[string]any{
+			"platform":              "google",
+			"mutation":              "add_exact_negative_keyword",
+			"allowed_match_type":    "EXACT",
+			"minimum_spend":         10,
+			"required_conversions":  0,
+			"preferred_scope_order": []string{"ad_group", "campaign"},
+		},
+		"note": "Draft artifact only until an explicit apply dry-run or live approval. Live apply requires --live-approved and typed confirmation.",
+	}
 	b, err := json.MarshalIndent(body, "", "  ")
 	if err != nil {
 		return "", err
 	}
 	return path, os.WriteFile(path, b, 0o644)
+}
+
+func buildNegativeDraftTarget(d store.DataSet, f finding) (map[string]any, map[string]any) {
+	term := strings.TrimPrefix(f.Title, "Negative keyword draft: ")
+	target := map[string]any{
+		"platform":     f.Platform,
+		"customer_id":  d.Account.AccountID,
+		"keyword_text": term,
+		"match_type":   "EXACT",
+	}
+	evidence := map[string]any{"source_check": "wasted_spend", "minimum_spend": 10, "required_conversions": 0}
+	for _, row := range d.SearchTerms {
+		if row.Platform == f.Platform && strings.EqualFold(row.Term, term) {
+			target["campaign_id"] = row.CampaignID
+			target["campaign_name"] = row.CampaignName
+			target["ad_group_id"] = row.AdGroupID
+			target["ad_group_name"] = row.AdGroupName
+			evidence["spend"] = row.Spend
+			evidence["conversions"] = row.Conversions
+			evidence["clicks"] = row.Clicks
+			break
+		}
+	}
+	return target, evidence
 }
 
 func spendByPlatform(d store.DataSet) map[string]float64 {

@@ -23,8 +23,8 @@ func Fixture(profile string) DataSet {
 			{ID: "m-2", Name: "Meta Learning Campaign", Platform: "meta", Status: "active", Spend: 80, Conversions: 1, Revenue: 60, Clicks: 75, Impressions: 9000, Frequency: 1.4, CTR: .008, ROAS: .75, LearningPhase: true},
 		},
 		SearchTerms: []SearchTerm{
-			{Platform: "google", CampaignID: "g-2", Term: "free hiking boots", Spend: 18.50, Conversions: 0, Clicks: 31},
-			{Platform: "amazon", CampaignID: "a-1", Term: "cheap boot repair", Spend: 12.25, Conversions: 0, Clicks: 18},
+			{Platform: "google", CampaignID: "g-2", CampaignName: "Nonbrand Prospecting", AdGroupID: "ag-22", AdGroupName: "Prospecting Terms", Term: "free hiking boots", Spend: 18.50, Conversions: 0, Clicks: 31},
+			{Platform: "amazon", CampaignID: "a-1", CampaignName: "Amazon Sponsored Products", Term: "cheap boot repair", Spend: 12.25, Conversions: 0, Clicks: 18},
 		},
 		Keywords: []Keyword{
 			{Platform: "google", CampaignID: "g-1", Text: "acme boots", MatchType: "EXACT", Bidding: "TARGET_ROAS", Clicks: 300, Conversions: 30, NegativeList: "brand-safe"},

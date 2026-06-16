@@ -64,12 +64,15 @@ type Campaign struct {
 }
 
 type SearchTerm struct {
-	Platform    string  `json:"platform"`
-	CampaignID  string  `json:"campaign_id"`
-	Term        string  `json:"term"`
-	Spend       float64 `json:"spend"`
-	Conversions float64 `json:"conversions"`
-	Clicks      int     `json:"clicks"`
+	Platform     string  `json:"platform"`
+	CampaignID   string  `json:"campaign_id"`
+	CampaignName string  `json:"campaign_name,omitempty"`
+	AdGroupID    string  `json:"ad_group_id,omitempty"`
+	AdGroupName  string  `json:"ad_group_name,omitempty"`
+	Term         string  `json:"term"`
+	Spend        float64 `json:"spend"`
+	Conversions  float64 `json:"conversions"`
+	Clicks       int     `json:"clicks"`
 }
 
 type Keyword struct {
