@@ -1,0 +1,107 @@
+name: nhc
+description: "Credible, real-time National Hurricane Center data for AI agents: active storms, parsed advisories, tropical outlooks, and NWS tropical alerts. Text-first, link-outs for GIS."
+version: "0.1.0"
+base_url: "https://www.nhc.noaa.gov"
+health_check_path: "/CurrentStorms.json"
+required_headers:
+  - name: User-Agent
+    value: "nhc-pp-cli (github.com/abe238/nhc-pp-cli)"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/nhc-pp-cli/config.toml"
+
+resources:
+  storms:
+    description: "Active tropical cyclones from NHC CurrentStorms.json (all basins)"
+    endpoints:
+      list:
+        method: GET
+        path: "/CurrentStorms.json"
+        description: "List every active tropical cyclone across all basins. Returns [] when none are active (quiet season); run 'outlook' to see what may be developing."
+        response:
+          type: array
+          item: Storm
+        response_path: "activeStorms"
+        response_format: json
+
+  alerts:
+    description: "Active NWS tropical watches and warnings (api.weather.gov)"
+    base_url: "https://api.weather.gov"
+    endpoints:
+      active:
+        method: GET
+        path: "/alerts/active"
+        description: "Active tropical alerts. Pass a comma-separated --event list (Hurricane/Tropical Storm/Storm Surge x Warning/Watch). A descriptive User-Agent is mandatory (sent automatically)."
+        params:
+          - name: event
+            flag_name: event
+            type: string
+            required: false
+            default: "Hurricane Warning,Hurricane Watch,Tropical Storm Warning,Tropical Storm Watch,Storm Surge Warning,Storm Surge Watch"
+            description: "Comma-separated NWS event names (OR filter). Defaults to the six tropical watch/warning types."
+          - name: area
+            flag_name: area
+            type: string
+            required: false
+            description: "Two-letter state or marine area filter (e.g. FL). Omit for all areas."
+        response:
+          type: array
+          item: Alert
+        response_path: "features"
+        response_format: json
+
+types:
+  Storm:
+    fields:
+      - name: id
+        type: string
+        description: "Lowercase ATCF id, e.g. al092024 (UPPERCASE inside product URLs)"
+      - name: binNumber
+        type: string
+        description: "Basin bin, e.g. AT4 / EP5"
+      - name: name
+        type: string
+        description: "Storm name, e.g. Helene"
+      - name: classification
+        type: string
+        description: "HU=hurricane, TS=tropical storm, TD=depression, etc."
+      - name: intensity
+        type: string
+        description: "Max sustained winds in kt (string in the feed)"
+      - name: pressure
+        type: string
+        description: "Minimum central pressure in mb (string in the feed)"
+      - name: latitude
+        type: string
+        description: "Latitude with hemisphere suffix, e.g. 34.2N"
+      - name: longitude
+        type: string
+        description: "Longitude with hemisphere suffix, e.g. 83.0W"
+      - name: latitudeNumeric
+        type: float
+        description: "Signed latitude (S negative)"
+      - name: longitudeNumeric
+        type: float
+        description: "Signed longitude (W negative)"
+      - name: movementDir
+        type: int
+        description: "Movement direction in degrees"
+      - name: movementSpeed
+        type: int
+        description: "Forward speed in kt"
+      - name: lastUpdate
+        type: string
+        description: "ISO-8601 UTC timestamp of last update"
+
+  Alert:
+    fields:
+      - name: id
+        type: string
+        description: "NWS alert URI"
+      - name: type
+        type: string
+        description: "GeoJSON feature type"

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "atlas-obscura",
+  "cli_name": "atlas-obscura-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-16T15:46:22Z",
+  "source_commit": "e69688826008bb611a04479c56853fd76cedb4b1",
+  "printing_press_version": "4.22.1",
+  "run_id": "20260606-104318-ao87811-27595",
+  "changes": [
+    {
+      "title": "feat(atlas-obscura): add atlas-obscura",
+      "pr": 1072,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1072",
+      "commit": "e69688826008bb611a04479c56853fd76cedb4b1"
+    }
+  ]
+}

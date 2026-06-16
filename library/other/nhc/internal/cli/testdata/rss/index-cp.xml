@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:georss="http://www.georss.org/georss"
+  xmlns:gml="http://www.opengis.net/gml"
+  xmlns:nhc="https://www.nhc.noaa.gov">
+  <channel>
+    <pubDate>Tue, 16 Jun 2026 05:45:01 GMT</pubDate>
+    <title>CPHC Central North Pacific</title>
+    <description>Active tropical cyclones in the Central North Pacific</description>
+    <link>https://www.nhc.noaa.gov/</link>
+    <copyright>none</copyright>
+    <managingEditor>noaa-contact@example.com (NHC Webmaster)</managingEditor>
+    <language>en-us</language>
+    <webMaster>noaa-contact@example.com (NHC Webmaster)</webMaster>
+    <image>
+      <url>https://www.nhc.noaa.gov/gifs/xml_logo_nhc.gif</url>
+      <link>https://www.nhc.noaa.gov/</link>
+      <title>CPHC Central North Pacific</title>
+      <description>NOAA logo</description>
+      <width>95</width>
+      <height>45</height>
+    </image>
+    <item>
+      <title>Central North Pacific Tropical Weather Outlook</title>
+      <description>
+      <![CDATA[000<br />ACPN50 PHFO 160503<br />TWOCP <br /><br />Tropical Weather Outlook<br />NWS Central Pacific Hurricane Center Honolulu HI<br />Issued by NWS National Hurricane Center Miami FL<br />800 PM HST Mon Jun 15 2026<br /><br />For the central North Pacific...between 140W and 180W:<br /><br />Well East-Southeast of the Hawaiian Islands (EP93):<br />A broad area of low pressure located well east-southeast of the<br />Hawaiian Islands is producing disorganized showers and<br />thunderstorms. Some slight development of this system is still<br />possible over the next day while it moves northwestward at 5 to 10<br />mph. Thereafter, increasingly dry mid-level air is expected to limit<br />further development.<br />* Formation chance through 48 hours...low...20 percent.<br />* Formation chance through 7 days...low...20 percent.<br /><br />$$<br />Forecaster Adams/Pasch<br />NNNN]]>
+      </description>
+      <pubDate>Tue, 16 Jun 2026 05:03:39 GMT</pubDate>
+      <link>https://www.nhc.noaa.gov/gtwo.php?basin=cpac</link>
+      <guid>https://www.nhc.noaa.gov/gtwo.php?basin=cpac&amp;202606160503</guid>
+      <author>noaa-contact@example.com (NHC Webmaster)</author>
+    </item>
+    <item>
+      <title>There are no tropical cyclones at this time.</title>
+      <description>No tropical cyclones as of Tue, 16 Jun 2026 05:45:01 GMT</description>
+      <pubDate>Wed, 17 Jun 2026 17:03:39 GMT</pubDate>
+      <link>https://www.nhc.noaa.gov/</link>
+      <guid>https://www.nhc.noaa.gov/</guid>
+      <author>noaa-contact@example.com (NHC Webmaster)</author>
+    </item>
+  </channel>
+</rss>
