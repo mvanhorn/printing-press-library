@@ -35,6 +35,9 @@ func newNovelRankCmd(flags *rootFlags) *cobra.Command {
 			default:
 				return usageErr(fmt.Errorf("invalid --sort %q (valid: opportunity, value, sales, revenue)", flagSort))
 			}
+			if err := validateBucket(flagType); err != nil {
+				return err
+			}
 
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()

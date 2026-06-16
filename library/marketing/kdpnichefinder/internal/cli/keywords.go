@@ -37,6 +37,9 @@ func newNovelKeywordsCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
+			if err := validateBucket(flagType); err != nil {
+				return err
+			}
 
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()

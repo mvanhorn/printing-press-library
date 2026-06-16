@@ -116,3 +116,19 @@ func parsePrice(s string) float64 {
 	}
 	return f
 }
+
+// validateBucket returns a usage error when a non-empty --type is not one of
+// the known niche buckets. Without this, a typo (e.g. "evergeen") flows into a
+// `WHERE bucket = ?` predicate and silently returns an empty result with exit
+// 0, which an agent reads as "no data" rather than "bad input".
+func validateBucket(flagType string) error {
+	if flagType == "" {
+		return nil
+	}
+	for _, b := range kdpsource.Buckets {
+		if b == flagType {
+			return nil
+		}
+	}
+	return usageErr(fmt.Errorf("unknown --type %q (valid: %v)", flagType, kdpsource.Buckets))
+}
