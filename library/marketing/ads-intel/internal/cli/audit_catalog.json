@@ -1,0 +1,21 @@
+{
+  "schema_version": "ads-intel.audit-catalog/v1",
+  "severity_multipliers": {"critical": 5, "high": 3, "medium": 1.5, "low": 0.5},
+  "waste_bands_pct": {"pass_below": 5, "warn_below": 15},
+  "health_bands": {"pass_min": 75, "warn_min": 50},
+  "categories": {
+    "google": {"waste": 40, "structure": 30, "tracking": 20, "learning": 10},
+    "meta": {"fatigue": 35, "structure": 25, "tracking": 25, "learning": 15},
+    "amazon": {"waste": 35, "structure": 25, "tracking": 25, "learning": 15}
+  },
+  "checks": [
+    {"id": "google_wasted_spend_terms", "platform": "google", "category": "waste", "severity": "high", "title": "Search terms with >$10 spend and 0 conversions"},
+    {"id": "google_zero_conversion_keywords", "platform": "google", "category": "waste", "severity": "critical", "title": ">3 keywords with >100 clicks and 0 conversions"},
+    {"id": "google_broad_smart_bidding", "platform": "google", "category": "structure", "severity": "medium", "title": "Broad match keywords under Smart Bidding only"},
+    {"id": "google_shared_negative_lists", "platform": "google", "category": "structure", "severity": "medium", "title": "Shared negative lists protect covered campaigns"},
+    {"id": "meta_frequency_fatigue", "platform": "meta", "category": "fatigue", "severity": "high", "title": "Frequency above 3 with weak CTR"},
+    {"id": "meta_learning_phase_guard", "platform": "meta", "category": "learning", "severity": "critical", "title": "No edit recommendations during active learning"},
+    {"id": "amazon_wasted_spend_terms", "platform": "amazon", "category": "waste", "severity": "high", "title": "Amazon terms with >$10 spend and 0 conversions"},
+    {"id": "tracking_cost_rows_present", "platform": "all", "category": "tracking", "severity": "critical", "title": "Cost rows are present before CPA/ROAS math"}
+  ]
+}

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/ecommerce-intel/internal/store"
 )
@@ -81,7 +82,7 @@ func TestSyncAndCommerceCommands(t *testing.T) {
 	if err != nil || !strings.Contains(got, "synced 3 products") {
 		t.Fatalf("sync failed: %v %s", err, got)
 	}
-	commands := [][]string{{"dashboard"}, {"opportunities"}, {"action-plan"}, {"money-pages"}, {"money-products"}, {"query-revenue", "boot"}, {"explain-drop"}, {"product-actions"}, {"category-actions"}, {"email-actions"}, {"inventory-risk"}, {"source-coverage"}, {"merchandising-link-plan"}, {"experiment-plan", "boot"}, {"forecast-impact"}, {"restock-winners"}, {"cannibalization"}, {"category-clusters"}, {"digest", "weekly"}, {"geo-audit"}}
+	commands := [][]string{{"movers"}, {"confidence"}, {"dashboard"}, {"opportunities"}, {"action-plan"}, {"money-pages"}, {"money-products"}, {"query-revenue", "boot"}, {"explain-drop"}, {"product-actions"}, {"category-actions"}, {"email-actions"}, {"inventory-risk"}, {"source-coverage"}, {"merchandising-link-plan"}, {"experiment-plan", "boot"}, {"forecast-impact"}, {"restock-winners"}, {"cannibalization"}, {"category-clusters"}, {"digest", "weekly"}, {"geo-audit"}}
 	for _, args := range commands {
 		got, err := run(t, home, append([]string{"--profile", "demo"}, args...)...)
 		if err != nil {
@@ -95,8 +96,22 @@ func TestSyncAndCommerceCommands(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if strings.Contains(opps, "%!s(<nil>)") || !strings.Contains(opps, "inventory	") {
+	if strings.Contains(opps, "%!s(<nil>)") || !strings.Contains(opps, "Fix-first	inventory	") {
 		t.Fatalf("opportunities formatting/type regression: %s", opps)
+	}
+	got, err = run(t, home, "--profile", "demo", "--agent", "dashboard")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"status_header"`) || !strings.Contains(got, `"date_range_used"`) {
+		t.Fatalf("dashboard missing status header: %s", got)
+	}
+	got, err = run(t, home, "--profile", "demo", "--agent", "action-plan")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"tier"`) || !strings.Contains(got, `"dependencies"`) || !strings.Contains(got, `"status_header"`) {
+		t.Fatalf("action plan missing tiers/dependencies/status: %s", got)
 	}
 	if _, err := run(t, filepath.Join(home, "missing"), "money-products"); err == nil {
 		t.Fatal("expected missing data error")
@@ -119,6 +134,132 @@ func TestImportDataset(t *testing.T) {
 	if !strings.Contains(got, `"products":1`) {
 		t.Fatalf("unexpected import summary: %s", got)
 	}
+}
+
+func TestSyncWritesProvenanceSnapshotsAndMovers(t *testing.T) {
+	home := t.TempDir()
+	firstPath := filepath.Join(home, "first.json")
+	secondPath := filepath.Join(home, "second.json")
+	first := store.Fixture("custom")
+	first.SyncedAt = mustTime(t, "2026-06-01T00:00:00Z")
+	first.Source = "test-first"
+	first.Products[0].SearchPosition = 22
+	first.Products[0].SearchClicks = 80
+	first.Products[0].Revenue = 5000
+	first.Products[0].PreviousRevenue = 4800
+	first.Pages[1].Revenue = 4300
+	first.Pages[1].PreviousRevenue = 4200
+	second := first
+	second.SyncedAt = mustTime(t, "2026-06-08T00:00:00Z")
+	second.Source = "test-second"
+	second.Products[0].SearchPosition = 12
+	second.Products[0].SearchClicks = 160
+	second.Products[0].Revenue = 6200
+	second.Products[2].SearchClicks = 80
+	second.Products[2].PreviousClicks = 160
+	second.Products[2].Sessions = 300
+	second.Products[2].PreviousSessions = 430
+	second.Products[2].Revenue = 3000
+	second.Products[2].PreviousRevenue = 7000
+	second.Pages[1].SearchPosition = 8
+	second.Pages[1].SearchClicks = 140
+	second.Pages[1].PreviousClicks = 205
+	second.Pages[1].Sessions = 300
+	second.Pages[1].PreviousSessions = 510
+	second.Pages[1].Revenue = 1800
+	second.Pages[1].PreviousRevenue = 4300
+	writeDataset(t, firstPath, first)
+	writeDataset(t, secondPath, second)
+
+	if _, err := run(t, home, "--profile", "custom", "sync", "--import", firstPath); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := run(t, home, "--profile", "custom", "sync", "--import", secondPath); err != nil {
+		t.Fatal(err)
+	}
+	snaps, err := store.New(home).LatestSnapshots("custom", 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(snaps) != 2 {
+		t.Fatalf("expected two snapshots, got %#v", snaps)
+	}
+	if snaps[0].SchemaVersion != store.SnapshotSchemaVersion || snaps[0].InputHashes["import_file"] == "" || snaps[0].DateRange.StartDate == "" {
+		t.Fatalf("snapshot missing provenance: %#v", snaps[0])
+	}
+	got, err := run(t, home, "--profile", "custom", "--agent", "movers")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc map[string]any
+	if err := json.Unmarshal([]byte(got), &doc); err != nil {
+		t.Fatalf("movers did not emit JSON: %v\n%s", err, got)
+	}
+	for _, key := range []string{"climbers", "droppers", "new_strike_zone_entrants", "new_revenue_at_risk"} {
+		if _, ok := doc[key].([]any); !ok {
+			t.Fatalf("movers key %s missing or null: %#v\n%s", key, doc[key], got)
+		}
+	}
+	learning, err := os.ReadFile(store.New(home).LearningsPath("custom"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(learning), "Movers snapshot diff") {
+		t.Fatalf("movers did not append learnings: %s", learning)
+	}
+	got, err = run(t, home, "--profile", "custom", "--agent", "digest", "weekly")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"movers"`) || !strings.Contains(got, `"recommended_next_command":"ecommerce-intel-pp-cli movers --profile custom"`) {
+		t.Fatalf("digest did not lead with movers: %s", got)
+	}
+}
+
+func TestConfidenceGateRefusesThinDerivedMetrics(t *testing.T) {
+	home := t.TempDir()
+	fixture := filepath.Join(home, "thin.json")
+	body := `{"profile":"thin","source":"test","products":[{"handle":"thin-product","title":"Thin Product","sessions":10,"search_clicks":0,"search_position":0,"conversion_rate":0,"revenue":0}]}`
+	if err := os.WriteFile(fixture, []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := run(t, home, "--profile", "thin", "sync", "--import", fixture); err != nil {
+		t.Fatal(err)
+	}
+	got, err := run(t, home, "--profile", "thin", "--agent", "confidence")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"level":"Broken"`) && !strings.Contains(got, `"level":"Low"`) {
+		t.Fatalf("expected low/broken confidence: %s", got)
+	}
+	got, err = run(t, home, "--profile", "thin", "--agent", "forecast-impact")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"refused":true`) || !strings.Contains(got, `"fix_tracking_first"`) {
+		t.Fatalf("forecast did not refuse thin tracking: %s", got)
+	}
+}
+
+func writeDataset(t *testing.T, path string, d store.DataSet) {
+	t.Helper()
+	b, err := json.Marshal(d)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, b, 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func mustTime(t *testing.T, value string) time.Time {
+	t.Helper()
+	ts, err := time.Parse(time.RFC3339, value)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return ts
 }
 
 func TestSyncAllRequiresEverySourceConfigured(t *testing.T) {
@@ -163,19 +304,19 @@ func TestSyncLiveChildCLIsMergesSources(t *testing.T) {
 		}
 	}
 	installFakeChild("shopify-pp-cli", `cat <<'JSON'
-{"products":[{"id":"gid://shopify/Product/1","handle":"waterproof-hiking-boot","title":"Waterproof Hiking Boot","url":"/products/waterproof-hiking-boot","vendor":"Trail","product_type":"boots","price":"199","inventory_quantity":77},{"handle":"new-sock","title":"New Sock","url":"/products/new-sock","price":12,"inventory":40}]}
+{"schema_version":"shopify.products/v1","products":[{"id":"gid://shopify/Product/1","handle":"waterproof-hiking-boot","title":"Waterproof Hiking Boot","url":"/products/waterproof-hiking-boot","vendor":"Trail","product_type":"boots","price":"199","inventory_quantity":77},{"handle":"new-sock","title":"New Sock","url":"/products/new-sock","price":12,"inventory":40}]}
 JSON`)
 	installFakeChild("klaviyo-pp-cli", `cat <<'JSON'
-{"flows":[{"name":"Abandoned Checkout","revenue":9300,"recipients":1000,"open_rate":0.5,"click_rate":0.1,"conversion_rate":0.04,"attributed_sales":90},{"product_handle":"waterproof-hiking-boot","email_revenue":333,"email_clicks":22}]}
+{"schema_version":"klaviyo.flows/v1","flows":[{"name":"Abandoned Checkout","revenue":9300,"recipients":1000,"open_rate":0.5,"click_rate":0.1,"conversion_rate":0.04,"attributed_sales":90},{"product_handle":"waterproof-hiking-boot","email_revenue":333,"email_clicks":22}]}
 JSON`)
 	installFakeChild("google-analytics-pp-cli", `cat <<'JSON'
-{"rows":[{"landing_page":"/products/waterproof-hiking-boot","sessions":111,"total_revenue":2222,"previous_sessions":90,"previous_revenue":1800},{"landing_page":"/collections/jackets","sessions":22,"revenue":44}]}
+{"schema_version":"google-analytics.top-pages/v1","rows":[{"landing_page":"/products/waterproof-hiking-boot","sessions":111,"total_revenue":2222,"previous_sessions":90,"previous_revenue":1800},{"landing_page":"/collections/jackets","sessions":22,"revenue":44}]}
 JSON`)
 	installFakeChild("google-search-console-pp-cli", `cat <<'JSON'
-{"rows":[{"keys":["/products/waterproof-hiking-boot"],"clicks":55,"previous_clicks":44,"position":3.2}]}
+{"schema_version":"google-search-console.search-analytics/v1","rows":[{"keys":["/products/waterproof-hiking-boot"],"clicks":55,"previous_clicks":44,"position":3.2}]}
 JSON`)
 	installFakeChild("ahrefs-pp-cli", `cat <<'JSON'
-{"results":{"pages":[{"url":"/products/waterproof-hiking-boot","backlinks":7,"referring_domains":3}]}}
+{"schema_version":"ahrefs.top-pages/v1","results":{"pages":[{"url":"/products/waterproof-hiking-boot","backlinks":7,"referring_domains":3}]}}
 JSON`)
 	t.Setenv("PATH", binDir+string(os.PathListSeparator)+os.Getenv("PATH"))
 	t.Setenv("CHILD_LOG", logPath)

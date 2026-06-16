@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "report-status-header-and-strike-zone-framing",
+  "applied_at": "2026-06-16",
+  "base_run_id": "traffic-intel-20260615",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Traffic reports must announce status context and explicitly label Strike Zone positioning without changing underlying scoring math.",
+  "reason": "Agents need profile, range, coverage, confidence, and mode before acting on reports, and opportunity rows need defend/move/ignore framing so ranking presentation remains opinionated but transparent.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/confidence.go"
+  ],
+  "validated_outcome": "go test ./... covers digest status headers and Strike Zone row labels."
+}

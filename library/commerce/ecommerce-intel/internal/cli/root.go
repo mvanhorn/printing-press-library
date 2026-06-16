@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/ecommerce-intel/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/internal/intelcli"
 	"github.com/spf13/cobra"
 )
 
@@ -40,7 +41,7 @@ func newRootCmd(f *rootFlags) *cobra.Command {
 		}
 		return nil
 	}
-	cmd.AddCommand(agentContextCmd(f), doctorCmd(f), sourcesCmd(f), profileCmd(f), syncCmd(f), dashboardCmd(f), opportunitiesCmd(f), actionPlanCmd(f), moneyPagesCmd(f), moneyProductsCmd(f), queryRevenueCmd(f), explainDropCmd(f), productActionsCmd(f), categoryActionsCmd(f), emailActionsCmd(f), inventoryRiskCmd(f), sourceCoverageCmd(f), merchandisingLinkPlanCmd(f), experimentPlanCmd(f), forecastImpactCmd(f), restockWinnersCmd(f), cannibalizationCmd(f), categoryClustersCmd(f), digestCmd(f), geoAuditCmd(f))
+	cmd.AddCommand(agentContextCmd(f), doctorCmd(f), sourcesCmd(f), profileCmd(f), syncCmd(f), moversCmd(f), confidenceCmd(f), dashboardCmd(f), opportunitiesCmd(f), actionPlanCmd(f), moneyPagesCmd(f), moneyProductsCmd(f), queryRevenueCmd(f), explainDropCmd(f), productActionsCmd(f), categoryActionsCmd(f), emailActionsCmd(f), inventoryRiskCmd(f), sourceCoverageCmd(f), merchandisingLinkPlanCmd(f), experimentPlanCmd(f), forecastImpactCmd(f), restockWinnersCmd(f), cannibalizationCmd(f), categoryClustersCmd(f), digestCmd(f), geoAuditCmd(f))
 	return cmd
 }
 func st(f *rootFlags) *store.Store { return store.New(f.home) }
@@ -227,6 +228,8 @@ func syncCmd(f *rootFlags) *cobra.Command {
 	var limit int
 	c := &cobra.Command{Use: "sync", Short: "Import local fixture, JSON data, or opt-in child CLI data", RunE: func(cmd *cobra.Command, args []string) error {
 		var d store.DataSet
+		inputHashes := map[string]string{}
+		sourceVersions := map[string]string{"ecommerce-intel-pp-cli": version}
 		source = strings.ToLower(strings.TrimSpace(source))
 		if source == "" && (live || real) {
 			source = "all"
@@ -236,11 +239,13 @@ func syncCmd(f *rootFlags) *cobra.Command {
 		}
 		if importPath == "" && source == "" {
 			d = store.Fixture(f.profile)
+			inputHashes["embedded_fixture"] = intelcli.HashJSON(map[string]any{"products": d.Products, "pages": d.Pages, "categories": d.Categories, "emails": d.Emails})
 		} else if importPath != "" {
 			b, err := os.ReadFile(importPath)
 			if err != nil {
 				return err
 			}
+			inputHashes["import_file"] = intelcli.HashBytes(b)
 			if err := json.Unmarshal(b, &d); err != nil {
 				return err
 			}
@@ -281,7 +286,10 @@ func syncCmd(f *rootFlags) *cobra.Command {
 			if syncErr != nil {
 				return syncErr
 			}
+			inputHashes = d.Provenance.InputHashes
+			sourceVersions = intelcli.MergeStringMaps(sourceVersions, d.Provenance.SourceCommandVersions)
 		}
+		ensureSyncProvenance(&d, startDate, endDate, sourceVersions, inputHashes)
 		if err := st(f).SaveData(d); err != nil {
 			return err
 		}
@@ -302,6 +310,28 @@ func syncCmd(f *rootFlags) *cobra.Command {
 	c.Flags().IntVar(&limit, "limit", 1000, "Maximum rows per child source")
 	return c
 }
+
+func ensureSyncProvenance(d *store.DataSet, startDate, endDate string, sourceVersions, inputHashes map[string]string) {
+	if d.Profile == "" {
+		d.Profile = "default"
+	}
+	if d.SyncedAt.IsZero() {
+		d.SyncedAt = time.Now().UTC()
+	}
+	if d.Provenance.SchemaVersion == "" {
+		d.Provenance.SchemaVersion = "ecommerce-intel.provenance/v1"
+	}
+	if d.Provenance.DateRange.StartDate == "" && d.Provenance.DateRange.EndDate == "" {
+		start, end := defaultDateRange(startDate, endDate)
+		d.Provenance.DateRange = store.DateRange{StartDate: start, EndDate: end}
+	}
+	d.Provenance.SourceCommandVersions = intelcli.MergeStringMaps(d.Provenance.SourceCommandVersions, sourceVersions)
+	d.Provenance.InputHashes = intelcli.MergeStringMaps(d.Provenance.InputHashes, inputHashes)
+	if len(d.Provenance.InputHashes) == 0 {
+		d.Provenance.InputHashes = map[string]string{"dataset": intelcli.HashJSON(map[string]any{"products": d.Products, "pages": d.Pages, "categories": d.Categories, "emails": d.Emails})}
+	}
+}
+
 func validSource(source string) bool {
 	switch source {
 	case "all", "shopify", "klaviyo", "ga4", "gsc", "ahrefs":
@@ -326,8 +356,11 @@ func dashboardCmd(f *rootFlags) *cobra.Command {
 		}
 		revenue, prev := totals(d)
 		risk := inventoryRisks(d)
-		res := map[string]any{"profile": d.Profile, "revenue": revenue, "previous_revenue": prev, "revenue_delta": revenue - prev, "products": len(d.Products), "pages": len(d.Pages), "categories": len(d.Categories), "email_flows": len(d.Emails), "inventory_risks": len(risk), "geo_score": geoScore(d)}
-		return out(cmd, f, res, fmt.Sprintf("Revenue %.2f (delta %.2f)\nproducts: %d\ninventory risks: %d\nGEO score: %d\n", revenue, revenue-prev, len(d.Products), len(risk), geoScore(d)))
+		header := statusHeader(d, "dashboard", "read-only")
+		res := map[string]any{"profile": d.Profile, "status_header": header, "revenue": revenue, "previous_revenue": prev, "revenue_delta": revenue - prev, "products": len(d.Products), "pages": len(d.Pages), "categories": len(d.Categories), "email_flows": len(d.Emails), "inventory_risks": len(risk), "geo_score": geoScore(d)}
+		lines := append([]string{"Dashboard"}, statusHuman(header)...)
+		lines = append(lines, fmt.Sprintf("Revenue %.2f (delta %.2f)", revenue, revenue-prev), fmt.Sprintf("products: %d", len(d.Products)), fmt.Sprintf("inventory risks: %d", len(risk)), fmt.Sprintf("GEO score: %d", geoScore(d)))
+		return out(cmd, f, res, strings.Join(lines, "\n")+"\n")
 	}}
 }
 func opportunitiesCmd(f *rootFlags) *cobra.Command {
@@ -338,12 +371,14 @@ func opportunitiesCmd(f *rootFlags) *cobra.Command {
 			return err
 		}
 		rows := opps(d)
+		confidence := confidenceForData(d)
+		decorateOpportunityRows(rows, confidence)
 		if limit > 0 && len(rows) > limit {
 			rows = rows[:limit]
 		}
-		lines := []string{"type\ttarget\timpact\taction"}
+		lines := []string{"tier\ttype\ttarget\timpact\tdependencies\taction"}
 		for _, r := range rows {
-			lines = append(lines, fmt.Sprintf("%s\t%s\t%.1f\t%s", r["type"], r["target"], r["impact"], r["action"]))
+			lines = append(lines, fmt.Sprintf("%s\t%s\t%s\t%.1f\t%s\t%s", r["tier"], r["type"], r["target"], r["impact"], strings.Join(r["dependencies"].([]string), ","), r["action"]))
 		}
 		return out(cmd, f, rows, strings.Join(lines, "\n")+"\n")
 	}}
@@ -357,15 +392,21 @@ func actionPlanCmd(f *rootFlags) *cobra.Command {
 			return err
 		}
 		rows := opps(d)
+		confidence := confidenceForData(d)
+		decorateOpportunityRows(rows, confidence)
+		header := statusHeader(d, "action-plan", "read-only")
 		plan := []map[string]any{}
 		for i, r := range rows {
 			if i >= 7 {
 				break
 			}
 			r["day"] = i + 1
+			r["status_header"] = header
 			plan = append(plan, r)
 		}
-		return out(cmd, f, plan, fmt.Sprintf("7-day plan with %d actions\n", len(plan)))
+		lines := append([]string{"7-day action plan"}, statusHuman(header)...)
+		lines = append(lines, fmt.Sprintf("actions: %d", len(plan)), "tiers: Fix-first -> Quick-win -> Strategic -> Refinement")
+		return out(cmd, f, plan, strings.Join(lines, "\n")+"\n")
 	}}
 }
 func moneyPagesCmd(f *rootFlags) *cobra.Command {
@@ -467,6 +508,11 @@ func explainDropCmd(f *rootFlags) *cobra.Command {
 				rows = append(rows, map[string]any{"product": p.Handle, "revenue_delta": rd, "click_delta": cd, "session_delta": sd, "likely_cause": cause, "next_action": "inspect source metrics, fix PDP evidence, and update campaign/stock actions"})
 			}
 		}
+		if len(rows) > 0 {
+			if err := st(f).AppendLearning(d.Profile, fmt.Sprintf("explain-drop found %d dropping products for query %q; top target: %v", len(rows), q, rows[0]["product"])); err != nil {
+				return err
+			}
+		}
 		return out(cmd, f, rows, fmt.Sprintf("found %d dropping products\n", len(rows)))
 	}}
 }
@@ -555,13 +601,24 @@ func digestCmd(f *rootFlags) *cobra.Command {
 			return err
 		}
 		rev, prev := totals(d)
-		digest := map[string]any{"profile": d.Profile, "synced_at": d.SyncedAt, "revenue": rev, "previous_revenue": prev, "revenue_delta": rev - prev, "top_product": "", "inventory_risks": len(inventoryRisks(d)), "geo_score": geoScore(d), "recommended_next_command": "ecommerce-intel-pp-cli opportunities --profile " + d.Profile}
+		confidence := confidenceForData(d)
+		digest := map[string]any{"profile": d.Profile, "synced_at": d.SyncedAt, "revenue": rev, "previous_revenue": prev, "revenue_delta": rev - prev, "top_product": "", "inventory_risks": len(inventoryRisks(d)), "geo_score": geoScore(d), "recommended_next_command": "ecommerce-intel-pp-cli movers --profile " + d.Profile, "confidence": confidence}
+		header := statusHeader(d, "digest weekly", "read-only")
+		digest["status_header"] = header
+		moverLine := "movers: no prior snapshot yet"
+		if snaps, err := st(f).LatestSnapshots(f.profile, 2); err == nil && len(snaps) > 1 {
+			movers := buildMovers(snaps[0], snaps[1], 5)
+			digest["movers"] = map[string]any{"climbers": len(movers.Climbers), "droppers": len(movers.Droppers), "new_strike_zone_entrants": len(movers.NewStrikeZone), "new_revenue_at_risk": len(movers.NewRevenueAtRisk), "callouts": movers.Callouts}
+			moverLine = fmt.Sprintf("movers: %d climbers, %d droppers, %d new Strike Zone entrants, %d new revenue-at-risk", len(movers.Climbers), len(movers.Droppers), len(movers.NewStrikeZone), len(movers.NewRevenueAtRisk))
+		}
 		if len(d.Products) > 0 {
 			ps := append([]store.Product(nil), d.Products...)
 			sort.Slice(ps, func(i, j int) bool { return ps[i].Revenue > ps[j].Revenue })
 			digest["top_product"] = ps[0].Handle
 		}
-		return out(cmd, f, digest, fmt.Sprintf("Weekly ecommerce digest for %s\nrevenue: %.2f\ndelta: %.2f\ntop product: %s\nGEO score: %d\n", d.Profile, rev, rev-prev, digest["top_product"], geoScore(d)))
+		lines := append([]string{"Weekly ecommerce digest for " + d.Profile}, statusHuman(header)...)
+		lines = append(lines, "Act on what's already moving.", moverLine, fmt.Sprintf("revenue: %.2f", rev), fmt.Sprintf("delta: %.2f", rev-prev), fmt.Sprintf("top product: %s", digest["top_product"]), fmt.Sprintf("GEO score: %d", geoScore(d)))
+		return out(cmd, f, digest, strings.Join(lines, "\n")+"\n")
 	}})
 	return cmd
 }

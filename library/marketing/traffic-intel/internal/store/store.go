@@ -9,6 +9,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/internal/intelcli"
 )
 
 type Profile struct {
@@ -76,11 +78,15 @@ type AhrefsMetrics struct {
 }
 
 type DataSet struct {
-	Profile  string        `json:"profile"`
-	SyncedAt time.Time     `json:"synced_at"`
-	Source   string        `json:"source"`
-	Pages    []PageMetrics `json:"pages"`
+	Profile    string         `json:"profile"`
+	SyncedAt   time.Time      `json:"synced_at"`
+	Source     string         `json:"source"`
+	Provenance DataProvenance `json:"provenance,omitempty"`
+	Pages      []PageMetrics  `json:"pages"`
 }
+
+type DataProvenance = intelcli.DataProvenance
+type DateRange = intelcli.DateRange
 
 type Store struct{ Dir string }
 
@@ -100,12 +106,7 @@ func (s *Store) dataPath(profile string) string {
 	return filepath.Join(s.Dir, safe(profile)+"-data.json")
 }
 func safe(v string) string {
-	v = strings.TrimSpace(strings.ToLower(v))
-	if v == "" {
-		return "default"
-	}
-	r := strings.NewReplacer("/", "-", "\\", "-", ":", "-", " ", "-")
-	return r.Replace(v)
+	return intelcli.SafeName(v)
 }
 
 func (s *Store) LoadProfiles() (ProfilesFile, error) {
@@ -198,7 +199,13 @@ func (s *Store) SaveData(d DataSet) error {
 	if err := s.ensure(); err != nil {
 		return err
 	}
-	return writeJSON(s.dataPath(d.Profile), d)
+	if err := writeJSON(s.dataPath(d.Profile), d); err != nil {
+		return err
+	}
+	if err := s.SaveSnapshot(d); err != nil {
+		return err
+	}
+	return s.EnsureLearnings(d.Profile)
 }
 func (s *Store) LoadData(profile string) (DataSet, error) {
 	var d DataSet

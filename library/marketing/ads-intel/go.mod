@@ -1,4 +1,4 @@
-module github.com/mvanhorn/printing-press-library/library/commerce/ecommerce-intel
+module github.com/mvanhorn/printing-press-library/library/marketing/ads-intel
 
 go 1.25.11
 

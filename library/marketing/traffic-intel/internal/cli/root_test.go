@@ -101,7 +101,7 @@ func TestSyncAndAnalysisCommands(t *testing.T) {
 	if got, err := run(t, home, "--profile", "demo", "sync"); err != nil || !strings.Contains(got, "synced 4 pages") {
 		t.Fatalf("sync failed: %v %s", err, got)
 	}
-	checks := [][]string{{"money-pages"}, {"query-revenue", "jackets"}, {"explain-drop"}, {"refresh-queue"}, {"opportunity-gap"}, {"quick-wins"}, {"revenue-at-risk"}, {"refresh-brief", "jackets"}, {"topic-clusters"}, {"source-coverage"}, {"internal-link-plan"}, {"experiment-plan", "jackets"}, {"forecast-impact"}, {"stale-winners"}, {"digest", "weekly"}}
+	checks := [][]string{{"movers"}, {"confidence"}, {"money-pages"}, {"query-revenue", "jackets"}, {"explain-drop"}, {"refresh-queue"}, {"opportunity-gap"}, {"quick-wins"}, {"revenue-at-risk"}, {"refresh-brief", "jackets"}, {"topic-clusters"}, {"source-coverage"}, {"internal-link-plan"}, {"experiment-plan", "jackets"}, {"forecast-impact"}, {"stale-winners"}, {"digest", "weekly"}}
 	for _, args := range checks {
 		got, err := run(t, home, append([]string{"--profile", "demo"}, args...)...)
 		if err != nil {
@@ -113,6 +113,78 @@ func TestSyncAndAnalysisCommands(t *testing.T) {
 	}
 	if _, err := run(t, filepath.Join(home, "missing"), "money-pages"); err == nil {
 		t.Fatal("expected missing data error")
+	}
+}
+
+func TestSyncWritesProvenanceSnapshotsAndMovers(t *testing.T) {
+	home := t.TempDir()
+	first := filepath.Join(home, "first.json")
+	second := filepath.Join(home, "second.json")
+	if err := os.WriteFile(first, []byte(`{
+	  "profile": "custom",
+	  "synced_at": "2026-06-01T00:00:00Z",
+	  "source": "test-first",
+	  "pages": [
+	    {"url":"/collections/jackets","title":"Jackets","clicks":80,"impressions":8000,"ctr":0.01,"position":22,"sessions":500,"conversions":10,"revenue":5000,"previous_clicks":90,"previous_sessions":520,"previous_revenue":5200,"sources":{"gsc":{"query_sample":"jackets"}}},
+	    {"url":"/blog/boots","title":"Boots","clicks":120,"impressions":9000,"ctr":0.013,"position":4,"sessions":600,"conversions":8,"revenue":3000,"previous_clicks":130,"previous_sessions":620,"previous_revenue":3400,"sources":{"gsc":{"query_sample":"boots"}}}
+	  ]
+	}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(second, []byte(`{
+	  "profile": "custom",
+	  "synced_at": "2026-06-08T00:00:00Z",
+	  "source": "test-second",
+	  "pages": [
+	    {"url":"/collections/jackets","title":"Jackets","clicks":160,"impressions":9000,"ctr":0.017,"position":12,"sessions":700,"conversions":12,"revenue":6200,"previous_clicks":80,"previous_sessions":500,"previous_revenue":5000,"sources":{"gsc":{"query_sample":"jackets"}}},
+	    {"url":"/blog/boots","title":"Boots","clicks":70,"impressions":8500,"ctr":0.008,"position":8,"sessions":420,"conversions":5,"revenue":2100,"previous_clicks":120,"previous_sessions":600,"previous_revenue":3000,"sources":{"gsc":{"query_sample":"boots"}}}
+	  ]
+	}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := run(t, home, "--profile", "custom", "sync", "--import", first); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := run(t, home, "--profile", "custom", "sync", "--import", second); err != nil {
+		t.Fatal(err)
+	}
+	snaps, err := store.New(home).LatestSnapshots("custom", 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(snaps) != 2 {
+		t.Fatalf("expected two snapshots, got %#v", snaps)
+	}
+	if snaps[0].SchemaVersion != store.SnapshotSchemaVersion || snaps[0].InputHashes["import_file"] == "" || snaps[0].DateRange.StartDate == "" {
+		t.Fatalf("snapshot missing provenance: %#v", snaps[0])
+	}
+	got, err := run(t, home, "--profile", "custom", "--agent", "movers")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc map[string]any
+	if err := json.Unmarshal([]byte(got), &doc); err != nil {
+		t.Fatalf("movers did not emit JSON: %v\n%s", err, got)
+	}
+	if !strings.Contains(got, `"new_strike_zone_entrants"`) || !strings.Contains(got, `"new_revenue_at_risk"`) {
+		t.Fatalf("movers missing sections: %s", got)
+	}
+	learning, err := os.ReadFile(store.New(home).LearningsPath("custom"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(learning), "Movers snapshot diff") {
+		t.Fatalf("movers did not append learnings: %s", learning)
+	}
+	got, err = run(t, home, "--profile", "custom", "--agent", "digest", "weekly")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"movers"`) || !strings.Contains(got, `"recommended_next_command":"traffic-intel-pp-cli movers --profile custom"`) {
+		t.Fatalf("digest did not lead with movers: %s", got)
+	}
+	if !strings.Contains(got, `"status_header"`) || !strings.Contains(got, `"date_range_used"`) {
+		t.Fatalf("digest missing status header: %s", got)
 	}
 }
 
@@ -245,12 +317,46 @@ func TestNovelCommandsUseCrossSourceSignals(t *testing.T) {
 		t.Fatalf("forecast impact missing estimates: %s", got)
 	}
 
+	got, err = run(t, home, "--profile", "custom", "--agent", "opportunity-gap")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"strike_zone_filter"`) || !strings.Contains(got, `move_5_20_strike_zone`) {
+		t.Fatalf("opportunity gap missing Strike Zone framing: %s", got)
+	}
+
 	got, err = run(t, home, "--profile", "custom", "--agent", "stale-winners")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !strings.Contains(got, `"preventive_action"`) || !strings.Contains(got, `"score"`) {
 		t.Fatalf("stale winners missing preventive fields: %s", got)
+	}
+}
+
+func TestConfidenceGateRefusesThinDerivedMetrics(t *testing.T) {
+	home := t.TempDir()
+	fixture := filepath.Join(home, "thin.json")
+	body := `{"profile":"thin","source":"test","pages":[{"url":"/thin","title":"Thin","clicks":4,"sessions":10,"conversions":0,"revenue":0}]}`
+	if err := os.WriteFile(fixture, []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := run(t, home, "--profile", "thin", "sync", "--import", fixture); err != nil {
+		t.Fatal(err)
+	}
+	got, err := run(t, home, "--profile", "thin", "--agent", "confidence")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"level":"Broken"`) && !strings.Contains(got, `"level":"Low"`) {
+		t.Fatalf("expected low/broken confidence: %s", got)
+	}
+	got, err = run(t, home, "--profile", "thin", "--agent", "forecast-impact")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `"refused":true`) || !strings.Contains(got, `"fix_tracking_first"`) {
+		t.Fatalf("forecast did not refuse thin tracking: %s", got)
 	}
 }
 
@@ -269,13 +375,13 @@ func TestSyncLiveChildCLIsNormalizesAndMergesSources(t *testing.T) {
 		}
 	}
 	installFakeChild("google-search-console-pp-cli", `cat <<'JSON'
-{"pages":[{"url":"/p1","title":"Page One","clicks":"12","impressions":120,"ctr":0.1,"avg_position":3.5,"previous_clicks":20,"query_sample":"blue widgets"}]}
+{"schema_version":"google-search-console.search-analytics/v1","pages":[{"url":"/p1","title":"Page One","clicks":"12","impressions":120,"ctr":0.1,"avg_position":3.5,"previous_clicks":20,"query_sample":"blue widgets"}]}
 JSON`)
 	installFakeChild("google-analytics-pp-cli", `cat <<'JSON'
-{"rows":[{"landing_page":"/p1","sessions":30,"transactions":2,"total_revenue":"199.50","previous_sessions":42,"previous_revenue":250},{"landing_page":"/p2","sessions":7,"revenue":15}]}
+{"schema_version":"google-analytics.top-pages/v1","rows":[{"landing_page":"/p1","sessions":30,"transactions":2,"total_revenue":"199.50","previous_sessions":42,"previous_revenue":250},{"landing_page":"/p2","sessions":7,"revenue":15}]}
 JSON`)
 	installFakeChild("ahrefs-pp-cli", `cat <<'JSON'
-{"results":{"pages":[{"page":"/p1","backlinks":8,"referring_domains":4,"top_keyword":"widgets"}]}}
+{"schema_version":"ahrefs.top-pages/v1","results":{"pages":[{"page":"/p1","backlinks":8,"referring_domains":4,"top_keyword":"widgets"}]}}
 JSON`)
 	t.Setenv("PATH", binDir+string(os.PathListSeparator)+os.Getenv("PATH"))
 	t.Setenv("CHILD_LOG", logPath)
@@ -343,7 +449,7 @@ func TestSyncAllRequiresEverySourceConfigured(t *testing.T) {
 func TestSyncSingleConfiguredSourceIsAllowed(t *testing.T) {
 	home := t.TempDir()
 	binDir := t.TempDir()
-	script := "#!/bin/sh\ncat <<'JSON'\n{\"pages\":[{\"url\":\"/only-gsc\",\"clicks\":3,\"impressions\":30}]}\nJSON\n"
+	script := "#!/bin/sh\ncat <<'JSON'\n{\"schema_version\":\"google-search-console.search-analytics/v1\",\"pages\":[{\"url\":\"/only-gsc\",\"clicks\":3,\"impressions\":30}]}\nJSON\n"
 	if err := os.WriteFile(filepath.Join(binDir, "google-search-console-pp-cli"), []byte(script), 0o755); err != nil {
 		t.Fatal(err)
 	}

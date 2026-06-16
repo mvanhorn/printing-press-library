@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "confidence-gate-and-child-schema-contract",
+  "applied_at": "2026-06-16",
+  "base_run_id": "ecommerce-intel-20260615",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Ecommerce derived metrics must be gated by reusable confidence checks and supported child-CLI schema metadata.",
+  "reason": "Forecast output can mislead when source coverage, freshness, sample size, tracking, or child schema evidence is thin, so a regen must refuse Low/Broken confidence and skip products instead of fabricating estimates.",
+  "files": [
+    "go.mod",
+    "internal/cli/child_sync.go",
+    "internal/cli/confidence.go",
+    "internal/cli/ecommerce_analysis.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go test ./... covers confidence output, Low/Broken refusal, and schema-versioned child sync fixtures."
+}

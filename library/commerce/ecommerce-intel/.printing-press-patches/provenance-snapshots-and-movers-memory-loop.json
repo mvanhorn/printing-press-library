@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "provenance-snapshots-and-movers-memory-loop",
+  "applied_at": "2026-06-16",
+  "base_run_id": "ecommerce-intel-20260615",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Ecommerce sync must preserve the latest dataset while also appending provenance-rich snapshots that power commerce movers and the persisted learnings loop.",
+  "reason": "The intel workflow depends on week-over-week memory across products, pages, and categories, so a regen must not return to a single overwritten data file or compute movers without source versions, date ranges, and input hashes.",
+  "files": [
+    "go.mod",
+    "internal/store/store.go",
+    "internal/store/snapshots.go",
+    "internal/cli/root.go",
+    "internal/cli/ecommerce_analysis.go",
+    "internal/cli/child_sync.go",
+    "internal/cli/movers.go"
+  ],
+  "validated_outcome": "go test ./... covers snapshot provenance, retention compaction, movers --agent JSON, learnings append, and mover-led weekly digest."
+}

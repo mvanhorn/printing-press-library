@@ -48,7 +48,17 @@
     {
       "name": "Unified source sync",
       "command": "sync",
-      "description": "sync imports fixture/local data or shells out to GSC, GA4, and Ahrefs child CLIs and normalizes page metrics into one local store"
+      "description": "sync imports fixture/local data or shells out to GSC, GA4, and Ahrefs child CLIs, normalizes page metrics into one local store, and appends provenance-rich dated snapshots"
+    },
+    {
+      "name": "Snapshot movers",
+      "command": "movers",
+      "description": "movers diffs the latest snapshot against the previous snapshot for climbers, droppers, new Strike Zone entrants, and new revenue-at-risk pages while appending learnings"
+    },
+    {
+      "name": "Confidence gate",
+      "command": "confidence",
+      "description": "confidence scores source coverage, freshness, sample size, revenue/conversion/search evidence, tracking checks, and child schema support before derived metrics are trusted"
     },
     {
       "name": "Money pages",
@@ -73,17 +83,17 @@
     {
       "name": "Opportunity gap",
       "command": "opportunity-gap",
-      "description": "opportunity-gap ranks high-impression near-ranking pages by expected CTR gap, GA4 business value, and Ahrefs link context"
+      "description": "opportunity-gap ranks high-impression near-ranking pages by expected CTR gap, GA4 business value, and Ahrefs link context, with explicit defend/move Strike Zone/ignore labels"
     },
     {
       "name": "Quick wins",
       "command": "quick-wins",
-      "description": "quick-wins surfaces near-page-one pages with weak CTR and conversion or revenue value"
+      "description": "quick-wins surfaces near-page-one pages with weak CTR and conversion or revenue value, with explicit defend/move Strike Zone/ignore labels"
     },
     {
       "name": "Revenue at risk",
       "command": "revenue-at-risk",
-      "description": "revenue-at-risk ranks pages where organic or session declines overlap with commercial value"
+      "description": "revenue-at-risk refuses under Low/Broken confidence and skips rows missing GA4 revenue or GSC evidence instead of fabricating derived risk"
     },
     {
       "name": "Refresh brief",
@@ -118,7 +128,7 @@
     {
       "name": "Forecast impact",
       "command": "forecast-impact",
-      "description": "forecast-impact estimates click, conversion, and revenue upside from closing CTR gaps"
+      "description": "forecast-impact refuses under Low/Broken confidence and skips rows missing GA4 revenue or GSC evidence instead of fabricating derived estimates"
     },
     {
       "name": "Stale winners",
@@ -128,7 +138,7 @@
     {
       "name": "Weekly digest",
       "command": "digest weekly",
-      "description": "digest weekly produces a local-first traffic and revenue summary that handles empty datasets cleanly"
+      "description": "digest weekly leads with status header, date-range fallback, movers, and a local-first traffic and revenue summary"
     }
   ],
   "sources": [
