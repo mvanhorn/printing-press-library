@@ -15,6 +15,7 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/parser"
 	"github.com/spf13/cobra"
 )
 
@@ -226,10 +227,40 @@ func ExitCode(err error) int {
 	return 1
 }
 
+// marketplaceCurrency maps an Amazon marketplace base URL to the ISO currency
+// it transacts in, used as the fallback when an order card has no
+// currency-marked amount to parse.
+func marketplaceCurrency(baseURL string) string {
+	host := strings.ToLower(baseURL)
+	switch {
+	case strings.Contains(host, "amazon.in"):
+		return "INR"
+	case strings.Contains(host, "amazon.co.uk"):
+		return "GBP"
+	case strings.Contains(host, "amazon.de"), strings.Contains(host, "amazon.fr"),
+		strings.Contains(host, "amazon.it"), strings.Contains(host, "amazon.es"),
+		strings.Contains(host, "amazon.nl"):
+		return "EUR"
+	case strings.Contains(host, "amazon.ca"):
+		return "CAD"
+	case strings.Contains(host, "amazon.co.jp"):
+		return "JPY"
+	default:
+		return "USD"
+	}
+}
+
 func (f *rootFlags) newClient() (*client.Client, error) {
 	cfg, err := config.Load(f.configPath)
 	if err != nil {
 		return nil, configErr(err)
+	}
+	// Point the HTML parsers at the configured marketplace so relative links
+	// absolutize to the right origin and orders without a currency-marked total
+	// fall back to the marketplace's currency (e.g. amazon.in -> INR).
+	if cfg.BaseURL != "" {
+		parser.MarketplaceBaseURL = cfg.BaseURL
+		parser.MarketplaceCurrency = marketplaceCurrency(cfg.BaseURL)
 	}
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun
