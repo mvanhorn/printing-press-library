@@ -27,8 +27,11 @@ type Config struct {
 	Path          string            `toml:"-"`
 	envOverrides  map[string]bool   `toml:"-"`
 	fileConfig    *Config           `toml:"-"`
-	CoreUsername  string            `toml:"username"`
-	CorePassword  string            `toml:"password"`
+	CoreUsername    string `toml:"username"`
+	CorePassword    string `toml:"password"`
+	DefaultProject  string `toml:"project,omitempty"`
+	DefaultOrg      string `toml:"org,omitempty"`
+	DefaultTeam     string `toml:"team,omitempty"`
 }
 
 func Load(configPath string) (*Config, error) {

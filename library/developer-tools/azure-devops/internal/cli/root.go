@@ -199,13 +199,23 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'azure-devops-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
-	// Azure DevOps organization and project flags — read from env vars by default.
-	flags.org = os.Getenv("AZURE_DEVOPS_ORG")
-	if flags.org == "" {
-		flags.org = os.Getenv("AZURE_DEVOPS_ORGANIZATION")
+	// Azure DevOps organization and project flags — config file first, then env vars override.
+	if cfgDefaults, err := config.Load(""); err == nil {
+		flags.org = cfgDefaults.DefaultOrg
+		flags.project = cfgDefaults.DefaultProject
+		flags.team = cfgDefaults.DefaultTeam
 	}
-	flags.project = os.Getenv("AZURE_DEVOPS_PROJECT")
-	flags.team = os.Getenv("AZURE_DEVOPS_TEAM")
+	if v := os.Getenv("AZURE_DEVOPS_ORG"); v != "" {
+		flags.org = v
+	} else if v := os.Getenv("AZURE_DEVOPS_ORGANIZATION"); v != "" {
+		flags.org = v
+	}
+	if v := os.Getenv("AZURE_DEVOPS_PROJECT"); v != "" {
+		flags.project = v
+	}
+	if v := os.Getenv("AZURE_DEVOPS_TEAM"); v != "" {
+		flags.team = v
+	}
 	rootCmd.PersistentFlags().StringVar(&flags.org, "org", flags.org, "Azure DevOps organization name (env: AZURE_DEVOPS_ORG)")
 	rootCmd.PersistentFlags().StringVar(&flags.project, "project", flags.project, "Azure DevOps project name (env: AZURE_DEVOPS_PROJECT)")
 	rootCmd.PersistentFlags().StringVar(&flags.team, "team", flags.team, "Azure DevOps team name (env: AZURE_DEVOPS_TEAM)")

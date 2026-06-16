@@ -11,10 +11,13 @@ func newNovelWitCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "wit",
-		Short:       "wit subcommands: cycle-time",
+		Short:       "wit subcommands: cycle-time, overdue, comments, history",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newNovelWitCycleTimeCmd(flags))
+	cmd.AddCommand(newWitOverdueCmd(flags))
+	cmd.AddCommand(newWitCommentsCmd(flags))
+	cmd.AddCommand(newWitHistoryCmd(flags))
 	return cmd
 }
