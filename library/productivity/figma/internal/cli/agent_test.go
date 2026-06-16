@@ -264,6 +264,14 @@ func figmaFileFixture() string {
             "children": [
               {"id": "1:2", "name": "Signup", "type": "FRAME", "parentId": "1:1"}
             ]
+          },
+          {
+            "id": "1:10", "name": "Onboarding", "type": "SECTION", "parentId": "0:1",
+            "children": [
+              {"id": "1:11", "name": "Welcome", "type": "FRAME", "parentId": "1:10"},
+              {"id": "1:12", "name": "Permissions", "type": "FRAME", "parentId": "1:10"},
+              {"id": "1:13", "name": "Complete", "type": "FRAME", "parentId": "1:10"}
+            ]
           }
         ]
       },
@@ -302,6 +310,14 @@ func newFakeFigmaMissingNodeServer(t *testing.T, nodesBody string) *httptest.Ser
 }
 
 func newFakeFigmaShotServer(t *testing.T) *httptest.Server {
+	return newFakeFigmaShotServerWithTimeout(t, false)
+}
+
+func newFakeFigmaShotTimeoutServer(t *testing.T) *httptest.Server {
+	return newFakeFigmaShotServerWithTimeout(t, true)
+}
+
+func newFakeFigmaShotServerWithTimeout(t *testing.T, timeoutMultiID bool) *httptest.Server {
 	t.Helper()
 	mux := http.NewServeMux()
 	var base string
@@ -317,6 +333,11 @@ func newFakeFigmaShotServer(t *testing.T) *httptest.Server {
 	mux.HandleFunc("/v1/images/", func(w http.ResponseWriter, r *http.Request) {
 		ids := strings.Split(r.URL.Query().Get("ids"), ",")
 		w.Header().Set("Content-Type", "application/json")
+		if timeoutMultiID && len(ids) > 1 {
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write([]byte(`{"status":400,"err":"Render timeout, try requesting fewer or smaller images"}`))
+			return
+		}
 		_, _ = w.Write([]byte(`{"err":null,"images":{`))
 		for i, id := range ids {
 			if i > 0 {
@@ -736,6 +757,80 @@ func TestAgentShotDownloadFailureKeepsURL(t *testing.T) {
 	}
 	if errText, _ := img["download_error"].(string); !strings.Contains(errText, "503") {
 		t.Fatalf("download_error = %q, want HTTP 503", errText)
+	}
+}
+
+func TestRenderImagesSplitsOnTimeout(t *testing.T) {
+	srv := newFakeFigmaShotTimeoutServer(t)
+	defer srv.Close()
+	setFigmaTestEnv(t, srv.URL)
+	flags := rootFlags{}
+	c, err := flags.newClient()
+	if err != nil {
+		t.Fatalf("new client: %v", err)
+	}
+
+	got, err := renderImages(c, "testKey", "png", 2, []string{"1:11", "1:12", "1:13"}, 3)
+	if err != nil {
+		t.Fatalf("renderImages returned error: %v", err)
+	}
+	for _, id := range []string{"1:11", "1:12", "1:13"} {
+		if got[id] == nil || *got[id] == "" {
+			t.Fatalf("image %s = %v, want non-empty URL; all=%+v", id, got[id], got)
+		}
+	}
+}
+
+func TestAgentShotSucceedsDespiteRenderTimeout(t *testing.T) {
+	srv := newFakeFigmaShotTimeoutServer(t)
+	defer srv.Close()
+	setFigmaTestEnv(t, srv.URL)
+
+	out, err := runAgentRoot(t, []string{"agent", "shot", "testKey", "Onboarding", "--children", "--max", "3", "--batch", "3", "--out-dir", t.TempDir(), "--agent", "--no-cache"})
+	if err != nil {
+		t.Fatalf("agent shot should split render timeout and exit 0: %v\n%s", err, out)
+	}
+	var res map[string]any
+	if err := json.Unmarshal([]byte(out), &res); err != nil {
+		t.Fatalf("decoding shot output: %v\n%s", err, out)
+	}
+	if res["count"].(float64) != 3 {
+		t.Fatalf("count = %v, want 3", res["count"])
+	}
+	for _, raw := range res["images"].([]any) {
+		img := raw.(map[string]any)
+		if img["path"] == "" && img["url"] == "" {
+			t.Fatalf("image missing path/url: %+v", img)
+		}
+	}
+}
+
+func TestAgentShotChildrenRendersSectionScreens(t *testing.T) {
+	srv := newFakeFigmaShotServer(t)
+	defer srv.Close()
+	setFigmaTestEnv(t, srv.URL)
+
+	out, err := runAgentRoot(t, []string{"agent", "shot", "testKey", "Onboarding", "--children", "--max", "5", "--no-download", "--agent", "--no-cache"})
+	if err != nil {
+		t.Fatalf("agent shot --children failed: %v\n%s", err, out)
+	}
+	var res map[string]any
+	if err := json.Unmarshal([]byte(out), &res); err != nil {
+		t.Fatalf("decoding shot output: %v\n%s", err, out)
+	}
+	images := res["images"].([]any)
+	if len(images) != 3 {
+		t.Fatalf("images len = %d, want 3", len(images))
+	}
+	for _, raw := range images {
+		img := raw.(map[string]any)
+		label, _ := img["label"].(string)
+		if !strings.HasPrefix(label, "🕹️ Prototype / Onboarding / ") {
+			t.Fatalf("label = %q, want Onboarding child", label)
+		}
+		if img["id"] == "1:10" || img["type"] == "SECTION" {
+			t.Fatalf("rendered section instead of child: %+v", img)
+		}
 	}
 }
 

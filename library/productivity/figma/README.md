@@ -162,10 +162,11 @@ These capabilities aren't available in any other tool for this API.
   ```
 - **`agent shot`** — Resolve a label or URL node-id, render matching screen-like nodes, and download PNGs to local files.
 
-  _Use when an agent needs a Slack-ready screenshot in one call. Returns `{images: [{id, label, url, path}]}`; if the Figma render CDN is blocked, `path` is omitted and the expiring `url` remains as fallback._
+  _Use when an agent needs a Slack-ready screenshot in one call. Render requests are batched and split on Figma render-timeouts, so multi-screen requests avoid all-or-nothing 400s. Returns `{images: [{id, label, url, path}]}`; if the Figma render CDN is blocked, `path` is omitted and the expiring `url` remains as fallback. Add `--children` for “a few screens of <page/section>” requests._
 
   ```bash
   figma-pp-cli agent shot abc123 "Cash transfer Intro" --max 3 --agent
+  figma-pp-cli agent shot abc123 "Onboarding" --children --max 5 --agent
   ```
 - **`frame extract`** — Extract a single frame as a compact codegen-ready payload that fuses simplified node tree, in-scope variables, dev resources, and Code Connect mappings.
 

@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "agent-shot-render-reliability",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260509-190854",
+  "base_printing_press_version": "4.2.0",
+  "summary": "agent shot must batch image renders, split render-timeout batches, and support rendering screen-like children of matched pages or sections.",
+  "reason": "Figma can return HTTP 400 render timeouts for several large frames in one /v1/images request; agents also need one command for 'a few screens of a section' instead of manual outline plus images calls.",
+  "files": [
+    "internal/cli/agent.go",
+    "internal/cli/agent_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go test ./internal/cli passes with a fake server that returns render-timeout 400s for multi-id image requests; split retries render all requested child screens."
+}
