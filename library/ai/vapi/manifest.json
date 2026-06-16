@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "vapi-pp-mcp",
+  "display_name": "Vapi",
+  "version": "4.20.1",
+  "description": "Voice AI for developers.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/vapi-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/vapi-pp-mcp",
+      "args": [],
+      "env": {
+        "VAPI_TOKEN": "${user_config.vapi_token}"
+      }
+    }
+  },
+  "user_config": {
+    "vapi_token": {
+      "type": "string",
+      "title": "VAPI_TOKEN",
+      "description": "Sets VAPI_TOKEN for the Vapi MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

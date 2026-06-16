@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "juno-followup-status-recording-defaults",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260609-193942",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Private Vapi outbound calls must preserve Juno setup, assistant, test-call, report, follow-up/status workflows, and recording-by-default behavior.",
+  "reason": "This private CLI is adopted from proven source rather than reprinted because no archived research/manuscripts exist; these Juno affordances are bespoke user workflows that a fresh spec-only print would drop.",
+  "files": [
+    "internal/cli/dial.go",
+    "internal/cli/juno.go",
+    "internal/cli/juno_followup_status.go",
+    "internal/cli/juno_ops.go",
+    "internal/cli/juno_private_test.go",
+    "cmd/vapi-pp-cli/main.go",
+    "cmd/vapi-pp-mcp/main.go"
+  ],
+  "validated_outcome": "go test ./... passes; dry-run smokes show recordingEnabled=true by default, --no-record sets recordingEnabled=false, and Juno setup/test-call/report/phone-numbers/assistant/followup/status are wired."
+}
