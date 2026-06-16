@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-16T17:14:12.341192Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "azure-devops",
+  "cli_name": "azure-devops-pp-cli",
+  "contributors": [
+    {
+      "handle": "davbebawy",
+      "name": "David Bebawy"
+    }
+  ],
+  "printer": "davbebawy",
+  "printer_name": "David Bebawy",
+  "run_id": "20260616-115202-470f949b",
+  "category": "developer-tools",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "AZURE_DEVOPS_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Daily Standup Digest",
+      "command": "standup",
+      "description": "See your PRs awaiting review, in-progress work items, and newly failed builds in one command \u2014 ready before the standup meeting."
+    },
+    {
+      "name": "PR Review Readiness Queue",
+      "command": "pr review-queue",
+      "description": "See only the PRs where you are a required reviewer, the build is passing, and no other required reviewer has voted yet \u2014 ordered by readiness."
+    },
+    {
+      "name": "Sprint Velocity Trend",
+      "command": "velocity",
+      "description": "See sprint-over-sprint velocity with trend line for the current team \u2014 points completed vs committed, across the last N sprints."
+    },
+    {
+      "name": "Sprint Scope Creep Detector",
+      "command": "work sprint-creep",
+      "description": "See which work items were added to the current sprint after it started, with total story points of scope added mid-sprint."
+    },
+    {
+      "name": "Sprint Rollover Counter",
+      "command": "work rollover",
+      "description": "Find work items that have been moved to a new sprint more than once \u2014 the chronic blockers that keep slipping through sprint planning."
+    },
+    {
+      "name": "Cross-Pipeline Pending Approvals",
+      "command": "release gate-queue",
+      "description": "See all release gates and YAML pipeline stages currently waiting for your approval across every pipeline, with how long each has been waiting."
+    },
+    {
+      "name": "Work Item Revision Diff",
+      "command": "work diff",
+      "description": "Show exactly which fields changed between two revisions of a work item \u2014 a git-style diff for specification and acceptance criteria."
+    },
+    {
+      "name": "Pipeline Flakiness Score",
+      "command": "pipeline flaky",
+      "description": "Identify build stages with the highest intermittent failure rate over the last N runs \u2014 the stages that fail and then pass without code changes."
+    },
+    {
+      "name": "Work Item Cycle Time",
+      "command": "wit cycle-time",
+      "description": "Measure average time from Active to Done per work item type over a date range \u2014 the team's true delivery throughput."
+    },
+    {
+      "name": "Commit-to-Build Traceability",
+      "command": "git commit-builds",
+      "description": "Given a commit SHA, see every build and pipeline run that included that commit and whether it passed or failed."
+    },
+    {
+      "name": "Cross-Repo Branch Health",
+      "command": "git branch-health",
+      "description": "See a health dashboard for every repo in the project: default branch build status, last commit age, and open PR count \u2014 in one table."
+    },
+    {
+      "name": "Area Path Work Item Load",
+      "command": "work area-load",
+      "description": "See open work item counts and total story points grouped by area path \u2014 to spot overloaded teams or abandoned backlogs."
+    },
+    {
+      "name": "PR Aging Report",
+      "command": "pr aging",
+      "description": "Find pull requests with no reviewer activity for N or more days, grouped by author \u2014 to surface forgotten PRs before they go stale."
+    },
+    {
+      "name": "Branch Stale Cleanup Plan",
+      "command": "branches stale",
+      "description": "List branches that are safe to delete: already merged into default, no open PRs, and no commits in the last N days."
+    },
+    {
+      "name": "Build Cost Trend",
+      "command": "builds cost",
+      "description": "See agent minutes consumed per pipeline per week over the last N weeks \u2014 to find pipelines that are growing in CI cost."
+    }
+  ]
+}
