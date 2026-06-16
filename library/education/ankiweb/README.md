@@ -6,7 +6,7 @@ Every existing Anki CLI wraps the desktop AnkiConnect add-on; none touches ankiw
 
 Learn more at [AnkiWeb](https://ankiweb.net).
 
-Created by [@paulb](https://github.com/paulb) (Paul Bockewitz).
+Created by [@paulbockewitz](https://github.com/paulbockewitz) (Paul Bockewitz).
 Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
