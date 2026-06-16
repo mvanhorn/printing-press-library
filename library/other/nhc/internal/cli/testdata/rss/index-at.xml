@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:georss="http://www.georss.org/georss"
+  xmlns:gml="http://www.opengis.net/gml"
+  xmlns:nhc="https://www.nhc.noaa.gov">
+  <channel>
+    <pubDate>Tue, 16 Jun 2026 05:45:01 GMT</pubDate>
+    <title>NHC Atlantic</title>
+    <description>Active tropical cyclones in the Atlantic, Caribbean, and the Gulf of America</description>
+    <link>https://www.nhc.noaa.gov/</link>
+    <copyright>none</copyright>
+    <managingEditor>noaa-contact@example.com (NHC Webmaster)</managingEditor>
+    <language>en-us</language>
+    <webMaster>noaa-contact@example.com (NHC Webmaster)</webMaster>
+    <image>
+      <url>https://www.nhc.noaa.gov/gifs/xml_logo_nhc.gif</url>
+      <link>https://www.nhc.noaa.gov/</link>
+      <title>NHC Atlantic</title>
+      <description>NOAA logo</description>
+      <width>95</width>
+      <height>45</height>
+    </image>
+    <item>
+      <title>Atlantic Tropical Weather Outlook</title>
+      <description>
+      <![CDATA[000<br />ABNT20 KNHC 160502<br />TWOAT <br /><br />Tropical Weather Outlook<br />NWS National Hurricane Center Miami FL<br />200 AM EDT Tue Jun 16 2026<br /><br />For the North Atlantic...Caribbean Sea and the Gulf of America:<br /><br />Northwestern Gulf of America (AL90):<br />A trough of low pressure located inland near the Texas/Mexico border <br />continues to produce a large area of disorganized showers and <br />thunderstorms.  The system could re-emerge over the northwestern <br />Gulf of America today, and environmental conditions there are <br />expected to be marginally conducive for the formation of a <br />short-lived tropical storm later today or on Wednesday.<br /><br />Regardless of tropical cyclone formation, interests across southern <br />and eastern Texas and portions of Louisiana and Mississippi should <br />prepare for periods of intense rainfall over the next several days <br />which could produce widespread, life-threatening flash, urban, and <br />river flooding.  Gusty winds and coastal flooding are also possible <br />along portions of the northwestern Gulf Coast, and Tropical Storm <br />Watches or Warnings could be required later today.  Additional <br />information on this system can be found in products issued by your <br />local National Weather Service Forecast Office or NHC Key Messages.<br />* Formation chance through 48 hours...medium...60 percent.<br />* Formation chance through 7 days...medium...60 percent.<br /><br />$$<br />Forecaster Pasch]]>
+      </description>
+      <pubDate>Tue, 16 Jun 2026 05:02:39 GMT</pubDate>
+      <link>https://www.nhc.noaa.gov/gtwo.php?basin=atlc</link>
+      <guid>https://www.nhc.noaa.gov/gtwo.php?basin=atlc&amp;202606160502</guid>
+      <author>noaa-contact@example.com (NHC Webmaster)</author>
+    </item>
+    <item>
+      <title>There are no tropical cyclones at this time.</title>
+      <description>No tropical cyclones as of Tue, 16 Jun 2026 05:45:01 GMT</description>
+      <pubDate>Wed, 17 Jun 2026 17:02:39 GMT</pubDate>
+      <link>https://www.nhc.noaa.gov/</link>
+      <guid>https://www.nhc.noaa.gov/</guid>
+      <author>noaa-contact@example.com (NHC Webmaster)</author>
+    </item>
+  </channel>
+</rss>

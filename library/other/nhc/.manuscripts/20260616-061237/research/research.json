@@ -1,0 +1,213 @@
+{
+  "api_name": "nhc",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-15T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "One-call situational brief",
+      "command": "brief",
+      "description": "One command returns active storms, the tropical outlook, and live NWS tropical alerts as a single payload, with an optional human briefing.",
+      "rationale": "Only a local compound command can stitch CurrentStorms.json, the Tropical Weather Outlook, and api.weather.gov alerts into one situational answer an agent can act on.",
+      "example": "nhc-pp-cli brief --basin atl --markdown",
+      "why_it_matters": "Reach for this first when an agent asks 'what is the tropical situation right now' — one call instead of four.",
+      "group": "One-call situational awareness"
+    },
+    {
+      "name": "Flattened storm detail with null-safe link-outs",
+      "command": "storm",
+      "description": "Full detail for one storm: vitals plus every advisory-product URL and GIS link-out, with not-applicable fields returned as explicit null.",
+      "rationale": "The agent never has to re-derive AL092024_..._CONE.kmz patterns or guess which products exist; the CLI surfaces exactly what NHC published this cycle.",
+      "example": "nhc-pp-cli storm al092024",
+      "why_it_matters": "Use when you have a storm id and need its products and graphics without parsing the raw feed.",
+      "group": "Parsed NHC products"
+    },
+    {
+      "name": "Parsed advisory text (TCP/TCD/TCM)",
+      "command": "advisory",
+      "description": "Fetches and parses the Public Advisory, Forecast Discussion, or Forecast/Marine Advisory into structured fields plus the clean body text, with no HTML scraping by the agent.",
+      "rationale": "Each product has a different layout (TCP is MPH dot-delimited, TCM is KT space-delimited all-caps); product-aware extractors turn them into structured data a model can reason over.",
+      "example": "nhc-pp-cli advisory al092024 --type tcd",
+      "why_it_matters": "Use when you need the meteorologist's reasoning or exact wind/pressure/movement fields, not a web page.",
+      "group": "Parsed NHC products"
+    },
+    {
+      "name": "Tropical Weather Outlook with formation odds",
+      "command": "outlook",
+      "description": "Parses the Tropical Weather Outlook for any basin into development areas and 48-hour / 7-day formation chances, with graphic link-outs.",
+      "rationale": "The outlook is the always-on value carrier: it answers 'is anything brewing' even when zero storms are named.",
+      "example": "nhc-pp-cli outlook --basin atl",
+      "why_it_matters": "Use in the quiet season or to forecast-ahead; it is useful when 'storms list' is empty.",
+      "group": "Parsed NHC products"
+    },
+    {
+      "name": "Storm graphics link-outs with download/open",
+      "command": "graphics",
+      "description": "Returns the cone, track, surge, and wind link-outs for a storm; --download saves the files locally and --open views them.",
+      "rationale": "Agent-native by default (URLs only), with optional local fetch for humans who want the actual cone or surge image.",
+      "example": "nhc-pp-cli graphics al092024 --kind cone,surge",
+      "why_it_matters": "Use to hand a dashboard or person the official NHC graphics without re-deriving file paths.",
+      "group": "Link-outs done right"
+    },
+    {
+      "name": "ArcGIS MapServer layer link-outs",
+      "command": "gis",
+      "description": "Maps a storm to its ArcGIS REST layer URLs (forecast cone, wind field, watch/warning) for mapping clients. Link-out only; never ingested.",
+      "rationale": "Honors the choice to stay text-first while still pointing power users at the live GIS for polygons.",
+      "example": "nhc-pp-cli gis al092024",
+      "why_it_matters": "Use when a caller wants the spatial layers; this CLI references them instead of parsing them.",
+      "group": "Link-outs done right"
+    },
+    {
+      "name": "Credits and safety disclaimer",
+      "command": "credits",
+      "description": "Thanks the people of the National Hurricane Center and states plainly that this is an unofficial tool and NHC/NWS is authoritative.",
+      "rationale": "Credibility and gratitude are the point of a tool about keeping people safe.",
+      "example": "nhc-pp-cli credits",
+      "why_it_matters": "Read or surface this so users know the source of truth and who to thank.",
+      "group": "Gratitude and safety"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "One-call situational brief",
+      "command": "brief",
+      "description": "One command returns active storms, the tropical outlook, and live NWS tropical alerts as a single payload, with an optional human briefing.",
+      "rationale": "Only a local compound command can stitch CurrentStorms.json, the Tropical Weather Outlook, and api.weather.gov alerts into one situational answer an agent can act on.",
+      "example": "nhc-pp-cli brief --basin atl --markdown",
+      "why_it_matters": "Reach for this first when an agent asks 'what is the tropical situation right now' — one call instead of four.",
+      "group": "One-call situational awareness"
+    },
+    {
+      "name": "Flattened storm detail with null-safe link-outs",
+      "command": "storm",
+      "description": "Full detail for one storm: vitals plus every advisory-product URL and GIS link-out, with not-applicable fields returned as explicit null.",
+      "rationale": "The agent never has to re-derive AL092024_..._CONE.kmz patterns or guess which products exist; the CLI surfaces exactly what NHC published this cycle.",
+      "example": "nhc-pp-cli storm al092024",
+      "why_it_matters": "Use when you have a storm id and need its products and graphics without parsing the raw feed.",
+      "group": "Parsed NHC products"
+    },
+    {
+      "name": "Parsed advisory text (TCP/TCD/TCM)",
+      "command": "advisory",
+      "description": "Fetches and parses the Public Advisory, Forecast Discussion, or Forecast/Marine Advisory into structured fields plus the clean body text, with no HTML scraping by the agent.",
+      "rationale": "Each product has a different layout (TCP is MPH dot-delimited, TCM is KT space-delimited all-caps); product-aware extractors turn them into structured data a model can reason over.",
+      "example": "nhc-pp-cli advisory al092024 --type tcd",
+      "why_it_matters": "Use when you need the meteorologist's reasoning or exact wind/pressure/movement fields, not a web page.",
+      "group": "Parsed NHC products"
+    },
+    {
+      "name": "Tropical Weather Outlook with formation odds",
+      "command": "outlook",
+      "description": "Parses the Tropical Weather Outlook for any basin into development areas and 48-hour / 7-day formation chances, with graphic link-outs.",
+      "rationale": "The outlook is the always-on value carrier: it answers 'is anything brewing' even when zero storms are named.",
+      "example": "nhc-pp-cli outlook --basin atl",
+      "why_it_matters": "Use in the quiet season or to forecast-ahead; it is useful when 'storms list' is empty.",
+      "group": "Parsed NHC products"
+    },
+    {
+      "name": "Storm graphics link-outs with download/open",
+      "command": "graphics",
+      "description": "Returns the cone, track, surge, and wind link-outs for a storm; --download saves the files locally and --open views them.",
+      "rationale": "Agent-native by default (URLs only), with optional local fetch for humans who want the actual cone or surge image.",
+      "example": "nhc-pp-cli graphics al092024 --kind cone,surge",
+      "why_it_matters": "Use to hand a dashboard or person the official NHC graphics without re-deriving file paths.",
+      "group": "Link-outs done right"
+    },
+    {
+      "name": "ArcGIS MapServer layer link-outs",
+      "command": "gis",
+      "description": "Maps a storm to its ArcGIS REST layer URLs (forecast cone, wind field, watch/warning) for mapping clients. Link-out only; never ingested.",
+      "rationale": "Honors the choice to stay text-first while still pointing power users at the live GIS for polygons.",
+      "example": "nhc-pp-cli gis al092024",
+      "why_it_matters": "Use when a caller wants the spatial layers; this CLI references them instead of parsing them.",
+      "group": "Link-outs done right"
+    },
+    {
+      "name": "Credits and safety disclaimer",
+      "command": "credits",
+      "description": "Thanks the people of the National Hurricane Center and states plainly that this is an unofficial tool and NHC/NWS is authoritative.",
+      "rationale": "Credibility and gratitude are the point of a tool about keeping people safe.",
+      "example": "nhc-pp-cli credits",
+      "why_it_matters": "Read or surface this so users know the source of truth and who to thank.",
+      "group": "Gratitude and safety"
+    }
+  ],
+  "narrative": {
+    "display_name": "National Hurricane Center",
+    "headline": "Credible, real-time National Hurricane Center data for AI agents: active storms, parsed advisories, and tropical outlooks, text-first with link-outs for everything else.",
+    "value_prop": "nhc-pp-cli gives agents the most credible real-time hurricane information straight from the National Hurricane Center and the National Weather Service: active storms (CurrentStorms.json), parsed Public Advisories and Forecast Discussions, the Tropical Weather Outlook with formation odds, and live tropical watches and warnings. It is built text-first and links out to the official GIS for anyone who wants polygons. Deep thanks to the forecasters, hurricane hunters, and support staff at NHC who sacrifice so much for the safety of so many. This is an unofficial tool; in an emergency, follow the official watches, warnings, and evacuation orders from NHC, the NWS, and your local authorities.",
+    "quickstart": [
+      {
+        "command": "nhc-pp-cli doctor --dry-run",
+        "comment": "Confirm the CLI is wired up; no API key needed."
+      },
+      {
+        "command": "nhc-pp-cli storms list",
+        "comment": "What tropical cyclones are active right now (empty in the quiet season)."
+      },
+      {
+        "command": "nhc-pp-cli outlook --basin atl",
+        "comment": "What may be developing, even when no storms are named."
+      },
+      {
+        "command": "nhc-pp-cli brief --markdown",
+        "comment": "One-call situational briefing across storms, outlook, and alerts."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "api.weather.gov returns 403",
+        "fix": "A descriptive User-Agent is mandatory; nhc-pp-cli sends one automatically, so re-run rather than calling the API by hand."
+      },
+      {
+        "symptom": "storms list is empty",
+        "fix": "That is the verified quiet-season contract (zero active storms). Run 'nhc-pp-cli outlook' to see formation chances."
+      },
+      {
+        "symptom": "advisory says product not found",
+        "fix": "Products only exist for active or recent storms; check 'nhc-pp-cli storms list' for valid ids first."
+      }
+    ],
+    "when_to_use": "Use nhc-pp-cli when an AI agent or operator needs trustworthy, current tropical-cyclone information: whether a storm is active, its forecast and intensity, the meteorologist's discussion, what may develop, and which official watches and warnings are in effect. It is ideal for situational-awareness assistants, briefing generators, and disaster-response tooling that must cite an authoritative source.",
+    "anti_triggers": [
+      "Do not use this CLI to make or replace official forecasts or evacuation decisions; defer to NHC, the NWS, and local authorities.",
+      "Do not use it for non-tropical or general weather; it covers tropical cyclones only.",
+      "Do not expect rendered GIS polygons; it links out to the ArcGIS MapServer instead of parsing it."
+    ],
+    "recipes": [
+      {
+        "title": "Active storms as compact JSON for an agent",
+        "command": "nhc-pp-cli storms list --json --select id,name,classification,intensity,pressure",
+        "explanation": "Returns just the high-gravity fields so an agent does not burn context on the full feed."
+      },
+      {
+        "title": "Read the forecast discussion",
+        "command": "nhc-pp-cli advisory al092024 --type tcd",
+        "explanation": "Fetches and parses the meteorologist's narrative for a storm id."
+      },
+      {
+        "title": "One-call situational briefing",
+        "command": "nhc-pp-cli brief --basin atl --markdown",
+        "explanation": "Bundles active storms, the outlook, and tropical alerts into a single human-readable briefing."
+      },
+      {
+        "title": "Official cone and surge graphics for a storm",
+        "command": "nhc-pp-cli graphics al092024 --kind cone,surge",
+        "explanation": "Hands back the official NHC link-outs without re-deriving file paths."
+      }
+    ],
+    "trigger_phrases": [
+      "is there a hurricane",
+      "active tropical storms",
+      "tropical weather outlook",
+      "hurricane advisory",
+      "what's in the tropics",
+      "use nhc",
+      "run nhc"
+    ]
+  }
+}

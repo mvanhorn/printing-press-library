@@ -1,0 +1,47 @@
+{
+  "api_name": "nhc",
+  "base_url": "https://www.nhc.noaa.gov",
+  "description": "Credible, real-time National Hurricane Center data for AI agents: active storms, parsed advisories, tropical outlooks, and NWS tropical alerts. Text-first, link-outs for GIS.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "nhc-pp-cli (github.com/abe238/nhc-pp-cli)"
+    }
+  ],
+  "tools": [
+    {
+      "name": "alerts_active",
+      "description": "Active tropical alerts. Pass a comma-separated --event list (Hurricane/Tropical Storm/Storm Surge x Warning/Watch). A descriptive User-Agent is mandatory (sent automatically). Optional: event, area. Returns array of Alert.",
+      "method": "GET",
+      "path": "/alerts/active",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "event",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated NWS event names (OR filter). Defaults to the six tropical watch/warning types."
+        },
+        {
+          "name": "area",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter state or marine area filter (e.g. FL). Omit for all areas."
+        }
+      ]
+    },
+    {
+      "name": "storms_list",
+      "description": "List every active tropical cyclone across all basins. Returns [] when none are active (quiet season); run 'outlook' to see what may be developing.",
+      "method": "GET",
+      "path": "/CurrentStorms.json",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}
