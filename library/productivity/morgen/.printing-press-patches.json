@@ -8,7 +8,9 @@
       "id": "sync-per-resource-pagination",
       "summary": "Gate limit/cursor query params to resources whose list endpoint accepts them (tags, tasks) and stop sending an incremental 'since' param, which no Morgen list endpoint accepts.",
       "reason": "The v4.16.0 generator applied uniform pagination (limit on every list endpoint) plus a 'since' param to all resources. Morgen strictly whitelists query params and returns HTTP 400 for unknown ones, so sync failed on /calendars/list (limit) and /tags/list (since).",
-      "files": ["internal/cli/sync.go"],
+      "files": [
+        "internal/cli/sync.go"
+      ],
       "validated_outcome": "Live dogfood sync 4xx failures cleared; /tags/list?limit=100 returns HTTP 200; calendars/integrations/events no longer receive limit.",
       "deferred_to_upstream": [
         {
@@ -21,13 +23,25 @@
       "id": "client-cache-key-deterministic-param-order",
       "summary": "Sort param keys before hashing the response-cache key so the same logical request always maps to one cache entry.",
       "reason": "The generated cacheKey iterated the params map in Go's randomized order, so multi-param reads (e.g. the agenda command's /events/list call) produced a different SHA each call, making the cache a no-op and forcing an extra live API hit every time.",
-      "files": ["internal/client/client.go"]
+      "files": [
+        "internal/client/client.go"
+      ]
     },
     {
       "id": "config-cleartokens-clears-api-key",
       "summary": "ClearTokens now also clears MorgenApiKey and AuthHeaderVal so 'auth logout' actually de-authenticates; also drops a redundant duplicate empty-key guard in AuthHeader.",
       "reason": "The generated ClearTokens cleared only OAuth bearer fields, leaving the api_key credential persisted; AuthHeader still returned a valid 'ApiKey ...' header after logout, so users believed they were logged out while still authenticated.",
-      "files": ["internal/config/config.go"]
+      "files": [
+        "internal/config/config.go"
+      ]
+    },
+    {
+      "id": "tail-follow-false-single-poll",
+      "summary": "tail honors --follow=false by returning after the initial poll instead of always entering the infinite ticker loop.",
+      "reason": "The generated tail command read the follow flag into a variable but never checked it, so --follow=false (documented as a single poll) looped forever.",
+      "files": [
+        "internal/cli/tail.go"
+      ]
     }
   ]
 }
