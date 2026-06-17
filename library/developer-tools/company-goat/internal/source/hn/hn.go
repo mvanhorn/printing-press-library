@@ -104,8 +104,15 @@ func buildURL(base, endpoint string, q url.Values) string {
 	if base == "" {
 		base = hnBaseURL
 	}
-	q.Set("typoTolerance", "false")
-	return base + endpoint + "?" + q.Encode()
+	// Copy so the caller's url.Values is never mutated, and normalize the
+	// base/endpoint join so a missing or extra trailing slash cannot produce a
+	// malformed URL (e.g. ".../v1search?...").
+	vals := url.Values{}
+	for k, v := range q {
+		vals[k] = v
+	}
+	vals.Set("typoTolerance", "false")
+	return strings.TrimRight(base, "/") + "/" + endpoint + "?" + vals.Encode()
 }
 
 func (c *Client) search(ctx context.Context, endpoint string, q url.Values) (*SearchResponse, error) {
