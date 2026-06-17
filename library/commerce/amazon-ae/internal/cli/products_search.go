@@ -30,6 +30,9 @@ func newProductsSearchCmd(flags *rootFlags) *cobra.Command {
 			if !cmd.Flags().Changed("k") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "k")
 			}
+			if cmd.Flags().Changed("k") && flagK == "" {
+				return fmt.Errorf("flag \"k\" must not be empty")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err

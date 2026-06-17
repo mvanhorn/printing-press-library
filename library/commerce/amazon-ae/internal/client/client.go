@@ -505,22 +505,14 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		if req.Header.Get("User-Agent") == "" {
 			req.Header.Set("User-Agent", "amazon-ae-pp-cli/0.1.0")
 		}
-		// Go's net/http omits Accept by default; browsers, curl, and other
-		// stdlibs always send it. Fingerprint-checking WAFs (Imperva, Akamai,
-		// Cloudflare bot-mode, DataDome) flag the absence as a bot signal
-		// and answer with empty-body 5xx, 403, or a challenge redirect
-		// depending on vendor and rule tier. The value is application/json
-		// rather than */* because strict-JSON APIs (Zendesk, Atlassian REST,
-		// Salesforce) return 415 on anything that isn't literally
-		// application/json; specs that need a different content type
-		// (vendor mediatypes, XML, HTML) declare it via RequiredHeaders or
-		// per-endpoint headerOverrides, both of which run before this
-		// if-empty default.
+		// Amazon.ae endpoints return browser HTML pages, and its WAF treats
+		// JSON-first page requests as bot-shaped. Use a browser-like Accept
+		// header by default unless config or endpoint overrides already set one.
 		if req.Header.Get("Accept") == "" {
 			if binaryResponse {
 				req.Header.Set("Accept", "*/*")
 			} else {
-				req.Header.Set("Accept", "application/json")
+				req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
 			}
 		}
 

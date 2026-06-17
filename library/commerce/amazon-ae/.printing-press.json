@@ -30,5 +30,5 @@
   "schema_version": 1,
   "spec_checksum": "sha256:9bf8a9c7c3a560ca529e708aa45ca0b18453d8c5da27c5c601936f5219a8f129",
   "spec_format": "openapi3",
-  "spec_path": "amazon-ae-openapi.yaml"
+  "spec_path": "spec.yaml"
 }
