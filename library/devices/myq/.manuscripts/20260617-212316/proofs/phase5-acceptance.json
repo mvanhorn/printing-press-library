@@ -1,0 +1,11 @@
+{
+  "verdict": "PASS",
+  "checks": [
+    "go test ./...",
+    "package file contract check"
+  ],
+  "notes": [
+    "CLI builds and the login helper tests pass.",
+    "Required publish artifacts are present for the new package."
+  ]
+}
