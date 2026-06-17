@@ -102,3 +102,26 @@ func TestSortedSourcesDefaultFirst(t *testing.T) {
 		t.Errorf("first source = %q, want default %q", sorted[0].Name, DefaultSourceName)
 	}
 }
+
+func TestResolveSourceUnavailableSourceChecksAvailabilityFlag(t *testing.T) {
+	const name = "staging"
+	old, hadOld := Sources[name]
+	Sources[name] = Source{
+		Name:        name,
+		URL:         "https://example.com/staging.csv",
+		Description: "provisioned but not released",
+		Available:   false,
+	}
+	t.Cleanup(func() {
+		if hadOld {
+			Sources[name] = old
+			return
+		}
+		delete(Sources, name)
+	})
+
+	url, resolved, err := ResolveSource("", name, "")
+	if err == nil {
+		t.Fatalf("expected unavailable-source error, got url=%q source=%q", url, resolved)
+	}
+}

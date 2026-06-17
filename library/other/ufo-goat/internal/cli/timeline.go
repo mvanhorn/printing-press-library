@@ -48,20 +48,9 @@ Filter by date range with --after and --before.`,
 				return fmt.Errorf("no files in local store. Run 'ufo-goat-pp-cli sync' first")
 			}
 
-			files, err := db.GetTimeline(flagAfter, flagBefore)
+			files, err := db.GetTimeline(flagAfter, flagBefore, flagRelease)
 			if err != nil {
 				return err
-			}
-
-			// Optional: narrow the timeline to a single release tranche.
-			if flagRelease > 0 {
-				filtered := files[:0]
-				for _, f := range files {
-					if f.ReleaseBatch == flagRelease {
-						filtered = append(filtered, f)
-					}
-				}
-				files = filtered
 			}
 
 			if len(files) == 0 {

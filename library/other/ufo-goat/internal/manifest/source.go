@@ -119,7 +119,7 @@ func sourceByName(name string) (string, string, error) {
 	if !ok {
 		return "", "", fmt.Errorf("unknown source %q (available: %s)", name, strings.Join(sourceNames(), ", "))
 	}
-	if s.URL == "" {
+	if !s.Available {
 		return "", "", fmt.Errorf("source %q is not available yet: %s", s.Name, s.Description)
 	}
 	return s.URL, s.Name, nil

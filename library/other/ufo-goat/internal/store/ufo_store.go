@@ -467,7 +467,7 @@ func (s *Store) searchUFOFilesLike(query string, limit int, releaseBatch int) ([
 }
 
 // GetTimeline returns files ordered by parsed incident date.
-func (s *Store) GetTimeline(after, before string) ([]UFOFile, error) {
+func (s *Store) GetTimeline(after, before string, releaseBatch int) ([]UFOFile, error) {
 	query := `SELECT id, COALESCE(title,''), COALESCE(type,''), COALESCE(agency,''),
 		COALESCE(release_date,''), COALESCE(incident_date,''), COALESCE(parsed_date,''),
 		COALESCE(incident_location,''), COALESCE(description,''), COALESCE(redacted,0),
@@ -485,6 +485,10 @@ func (s *Store) GetTimeline(after, before string) ([]UFOFile, error) {
 	if before != "" {
 		query += ` AND parsed_date <= ?`
 		args = append(args, before)
+	}
+	if releaseBatch > 0 {
+		query += ` AND release_batch = ?`
+		args = append(args, releaseBatch)
 	}
 
 	query += ` ORDER BY parsed_date ASC`
