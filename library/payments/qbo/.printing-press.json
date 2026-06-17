@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-04T19:50:55.529045Z",
+  "printing_press_version": "4.20.1",
+  "api_name": "qbo",
+  "display_name": "QuickBooks Online",
+  "cli_name": "qbo-pp-cli",
+  "creator": {
+    "handle": "kesslerio",
+    "name": "Martin Kessler"
+  },
+  "owner": "kesslerio",
+  "printer": "kesslerio",
+  "printer_name": "Martin Kessler",
+  "spec_path": "qbo-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:a5f510d9760829af20b3f24e4dbbb6adaf74b24e828f7f98283eb431b6366d65",
+  "run_id": "20260604-195055",
+  "category": "payments",
+  "description": "Interact with QuickBooks Online directly. Query ledger items, sync transactions locally, and run advanced reconciliation triage.",
+  "mcp_binary": "qbo-pp-mcp",
+  "mcp_tool_count": 18,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "QBO_CLIENT_ID",
+    "QBO_CLIENT_SECRET",
+    "QBO_REALM_ID"
+  ],
+  "novel_features": [
+    {
+      "name": "Changed entities check",
+      "command": "changed",
+      "description": "Show ledger entities modified since a duration or timestamp, using SQLite index searching."
+    },
+    {
+      "name": "Double-billing expense audit",
+      "command": "duplicates",
+      "description": "Find duplicate purchases or bills to prevent double-billing by auditing vendor and amount proximity."
+    },
+    {
+      "name": "Bank transaction reconciliation",
+      "command": "reconcile",
+      "description": "Find ledger candidates matching a bank transaction for reconciliation, optimized to avoid N+1 scans."
+    },
+    {
+      "name": "Net worth calculator",
+      "command": "net-worth",
+      "description": "Calculate net worth from asset and liability accounts using offline SQLite mirrors."
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+# Binaries and build artifacts
+bin/
+*.exe
+*.test
+*.prof
+
+# Local databases and cache
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Operating System files
+.DS_Store
+Thumbs.db
