@@ -1,6 +1,6 @@
 {
   "manifest_version": "0.3",
-  "name": "ufo-pp-mcp",
+  "name": "ufo-goat-pp-mcp",
   "display_name": "War.gov UFO",
   "version": "4.0.3",
   "description": "War.gov UFO API surface as MCP tools.",
@@ -10,9 +10,9 @@
   "license": "Apache-2.0",
   "server": {
     "type": "binary",
-    "entry_point": "bin/ufo-pp-mcp",
+    "entry_point": "bin/ufo-goat-pp-mcp",
     "mcp_config": {
-      "command": "${__dirname}/bin/ufo-pp-mcp",
+      "command": "${__dirname}/bin/ufo-goat-pp-mcp",
       "args": []
     }
   },

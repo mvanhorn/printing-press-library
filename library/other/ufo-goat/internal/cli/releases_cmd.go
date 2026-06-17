@@ -208,6 +208,9 @@ Use --no-sync to compare only against already-synced data without fetching.`,
 			"pp:typed-exit-codes": "0,3",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if dryRunOK(flags) {
+				return nil
+			}
 			if dbPath == "" {
 				dbPath = defaultDBPath("ufo-goat-pp-cli")
 			}
@@ -277,7 +280,7 @@ func parseBatchArg(s string) (int, error) {
 	s = strings.TrimPrefix(strings.ToLower(s), "release ")
 	s = strings.TrimPrefix(s, "release_")
 	n, err := strconv.Atoi(s)
-	if err != nil || n < 0 {
+	if err != nil || n <= 0 {
 		return 0, fmt.Errorf("invalid release number %q: expected a positive integer like 1 or 2", s)
 	}
 	return n, nil

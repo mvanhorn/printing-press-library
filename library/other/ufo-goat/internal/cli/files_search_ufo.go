@@ -52,20 +52,9 @@ using SQLite FTS5 full-text search. Supports stemming and prefix matching.`,
 				return fmt.Errorf("no files in local store. Run 'ufo-goat-pp-cli sync' first")
 			}
 
-			files, err := db.SearchUFOFiles(query, flagLimit)
+			files, err := db.SearchUFOFiles(query, flagLimit, flagRelease)
 			if err != nil {
 				return fmt.Errorf("searching files: %w", err)
-			}
-
-			// Optional: restrict matches to a single release tranche.
-			if flagRelease > 0 {
-				filtered := files[:0]
-				for _, f := range files {
-					if f.ReleaseBatch == flagRelease {
-						filtered = append(filtered, f)
-					}
-				}
-				files = filtered
 			}
 
 			if len(files) == 0 {

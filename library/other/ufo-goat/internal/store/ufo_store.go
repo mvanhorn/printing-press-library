@@ -398,9 +398,13 @@ func (s *Store) GetUFOFileByID(idOrTitle string) (*UFOFile, error) {
 }
 
 // SearchUFOFiles performs full-text search across titles, descriptions, locations.
-func (s *Store) SearchUFOFiles(query string, limit int) ([]UFOFile, error) {
+func (s *Store) SearchUFOFiles(query string, limit int, releaseBatch int) ([]UFOFile, error) {
 	if limit <= 0 {
 		limit = 50
+	}
+	batchFilter := 0
+	if releaseBatch > 0 {
+		batchFilter = 1
 	}
 
 	// Try FTS5 first
@@ -415,24 +419,29 @@ func (s *Store) SearchUFOFiles(query string, limit int) ([]UFOFile, error) {
 		FROM files_fts fts
 		JOIN files f ON fts.id = f.id
 		WHERE files_fts MATCH ?
+		  AND (? = 0 OR f.release_batch = ?)
 		ORDER BY rank
-		LIMIT ?`, query, limit)
+		LIMIT ?`, query, batchFilter, releaseBatch, limit)
 	if err != nil {
 		// Fallback to LIKE search if FTS fails
-		return s.searchUFOFilesLike(query, limit)
+		return s.searchUFOFilesLike(query, limit, releaseBatch)
 	}
 	defer rows.Close()
 
 	files, err := scanUFOFiles(rows)
 	if err != nil || len(files) == 0 {
 		// Fallback to LIKE search
-		return s.searchUFOFilesLike(query, limit)
+		return s.searchUFOFilesLike(query, limit, releaseBatch)
 	}
 	return files, nil
 }
 
-func (s *Store) searchUFOFilesLike(query string, limit int) ([]UFOFile, error) {
+func (s *Store) searchUFOFilesLike(query string, limit int, releaseBatch int) ([]UFOFile, error) {
 	pattern := "%" + query + "%"
+	batchFilter := 0
+	if releaseBatch > 0 {
+		batchFilter = 1
+	}
 	rows, err := s.db.Query(
 		`SELECT id, COALESCE(title,''), COALESCE(type,''), COALESCE(agency,''),
 		COALESCE(release_date,''), COALESCE(incident_date,''), COALESCE(parsed_date,''),
@@ -442,13 +451,14 @@ func (s *Store) searchUFOFilesLike(query string, limit int) ([]UFOFile, error) {
 		COALESCE(modal_image,''), COALESCE(pdf_image_link,''), COALESCE(synced_at,''),
 		COALESCE(downloaded,0), COALESCE(release_batch,0)
 		FROM files
-		WHERE LOWER(title) LIKE LOWER(?)
+		WHERE (LOWER(title) LIKE LOWER(?)
 		   OR LOWER(description) LIKE LOWER(?)
 		   OR LOWER(incident_location) LIKE LOWER(?)
 		   OR LOWER(video_title) LIKE LOWER(?)
-		   OR LOWER(agency) LIKE LOWER(?)
+		   OR LOWER(agency) LIKE LOWER(?))
+		  AND (? = 0 OR release_batch = ?)
 		ORDER BY title ASC
-		LIMIT ?`, pattern, pattern, pattern, pattern, pattern, limit)
+		LIMIT ?`, pattern, pattern, pattern, pattern, pattern, batchFilter, releaseBatch, limit)
 	if err != nil {
 		return nil, fmt.Errorf("searching files: %w", err)
 	}
