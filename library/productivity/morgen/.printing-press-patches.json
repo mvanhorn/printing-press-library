@@ -16,6 +16,18 @@
           "reason": "Generator template bug present in v4.16.0, fixed upstream. This artifact stays v4.16.0-printed because a clean reprint must also re-carry the novel 'agenda' command."
         }
       ]
+    },
+    {
+      "id": "client-cache-key-deterministic-param-order",
+      "summary": "Sort param keys before hashing the response-cache key so the same logical request always maps to one cache entry.",
+      "reason": "The generated cacheKey iterated the params map in Go's randomized order, so multi-param reads (e.g. the agenda command's /events/list call) produced a different SHA each call, making the cache a no-op and forcing an extra live API hit every time.",
+      "files": ["internal/client/client.go"]
+    },
+    {
+      "id": "config-cleartokens-clears-api-key",
+      "summary": "ClearTokens now also clears MorgenApiKey and AuthHeaderVal so 'auth logout' actually de-authenticates; also drops a redundant duplicate empty-key guard in AuthHeader.",
+      "reason": "The generated ClearTokens cleared only OAuth bearer fields, leaving the api_key credential persisted; AuthHeader still returned a valid 'ApiKey ...' header after logout, so users believed they were logged out while still authenticated.",
+      "files": ["internal/config/config.go"]
     }
   ]
 }
