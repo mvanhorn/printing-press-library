@@ -1,0 +1,45 @@
+{
+  "manifest_version": "0.3",
+  "name": "github-pp-mcp",
+  "display_name": "GitHub",
+  "version": "0.0.0",
+  "description": "Every gh issue, PR, repo, and code-search workflow, plus a local SQLite mirror, offline full-text search, and cross-entity joins no GitHub tool offers.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/github-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/github-pp-mcp",
+      "args": [],
+      "env": {
+        "GH_TOKEN": "${user_config.gh_token}",
+        "GITHUB_TOKEN": "${user_config.github_token}"
+      }
+    }
+  },
+  "user_config": {
+    "gh_token": {
+      "type": "string",
+      "title": "GH_TOKEN",
+      "description": "Optional. Sets GH_TOKEN for the GitHub MCP server. Get a credential from https://github.com/settings/tokens.",
+      "sensitive": true
+    },
+    "github_token": {
+      "type": "string",
+      "title": "GITHUB_TOKEN",
+      "description": "Optional. Sets GITHUB_TOKEN for the GitHub MCP server. Get a credential from https://github.com/settings/tokens.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

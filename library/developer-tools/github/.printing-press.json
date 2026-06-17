@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-17T18:19:36.454921Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "github",
+  "display_name": "GitHub",
+  "cli_name": "github-pp-cli",
+  "creator": {
+    "handle": "brandon-charles-novice-developer",
+    "name": "Brandon Nye"
+  },
+  "owner": "brandon-charles-novice-developer",
+  "printer": "brandon-charles-novice-developer",
+  "printer_name": "Brandon Nye",
+  "spec_path": "github-spec-scoped-auth.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:8981e502dee444dc89e40cd798e07f9a85c6b1318ea05236cfe30cc117261c13",
+  "run_id": "20260617-101859-30092ba9",
+  "catalog_entry": "github",
+  "category": "developer-tools",
+  "description": "Every gh issue, PR, repo, and code-search workflow, plus a local SQLite mirror, offline full-text search, and cross-entity joins no GitHub tool offers.",
+  "mcp_binary": "github-pp-mcp",
+  "mcp_tool_count": 183,
+  "mcp_ready": "full",
+  "api_version": "1.1.4",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "GITHUB_TOKEN",
+    "GH_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "GITHUB_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    },
+    {
+      "name": "GH_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    }
+  ],
+  "auth_key_url": "https://github.com/settings/tokens",
+  "novel_features": [
+    {
+      "name": "Duplicate-issue finder",
+      "command": "issues dupes",
+      "description": "Find open issues whose title and body match a term, ranked by relevance, so you spot duplicates before re-triaging."
+    },
+    {
+      "name": "Cross-entity term hunter",
+      "command": "mentions",
+      "description": "One query across issue bodies, PR comments, and commit messages returning every place a symbol or error string appears, tagged by entity type."
+    },
+    {
+      "name": "Agent context bundle",
+      "command": "issues context",
+      "description": "Assemble one JSON envelope for an issue: the issue, its comments, and the recent commits that mention it, ready for an agent to act on."
+    },
+    {
+      "name": "Review-backlog by reviewer",
+      "command": "pulls review-load",
+      "description": "Aggregate open PRs by requested reviewer to show who has the largest unactioned review queue."
+    },
+    {
+      "name": "Stale-PR detector",
+      "command": "pulls stale",
+      "description": "List open PRs with no new commit, review, or comment in N days, sorted by staleness with last-activity time."
+    },
+    {
+      "name": "Release diff by author",
+      "command": "repos changelog",
+      "description": "List every commit between two refs, attach its PR when synced, and group by author for release-note prep."
+    },
+    {
+      "name": "File ownership and churn",
+      "command": "repos who-touched",
+      "description": "For a file or directory prefix, rank committers by number of commits touching that path, with first and last touch dates."
+    },
+    {
+      "name": "Label coverage report",
+      "command": "labels coverage",
+      "description": "Report each label's open and closed issue and PR counts, and flag labels that are defined but unused and issues that are unlabeled."
+    }
+  ]
+}
