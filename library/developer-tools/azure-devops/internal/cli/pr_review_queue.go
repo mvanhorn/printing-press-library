@@ -20,9 +20,6 @@ func newNovelPrReviewQueueCmd(flags *rootFlags) *cobra.Command {
 		Short:       "See only the PRs where you are a required reviewer, ordered by readiness to review",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 {
-				return cmd.Help()
-			}
 			if dryRunOK(flags) {
 				fmt.Fprintln(cmd.OutOrStdout(), "would fetch Azure DevOps PR review queue")
 				return nil

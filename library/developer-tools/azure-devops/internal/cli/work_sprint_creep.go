@@ -17,9 +17,6 @@ func newNovelWorkSprintCreepCmd(flags *rootFlags) *cobra.Command {
 		Short:       "See which work items are in the current sprint, with scope creep analysis note",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 {
-				return cmd.Help()
-			}
 			if dryRunOK(flags) {
 				fmt.Fprintln(cmd.OutOrStdout(), "would fetch Azure DevOps sprint scope creep data")
 				return nil

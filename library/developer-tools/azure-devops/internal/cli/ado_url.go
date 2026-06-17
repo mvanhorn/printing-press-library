@@ -33,7 +33,7 @@ func adoAPIPath(flags *rootFlags, project, resource string) string {
 	if org == "" {
 		// Try extracting from config base URL just in case
 		// e.g. "https://dev.azure.com" → org must come from flag
-		return fmt.Sprintf("/%s/_apis/%s", resource, resource) // will fail gracefully
+		return fmt.Sprintf("/_apis/%s", resource)
 	}
 	if project != "" {
 		return fmt.Sprintf("/%s/%s/_apis/%s", org, project, resource)

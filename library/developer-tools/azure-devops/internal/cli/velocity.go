@@ -18,9 +18,6 @@ func newNovelVelocityCmd(flags *rootFlags) *cobra.Command {
 		Short:       "See sprint-over-sprint velocity with trend line for the current team — points completed vs committed",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 {
-				return cmd.Help()
-			}
 			if dryRunOK(flags) {
 				fmt.Fprintln(cmd.OutOrStdout(), "would fetch Azure DevOps sprint velocity data")
 				return nil

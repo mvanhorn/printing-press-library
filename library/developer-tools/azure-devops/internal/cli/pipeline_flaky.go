@@ -20,9 +20,6 @@ func newNovelPipelineFlakyCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Identify build definitions with the highest intermittent failure rate over the last N runs",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 {
-				return cmd.Help()
-			}
 			if dryRunOK(flags) {
 				fmt.Fprintln(cmd.OutOrStdout(), "would fetch Azure DevOps pipeline flakiness data")
 				return nil

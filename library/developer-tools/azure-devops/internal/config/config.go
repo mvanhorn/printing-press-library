@@ -190,9 +190,12 @@ func (c *Config) SaveCredential(token string) error {
 	delete(c.envOverrides, "AccessToken")
 	c.updateFileConfigField("AuthHeaderVal")
 	c.updateFileConfigField("AccessToken")
-	c.CoreUsername = token
+	c.CoreUsername = ""
+	c.CorePassword = token
 	delete(c.envOverrides, "CoreUsername")
+	delete(c.envOverrides, "CorePassword")
 	c.updateFileConfigField("CoreUsername")
+	c.updateFileConfigField("CorePassword")
 	return c.save()
 }
 

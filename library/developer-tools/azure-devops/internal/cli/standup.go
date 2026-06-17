@@ -18,9 +18,6 @@ func newNovelStandupCmd(flags *rootFlags) *cobra.Command {
 		Short:       "See your PRs awaiting review, in-progress work items, and recently failed builds in one command",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 {
-				return cmd.Help()
-			}
 			if dryRunOK(flags) {
 				fmt.Fprintln(cmd.OutOrStdout(), "would fetch Azure DevOps standup data (PRs awaiting review, active work items, failed builds)")
 				return nil
