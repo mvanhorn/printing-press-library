@@ -4,7 +4,6 @@ package cli
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -128,9 +127,7 @@ func newNovelCompareCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			view.Baseline = baseName
-			sort.SliceStable(view.Rows, func(i, j int) bool {
-				return false // preserve insertion (baseline-first) order
-			})
+			// view.Rows is already in baseline-first insertion order.
 			return flags.printJSON(cmd, view)
 		},
 	}

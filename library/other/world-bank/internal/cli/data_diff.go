@@ -104,6 +104,7 @@ func newNovelDataDiffCmd(flags *rootFlags) *cobra.Command {
 			// Persist fresh snapshot.
 			if mkErr := os.MkdirAll(filepath.Dir(snapPath), 0o750); mkErr == nil {
 				if b, mErr := json.Marshal(fresh); mErr == nil {
+					// #nosec G304 G306 -- snapPath is the internal DB dir plus a sanitized country+indicator; 0600 perms.
 					_ = os.WriteFile(snapPath, b, 0o600)
 				}
 			}

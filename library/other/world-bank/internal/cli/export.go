@@ -87,7 +87,6 @@ func newNovelExportCmd(flags *rootFlags) *cobra.Command {
 				return enc.Encode(all)
 			}
 			w := csv.NewWriter(cmd.OutOrStdout())
-			defer w.Flush()
 			if flagWide {
 				// Pivot: rows keyed by (country_code,country,date), columns per indicator.
 				indOrder := []string{}
@@ -122,6 +121,10 @@ func newNovelExportCmd(flags *rootFlags) *cobra.Command {
 				for _, r := range all {
 					_ = w.Write([]string{r.CountryCode, r.Country, r.Indicator, r.Date, wbFloat(r.Value)})
 				}
+			}
+			w.Flush()
+			if err := w.Error(); err != nil {
+				return fmt.Errorf("writing csv: %w", err)
 			}
 			return nil
 		},
