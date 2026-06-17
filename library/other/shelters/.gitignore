@@ -1,0 +1,4 @@
+/bin/
+/build/
+*.mcpb
+.DS_Store
