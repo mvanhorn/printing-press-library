@@ -132,6 +132,9 @@ then runs the prediction model and returns a ranked list of best dates to buy.`,
 			if concurrency < 1 {
 				concurrency = 3
 			}
+			if concurrency > 5 {
+				concurrency = 5
+			}
 			var wg sync.WaitGroup
 			for i := 0; i < concurrency; i++ {
 				wg.Add(1)
@@ -232,7 +235,7 @@ then runs the prediction model and returns a ranked list of best dates to buy.`,
 						r.Suggestion = pred.Suggestion
 						r.Confidence = pred.Confidence
 						r.MaxSaving = pred.MaxSaving
-						if len(pred.PriceRange) >= 3 {
+						if len(pred.PriceRange) >= 2 {
 							r.PriceMin = pred.PriceRange[0]
 							r.PriceMax = pred.PriceRange[1]
 						}
