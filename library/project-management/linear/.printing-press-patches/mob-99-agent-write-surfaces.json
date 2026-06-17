@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "id": "mob-99-agent-write-surfaces",
+  "applied_at": "2026-06-10",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Curated Linear CLI agent-write surface hardening for issue bodies, comments, documents, labels, promoted GraphQL reads, media uploads, dry-run ordering, and mutation error classification.",
+  "reason": "Agents need shell-safe Linear writes, full live issue/comment/doc read surfaces, team-safe label handling, and typed failures that preserve uploaded asset recovery URLs when a later mutation fails.",
+  "files": [
+    "internal/cli/comments.go",
+    "internal/cli/documents.go",
+    "internal/cli/helpers.go",
+    "internal/cli/issues.go",
+    "internal/cli/issues_create.go",
+    "internal/cli/issues_edit.go",
+    "internal/cli/labels.go",
+    "internal/cli/linear_agent_test.go",
+    "internal/cli/linear_markdown.go",
+    "internal/cli/projects.go",
+    "internal/cli/similar.go",
+    "internal/cli/teams.go",
+    "internal/store/store.go",
+    "internal/store/store_test.go",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go test ./... and verify-skill cover the published Linear CLI behavior before PR merge."
+}

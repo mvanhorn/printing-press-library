@@ -45,7 +45,7 @@ brews:
       owner: user
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "SEO and competitive intelligence API for backlinks, keywords, rank tracking, site audit, and SERP data."
+    description: "Explore Ahrefs SEO data from the terminal: backlinks, keywords, rank tracking, site audits, SERPs, usage limits, and crawler IP ranges."
     install: |
       bin.install "ahrefs-pp-cli"
       bin.install "ahrefs-pp-mcp"

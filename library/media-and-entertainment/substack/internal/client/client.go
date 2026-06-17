@@ -20,9 +20,10 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
+
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/config"
-	"time"
 )
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"
@@ -569,7 +570,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			if ctxErr := ctx.Err(); ctxErr != nil {
 				return nil, 0, ctxErr
 			}
-			lastErr = fmt.Errorf("%s %s: %w", method, c.displayURL(path, authHeader), c.maskError(err, authHeader))
+			lastErr = fmt.Errorf("%s %s: %w", method, c.displayURL(targetURL, authHeader), c.maskError(err, authHeader))
 			continue
 		}
 
@@ -605,7 +606,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 
 		apiErr := &APIError{
 			Method:     method,
-			Path:       c.displayURL(path, authHeader),
+			Path:       c.displayURL(targetURL, authHeader),
 			StatusCode: resp.StatusCode,
 			Body:       c.maskCredentialText(truncateBody(respBody), authHeader),
 		}
@@ -678,6 +679,26 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 	}
 	fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
 	return json.RawMessage(`{"dry_run": true}`), 0, nil
+}
+
+// DisplayURLForPath resolves the same endpoint template variables the request
+// path uses and returns the URL shape safe for user-facing diagnostics.
+func (c *Client) DisplayURLForPath(path string) (string, error) {
+	var endpointVars map[string]string
+	if c.Config != nil {
+		endpointVars = c.Config.TemplateVars
+	}
+	var targetURL string
+	var err error
+	if isAbsoluteURL(path) {
+		targetURL, err = buildURL("", path, endpointVars)
+	} else {
+		targetURL, err = buildURL(c.BaseURL, path, endpointVars)
+	}
+	if err != nil {
+		return "", err
+	}
+	return c.displayURL(targetURL, ""), nil
 }
 
 func (c *Client) ConfiguredTimeout() time.Duration {

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "safari-history-icloud-tabs-stale-hint-v2",
+  "applied_at": "2026-05-24T00:00:00Z",
+  "base_run_id": "20260523-231334",
+  "base_printing_press_version": "4.13.0",
+  "summary": "Changed icloud-tabs stale-data hint to warn when Safari is closed, regardless of tab count, while suppressing on unknown state or --refresh.",
+  "reason": "CloudTabs.db can contain a non-empty last-synced tab set when Safari is closed, so zero-tab-only hints missed stale data.",
+  "files": [
+    "internal/source/safari/cloudtabs.go",
+    "internal/cli/icloud_tabs.go",
+    "internal/cli/icloud_tabs_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "GOFLAGS=-mod=readonly go build ./..., go vet ./..., go test ./internal/..., and gofmt -l on changed Go files all passed; TestICloudTabs_StaleHint mutation-covers closed/running/unknown/refresh gates."
+}

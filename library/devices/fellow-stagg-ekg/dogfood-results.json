@@ -1,0 +1,37 @@
+{
+  "dir": "/private/tmp/printing-press-library/library/devices/fellow-stagg-ekg",
+  "spec_path": "/private/tmp/printing-press-library/library/devices/fellow-stagg-ekg/spec.yaml",
+  "verdict": "PASS",
+  "path_check": {
+    "tested": 1,
+    "valid": 1,
+    "valid_pct": 100,
+    "skipped": false,
+    "detail": "internal spec validated at authoring time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "spec does not declare remote auth"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "dead_flags": {
+    "total": 4,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 12,
+    "dead": 0
+  },
+  "novel_features_check": {
+    "planned": 4,
+    "found": 4
+  },
+  "issues": null
+}
+

@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "x-twitter",
   "cli_name": "x-twitter-pp-cli",
-  "version": "2026.6.6",
-  "released_at": "2026-06-11T04:10:33Z",
-  "source_commit": "320263b85450f772ed2e3387e8fea90dc838eb24",
+  "version": "2026.6.9",
+  "released_at": "2026-06-16T00:53:31Z",
+  "source_commit": "0b2c5701d74528313ea28d7137ebaecca16611f7",
   "printing_press_version": "4.20.1",
   "run_id": "20260603-230951",
   "changes": [
     {
-      "title": "feat(cli): x-twitter LINK entities, HTML comment stripping, and articles update-md",
-      "pr": 1141,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1141",
-      "commit": "320263b85450f772ed2e3387e8fea90dc838eb24"
+      "title": "Improve catalog descriptions",
+      "pr": 1222,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1222",
+      "commit": "0b2c5701d74528313ea28d7137ebaecca16611f7"
     }
   ]
 }

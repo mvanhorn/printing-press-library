@@ -126,7 +126,7 @@ Set TELLA_API_KEY to your Tella account API key (Account → Settings → API). 
 
 ```bash
 # Save your Tella API key to local config; used by every command.
-tella-pp-cli auth set-token
+tella-pp-cli auth set-token <token>
 
 # Verify token + reachability before doing anything else.
 tella-pp-cli doctor
@@ -196,9 +196,18 @@ These capabilities aren't available in any other tool for this API.
   ```
 
   Per-clip primitives also available individually:
+  - `videos clips cut <vid> <clipId> --range 2000:3500 --range 8000:9200` — cut multiple time ranges in one request.
+  - `videos clips cut-by-transcript <vid> <clipId> --word-range 12:17` — cut by uncut-transcript word indices; Tella resolves exact word timing.
   - `videos clips remove-buffers <vid> <clipId> [--min-ms N]` — UI-button equivalent: cuts every silence ≥ `N` ms (default 200). Public API only.
   - `videos clips trim-edges <vid> <clipId>` — narrow primitive: cuts only the head and tail silences. Public API only.
   - `videos clips find-mistakes <vid> <clipId> --unofficial` — AI mistake detection via Tella's web-app endpoint. **Unofficial API; cookie-auth required.** See the "Unofficial API: Find Mistakes" section below.
+
+- **`sources upload-file` + `videos clips add`** — Create a Tella source, upload local video bytes to the pre-signed URL, then add that source as a new clip.
+
+  ```bash
+  tella-pp-cli sources upload-file intro.mp4 --width 1920 --height 1080 --duration 42.5 --json
+  tella-pp-cli videos clips add vid_abc --source-id src_123 --name Intro --json
+  ```
 
 #### Unofficial API: Find Mistakes
 
@@ -248,6 +257,42 @@ Detection step uses cookie auth against `prod-stream.tella.tv` (Server-Sent Even
 
 Run `tella-pp-cli --help` for the full command reference and flag list.
 
+## Novel editing workflows
+
+These commands compose Tella's public edit primitives into agent-safe workflows:
+
+```bash
+# Upload a local file and add it as a new clip.
+tella-pp-cli videos clips insert-file vid_abc intro.mp4 --width 1920 --height 1080 --duration 42.5 --dry-run
+
+# Upload B-roll and attach it as layout media over a time range.
+tella-pp-cli videos clips add-broll vid_abc cl_xyz broll.mp4 --width 1920 --height 1080 --duration 8.2 --start-ms 4000 --duration-ms 6000 --dry-run
+
+# Clean a clip, then roll back cuts if needed.
+tella-pp-cli videos clips clean vid_abc cl_xyz --remove-fillers --remove-buffers --trim-edges --dry-run
+tella-pp-cli videos clips clean vid_abc cl_xyz --remove-fillers --remove-buffers --trim-edges --apply
+tella-pp-cli videos clips undo-last-cuts vid_abc cl_xyz --dry-run
+
+# Inspect edit substrate, then cut transcript words or replace word ranges.
+tella-pp-cli videos clips silence-map vid_abc cl_xyz --json
+tella-pp-cli videos clips cut-words vid_abc cl_xyz --term "mistake" --dry-run
+tella-pp-cli videos clips replace-word-ranges vid_abc cl_xyz --word-ranges '[{"fromWordIndex":12,"toWordIndex":17}]' --dry-run
+
+# Restore exact cuts explicitly.
+tella-pp-cli videos clips restore-cuts vid_abc cl_xyz --cuts '[{"fromMs":100,"toMs":250}]' --dry-run
+
+# Export/apply a full video edit plan.
+tella-pp-cli videos storyboard vid_abc --include-transcript --json > storyboard.json
+tella-pp-cli videos apply-storyboard vid_abc --file storyboard.json --dry-run
+
+# Presets, QA, and playlist-scale edit planning.
+tella-pp-cli videos format vid_abc --preset shorts --dry-run
+tella-pp-cli videos audit vid_abc --json
+tella-pp-cli playlists edit-pass plst_42 --remove-fillers --remove-buffers --trim-edges --dry-run
+```
+
+Commands default to dry-run/plan mode when they perform compound edits; pass each command's `--apply` flag where available, or drop global `--dry-run`, only after reviewing the emitted plan.
+
 ## Commands
 
 ### playlists
@@ -259,6 +304,13 @@ Playlist operations
 - **`tella-pp-cli playlists get`** - Returns detailed information about a playlist including its videos
 - **`tella-pp-cli playlists list`** - Returns a list of all playlists for the authenticated user
 - **`tella-pp-cli playlists update`** - Update a playlist's name and/or description
+
+### sources
+
+Uploaded video sources for clips and B-roll layouts
+
+- **`tella-pp-cli sources create`** - Create a new video source upload and return a `sourceId` plus pre-signed `uploadUrl`
+- **`tella-pp-cli sources upload-file`** - Create a source and upload a local video file to the pre-signed URL
 
 ### videos
 
@@ -346,7 +398,7 @@ Environment variables:
 
 ### API-specific
 
-- **401 Unauthorized on every call** — Re-fetch your API key at tella.tv → Account → Settings → API and run `tella-pp-cli auth set-token` again.
+- **401 Unauthorized on every call** — Re-fetch your API key at tella.tv → Account → Settings → API and run `tella-pp-cli auth set-token <token>` again.
 - **Empty results from `transcripts search --data-source local`** — Run `tella-pp-cli sync` first to populate the local transcripts table.
 - **`webhooks tail` shows no events** — Confirm a webhook endpoint is registered (`tella-pp-cli webhooks endpoint create`); the inbox only collects events for registered endpoints.
 - **`clips edit-pass --dry-run` shows zero planned mutations** — Default short-circuits before fetching anything; the empty plan is by design. Drop `--dry-run` to see real planning (and use `--apply` to actually fire).

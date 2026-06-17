@@ -1,0 +1,33 @@
+000
+ABNT20 KNHC 160502
+TWOAT 
+
+Tropical Weather Outlook
+NWS National Hurricane Center Miami FL
+200 AM EDT Tue Jun 16 2026
+
+For the North Atlantic...Caribbean Sea and the Gulf of America:
+
+Northwestern Gulf of America (AL90):
+A trough of low pressure located inland near the Texas/Mexico border 
+continues to produce a large area of disorganized showers and 
+thunderstorms.  The system could re-emerge over the northwestern 
+Gulf of America today, and environmental conditions there are 
+expected to be marginally conducive for the formation of a 
+short-lived tropical storm later today or on Wednesday.
+
+Regardless of tropical cyclone formation, interests across southern 
+and eastern Texas and portions of Louisiana and Mississippi should 
+prepare for periods of intense rainfall over the next several days 
+which could produce widespread, life-threatening flash, urban, and 
+river flooding.  Gusty winds and coastal flooding are also possible 
+along portions of the northwestern Gulf Coast, and Tropical Storm 
+Watches or Warnings could be required later today.  Additional 
+information on this system can be found in products issued by your 
+local National Weather Service Forecast Office or NHC Key Messages.
+* Formation chance through 48 hours...medium...60 percent.
+* Formation chance through 7 days...medium...60 percent.
+
+$$
+Forecaster Pasch
+  

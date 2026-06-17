@@ -157,6 +157,7 @@ const IssueLabelsQuery = `query($first: Int!, $after: String) {
       name
       color
       createdAt
+      team { id name key }
     }
     pageInfo { hasNextPage endCursor }
   }

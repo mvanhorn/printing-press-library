@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/cliutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -236,13 +237,40 @@ func writeNoop(flags *rootFlags, reason, prose string) error {
 }
 
 func writeAPIErrorEnvelope(flags *rootFlags, err error, code int) {
+	writeCLIErrorEnvelope(flags, err, code)
+}
+
+func writeCLIErrorEnvelope(flags *rootFlags, err error, code int) {
 	if flags == nil || !flags.asJSON {
 		return
 	}
+	flags.errorWritten = true
 	_ = json.NewEncoder(os.Stdout).Encode(map[string]any{
 		"error": err.Error(),
 		"code":  code,
+		"type":  cliErrorType(code),
 	})
+}
+
+func cliErrorType(code int) string {
+	switch code {
+	case 2:
+		return "usage"
+	case 3:
+		return "not_found"
+	case 4:
+		return "auth"
+	case 5:
+		return "api"
+	case 6:
+		return "partial_failure"
+	case 7:
+		return "rate_limit"
+	case 10:
+		return "config"
+	default:
+		return "error"
+	}
 }
 
 // classifyAPIError maps API errors to structured exit codes with actionable hints.
@@ -277,6 +305,26 @@ func classifyAPIError(err error, flags *rootFlags) error {
 	default:
 		return apiErr(err)
 	}
+}
+
+func classifyLiveReadError(err error, flags *rootFlags) error {
+	if err == nil || ExitCode(err) != 1 {
+		return err
+	}
+	var apiErr *client.APIError
+	if As(err, &apiErr) || strings.Contains(err.Error(), "graphql: ") {
+		return classifyAPIError(err, flags)
+	}
+	return err
+}
+
+func classifyMutationError(operation string, err error, flags *rootFlags, uploaded []client.UploadedFile) error {
+	if err == nil {
+		return nil
+	}
+	wrapped := fmt.Errorf("%s failed: %w", operation, err)
+	wrapped = mediaUploadFailure(wrapped, uploaded)
+	return classifyLiveReadError(wrapped, flags)
 }
 
 // classifyDeleteError maps DELETE errors and supports explicit idempotent no-op handling.

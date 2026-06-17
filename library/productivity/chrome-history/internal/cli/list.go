@@ -24,16 +24,19 @@ func newListCmd(opts *RootOptions) *cobra.Command {
 			if err != nil {
 				return errors.Join(ErrUsage, err)
 			}
-			snapshot, err := snapshotPath()
-			if err != nil {
-				return err
-			}
-			st, err := store.OpenExisting(snapshot)
-			if err != nil {
-				if errors.Is(err, store.ErrNoSnapshot) {
-					return ErrNoSnapshot
+			var st *store.Store
+			if strings.TrimSpace(transition) == "" {
+				var err error
+				st, _, err = openCoreHistoryStore(opts.Device)
+				if err != nil {
+					return err
 				}
-				return err
+			} else {
+				var err error
+				st, err = openSnapshotStore()
+				if err != nil {
+					return err
+				}
 			}
 			defer st.Close()
 			rows, err := opts.Source.RecentVisits(st.DB(), source.VisitFilter{Since: start, Until: end, Limit: opts.Output.Limit, MinVisits: minVisits, Domain: domain, Device: opts.Device})

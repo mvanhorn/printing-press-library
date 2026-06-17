@@ -3,6 +3,7 @@
 Public Atom API for searching and fetching arXiv e-print metadata.
 
 Created by [@hnshah](https://github.com/hnshah) (Hiten Shah).
+Contributors: [@sdhilip200](https://github.com/sdhilip200) (Dhilip Subramanian).
 
 ## Install
 
@@ -184,7 +185,7 @@ This CLI is designed for AI agent consumption:
 - **Filterable** - `--select entries.id,entries.title` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending
 - **Read-only by default** - this CLI does not create, update, delete, publish, send, or mutate remote resources
-- **Live-first** - arXiv search is most useful against the live API; generic sync/local-store commands are present from the scaffold but `/api/query` requires caller-supplied search or ID parameters
+- **Live-first** - arXiv search is most useful against the live API; sync/local-store commands require an explicit scope, such as `arxiv-pp-cli sync --search-query 'cat:cs.AI' --max-pages 1` or `arxiv-pp-cli sync --id-list 1706.03762 --max-pages 1`
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate limited, `10` config error.

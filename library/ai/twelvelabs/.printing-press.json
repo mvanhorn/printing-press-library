@@ -17,7 +17,7 @@
   "spec_format": "openapi3",
   "spec_checksum": "sha256:d6c17cebc09fd24d74810ead127afa4cd25b56c2bcffd81d19afa760c8b2ee11",
   "run_id": "20260605-150627",
-  "description": "Use the TwelveLabs Video Understanding API to extract information from your videos and make it available to your",
+  "description": "Upload, index, search, summarize, embed, and analyze video with TwelveLabs, including editor-ready briefs and waitable workflows.",
   "mcp_binary": "twelvelabs-pp-mcp",
   "mcp_tool_count": 54,
   "mcp_ready": "full",
@@ -49,5 +49,6 @@
       "description": "Cut local clip files with ffmpeg from a video-brief JSON plan without inventing timestamps."
     }
   ],
-  "category": "ai"
+  "category": "ai",
+  "catalog_description": "Upload, index, search, summarize, embed, and analyze video with TwelveLabs, including editor-ready briefs and waitable workflows."
 }

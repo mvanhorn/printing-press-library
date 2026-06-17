@@ -45,7 +45,7 @@ brews:
       owner: cathrynlavery
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Use the TwelveLabs Video Understanding API to extract information from your videos and make it available to your"
+    description: "Upload, index, search, summarize, embed, and analyze video with TwelveLabs, including editor-ready briefs and waitable workflows."
     install: |
       bin.install "twelvelabs-pp-cli"
       bin.install "twelvelabs-pp-mcp"

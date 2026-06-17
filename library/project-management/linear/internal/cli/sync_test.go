@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"path/filepath"
 	"slices"
+	"strings"
 	"sync"
 	"testing"
 
@@ -77,5 +78,60 @@ func TestSyncProjectsUsesComplexitySafePageSize(t *testing.T) {
 	}
 	if want := []string{"", "cursor-1"}; !slices.Equal(seenAfter, want) {
 		t.Fatalf("after values = %v, want %v", seenAfter, want)
+	}
+}
+
+func TestSyncLabelsStoresTeamOwnership(t *testing.T) {
+	t.Parallel()
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/graphql" {
+			t.Errorf("path = %s, want /graphql", r.URL.Path)
+			http.Error(w, "wrong path", http.StatusNotFound)
+			return
+		}
+		var req client.GraphQLRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			t.Errorf("decoding request: %v", err)
+			http.Error(w, "bad request", http.StatusBadRequest)
+			return
+		}
+		if !strings.Contains(req.Query, "team { id name key }") {
+			t.Errorf("label sync query omitted team ownership: %s", req.Query)
+			http.Error(w, "missing team", http.StatusBadRequest)
+			return
+		}
+		fmt.Fprint(w, `{"data":{"issueLabels":{"nodes":[{"id":"label-1","name":"pipeline-halt","color":"#f00","createdAt":"2026-06-10T00:00:00Z","team":{"id":"team-1","name":"Symphony","key":"SYMPH"}}],"pageInfo":{"hasNextPage":false,"endCursor":""}}}}`)
+	}))
+	t.Cleanup(srv.Close)
+
+	c := client.New(&config.Config{BaseURL: srv.URL}, 0, 0)
+	db, err := store.Open(filepath.Join(t.TempDir(), "linear.db"))
+	if err != nil {
+		t.Fatalf("opening store: %v", err)
+	}
+	t.Cleanup(func() { _ = db.Close() })
+
+	got, err := syncLabels(c, db, 0)
+	if err != nil {
+		t.Fatalf("syncLabels returned error: %v", err)
+	}
+	if got != 1 {
+		t.Fatalf("synced labels = %d, want 1", got)
+	}
+	raw, err := db.GetByID("issue_labels", "label-1")
+	if err != nil {
+		t.Fatalf("get issue label: %v", err)
+	}
+	var label struct {
+		Team struct {
+			Key string `json:"key"`
+		} `json:"team"`
+	}
+	if err := json.Unmarshal(raw, &label); err != nil {
+		t.Fatalf("decode label: %v", err)
+	}
+	if label.Team.Key != "SYMPH" {
+		t.Fatalf("team key = %q, want SYMPH", label.Team.Key)
 	}
 }

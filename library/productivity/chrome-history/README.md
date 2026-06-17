@@ -15,7 +15,7 @@ go build -o chrome-history-pp-cli ./cmd/chrome-history-pp-cli
 ## Quick Start
 
 ```bash
-export XDG_CACHE_HOME=$PWD/.cache
+export XDG_CACHE_HOME="$PWD/.cache"
 ./chrome-history-pp-cli sync
 ./chrome-history-pp-cli search "github mcp" --since 30d --limit 10
 ./chrome-history-pp-cli journeys --limit 20
@@ -30,6 +30,21 @@ export XDG_CACHE_HOME=$PWD/.cache
 - `dwell`: derived engagement estimate when `visit_duration` is sparse.
 - `profile`: compact behavioral browsing profile.
 - `topic`: merges FTS and journeys context around one theme.
+- `archive`: opt-in accumulating archive that retains history Chrome later prunes or the user clears.
+
+## Archive: durable history that outlives Chrome's pruning
+
+By default the snapshot is a faithful mirror of **Chrome's current** history: when Chrome ages out old visits or the user clears history, the next `sync` drops them from the snapshot too. The optional **archive** keeps an accumulating, deduplicated copy so that history survives — without changing how you query.
+
+```bash
+./chrome-history-pp-cli archive enable      # opt in: seed the durable archive from the current snapshot
+./chrome-history-pp-cli sync --accumulate    # refresh: append new visits (dedup on url + visit_time), never dropping old ones
+./chrome-history-pp-cli archive status --json
+```
+
+How it works — **active store + sticky mode**: once enabled, reads transparently open the archive (a superset of the snapshot), so `search`/`list`/`domains`/`report`/`heatmap`/`timeline`/`sql` answer from the fuller history with no flag change. Rich Chrome-only views that need per-visit transition/duration/download data (`journeys`/`downloads`/`searches`/`dwell`/`graph`/`profile`/`visited`) continue to read the current snapshot. Because the archive is a superset of the snapshot, there is no cross-store join or reconciliation.
+
+Lifecycle: `archive enable` (or `sync --accumulate`) turns it on (sticky); `archive disable` stops accumulating but keeps the file; `archive clobber` resets the archive to a fresh current-snapshot baseline; `archive reset --force [--purge]` turns the mode off and moves (or with `--purge` deletes) `archive.db`; `archive vacuum` compacts it; `archive status` reports state. It stays **off until you enable it** — normal history queries need only the snapshot.
 
 ## Agent Usage
 
@@ -39,7 +54,7 @@ Start MCP stdio server:
 ./chrome-history-pp-cli mcp
 ```
 
-All MCP tools are read-only. They mirror the CLI and return JSON by shelling out to the same binary.
+MCP tools mirror the CLI and return JSON by shelling out to the same binary. The query tools are read-only; `sync` and `archive_enable`/`archive_disable` mutate local state only (on-device, never the network). The archive lifecycle's destructive operations (`clobber`/`reset`) are intentionally CLI-only, not exposed over MCP.
 
 JSON/select examples:
 
@@ -103,6 +118,14 @@ JSON/select examples:
 
 ```bash
 ./chrome-history-pp-cli downloads --since 30d --json --limit 50
+```
+
+7. Keep a durable history that survives Chrome clears (opt-in archive):
+
+```bash
+./chrome-history-pp-cli archive enable          # one-time
+./chrome-history-pp-cli sync --accumulate        # periodically; queries then read the fuller archive automatically
+./chrome-history-pp-cli archive status --json
 ```
 
 ## Privacy

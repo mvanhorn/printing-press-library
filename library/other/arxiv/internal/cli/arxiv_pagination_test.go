@@ -76,7 +76,7 @@ func TestSyncResourceParsesArxivAtomAndUsesOffsetPagination(t *testing.T) {
 		atomPage(3, 2, 1, "http://arxiv.org/abs/3"),
 	}}
 
-	res := syncResource(client, db, "query", "", true, 10)
+	res := syncResource(client, db, "query", "", true, 10, arxivSyncScope{searchQuery: "cat:cs.AI"})
 	if res.Err != nil {
 		t.Fatalf("syncResource error: %v", res.Err)
 	}
@@ -89,8 +89,45 @@ func TestSyncResourceParsesArxivAtomAndUsesOffsetPagination(t *testing.T) {
 	if client.params[0]["max_results"] != "100" || client.params[0]["start"] != "" {
 		t.Fatalf("first params = %#v", client.params[0])
 	}
+	if client.params[0]["search_query"] != "cat:cs.AI" {
+		t.Fatalf("first params = %#v, want search_query=cat:cs.AI", client.params[0])
+	}
 	if client.params[1]["start"] != "2" {
 		t.Fatalf("second params = %#v, want start=2", client.params[1])
+	}
+	if client.params[1]["search_query"] != "cat:cs.AI" {
+		t.Fatalf("second params = %#v, want search_query=cat:cs.AI", client.params[1])
+	}
+}
+
+func TestSyncResourceNormalizesArxivIDListScope(t *testing.T) {
+	db, err := store.Open(t.TempDir() + "/data.db")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	client := &fakeSyncClient{pages: []json.RawMessage{
+		atomPage(1, 0, 1, "http://arxiv.org/abs/1706.03762"),
+	}}
+
+	scope := newArxivSyncScope("", " 1706.03762, 1312.5602 ")
+	res := syncResource(client, db, "query", "", true, 1, scope)
+	if res.Err != nil {
+		t.Fatalf("syncResource error: %v", res.Err)
+	}
+	if got := client.params[0]["id_list"]; got != "1706.03762,1312.5602" {
+		t.Fatalf("id_list = %q, want normalized comma-delimited IDs", got)
+	}
+}
+
+func TestNormalizeArxivIDListDropsBlankParts(t *testing.T) {
+	got := normalizeArxivIDList(" 1706.03762, , 1312.5602, ")
+	if got != "1706.03762,1312.5602" {
+		t.Fatalf("normalized id_list = %q, want blank parts dropped", got)
+	}
+	if got := normalizeArxivIDList(","); got != "" {
+		t.Fatalf("normalized blank id_list = %q, want empty string", got)
 	}
 }
 

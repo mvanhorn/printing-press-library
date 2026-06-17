@@ -1,9 +1,0 @@
-{
-  "status": "PASS",
-  "mode": "fixture-only",
-  "commands": [
-    "qbo-pp-cli status",
-    "qbo-pp-cli accounts list --fixture testdata/fixtures/qbo/accounts.json",
-    "qbo-pp-cli reports trial-balance --fixture testdata/fixtures/qbo/trial_balance.json"
-  ]
-}

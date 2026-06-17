@@ -16,7 +16,7 @@
   "run_id": "20260506-161557",
   "catalog_entry": "mercury",
   "category": "payments",
-  "description": "Business banking API for accounts, transactions, payments, recipients, cards, invoices, treasury, and webhooks",
+  "description": "Inspect Mercury business banking data and build safer payment plans across accounts, transactions, recipients, cards, invoices, and treasury.",
   "mcp_binary": "mercury-pp-mcp",
   "mcp_tool_count": 75,
   "mcp_ready": "full",
@@ -39,6 +39,17 @@
       "name": "Structured command introspection",
       "command": "agent-context",
       "description": "Emits machine-readable command metadata for agents and MCP hosts."
+    },
+    {
+      "name": "Cash runway estimate",
+      "command": "cash-runway",
+      "description": "Compose account balances and recent transactions into average weekly net burn and projected weeks of runway."
+    },
+    {
+      "name": "Spend by category",
+      "command": "spend-by-category",
+      "description": "Roll up outflow by Mercury category over a period with a week-over-week delta from one windowed transaction read."
     }
-  ]
+  ],
+  "catalog_description": "Inspect Mercury business banking data and build safer payment plans across accounts, transactions, recipients, cards, invoices, and treasury."
 }

@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.6.3 - 2026-06-16
+
+- Improve catalog descriptions (#1222).
+
 ## 2026.6.2 - 2026-06-10
 
 - fix(wavespeed): streamline image iteration workflow (#1129).

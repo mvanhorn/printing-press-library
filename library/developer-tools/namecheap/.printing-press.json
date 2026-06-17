@@ -16,7 +16,7 @@
   "spec_checksum": "sha256:bd58ab9ea9eb14f2d1448cea6fbe14b5103eb7792d71360b30003a481b0a6219",
   "run_id": "20260514-namecheap",
   "category": "developer-tools",
-  "description": "Manage Namecheap domains, DNS, account balances, pricing, contacts, TLDs, and SSL metadata from the terminal using Namecheap’s XML API.",
+  "description": "Manage Namecheap domains, DNS, contacts, pricing, account balances, TLDs, and SSL metadata through a JSON-friendly XML API wrapper.",
   "mcp_binary": "namecheap-pp-mcp",
   "mcp_tool_count": 22,
   "mcp_ready": "full",
@@ -46,5 +46,6 @@
     }
   ],
   "printer": "cathryn-lavery",
-  "printer_name": "Cathryn Lavery"
+  "printer_name": "Cathryn Lavery",
+  "catalog_description": "Manage Namecheap domains, DNS, contacts, pricing, account balances, TLDs, and SSL metadata through a JSON-friendly XML API wrapper."
 }

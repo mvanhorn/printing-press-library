@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "dry-run-json-publication-url",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260531-014452",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Substack draft create dry-run JSON output reports the resolved publication URL instead of the raw {publication} template.",
+  "reason": "The dry-run request preview on stderr used the resolved --subdomain host, but the machine-readable JSON envelope reused the template path, making agents believe the CLI would call https://{publication}.substack.com/api/v1/drafts.",
+  "files": [
+    "internal/client/client.go",
+    "internal/cli/drafts_create.go",
+    "internal/cli/publication_paths_test.go"
+  ],
+  "validated_outcome": "A CLI-level regression test executes drafts create --subdomain trevinsays --dry-run --agent and verifies stdout path is https://trevinsays.substack.com/api/v1/drafts, with no live request sent."
+}

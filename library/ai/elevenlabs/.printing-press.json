@@ -17,7 +17,7 @@
   "run_id": "20260513T152516Z-e836a3fe",
   "catalog_entry": "elevenlabs",
   "category": "ai",
-  "description": "Generate, transform, transcribe, dub, and manage AI audio, voices, music, and conversational agents with ElevenLabs.",
+  "description": "Create and manage ElevenLabs audio workflows: text-to-speech, voice conversion, transcription, dubbing, music, voices, and agents.",
   "mcp_binary": "elevenlabs-pp-mcp",
   "mcp_tool_count": 302,
   "mcp_ready": "full",
@@ -47,6 +47,12 @@
       "name": "Dialogue Cast",
       "command": "dialogue cast",
       "description": "Render speaker-labelled dialogue lines by resolving speaker-to-voice assignments and saving audio."
+    },
+    {
+      "name": "Voice budget",
+      "command": "voice-budget",
+      "description": "Compose the subscription and voices reads into remaining character credits, tier limits, reset timing, and voice-slot headroom before a large TTS batch."
     }
-  ]
+  ],
+  "catalog_description": "Create and manage ElevenLabs audio workflows: text-to-speech, voice conversion, transcription, dubbing, music, voices, and agents."
 }

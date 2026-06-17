@@ -1,9 +1,8 @@
 // generate-registry walks library/<category>/<slug>/ and emits the
 // top-level registry.json from each CLI's .printing-press.json,
-// manifest.json, and .goreleaser.yaml. Every field except `description`
-// is fully derived from disk; `description` is preserved from the
-// existing registry.json (or falls back to the .goreleaser.yaml brews
-// description) so curated copy is not clobbered.
+// manifest.json, and .goreleaser.yaml. Existing registry.json values are
+// preserved as legacy curated catalog copy unless a CLI explicitly opts into
+// source-authored catalog copy with .printing-press.json catalog_description.
 //
 // This tool is the source of truth for registry.json. It runs in CI on
 // push to main against library/** changes (see
@@ -134,6 +133,7 @@ type MCPBlock struct {
 type printingPressManifest struct {
 	APIName            string   `json:"api_name"`
 	DisplayName        string   `json:"display_name"`
+	CatalogDescription string   `json:"catalog_description"`
 	Description        string   `json:"description"`
 	Creator            *Person  `json:"creator"`
 	Contributors       []Person `json:"contributors"`
@@ -278,11 +278,11 @@ func main() {
 
 // loadExistingEntries reads the current registry.json and returns a
 // slug → entry map. Used by the entry builder to preserve fields that
-// can't be reliably derived from disk:
+// can't yet be reliably derived from disk:
 //
-//   - description: hand-curated copy (29/42 entries don't match the
-//     .goreleaser.yaml brews description; the registry copy is what's
-//     authoritative).
+//   - description: legacy fallback only when source metadata has no
+//     description yet. Modern per-CLI metadata is authoritative to avoid
+//     generated registry.json accumulating hand-maintained drift.
 //   - mcp block: legacy CLIs (archive-is, linear, slack, steam-web,
 //     trigger-dev) ship MCP source under cmd/<slug>-pp-mcp/
 //     but their pre-v2 .printing-press.json doesn't declare mcp_binary
@@ -396,24 +396,16 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 		Contributors: pp.Contributors,
 	}
 
-	// Description preference: existing registry value (curated) > goreleaser
-	// brew description (homebrew tap one-liner) > .printing-press.json
-	// description (modern printed CLIs populate this from the publish-skill's
-	// narrative.headline) > empty. Curated descriptions in registry.json are
-	// the documented surface and shouldn't be clobbered. Exception: an old
-	// generator bug let bare Markdown headings like "# Introduction" land as
-	// descriptions. Those are not real curated copy, so allow the source
-	// one-liner to repair them on the next regen.
-	//
-	// The .printing-press.json fallback was added after the lawhub incident
-	// (registry shipped description="" because its .goreleaser.yaml brews
-	// block was empty and no prior curated value existed). Modern printed
-	// CLIs always carry a narrative description in .printing-press.json,
-	// so this fallback fires when both prior tiers come back empty.
+	// Description preference: explicit .printing-press.json catalog_description
+	// (modern per-CLI catalog copy) > existing registry value (legacy curated
+	// copy) > .printing-press.json / goreleaser fallback for entries that never
+	// had curated registry copy. This lets individual CLIs move website copy into
+	// source metadata without accidentally rewriting the whole catalog.
 	entry.Description = registryDescription(
 		prior.Description,
 		readGoreleaserDescription(filepath.Join(dir, ".goreleaser.yaml")),
 		pp.Description,
+		pp.CatalogDescription,
 	)
 	entry.SearchTerms = searchTerms(pp)
 
@@ -462,30 +454,23 @@ func repairDuplicateAPIDisplayNames(entries []RegistryEntry) {
 	}
 }
 
-// registryDescription picks the final description for a registry entry from
-// three tiers in preference order: prior curated value > goreleaser brews
-// description > .printing-press.json description. Prior values that match
-// known generated-junk shapes (boilerplate, raw HTML, truncation, oversized
-// prose blobs) are not treated as curated; the current source one-liner repairs
-// them on the next regen. The bare-markdown-heading exception applies only to
-// the prior tier — that's the only tier with the legacy "# Introduction" bug
-// history. The two source tiers are author-written one-liners and don't need
-// the exception.
-//
-// Returns "" only when every tier is empty. The --validate mode treats that
-// as a fail-stop; the regular write path lets it through so first-time runs
-// of new CLIs that intentionally have no description can complete (validation
-// is a separate concern from generation).
-func registryDescription(prior, goreleaser, ppDescription string) string {
-	source := firstNonEmpty(goreleaser, ppDescription)
-	stalePrior := isStaleRegistryDescription(prior)
-	if source != "" && stalePrior {
-		return source
+// registryDescription picks the final description for a registry entry. Explicit
+// per-CLI catalog_description wins, then prior registry copy, then
+// source fallbacks. The explicit field is the migration path away from
+// hand-curated registry copy without broad catalog churn.
+// Bare Markdown headings from the legacy "# Introduction" bug are not treated
+// as valid copy; everything else is preserved until a CLI opts in explicitly.
+func registryDescription(prior, goreleaser, ppDescription, catalogDescription string) string {
+	if catalogDescription != "" {
+		return catalogDescription
 	}
-	if prior != "" && !isBareMarkdownHeading(prior) && !stalePrior {
+	if prior != "" && !isBareMarkdownHeading(prior) {
 		return prior
 	}
-	return source
+	if source := firstNonEmpty(ppDescription, goreleaser); source != "" {
+		return source
+	}
+	return ""
 }
 
 func firstNonEmpty(values ...string) string {
@@ -495,18 +480,6 @@ func firstNonEmpty(values ...string) string {
 		}
 	}
 	return ""
-}
-
-func isStaleRegistryDescription(prior string) bool {
-	trimmed := strings.TrimSpace(prior)
-	if trimmed == "" || isBareMarkdownHeading(trimmed) {
-		return false
-	}
-	return strings.HasPrefix(trimmed, "<") ||
-		strings.HasPrefix(trimmed, "Printing Press CLI for ") ||
-		(strings.HasPrefix(trimmed, "Welcome to ") && strings.Contains(trimmed, "API documentation site")) ||
-		strings.HasSuffix(trimmed, "...") ||
-		len(trimmed) > 240
 }
 
 func searchTerms(pp printingPressManifest) []string {
@@ -588,11 +561,8 @@ func validateEntries(entries []RegistryEntry) []string {
 		}
 		if isBlank(e.Description) {
 			// Source order mirrors the resolution chain in registryDescription:
-			// goreleaser brews is the second tier, .printing-press.json description
-			// is the third. Listing them in resolution order helps a contributor
-			// reading this error understand which file would take precedence if
-			// they populated both.
-			errs = append(errs, fmt.Sprintf("%s: description is empty (sources checked: .goreleaser.yaml brews description, .printing-press.json description)", slug))
+			// .printing-press.json description is checked before goreleaser brews.
+			errs = append(errs, fmt.Sprintf("%s: description is empty (sources checked: .printing-press.json description, .goreleaser.yaml brews description)", slug))
 		}
 		if e.MCP != nil {
 			if isBlank(e.MCP.Binary) {

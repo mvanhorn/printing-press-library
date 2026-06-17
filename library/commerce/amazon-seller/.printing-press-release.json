@@ -2,16 +2,16 @@
   "schema_version": 1,
   "slug": "amazon-seller",
   "cli_name": "amazon-seller-pp-cli",
-  "version": "2026.6.2",
-  "released_at": "2026-06-09T21:12:36Z",
-  "source_commit": "14394b1f3a7771e165e8a2e2aa4746a4e7d46808",
+  "version": "2026.6.3",
+  "released_at": "2026-06-16T00:53:31Z",
+  "source_commit": "0b2c5701d74528313ea28d7137ebaecca16611f7",
   "printing_press_version": "3.10.0",
   "changes": [
     {
-      "title": "fix(amazon-seller): make account health resilient",
-      "pr": 1127,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1127",
-      "commit": "14394b1f3a7771e165e8a2e2aa4746a4e7d46808"
+      "title": "Improve catalog descriptions",
+      "pr": 1222,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1222",
+      "commit": "0b2c5701d74528313ea28d7137ebaecca16611f7"
     }
   ]
 }

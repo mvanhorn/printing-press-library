@@ -45,7 +45,7 @@ brews:
       owner: user
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Google Ads API for account discovery, GAQL reporting, campaigns, budgets, assets, conversions, audiences, planning, and billing operations."
+    description: "Discover accounts, run GAQL reports, inspect field metadata, and manage Google Ads campaigns, budgets, assets, audiences, and billing."
     install: |
       bin.install "google-ads-pp-cli"
       bin.install "google-ads-pp-mcp"

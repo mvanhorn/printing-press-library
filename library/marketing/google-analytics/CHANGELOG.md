@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.6.2 - 2026-06-16
+
+- Improve catalog descriptions (#1222).
+
 ## 2026.6.1 - 2026-06-12
 
 - Baseline release metadata added for this published CLI.

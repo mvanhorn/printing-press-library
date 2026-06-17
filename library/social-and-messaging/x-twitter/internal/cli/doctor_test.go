@@ -127,6 +127,13 @@ oauth2_user_token = "user"
 			t.Fatalf("%s status = %q, want ok (report=%#v)", key, got, report["auth_lanes"])
 		}
 	}
+	cookieLane := laneFromReport(t, report, "x_articles_cookie")
+	if got, _ := cookieLane["write_capability"].(string); !strings.Contains(got, "Articles create/update/title/cover/delete writes") {
+		t.Fatalf("cookie lane write capability missing or vague: %#v", cookieLane)
+	}
+	if got, _ := cookieLane["user_id"].(string); got != "123" {
+		t.Fatalf("cookie lane user_id = %q, want 123", got)
+	}
 }
 
 func TestDoctorReportsProfileUserAndScopeMetadata(t *testing.T) {

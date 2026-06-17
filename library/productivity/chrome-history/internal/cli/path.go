@@ -1,23 +1,47 @@
 package cli
 
 import (
-	"os"
-	"path/filepath"
+	"errors"
 	"strings"
+
+	"github.com/mvanhorn/printing-press-library/library/productivity/chrome-history/internal/store"
 )
 
 func snapshotPath() (string, error) {
-	base := os.Getenv("XDG_CACHE_HOME")
-	if strings.TrimSpace(base) == "" {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return "", err
+	return store.SnapshotPath()
+}
+
+func openActiveStore() (*store.Store, bool, error) {
+	st, isArchive, err := store.OpenActiveStore()
+	if err != nil {
+		if errors.Is(err, store.ErrNoSnapshot) {
+			return nil, false, ErrNoSnapshot
 		}
-		base = filepath.Join(home, ".cache")
+		return nil, false, err
 	}
-	dir := filepath.Join(base, "chrome-history")
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return "", err
+	return st, isArchive, nil
+}
+
+func openSnapshotStore() (*store.Store, error) {
+	path, err := snapshotPath()
+	if err != nil {
+		return nil, err
 	}
-	return filepath.Join(dir, "snapshot.db"), nil
+	st, err := store.OpenExisting(path)
+	if err != nil {
+		if errors.Is(err, store.ErrNoSnapshot) {
+			return nil, ErrNoSnapshot
+		}
+		return nil, err
+	}
+	return st, nil
+}
+
+func openCoreHistoryStore(device string) (*store.Store, bool, error) {
+	d := strings.TrimSpace(strings.ToLower(device))
+	if d != "" && d != "all" {
+		st, err := openSnapshotStore()
+		return st, false, err
+	}
+	return openActiveStore()
 }

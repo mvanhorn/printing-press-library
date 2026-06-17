@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "wavespeed",
   "cli_name": "wavespeed-pp-cli",
-  "version": "2026.6.2",
-  "released_at": "2026-06-10T03:08:00Z",
-  "source_commit": "5f968092ef46abfda978b82cf204b28378222af1",
+  "version": "2026.6.3",
+  "released_at": "2026-06-16T00:53:31Z",
+  "source_commit": "0b2c5701d74528313ea28d7137ebaecca16611f7",
   "printing_press_version": "4.18.1",
   "run_id": "20260527-214905",
   "changes": [
     {
-      "title": "fix(wavespeed): streamline image iteration workflow",
-      "pr": 1129,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1129",
-      "commit": "5f968092ef46abfda978b82cf204b28378222af1"
+      "title": "Improve catalog descriptions",
+      "pr": 1222,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1222",
+      "commit": "0b2c5701d74528313ea28d7137ebaecca16611f7"
     }
   ]
 }

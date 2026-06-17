@@ -49,17 +49,19 @@ type articleUpdateDeps struct {
 type articleUpdateOptions struct {
 	articleID              string
 	title                  string
+	coverPath              string
 	contentState           draftContentState
 	republish              bool
 	replaceUnknownEntities bool
 }
 
 type articleUpdateResult struct {
-	ArticleID   string `json:"article_id"`
-	URL         string `json:"url"`
-	Title       string `json:"title,omitempty"`
-	Lifecycle   string `json:"lifecycle"`
-	Republished bool   `json:"republished"`
+	ArticleID    string `json:"article_id"`
+	URL          string `json:"url"`
+	Title        string `json:"title,omitempty"`
+	CoverMediaID string `json:"cover_media_id,omitempty"`
+	Lifecycle    string `json:"lifecycle"`
+	Republished  bool   `json:"republished"`
 }
 
 func newArticlesUpdateMdCmd(flags *rootFlags) *cobra.Command {
@@ -69,8 +71,8 @@ func newArticlesUpdateMdCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-md <markdown-file>",
 		Short: "Update an existing X Article draft in place from a markdown file (replaces the whole body)",
-		Long: "Parses frontmatter (title) and body, converts the body to Draft.js content_state, uploads any new inline images, " +
-			"and rewrites the target draft via ArticleEntityUpdateTitle + ArticleEntityUpdateContent.\n\n" +
+		Long: "Parses frontmatter (title, cover) and body, converts the body to Draft.js content_state, uploads any new inline images, " +
+			"and rewrites the target draft via ArticleEntityUpdateTitle + ArticleEntityUpdateContent + ArticleEntityUpdateCoverMedia when cover is present.\n\n" +
 			"WARNING: this REPLACES THE ENTIRE BODY of the target draft. Anything added in the composer that the markdown " +
 			"converter cannot reproduce (polls, composer-only embeds, unknown entity types) is destroyed by the update. The " +
 			"command preflights the draft's content_state and refuses when it finds such entity types unless " +
@@ -101,6 +103,7 @@ func newArticlesUpdateMdCmd(flags *rootFlags) *cobra.Command {
 				payload := map[string]any{
 					"article_id":    articleID,
 					"title":         parsed.Frontmatter.Title,
+					"cover":         parsed.Frontmatter.Cover,
 					"content_state": cs,
 				}
 				enc := json.NewEncoder(cmd.OutOrStdout())
@@ -133,6 +136,7 @@ func newArticlesUpdateMdCmd(flags *rootFlags) *cobra.Command {
 			result, err := updateMarkdownArticle(cmd.Context(), deps, articleUpdateOptions{
 				articleID:              articleID,
 				title:                  parsed.Frontmatter.Title,
+				coverPath:              parsed.Frontmatter.Cover,
 				contentState:           cs,
 				republish:              republish,
 				replaceUnknownEntities: replaceUnknownEntities,
@@ -175,7 +179,7 @@ func updateMarkdownArticle(ctx context.Context, deps articleUpdateDeps, opts art
 			opts.articleID, strings.Join(scan.unknownTypes, ", "))
 	}
 	if scan.lifecycle == "Published" && !opts.republish {
-		return nil, fmt.Errorf("article %s is published; pass --republish to run Unpublish -> UpdateContent -> Publish (it is briefly unpublished), or edit a draft instead", opts.articleID)
+		return nil, fmt.Errorf("article %s is published; use `articles update-md <markdown-file> --article-id %s --republish` to run Unpublish -> UpdateContent -> Publish (it is briefly unpublished), or edit a draft instead", opts.articleID, opts.articleID)
 	}
 
 	if opts.republish && scan.lifecycle != "Published" {
@@ -219,16 +223,29 @@ func updateMarkdownArticle(ctx context.Context, deps articleUpdateDeps, opts art
 		return nil, restoreOnErr(err)
 	}
 
+	var coverMediaID string
+	if strings.TrimSpace(opts.coverPath) != "" {
+		mediaID, err := deps.uploadImage(opts.coverPath)
+		if err != nil {
+			return nil, restoreOnErr(err)
+		}
+		coverMediaID = mediaID
+		if err := updateArticleEntityCoverMedia(ctx, deps.post, opts.articleID, mediaID); err != nil {
+			return nil, restoreOnErr(err)
+		}
+	}
+
 	result := &articleUpdateResult{
-		ArticleID: opts.articleID,
-		URL:       "https://x.com/compose/article/edit/" + opts.articleID,
-		Title:     opts.title,
-		Lifecycle: "Draft",
+		ArticleID:    opts.articleID,
+		URL:          "https://x.com/compose/article/edit/" + opts.articleID,
+		Title:        opts.title,
+		CoverMediaID: coverMediaID,
+		Lifecycle:    "Draft",
 	}
 	if opts.republish {
 		publishData, err := publishArticleEntity(ctx, deps.post, opts.articleID)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("article %s was updated but final publish failed (%w); it is left UNPUBLISHED, re-publish it in the composer or retry `articles update-md --article-id %s --republish`", opts.articleID, err, opts.articleID)
 		}
 		articleID := opts.articleID
 		if publishedID := articleIDFromPublishResponse(publishData); publishedID != "" {

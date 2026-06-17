@@ -1,8 +1,11 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -10,6 +13,7 @@ import (
 )
 
 func newArticlesSetCoverCmd(flags *rootFlags) *cobra.Command {
+	var title string
 	cmd := &cobra.Command{
 		Use:     "set-cover <article-id> <image-file>",
 		Short:   "Upload an image and set it as an X Article cover",
@@ -37,7 +41,13 @@ func newArticlesSetCoverCmd(flags *rootFlags) *cobra.Command {
 					"media_category": "DraftTweetImage",
 				},
 			})
-			data, _, err := c.Post(cmd.Context(), client.ArticleOpURL("ArticleEntityUpdateCoverMedia"), body)
+			titleResolver := func() (string, error) {
+				if strings.TrimSpace(title) != "" {
+					return title, nil
+				}
+				return existingArticleTitle(cmd.Context(), c, args[0])
+			}
+			data, _, err := postCoverMediaWithMetadataHeal(cmd.Context(), c, args[0], body, titleResolver)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -49,5 +59,90 @@ func newArticlesSetCoverCmd(flags *rootFlags) *cobra.Command {
 			return json.NewEncoder(cmd.OutOrStdout()).Encode(result)
 		},
 	}
+	cmd.Flags().StringVar(&title, "title", "", "Article title to use if X needs ArticleMetadata before setting the cover; defaults to the existing title")
 	return cmd
+}
+
+func postCoverMediaWithMetadataHeal(ctx context.Context, p articleGraphQLPoster, articleID string, body map[string]any, titleResolver func() (string, error)) (json.RawMessage, int, error) {
+	path := client.ArticleOpURL("ArticleEntityUpdateCoverMedia")
+	data, statusCode, err := p.Post(ctx, path, body)
+	if err == nil || !isMissingArticleMetadataError(err) {
+		return data, statusCode, err
+	}
+	title, titleErr := titleResolver()
+	if titleErr != nil {
+		return nil, statusCode, fmt.Errorf("cover update hit Missing ArticleMetadata (code 214), and the existing title could not be resolved; pass --title to self-heal manually: %w", titleErr)
+	}
+	if strings.TrimSpace(title) == "" {
+		return nil, statusCode, fmt.Errorf("cover update hit Missing ArticleMetadata (code 214), and the article title is empty; pass --title to self-heal manually")
+	}
+	if err := updateArticleEntityTitle(ctx, p, articleID, title); err != nil {
+		return nil, statusCode, fmt.Errorf("cover update hit Missing ArticleMetadata (code 214), but self-heal update-title failed: %w", err)
+	}
+	return p.Post(ctx, path, body)
+}
+
+func isMissingArticleMetadataError(err error) bool {
+	var apiErr *client.APIError
+	body := err.Error()
+	if errors.As(err, &apiErr) {
+		body = apiErr.Body
+	}
+	body = strings.ToLower(body)
+	return strings.Contains(body, "articlemetadata") && strings.Contains(body, "214")
+}
+
+func existingArticleTitle(ctx context.Context, c *client.Client, articleID string) (string, error) {
+	for _, lifecycle := range []string{"Draft", "Published"} {
+		raw, err := fetchArticleSlice(ctx, c, lifecycle)
+		if err != nil {
+			return "", err
+		}
+		if title, found := articleTitleFromSlice(raw, articleID); found {
+			return title, nil
+		}
+	}
+	return "", fmt.Errorf("article %s not found in your Draft or Published articles", articleID)
+}
+
+func articleTitleFromSlice(raw json.RawMessage, articleID string) (string, bool) {
+	var response struct {
+		Data struct {
+			User struct {
+				Result struct {
+					Slice struct {
+						Items []struct {
+							Results struct {
+								Result map[string]any `json:"result"`
+							} `json:"article_entity_results"`
+						} `json:"items"`
+					} `json:"articles_article_mixer_slice"`
+				} `json:"result"`
+			} `json:"user"`
+		} `json:"data"`
+	}
+	if json.Unmarshal(raw, &response) != nil {
+		return "", false
+	}
+	for _, item := range response.Data.User.Result.Slice.Items {
+		article := item.Results.Result
+		if id, _ := article["rest_id"].(string); id == articleID {
+			return articleTitleField(article), true
+		}
+	}
+	return "", false
+}
+
+func articleTitleField(article map[string]any) string {
+	if title, _ := article["title"].(string); strings.TrimSpace(title) != "" {
+		return title
+	}
+	for _, value := range article {
+		if nested, ok := value.(map[string]any); ok {
+			if title := articleTitleField(nested); strings.TrimSpace(title) != "" {
+				return title
+			}
+		}
+	}
+	return ""
 }

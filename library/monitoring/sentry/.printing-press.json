@@ -18,7 +18,7 @@
   "run_id": "20260502-124520",
   "catalog_entry": "sentry",
   "category": "monitoring",
-  "description": "Error tracking and performance monitoring - projects, issues, events, releases",
+  "description": "Inspect Sentry organizations, projects, issues, events, releases, and Seer metadata for error tracking and performance monitoring.",
   "mcp_binary": "sentry-pp-mcp",
   "mcp_tool_count": 219,
   "mcp_ready": "full",
@@ -37,5 +37,6 @@
       "command": "seer",
       "description": "List the active LLM model names available through Sentry Seer."
     }
-  ]
+  ],
+  "catalog_description": "Inspect Sentry organizations, projects, issues, events, releases, and Seer metadata for error tracking and performance monitoring."
 }

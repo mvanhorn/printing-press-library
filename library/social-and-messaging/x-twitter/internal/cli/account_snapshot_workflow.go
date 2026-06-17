@@ -3,9 +3,11 @@
 package cli
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/client"
 	"github.com/spf13/cobra"
 )
 
@@ -24,6 +26,70 @@ func newNovelAccountCmd(flags *rootFlags) *cobra.Command {
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newNovelAccountSnapshotCmd(flags))
+	cmd.AddCommand(newNovelAccountWhoamiCmd(flags))
+	return cmd
+}
+
+func newNovelAccountWhoamiCmd(flags *rootFlags) *cobra.Command {
+	var live bool
+	cmd := &cobra.Command{
+		Use:   "whoami",
+		Short: "Show the signed-in account identity available to this CLI",
+		Long:  "Shows the X Articles cookie user id from captured browser cookies. With --live, also probes /2/users/me using OAuth2 user-context auth.",
+		Example: `  x-twitter-pp-cli account whoami --agent
+  x-twitter-pp-cli account whoami --live --json`,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			result := map[string]any{
+				"x_articles_cookie": map[string]any{
+					"status": "missing",
+				},
+			}
+			if cookies, err := client.LoadCookieAuth(); err == nil {
+				cookieLane := map[string]any{"status": "ok"}
+				if userID := cookies.ArticleUserID(); userID != "" {
+					cookieLane["user_id"] = userID
+				}
+				result["x_articles_cookie"] = cookieLane
+			} else {
+				result["x_articles_cookie"].(map[string]any)["error"] = err.Error()
+			}
+			if live {
+				c, err := flags.newClient()
+				if err != nil {
+					return err
+				}
+				body, err := c.GetNoCache(cmd.Context(), "/2/users/me", nil)
+				if err != nil {
+					result["oauth2_user_context"] = map[string]any{
+						"status": "error",
+						"error":  err.Error(),
+					}
+				} else if user := userSummaryFromMeProbe(body); len(user) > 0 {
+					result["oauth2_user_context"] = map[string]any{
+						"status": "ok",
+						"user":   user,
+					}
+				} else {
+					result["oauth2_user_context"] = map[string]any{"status": "unknown"}
+				}
+			}
+			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+				return json.NewEncoder(cmd.OutOrStdout()).Encode(result)
+			}
+			cookieLane, _ := result["x_articles_cookie"].(map[string]any)
+			if userID, _ := cookieLane["user_id"].(string); userID != "" {
+				fmt.Fprintf(cmd.OutOrStdout(), "X Articles cookie user id: %s\n", userID)
+			} else {
+				fmt.Fprintf(cmd.OutOrStdout(), "X Articles cookie user id: unavailable\n")
+			}
+			if oauthLane, _ := result["oauth2_user_context"].(map[string]any); len(oauthLane) > 0 {
+				fmt.Fprintf(cmd.OutOrStdout(), "OAuth2 user-context: %v\n", oauthLane["status"])
+			}
+			return nil
+		},
+	}
+	cmd.Flags().BoolVar(&live, "live", false, "Also probe /2/users/me with OAuth2 user-context auth")
 	return cmd
 }
 

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "reno-goat",
+  "cli_name": "reno-goat-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-16T15:47:49Z",
+  "source_commit": "1709ea67d26c2f350e4edda3fed9d208af95ad9d",
+  "printing_press_version": "4.14.0",
+  "run_id": "20260525-231217",
+  "changes": [
+    {
+      "title": "feat(reno-goat): add reno-goat",
+      "pr": 855,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/855",
+      "commit": "1709ea67d26c2f350e4edda3fed9d208af95ad9d"
+    }
+  ]
+}

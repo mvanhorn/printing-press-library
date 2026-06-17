@@ -109,81 +109,83 @@ func TestFormatDescription(t *testing.T) {
 
 func TestRegistryDescription(t *testing.T) {
 	cases := []struct {
-		name          string
-		prior         string
-		goreleaser    string
-		ppDescription string
-		want          string
+		name               string
+		prior              string
+		goreleaser         string
+		ppDescription      string
+		catalogDescription string
+		want               string
 	}{
 		{
-			name:          "curated copy wins over both fallbacks",
+			name:               "explicit catalog copy wins over prior registry and source fallbacks",
+			prior:              "Curated catalog copy.",
+			goreleaser:         "Goreleaser brews copy.",
+			ppDescription:      "Manifest copy.",
+			catalogDescription: "New website copy.",
+			want:               "New website copy.",
+		},
+		{
+			name:          "non-stale prior registry copy is preserved over source fallbacks",
 			prior:         "Curated catalog copy.",
 			goreleaser:    "Goreleaser brews copy.",
 			ppDescription: "Manifest copy.",
 			want:          "Curated catalog copy.",
 		},
 		{
-			name:          "boilerplate prior falls through to goreleaser",
+			name:          "boilerplate prior is preserved without explicit catalog copy",
 			prior:         "Printing Press CLI for Whoop.",
 			goreleaser:    "Fetch WHOOP recovery, strain, sleep, workout, cycle, profile, and body-measurement data with OAuth-backed API access.",
 			ppDescription: "Manifest copy.",
-			want:          "Fetch WHOOP recovery, strain, sleep, workout, cycle, profile, and body-measurement data with OAuth-backed API access.",
+			want:          "Printing Press CLI for Whoop.",
 		},
 		{
-			name:          "vendor docs welcome prior falls through to goreleaser",
-			prior:         "Welcome to Cloudflare's API documentation site.",
-			goreleaser:    "Agent-ready CLI for Cloudflare accounts, zones, DNS, Workers, Pages, R2, tunnels, Zero Trust, and infrastructure operations.",
-			ppDescription: "Cloudflare API for accounts, zones, DNS, Workers, Pages, R2, Email Routing, tunnels, and Zero Trust operations",
-			want:          "Agent-ready CLI for Cloudflare accounts, zones, DNS, Workers, Pages, R2, tunnels, Zero Trust, and infrastructure operations.",
-		},
-		{
-			name:          "raw-html prior falls through to goreleaser",
+			name:          "raw-html prior is preserved without explicit catalog copy",
 			prior:         "<p>",
 			goreleaser:    "Search setlist.fm artists, setlists, venues, cities, and concert histories through the setlist.fm API.",
 			ppDescription: "Manifest copy.",
-			want:          "Search setlist.fm artists, setlists, venues, cities, and concert histories through the setlist.fm API.",
+			want:          "<p>",
 		},
 		{
-			name:          "truncated prior falls through to goreleaser",
+			name:          "truncated prior is preserved without explicit catalog copy",
 			prior:         "Every EmailOctopus v2 endpoint, plus the cross-list joins, churn diffs, and rate-budgeted bulk operations the API...",
 			goreleaser:    "Manage EmailOctopus lists, contacts, campaigns, automations, reports, and cross-list cleanup workflows from the terminal.",
 			ppDescription: "Manifest copy.",
-			want:          "Manage EmailOctopus lists, contacts, campaigns, automations, reports, and cross-list cleanup workflows from the terminal.",
+			want:          "Every EmailOctopus v2 endpoint, plus the cross-list joins, churn diffs, and rate-budgeted bulk operations the API...",
 		},
 		{
-			name:          "oversized prior falls through to goreleaser",
+			name:          "oversized prior is preserved without explicit catalog copy",
 			prior:         strings.Repeat("Recipe catalog copy ", 20),
 			goreleaser:    "Search trusted recipe sites, rank results, save a local cookbook, and enrich nutrition data with USDA FoodData Central.",
 			ppDescription: "Manifest copy.",
-			want:          "Search trusted recipe sites, rank results, save a local cookbook, and enrich nutrition data with USDA FoodData Central.",
+			want:          strings.Repeat("Recipe catalog copy ", 20),
 		},
 		{
-			name:          "boilerplate prior with no source returns empty for validation",
+			name:          "boilerplate prior with no source is preserved",
 			prior:         "Printing Press CLI for Missing.",
 			goreleaser:    "",
 			ppDescription: "",
-			want:          "",
+			want:          "Printing Press CLI for Missing.",
 		},
 		{
-			name:          "raw-html prior with no source returns empty for validation",
+			name:          "raw-html prior with no source is preserved",
 			prior:         "<p>",
 			goreleaser:    "",
 			ppDescription: "",
-			want:          "",
+			want:          "<p>",
 		},
 		{
-			name:          "bare-heading prior falls through to goreleaser",
+			name:          "bare-heading prior falls through to manifest before goreleaser",
 			prior:         "# Introduction",
 			goreleaser:    "Real catalog copy.",
 			ppDescription: "Manifest copy.",
-			want:          "Real catalog copy.",
+			want:          "Manifest copy.",
 		},
 		{
-			name:          "empty prior falls through to goreleaser",
+			name:          "empty prior falls through to manifest before goreleaser",
 			prior:         "",
 			goreleaser:    "Goreleaser copy.",
 			ppDescription: "Manifest copy.",
-			want:          "Goreleaser copy.",
+			want:          "Manifest copy.",
 		},
 		{
 			name:          "empty prior and goreleaser fall through to pp manifest description (lawhub-shape repair)",
@@ -200,6 +202,13 @@ func TestRegistryDescription(t *testing.T) {
 			want:          "Manifest copy.",
 		},
 		{
+			name:          "empty source falls back to non-stale prior registry copy",
+			prior:         "Legacy but valid catalog copy.",
+			goreleaser:    "",
+			ppDescription: "",
+			want:          "Legacy but valid catalog copy.",
+		},
+		{
 			name:          "all empty returns empty (validation catches this separately)",
 			prior:         "",
 			goreleaser:    "",
@@ -209,9 +218,9 @@ func TestRegistryDescription(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			if got := registryDescription(tc.prior, tc.goreleaser, tc.ppDescription); got != tc.want {
-				t.Errorf("registryDescription(%q, %q, %q) = %q, want %q",
-					tc.prior, tc.goreleaser, tc.ppDescription, got, tc.want)
+			if got := registryDescription(tc.prior, tc.goreleaser, tc.ppDescription, tc.catalogDescription); got != tc.want {
+				t.Errorf("registryDescription(%q, %q, %q, %q) = %q, want %q",
+					tc.prior, tc.goreleaser, tc.ppDescription, tc.catalogDescription, got, tc.want)
 			}
 		})
 	}
@@ -429,10 +438,10 @@ func TestValidateEntries(t *testing.T) {
 			},
 			wantSubstrs: []string{
 				"lawhub: description is empty",
-				// Sources appear in fallback-resolution order: goreleaser
-				// (second tier) is listed before .printing-press.json (third
-				// tier), matching what registryDescription consults.
-				".goreleaser.yaml brews description, .printing-press.json description",
+				// Sources appear in fallback-resolution order: .printing-press.json
+				// description is listed before goreleaser brews, matching what
+				// registryDescription consults.
+				".printing-press.json description, .goreleaser.yaml brews description",
 			},
 		},
 		{

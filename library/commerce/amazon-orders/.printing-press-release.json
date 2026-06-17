@@ -2,15 +2,17 @@
   "schema_version": 1,
   "slug": "amazon-orders",
   "cli_name": "amazon-orders-pp-cli",
-  "version": "2026.6.1",
-  "released_at": "2026-06-08T00:00:00Z",
-  "source_commit": "40610a4e649ed7db2f033b1abff765949bbad99d",
+  "version": "2026.6.2",
+  "released_at": "2026-06-16T15:55:56Z",
+  "source_commit": "b81e193768bb279e838a3651ab9caa26a8f33b9f",
   "printing_press_version": "4.2.2",
   "run_id": "20260510-105710",
   "changes": [
     {
-      "title": "Baseline release metadata added for this published CLI.",
-      "commit": "40610a4e649ed7db2f033b1abff765949bbad99d"
+      "title": "fix(amazon-orders): support marketplace cookie domains",
+      "pr": 1212,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1212",
+      "commit": "b81e193768bb279e838a3651ab9caa26a8f33b9f"
     }
   ]
 }

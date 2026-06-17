@@ -129,9 +129,12 @@ func cookieAuthLane() map[string]any {
 		return authLane("missing", "cookies.json", "capture X Articles cookies with `x-twitter-pp-cli auth login --chrome`; this does not configure v2 API OAuth2 user-context auth")
 	}
 	lane := authLane("ok", "cookies.json", "")
-	if cookies.ArticleUserID() != "" {
+	if userID := cookies.ArticleUserID(); userID != "" {
 		lane["user_id_present"] = true
+		lane["user_id"] = userID
 	}
+	lane["write_capability"] = "ok: Articles create/update/title/cover/delete writes use browser cookies; X_OAUTH2_USER_TOKEN is only needed for v2 API user-context writes"
+	lane["capabilities"] = []string{"articles.list", "articles.create-draft", "articles.update-content", "articles.update-title", "articles.update-cover-media", "articles.delete", "articles.publish", "articles.unpublish", "articles.upload-media"}
 	return lane
 }
 
@@ -791,6 +794,12 @@ func renderAuthLaneReport(w io.Writer, lanes map[string]any) {
 		}
 		if hint, _ := lane["hint"].(string); hint != "" {
 			fmt.Fprintf(w, "      hint: %s\n", hint)
+		}
+		if capability, _ := lane["write_capability"].(string); capability != "" {
+			fmt.Fprintf(w, "      write_capability: %s\n", capability)
+		}
+		if userID, _ := lane["user_id"].(string); userID != "" {
+			fmt.Fprintf(w, "      user_id: %s\n", userID)
 		}
 	}
 }

@@ -45,7 +45,7 @@ brews:
       owner: cathrynlavery
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "This is the documentation for the ElevenLabs API. You can use this API to use our service programmatically, this is..."
+    description: "Create and manage ElevenLabs audio workflows: text-to-speech, voice conversion, transcription, dubbing, music, voices, and agents."
     install: |
       bin.install "elevenlabs-pp-cli"
       bin.install "elevenlabs-pp-mcp"
