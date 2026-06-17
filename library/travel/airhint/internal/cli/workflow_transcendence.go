@@ -357,10 +357,13 @@ Useful for comparing trip options and finding the best moment to book across rou
 
 			results := make([]compareResult, len(routes))
 			var wg sync.WaitGroup
+			const maxCompareConc = 5
+			sem := make(chan struct{}, maxCompareConc)
 			for i, route := range routes {
 				wg.Add(1)
 				go func(idx int, r routePair) {
-					defer wg.Done()
+					sem <- struct{}{}
+					defer func() { <-sem; wg.Done() }()
 					res := compareResult{Origin: r.origin, Destination: r.destination}
 
 					// Search (bypass cache to always get a fresh search_id)
