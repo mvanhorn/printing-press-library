@@ -33,8 +33,13 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string, positio
 		// Add flag args first, skipping keys that are positional params.
 		finalArgs = append(finalArgs, cliArgsFromMCPFiltered(args, positionalSet)...)
 		// Append positional values in declared order (bare, no -- prefix).
+		// Reject flag-like values so an MCP client cannot inject CLI flags
+		// through positional parameters (same guard as the "args" field).
 		for _, name := range positionalNames {
 			if v, ok := args[name].(string); ok && v != "" {
+				if strings.HasPrefix(v, "-") {
+					return mcplib.NewToolResultError(fmt.Sprintf("flag-like argument %q not allowed for positional parameter %q; pass a plain value instead", v, name)), nil
+				}
 				finalArgs = append(finalArgs, v)
 			}
 		}
@@ -79,46 +84,6 @@ func cliArgsFromMCPFiltered(args map[string]any, skip map[string]bool) []string 
 	keys := make([]string, 0, len(args))
 	for k := range args {
 		if !blockedRootFlags[k] && !skip[k] {
-			keys = append(keys, k)
-		}
-	}
-	sort.Strings(keys)
-
-	var out []string
-	for _, k := range keys {
-		v := args[k]
-		switch tv := v.(type) {
-		case bool:
-			if tv {
-				out = append(out, "--"+k)
-			}
-		case float64:
-			out = append(out, "--"+k, strconv.FormatFloat(tv, 'f', -1, 64))
-		case string:
-			if tv != "" {
-				out = append(out, "--"+k, tv)
-			}
-		case []any:
-			if len(tv) > 0 {
-				parts := make([]string, 0, len(tv))
-				for _, item := range tv {
-					parts = append(parts, fmt.Sprintf("%v", item))
-				}
-				out = append(out, "--"+k, strings.Join(parts, ","))
-			}
-		default:
-			if v != nil {
-				out = append(out, "--"+k, fmt.Sprintf("%v", v))
-			}
-		}
-	}
-	return out
-}
-
-func cliArgsFromMCP(args map[string]any) []string {
-	keys := make([]string, 0, len(args))
-	for k := range args {
-		if !blockedRootFlags[k] {
 			keys = append(keys, k)
 		}
 	}
