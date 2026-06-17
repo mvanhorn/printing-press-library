@@ -82,6 +82,27 @@ person. Helps identify overloaded team members and unbalanced workload.`,
 				Count    int    `json:"count"`
 			}
 
+			// PATCH(assignees-array-aggregation): ClickUp tasks expose assignees as an
+			// `assignees[]` array of {id, username, ...}, not a scalar assignee/owner.
+			// Resolve a display name from an assignee object ({id, username, name, ...}).
+			// Hoisted above the row loop — it captures only the immutable userNames map,
+			// so one closure is reused for every row instead of allocating per iteration.
+			resolveName := func(m map[string]any) string {
+				for _, nameKey := range []string{"username", "name", "displayName", "display_name"} {
+					if n, ok := m[nameKey]; ok && n != nil {
+						return fmt.Sprintf("%v", n)
+					}
+				}
+				if aid, ok := m["id"]; ok {
+					raw := fmt.Sprintf("%v", aid)
+					if name, ok := userNames[raw]; ok {
+						return name
+					}
+					return raw
+				}
+				return ""
+			}
+
 			counts := make(map[string]int)
 			total := 0
 			for rows.Next() {
@@ -96,25 +117,6 @@ person. Helps identify overloaded team members and unbalanced workload.`,
 				var obj map[string]any
 				if err := json.Unmarshal(data, &obj); err != nil {
 					continue
-				}
-
-				// PATCH(assignees-array-aggregation): ClickUp tasks expose assignees as an
-				// `assignees[]` array of {id, username, ...}, not a scalar assignee/owner.
-				// Resolve a display name from an assignee object ({id, username, name, ...}).
-				resolveName := func(m map[string]any) string {
-					for _, nameKey := range []string{"username", "name", "displayName", "display_name"} {
-						if n, ok := m[nameKey]; ok && n != nil {
-							return fmt.Sprintf("%v", n)
-						}
-					}
-					if aid, ok := m["id"]; ok {
-						raw := fmt.Sprintf("%v", aid)
-						if name, ok := userNames[raw]; ok {
-							return name
-						}
-						return raw
-					}
-					return ""
 				}
 
 				// ClickUp tasks carry an `assignees[]` array of {id, username, ...};
@@ -157,9 +159,12 @@ person. Helps identify overloaded team members and unbalanced workload.`,
 					names = append(names, assignee)
 				}
 
+				// Count one item per task record; tally assignees separately so a
+				// multi-assignee task doesn't inflate the item total (a 3-assignee
+				// task is still one item).
+				total++
 				for _, n := range names {
 					counts[n]++
-					total++
 				}
 			}
 
