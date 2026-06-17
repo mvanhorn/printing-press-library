@@ -1,0 +1,10 @@
+myq-pp-cli
+Copyright 2026 Matt Van Horn and contributors
+
+Created by Matt Van Horn (@mvanhorn).
+
+This CLI was assembled with the Printing Press and adapted from the archived
+joeshaw/myq command semantics for MyQ device login, device listing, and
+garage-door open/close control.
+
+CLI Printing Press is licensed separately under the MIT License.

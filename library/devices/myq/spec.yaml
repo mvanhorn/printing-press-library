@@ -1,0 +1,18 @@
+api_name: myq
+display_name: MyQ
+kind: internal
+base_path: /api/v5.2
+transport: http
+commands:
+  - name: devices
+    command: devices
+    description: List the devices visible to the logged-in myQ account.
+  - name: state
+    command: state
+    description: Fetch the current door state for a device serial number.
+  - name: open
+    command: open
+    description: Open a garage door.
+  - name: close
+    command: close
+    description: Close a garage door.

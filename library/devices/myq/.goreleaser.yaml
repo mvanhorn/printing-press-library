@@ -1,0 +1,12 @@
+version: 2
+
+builds:
+  - id: myq-pp-cli
+    main: ./cmd/myq-pp-cli
+    binary: myq-pp-cli
+    env:
+      - CGO_ENABLED=0
+
+archives:
+  - formats: [tar.gz]
+
