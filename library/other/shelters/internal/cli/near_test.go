@@ -23,6 +23,19 @@ func stubGeocoder(t *testing.T, table map[string]latlon) {
 	}
 }
 
+// stubZip swaps zipToLatLon for a deterministic table for the test.
+func stubZip(t *testing.T, table map[string]latlon) {
+	t.Helper()
+	prev := zipToLatLon
+	t.Cleanup(func() { zipToLatLon = prev })
+	zipToLatLon = func(_ context.Context, zip5 string) (latlon, bool, error) {
+		if ll, ok := table[zip5]; ok {
+			return ll, true, nil
+		}
+		return latlon{}, false, nil
+	}
+}
+
 func TestResolveOrigin(t *testing.T) {
 	stubGeocoder(t, map[string]latlon{"downtown": {Lat: 30, Lon: -95}})
 
@@ -45,6 +58,31 @@ func TestResolveOrigin(t *testing.T) {
 
 	if _, err := resolveOrigin(context.Background(), "nowhere-real"); err == nil {
 		t.Fatal("expected error when origin cannot be geocoded")
+	}
+}
+
+// TestResolveOriginZIP: a bare ZIP resolves via the ZCTA lookup (not the address
+// geocoder), a ZIP+4 strips to its 5-digit base, and an unknown ZIP errors.
+func TestResolveOriginZIP(t *testing.T) {
+	stubZip(t, map[string]latlon{"78566": {Lat: 26.137, Lon: -97.389}})
+	// The address geocoder must NOT be consulted for a bare ZIP.
+	stubGeocoder(t, map[string]latlon{})
+
+	o, err := resolveOrigin(context.Background(), "78566")
+	if err != nil {
+		t.Fatalf("ZIP origin: %v", err)
+	}
+	if !o.Geocoded || o.Latitude != 26.137 || o.Longitude != -97.389 {
+		t.Fatalf("ZIP origin resolved wrong: %+v", o)
+	}
+
+	o, err = resolveOrigin(context.Background(), "78566-1234")
+	if err != nil || o.Latitude != 26.137 {
+		t.Fatalf("ZIP+4 should resolve via its 5-digit base: %+v err=%v", o, err)
+	}
+
+	if _, err := resolveOrigin(context.Background(), "00000"); err == nil {
+		t.Fatal("expected error for an unresolvable ZIP")
 	}
 }
 

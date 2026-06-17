@@ -39,6 +39,10 @@ type capacityData struct {
 	AtCapacityCount int           `json:"at_capacity_count"`
 	ReportedFull    int           `json:"reported_full_count"`
 	Note            string        `json:"note"`
+	Enrichment      enrichState   `json:"enrichment"`
+	RedCross        enrichState   `json:"red_cross"`
+	Occupancy       enrichState   `json:"occupancy"`
+	Hidden          enrichState   `json:"hidden_filter"`
 	Shelters        []capacityRow `json:"shelters"`
 }
 
@@ -54,20 +58,24 @@ func newNovelCapacityCmd(flags *rootFlags) *cobra.Command {
 			"population and a capacity are reported; the denominator is evacuation_capacity by default " +
 			"and falls back to post_impact_capacity with a label. Shelters with missing numbers are " +
 			"counted as unknown, never assumed full or empty. A shelter the feed marks FULL is surfaced " +
-			"as reported-full.\n\nUse case: \"which shelter is at capacity?\"",
+			"as reported-full.\n\nUse case: \"which shelter is at capacity?\" Covers open shelters in the US and its territories only, from the union of the FEMA and American Red Cross feeds.",
 		Example:     "  shelters-pp-cli capacity\n  shelters-pp-cli capacity --state TX --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
 			}
-			source, shelters, err := loadShelterFeed(cmd, flags, flagFixture)
+			feed, err := loadShelterFeed(cmd, flags, flagFixture)
 			if err != nil {
 				return err
 			}
-			shelters = shelterFilter{state: flagState}.apply(shelters)
+			shelters := shelterFilter{state: flagState}.apply(feed.Shelters)
 			data := buildCapacity(shelters)
-			return emitEnvelopeHuman(cmd, flags, source, data, func() string {
+			data.Enrichment = feed.Enrich
+			data.RedCross = feed.RedCross
+			data.Occupancy = feed.Occupancy
+			data.Hidden = feed.Hidden
+			return emitEnvelopeHuman(cmd, flags, feed.Source, data, func() string {
 				return renderCapacity(data)
 			})
 		},
@@ -163,9 +171,14 @@ func renderCapacity(d capacityData) string {
 		if r.ReportedFull {
 			flag += "  [reported FULL]"
 		}
-		fmt.Fprintf(&b, "- %s (id %d) -- %s\n", r.Name, r.ShelterID, loc)
+		fmt.Fprintf(&b, "- %s (id %d) -- %s%s\n", r.Name, r.ShelterID, loc, sourceTag(r.Source))
 		fmt.Fprintf(&b, "      pop/cap %s | utilization %s%s\n", popCapStr(r.Shelter), util, flag)
 	}
 	fmt.Fprintf(&b, "\n%s\n", d.Note)
+	for _, note := range []string{d.Enrichment.humanNote(), d.RedCross.humanNote(), d.Occupancy.humanNote(), d.Hidden.humanNote()} {
+		if note != "" {
+			fmt.Fprintf(&b, "%s\n", note)
+		}
+	}
 	return b.String()
 }

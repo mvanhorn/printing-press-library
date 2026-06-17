@@ -31,6 +31,11 @@ const geocodeWorkers = 8
 
 var latLonRe = regexp.MustCompile(`^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$`)
 
+// zipRe matches a bare US ZIP (5 digits, optional +4); the 5-digit group feeds
+// the Census ZCTA centroid lookup. Checked after latLonRe (which requires a
+// comma) so the two never overlap.
+var zipRe = regexp.MustCompile(`^\s*(\d{5})(?:-\d{4})?\s*$`)
+
 // shelterDistance is a shelter plus its computed distance from the origin.
 type shelterDistance struct {
 	Shelter
@@ -48,6 +53,10 @@ type nearData struct {
 	GeocodeCapped   bool              `json:"geocode_capped"`
 	GeocodeTimedOut bool              `json:"geocode_timed_out"`
 	Note            string            `json:"note"`
+	Enrichment      enrichState       `json:"enrichment"`
+	RedCross        enrichState       `json:"red_cross"`
+	Occupancy       enrichState       `json:"occupancy"`
+	Hidden          enrichState       `json:"hidden_filter"`
 	Shelters        []shelterDistance `json:"shelters"`
 }
 
@@ -74,11 +83,12 @@ func newNovelNearCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "near <location>",
 		Short: "Closest open shelters to a location, with optional pet / accessibility filters",
-		Long: "Find the open shelters closest to a location. <location> may be 'lat,lon', a ZIP, or a " +
+		Long: "Find the open shelters closest to a location. <location> may be 'lat,lon', a 5-digit ZIP " +
+			"(resolved to its area centroid via the free US Census ZCTA layer), or a " +
 			"full street address. Shelters missing coordinates (common in the feed) are geocoded from " +
 			"their street address via the free US Census geocoder; any that cannot be located are " +
 			"counted, never dropped. Distances are straight-line miles, not driving distance.\n\n" +
-			"Use case: \"the closest shelter to me that allows pets\" -> add --pets.",
+			"Use case: \"the closest shelter to me that allows pets\" -> add --pets. Covers open shelters in the US and its territories only, from the union of the FEMA and American Red Cross feeds.",
 		Example: "  shelters-pp-cli near 78566 --pets\n" +
 			"  shelters-pp-cli near \"2400 W Bradley Ave, Champaign, IL\" --limit 3\n" +
 			"  shelters-pp-cli near 29.76,-95.37 --ada --max-miles 50",
@@ -104,14 +114,18 @@ func newNovelNearCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			source, shelters, err := loadShelterFeed(cmd, flags, flagFixture)
+			feed, err := loadShelterFeed(cmd, flags, flagFixture)
 			if err != nil {
 				return err
 			}
-			shelters = sf.apply(shelters)
+			shelters := sf.apply(feed.Shelters)
 
 			data := buildNear(ctx, origin, shelters, flagMaxMiles, flagLimit)
-			return emitEnvelopeHuman(cmd, flags, source, data, func() string {
+			data.Enrichment = feed.Enrich
+			data.RedCross = feed.RedCross
+			data.Occupancy = feed.Occupancy
+			data.Hidden = feed.Hidden
+			return emitEnvelopeHuman(cmd, flags, feed.Source, data, func() string {
 				return renderNear(data)
 			})
 		},
@@ -119,6 +133,8 @@ func newNovelNearCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&sf.pets, "pets", false, "Only shelters that allow pets (pet code COHABIT or ONSITE)")
 	cmd.Flags().BoolVar(&sf.ada, "ada", false, "Only shelters confirmed ADA compliant")
 	cmd.Flags().BoolVar(&sf.wheelchair, "wheelchair", false, "Only shelters confirmed wheelchair accessible")
+	cmd.Flags().StringVar(&sf.county, "county", "", "Only shelters in this county/parish (substring, case-insensitive; needs FEMA_NSS/0 enrichment)")
+	cmd.Flags().BoolVar(&sf.generator, "generator", false, "Only shelters with a confirmed onsite generator (needs FEMA_NSS/0 enrichment)")
 	cmd.Flags().IntVar(&flagLimit, "limit", 5, "Number of closest shelters to return (0 = all)")
 	cmd.Flags().Float64Var(&flagMaxMiles, "max-miles", 0, "Only shelters within this many straight-line miles (0 = no cap)")
 	cmd.Flags().StringVar(&flagFixture, "fixture", "", "Parse a saved feed JSON (path or - for stdin) instead of fetching live")
@@ -136,12 +152,25 @@ func resolveOrigin(ctx context.Context, loc string) (originInfo, error) {
 		}
 		return originInfo{Query: loc, Latitude: lat, Longitude: lon, Geocoded: false}, nil
 	}
+	// A bare ZIP resolves to its ZCTA area centroid (the address geocoder does
+	// not handle bare ZIPs). Coarser than a street geocode, but enough to rank
+	// nearby shelters; the note already advises a precise lat,lon for accuracy.
+	if z := zipRe.FindStringSubmatch(loc); z != nil {
+		ll, ok, err := zipToLatLon(ctx, z[1])
+		if err != nil {
+			return originInfo{}, apiErr(fmt.Errorf("resolving ZIP %q: %w", loc, err))
+		}
+		if !ok {
+			return originInfo{}, usageErr(fmt.Errorf("near: could not resolve ZIP %q; try a full street address or 'lat,lon'", loc))
+		}
+		return originInfo{Query: loc, Latitude: ll.Lat, Longitude: ll.Lon, Geocoded: true}, nil
+	}
 	ll, ok, err := geocodeOneLine(ctx, loc)
 	if err != nil {
 		return originInfo{}, apiErr(fmt.Errorf("geocoding origin %q: %w", loc, err))
 	}
 	if !ok {
-		return originInfo{}, usageErr(fmt.Errorf("near: could not geocode location %q; try 'lat,lon' or a full street address", loc))
+		return originInfo{}, usageErr(fmt.Errorf("near: could not geocode location %q; try 'lat,lon', a 5-digit ZIP, or a full street address", loc))
 	}
 	return originInfo{Query: loc, Latitude: ll.Lat, Longitude: ll.Lon, Geocoded: true}, nil
 }
@@ -315,7 +344,7 @@ func renderNear(d nearData) string {
 		if s.CoordsGeocoded {
 			geo = " [geocoded]"
 		}
-		fmt.Fprintf(&b, "- %.1f mi  %s (id %d) -- %s%s\n", s.DistanceMiles, s.Name, s.ShelterID, loc, geo)
+		fmt.Fprintf(&b, "- %.1f mi  %s (id %d) -- %s%s%s\n", s.DistanceMiles, s.Name, s.ShelterID, loc, geo, sourceTag(s.Source))
 		fmt.Fprintf(&b, "      pets %s | ada %s | wheelchair %s | pop/cap %s\n",
 			petLabel(s.PetAccommodations), dashIfEmpty(s.ADACompliant), dashIfEmpty(s.WheelchairAccessible), popCapStr(s.Shelter))
 	}
@@ -327,6 +356,11 @@ func renderNear(d nearData) string {
 		}
 	}
 	fmt.Fprintf(&b, "\n%s\n", d.Note)
+	for _, note := range []string{d.Enrichment.humanNote(), d.RedCross.humanNote(), d.Occupancy.humanNote(), d.Hidden.humanNote()} {
+		if note != "" {
+			fmt.Fprintf(&b, "%s\n", note)
+		}
+	}
 	return b.String()
 }
 

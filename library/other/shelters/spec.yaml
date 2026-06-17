@@ -1,5 +1,5 @@
 name: shelters
-description: "Credible, real-time disaster shelter information for AI agents and people: which FEMA-tracked shelters are open right now, where they are, which take pets, and which are filling up. Sourced from FEMA's National Shelter System OpenShelters feed, honest about missing data."
+description: "Credible, real-time disaster shelter information for AI agents and people: which shelters are open right now across the United States and its territories, where they are, which take pets, and which are filling up. Sourced from the union (deduped) of FEMA's National Shelter System OpenShelters feed and the American Red Cross open-shelter feed, each shelter tagged source fema, redcross, or fema+redcross. Coverage is the US and its territories only, not global. Honest about missing data."
 version: "0.1.0"
 base_url: "https://gis.fema.gov"
 health_check_path: "/arcgis/rest/services/NSS/OpenShelters/FeatureServer/0/query?where=1%3D1&returnCountOnly=true&f=json"
@@ -16,12 +16,12 @@ config:
 
 resources:
   shelters:
-    description: "Open disaster shelters from FEMA's National Shelter System (OpenShelters feed, all states/territories)"
+    description: "Open disaster shelters from the union (deduped) of FEMA's National Shelter System OpenShelters feed and the American Red Cross open-shelter feed, each tagged source fema, redcross, or fema+redcross; United States and its territories only"
     endpoints:
       list:
         method: GET
         path: "/arcgis/rest/services/NSS/OpenShelters/FeatureServer/0/query"
-        description: "List open shelters from the FEMA OpenShelters feed. Returns few or none when no disaster is active (quiet baseline); counts spike during named events. Data is reported roughly twice a day and may lag reality."
+        description: "List open shelters from the FEMA OpenShelters feed. Returns few or none when no disaster is active (quiet baseline); counts spike during named events. Data is reported roughly twice a day and may lag reality. The CLI unions this FEMA feed with the American Red Cross feed client-side (US and territories only); see the shelters command."
         params:
           - name: where
             flag_name: where

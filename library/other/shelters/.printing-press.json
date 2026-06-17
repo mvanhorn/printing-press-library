@@ -13,10 +13,10 @@
   "printer_name": "Abe Diaz (@abe238)",
   "spec_path": "shelters.spec.yaml",
   "spec_format": "internal",
-  "spec_checksum": "sha256:4e0bf899ad31d57296c6666858744b72d5048306c8b1bb0bec626c4a406a1bf7",
+  "spec_checksum": "sha256:594d98df8733a0c816ed56395bb598ba96ea26981e6a01b06b8c82c8fd4ba71d",
   "run_id": "20260617-015607",
   "category": "other",
-  "description": "Credible, real-time disaster shelter information for AI agents and people",
+  "description": "Credible, real-time US (and territories) disaster shelter information, unioning FEMA OpenShelters and the American Red Cross feed, for AI agents and people",
   "mcp_binary": "shelters-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_public_tool_count": 1,
@@ -27,7 +27,7 @@
     {
       "name": "Closest open shelter, including pet-friendly",
       "command": "near",
-      "description": "Ranks open shelters by straight-line distance from a lat,lon, ZIP, or street address; geocodes shelters that are missing coordinates and reports any it cannot locate rather than dropping them."
+      "description": "Ranks open shelters by straight-line distance from a lat,lon, ZIP, or street address; geocodes shelters that are missing coordinates and reports any it cannot locate rather than dropping them; filterable by pets, ADA, wheelchair, county/parish, and confirmed onsite generator."
     },
     {
       "name": "Honest capacity, never a fabricated denominator",
@@ -37,17 +37,17 @@
     {
       "name": "One-call situational briefing",
       "command": "brief",
-      "description": "One command returns the open count, a breakdown by state, pet-friendly and accessible counts, and the capacity picture, with an optional human briefing."
+      "description": "One command returns the open count, breakdowns by state and by the driving incident, pet-friendly and accessible counts, and the capacity picture, with an optional human briefing."
     },
     {
       "name": "Filtered open-shelter listing",
       "command": "shelters",
-      "description": "Open shelters flattened from the feed and filterable by state, pets, ADA, wheelchair, managing org, and status."
+      "description": "Open shelters from the union of FEMA OpenShelters and the American Red Cross feed (deduped, each tagged with a source field: fema, redcross, or fema+redcross), flattened and filterable by state, pets, ADA, wheelchair, managing org, status, county/parish, and confirmed onsite generator; FEMA rows best-effort enriched with the richer FEMA_NSS/0 layer (county, the driving incident, generator and floodplain/surge attributes)."
     },
     {
       "name": "Flattened shelter detail by stable id",
       "command": "shelter",
-      "description": "Full detail for one shelter joined on the stable shelter_id rather than the churning objectid, with unreported fields as explicit null."
+      "description": "Full detail for one shelter joined on the stable shelter_id rather than the churning objectid, with unreported fields as explicit null; enriched with FEMA_NSS/0 fields (county, the driving incident, open date, generator, floodplain/surge, and the population breakdown) when reported."
     }
   ],
   "printer": "abe238"

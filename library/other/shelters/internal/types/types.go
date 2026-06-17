@@ -6,7 +6,9 @@ package types
 // Nullable numeric and geo fields are pointers so an absent value in the
 // ArcGIS feed is nil ("unknown"), never a real 0. This mirrors cli.Shelter in
 // internal/cli/shelters_parse.go, so capacity/near logic can never misread a
-// missing capacity, population, or coordinate as a known zero.
+// missing capacity, population, or coordinate as a known zero. The trailing
+// block mirrors the FEMA_NSS/0 enrichment fields cli.Shelter carries (see
+// internal/cli/shelters_enrich.go), keeping this documented mirror accurate.
 type Shelter struct {
 	ShelterId             int      `json:"shelter_id"`
 	Objectid              *int     `json:"objectid"`
@@ -30,4 +32,33 @@ type Shelter struct {
 	WheelchairAccessible  string   `json:"wheelchair_accessible"`
 	Latitude              *float64 `json:"latitude"`
 	Longitude             *float64 `json:"longitude"`
+
+	// FEMA_NSS/0 enrichment (best-effort, joined by shelter_id). Nullable
+	// population counts are pointers for the same reason as above.
+	CountyParish              string `json:"county_parish"`
+	FacilityType              string `json:"facility_type"`
+	ShelterStatusCode         string `json:"shelter_status_code"`
+	IncidentName              string `json:"incident_name"`
+	IncidentNumber            string `json:"incident_number"`
+	ShelterOpenDate           string `json:"shelter_open_date"`
+	ShelterClosedDate         string `json:"shelter_closed_date"`
+	GeneratorOnsite           string `json:"generator_onsite"`
+	SelfSufficientElectricity string `json:"self_sufficient_electricity"`
+	In100YrFloodplain         string `json:"in_100_yr_floodplain"`
+	In500YrFloodplain         string `json:"in_500_yr_floodplain"`
+	InSurgeSloshArea          string `json:"in_surge_slosh_area"`
+	PreLandfallShelter        string `json:"pre_landfall_shelter"`
+	PopulationCode            string `json:"population_code"`
+	GeneralPopulation         *int   `json:"general_population"`
+	MedicalNeedsPopulation    *int   `json:"medical_needs_population"`
+	OtherPopulation           *int   `json:"other_population"`
+	PetPopulation             *int   `json:"pet_population"`
+	PetAccommodationsDesc     string `json:"pet_accommodations_desc"`
+	OrgMainPhone              string `json:"org_main_phone"`
+	OrgHotlinePhone           string `json:"org_hotline_phone"`
+
+	// Provenance: which feed the record came from ("fema", "redcross", or
+	// "fema+redcross"), plus the Red Cross site id when present. See redcross.go.
+	Source     string `json:"source"`
+	RedCrossID string `json:"red_cross_id,omitempty"`
 }

@@ -23,12 +23,15 @@ func TestGratitudeAndDisclaimer(t *testing.T) {
 }
 
 // TestNoContactEmailInUserAgent enforces the standing "scrub my email" rule:
-// the User-Agent must carry the GitHub URL and no email address.
+// the User-Agent must carry a GitHub repo URL and no email address. The org in
+// the URL is intentionally NOT pinned: the same source is published both as the
+// standalone repo and inside the printing-press library (which rewrites the URL),
+// so the assertion stays org-agnostic to pass identically in both copies.
 func TestNoContactEmailInUserAgent(t *testing.T) {
 	if strings.Contains(userAgent, "@") {
 		t.Errorf("userAgent must not contain an email address: %q", userAgent)
 	}
-	if !strings.Contains(userAgent, "github.com/abe238/shelters-pp-cli") {
-		t.Errorf("userAgent should reference the repo URL: %q", userAgent)
+	if !strings.Contains(userAgent, "shelters-pp-cli (https://github.com/") {
+		t.Errorf("userAgent should reference a GitHub repo URL: %q", userAgent)
 	}
 }

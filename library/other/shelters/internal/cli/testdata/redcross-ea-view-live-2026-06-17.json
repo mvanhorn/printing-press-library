@@ -1,0 +1,111 @@
+{
+  "objectIdFieldName": "ObjectID",
+  "globalIdFieldName": "GlobalID",
+  "_source_notice": "American Red Cross Shelters_Prod_EA_view/FeatureServer/0 (the redcross.org open-shelter map feed), captured 2026-06-17 with outSR=4326. Pruned to the fields this CLI reads; Creator/Editor and other metadata removed. Requires a Referer header to fetch live.",
+  "geometryType": "esriGeometryPoint",
+  "spatialReference": {
+    "wkid": 4326
+  },
+  "features": [
+    {
+      "attributes": {
+        "active_site_name": "Rauner Center - Training Room",
+        "active_site_address": "[street omitted], Chicago, IL 60612",
+        "active_city": "",
+        "active_state": "IL",
+        "active_zip": "",
+        "active_county": "Cook",
+        "active_site_status": "Open",
+        "active_site_type": "Emergency",
+        "active_site_pet_shelter_type": "Off-site",
+        "active_shown_site_id": 150432,
+        "dataid": 805294,
+        "hide_from_public": "No"
+      },
+      "geometry": {
+        "x": -87.68175865881202,
+        "y": 41.87419776426399
+      }
+    },
+    {
+      "attributes": {
+        "active_site_name": " Parkland College",
+        "active_site_address": "[street omitted], Champaign, IL 61821",
+        "active_city": "Champaign",
+        "active_state": "IL",
+        "active_zip": "61821",
+        "active_county": "Champaign",
+        "active_site_status": "Open",
+        "active_site_type": "Emergency",
+        "active_site_pet_shelter_type": "Off-site",
+        "active_shown_site_id": 180917,
+        "dataid": 813628,
+        "hide_from_public": "No"
+      },
+      "geometry": {
+        "x": -88.289963131906,
+        "y": 40.13188730000099
+      }
+    },
+    {
+      "attributes": {
+        "active_site_name": "Valley View High School",
+        "active_site_address": "[street omitted], Moreno Valley, CA 92555",
+        "active_city": "Moreno Valley",
+        "active_state": "CA",
+        "active_zip": "92555",
+        "active_county": "Riverside",
+        "active_site_status": "Open",
+        "active_site_type": "Emergency",
+        "active_site_pet_shelter_type": "Co-Located",
+        "active_shown_site_id": 181012,
+        "dataid": 820657,
+        "hide_from_public": "No"
+      },
+      "geometry": {
+        "x": -117.19361814539566,
+        "y": 33.93061989215241
+      }
+    },
+    {
+      "attributes": {
+        "active_site_name": "Spokane Valley United Methodist Church",
+        "active_site_address": "[street omitted], Spokane Valley, WA 99206",
+        "active_city": "Spokane Valley",
+        "active_state": "WA",
+        "active_zip": "99206",
+        "active_county": "Spokane",
+        "active_site_status": "Open",
+        "active_site_type": "Emergency",
+        "active_site_pet_shelter_type": "Off-site",
+        "active_shown_site_id": 21287,
+        "dataid": 822502,
+        "hide_from_public": "No"
+      },
+      "geometry": {
+        "x": -117.264700037085,
+        "y": 47.658475007703004
+      }
+    },
+    {
+      "attributes": {
+        "active_site_name": "North High School",
+        "active_site_address": "[street omitted], Bakersfield, CA 93308",
+        "active_city": "",
+        "active_state": "CA",
+        "active_zip": "",
+        "active_county": "Kern",
+        "active_site_status": "Open",
+        "active_site_type": "Emergency",
+        "active_site_pet_shelter_type": "Co-Located",
+        "active_shown_site_id": 42560,
+        "dataid": 823698,
+        "hide_from_public": "No"
+      },
+      "geometry": {
+        "x": -119.027282679001,
+        "y": 35.429687479245
+      }
+    }
+  ]
+}

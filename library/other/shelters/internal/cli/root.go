@@ -25,6 +25,7 @@ type rootFlags struct {
 	quiet         bool
 	dryRun        bool
 	noCache       bool
+	noEnrich      bool
 	noInput       bool
 	idempotent    bool
 	yes           bool
@@ -137,15 +138,17 @@ func isCobraUsageError(err error) bool {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "shelters-pp-cli",
-		Short: "Manage shelters resources via the shelters API",
+		Short: "Open US (and territories) disaster shelters from the union of FEMA and the American Red Cross",
 		Long: `Manage shelters resources via the shelters API.
 
 Highlights (not in the official API docs):
-  • near   Ranks open shelters by straight-line distance from a lat,lon, ZIP, or street address; geocodes shelters that are missing coordinates and reports any it cannot locate rather than dropping them.
+  • near   Ranks open shelters by straight-line distance from a lat,lon, ZIP, or street address; geocodes shelters that are missing coordinates and reports any it cannot locate rather than dropping them; filter…
   • capacity   Computes utilization only where both a population and a capacity are reported, labeling the denominator (evacuation vs post-impact), and surfaces shelters reported FULL without asserting it as ground…
-  • brief   One command returns the open count, a breakdown by state, pet-friendly and accessible counts, and the capacity picture, with an optional human briefing.
-  • shelters   Open shelters flattened from the feed and filterable by state, pets, ADA, wheelchair, managing org, and status.
-  • shelter   Full detail for one shelter joined on the stable shelter_id rather than the churning objectid, with unreported fields as explicit null.
+  • brief   One command returns the open count, breakdowns by state and by the driving incident, pet-friendly and accessible counts, and the capacity picture, with an optional human briefing.
+  • shelters   Open shelters from the union of FEMA OpenShelters and the American Red Cross feed (deduped, each tagged with a source field: fema, redcross, or fema+redcross), flattened and filterable by state, pets…
+  • shelter   Full detail for one shelter joined on the stable shelter_id rather than the churning objectid, with unreported fields as explicit null; enriched with FEMA_NSS/0 fields (county, the driving incident, …
+
+Coverage is the United States and its territories only, not other countries.
 
 Add --agent to any command for JSON output + non-interactive mode.
 Run 'shelters-pp-cli doctor' to verify auth and connectivity.`,
@@ -171,6 +174,7 @@ Run 'shelters-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
+	rootCmd.PersistentFlags().BoolVar(&flags.noEnrich, "no-enrich", false, "Skip the secondary FEMA_NSS/0 enrichment, Red Cross union, live-occupancy, and Red Cross hidden-shelter filtering fetches; return only the FEMA OpenShelters spine (faster, four fewer requests; population and capacity will be null and shelters the Red Cross keeps off its public map are not filtered out)")
 	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'shelters-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")

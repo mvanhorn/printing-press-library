@@ -2,3 +2,4 @@
 /build/
 *.mcpb
 .DS_Store
+/shelters-pp-cli
