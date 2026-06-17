@@ -1,0 +1,222 @@
+{
+  "api_name": "ynab",
+  "base_url": "https://api.ynab.com/v1",
+  "description": "Compact OpenAPI description for the public YNAB v1 API. Covers the read-oriented\nendpoints most useful for personal finance snapshots, audits, and purchase decisions.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "YNAB_ACCESS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "YNAB_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "budgets_get",
+      "description": "Get one budget. Required: budget_id. Optional: last_knowledge_of_server. Returns the GenericResponse.",
+      "method": "GET",
+      "path": "/budgets/{budget_id}",
+      "params": [
+        {
+          "name": "budget_id",
+          "type": "string",
+          "location": "path",
+          "description": "Budget ID. Use 'last-used' to access the last used budget.",
+          "required": true
+        },
+        {
+          "name": "last_knowledge_of_server",
+          "type": "int",
+          "location": "query",
+          "description": "Delta request marker returned by previous responses."
+        }
+      ]
+    },
+    {
+      "name": "budgets_list",
+      "description": "List budgets. Returns the BudgetsListResponse.",
+      "method": "GET",
+      "path": "/budgets",
+      "params": []
+    },
+    {
+      "name": "budgets_accounts_get",
+      "description": "Get one account. Required: budget_id, account_id. Returns the GenericResponse.",
+      "method": "GET",
+      "path": "/budgets/{budget_id}/accounts/{account_id}",
+      "params": [
+        {
+          "name": "budget_id",
+          "type": "string",
+          "location": "path",
+          "description": "Budget ID. Use 'last-used' to access the last used budget.",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "budgets_accounts_list",
+      "description": "List accounts for a budget. Required: budget_id. Optional: last_knowledge_of_server. Returns the AccountsListResponse.",
+      "method": "GET",
+      "path": "/budgets/{budget_id}/accounts",
+      "params": [
+        {
+          "name": "budget_id",
+          "type": "string",
+          "location": "path",
+          "description": "Budget ID. Use 'last-used' to access the last used budget.",
+          "required": true
+        },
+        {
+          "name": "last_knowledge_of_server",
+          "type": "int",
+          "location": "query",
+          "description": "Delta request marker returned by previous responses."
+        }
+      ]
+    },
+    {
+      "name": "budgets_categories_list",
+      "description": "List categories. Required: budget_id. Optional: last_knowledge_of_server. Returns the GenericResponse.",
+      "method": "GET",
+      "path": "/budgets/{budget_id}/categories",
+      "params": [
+        {
+          "name": "budget_id",
+          "type": "string",
+          "location": "path",
+          "description": "Budget ID. Use 'last-used' to access the last used budget.",
+          "required": true
+        },
+        {
+          "name": "last_knowledge_of_server",
+          "type": "int",
+          "location": "query",
+          "description": "Delta request marker returned by previous responses."
+        }
+      ]
+    },
+    {
+      "name": "budgets_months_get",
+      "description": "Get budget month detail. Required: budget_id, month. Returns the MonthsGetResponse.",
+      "method": "GET",
+      "path": "/budgets/{budget_id}/months/{month}",
+      "params": [
+        {
+          "name": "budget_id",
+          "type": "string",
+          "location": "path",
+          "description": "Budget ID. Use 'last-used' to access the last used budget.",
+          "required": true
+        },
+        {
+          "name": "month",
+          "type": "string",
+          "location": "path",
+          "description": "Month in ISO date format, e.g. 2026-06-01.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "budgets_payees_list",
+      "description": "List payees. Required: budget_id. Optional: last_knowledge_of_server. Returns the GenericResponse.",
+      "method": "GET",
+      "path": "/budgets/{budget_id}/payees",
+      "params": [
+        {
+          "name": "budget_id",
+          "type": "string",
+          "location": "path",
+          "description": "Budget ID. Use 'last-used' to access the last used budget.",
+          "required": true
+        },
+        {
+          "name": "last_knowledge_of_server",
+          "type": "int",
+          "location": "query",
+          "description": "Delta request marker returned by previous responses."
+        }
+      ]
+    },
+    {
+      "name": "budgets_scheduled-transactions_list",
+      "description": "List scheduled transactions. Required: budget_id. Optional: last_knowledge_of_server. Returns the GenericResponse.",
+      "method": "GET",
+      "path": "/budgets/{budget_id}/scheduled_transactions",
+      "params": [
+        {
+          "name": "budget_id",
+          "type": "string",
+          "location": "path",
+          "description": "Budget ID. Use 'last-used' to access the last used budget.",
+          "required": true
+        },
+        {
+          "name": "last_knowledge_of_server",
+          "type": "int",
+          "location": "query",
+          "description": "Delta request marker returned by previous responses."
+        }
+      ]
+    },
+    {
+      "name": "budgets_transactions_list",
+      "description": "List transactions. Required: budget_id. Optional: since_date, type, last_knowledge_of_server. Returns the TransactionsListResponse.",
+      "method": "GET",
+      "path": "/budgets/{budget_id}/transactions",
+      "params": [
+        {
+          "name": "budget_id",
+          "type": "string",
+          "location": "path",
+          "description": "Budget ID. Use 'last-used' to access the last used budget.",
+          "required": true
+        },
+        {
+          "name": "since_date",
+          "type": "string",
+          "location": "query",
+          "description": "Only include transactions on or after this date."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type"
+        },
+        {
+          "name": "last_knowledge_of_server",
+          "type": "int",
+          "location": "query",
+          "description": "Delta request marker returned by previous responses."
+        }
+      ]
+    },
+    {
+      "name": "user_get",
+      "description": "Get authenticated user information. Returns the GenericResponse.",
+      "method": "GET",
+      "path": "/user",
+      "params": []
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "ynab-pp-cli"
+display_name = "Ynab"
+description = "Compact OpenAPI description for the public YNAB v1 API."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/ynab-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+YNAB_ACCESS_TOKEN = true

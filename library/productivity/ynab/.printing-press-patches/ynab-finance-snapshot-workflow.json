@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "ynab-finance-snapshot-workflow",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260617-170107",
+  "base_printing_press_version": "4.24.0",
+  "summary": "YNAB needs a first-class read-only finance snapshot workflow that separates operating cash from asset-like accounts and summarizes recent category burn.",
+  "reason": "The generated endpoint wrappers expose raw YNAB data, but purchase/runway decisions require YNAB-specific aggregation across accounts and month categories; compact output also collapses YNAB's nested response envelope too aggressively for this use case.",
+  "files": [
+    "internal/cli/channel_workflow.go",
+    "internal/cli/workflow_finance_snapshot.go"
+  ],
+  "validated_outcome": "go test ./... passes; workflow finance-snapshot --months 4 --manual-isa 18044.27 --manual-btc 0.467 --json returned operating_cash 22037.89 and March-May/June category burn from the live YNAB API."
+}

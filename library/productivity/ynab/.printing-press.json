@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-17T17:01:07.969513Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "ynab",
+  "display_name": "Ynab",
+  "cli_name": "ynab-pp-cli",
+  "creator": {
+    "handle": "christophersilvestri",
+    "name": "Christopher Silvestri"
+  },
+  "owner": "christophersilvestri",
+  "printer": "christophersilvestri",
+  "spec_path": "ynab-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:d6b799fbacffd9fc21458542bd52aac608016ac3803a31af384dda67296ddfa8",
+  "run_id": "20260617-170107",
+  "category": "productivity",
+  "description": "Read YNAB budgets, accounts, categories, transactions, and finance snapshots from the terminal.",
+  "mcp_binary": "ynab-pp-mcp",
+  "mcp_tool_count": 10,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "YNAB_ACCESS_TOKEN"
+  ],
+  "printer_name": "Christopher Silvestri",
+  "owner_name": "Christopher Silvestri",
+  "novel_features": [
+    {
+      "name": "Finance snapshot for purchase and runway decisions",
+      "command": "workflow finance-snapshot",
+      "description": "Aggregates YNAB account balances and monthly category activity into operating cash, asset-like accounts, recent burn, common runway scenarios, and top category averages without mutating the budget."
+    }
+  ]
+}

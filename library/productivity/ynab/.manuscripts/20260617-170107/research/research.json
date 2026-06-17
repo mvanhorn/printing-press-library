@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "api_name": "ynab",
+  "source": "official_docs_and_local_openapi_spec",
+  "official_docs": ["https://api.ynab.com/v1", "https://support.ynab.com/en_us/the-ynab-api-an-overview-BJMgQ3zAq"],
+  "summary": "YNAB exposes a bearer-token API for budgets, accounts, transactions, months, categories, scheduled transactions, payees, and user metadata. The compact OpenAPI spec in this print captures the read-oriented endpoints needed for personal finance snapshots and agent purchase/runway decisions."
+}

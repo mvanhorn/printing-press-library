@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "ynab-pp-mcp",
+  "display_name": "Ynab",
+  "version": "0.0.0",
+  "description": "Compact OpenAPI description for the public YNAB v1 API.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ynab-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ynab-pp-mcp",
+      "args": [],
+      "env": {
+        "YNAB_ACCESS_TOKEN": "${user_config.ynab_access_token}"
+      }
+    }
+  },
+  "user_config": {
+    "ynab_access_token": {
+      "type": "string",
+      "title": "YNAB_ACCESS_TOKEN",
+      "description": "Sets YNAB_ACCESS_TOKEN for the Ynab MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

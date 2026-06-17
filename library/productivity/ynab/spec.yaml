@@ -1,0 +1,373 @@
+openapi: 3.0.3
+info:
+  title: YNAB API
+  version: "1.0"
+  description: |
+    Compact OpenAPI description for the public YNAB v1 API. Covers the read-oriented
+    endpoints most useful for personal finance snapshots, audits, and purchase decisions.
+servers:
+  - url: https://api.ynab.com/v1
+security:
+  - accessToken: []
+components:
+  securitySchemes:
+    accessToken:
+      type: http
+      scheme: bearer
+      bearerFormat: personal-access-token
+  parameters:
+    budgetId:
+      name: budget_id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Budget ID. Use "last-used" to access the last used budget.
+    accountId:
+      name: account_id
+      in: path
+      required: true
+      schema:
+        type: string
+    categoryId:
+      name: category_id
+      in: path
+      required: true
+      schema:
+        type: string
+    month:
+      name: month
+      in: path
+      required: true
+      schema:
+        type: string
+        format: date
+      description: Month in ISO date format, e.g. 2026-06-01.
+    sinceDate:
+      name: since_date
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date
+      description: Only include transactions on or after this date.
+    lastKnowledgeOfServer:
+      name: last_knowledge_of_server
+      in: query
+      required: false
+      schema:
+        type: integer
+      description: Delta request marker returned by previous responses.
+  schemas:
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+    GenericResponse:
+      type: object
+      additionalProperties: true
+    BudgetSummary:
+      type: object
+      additionalProperties: true
+      properties:
+        id: { type: string }
+        name: { type: string }
+        last_modified_on: { type: string, format: date-time, nullable: true }
+        first_month: { type: string, format: date, nullable: true }
+        last_month: { type: string, format: date, nullable: true }
+        currency_format:
+          type: object
+          additionalProperties: true
+    Account:
+      type: object
+      additionalProperties: true
+      properties:
+        id: { type: string }
+        name: { type: string }
+        type: { type: string }
+        on_budget: { type: boolean }
+        closed: { type: boolean }
+        balance: { type: integer, description: Milliunits }
+        cleared_balance: { type: integer, description: Milliunits }
+        uncleared_balance: { type: integer, description: Milliunits }
+        deleted: { type: boolean }
+    Transaction:
+      type: object
+      additionalProperties: true
+      properties:
+        id: { type: string }
+        date: { type: string, format: date }
+        amount: { type: integer, description: Milliunits }
+        memo: { type: string, nullable: true }
+        cleared: { type: string }
+        approved: { type: boolean }
+        account_id: { type: string }
+        account_name: { type: string }
+        payee_id: { type: string, nullable: true }
+        payee_name: { type: string, nullable: true }
+        category_id: { type: string, nullable: true }
+        category_name: { type: string, nullable: true }
+        transfer_account_id: { type: string, nullable: true }
+        deleted: { type: boolean }
+    Category:
+      type: object
+      additionalProperties: true
+      properties:
+        id: { type: string }
+        category_group_id: { type: string }
+        category_group_name: { type: string }
+        name: { type: string }
+        hidden: { type: boolean }
+        budgeted: { type: integer, description: Milliunits }
+        activity: { type: integer, description: Milliunits }
+        balance: { type: integer, description: Milliunits }
+        deleted: { type: boolean }
+    MonthDetail:
+      type: object
+      additionalProperties: true
+      properties:
+        month: { type: string, format: date }
+        income: { type: integer, description: Milliunits }
+        budgeted: { type: integer, description: Milliunits }
+        activity: { type: integer, description: Milliunits }
+        to_be_budgeted: { type: integer, description: Milliunits }
+        age_of_money: { type: integer, nullable: true }
+        deleted: { type: boolean }
+        categories:
+          type: array
+          items: { $ref: '#/components/schemas/Category' }
+    ScheduledTransaction:
+      type: object
+      additionalProperties: true
+    Payee:
+      type: object
+      additionalProperties: true
+paths:
+  /user:
+    get:
+      operationId: getUser
+      summary: Get authenticated user information
+      tags: [User]
+      responses:
+        '200':
+          description: User response
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GenericResponse' }
+        default:
+          description: Error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  /budgets:
+    get:
+      operationId: listBudgets
+      summary: List budgets
+      tags: [Budgets]
+      responses:
+        '200':
+          description: Budget list
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  data:
+                    type: object
+                    additionalProperties: true
+                    properties:
+                      budgets:
+                        type: array
+                        items: { $ref: '#/components/schemas/BudgetSummary' }
+        default:
+          description: Error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  /budgets/{budget_id}:
+    get:
+      operationId: getBudget
+      summary: Get one budget
+      tags: [Budgets]
+      parameters:
+        - $ref: '#/components/parameters/budgetId'
+        - $ref: '#/components/parameters/lastKnowledgeOfServer'
+      responses:
+        '200':
+          description: Budget detail
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GenericResponse' }
+        default:
+          description: Error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  /budgets/{budget_id}/accounts:
+    get:
+      operationId: listAccounts
+      summary: List accounts for a budget
+      tags: [Accounts]
+      parameters:
+        - $ref: '#/components/parameters/budgetId'
+        - $ref: '#/components/parameters/lastKnowledgeOfServer'
+      responses:
+        '200':
+          description: Account list
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  data:
+                    type: object
+                    additionalProperties: true
+                    properties:
+                      accounts:
+                        type: array
+                        items: { $ref: '#/components/schemas/Account' }
+        default:
+          description: Error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  /budgets/{budget_id}/accounts/{account_id}:
+    get:
+      operationId: getAccount
+      summary: Get one account
+      tags: [Accounts]
+      parameters:
+        - $ref: '#/components/parameters/budgetId'
+        - $ref: '#/components/parameters/accountId'
+      responses:
+        '200':
+          description: Account detail
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GenericResponse' }
+        default:
+          description: Error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  /budgets/{budget_id}/transactions:
+    get:
+      operationId: listTransactions
+      summary: List transactions
+      tags: [Transactions]
+      parameters:
+        - $ref: '#/components/parameters/budgetId'
+        - $ref: '#/components/parameters/sinceDate'
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [uncategorized, unapproved]
+        - $ref: '#/components/parameters/lastKnowledgeOfServer'
+      responses:
+        '200':
+          description: Transaction list
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  data:
+                    type: object
+                    additionalProperties: true
+                    properties:
+                      transactions:
+                        type: array
+                        items: { $ref: '#/components/schemas/Transaction' }
+        default:
+          description: Error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  /budgets/{budget_id}/months/{month}:
+    get:
+      operationId: getMonth
+      summary: Get budget month detail
+      tags: [Months]
+      parameters:
+        - $ref: '#/components/parameters/budgetId'
+        - $ref: '#/components/parameters/month'
+      responses:
+        '200':
+          description: Month detail
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  data:
+                    type: object
+                    additionalProperties: true
+                    properties:
+                      month: { $ref: '#/components/schemas/MonthDetail' }
+        default:
+          description: Error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  /budgets/{budget_id}/categories:
+    get:
+      operationId: listCategories
+      summary: List categories
+      tags: [Categories]
+      parameters:
+        - $ref: '#/components/parameters/budgetId'
+        - $ref: '#/components/parameters/lastKnowledgeOfServer'
+      responses:
+        '200':
+          description: Categories
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GenericResponse' }
+        default:
+          description: Error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  /budgets/{budget_id}/scheduled_transactions:
+    get:
+      operationId: listScheduledTransactions
+      summary: List scheduled transactions
+      tags: [ScheduledTransactions]
+      parameters:
+        - $ref: '#/components/parameters/budgetId'
+        - $ref: '#/components/parameters/lastKnowledgeOfServer'
+      responses:
+        '200':
+          description: Scheduled transactions
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GenericResponse' }
+        default:
+          description: Error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  /budgets/{budget_id}/payees:
+    get:
+      operationId: listPayees
+      summary: List payees
+      tags: [Payees]
+      parameters:
+        - $ref: '#/components/parameters/budgetId'
+        - $ref: '#/components/parameters/lastKnowledgeOfServer'
+      responses:
+        '200':
+          description: Payees
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GenericResponse' }
+        default:
+          description: Error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
