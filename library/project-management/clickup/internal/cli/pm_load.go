@@ -98,42 +98,69 @@ person. Helps identify overloaded team members and unbalanced workload.`,
 					continue
 				}
 
-				assignee := ""
-				for _, key := range []string{"assigneeId", "assignee_id", "assignee", "ownerId", "owner_id", "owner"} {
-					v, ok := obj[key]
-					if !ok || v == nil {
-						continue
+				// PATCH(assignees-array-aggregation): ClickUp tasks expose assignees as an
+				// `assignees[]` array of {id, username, ...}, not a scalar assignee/owner.
+				// Resolve a display name from an assignee object ({id, username, name, ...}).
+				resolveName := func(m map[string]any) string {
+					for _, nameKey := range []string{"username", "name", "displayName", "display_name"} {
+						if n, ok := m[nameKey]; ok && n != nil {
+							return fmt.Sprintf("%v", n)
+						}
 					}
-					// Handle nested object: {id: "...", name: "Sheldon"}
-					if m, ok := v.(map[string]any); ok {
-						for _, nameKey := range []string{"name", "displayName", "display_name"} {
-							if n, ok := m[nameKey]; ok && n != nil {
-								assignee = fmt.Sprintf("%v", n)
-								break
-							}
-						}
-						if assignee == "" {
-							if aid, ok := m["id"]; ok {
-								assignee = fmt.Sprintf("%v", aid)
-							}
-						}
-					} else {
-						// Flat string — try to resolve from user lookup
-						raw := fmt.Sprintf("%v", v)
+					if aid, ok := m["id"]; ok {
+						raw := fmt.Sprintf("%v", aid)
 						if name, ok := userNames[raw]; ok {
-							assignee = name
-						} else {
-							assignee = raw
+							return name
 						}
+						return raw
 					}
-					break
-				}
-				if assignee == "" || assignee == "<nil>" {
-					assignee = "(unassigned)"
+					return ""
 				}
 
-				counts[assignee]++
-				total++
+				// ClickUp tasks carry an `assignees[]` array of {id, username, ...};
+				// count a task once per assignee (a workload distribution). Other
+				// resources may use a scalar assignee/owner field.
+				var names []string
+				if arr, ok := obj["assignees"].([]any); ok {
+					for _, el := range arr {
+						if m, ok := el.(map[string]any); ok {
+							if n := resolveName(m); n != "" && n != "<nil>" {
+								names = append(names, n)
+							}
+						}
+					}
+				}
+				if len(names) == 0 {
+					assignee := ""
+					for _, key := range []string{"assigneeId", "assignee_id", "assignee", "ownerId", "owner_id", "owner"} {
+						v, ok := obj[key]
+						if !ok || v == nil {
+							continue
+						}
+						// Handle nested object: {id: "...", name: "Sheldon"}
+						if m, ok := v.(map[string]any); ok {
+							assignee = resolveName(m)
+						} else {
+							// Flat string — try to resolve from user lookup
+							raw := fmt.Sprintf("%v", v)
+							if name, ok := userNames[raw]; ok {
+								assignee = name
+							} else {
+								assignee = raw
+							}
+						}
+						break
+					}
+					if assignee == "" || assignee == "<nil>" {
+						assignee = "(unassigned)"
+					}
+					names = append(names, assignee)
+				}
+
+				for _, n := range names {
+					counts[n]++
+					total++
+				}
 			}
 
 			var entries []loadEntry
