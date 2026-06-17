@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "oura-pp-mcp",
+  "display_name": "Oura Ring",
+  "version": "0.0.0",
+  "description": "The only Oura Ring CLI that remembers everything: sync all metrics to local SQLite, correlate habits with scores, detect anomalies, and alert on multi-day recovery deficits no app can surface.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/oura-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/oura-pp-mcp",
+      "args": [],
+      "env": {
+        "OURA_ACCESS_TOKEN": "${user_config.oura_access_token}"
+      }
+    }
+  },
+  "user_config": {
+    "oura_access_token": {
+      "type": "string",
+      "title": "OURA_ACCESS_TOKEN",
+      "description": "Sets OURA_ACCESS_TOKEN for the Oura Ring MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

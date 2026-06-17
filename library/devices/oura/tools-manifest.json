@@ -1,0 +1,525 @@
+{
+  "api_name": "oura",
+  "base_url": "https://api.ouraring.com",
+  "description": "The only Oura Ring CLI that remembers everything: sync all metrics to local SQLite, correlate habits with scores, detect anomalies, and alert on multi-day recovery deficits no app can surface.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {OURA_ACCESS_TOKEN}",
+    "in": "header",
+    "env_vars": [
+      "OURA_ACCESS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "OURA_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "daily-activity_list",
+      "description": "List daily activity summaries. Optional: start_date, end_date, next_token. Returns array of DailyActivity.",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_activity",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (YYYY-MM-DD)"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date (YYYY-MM-DD)"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "daily-cardiovascular-age_list",
+      "description": "List daily cardiovascular age estimates. Optional: start_date, end_date, next_token. Returns array of DailyCardiovascularAge.",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_cardiovascular_age",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (YYYY-MM-DD)"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date (YYYY-MM-DD)"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "daily-readiness_list",
+      "description": "List daily readiness scores with contributors. Optional: start_date, end_date, next_token. Returns array of DailyReadiness.",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_readiness",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (YYYY-MM-DD)"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date (YYYY-MM-DD)"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "daily-resilience_list",
+      "description": "List daily resilience scores. Optional: start_date, end_date, next_token. Returns array of DailyResilience.",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_resilience",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (YYYY-MM-DD)"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date (YYYY-MM-DD)"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "daily-sleep_list",
+      "description": "List daily sleep summaries with scores and contributors. Optional: start_date, end_date, next_token. Returns array of DailySleep.",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_sleep",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (YYYY-MM-DD)"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date (YYYY-MM-DD)"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "daily-spo2_list",
+      "description": "List daily SpO2 blood oxygen averages. Optional: start_date, end_date, next_token. Returns array of DailySpo2.",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_spo2",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (YYYY-MM-DD)"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date (YYYY-MM-DD)"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "daily-stress_list",
+      "description": "List daily stress and recovery data. Optional: start_date, end_date, next_token. Returns array of DailyStress.",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_stress",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (YYYY-MM-DD)"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date (YYYY-MM-DD)"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "enhanced-tag_create",
+      "description": "Create an enhanced tag. Required: tag_type_code, start_time. Optional: end_time, comment. Returns the new EnhancedTag.",
+      "method": "POST",
+      "path": "/v2/usercollection/enhanced_tag",
+      "params": [
+        {
+          "name": "tag_type_code",
+          "type": "string",
+          "location": "body",
+          "description": "Tag type identifier",
+          "required": true
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "body",
+          "description": "Tag start timestamp (ISO 8601)",
+          "required": true
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "body",
+          "description": "Tag end timestamp (ISO 8601)"
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "Optional text note"
+        }
+      ]
+    },
+    {
+      "name": "enhanced-tag_delete",
+      "description": "Delete an enhanced tag by document ID. Required: document_id. Returns the DeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/usercollection/enhanced_tag/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Tag document ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "enhanced-tag_list",
+      "description": "List enhanced tags (user annotations with optional text). Optional: start_date, end_date, next_token. Returns array of EnhancedTag.",
+      "method": "GET",
+      "path": "/v2/usercollection/enhanced_tag",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (YYYY-MM-DD)"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date (YYYY-MM-DD)"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "heartrate_list",
+      "description": "List heart rate samples for a datetime range (up to 5-min resolution). Optional: start_datetime, end_datetime, next_token. Returns array of HeartRate.",
+      "method": "GET",
+      "path": "/v2/usercollection/heartrate",
+      "params": [
+        {
+          "name": "start_datetime",
+          "type": "string",
+          "location": "query",
+          "description": "Start datetime (ISO 8601, e.g. 2026-06-15T00:00:00+00:00)"
+        },
+        {
+          "name": "end_datetime",
+          "type": "string",
+          "location": "query",
+          "description": "End datetime (ISO 8601)"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "personal-info_get",
+      "description": "Fetch the authenticated user's personal profile from Oura. No parameters. Returns id, age (years), weight (kg), height (m), and biological_sex. Use this for the static demographics behind derived metrics (e.g. VO2 max, calorie estimates) rather than for daily readiness or activity data, which come from the daily-* commands.",
+      "method": "GET",
+      "path": "/v2/usercollection/personal_info",
+      "params": []
+    },
+    {
+      "name": "rest-mode-period_list",
+      "description": "List rest mode periods. Optional: start_date, end_date, next_token. Returns array of RestModePeriod.",
+      "method": "GET",
+      "path": "/v2/usercollection/rest_mode_period",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (YYYY-MM-DD)"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date (YYYY-MM-DD)"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "ring-configuration_list",
+      "description": "List ring configuration records. Optional: start_date, end_date, next_token. Returns array of RingConfiguration.",
+      "method": "GET",
+      "path": "/v2/usercollection/ring_configuration",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (YYYY-MM-DD)"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date (YYYY-MM-DD)"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "session_list",
+      "description": "List mindfulness and breathing sessions. Optional: start_date, end_date, next_token. Returns array of Session.",
+      "method": "GET",
+      "path": "/v2/usercollection/session",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (YYYY-MM-DD)"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date (YYYY-MM-DD)"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "sleep_list",
+      "description": "List detailed sleep sessions with stage timelines and HRV data. Optional: start_date, end_date, next_token. Returns array of SleepSession.",
+      "method": "GET",
+      "path": "/v2/usercollection/sleep",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (YYYY-MM-DD)"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date (YYYY-MM-DD)"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "sleep-time_list",
+      "description": "List optimal sleep time recommendations. Optional: start_date, end_date, next_token. Returns array of SleepTime.",
+      "method": "GET",
+      "path": "/v2/usercollection/sleep_time",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (YYYY-MM-DD)"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date (YYYY-MM-DD)"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "webhook-subscription_create",
+      "description": "Create a webhook subscription. Required: callback_url, event_type, data_type. Returns the new WebhookSubscription.",
+      "method": "POST",
+      "path": "/v2/webhook/subscription",
+      "params": [
+        {
+          "name": "callback_url",
+          "type": "string",
+          "location": "body",
+          "description": "HTTPS URL to receive webhook events",
+          "required": true
+        },
+        {
+          "name": "event_type",
+          "type": "string",
+          "location": "body",
+          "description": "Event type to subscribe to (e.g. create, update, delete)",
+          "required": true
+        },
+        {
+          "name": "data_type",
+          "type": "string",
+          "location": "body",
+          "description": "Data type to receive events for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhook-subscription_delete",
+      "description": "Delete a webhook subscription. Required: id. Returns the DeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/webhook/subscription/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Subscription ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhook-subscription_list",
+      "description": "List webhook subscriptions. Returns array of WebhookSubscription.",
+      "method": "GET",
+      "path": "/v2/webhook/subscription",
+      "params": []
+    },
+    {
+      "name": "workout_list",
+      "description": "List workout sessions. Optional: start_date, end_date, next_token. Returns array of Workout.",
+      "method": "GET",
+      "path": "/v2/usercollection/workout",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (YYYY-MM-DD)"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date (YYYY-MM-DD)"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    }
+  ]
+}

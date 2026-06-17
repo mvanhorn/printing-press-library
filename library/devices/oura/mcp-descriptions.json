@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "personal-info_get": "Fetch the authenticated user's personal profile from Oura. No parameters. Returns id, age (years), weight (kg), height (m), and biological_sex. Use this for the static demographics behind derived metrics (e.g. VO2 max, calorie estimates) rather than for daily readiness or activity data, which come from the daily-* commands."
+  }
+}

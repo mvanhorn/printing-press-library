@@ -1,0 +1,371 @@
+{
+  "api_name": "oura",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "arzzen/oura",
+      "url": "https://github.com/arzzen/oura",
+      "language": "Bash",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 37,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hedgertronic/oura-ring",
+      "url": "https://github.com/hedgertronic/oura-ring",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "visionik/ouracli",
+      "url": "https://github.com/visionik/ouracli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "daveremy/oura-mcp",
+      "url": "https://github.com/daveremy/oura-mcp",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "elizabethtrykin/oura-mcp",
+      "url": "https://github.com/elizabethtrykin/oura-mcp",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "FelixWag/oura-ring-mcp",
+      "url": "https://github.com/FelixWag/oura-ring-mcp",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-16T12:11:04Z",
+  "novel_features": [
+    {
+      "name": "Tag-Outcome Correlation",
+      "command": "correlate",
+      "description": "Find which habits actually move your scores: correlate any enhanced tag string with the next-day change in sleep, readiness, or any other metric.",
+      "rationale": "Requires joining the enhanced_tags table with daily score tables across months of history — a cross-metric SQL join only possible with the local SQLite store.",
+      "example": "oura-pp-cli correlate --tag \"alcohol\" --metric readiness --since 90d --agent",
+      "why_it_matters": "Use this when an agent needs to surface which user-logged behaviors causally predict next-day recovery metrics, rather than just reporting today's score.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Personal Baseline Engine",
+      "command": "baseline",
+      "description": "See today's metric against your personal rolling mean and standard deviation bands — not Oura's population norms, your own history.",
+      "rationale": "Requires computing rolling mean and stddev from local historical records; the API returns only today's absolute value with no personalized context.",
+      "example": "oura-pp-cli baseline --metric readiness --window 30 --agent",
+      "why_it_matters": "Use this when an agent needs to decide whether today's metric is meaningfully low or high for this specific user, not just relative to the general population.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "HRV Trend Analysis",
+      "command": "hrv-trend",
+      "description": "Track whether overnight HRV is improving or declining: 7-day and 30-day rolling means, coefficient of variation, and a plain-English training-load verdict.",
+      "rationale": "Requires extracting HRV arrays from detailed sleep sessions, computing rolling statistics, and detecting slope direction — all across months of local records.",
+      "example": "oura-pp-cli hrv-trend --agent --select mean_7day,mean_30day,coefficient_of_variation,verdict",
+      "why_it_matters": "Use this when an agent managing a training schedule needs a structured HRV signal rather than a single-day reading that is too noisy to act on.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Training Load vs. Readiness Overlay",
+      "command": "training-load",
+      "description": "See your accumulated training stress (7-day rolling) alongside readiness scores with a 1-day lag to reveal the recovery debt curve before it peaks.",
+      "rationale": "Requires joining the workouts table and readiness table across a rolling window with lag-offset alignment — a query no single API endpoint can answer.",
+      "example": "oura-pp-cli training-load --since 21d --agent",
+      "why_it_matters": "Use this when an agent needs to recommend rest vs. training based on load-readiness dynamics, not just today's readiness score alone.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Threshold Alert with Exit Codes",
+      "command": "alert",
+      "description": "Exit 1 when a metric has been above or below a threshold for N consecutive days — the scripting primitive that Oura has never exposed.",
+      "rationale": "Requires querying consecutive days from the local store in a single call and returning a machine-readable exit code; no existing tool does this.",
+      "example": "oura-pp-cli alert --metric readiness --threshold 70 --consecutive 3 --direction below",
+      "why_it_matters": "Use this in cron jobs or agent tool-use when you need a binary trigger — act now vs. not yet — based on a multi-day recovery trend.",
+      "group": "Agent-native alerting"
+    },
+    {
+      "name": "Anomaly Detection",
+      "command": "anomalies",
+      "description": "Flag days where any metric fell more than N standard deviations from your personal rolling mean, with z-scores and structured JSON output for agent consumption.",
+      "rationale": "Requires computing per-metric rolling baselines across months of local history and flagging statistical outliers — the API returns only raw values.",
+      "example": "oura-pp-cli anomalies --metric readiness --since 30d --sigma 2 --agent",
+      "why_it_matters": "Use this in a weekly health monitoring agent to catch emerging problems automatically before the user notices them in the app.",
+      "group": "Agent-native alerting"
+    },
+    {
+      "name": "Weekly Digest",
+      "command": "digest",
+      "description": "One structured call returns the week's metric averages, week-over-week deltas, best and worst recovery days, workout totals, and most-logged tags.",
+      "rationale": "Requires aggregating across five metric tables for a rolling week and computing WoW deltas — a multi-table join that no API endpoint provides.",
+      "example": "oura-pp-cli digest --json",
+      "why_it_matters": "Use this when an agent produces a weekly health briefing for a coach, journal, or Notion log — it replaces five separate API calls with one structured payload.",
+      "group": "Structured health reporting"
+    },
+    {
+      "name": "Webhook Listener",
+      "command": "webhook serve",
+      "description": "Start a local HTTP server that registers with Oura's webhook API and writes incoming events to the local SQLite store as they arrive.",
+      "rationale": "Requires implementing the Oura webhook registration endpoint and a persistent HTTP handler that writes event payloads to SQLite — no existing tool integrates Oura webhooks with local storage.",
+      "example": "oura-pp-cli webhook serve --port 8899",
+      "why_it_matters": "Use this to enable event-driven agents that react to new sleep data as it syncs, rather than polling the API on a fixed schedule.",
+      "group": "Structured health reporting"
+    },
+    {
+      "name": "Sleep Stage Personal Comparison",
+      "command": "sleep-stages",
+      "description": "Compare any night's sleep stage durations against your personal 30-day averages, flagging stages that deviate significantly from your own baseline.",
+      "rationale": "Requires computing personal stage averages from the detailed sleep sessions table and joining them against a specific night's records — only possible with the local store.",
+      "example": "oura-pp-cli sleep-stages --date 2026-06-15 --agent",
+      "why_it_matters": "Use this when an agent needs to identify whether a specific night's sleep architecture was unusual for this user, not just whether the total score was low.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pre/Post Event Analysis",
+      "command": "event",
+      "description": "Show all key metrics for N days before and after a named date to measure the health impact of travel, illness, a race, or any life event.",
+      "rationale": "Requires querying the local store for a before-window and after-window relative to an arbitrary date — a two-sided range query that no single API call supports.",
+      "example": "oura-pp-cli event --date 2026-06-01 --label \"marathon\" --window 7 --agent",
+      "why_it_matters": "Use this when an agent or user needs to objectively measure whether a specific event (flight, illness, dietary experiment) shifted health metrics.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Data Gap Audit",
+      "command": "gaps",
+      "description": "List every day in a date range where expected sync data is missing from the local store — identifies ring non-wear and sync failures before they corrupt analysis.",
+      "rationale": "Detectable only by anti-joining a continuous date series against local store records; the API cannot report data it does not have.",
+      "example": "oura-pp-cli gaps --since 30d",
+      "why_it_matters": "Use this before running any bulk analysis to verify data completeness; exits 1 when gaps are found so agents can abort and alert rather than reporting on incomplete history.",
+      "group": "Agent-native alerting"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Tag-Outcome Correlation",
+      "command": "correlate",
+      "description": "Find which habits actually move your scores: correlate any enhanced tag string with the next-day change in sleep, readiness, or any other metric.",
+      "rationale": "Requires joining the enhanced_tags table with daily score tables across months of history — a cross-metric SQL join only possible with the local SQLite store.",
+      "example": "oura-pp-cli correlate --tag \"alcohol\" --metric readiness --since 90d --agent",
+      "why_it_matters": "Use this when an agent needs to surface which user-logged behaviors causally predict next-day recovery metrics, rather than just reporting today's score.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Personal Baseline Engine",
+      "command": "baseline",
+      "description": "See today's metric against your personal rolling mean and standard deviation bands — not Oura's population norms, your own history.",
+      "rationale": "Requires computing rolling mean and stddev from local historical records; the API returns only today's absolute value with no personalized context.",
+      "example": "oura-pp-cli baseline --metric readiness --window 30 --agent",
+      "why_it_matters": "Use this when an agent needs to decide whether today's metric is meaningfully low or high for this specific user, not just relative to the general population.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "HRV Trend Analysis",
+      "command": "hrv-trend",
+      "description": "Track whether overnight HRV is improving or declining: 7-day and 30-day rolling means, coefficient of variation, and a plain-English training-load verdict.",
+      "rationale": "Requires extracting HRV arrays from detailed sleep sessions, computing rolling statistics, and detecting slope direction — all across months of local records.",
+      "example": "oura-pp-cli hrv-trend --agent --select mean_7day,mean_30day,coefficient_of_variation,verdict",
+      "why_it_matters": "Use this when an agent managing a training schedule needs a structured HRV signal rather than a single-day reading that is too noisy to act on.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Training Load vs. Readiness Overlay",
+      "command": "training-load",
+      "description": "See your accumulated training stress (7-day rolling) alongside readiness scores with a 1-day lag to reveal the recovery debt curve before it peaks.",
+      "rationale": "Requires joining the workouts table and readiness table across a rolling window with lag-offset alignment — a query no single API endpoint can answer.",
+      "example": "oura-pp-cli training-load --since 21d --agent",
+      "why_it_matters": "Use this when an agent needs to recommend rest vs. training based on load-readiness dynamics, not just today's readiness score alone.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Threshold Alert with Exit Codes",
+      "command": "alert",
+      "description": "Exit 1 when a metric has been above or below a threshold for N consecutive days — the scripting primitive that Oura has never exposed.",
+      "rationale": "Requires querying consecutive days from the local store in a single call and returning a machine-readable exit code; no existing tool does this.",
+      "example": "oura-pp-cli alert --metric readiness --threshold 70 --consecutive 3 --direction below",
+      "why_it_matters": "Use this in cron jobs or agent tool-use when you need a binary trigger — act now vs. not yet — based on a multi-day recovery trend.",
+      "group": "Agent-native alerting"
+    },
+    {
+      "name": "Anomaly Detection",
+      "command": "anomalies",
+      "description": "Flag days where any metric fell more than N standard deviations from your personal rolling mean, with z-scores and structured JSON output for agent consumption.",
+      "rationale": "Requires computing per-metric rolling baselines across months of local history and flagging statistical outliers — the API returns only raw values.",
+      "example": "oura-pp-cli anomalies --metric readiness --since 30d --sigma 2 --agent",
+      "why_it_matters": "Use this in a weekly health monitoring agent to catch emerging problems automatically before the user notices them in the app.",
+      "group": "Agent-native alerting"
+    },
+    {
+      "name": "Weekly Digest",
+      "command": "digest",
+      "description": "One structured call returns the week's metric averages, week-over-week deltas, best and worst recovery days, workout totals, and most-logged tags.",
+      "rationale": "Requires aggregating across five metric tables for a rolling week and computing WoW deltas — a multi-table join that no API endpoint provides.",
+      "example": "oura-pp-cli digest --json",
+      "why_it_matters": "Use this when an agent produces a weekly health briefing for a coach, journal, or Notion log — it replaces five separate API calls with one structured payload.",
+      "group": "Structured health reporting"
+    },
+    {
+      "name": "Webhook Listener",
+      "command": "webhook serve",
+      "description": "Start a local HTTP server that registers with Oura's webhook API and writes incoming events to the local SQLite store as they arrive.",
+      "rationale": "Requires implementing the Oura webhook registration endpoint and a persistent HTTP handler that writes event payloads to SQLite — no existing tool integrates Oura webhooks with local storage.",
+      "example": "oura-pp-cli webhook serve --port 8899",
+      "why_it_matters": "Use this to enable event-driven agents that react to new sleep data as it syncs, rather than polling the API on a fixed schedule.",
+      "group": "Structured health reporting"
+    },
+    {
+      "name": "Sleep Stage Personal Comparison",
+      "command": "sleep-stages",
+      "description": "Compare any night's sleep stage durations against your personal 30-day averages, flagging stages that deviate significantly from your own baseline.",
+      "rationale": "Requires computing personal stage averages from the detailed sleep sessions table and joining them against a specific night's records — only possible with the local store.",
+      "example": "oura-pp-cli sleep-stages --date 2026-06-15 --agent",
+      "why_it_matters": "Use this when an agent needs to identify whether a specific night's sleep architecture was unusual for this user, not just whether the total score was low.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pre/Post Event Analysis",
+      "command": "event",
+      "description": "Show all key metrics for N days before and after a named date to measure the health impact of travel, illness, a race, or any life event.",
+      "rationale": "Requires querying the local store for a before-window and after-window relative to an arbitrary date — a two-sided range query that no single API call supports.",
+      "example": "oura-pp-cli event --date 2026-06-01 --label \"marathon\" --window 7 --agent",
+      "why_it_matters": "Use this when an agent or user needs to objectively measure whether a specific event (flight, illness, dietary experiment) shifted health metrics.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Data Gap Audit",
+      "command": "gaps",
+      "description": "List every day in a date range where expected sync data is missing from the local store — identifies ring non-wear and sync failures before they corrupt analysis.",
+      "rationale": "Detectable only by anti-joining a continuous date series against local store records; the API cannot report data it does not have.",
+      "example": "oura-pp-cli gaps --since 30d",
+      "why_it_matters": "Use this before running any bulk analysis to verify data completeness; exits 1 when gaps are found so agents can abort and alert rather than reporting on incomplete history.",
+      "group": "Agent-native alerting"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "OURA_ACCESS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Oura Ring",
+    "headline": "The only Oura Ring CLI that remembers everything: sync all metrics to local SQLite, correlate habits with scores, detect anomalies, and alert on multi-day recovery deficits no app can surface.",
+    "value_prop": "Every existing Oura tool is a thin API wrapper — it answers today's question and forgets the answer. oura-pp-cli syncs all 15+ data types to a local SQLite store, enabling offline queries, cross-metric joins, and time-series analysis that require months of history to be meaningful. The result is a CLI where agents can ask 'does alcohol actually hurt my sleep?' and get a statistically grounded answer, not a raw score.",
+    "auth_narrative": "Oura deprecated Personal Access Tokens in December 2025 — OAuth2 Authorization Code is now the only supported flow, and this CLI does not yet automate that exchange. Register an OAuth application at https://cloud.ouraring.com/oauth/applications, complete the Authorization Code exchange yourself (any OAuth2 client works) to obtain an access_token, then run:\n\n  oura-pp-cli auth set-token \u003ctoken\u003e\n\nor export OURA_ACCESS_TOKEN=\u003ctoken\u003e before running any command. Access tokens are valid for 30 days; when one expires, repeat the OAuth2 exchange and re-run 'auth set-token' with the new value. Run 'oura-pp-cli doctor' to verify setup.",
+    "quickstart": [
+      {
+        "command": "oura-pp-cli doctor --dry-run",
+        "comment": "Verify setup and connectivity before the first sync"
+      },
+      {
+        "command": "oura-pp-cli sync --since 30d",
+        "comment": "Populate the local SQLite store with 30 days of history across all data types"
+      },
+      {
+        "command": "oura-pp-cli dashboard",
+        "comment": "Morning review: sleep, readiness, activity, stress, and SpO2 in one view"
+      },
+      {
+        "command": "oura-pp-cli baseline --metric readiness --window 30",
+        "comment": "See today's readiness annotated against your personal 30-day rolling baseline"
+      },
+      {
+        "command": "oura-pp-cli correlate --tag \"alcohol\" --metric readiness --since 90d --agent",
+        "comment": "Find whether a tagged habit actually correlates with next-day readiness"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every call",
+        "fix": "Your access token is invalid or missing. Re-run the OAuth2 Authorization Code exchange at https://cloud.ouraring.com/oauth/applications and save the new token with 'oura-pp-cli auth set-token \u003ctoken\u003e' or 'export OURA_ACCESS_TOKEN=\u003ctoken\u003e'"
+      },
+      {
+        "symptom": "token expired / 401 Unauthorized after working previously",
+        "fix": "Access tokens are valid for 30 days and this CLI does not auto-refresh them; repeat the OAuth2 exchange and re-run 'oura-pp-cli auth set-token \u003ctoken\u003e' with the new value"
+      },
+      {
+        "symptom": "baseline / correlate / anomalies returns 'not enough history'",
+        "fix": "Run 'oura-pp-cli sync --since 90d' to populate more history; these commands need at least 14-30 days of local records"
+      },
+      {
+        "symptom": "sync hangs on heartrate table",
+        "fix": "Heartrate returns thousands of samples per day; reduce the window with 'oura-pp-cli sync --resources heartrate --since 7d' or skip it with '--resources daily_sleep,daily_readiness,daily_activity'"
+      }
+    ],
+    "when_to_use": "Use oura-pp-cli when an agent needs to reason about health trends across multiple days or weeks rather than fetching today's snapshot. It is the right tool for personalized anomaly detection, habit-outcome correlation, training load management, recovery alerting, and any analysis that requires joining Oura data types together. It is especially useful when an agent is building a health briefing, managing a training schedule, or monitoring for recovery deficits over a multi-day window.",
+    "anti_triggers": [
+      "Writing or editing ring firmware, settings, or hardware configuration (the Oura API is read-only except for tags and webhook subscriptions)",
+      "Real-time heart rate monitoring (ring data syncs overnight; there is no streaming HR endpoint for live use)",
+      "Accessing another user's health data (OAuth scopes are per-user; this CLI is single-account by design)",
+      "Complex statistical modeling beyond trend lines and correlations (use a data science environment like pandas or R after exporting via 'oura-pp-cli query')"
+    ],
+    "recipes": [
+      {
+        "title": "Morning agent briefing",
+        "command": "oura-pp-cli dashboard --agent --select date,sleep_score,readiness_score,activity_score,stress_level,spo2_average",
+        "explanation": "Structured morning snapshot for an AI agent to summarize in a daily briefing; --select keeps the payload compact."
+      },
+      {
+        "title": "Weekly health digest for coach or journal",
+        "command": "oura-pp-cli digest --json",
+        "explanation": "One call returns the week's averages, WoW deltas, best/worst recovery days, and top tags — ready to paste into Notion or send to a health coach."
+      },
+      {
+        "title": "Habit correlation analysis",
+        "command": "oura-pp-cli correlate --tag \"no alcohol\" --metric sleep --since 90d --agent --select tags,metric,tagged_next_day_avg_delta,baseline_next_day_avg_delta,verdict",
+        "explanation": "Find statistically grounded evidence for whether a tracked habit improves sleep; --select exposes only the fields an agent needs to make a recommendation."
+      },
+      {
+        "title": "Recovery alerting in cron or CI",
+        "command": "oura-pp-cli alert --metric readiness --threshold 70 --consecutive 3 --direction below",
+        "explanation": "Exits 0 (condition not met) or 1 (readiness below 70 for 3+ consecutive days); wire into a shell script or agent tool-use to trigger a rest-day recommendation."
+      },
+      {
+        "title": "Training load check before a workout",
+        "command": "oura-pp-cli training-load --since 14d --agent --select rows.day,rows.rolling_load_7d,rows.next_day_readiness,load_readiness_correlation,verdict",
+        "explanation": "Surface the accumulated training stress vs. recovery curve so an agent can recommend rest, reduced effort, or full training based on the ratio."
+      }
+    ],
+    "trigger_phrases": [
+      "how did I sleep last night",
+      "check my Oura readiness",
+      "show my HRV trend",
+      "does alcohol affect my sleep",
+      "am I recovered enough to train",
+      "use oura",
+      "run oura ring",
+      "correlate my sleep tags"
+    ]
+  }
+}

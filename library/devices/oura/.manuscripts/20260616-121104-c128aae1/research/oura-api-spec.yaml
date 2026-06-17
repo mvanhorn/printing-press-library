@@ -1,0 +1,978 @@
+name: oura
+description: "Oura Ring health metrics CLI — sync, query, and analyze your ring data offline"
+version: "0.1.0"
+category: devices
+base_url: "https://api.ouraring.com"
+health_check_path: "/v2/usercollection/personal_info"
+
+cache:
+  enabled: true
+  stale_after: 24h
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  in: header
+  env_vars:
+    - OURA_ACCESS_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/oura-pp-cli/config.toml"
+
+resources:
+  daily-sleep:
+    description: "Daily sleep scores and contributor breakdown"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/usercollection/daily_sleep"
+        description: "List daily sleep summaries with scores and contributors"
+        params:
+          - name: start_date
+            type: string
+            required: false
+            description: "Start date (YYYY-MM-DD)"
+            format: date
+          - name: end_date
+            type: string
+            required: false
+            description: "End date (YYYY-MM-DD)"
+            format: date
+          - name: next_token
+            type: string
+            required: false
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: DailySleep
+        pagination:
+          type: cursor
+          cursor_field: next_token
+          has_more_field: next_token
+        response_path: data
+
+  daily-readiness:
+    description: "Daily readiness scores and contributor breakdown"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/usercollection/daily_readiness"
+        description: "List daily readiness scores with contributors"
+        params:
+          - name: start_date
+            type: string
+            required: false
+            description: "Start date (YYYY-MM-DD)"
+            format: date
+          - name: end_date
+            type: string
+            required: false
+            description: "End date (YYYY-MM-DD)"
+            format: date
+          - name: next_token
+            type: string
+            required: false
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: DailyReadiness
+        pagination:
+          type: cursor
+          cursor_field: next_token
+          has_more_field: next_token
+        response_path: data
+
+  daily-activity:
+    description: "Daily activity scores, steps, calories, and MET data"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/usercollection/daily_activity"
+        description: "List daily activity summaries"
+        params:
+          - name: start_date
+            type: string
+            required: false
+            description: "Start date (YYYY-MM-DD)"
+            format: date
+          - name: end_date
+            type: string
+            required: false
+            description: "End date (YYYY-MM-DD)"
+            format: date
+          - name: next_token
+            type: string
+            required: false
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: DailyActivity
+        pagination:
+          type: cursor
+          cursor_field: next_token
+          has_more_field: next_token
+        response_path: data
+
+  daily-stress:
+    description: "Daily stress levels and recovery status"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/usercollection/daily_stress"
+        description: "List daily stress and recovery data"
+        params:
+          - name: start_date
+            type: string
+            required: false
+            description: "Start date (YYYY-MM-DD)"
+            format: date
+          - name: end_date
+            type: string
+            required: false
+            description: "End date (YYYY-MM-DD)"
+            format: date
+          - name: next_token
+            type: string
+            required: false
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: DailyStress
+        pagination:
+          type: cursor
+          cursor_field: next_token
+          has_more_field: next_token
+        response_path: data
+
+  daily-spo2:
+    description: "Daily blood oxygen (SpO2) averages"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/usercollection/daily_spo2"
+        description: "List daily SpO2 blood oxygen averages"
+        params:
+          - name: start_date
+            type: string
+            required: false
+            description: "Start date (YYYY-MM-DD)"
+            format: date
+          - name: end_date
+            type: string
+            required: false
+            description: "End date (YYYY-MM-DD)"
+            format: date
+          - name: next_token
+            type: string
+            required: false
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: DailySpo2
+        pagination:
+          type: cursor
+          cursor_field: next_token
+          has_more_field: next_token
+        response_path: data
+
+  daily-cardiovascular-age:
+    description: "Estimated daily cardiovascular age"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/usercollection/daily_cardiovascular_age"
+        description: "List daily cardiovascular age estimates"
+        params:
+          - name: start_date
+            type: string
+            required: false
+            description: "Start date (YYYY-MM-DD)"
+            format: date
+          - name: end_date
+            type: string
+            required: false
+            description: "End date (YYYY-MM-DD)"
+            format: date
+          - name: next_token
+            type: string
+            required: false
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: DailyCardiovascularAge
+        pagination:
+          type: cursor
+          cursor_field: next_token
+          has_more_field: next_token
+        response_path: data
+
+  daily-resilience:
+    description: "Daily resilience scores"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/usercollection/daily_resilience"
+        description: "List daily resilience scores"
+        params:
+          - name: start_date
+            type: string
+            required: false
+            description: "Start date (YYYY-MM-DD)"
+            format: date
+          - name: end_date
+            type: string
+            required: false
+            description: "End date (YYYY-MM-DD)"
+            format: date
+          - name: next_token
+            type: string
+            required: false
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: DailyResilience
+        pagination:
+          type: cursor
+          cursor_field: next_token
+          has_more_field: next_token
+        response_path: data
+
+# NOTE: vo2-max was removed from this spec after a publish-time live smoke
+# test confirmed /v2/usercollection/vo2_max returns 404 on the real Oura API
+# (verified via three independent probes). Do not re-add without confirming
+# a real working path first.
+
+  sleep:
+    description: "Detailed sleep sessions with stage breakdown, HRV, and respiratory rate"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/usercollection/sleep"
+        description: "List detailed sleep sessions with stage timelines and HRV data"
+        params:
+          - name: start_date
+            type: string
+            required: false
+            description: "Start date (YYYY-MM-DD)"
+            format: date
+          - name: end_date
+            type: string
+            required: false
+            description: "End date (YYYY-MM-DD)"
+            format: date
+          - name: next_token
+            type: string
+            required: false
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: SleepSession
+        pagination:
+          type: cursor
+          cursor_field: next_token
+          has_more_field: next_token
+        response_path: data
+
+  sleep-time:
+    description: "Optimal sleep time recommendations"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/usercollection/sleep_time"
+        description: "List optimal sleep time recommendations"
+        params:
+          - name: start_date
+            type: string
+            required: false
+            description: "Start date (YYYY-MM-DD)"
+            format: date
+          - name: end_date
+            type: string
+            required: false
+            description: "End date (YYYY-MM-DD)"
+            format: date
+          - name: next_token
+            type: string
+            required: false
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: SleepTime
+        pagination:
+          type: cursor
+          cursor_field: next_token
+          has_more_field: next_token
+        response_path: data
+
+  workout:
+    description: "Workout sessions with type, duration, calories, and heart rate data"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/usercollection/workout"
+        description: "List workout sessions"
+        params:
+          - name: start_date
+            type: string
+            required: false
+            description: "Start date (YYYY-MM-DD)"
+            format: date
+          - name: end_date
+            type: string
+            required: false
+            description: "End date (YYYY-MM-DD)"
+            format: date
+          - name: next_token
+            type: string
+            required: false
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: Workout
+        pagination:
+          type: cursor
+          cursor_field: next_token
+          has_more_field: next_token
+        response_path: data
+
+  session:
+    description: "Mindfulness and breathing sessions (meditation, napping, breathing exercises)"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/usercollection/session"
+        description: "List mindfulness and breathing sessions"
+        params:
+          - name: start_date
+            type: string
+            required: false
+            description: "Start date (YYYY-MM-DD)"
+            format: date
+          - name: end_date
+            type: string
+            required: false
+            description: "End date (YYYY-MM-DD)"
+            format: date
+          - name: next_token
+            type: string
+            required: false
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: Session
+        pagination:
+          type: cursor
+          cursor_field: next_token
+          has_more_field: next_token
+        response_path: data
+
+  heartrate:
+    description: "Continuous heart rate time-series samples"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/usercollection/heartrate"
+        description: "List heart rate samples for a datetime range (up to 5-min resolution)"
+        params:
+          - name: start_datetime
+            type: string
+            required: false
+            description: "Start datetime (ISO 8601, e.g. 2026-06-15T00:00:00+00:00)"
+            format: date-time
+          - name: end_datetime
+            type: string
+            required: false
+            description: "End datetime (ISO 8601)"
+            format: date-time
+          - name: next_token
+            type: string
+            required: false
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: HeartRate
+        pagination:
+          type: cursor
+          cursor_field: next_token
+          has_more_field: next_token
+        response_path: data
+
+  enhanced-tag:
+    description: "User-created enhanced tags with timestamps and text notes"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/usercollection/enhanced_tag"
+        description: "List enhanced tags (user annotations with optional text)"
+        params:
+          - name: start_date
+            type: string
+            required: false
+            description: "Start date (YYYY-MM-DD)"
+            format: date
+          - name: end_date
+            type: string
+            required: false
+            description: "End date (YYYY-MM-DD)"
+            format: date
+          - name: next_token
+            type: string
+            required: false
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: EnhancedTag
+        pagination:
+          type: cursor
+          cursor_field: next_token
+          has_more_field: next_token
+        response_path: data
+      create:
+        method: POST
+        path: "/v2/usercollection/enhanced_tag"
+        description: "Create an enhanced tag"
+        body:
+          - name: tag_type_code
+            type: string
+            required: true
+            description: "Tag type identifier"
+          - name: start_time
+            type: string
+            required: true
+            description: "Tag start timestamp (ISO 8601)"
+            format: date-time
+          - name: end_time
+            type: string
+            required: false
+            description: "Tag end timestamp (ISO 8601)"
+            format: date-time
+          - name: comment
+            type: string
+            required: false
+            description: "Optional text note"
+        response:
+          type: object
+          item: EnhancedTag
+      delete:
+        method: DELETE
+        path: "/v2/usercollection/enhanced_tag/{document_id}"
+        description: "Delete an enhanced tag by document ID"
+        params:
+          - name: document_id
+            type: string
+            required: true
+            positional: true
+            description: "Tag document ID"
+        response:
+          type: object
+          item: DeleteResponse
+
+  rest-mode-period:
+    description: "Rest mode periods (user-activated recovery mode)"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/usercollection/rest_mode_period"
+        description: "List rest mode periods"
+        params:
+          - name: start_date
+            type: string
+            required: false
+            description: "Start date (YYYY-MM-DD)"
+            format: date
+          - name: end_date
+            type: string
+            required: false
+            description: "End date (YYYY-MM-DD)"
+            format: date
+          - name: next_token
+            type: string
+            required: false
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: RestModePeriod
+        pagination:
+          type: cursor
+          cursor_field: next_token
+          has_more_field: next_token
+        response_path: data
+
+  ring-configuration:
+    description: "Ring hardware configuration and firmware version"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/usercollection/ring_configuration"
+        description: "List ring configuration records"
+        params:
+          - name: start_date
+            type: string
+            required: false
+            description: "Start date (YYYY-MM-DD)"
+            format: date
+          - name: end_date
+            type: string
+            required: false
+            description: "End date (YYYY-MM-DD)"
+            format: date
+          - name: next_token
+            type: string
+            required: false
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: RingConfiguration
+        pagination:
+          type: cursor
+          cursor_field: next_token
+          has_more_field: next_token
+        response_path: data
+
+  personal-info:
+    description: "Personal profile information (age, weight, height, biological sex)"
+    endpoints:
+      get:
+        method: GET
+        path: "/v2/usercollection/personal_info"
+        description: "Get personal profile information"
+        response:
+          type: object
+          item: PersonalInfo
+
+  webhook-subscription:
+    description: "Webhook subscriptions for real-time event delivery"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/webhook/subscription"
+        description: "List webhook subscriptions"
+        response:
+          type: array
+          item: WebhookSubscription
+        response_path: data
+      create:
+        method: POST
+        path: "/v2/webhook/subscription"
+        description: "Create a webhook subscription"
+        body:
+          - name: callback_url
+            type: string
+            required: true
+            description: "HTTPS URL to receive webhook events"
+            format: uri
+          - name: event_type
+            type: string
+            required: true
+            description: "Event type to subscribe to (e.g. create, update, delete)"
+            enum:
+              - create
+              - update
+              - delete
+          - name: data_type
+            type: string
+            required: true
+            description: "Data type to receive events for"
+            enum:
+              - tag
+              - enhanced_tag
+              - workout
+              - session
+              - sleep
+              - daily_sleep
+              - daily_readiness
+              - daily_activity
+              - daily_spo2
+              - daily_hrv
+              - daily_stress
+              - rest_mode_period
+              - ring_configuration
+        response:
+          type: object
+          item: WebhookSubscription
+      delete:
+        method: DELETE
+        path: "/v2/webhook/subscription/{id}"
+        description: "Delete a webhook subscription"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Subscription ID"
+        response:
+          type: object
+          item: DeleteResponse
+
+types:
+  DailySleep:
+    fields:
+      - name: id
+        type: string
+        description: "Record ID"
+      - name: day
+        type: string
+        description: "Date (YYYY-MM-DD)"
+      - name: score
+        type: int
+        description: "Sleep score (0-100)"
+      - name: timestamp
+        type: string
+        description: "Timestamp"
+      - name: contributors
+        type: string
+        description: "Score contributors breakdown"
+  DailyReadiness:
+    fields:
+      - name: id
+        type: string
+        description: "Record ID"
+      - name: day
+        type: string
+        description: "Date (YYYY-MM-DD)"
+      - name: score
+        type: int
+        description: "Readiness score (0-100)"
+      - name: temperature_deviation
+        type: float
+        description: "Body temperature deviation"
+      - name: timestamp
+        type: string
+        description: "Timestamp"
+      - name: contributors
+        type: string
+        description: "Score contributors breakdown"
+  DailyActivity:
+    fields:
+      - name: id
+        type: string
+        description: "Record ID"
+      - name: day
+        type: string
+        description: "Date (YYYY-MM-DD)"
+      - name: score
+        type: int
+        description: "Activity score (0-100)"
+      - name: active_calories
+        type: int
+        description: "Active calories burned"
+      - name: total_calories
+        type: int
+        description: "Total calories (resting + active)"
+      - name: steps
+        type: int
+        description: "Step count"
+      - name: daily_movement
+        type: int
+        description: "Daily movement in meters"
+      - name: high_activity_time
+        type: int
+        description: "Minutes of high-intensity activity"
+      - name: medium_activity_time
+        type: int
+        description: "Minutes of medium-intensity activity"
+      - name: low_activity_time
+        type: int
+        description: "Minutes of low-intensity activity"
+      - name: sedentary_time
+        type: int
+        description: "Minutes sedentary"
+      - name: timestamp
+        type: string
+        description: "Timestamp"
+  DailyStress:
+    fields:
+      - name: id
+        type: string
+        description: "Record ID"
+      - name: day
+        type: string
+        description: "Date (YYYY-MM-DD)"
+      - name: stress_high
+        type: int
+        description: "Minutes in high stress"
+      - name: recovery_high
+        type: int
+        description: "Minutes in high recovery"
+      - name: day_summary
+        type: string
+        description: "Stress summary (restored, normal, stressful, etc.)"
+  DailySpo2:
+    fields:
+      - name: id
+        type: string
+        description: "Record ID"
+      - name: day
+        type: string
+        description: "Date (YYYY-MM-DD)"
+      - name: spo2_percentage_average
+        type: float
+        description: "Average SpO2 percentage"
+  DailyCardiovascularAge:
+    fields:
+      - name: day
+        type: string
+        description: "Date (YYYY-MM-DD)"
+      - name: vascular_age
+        type: int
+        description: "Estimated cardiovascular age in years"
+  DailyResilience:
+    fields:
+      - name: id
+        type: string
+        description: "Record ID"
+      - name: day
+        type: string
+        description: "Date (YYYY-MM-DD)"
+      - name: level
+        type: string
+        description: "Resilience level (exceptional, strong, adequate, limited, poor)"
+      - name: contributors
+        type: string
+        description: "Resilience contributors"
+  SleepSession:
+    fields:
+      - name: id
+        type: string
+        description: "Session ID"
+      - name: day
+        type: string
+        description: "Date (YYYY-MM-DD)"
+      - name: bedtime_start
+        type: string
+        description: "Bedtime start timestamp"
+      - name: bedtime_end
+        type: string
+        description: "Bedtime end timestamp"
+      - name: type
+        type: string
+        description: "Sleep type (long_sleep, short_sleep, rest, etc.)"
+      - name: score
+        type: int
+        description: "Session sleep score"
+      - name: total_sleep_duration
+        type: int
+        description: "Total sleep in seconds"
+      - name: time_in_bed
+        type: int
+        description: "Time in bed in seconds"
+      - name: rem_sleep_duration
+        type: int
+        description: "REM sleep in seconds"
+      - name: deep_sleep_duration
+        type: int
+        description: "Deep sleep in seconds"
+      - name: light_sleep_duration
+        type: int
+        description: "Light sleep in seconds"
+      - name: awake_time
+        type: int
+        description: "Awake time in seconds"
+      - name: average_hrv
+        type: int
+        description: "Average overnight HRV (ms)"
+      - name: average_heart_rate
+        type: float
+        description: "Average overnight heart rate (bpm)"
+      - name: lowest_heart_rate
+        type: int
+        description: "Lowest overnight heart rate (bpm)"
+      - name: average_breath
+        type: float
+        description: "Average respiratory rate (breaths/min)"
+      - name: sleep_phase_5_min
+        type: string
+        description: "Sleep phase timeline at 5-min resolution"
+  SleepTime:
+    fields:
+      - name: id
+        type: string
+        description: "Record ID"
+      - name: day
+        type: string
+        description: "Date (YYYY-MM-DD)"
+      - name: optimal_bedtime_start
+        type: string
+        description: "Recommended bedtime start (ISO time)"
+      - name: optimal_bedtime_end
+        type: string
+        description: "Recommended bedtime end (ISO time)"
+      - name: recommendation
+        type: string
+        description: "Sleep timing recommendation text"
+      - name: status
+        type: string
+        description: "Recommendation status"
+  Workout:
+    fields:
+      - name: id
+        type: string
+        description: "Workout ID"
+      - name: day
+        type: string
+        description: "Date (YYYY-MM-DD)"
+      - name: start_datetime
+        type: string
+        description: "Workout start timestamp"
+      - name: end_datetime
+        type: string
+        description: "Workout end timestamp"
+      - name: activity
+        type: string
+        description: "Activity type (e.g. running, cycling, strength_training)"
+      - name: calories
+        type: float
+        description: "Calories burned"
+      - name: distance
+        type: float
+        description: "Distance in meters"
+      - name: intensity
+        type: string
+        description: "Intensity level (easy, moderate, hard)"
+      - name: average_heart_rate
+        type: int
+        description: "Average heart rate (bpm)"
+      - name: max_heart_rate
+        type: int
+        description: "Maximum heart rate (bpm)"
+      - name: steps
+        type: int
+        description: "Step count"
+      - name: source
+        type: string
+        description: "Data source (manual, health_connect, etc.)"
+  Session:
+    fields:
+      - name: id
+        type: string
+        description: "Session ID"
+      - name: day
+        type: string
+        description: "Date (YYYY-MM-DD)"
+      - name: start_datetime
+        type: string
+        description: "Session start timestamp"
+      - name: end_datetime
+        type: string
+        description: "Session end timestamp"
+      - name: type
+        type: string
+        description: "Session type (meditation, breathing, nap, etc.)"
+      - name: mood
+        type: string
+        description: "User-reported mood"
+      - name: heart_rate_average
+        type: int
+        description: "Average heart rate during session"
+      - name: hrv_average
+        type: int
+        description: "Average HRV during session"
+  HeartRate:
+    fields:
+      - name: bpm
+        type: int
+        description: "Heart rate in beats per minute"
+      - name: source
+        type: string
+        description: "Measurement source (awake, rest, sleep, moving)"
+      - name: timestamp
+        type: string
+        description: "Measurement timestamp (ISO 8601)"
+  EnhancedTag:
+    fields:
+      - name: id
+        type: string
+        description: "Tag ID"
+      - name: day
+        type: string
+        description: "Date (YYYY-MM-DD)"
+      - name: tag_type_code
+        type: string
+        description: "Tag type identifier"
+      - name: comment
+        type: string
+        description: "Optional text note"
+      - name: start_time
+        type: string
+        description: "Tag start timestamp"
+      - name: end_time
+        type: string
+        description: "Tag end timestamp"
+  RestModePeriod:
+    fields:
+      - name: id
+        type: string
+        description: "Record ID"
+      - name: start_day
+        type: string
+        description: "Start date (YYYY-MM-DD)"
+      - name: end_day
+        type: string
+        description: "End date (YYYY-MM-DD)"
+  RingConfiguration:
+    fields:
+      - name: id
+        type: string
+        description: "Configuration ID"
+      - name: color
+        type: string
+        description: "Ring color"
+      - name: design
+        type: string
+        description: "Ring design (heritage, horizon, balance)"
+      - name: firmware_version
+        type: string
+        description: "Current firmware version"
+      - name: hardware_type
+        type: string
+        description: "Ring hardware generation"
+      - name: set_up_at
+        type: string
+        description: "Setup timestamp"
+      - name: size
+        type: int
+        description: "Ring size (US sizing)"
+  PersonalInfo:
+    fields:
+      - name: id
+        type: string
+        description: "User ID"
+      - name: age
+        type: int
+        description: "User age in years"
+      - name: weight
+        type: float
+        description: "Weight in kilograms"
+      - name: height
+        type: float
+        description: "Height in meters"
+      - name: biological_sex
+        type: string
+        description: "Biological sex (male, female)"
+      - name: email
+        type: string
+        description: "Account email address"
+  WebhookSubscription:
+    fields:
+      - name: id
+        type: string
+        description: "Subscription ID"
+      - name: callback_url
+        type: string
+        description: "Callback URL"
+      - name: event_type
+        type: string
+        description: "Event type subscribed to"
+      - name: data_type
+        type: string
+        description: "Data type subscribed to"
+      - name: expiration_time
+        type: string
+        description: "Subscription expiration timestamp"
+  DeleteResponse:
+    fields:
+      - name: status
+        type: string
+        description: "Deletion status"

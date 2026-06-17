@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "oura-novel-feature-implementations",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260616-121104-c128aae1",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Hand-implemented all 11 approved transcendence features plus an absorbed-manifest dashboard command that the generator scaffolded as stubs only.",
+  "reason": "Printing Press generates stubs for novel/transcendence features approved in the research manifest; the actual statistics, local-store queries, and command logic for correlate, baseline, hrv-trend, training-load, alert, anomalies, digest, webhook serve, sleep-stages, event, gaps, and dashboard were hand-written and unit-tested against seeded and live data.",
+  "files": [
+    "internal/cli/novel_helpers.go",
+    "internal/cli/correlate.go",
+    "internal/cli/baseline.go",
+    "internal/cli/hrv_trend.go",
+    "internal/cli/training_load.go",
+    "internal/cli/alert.go",
+    "internal/cli/anomalies.go",
+    "internal/cli/digest.go",
+    "internal/cli/webhook_serve.go",
+    "internal/cli/sleep_stages.go",
+    "internal/cli/event.go",
+    "internal/cli/gaps.go",
+    "internal/cli/dashboard.go"
+  ],
+  "validated_outcome": "Unit tests pass for all 12 commands; dogfood verdict PASS 11/11 novel features found; live quick-dogfood matrix passed 17/17 against the real Oura API."
+}
