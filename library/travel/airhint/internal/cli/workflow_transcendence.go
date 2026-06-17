@@ -184,7 +184,9 @@ then runs the prediction model and returns a ranked list of best dates to buy.`,
 							}
 						}
 						if len(flights) == 0 {
-							r.Error = "no flights found for this date"
+							if r.Error == "" {
+								r.Error = "no flights found for this date"
+							}
 							resCh <- result{r: r}
 							continue
 						}
@@ -406,7 +408,9 @@ Useful for comparing trip options and finding the best moment to book across rou
 						}
 					}
 					if len(flights) == 0 {
-						res.Error = "no flights found"
+						if res.Error == "" {
+							res.Error = "no flights found"
+						}
 						results[idx] = res
 						return
 					}
