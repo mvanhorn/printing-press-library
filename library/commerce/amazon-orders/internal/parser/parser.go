@@ -241,6 +241,8 @@ func ParseDate(s string) time.Time {
 		s = strings.TrimSpace(s[i+3:])
 	}
 	formats := []string{
+		// ISO (the form OrderSummary.PlacedDate is normalized to).
+		"2006-01-02",
 		// US month-first
 		"January 2, 2006", "Jan 2, 2006", "January 2", "Jan 2",
 		// Non-US day-first (amazon.in et al.): "16 June 2026", "5 May"

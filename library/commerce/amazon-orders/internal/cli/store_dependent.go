@@ -41,31 +41,6 @@ Run 'amazon-orders-pp-cli sync' periodically to populate it.`,
 	return cmd
 }
 
-func newSubscribeAndSaveCmd(flags *rootFlags) *cobra.Command {
-	var minOccurrences int
-	cmd := &cobra.Command{
-		Use:   "subscribe-and-save",
-		Short: "Recurring purchases inferred from order history (de-facto subscriptions).",
-		Long: `Heuristic detector: same ASIN ordered on a regular cadence (every N±k days).
-
-REQUIRES SYNC HISTORY: this command needs at least 3 months of synced
-order history to detect cadences with confidence. Until then it returns
-an empty result with a warning. Run 'amazon-orders-pp-cli sync' to
-populate the store.`,
-		Example:     "  amazon-orders-pp-cli subscribe-and-save --min-occurrences 3 --json",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if dryRunOK(flags) {
-				return nil
-			}
-			fmt.Fprintln(os.Stderr, "subscribe-and-save: requires synced order history with item-level detail. Run 'sync --full-details' first; needs >= 3 months of data to be useful.")
-			return printJSONFiltered(cmd.OutOrStdout(), []map[string]any{}, flags)
-		},
-	}
-	cmd.Flags().IntVar(&minOccurrences, "min-occurrences", 3, "Minimum repeat purchases to flag as recurring.")
-	return cmd
-}
-
 func newReturnsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "returns",
