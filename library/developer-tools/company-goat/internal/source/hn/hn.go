@@ -16,11 +16,12 @@ import (
 )
 
 type Client struct {
-	HTTP *http.Client
+	HTTP    *http.Client
+	baseURL string
 }
 
 func NewClient() *Client {
-	return &Client{HTTP: &http.Client{Timeout: 15 * time.Second}}
+	return &Client{HTTP: &http.Client{Timeout: 15 * time.Second}, baseURL: hnBaseURL}
 }
 
 // Hit is one HN story or comment from the Algolia index.
@@ -86,8 +87,29 @@ func (c *Client) SearchByDate(ctx context.Context, query string, hitsPerPage int
 	return c.search(ctx, "search_by_date", q)
 }
 
+// hnBaseURL is the public Hacker News Algolia search proxy.
+const hnBaseURL = "https://hn.algolia.com/api/v1/"
+
+// buildURL assembles an Algolia request URL with typo tolerance disabled.
+//
+// Algolia's default typoTolerance=true allows up to two character edits on
+// words of eight or more characters. A long company token such as
+// "pwcommunications" (16 chars) is therefore a two-deletion fuzzy match for the
+// ordinary word "communications", which surfaces unrelated stories (e.g. an
+// AI-box thread that merely contains the word "communications"). Company
+// lookups want exact-token matching, so typo tolerance is turned off for every
+// search. The public hn.algolia.com proxy honors this parameter; genuine
+// mentions are unaffected (an exact "stripe" search still returns thousands).
+func buildURL(base, endpoint string, q url.Values) string {
+	if base == "" {
+		base = hnBaseURL
+	}
+	q.Set("typoTolerance", "false")
+	return base + endpoint + "?" + q.Encode()
+}
+
 func (c *Client) search(ctx context.Context, endpoint string, q url.Values) (*SearchResponse, error) {
-	u := "https://hn.algolia.com/api/v1/" + endpoint + "?" + q.Encode()
+	u := buildURL(c.baseURL, endpoint, q)
 	req, err := http.NewRequestWithContext(ctx, "GET", u, nil)
 	if err != nil {
 		return nil, err
