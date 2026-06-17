@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "wayback-goat-pp-mcp",
+  "display_name": "Internet Archive Wayback",
+  "version": "0.0.0",
+  "description": "Query the Internet Archive's Wayback Machine capture index (CDX Server API).",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/wayback-goat-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/wayback-goat-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "api_name": "wayback-goat",
+  "base_url": "https://web.archive.org",
+  "description": "Query the Internet Archive's Wayback Machine capture index (CDX Server API). Given a URL, return the list of archived captures (timestamp, original URL, HTTP status, MIME type, and content digest). No authentication required. The content digest (SHA1) enables change detection: consecutive identical digests mean the page did not change; a digest flip marks a real content change.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "cdx_search-captures",
+      "description": "Return archived captures the Wayback Machine knows for a URL. Supports field selection, time bounds, match scope, and collapsing. Required: url. Optional: output (default: json), fl, from (plus 7 more). Returns array of CdxSearchCapturesItem.",
+      "method": "GET",
+      "path": "/cdx/search/cdx",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The URL to look up (e.g. example.com or http://example.com/path).",
+          "required": true
+        },
+        {
+          "name": "output",
+          "type": "string",
+          "location": "query",
+          "description": "Output format. Use json for machine-readable rows."
+        },
+        {
+          "name": "fl",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated fields to return (e.g. timestamp,original,statuscode,mimetype,digest,length)."
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Lower bound timestamp (YYYYMMDDhhmmss, any prefix)."
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Upper bound timestamp (YYYYMMDDhhmmss, any prefix)."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit the number of rows. Negative values return the most recent N."
+        },
+        {
+          "name": "matchType",
+          "type": "string",
+          "location": "query",
+          "description": "Match scope for the url parameter."
+        },
+        {
+          "name": "collapse",
+          "type": "string",
+          "location": "query",
+          "description": "Collapse adjacent rows on a field (e.g. digest, or timestamp:8 for daily)."
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter rows by a field regex (e.g. statuscode:200, !mimetype:warc/revisit)."
+        },
+        {
+          "name": "showNumPages",
+          "type": "bool",
+          "location": "query",
+          "description": "Return only the number of index pages for the query."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Zero-based page index for paginated retrieval of large result sets."
+        }
+      ]
+    }
+  ]
+}

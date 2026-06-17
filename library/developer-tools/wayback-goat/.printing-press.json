@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-17T20:51:17.915465Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "wayback-goat",
+  "display_name": "Internet Archive Wayback",
+  "cli_name": "wayback-goat-pp-cli",
+  "creator": {
+    "name": "Alex Bresler",
+    "handle": "abresler"
+  },
+  "owner": "alex-bresler",
+  "printer_name": "Alex Bresler",
+  "spec_path": "wayback-cdx-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:bed68ad26d142b4385780bd502653ce83eba2db861634a7bb3ecdcb1edc126fa",
+  "run_id": "20260617-205117",
+  "category": "developer-tools",
+  "description": "Query the Internet Archive's Wayback Machine capture index (CDX Server API).",
+  "mcp_binary": "wayback-goat-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "printer": "abresler",
+  "novel_features": [
+    {
+      "name": "Content-change detection via digest-diff",
+      "command": "changes",
+      "description": "Collapse a URL's Wayback Machine capture history by content digest to report exactly when the page content changed — the first capture is the baseline (first-seen) and each later digest flip is a change event. Surfaces content-change cadence the Wayback web UI and URL-listing tools do not."
+    }
+  ]
+}
