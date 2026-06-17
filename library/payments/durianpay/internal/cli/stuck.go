@@ -24,6 +24,7 @@ type stuckItem struct {
 	ID             string `json:"id"`
 	Status         string `json:"status"`
 	AgeMinutes     int    `json:"age_minutes"`
+	AgeKnown       bool   `json:"age_known"`
 	RetriesElapsed int    `json:"retries_elapsed"`
 	NextRetryIn    string `json:"next_retry_in,omitempty"`
 }
@@ -96,12 +97,17 @@ func queryStuckDisbursements(db *store.Store, olderThan time.Duration, now time.
 			continue
 		}
 		var age time.Duration
+		ageKnown := false
 		if created.Valid {
 			if t, ok := parseLooseTime(created.String); ok {
 				age = now.Sub(t)
+				ageKnown = true
 			}
 		}
-		if age < olderThan {
+		// Defensive (mirrors withinWindow in reconcile.go): a pending row whose
+		// timestamp is missing/unparseable is kept, not dropped — a truly stuck
+		// disbursement we can't age is exactly the one we must not hide.
+		if ageKnown && age < olderThan {
 			continue
 		}
 		ageMin := int(age.Minutes())
@@ -110,6 +116,7 @@ func queryStuckDisbursements(db *store.Store, olderThan time.Duration, now time.
 			ID:             id,
 			Status:         nullStr(status),
 			AgeMinutes:     ageMin,
+			AgeKnown:       ageKnown,
 			RetriesElapsed: elapsed,
 			NextRetryIn:    nextRetryIn(elapsed, webhookRetryLadder),
 		})
@@ -175,7 +182,11 @@ commands recorded them. Reads only the local store. Offline.`,
 			}
 			fmt.Fprintf(out, "older-than=%s  scanned=%d  stuck=%d\n", res.OlderThan, res.Scanned, len(res.Items))
 			for _, it := range res.Items {
-				fmt.Fprintf(out, "  %s status=%s age=%dm retries_elapsed=%d", it.ID, it.Status, it.AgeMinutes, it.RetriesElapsed)
+				age := fmt.Sprintf("%dm", it.AgeMinutes)
+				if !it.AgeKnown {
+					age = "unknown"
+				}
+				fmt.Fprintf(out, "  %s status=%s age=%s retries_elapsed=%d", it.ID, it.Status, age, it.RetriesElapsed)
 				if it.NextRetryIn != "" {
 					fmt.Fprintf(out, " next_retry=%s", it.NextRetryIn)
 				}
