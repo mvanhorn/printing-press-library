@@ -315,7 +315,7 @@ Parse `$ARGUMENTS`:
    ```
 2. Register with Claude Code:
    ```bash
-   claude mcp add ufo-pp-mcp -- ufo-pp-mcp
+   claude mcp add ufo-goat-pp-mcp -- ufo-goat-pp-mcp
    ```
 3. Verify: `claude mcp list`
 

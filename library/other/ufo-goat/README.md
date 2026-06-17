@@ -257,13 +257,13 @@ Then invoke `/pp-ufo <query>` in Claude Code. The skill is the most efficient pa
 If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/other/ufo/cmd/ufo-pp-mcp@latest
+go install github.com/mvanhorn/printing-press-library/library/other/ufo-goat/cmd/ufo-goat-pp-mcp@latest
 ```
 
 Then register it:
 
 ```bash
-claude mcp add ufo ufo-pp-mcp
+claude mcp add ufo ufo-goat-pp-mcp
 ```
 
 </details>
@@ -285,7 +285,7 @@ Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple S
 If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/other/ufo/cmd/ufo-pp-mcp@latest
+go install github.com/mvanhorn/printing-press-library/library/other/ufo-goat/cmd/ufo-goat-pp-mcp@latest
 ```
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
@@ -294,7 +294,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 {
   "mcpServers": {
     "ufo": {
-      "command": "ufo-pp-mcp"
+      "command": "ufo-goat-pp-mcp"
     }
   }
 }

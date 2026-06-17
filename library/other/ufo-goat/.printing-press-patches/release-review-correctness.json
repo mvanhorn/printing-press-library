@@ -4,12 +4,15 @@
   "applied_at": "2026-06-17",
   "base_run_id": "20260508-101534",
   "base_printing_press_version": "4.0.3",
-  "summary": "Release-aware commands must treat release 0 as the internal unknown bucket, honor dry-run before store writes, and apply release filters before search limits.",
-  "reason": "ufo-goat exposes PURSUE release tranches as user-facing release numbers, while release_batch=0 is reserved for files without a derivable tranche; filtering after the FTS limit or writing during dry-run can produce misleading or surprising command results.",
+  "summary": "Release-aware commands must preserve tranche semantics, and published build/MCP metadata must use the ufo-goat binary names from the provenance manifest.",
+  "reason": "ufo-goat exposes PURSUE release tranches as user-facing release numbers, while release_batch=0 is reserved for files without a derivable tranche; filtering after the FTS limit or writing during dry-run can produce misleading command results. The published package also ships cmd/ufo-goat-pp-* binaries, so manifest, GoReleaser, Makefile, and MCP docs must not point at stale ufo-pp-* names.",
   "files": [
     "internal/cli/releases_cmd.go",
     "internal/cli/files_search_ufo.go",
-    "internal/store/ufo_store.go"
+    "internal/store/ufo_store.go",
+    "manifest.json",
+    ".goreleaser.yaml",
+    "Makefile"
   ],
-  "validated_outcome": "go test ./internal/cli ./internal/store"
+  "validated_outcome": "go test ./internal/cli ./internal/store; make build-all"
 }
