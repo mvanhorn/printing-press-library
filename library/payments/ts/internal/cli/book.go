@@ -94,7 +94,8 @@ Run `+"`ts-pp-cli sync`"+` first to populate the mirror.`, "\n"),
 				value    float64
 				yieldNum float64 // sum(value*yield) over rows with a yield
 				yieldDen float64 // sum(value) over rows with a yield
-				dayNum   float64 // sum(value*days)
+				dayNum   float64 // sum(value*days) over rows with a maturity date
+				dayDen   float64 // sum(value) over rows with a maturity date
 				holdings int
 			}
 			now := time.Now()
@@ -112,6 +113,7 @@ Run `+"`ts-pp-cli sync`"+` first to populate the mirror.`, "\n"),
 				}
 				if hasDays {
 					a.dayNum += value * days
+					a.dayDen += value
 				}
 			}
 
@@ -177,8 +179,8 @@ Run `+"`ts-pp-cli sync`"+` first to populate the mirror.`, "\n"),
 				return 0
 			}
 			wam := func(a agg) float64 {
-				if a.value > 0 {
-					return a.dayNum / a.value
+				if a.dayDen > 0 {
+					return a.dayNum / a.dayDen
 				}
 				return 0
 			}
