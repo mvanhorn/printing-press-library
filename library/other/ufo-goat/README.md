@@ -23,7 +23,7 @@ npx -y @mvanhorn/printing-press install ufo --cli-only
 If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/other/ufo/cmd/ufo-goat-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/other/ufo-goat/cmd/ufo-goat-pp-cli@latest
 ```
 
 This installs the CLI only — no skill.

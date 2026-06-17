@@ -13,7 +13,7 @@ metadata:
     install:
       - kind: go
         bins: [ufo-goat-pp-cli]
-        module: github.com/mvanhorn/printing-press-library/library/other/ufo/cmd/ufo-goat-pp-cli
+        module: github.com/mvanhorn/printing-press-library/library/other/ufo-goat/cmd/ufo-goat-pp-cli
 ---
 
 # War.gov UFO — Printing Press CLI
