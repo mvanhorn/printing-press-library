@@ -129,6 +129,9 @@ Run `+"`ts-pp-cli sync`"+` first to populate the mirror.`, "\n"),
 					b.FirstSettlement = settle
 				}
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("scanning holdings: %w", err)
+			}
 
 			out := make([]bucket, 0, len(agg))
 			for _, b := range agg {

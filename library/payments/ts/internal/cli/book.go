@@ -131,7 +131,12 @@ Run `+"`ts-pp-cli sync`"+` first to populate the mirror.`, "\n"),
 				if md.Valid {
 					if t, ok := parseStoredDate(md.String); ok {
 						days = t.Sub(now).Hours() / 24
-						hasDays = true
+						// Exclude already-matured-but-not-yet-settled active
+						// holdings (negative days, e.g. inside a T+2 window or
+						// after a stale sync) so they don't drag WAM toward zero.
+						if days >= 0 {
+							hasDays = true
+						}
 					}
 				}
 				add(&total, v, yield.Float64, yield.Valid, days, hasDays)
@@ -170,6 +175,9 @@ Run `+"`ts-pp-cli sync`"+` first to populate the mirror.`, "\n"),
 					}
 					add(g, v, yield.Float64, yield.Valid, days, hasDays)
 				}
+			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("scanning holdings: %w", err)
 			}
 
 			way := func(a agg) float64 {

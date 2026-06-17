@@ -77,11 +77,15 @@ Run `+"`ts-pp-cli sync`"+` first to populate the mirror.`, "\n"),
 			}
 			// Group by the chosen column; LEFT JOIN obligor_exposure for a human
 			// name when grouping by obligor.
-			q := `SELECT h.` + groupCol + ` AS k, COALESCE(SUM(h.value), 0) AS exposure, COUNT(*) AS holdings, MAX(oe.description) AS name
+			// groupCol is one of a fixed set of column names from the switch
+			// above; quote it as a SQLite identifier so the guard can't be
+			// bypassed by a future unquoted case.
+			col := `"` + groupCol + `"`
+			q := `SELECT h.` + col + ` AS k, COALESCE(SUM(h.value), 0) AS exposure, COUNT(*) AS holdings, MAX(oe.description) AS name
 				FROM holding h
 				LEFT JOIN obligor_exposure oe ON oe.code = h.obligor_exposure_code
 				WHERE ` + where + `
-				GROUP BY h.` + groupCol
+				GROUP BY h.` + col
 
 			rows, err := db.DB().QueryContext(ctx, q)
 			if err != nil {
@@ -113,6 +117,9 @@ Run `+"`ts-pp-cli sync`"+` first to populate the mirror.`, "\n"),
 					Holdings: int(holdings.Int64),
 				})
 				total += exposure.Float64
+			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("scanning holdings: %w", err)
 			}
 
 			for i := range rowsOut {

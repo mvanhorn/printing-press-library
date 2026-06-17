@@ -124,7 +124,14 @@ func exchangeClientCredentials(ctx context.Context, tokenURL, clientID, clientSe
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Accept", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	// Carry an explicit client timeout (derived from the bound context's
+	// deadline) so the token exchange matches the rest of the client, which
+	// never relies on http.DefaultClient's unbounded transport.
+	client := &http.Client{}
+	if deadline, ok := ctx.Deadline(); ok {
+		client.Timeout = time.Until(deadline)
+	}
+	resp, err := client.Do(req)
 	if err != nil {
 		return "", time.Time{}, fmt.Errorf("requesting token: %w", err)
 	}
