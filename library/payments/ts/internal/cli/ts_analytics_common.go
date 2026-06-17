@@ -113,7 +113,9 @@ func parseStoredDate(s string) (time.Time, bool) {
 // parseShareLimit converts a threshold flag ("10%", "10", "0.1") to a fraction
 // of 1.0. Empty input returns (0, false) meaning "no limit set".
 func parseShareLimit(s string) (float64, bool) {
-	s = strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(s), "%"))
+	s = strings.TrimSpace(s)
+	hadPercent := strings.HasSuffix(s, "%")
+	s = strings.TrimSpace(strings.TrimSuffix(s, "%"))
 	if s == "" {
 		return 0, false
 	}
@@ -121,7 +123,10 @@ func parseShareLimit(s string) (float64, bool) {
 	if _, err := fmt.Sscanf(s, "%g", &v); err != nil {
 		return 0, false
 	}
-	if v > 1 { // entered as a percentage like 10 or 10%
+	// An explicit "%" suffix is always a percentage (so "1%" -> 0.01).
+	// A bare number > 1 is also read as a percentage ("10" -> 0.10); a bare
+	// fraction <= 1 is taken as-is ("0.1" -> 0.10).
+	if hadPercent || v > 1 {
 		v = v / 100.0
 	}
 	return v, true

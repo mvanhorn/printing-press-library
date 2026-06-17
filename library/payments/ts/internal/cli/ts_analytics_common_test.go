@@ -63,6 +63,8 @@ func TestParseShareLimit(t *testing.T) {
 		{"0.1", 0.10, true},
 		{"", 0, false},
 		{"  25 % ", 0.25, true},
+		{"1%", 0.01, true},
+		{"0.5%", 0.005, true},
 	}
 	for _, tt := range tests {
 		got, has := parseShareLimit(tt.in)

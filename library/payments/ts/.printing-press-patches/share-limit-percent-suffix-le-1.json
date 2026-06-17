@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "share-limit-percent-suffix-le-1",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260616-092323-ts",
+  "base_printing_press_version": "4.24.0",
+  "summary": "A concentration threshold written with an explicit '%' suffix must always be divided by 100, regardless of magnitude; the bare-number >1 heuristic must not be the only path to percent scaling.",
+  "reason": "parseShareLimit stripped the '%' suffix before applying a 'v > 1 means percentage' heuristic, so any explicit percentage <= 1 (e.g. '1%', '0.5%') failed the guard and was returned as a fraction of 1.0 (a 100% threshold), silently disabling breach detection for ts concentration --limit. Capturing the '%' before stripping makes the suffix authoritative.",
+  "files": ["internal/cli/ts_analytics_common.go"],
+  "validated_outcome": "Added hadPercent capture; '1%' -> 0.01 and '0.5%' -> 0.005 now correct, while '10', '10%', '0.1', '25 %' continue to parse as before (regression tests added)."
+}
