@@ -123,8 +123,6 @@ func (c *Config) snapshotFileConfig() {
 
 func (c *Config) configForSave() Config {
 	out := *c
-	if c.fileConfig != nil {
-	}
 	out.envOverrides = nil
 	out.fileConfig = nil
 	return out

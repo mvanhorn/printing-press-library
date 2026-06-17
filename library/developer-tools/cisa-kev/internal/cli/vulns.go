@@ -131,13 +131,10 @@ vendor/product filtering, CWE filtering, and ransomware-use filtering.`,
 				return err
 			}
 			dueFilter := filter
-			results, err := applyVulnFilter(catalog.Vulnerabilities, dueFilter)
+			results, err := applyDueVulnFilter(catalog.Vulnerabilities, dueFilter)
 			if err != nil {
 				return err
 			}
-			sort.SliceStable(results, func(i, j int) bool {
-				return results[i].DueDate < results[j].DueDate
-			})
 			return printVulnResults(cmd, flags, catalog, results)
 		},
 	}
@@ -146,6 +143,22 @@ vendor/product filtering, CWE filtering, and ransomware-use filtering.`,
 
 	cmd.AddCommand(listCmd, searchCmd, getCmd, dueCmd)
 	return cmd
+}
+
+func applyDueVulnFilter(vulns []types.KevVulnerability, filter vulnFilter) ([]types.KevVulnerability, error) {
+	limit := filter.limit
+	filter.limit = 0
+	results, err := applyVulnFilter(vulns, filter)
+	if err != nil {
+		return nil, err
+	}
+	sort.SliceStable(results, func(i, j int) bool {
+		return results[i].DueDate < results[j].DueDate
+	})
+	if limit > 0 && len(results) > limit {
+		results = results[:limit]
+	}
+	return results, nil
 }
 
 func addVulnFilterFlags(cmd *cobra.Command, filter *vulnFilter) {
