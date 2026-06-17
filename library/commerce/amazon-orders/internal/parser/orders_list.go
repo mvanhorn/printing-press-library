@@ -36,6 +36,11 @@ func resolveDeliveryDate(window string) string {
 	for name, wd := range weekdayNames {
 		if strings.Contains(head, name) {
 			delta := (int(wd) - int(now.Weekday()) + 7) % 7
+			if delta == 0 {
+				// "arriving Wednesday" on a Wednesday means next Wednesday;
+				// same-day deliveries say "today", handled above.
+				delta = 7
+			}
 			return now.AddDate(0, 0, delta).Format("2006-01-02")
 		}
 	}

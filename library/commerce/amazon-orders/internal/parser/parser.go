@@ -215,7 +215,10 @@ func currencyForMoneyToken(token string) string {
 	case "₹", "RS", "RS.", "INR":
 		return "INR"
 	case "$":
-		return "USD"
+		// "$" is ambiguous: USD (amazon.com), CAD (amazon.ca), AUD (amazon.com.au),
+		// MXN (amazon.com.mx). Return "" so callers fall back to MarketplaceCurrency
+		// instead of pinning to USD.
+		return ""
 	case "£":
 		return "GBP"
 	case "€":
