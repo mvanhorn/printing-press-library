@@ -12,6 +12,8 @@ import (
 	"github.com/pelletier/go-toml/v2"
 )
 
+const browserHTMLAcceptHeader = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+
 type Config struct {
 	BaseURL       string            `toml:"base_url"`
 	AuthHeaderVal string            `toml:"auth_header"`
@@ -26,6 +28,7 @@ func Load(configPath string) (*Config, error) {
 	cfg := &Config{
 		BaseURL: "https://www.noon.com",
 	}
+	cfg.ensureBrowserHTMLAcceptHeader()
 
 	// Resolve config path
 	path := configPath
@@ -45,6 +48,7 @@ func Load(configPath string) (*Config, error) {
 			return nil, fmt.Errorf("parsing config %s: %w", path, err)
 		}
 	}
+	cfg.ensureBrowserHTMLAcceptHeader()
 
 	cfg.snapshotFileConfig()
 
@@ -67,6 +71,18 @@ func Load(configPath string) (*Config, error) {
 		cfg.BaseURL = v
 	}
 	return cfg, nil
+}
+
+func (c *Config) ensureBrowserHTMLAcceptHeader() {
+	if c.Headers == nil {
+		c.Headers = map[string]string{}
+	}
+	for k := range c.Headers {
+		if strings.EqualFold(k, "Accept") {
+			return
+		}
+	}
+	c.Headers["Accept"] = browserHTMLAcceptHeader
 }
 
 func (c *Config) AuthHeader() string {

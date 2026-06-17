@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "html-response-handling",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260615-063924",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Noon UAE product endpoints are browser HTML surfaces, so requests must advertise HTML and successful HTML bodies must be emitted as raw HTML or JSON string envelopes rather than parsed as API JSON.",
+  "reason": "The live noon.com pages return text/html and sit behind browser-fingerprint defenses; JSON Accept headers and JSON/table output paths create avoidable bot signals and malformed output.",
+  "files": [
+    "internal/config/config.go",
+    "internal/cli/html_response.go",
+    "internal/cli/products_get.go",
+    "internal/cli/products_search.go"
+  ],
+  "validated_outcome": "go test ./internal/config ./internal/cli passes with coverage for the default Accept header and command output path compilation."
+}
