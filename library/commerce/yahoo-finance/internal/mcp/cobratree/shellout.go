@@ -36,12 +36,14 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string, positio
 		// Reject flag-like values so an MCP client cannot inject CLI flags
 		// through positional parameters (same guard as the "args" field).
 		for _, name := range positionalNames {
-			if v, ok := args[name].(string); ok && v != "" {
-				if strings.HasPrefix(v, "-") {
-					return mcplib.NewToolResultError(fmt.Sprintf("flag-like argument %q not allowed for positional parameter %q; pass a plain value instead", v, name)), nil
-				}
-				finalArgs = append(finalArgs, v)
+			v, _ := args[name].(string)
+			if strings.TrimSpace(v) == "" {
+				return mcplib.NewToolResultError(fmt.Sprintf("positional parameter %q is required but was empty or missing", name)), nil
 			}
+			if strings.HasPrefix(v, "-") {
+				return mcplib.NewToolResultError(fmt.Sprintf("flag-like argument %q not allowed for positional parameter %q; pass a plain value instead", v, name)), nil
+			}
+			finalArgs = append(finalArgs, v)
 		}
 		// Legacy free-form "args" field for commands with no named positionals.
 		if raw, _ := args["args"].(string); strings.TrimSpace(raw) != "" {
