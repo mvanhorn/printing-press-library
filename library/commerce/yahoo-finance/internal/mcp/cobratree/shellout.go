@@ -16,16 +16,29 @@ import (
 	"github.com/mark3labs/mcp-go/server"
 )
 
-func shellOutToCLI(cliPath func() (string, error), commandPath []string) server.ToolHandlerFunc {
+func shellOutToCLI(cliPath func() (string, error), commandPath []string, positionalNames []string) server.ToolHandlerFunc {
 	lookupPath, lookupErr := cliPath()
 	prefixArgs := append([]string{}, commandPath...)
+	// Build a set for O(1) lookup when filtering flags.
+	positionalSet := make(map[string]bool, len(positionalNames))
+	for _, p := range positionalNames {
+		positionalSet[p] = true
+	}
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		if lookupErr != nil {
 			return mcplib.NewToolResultError(fmt.Sprintf("companion CLI binary not found: %v\nTried sibling lookup, YAHOO_FINANCE_CLI_PATH env var, and PATH.", lookupErr)), nil
 		}
 		args := req.GetArguments()
 		finalArgs := append([]string{}, prefixArgs...)
-		finalArgs = append(finalArgs, cliArgsFromMCP(args)...)
+		// Add flag args first, skipping keys that are positional params.
+		finalArgs = append(finalArgs, cliArgsFromMCPFiltered(args, positionalSet)...)
+		// Append positional values in declared order (bare, no -- prefix).
+		for _, name := range positionalNames {
+			if v, ok := args[name].(string); ok && v != "" {
+				finalArgs = append(finalArgs, v)
+			}
+		}
+		// Legacy free-form "args" field for commands with no named positionals.
 		if raw, _ := args["args"].(string); strings.TrimSpace(raw) != "" {
 			tokens := SplitShellArgs(raw)
 			for _, t := range tokens {
@@ -57,6 +70,49 @@ var blockedRootFlags = map[string]bool{
 	"deliver":  true,
 	"profile":  true,
 	"token":    true,
+}
+
+// cliArgsFromMCPFiltered converts MCP arguments to CLI --flag value pairs,
+// skipping keys in the skip set (used to exclude positional arg names that
+// must be passed as bare values, not flags).
+func cliArgsFromMCPFiltered(args map[string]any, skip map[string]bool) []string {
+	keys := make([]string, 0, len(args))
+	for k := range args {
+		if !blockedRootFlags[k] && !skip[k] {
+			keys = append(keys, k)
+		}
+	}
+	sort.Strings(keys)
+
+	var out []string
+	for _, k := range keys {
+		v := args[k]
+		switch tv := v.(type) {
+		case bool:
+			if tv {
+				out = append(out, "--"+k)
+			}
+		case float64:
+			out = append(out, "--"+k, strconv.FormatFloat(tv, 'f', -1, 64))
+		case string:
+			if tv != "" {
+				out = append(out, "--"+k, tv)
+			}
+		case []any:
+			if len(tv) > 0 {
+				parts := make([]string, 0, len(tv))
+				for _, item := range tv {
+					parts = append(parts, fmt.Sprintf("%v", item))
+				}
+				out = append(out, "--"+k, strings.Join(parts, ","))
+			}
+		default:
+			if v != nil {
+				out = append(out, "--"+k, fmt.Sprintf("%v", v))
+			}
+		}
+	}
+	return out
 }
 
 func cliArgsFromMCP(args map[string]any) []string {
