@@ -12,6 +12,8 @@ import (
 	"github.com/pelletier/go-toml/v2"
 )
 
+const browserHTMLAcceptHeader = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+
 type Config struct {
 	BaseURL       string            `toml:"base_url"`
 	AuthHeaderVal string            `toml:"auth_header"`
@@ -25,6 +27,9 @@ type Config struct {
 func Load(configPath string) (*Config, error) {
 	cfg := &Config{
 		BaseURL: "https://ae.pricena.com",
+		Headers: map[string]string{
+			"Accept": browserHTMLAcceptHeader,
+		},
 	}
 
 	// Resolve config path

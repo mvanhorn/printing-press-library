@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "browser-html-accept-header-and-search-help",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260615-062130",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Pricena's public endpoints are browser-sniffed HTML pages, and generated search flags need human-readable query help.",
+  "reason": "The site returns text/html and uses anti-bot controls, so Accept: application/json is a non-browser signal; the upstream parameter name s is also too opaque for useful CLI help.",
+  "files": [
+    "internal/config/config.go",
+    "internal/config/config_test.go",
+    "internal/client/client.go",
+    "internal/cli/products_search.go",
+    "internal/cli/products_search-english.go"
+  ],
+  "validated_outcome": "verify-skill, go test ./..., go build ./..., and go vet ./... pass."
+}

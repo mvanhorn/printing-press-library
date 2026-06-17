@@ -89,7 +89,7 @@ func newProductsSearchCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagS, "s", "", "S")
+	cmd.Flags().StringVar(&flagS, "s", "", "Search query string")
 	cmd.Flags().StringVar(&flagPage, "page", "", "Page")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 

@@ -515,7 +515,8 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		// application/json; specs that need a different content type
 		// (vendor mediatypes, XML, HTML) declare it via RequiredHeaders or
 		// per-endpoint headerOverrides, both of which run before this
-		// if-empty default.
+		// if-empty default. Pricena's config seeds a browser HTML Accept header,
+		// so this JSON fallback only applies if a user removes that override.
 		if req.Header.Get("Accept") == "" {
 			if binaryResponse {
 				req.Header.Set("Accept", "*/*")
