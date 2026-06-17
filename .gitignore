@@ -4,6 +4,7 @@
 *-pp-cli-[0-9]*
 # But allow CLI source directories in the library
 !library/**/*-pp-cli/
+!library/**/*-pp-mcp/
 *.exe
 *.test
 *.out
