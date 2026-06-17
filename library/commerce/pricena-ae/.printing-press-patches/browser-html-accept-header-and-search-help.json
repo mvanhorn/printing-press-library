@@ -4,12 +4,14 @@
   "applied_at": "2026-06-17",
   "base_run_id": "20260615-062130",
   "base_printing_press_version": "4.24.0",
-  "summary": "Pricena's public endpoints are browser-sniffed HTML pages, and generated search flags need human-readable query help.",
-  "reason": "The site returns text/html and uses anti-bot controls, so Accept: application/json is a non-browser signal; the upstream parameter name s is also too opaque for useful CLI help.",
+  "summary": "Pricena's public endpoints are browser-sniffed HTML pages: requests should look browser-like, search help should explain the query, and unsupported --all pagination must preserve page-one HTML.",
+  "reason": "The site returns text/html and uses anti-bot controls, so Accept: application/json is a non-browser signal; the upstream parameter name s is too opaque for useful CLI help; and JSON-only pagination fallback would otherwise discard the HTML response.",
   "files": [
     "internal/config/config.go",
     "internal/config/config_test.go",
     "internal/client/client.go",
+    "internal/cli/helpers.go",
+    "internal/cli/paginated_get_test.go",
     "internal/cli/products_search.go",
     "internal/cli/products_search-english.go"
   ],

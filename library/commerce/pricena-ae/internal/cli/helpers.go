@@ -468,6 +468,7 @@ func paginatedGet(ctx context.Context, c interface {
 
 	// Fetch all pages
 	allItems := make([]json.RawMessage, 0)
+	var firstPageRaw json.RawMessage
 	page := 0
 	for {
 		page++
@@ -480,6 +481,9 @@ func paginatedGet(ctx context.Context, c interface {
 		data, err := c.GetWithHeaders(ctx, path, clean, headers)
 		if err != nil {
 			return nil, err
+		}
+		if page == 1 {
+			firstPageRaw = append(json.RawMessage(nil), data...)
 		}
 
 		// Try to extract items array
@@ -562,6 +566,9 @@ func paginatedGet(ctx context.Context, c interface {
 
 	if fetchAll && page == 1 && nextCursorPath == "" && hasMoreField == "" {
 		emitMissingPaginationSignalWarning()
+		if len(allItems) == 0 && len(bytes.TrimSpace(firstPageRaw)) > 0 {
+			return firstPageRaw, nil
+		}
 	}
 	if humanFriendly {
 		fmt.Fprintf(os.Stderr, "fetched %d items across %d pages\n", len(allItems), page)
