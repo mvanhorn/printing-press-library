@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/devices/oura/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/devices/oura/internal/store"
-	"github.com/spf13/cobra"
 )
 
 func newNovelWebhookServeCmd(flags *rootFlags) *cobra.Command {
@@ -110,12 +110,13 @@ func webhookEventHandler(db *store.Store, out io.Writer) http.HandlerFunc {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
+		r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB limit
+		defer r.Body.Close()
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, "failed to read body", http.StatusBadRequest)
 			return
 		}
-		defer r.Body.Close()
 
 		id := uuid.NewString()
 		if err := db.Upsert("webhook-event", id, body); err != nil {

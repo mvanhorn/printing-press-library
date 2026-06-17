@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mvanhorn/printing-press-library/library/devices/oura/internal/store"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/devices/oura/internal/store"
 )
 
 type eventMetricImpact struct {
@@ -29,7 +29,7 @@ type eventView struct {
 
 func newNovelEventCmd(flags *rootFlags) *cobra.Command {
 	var flagDate string
-	var flagLabel []string
+	var flagLabel string
 	var flagWindow int
 	var dbPath string
 
@@ -80,10 +80,7 @@ race, or any other life event.`,
 			after := addDays(flagDate, 1)
 			afterEnd := addDays(flagDate, flagWindow)
 
-			view := eventView{Date: flagDate, Window: flagWindow}
-			if len(flagLabel) > 0 {
-				view.Label = flagLabel[0]
-			}
+			view := eventView{Date: flagDate, Window: flagWindow, Label: flagLabel}
 
 			samples := 0
 			for _, name := range []string{"sleep", "readiness", "activity", "stress"} {
@@ -140,7 +137,7 @@ race, or any other life event.`,
 		},
 	}
 	cmd.Flags().StringVar(&flagDate, "date", "", "Event date (YYYY-MM-DD)")
-	cmd.Flags().StringSliceVar(&flagLabel, "label", nil, "Human-readable label for the event (e.g. 'marathon', 'flight to Tokyo')")
+	cmd.Flags().StringVar(&flagLabel, "label", "", "Human-readable label for the event (e.g. 'marathon', 'flight to Tokyo')")
 	cmd.Flags().IntVar(&flagWindow, "window", 3, "Number of days before/after the event date to compare")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	return cmd

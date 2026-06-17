@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "oura-greptile-review-fixes",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260616-121104-c128aae1",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Fixed 4 issues from Greptile's automated PR review: webhook serve body-close ordering and missing size limit, and two StringSliceVar flags that silently split on commas.",
+  "reason": "Greptile review on PR #1252 flagged: (1) webhook_serve.go deferred r.Body.Close() after io.ReadAll, leaking the connection on read errors; (2) webhook_serve.go had no request body size limit; (3) correlate.go's --tag used StringSliceVar, splitting literal commas in tag text into multiple values; (4) event.go's --label used StringSliceVar but only consumed index 0, silently truncating comma-containing labels. All four were real bugs, fixed before merge.",
+  "files": [
+    "internal/cli/webhook_serve.go",
+    "internal/cli/correlate.go",
+    "internal/cli/event.go"
+  ],
+  "validated_outcome": "go build/vet/test pass; --tag and --label help text confirmed to use stringArray/string types respectively, no longer comma-splitting.",
+  "upstream_issue": "https://github.com/mvanhorn/printing-press-library/pull/1252"
+}

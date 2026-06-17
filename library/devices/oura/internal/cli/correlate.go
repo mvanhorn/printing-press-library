@@ -8,8 +8,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/devices/oura/internal/store"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/devices/oura/internal/store"
 )
 
 type correlateView struct {
@@ -153,7 +153,7 @@ treats tags as a predictor variable instead of just a display field.`,
 			return nil
 		},
 	}
-	cmd.Flags().StringSliceVar(&flagTag, "tag", nil, "Tag text to match against logged enhanced tags (repeatable; matches tag_type_code or comment, case-insensitive)")
+	cmd.Flags().StringArrayVar(&flagTag, "tag", nil, "Tag text to match against logged enhanced tags (repeatable; matches tag_type_code or comment, case-insensitive)")
 	cmd.Flags().StringVar(&flagMetric, "metric", "readiness", "Metric whose next-day change to correlate against: "+joinMetrics())
 	cmd.Flags().StringVar(&flagSince, "since", "", "Start of the window: a duration like 90d or an absolute YYYY-MM-DD date (default 90d)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
