@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "world-bank-pp-mcp",
+  "display_name": "World Bank",
+  "version": "0.0.0",
+  "description": "Every World Bank indicator, queryable offline, with cross-country SQL and rankings no wrapper has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/world-bank-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/world-bank-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,237 @@
+{
+  "api_name": "world-bank",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "wbgapi",
+      "url": "https://github.com/tgherzog/wbgapi",
+      "language": "Python",
+      "install_method": "",
+      "stars": 230,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "wbdata",
+      "url": "https://github.com/OliverSherouse/wbdata",
+      "language": "Python",
+      "install_method": "",
+      "stars": 280,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "world_bank_data",
+      "url": "https://github.com/mwouts/world_bank_data",
+      "language": "Python",
+      "install_method": "",
+      "stars": 110,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "world_bank_mcp_server",
+      "url": "https://github.com/anshumax/world_bank_mcp_server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 30,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-17T20:05:00Z",
+  "novel_features": [
+    {
+      "name": "Offline indicator search",
+      "command": "indicators find",
+      "description": "Search the full ~16,000-indicator catalog by keyword in a single call.",
+      "rationale": "Only possible because the catalog is mirrored to local SQLite with FTS; wrappers hit the live API for every search.",
+      "example": "world-bank-pp-cli indicators find \"co2 emissions\" --json",
+      "why_it_matters": "Agents discover the exact indicator code before fetching values, in one local call.",
+      "group": "Offline catalog"
+    },
+    {
+      "name": "Cross-country compare",
+      "command": "compare",
+      "description": "Line up one indicator across many countries in a single aligned table with deltas vs a baseline.",
+      "rationale": "Requires a local join across per-country observation sets that only exists once data is in the store.",
+      "example": "world-bank-pp-cli compare NY.GDP.MKTP.CD USA,CHN,IND --date 2024 --agent",
+      "why_it_matters": "One call answers 'how do these economies compare' without N separate fetches.",
+      "group": "Local joins"
+    },
+    {
+      "name": "Trend / growth stats",
+      "command": "trend",
+      "description": "CAGR, year-over-year change, min/max/latest for one country+indicator series.",
+      "rationale": "Computed locally over the full time-series; no API endpoint returns these aggregates.",
+      "example": "world-bank-pp-cli trend USA NY.GDP.MKTP.CD --window 10 --agent",
+      "why_it_matters": "Agents get the trajectory summary directly instead of parsing decades of rows.",
+      "group": "Local joins"
+    },
+    {
+      "name": "Rank countries",
+      "command": "rank",
+      "description": "Rank all economies by an indicator for a year, filtered by region or income level.",
+      "rationale": "A cross-entity local join (observations + economy classifications) no wrapper exposes as a command.",
+      "example": "world-bank-pp-cli rank NY.GDP.PCAP.CD --year 2024 --top 10 --income HIC --agent",
+      "why_it_matters": "Find leaders/laggards on any indicator in one call.",
+      "group": "Local joins"
+    },
+    {
+      "name": "Pipeline export",
+      "command": "export",
+      "description": "Bulk country x indicator pull emitted as pipeline-ready wide or long CSV.",
+      "rationale": "Combines multiple fetches and reshapes locally; the API only returns one long-format envelope per call.",
+      "example": "world-bank-pp-cli export USA,CHN NY.GDP.MKTP.CD,SP.POP.TOTL --wide --csv",
+      "why_it_matters": "Drops straight into notebooks, sheets, and ETL without reshaping.",
+      "group": "Data pipeline"
+    },
+    {
+      "name": "Revision diff",
+      "command": "data diff",
+      "description": "Compare a fresh pull against the last synced snapshot to surface revised observations.",
+      "rationale": "Needs local observation history; the API has no concept of 'what changed since last time'.",
+      "example": "world-bank-pp-cli data diff USA NY.GDP.MKTP.CD --agent",
+      "why_it_matters": "Detect World Bank data revisions between vintages automatically.",
+      "group": "Data pipeline"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Offline indicator search",
+      "command": "indicators find",
+      "description": "Search the full ~16,000-indicator catalog by keyword in a single call.",
+      "rationale": "Only possible because the catalog is mirrored to local SQLite with FTS; wrappers hit the live API for every search.",
+      "example": "world-bank-pp-cli indicators find \"co2 emissions\" --json",
+      "why_it_matters": "Agents discover the exact indicator code before fetching values, in one local call.",
+      "group": "Offline catalog"
+    },
+    {
+      "name": "Cross-country compare",
+      "command": "compare",
+      "description": "Line up one indicator across many countries in a single aligned table with deltas vs a baseline.",
+      "rationale": "Requires a local join across per-country observation sets that only exists once data is in the store.",
+      "example": "world-bank-pp-cli compare NY.GDP.MKTP.CD USA,CHN,IND --date 2024 --agent",
+      "why_it_matters": "One call answers 'how do these economies compare' without N separate fetches.",
+      "group": "Local joins"
+    },
+    {
+      "name": "Trend / growth stats",
+      "command": "trend",
+      "description": "CAGR, year-over-year change, min/max/latest for one country+indicator series.",
+      "rationale": "Computed locally over the full time-series; no API endpoint returns these aggregates.",
+      "example": "world-bank-pp-cli trend USA NY.GDP.MKTP.CD --window 10 --agent",
+      "why_it_matters": "Agents get the trajectory summary directly instead of parsing decades of rows.",
+      "group": "Local joins"
+    },
+    {
+      "name": "Rank countries",
+      "command": "rank",
+      "description": "Rank all economies by an indicator for a year, filtered by region or income level.",
+      "rationale": "A cross-entity local join (observations + economy classifications) no wrapper exposes as a command.",
+      "example": "world-bank-pp-cli rank NY.GDP.PCAP.CD --year 2024 --top 10 --income HIC --agent",
+      "why_it_matters": "Find leaders/laggards on any indicator in one call.",
+      "group": "Local joins"
+    },
+    {
+      "name": "Pipeline export",
+      "command": "export",
+      "description": "Bulk country x indicator pull emitted as pipeline-ready wide or long CSV.",
+      "rationale": "Combines multiple fetches and reshapes locally; the API only returns one long-format envelope per call.",
+      "example": "world-bank-pp-cli export USA,CHN NY.GDP.MKTP.CD,SP.POP.TOTL --wide --csv",
+      "why_it_matters": "Drops straight into notebooks, sheets, and ETL without reshaping.",
+      "group": "Data pipeline"
+    },
+    {
+      "name": "Revision diff",
+      "command": "data diff",
+      "description": "Compare a fresh pull against the last synced snapshot to surface revised observations.",
+      "rationale": "Needs local observation history; the API has no concept of 'what changed since last time'.",
+      "example": "world-bank-pp-cli data diff USA NY.GDP.MKTP.CD --agent",
+      "why_it_matters": "Detect World Bank data revisions between vintages automatically.",
+      "group": "Data pipeline"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "World Bank",
+    "headline": "Every World Bank indicator, queryable offline, with cross-country SQL and rankings no wrapper has.",
+    "value_prop": "A single-binary CLI for the World Bank Open Data API. Mirrors the ~16,000-indicator catalog and observations into local SQLite for offline search, then adds cross-country compare, rankings, trend stats, and pipeline exports the Python wrappers and MCP shims don't offer. No API key — World Bank is fully public.",
+    "quickstart": [
+      {
+        "command": "world-bank-pp-cli doctor --dry-run",
+        "comment": "confirm the API is reachable (no key needed)"
+      },
+      {
+        "command": "world-bank-pp-cli indicators find \"gdp\"",
+        "comment": "discover the indicator code you want"
+      },
+      {
+        "command": "world-bank-pp-cli data USA NY.GDP.MKTP.CD --date 2010:2024",
+        "comment": "pull the time-series"
+      },
+      {
+        "command": "world-bank-pp-cli compare NY.GDP.MKTP.CD USA,CHN,IND --date 2024",
+        "comment": "compare across countries"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Empty data array for a country+indicator",
+        "fix": "Not all indicators cover all economies; try --mrv 5 or a wider --date range."
+      },
+      {
+        "symptom": "Aggregate rows mixed with countries",
+        "fix": "Use --income or --region filters, or filter by countryiso3code in --select."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent or script needs World Bank development indicators: GDP, population, emissions, poverty, health, education time-series; cross-country comparisons; or rankings. It is ideal for data-pipeline extracts and offline indicator discovery.",
+    "anti_triggers": [
+      "Real-time market/financial prices (use a markets API)",
+      "US-specific Federal Reserve series (use FRED)",
+      "Sub-national or city-level data not in World Bank indicators"
+    ],
+    "recipes": [
+      {
+        "title": "Find then fetch",
+        "command": "world-bank-pp-cli indicators find \"life expectancy\" --json --select id,name",
+        "explanation": "Discover the code, then pass it to data fetch."
+      },
+      {
+        "title": "Compact cross-country GDP",
+        "command": "world-bank-pp-cli compare NY.GDP.MKTP.CD USA,CHN,IND,DEU --date 2024 --agent --select country.value,date,value",
+        "explanation": "Narrow a deeply nested response to just the fields that matter."
+      },
+      {
+        "title": "Top economies by GDP per capita",
+        "command": "world-bank-pp-cli rank NY.GDP.PCAP.CD --year 2024 --top 10 --income HIC",
+        "explanation": "Rank and filter in one call."
+      },
+      {
+        "title": "Pipeline export",
+        "command": "world-bank-pp-cli export USA,CHN NY.GDP.MKTP.CD,SP.POP.TOTL --wide --csv",
+        "explanation": "Wide CSV ready for a notebook."
+      }
+    ],
+    "trigger_phrases": [
+      "world bank gdp for",
+      "compare gdp across countries",
+      "find world bank indicator",
+      "rank countries by",
+      "development indicators for",
+      "use world-bank",
+      "run world-bank"
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "world-bank-envelope-unwrap",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260617-195946-cffecdb0",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Unwrap the World Bank two-element [meta,[rows]] response envelope in the promoted data command.",
+  "reason": "World Bank v2 wraps every payload as a 2-element array whose data sits at index 1; the generator's response_path cannot index array elements, so the data command otherwise returns the raw envelope.",
+  "files": ["internal/cli/promoted_data.go", "internal/cli/wb_core.go"],
+  "validated_outcome": "data USA NY.GDP.MKTP.CD --mrv 2 returns clean observation rows; full live dogfood 70/70.",
+  "upstream_issue": ""
+}

@@ -1,0 +1,368 @@
+name: world-bank
+description: "World Bank Open Data CLI — query development indicators, economies, and reference data offline and agent-native"
+version: "0.1.0"
+base_url: "https://api.worldbank.org/v2"
+health_check_path: "/country/USA?format=json"
+category: other
+cli_description: "Every World Bank indicator, queryable offline with cross-country SQL no wrapper has."
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/world-bank-pp-cli/config.toml"
+
+# NOTE for the build: World Bank wraps every list response as a two-element JSON
+# array — [ {pagination meta}, [ ...rows... ] ]. rawAtPath/response_path cannot
+# index array element 1, so the polished `data fetch` / `series` time-series
+# commands are hand-authored (sibling-client envelope parse). The generated
+# endpoint commands below provide the raw typed surface; every endpoint forces
+# format=json via a defaulted param.
+
+resources:
+  countries:
+    description: "Economies (countries and aggregates) with region, income level, lending type"
+    endpoints:
+      list:
+        method: GET
+        path: "/country"
+        description: "List economies"
+        params:
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format (json)"
+          - name: per_page
+            flag_name: per-page
+            type: int
+            default: 300
+            description: "Results per page"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: region
+            type: string
+            description: "Filter by region code (e.g. EAS, ECS)"
+          - name: incomeLevel
+            flag_name: income-level
+            type: string
+            description: "Filter by income level code (e.g. HIC, LIC)"
+          - name: lendingType
+            flag_name: lending-type
+            type: string
+            description: "Filter by lending type code (e.g. IBD, IDX)"
+        response:
+          type: array
+          item: Country
+      get:
+        method: GET
+        path: "/country/{id}"
+        description: "Get one economy by ISO code (e.g. USA, BRA)"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "ISO3 country code"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format (json)"
+        response:
+          type: object
+          item: Country
+
+  indicators:
+    description: "The ~16,000 indicator catalog (series definitions)"
+    endpoints:
+      list:
+        method: GET
+        path: "/indicator"
+        description: "List indicators"
+        params:
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format (json)"
+          - name: per_page
+            flag_name: per-page
+            type: int
+            default: 1000
+            description: "Results per page"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+        response:
+          type: array
+          item: Indicator
+      get:
+        method: GET
+        path: "/indicator/{id}"
+        description: "Get indicator metadata by code (e.g. NY.GDP.MKTP.CD)"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Indicator code"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format (json)"
+        response:
+          type: object
+          item: Indicator
+
+  data:
+    description: "Indicator observations (the time-series). Polished output via hand-authored fetch."
+    endpoints:
+      fetch:
+        method: GET
+        path: "/country/{country}/indicator/{indicator}"
+        description: "Fetch indicator observations for one or more countries (raw envelope)"
+        params:
+          - name: country
+            type: string
+            required: true
+            positional: true
+            description: "ISO code(s), ;-joined (e.g. USA or USA;CHN;IND), or 'all'"
+          - name: indicator
+            type: string
+            required: true
+            positional: true
+            description: "Indicator code (e.g. NY.GDP.MKTP.CD)"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format (json)"
+          - name: date
+            type: string
+            description: "Year or range, e.g. 2010:2024"
+          - name: mrv
+            type: int
+            description: "Most-recent N values"
+          - name: gapfill
+            type: string
+            description: "Y to forward-fill gaps (use with mrv)"
+          - name: frequency
+            type: string
+            description: "Y, Q, or M where the source supports it"
+          - name: per_page
+            flag_name: per-page
+            type: int
+            default: 1000
+            description: "Results per page"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+        response:
+          type: array
+          item: Observation
+
+  sources:
+    description: "Data sources (e.g. World Development Indicators)"
+    endpoints:
+      list:
+        method: GET
+        path: "/source"
+        description: "List data sources"
+        params:
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format (json)"
+          - name: per_page
+            flag_name: per-page
+            type: int
+            default: 200
+            description: "Results per page"
+        response:
+          type: array
+          item: Source
+
+  topics:
+    description: "Topics (e.g. Health, Education) and their indicators"
+    endpoints:
+      list:
+        method: GET
+        path: "/topic"
+        description: "List topics"
+        params:
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format (json)"
+        response:
+          type: array
+          item: Topic
+      indicators:
+        method: GET
+        path: "/topic/{id}/indicator"
+        description: "List indicators under a topic"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Topic id (e.g. 8 for Health)"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format (json)"
+          - name: per_page
+            flag_name: per-page
+            type: int
+            default: 1000
+            description: "Results per page"
+        response:
+          type: array
+          item: Indicator
+
+  regions:
+    description: "Regions"
+    endpoints:
+      list:
+        method: GET
+        path: "/region"
+        description: "List regions"
+        params:
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format (json)"
+          - name: per_page
+            flag_name: per-page
+            type: int
+            default: 200
+            description: "Results per page"
+        response:
+          type: array
+          item: Region
+
+  income_levels:
+    description: "Income level classifications"
+    endpoints:
+      list:
+        method: GET
+        path: "/incomeLevel"
+        description: "List income levels"
+        params:
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format (json)"
+        response:
+          type: array
+          item: IncomeLevel
+
+  lending_types:
+    description: "Lending type classifications"
+    endpoints:
+      list:
+        method: GET
+        path: "/lendingType"
+        description: "List lending types"
+        params:
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format (json)"
+        response:
+          type: array
+          item: LendingType
+
+types:
+  Country:
+    fields:
+      - name: id
+        type: string
+      - name: iso2Code
+        type: string
+      - name: name
+        type: string
+      - name: capitalCity
+        type: string
+      - name: longitude
+        type: string
+      - name: latitude
+        type: string
+  Indicator:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: unit
+        type: string
+      - name: source
+        type: string
+      - name: sourceNote
+        type: string
+      - name: sourceOrganization
+        type: string
+  Observation:
+    fields:
+      - name: indicator
+        type: string
+      - name: country
+        type: string
+      - name: countryiso3code
+        type: string
+      - name: date
+        type: string
+      - name: value
+        type: float
+      - name: unit
+        type: string
+      - name: obs_status
+        type: string
+      - name: decimal
+        type: int
+  Source:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: code
+        type: string
+      - name: description
+        type: string
+      - name: lastupdated
+        type: string
+  Topic:
+    fields:
+      - name: id
+        type: string
+      - name: value
+        type: string
+      - name: sourceNote
+        type: string
+  Region:
+    fields:
+      - name: id
+        type: string
+      - name: code
+        type: string
+      - name: name
+        type: string
+  IncomeLevel:
+    fields:
+      - name: id
+        type: string
+      - name: iso2code
+        type: string
+      - name: value
+        type: string
+  LendingType:
+    fields:
+      - name: id
+        type: string
+      - name: iso2code
+        type: string
+      - name: value
+        type: string

@@ -1,0 +1,317 @@
+{
+  "api_name": "world-bank",
+  "base_url": "https://api.worldbank.org/v2",
+  "description": "Every World Bank indicator, queryable offline, with cross-country SQL and rankings no wrapper has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "countries_get",
+      "description": "Get one economy by ISO code (e.g. USA, BRA). Required: id. Optional: format (default: json). Returns the Country.",
+      "method": "GET",
+      "path": "/country/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ISO3 country code",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (json)"
+        }
+      ]
+    },
+    {
+      "name": "countries_list",
+      "description": "List economies. Optional: format (default: json), per-page (default: 300), page (default: 1) (plus 3 more). Returns array of Country.",
+      "method": "GET",
+      "path": "/country",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (json)"
+        },
+        {
+          "name": "per-page",
+          "wire_name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by region code (e.g. EAS, ECS)"
+        },
+        {
+          "name": "income-level",
+          "wire_name": "incomeLevel",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by income level code (e.g. HIC, LIC)"
+        },
+        {
+          "name": "lending-type",
+          "wire_name": "lendingType",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by lending type code (e.g. IBD, IDX)"
+        }
+      ]
+    },
+    {
+      "name": "data_fetch",
+      "description": "Fetch indicator observations for one or more countries (raw envelope). Required: country, indicator. Optional: format (default: json), date, mrv (plus 4 more). Returns array of Observation.",
+      "method": "GET",
+      "path": "/country/{country}/indicator/{indicator}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "path",
+          "description": "ISO code(s), ;-joined (e.g. USA or USA;CHN;IND), or 'all'",
+          "required": true
+        },
+        {
+          "name": "indicator",
+          "type": "string",
+          "location": "path",
+          "description": "Indicator code (e.g. NY.GDP.MKTP.CD)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (json)"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Year or range, e.g. 2010:2024"
+        },
+        {
+          "name": "mrv",
+          "type": "int",
+          "location": "query",
+          "description": "Most-recent N values"
+        },
+        {
+          "name": "gapfill",
+          "type": "string",
+          "location": "query",
+          "description": "Y to forward-fill gaps (use with mrv)"
+        },
+        {
+          "name": "frequency",
+          "type": "string",
+          "location": "query",
+          "description": "Y, Q, or M where the source supports it"
+        },
+        {
+          "name": "per-page",
+          "wire_name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "income_levels_list",
+      "description": "List income levels. Optional: format (default: json). Returns array of IncomeLevel.",
+      "method": "GET",
+      "path": "/incomeLevel",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (json)"
+        }
+      ]
+    },
+    {
+      "name": "indicators_get",
+      "description": "Get indicator metadata by code (e.g. NY.GDP.MKTP.CD). Required: id. Optional: format (default: json). Returns the Indicator.",
+      "method": "GET",
+      "path": "/indicator/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Indicator code",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (json)"
+        }
+      ]
+    },
+    {
+      "name": "indicators_list",
+      "description": "List indicators. Optional: format (default: json), per-page (default: 1000), page (default: 1). Returns array of Indicator.",
+      "method": "GET",
+      "path": "/indicator",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (json)"
+        },
+        {
+          "name": "per-page",
+          "wire_name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "lending_types_list",
+      "description": "List lending types. Optional: format (default: json). Returns array of LendingType.",
+      "method": "GET",
+      "path": "/lendingType",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (json)"
+        }
+      ]
+    },
+    {
+      "name": "regions_list",
+      "description": "List regions. Optional: format (default: json), per-page (default: 200). Returns array of Region.",
+      "method": "GET",
+      "path": "/region",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (json)"
+        },
+        {
+          "name": "per-page",
+          "wire_name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "sources_list",
+      "description": "List data sources. Optional: format (default: json), per-page (default: 200). Returns array of Source.",
+      "method": "GET",
+      "path": "/source",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (json)"
+        },
+        {
+          "name": "per-page",
+          "wire_name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "topics_indicators",
+      "description": "List indicators under a topic. Required: id. Optional: format (default: json), per-page (default: 1000). Returns array of Indicator.",
+      "method": "GET",
+      "path": "/topic/{id}/indicator",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Topic id (e.g. 8 for Health)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (json)"
+        },
+        {
+          "name": "per-page",
+          "wire_name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "topics_list",
+      "description": "List topics. Optional: format (default: json). Returns array of Topic.",
+      "method": "GET",
+      "path": "/topic",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (json)"
+        }
+      ]
+    }
+  ]
+}

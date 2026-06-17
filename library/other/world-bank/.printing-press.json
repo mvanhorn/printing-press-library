@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-17T08:53:36.9194251Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "world-bank",
+  "display_name": "World Bank",
+  "cli_name": "world-bank-pp-cli",
+  "creator": {
+    "handle": "LukeTheoJohnson",
+    "name": "Luke J"
+  },
+  "owner": "luketheojohnson",
+  "printer": "LukeTheoJohnson",
+  "printer_name": "Luke J",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:031536e16c39b70852896d53eb6458e5a298030b1b82d1632ce94f085d541819",
+  "run_id": "20260617-195946-cffecdb0",
+  "category": "other",
+  "description": "Every World Bank indicator, queryable offline, with cross-country SQL and rankings no wrapper has.",
+  "mcp_binary": "world-bank-pp-mcp",
+  "mcp_tool_count": 11,
+  "mcp_public_tool_count": 11,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Offline indicator search",
+      "command": "indicators find",
+      "description": "Search the full ~16,000-indicator catalog by keyword in a single call."
+    },
+    {
+      "name": "Cross-country compare",
+      "command": "compare",
+      "description": "Line up one indicator across many countries in a single aligned table with deltas vs a baseline."
+    },
+    {
+      "name": "Trend / growth stats",
+      "command": "trend",
+      "description": "CAGR, year-over-year change, min/max/latest for one country+indicator series."
+    },
+    {
+      "name": "Rank countries",
+      "command": "rank",
+      "description": "Rank all economies by an indicator for a year, filtered by region or income level."
+    },
+    {
+      "name": "Pipeline export",
+      "command": "export",
+      "description": "Bulk country x indicator pull emitted as pipeline-ready wide or long CSV."
+    },
+    {
+      "name": "Revision diff",
+      "command": "data diff",
+      "description": "Compare a fresh pull against the last synced snapshot to surface revised observations."
+    }
+  ]
+}

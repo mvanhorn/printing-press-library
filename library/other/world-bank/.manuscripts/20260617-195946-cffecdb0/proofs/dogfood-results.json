@@ -1,0 +1,1142 @@
+{
+  "dir": "C:/Users/lukej/printing-press/.runstate/simulation-battle-shorts-f2e2f929/runs/20260617-195946-cffecdb0/working/world-bank-pp-cli",
+  "binary": "C:\\Users\\lukej\\printing-press\\.runstate\\simulation-battle-shorts-f2e2f929\\runs\\20260617-195946-cffecdb0\\working\\world-bank-pp-cli\\world-bank-pp-cli.exe",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 70,
+  "passed": 70,
+  "failed": 0,
+  "skipped": 51,
+  "commands": [
+    "api",
+    "compare",
+    "countries get",
+    "countries list",
+    "data diff",
+    "doctor",
+    "export",
+    "feedback list",
+    "import",
+    "income-levels",
+    "indicators find",
+    "indicators get",
+    "indicators list",
+    "lending-types",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "rank",
+    "regions",
+    "search",
+    "sources",
+    "sync",
+    "topics indicators",
+    "topics list",
+    "trend",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  world-bank-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  world-bank-pp-cli api\n\n  # Show methods for a specific interface\n  world-bank-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'world-bank-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "compare",
+      "kind": "help",
+      "args": [
+        "compare",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Line up one indicator across countries in a single aligned table with deltas vs the first (baseline) country.\nUse this to compare economies on one indicator. Do NOT use it for one country's history; use 'trend'.\n\nUsage:\n  world-bank-pp-cli compare \u003cindicator\u003e \u003ccountry;country;...\u003e [flags]\n\nExamples:\n  world-bank-pp-cli compare NY.GDP.MKTP.CD USA;CHN;IND --date 2024\n\nFlags:\n      --date string   Year or range (e.g. 2024). Defaults to most recent value.\n  -h, --help          help for compare\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "compare",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [compare] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "compare",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [compare] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "compare",
+      "kind": "error_path",
+      "args": [
+        "compare",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Usage:\n  world-bank-pp-cli compare \u003cindicator\u003e \u003ccountry;country;...\u003e [flags]\n\nExamples:\n  world-bank-pp-cli compare NY.GDP.MKTP.CD USA;CHN;IND --date 2024\n\nFlags:\n      --date string   Year or range (e.g. 2024). Defaults to most recent value.\n  -h, --help          help for compare\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\nError: indicator and country list are required\n"
+    },
+    {
+      "command": "countries get",
+      "kind": "help",
+      "args": [
+        "countries",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get one economy by ISO code (e.g. USA, BRA)\n\nUsage:\n  world-bank-pp-cli countries get \u003cid\u003e [flags]\n\nExamples:\n  world-bank-pp-cli countries get USA\n\nFlags:\n      --format string   Response format (json) (default \"json\")\n  -h, --help            help for get\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "countries get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "countries get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "countries get",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "countries list",
+      "kind": "help",
+      "args": [
+        "countries",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List economies\n\nUsage:\n  world-bank-pp-cli countries list [flags]\n\nExamples:\n  world-bank-pp-cli countries list\n\nFlags:\n      --format string         Response format (json) (default \"json\")\n  -h, --help                  help for list\n      --income-level string   Filter by income level code (e.g. HIC, LIC)\n      --lending-type string   Filter by lending type code (e.g. IBD, IDX)\n      --page string           Page number (default \"1\")\n      --per-page int          Results per page (default 300)\n      --region string         Filter by region code (e.g. EAS, ECS)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "countries list",
+      "kind": "happy_path",
+      "args": [
+        "countries",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"page\":1,\"pages\":1,\"per_page\":\"300\",\"total\":296},[{\"adminregion\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"\"},\"capitalCity\":\"Oranjestad\",\"id\":\"ABW\",\"incomeLevel\":{\"id\":\"HIC\",\"iso2code\":\"XD\",\"value\":\"High income\"},\"iso2Code\":\"AW\",\"latitude\":\"12.5167\",\"lendingType\":{\"id\":\"LNX\",\"iso2code\":\"XX\",\"value\":\"Not classified\"},\"longitude\":\"-70.0167\",\"name\":\"\u003credacted\u003e\",\"region\":{\"id\":\"LCN\",\"iso2code\":\"ZJ\",\"value\":\"Latin America \u0026 Caribbean \"}},{\"adminregion\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"\"},\"capitalCity\":\"\",\"id\":\"AFE\",\"incomeLevel\":{\"id\":\"NA\",\"iso2code\":\"NA\",\"value\":\"Aggregates\"},\"iso2Code\":\"ZH\",\"latitude\":\"\",\"lendingType\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"Aggregates\"},\"longitude\":\"\",\"name\":\"\u003credacted\u003e\",\"region\":{\"id\":\"NA\",\"iso2code\":\"NA\",\"value\":\"Aggregates\"}},{\"adminregion\":{\"id\":\"MNA\",\"iso2code\":\"XQ\",\"value\":\"Middle East, North Africa, Afghanistan \u0026 Pakistan (excluding high income)\"},\"capitalCity\":\"Kabul\",\"id\":\"AFG\",\"incomeLevel\":{\"id\":\"LIC\",\"iso2code\":\"XM\",\"value\":\"Low income\"},\"iso2Code\":\"AF\",\"latitude\":\"34.5228\",\"lendingType\":{\"id\":\"IDX\",\"iso2code\":\"XI\",\"value\":\"IDA\"},\"longitude\":\"69.1761\",\"name\":\"\u003credacted\u003e\",\"region\":{\"id\":\"MEA\",\"iso2code\":\"ZQ\",\"value\":\"Middle East, North Africa, Afghanistan \u0026 Pakistan\"}},{\"adminregion\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"\"},\"capitalCity\":\"\",\"id\":\"AFR\",\"incomeLevel\":{\"id\":\"NA\",\"iso2code\":\"NA\",\"value\":\"Aggregates\"},\"iso2Code\":\"A9\",\"latitude\":\"\",\"lendingType\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"Aggregates\"},\"longitude\":\"\",\"name\":\"\u003credacted\u003e\",\"region\":{\"id\":\"NA\",\"iso2code\":\"NA\",\"value\":\"Aggregates\"}},{\"adminregion\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"\"},\"capitalCity\":\"\",\"id\":\"AFW\",\"incomeLevel\":{\"id\":\"NA\",\"iso2code\":\"NA\",\"value\":\"Aggregates\"},\"iso2Code\":\"ZI\",\"latitude\":\"\",\"lendingType\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"Aggregates\"},\"longitude\":\"\",\"name\":\"\u003credacted\u003e\",\"region\":{\"id\":\"NA\",\"iso2code\":\"NA\",\"value\":\"Aggregates\"}},{\"adminregion\":{\"id\":\"SSA\",\"iso2code\":\"ZF\",\"value\":\"Sub-Saharan Africa (excluding high income)\"},\"capitalCity\":\"Luanda\",\"id\":\"AGO\",\"incomeLevel\":{\"id\":\"LMC\",\"iso2code\":\"XN\",\"value\":\"Lower middle income\"},\"iso2Code\":\"AO\",\"latitude\":\"-8.81155\",\"lendingType\":{\"id\":\"IBD\",\"iso2code\":\"XF\",\"value\":\"IBRD\"},\"longitude\":\"13.242\",\"name\":\"\u003credacted\u003e\",\"region\":{\"id\":\"SSF\",\"iso2code\":\"ZG\",\"value\":\"Sub-Saharan Africa \"}},{\"adminregion\":{\"id\":\"ECA\",\"iso2code\":\"7E\",\"value\":\"Europe \u0026 Central Asia (excluding high income)\"},\"capitalCity\":\"Tirane\",\"id\":\"ALB\",\"incomeLevel\":{\"id\":\"UMC\",\"iso2code\":\"XT\",\"value\":\"Upper middle income\"},\"iso2Code\":\"AL\",\"latitude\":\"41.3317\",\"lendingType\":{\"id\":\"IBD\",\"iso2code\":\"XF\",\"value\":\"IBRD\"},\"longitude\":\"19.8172\",\"name\":\"\u003credacted\u003e\",\"region\":{\"id\":\"ECS\",\"iso2code\":\"Z7\",\"value\":\"Europe \u0026 Central Asia\"}},{\"adminregion\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"\"},\"capitalCity\":\"Andorra la Vella\",\"id\":\"AND\",\"incomeLevel\":{\"id\":\"HIC\",\"iso2code\":\"XD\",\"value\":\"High income\"},\"iso2Code\":\"AD\",\"latitude\":\"42.5075\",\"lendingType\":{\"id\":\"LNX\",\"iso2code\":\"XX\",\"value\":\"Not classified\"},\"longitude\":\"1.5218\",\"name\":\"\u003credacted\u003e\",\"region\":{\"id\":\"ECS\",\"iso2code\":\"Z7\",\"value\":\"Europe \u0026 Central Asia\"}},{\"adminregion\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"\"},\"capitalCity\":\"\",\"id\":\"ARB\",\"incomeLevel\":{\"id\":\"NA\",\"iso2code\":\"NA\",\"value\":\"Aggregates\"},\"iso2Code\":\"1A\",\"latitude\":\"\",\"lendingType\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"Aggregates\"},\"longitude\":\"\",\"name\":\"\u003credacted\u003e\",\"region\":{\"id\":\"NA\",\"iso2code\":\"NA\",\"value\":\"Aggregates\"}},{\"adminregion\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"\"},\"capitalCity\":\"Abu Dhabi\",\"id\":\"ARE\",\"incomeLevel\":{\"id\":\"HIC\",\"iso2code\":\"XD\",\"value\":\"High income\"},\"iso2Code\":\"AE\",\"latitude\":\"24.4764\",\"lendingType\":{\"id\":\"LNX\",\"iso2code\":\"XX\",\"value\":\"Not classified\"},\"longitude\":\"54.3705\",\"name\":\"\u003credacted\u003e\",\"region\":{\"id\":\"MEA\",\"iso2code\":\"ZQ\",\"value\":\"Middle East, North Africa, Afghanistan \u0026 Pakistan\"}},{\"adminregion\":{\"id\":\"LAC\",\"iso2code\":\"XJ\",\"value\":\"Latin America \u0026 Caribbean (excluding high income)\"},\"capitalCity\":\"Buenos Aires\",\"id\":\"ARG\",\"incomeLevel\":{\"id\":\"UMC\",\"iso2code\":\"XT\",\"value\":\"Upper middle income\"},\"iso2Code\":\"AR\",\"latitude\":\"-34.6118\",\"lendingType\":{\"id\":\"…[truncated]"
+    },
+    {
+      "command": "countries list",
+      "kind": "json_fidelity",
+      "args": [
+        "countries",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"page\":1,\"pages\":1,\"per_page\":\"300\",\"total\":296},[{\"adminregion\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"\"},\"capitalCity\":\"Oranjestad\",\"id\":\"ABW\",\"incomeLevel\":{\"id\":\"HIC\",\"iso2code\":\"XD\",\"value\":\"High income\"},\"iso2Code\":\"AW\",\"latitude\":\"12.5167\",\"lendingType\":{\"id\":\"LNX\",\"iso2code\":\"XX\",\"value\":\"Not classified\"},\"longitude\":\"-70.0167\",\"name\":\"\u003credacted\u003e\",\"region\":{\"id\":\"LCN\",\"iso2code\":\"ZJ\",\"value\":\"Latin America \u0026 Caribbean \"}},{\"adminregion\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"\"},\"capitalCity\":\"\",\"id\":\"AFE\",\"incomeLevel\":{\"id\":\"NA\",\"iso2code\":\"NA\",\"value\":\"Aggregates\"},\"iso2Code\":\"ZH\",\"latitude\":\"\",\"lendingType\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"Aggregates\"},\"longitude\":\"\",\"name\":\"\u003credacted\u003e\",\"region\":{\"id\":\"NA\",\"iso2code\":\"NA\",\"value\":\"Aggregates\"}},{\"adminregion\":{\"id\":\"MNA\",\"iso2code\":\"XQ\",\"value\":\"Middle East, North Africa, Afghanistan \u0026 Pakistan (excluding high income)\"},\"capitalCity\":\"Kabul\",\"id\":\"AFG\",\"incomeLevel\":{\"id\":\"LIC\",\"iso2code\":\"XM\",\"value\":\"Low income\"},\"iso2Code\":\"AF\",\"latitude\":\"34.5228\",\"lendingType\":{\"id\":\"IDX\",\"iso2code\":\"XI\",\"value\":\"IDA\"},\"longitude\":\"69.1761\",\"name\":\"\u003credacted\u003e\",\"region\":{\"id\":\"MEA\",\"iso2code\":\"ZQ\",\"value\":\"Middle East, North Africa, Afghanistan \u0026 Pakistan\"}},{\"adminregion\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"\"},\"capitalCity\":\"\",\"id\":\"AFR\",\"incomeLevel\":{\"id\":\"NA\",\"iso2code\":\"NA\",\"value\":\"Aggregates\"},\"iso2Code\":\"A9\",\"latitude\":\"\",\"lendingType\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"Aggregates\"},\"longitude\":\"\",\"name\":\"\u003credacted\u003e\",\"region\":{\"id\":\"NA\",\"iso2code\":\"NA\",\"value\":\"Aggregates\"}},{\"adminregion\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"\"},\"capitalCity\":\"\",\"id\":\"AFW\",\"incomeLevel\":{\"id\":\"NA\",\"iso2code\":\"NA\",\"value\":\"Aggregates\"},\"iso2Code\":\"ZI\",\"latitude\":\"\",\"lendingType\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"Aggregates\"},\"longitude\":\"\",\"name\":\"\u003credacted\u003e\",\"region\":{\"id\":\"NA\",\"iso2code\":\"NA\",\"value\":\"Aggregates\"}},{\"adminregion\":{\"id\":\"SSA\",\"iso2code\":\"ZF\",\"value\":\"Sub-Saharan Africa (excluding high income)\"},\"capitalCity\":\"Luanda\",\"id\":\"AGO\",\"incomeLevel\":{\"id\":\"LMC\",\"iso2code\":\"XN\",\"value\":\"Lower middle income\"},\"iso2Code\":\"AO\",\"latitude\":\"-8.81155\",\"lendingType\":{\"id\":\"IBD\",\"iso2code\":\"XF\",\"value\":\"IBRD\"},\"longitude\":\"13.242\",\"name\":\"\u003credacted\u003e\",\"region\":{\"id\":\"SSF\",\"iso2code\":\"ZG\",\"value\":\"Sub-Saharan Africa \"}},{\"adminregion\":{\"id\":\"ECA\",\"iso2code\":\"7E\",\"value\":\"Europe \u0026 Central Asia (excluding high income)\"},\"capitalCity\":\"Tirane\",\"id\":\"ALB\",\"incomeLevel\":{\"id\":\"UMC\",\"iso2code\":\"XT\",\"value\":\"Upper middle income\"},\"iso2Code\":\"AL\",\"latitude\":\"41.3317\",\"lendingType\":{\"id\":\"IBD\",\"iso2code\":\"XF\",\"value\":\"IBRD\"},\"longitude\":\"19.8172\",\"name\":\"\u003credacted\u003e\",\"region\":{\"id\":\"ECS\",\"iso2code\":\"Z7\",\"value\":\"Europe \u0026 Central Asia\"}},{\"adminregion\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"\"},\"capitalCity\":\"Andorra la Vella\",\"id\":\"AND\",\"incomeLevel\":{\"id\":\"HIC\",\"iso2code\":\"XD\",\"value\":\"High income\"},\"iso2Code\":\"AD\",\"latitude\":\"42.5075\",\"lendingType\":{\"id\":\"LNX\",\"iso2code\":\"XX\",\"value\":\"Not classified\"},\"longitude\":\"1.5218\",\"name\":\"\u003credacted\u003e\",\"region\":{\"id\":\"ECS\",\"iso2code\":\"Z7\",\"value\":\"Europe \u0026 Central Asia\"}},{\"adminregion\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"\"},\"capitalCity\":\"\",\"id\":\"ARB\",\"incomeLevel\":{\"id\":\"NA\",\"iso2code\":\"NA\",\"value\":\"Aggregates\"},\"iso2Code\":\"1A\",\"latitude\":\"\",\"lendingType\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"Aggregates\"},\"longitude\":\"\",\"name\":\"\u003credacted\u003e\",\"region\":{\"id\":\"NA\",\"iso2code\":\"NA\",\"value\":\"Aggregates\"}},{\"adminregion\":{\"id\":\"\",\"iso2code\":\"\",\"value\":\"\"},\"capitalCity\":\"Abu Dhabi\",\"id\":\"ARE\",\"incomeLevel\":{\"id\":\"HIC\",\"iso2code\":\"XD\",\"value\":\"High income\"},\"iso2Code\":\"AE\",\"latitude\":\"24.4764\",\"lendingType\":{\"id\":\"LNX\",\"iso2code\":\"XX\",\"value\":\"Not classified\"},\"longitude\":\"54.3705\",\"name\":\"\u003credacted\u003e\",\"region\":{\"id\":\"MEA\",\"iso2code\":\"ZQ\",\"value\":\"Middle East, North Africa, Afghanistan \u0026 Pakistan\"}},{\"adminregion\":{\"id\":\"LAC\",\"iso2code\":\"XJ\",\"value\":\"Latin America \u0026 Caribbean (excluding high income)\"},\"capitalCity\":\"Buenos Aires\",\"id\":\"ARG\",\"incomeLevel\":{\"id\":\"UMC\",\"iso2code\":\"XT\",\"value\":\"Upper middle income\"},\"iso2Code\":\"AR\",\"latitude\":\"-34.6118\",\"lendingType\":{\"id\":\"…[truncated]"
+    },
+    {
+      "command": "countries list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "data diff",
+      "kind": "help",
+      "args": [
+        "data",
+        "diff",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compare a fresh pull against the last saved snapshot for one country+indicator to detect World Bank data revisions.\nThe first run records a baseline; later runs report added/removed/changed observations.\n\nUsage:\n  world-bank-pp-cli data diff \u003ccountry\u003e \u003cindicator\u003e [flags]\n\nExamples:\n  world-bank-pp-cli data diff USA NY.GDP.MKTP.CD\n\nFlags:\n  -h, --help   help for diff\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "data diff",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [data diff] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "data diff",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [data diff] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "data diff",
+      "kind": "error_path",
+      "args": [
+        "data",
+        "diff",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Usage:\n  world-bank-pp-cli data diff \u003ccountry\u003e \u003cindicator\u003e [flags]\n\nExamples:\n  world-bank-pp-cli data diff USA NY.GDP.MKTP.CD\n\nFlags:\n  -h, --help   help for diff\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\nError: country and indicator are required\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  world-bank-pp-cli doctor [flags]\n\nExamples:\n  world-bank-pp-cli doctor\n  world-bank-pp-cli doctor --json\n  world-bank-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: C:\\Users\\lukej\\AppData\\Local\\Temp\\printing-press-subprocess-614973919\\.config\\world-bank-pp-cli\\config.toml\n  base_url: https://api.worldbank.org/v2\n  version: 1.0.0\n  OK Cache: fresh\n    db_path: C:\\Users\\lukej\\AppData\\Local\\Temp\\printing-press-subprocess-614973919\\.local\\share\\world-bank-pp-cli\\data.db\n    schema_version: 4\n    db_bytes: 122880\n    stale_after: 6h0m0s\n    resources:\n      - countries: 0 rows, 0s\n      - income_levels: 0 rows, 0s\n      - indicators: 0 rows, 0s\n      - lending_types: 0 rows, 0s\n      - regions: 0 rows, 0s\n      - sources: 0 rows, 0s\n      - topics: 0 rows, 0s\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://api.worldbank.org/v2\",\n  \"cache\": {\n    \"db_bytes\": 122880,\n    \"db_path\": \"C:\\\\Users\\\\lukej\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-614973919\\\\.local\\\\share\\\\world-bank-pp-cli\\\\data.db\",\n    \"resources\": [\n      {\n        \"last_synced_at\": \"2026-06-17T08:39:01Z\",\n        \"rows\": 0,\n        \"staleness\": \"0s\",\n        \"type\": \"countries\"\n      },\n      {\n        \"last_synced_at\": \"2026-06-17T08:39:01Z\",\n        \"rows\": 0,\n        \"staleness\": \"0s\",\n        \"type\": \"income_levels\"\n      },\n      {\n        \"last_synced_at\": \"2026-06-17T08:39:01Z\",\n        \"rows\": 0,\n        \"staleness\": \"0s\",\n        \"type\": \"indicators\"\n      },\n      {\n        \"last_synced_at\": \"2026-06-17T08:39:01Z\",\n        \"rows\": 0,\n        \"staleness\": \"0s\",\n        \"type\": \"lending_types\"\n      },\n      {\n        \"last_synced_at\": \"2026-06-17T08:39:01Z\",\n        \"rows\": 0,\n        \"staleness\": \"0s\",\n        \"type\": \"regions\"\n      },\n      {\n        \"last_synced_at\": \"2026-06-17T08:39:01Z\",\n        \"rows\": 0,\n        \"staleness\": \"0s\",\n        \"type\": \"sources\"\n      },\n      {\n        \"last_synced_at\": \"2026-06-17T08:39:01Z\",\n        \"rows\": 0,\n        \"staleness\": \"0s\",\n        \"type\": \"topics\"\n      }\n    ],\n    \"schema_version\": 4,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"fresh\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"C:\\\\Users\\\\lukej\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-614973919\\\\.config\\\\world-bank-pp-cli\\\\config.toml\",\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "args": [
+        "export",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Pull multiple country x indicator series and emit pipeline-ready CSV (long by default, --wide to pivot indicators into columns).\nUse this for data-pipeline extracts. Add --json for a structured array.\n\nUsage:\n  world-bank-pp-cli export \u003ccountry;...\u003e \u003cindicator;...\u003e [flags]\n\nExamples:\n  world-bank-pp-cli export USA;CHN NY.GDP.MKTP.CD;SP.POP.TOTL --wide --csv\n\nFlags:\n      --date string   Year or range, e.g. 2010:2024\n  -h, --help          help for export\n      --wide          Pivot indicators into columns (wide format)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "args": [
+        "export",
+        "USA;CHN",
+        "NY.GDP.MKTP.CD;SP.POP.TOTL",
+        "--wide",
+        "--csv"
+      ],
+      "status": "pass",
+      "output_sample": "country_code,country,date,NY.GDP.MKTP.CD,SP.POP.TOTL\nCHN,China,2025,,\nCHN,China,2024,18743803170827.2,1408975000\nCHN,China,2023,18270356654533.2,1410710000\nCHN,China,2022,18316765021690.2,1412175000\nCHN,China,2021,18201698719564,1412360000\nCHN,China,2020,14996414166715.1,1411100000\nCHN,China,2019,14560167101283.4,1407745000\nCHN,China,2018,14147765772963.8,1402760000\nCHN,China,2017,12537559062282.9,1396215000\nCHN,China,2016,11456024084962,1387790000\nCHN,China,2015,11280814787468.9,1379860000\nCHN,China,2014,10674533168257.4,1371860000\nCHN,China,2013,9743124247267.24,1363240000\nCHN,China,2012,8673664713189.24,1354190000\nCHN,China,2011,7671757207851.29,1345035000\nCHN,China,2010,6192564874453.29,1337705000\nCHN,China,2009,5189577094997.58,1331260000\nCHN,China,2008,4667346414521.95,1324655000\nCHN,China,2007,3604055822571.63,1317885000\nCHN,China,2006,2791498472804.33,1311020000\nCHN,China,2005,2317551298052.05,1303720000\nCHN,China,2004,1984196551300.44,1296075000\nCHN,China,2003,1683903309843.85,1288400000\nCHN,China,2002,1489821682050.54,1280400000\nCHN,China,2001,1355036590251.52,1271850000\nCHN,China,2000,1223754919971.05,1262645000\nCHN,China,1999,1103843203575.64,1252735000\nCHN,China,1998,1037134141760.35,1241935000\nCHN,China,1997,967753570434.667,1230075000\nCHN,China,1996,868523936530.083,1217550000\nCHN,China,1995,738190896227.55,1204855000\nCHN,China,1994,566929539493.172,1191835000\nCHN,China,1993,446557291212.148,1178440000\nCHN,China,1992,428502354788.069,1164970000\nCHN,China,1991,384510452961.672,1150780000\nCHN,China,1990,361560229445.507,1135185000\nCHN,China,1989,348380566801.619,1118650000\nCHN,China,1988,312888888888.889,1101630000\nCHN,China,1987,273455156950.673,1084035000\nCHN,China,1986,301310144927.536,1066790000\nCHN,China,1985,310064625850.34,1051040000\nCHN,China,1984,260442857142.857,1036825000\nCHN,China,1983,231130268199.234,1023310000\nCHN,China,1982,205480916030.534,1008630000\nCHN,China,1981,196218253968.254,993885000\nCHN,China,1980,191487500000,981235000\nCHN,China,1979,178573913043.478,969005000\nCHN,China,1978,149788617886.179,956165000\nCHN,China,1977,175226595859.778,943455000\nCHN,China,1976,154196810058.643,930685000\nCHN,China,1975,163687619735.857,916395000\nCHN,China,1974,144418433058.472,900350000\nCHN,China,1973,138764340892,881940000\nCHN,China,1972,113871930713.841,862030000\nCHN,China,1971,99959013879.6308,841105000\nCHN,China,1970,92752930873.1912,818315000\nCHN,China,1969,79847786729.1898,796025000\nCHN,China,1968,70980323818.7853,774510000\nCHN,China,1967,73011350596.2485,754550000\nCHN,China,1966,76854053259.209,735400000\nCHN,China,1965,70565994356.1828,715185000\nCHN,China,1964,59821862703.4023,698355000\nCHN,China,1963,50812227918.5753,682335000\nCHN,China,1962,47310737754.2287,665770000\nCHN,China,1961,50162299349.7871,660330000\nCHN,China,1960,59846235024.7318,667070000\nUSA,United States,2025,,\nUSA,United States,2024,28750956130731.2,340110988\nUSA,United States,2023,27292170793214.4,336806231\nUSA,United States,2022,25604848907611,334017321\nUSA,United States,2021,23315080560000,332099760\nUSA,United States,2020,21060473613000,331577720\nUSA,United States,2019,21380976119000,330226227\nUSA,United States,2018,20533057312000,328529577\nUSA,United States,2017,19477336549000,326608609\nUSA,United States,2016,18695110842000,324353340\nUSA,United States,2015,18206020741000,321815121\nUSA,United States,2014,17550680174000,319257560\nUSA,United States,2013,16843190993000,316726282\nUSA,United States,2012,16253972230000,314339099\nUSA,United States,2011,15599728123000,311839461\nUSA,United States,2010,15048964444000,309378227\nUSA,United States,2009,14478064934000,306771529\nUSA,United States,2008,14769857911000,304093966\nUSA,United States,2007,14474226905000,301231207\nUSA,United States,2006,13815586948000,298379912\nUSA,United States,2005,13039199193000,295516599\nUSA,United States,2004,12217193198000,292805298\nUSA,United States,2003,11456442041000,290107933\nUSA,United States,2002,10929112955000,287625193\nUSA,United States,2001,10581929774000,284968955\nUSA,United States,2000,10250947997000,282162411\nUSA,United States,1999,9631174489000,27…[truncated]"
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "args": [
+        "export",
+        "USA;CHN",
+        "NY.GDP.MKTP.CD;SP.POP.TOTL",
+        "--wide",
+        "--csv",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"NY.GDP.MKTP.CD\",\n    \"date\": \"2025\",\n    \"value\": null\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"SP.POP.TOTL\",\n    \"date\": \"2025\",\n    \"value\": null\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"NY.GDP.MKTP.CD\",\n    \"date\": \"2024\",\n    \"value\": 18743803170827.2\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"SP.POP.TOTL\",\n    \"date\": \"2024\",\n    \"value\": 1408975000\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"NY.GDP.MKTP.CD\",\n    \"date\": \"2023\",\n    \"value\": 18270356654533.2\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"SP.POP.TOTL\",\n    \"date\": \"2023\",\n    \"value\": 1410710000\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"NY.GDP.MKTP.CD\",\n    \"date\": \"2022\",\n    \"value\": 18316765021690.2\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"SP.POP.TOTL\",\n    \"date\": \"2022\",\n    \"value\": 1412175000\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"NY.GDP.MKTP.CD\",\n    \"date\": \"2021\",\n    \"value\": 18201698719564\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"SP.POP.TOTL\",\n    \"date\": \"2021\",\n    \"value\": 1412360000\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"NY.GDP.MKTP.CD\",\n    \"date\": \"2020\",\n    \"value\": 14996414166715.1\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"SP.POP.TOTL\",\n    \"date\": \"2020\",\n    \"value\": 1411100000\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"NY.GDP.MKTP.CD\",\n    \"date\": \"2019\",\n    \"value\": 14560167101283.4\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"SP.POP.TOTL\",\n    \"date\": \"2019\",\n    \"value\": 1407745000\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"NY.GDP.MKTP.CD\",\n    \"date\": \"2018\",\n    \"value\": 14147765772963.8\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"SP.POP.TOTL\",\n    \"date\": \"2018\",\n    \"value\": 1402760000\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"NY.GDP.MKTP.CD\",\n    \"date\": \"2017\",\n    \"value\": 12537559062282.9\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"SP.POP.TOTL\",\n    \"date\": \"2017\",\n    \"value\": 1396215000\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"NY.GDP.MKTP.CD\",\n    \"date\": \"2016\",\n    \"value\": 11456024084962\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"SP.POP.TOTL\",\n    \"date\": \"2016\",\n    \"value\": 1387790000\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"NY.GDP.MKTP.CD\",\n    \"date\": \"2015\",\n    \"value\": 11280814787468.9\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"SP.POP.TOTL\",\n    \"date\": \"2015\",\n    \"value\": 1379860000\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"NY.GDP.MKTP.CD\",\n    \"date\": \"2014\",\n    \"value\": 10674533168257.4\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"SP.POP.TOTL\",\n    \"date\": \"2014\",\n    \"value\": 1371860000\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"NY.GDP.MKTP.CD\",\n    \"date\": \"2013\",\n    \"value\": 9743124247267.24\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"SP.POP.TOTL\",\n    \"date\": \"2013\",\n    \"value\": 1363240000\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"NY.GDP.MKTP.CD\",\n    \"date\": \"2012\",\n    \"value\": 8673664713189.24\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"SP.POP.TOTL\",\n    \"date\": \"2012\",\n    \"value\": 1354190000\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"country\": \"China\",\n    \"indicator\": \"NY.GDP.MKTP.CD\",\n    \"date\": \"2011\",\n    \"value\": 7671757207851.29\n  },\n  {\n    \"country_code\": \"CHN\",\n    \"c…[truncated]"
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  world-bank-pp-cli feedback list [flags]\n\nExamples:\n  world-bank-pp-cli feedback list\n  world-bank-pp-cli feedback list --limit 5\n  world-bank-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  world-bank-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  world-bank-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  world-bank-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | world-bank-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "income-levels",
+      "kind": "help",
+      "args": [
+        "income-levels",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List income levels\n\nUsage:\n  world-bank-pp-cli income-levels [flags]\n\nExamples:\n  world-bank-pp-cli income-levels\n\nFlags:\n      --format string   Response format (json) (default \"json\")\n  -h, --help            help for income-levels\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "income-levels",
+      "kind": "happy_path",
+      "args": [
+        "income-levels"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"page\": \"1\",\n      \"pages\": \"1\",\n      \"per_page\": \"50\",\n      \"total\": \"7\"\n    },\n    [\n      {\n        \"id\": \"HIC\",\n        \"iso2code\": \"XD\",\n        \"value\": \"High income\"\n      },\n      {\n        \"id\": \"INX\",\n        \"iso2code\": \"XY\",\n        \"value\": \"Not classified\"\n      },\n      {\n        \"id\": \"LIC\",\n        \"iso2code\": \"XM\",\n        \"value\": \"Low income\"\n      },\n      {\n        \"id\": \"LMC\",\n        \"iso2code\": \"XN\",\n        \"value\": \"Lower middle income\"\n      },\n      {\n        \"id\": \"LMY\",\n        \"iso2code\": \"XO\",\n        \"value\": \"Low \\u0026 middle income\"\n      },\n      {\n        \"id\": \"MIC\",\n        \"iso2code\": \"XP\",\n        \"value\": \"Middle income\"\n      },\n      {\n        \"id\": \"UMC\",\n        \"iso2code\": \"XT\",\n        \"value\": \"Upper middle income\"\n      }\n    ]\n  ]\n}\nwarning: 2/2 income_levels items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "income-levels",
+      "kind": "json_fidelity",
+      "args": [
+        "income-levels",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"page\": \"1\",\n      \"pages\": \"1\",\n      \"per_page\": \"50\",\n      \"total\": \"7\"\n    },\n    [\n      {\n        \"id\": \"HIC\",\n        \"iso2code\": \"XD\",\n        \"value\": \"High income\"\n      },\n      {\n        \"id\": \"INX\",\n        \"iso2code\": \"XY\",\n        \"value\": \"Not classified\"\n      },\n      {\n        \"id\": \"LIC\",\n        \"iso2code\": \"XM\",\n        \"value\": \"Low income\"\n      },\n      {\n        \"id\": \"LMC\",\n        \"iso2code\": \"XN\",\n        \"value\": \"Lower middle income\"\n      },\n      {\n        \"id\": \"LMY\",\n        \"iso2code\": \"XO\",\n        \"value\": \"Low \\u0026 middle income\"\n      },\n      {\n        \"id\": \"MIC\",\n        \"iso2code\": \"XP\",\n        \"value\": \"Middle income\"\n      },\n      {\n        \"id\": \"UMC\",\n        \"iso2code\": \"XT\",\n        \"value\": \"Upper middle income\"\n      }\n    ]\n  ]\n}\nwarning: 2/2 income_levels items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "income-levels",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "indicators find",
+      "kind": "help",
+      "args": [
+        "indicators",
+        "find",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search the full ~16,000-indicator catalog by keyword across id, name, and source note.\nUse this command to discover indicator codes. Do NOT use it to fetch values; use 'data'.\n\nUsage:\n  world-bank-pp-cli indicators find \u003cquery\u003e [flags]\n\nExamples:\n  world-bank-pp-cli indicators find \"co2 emissions\" --json\n\nFlags:\n  -h, --help                 help for find\n      --limit int            maximum matches to return (default 25)\n      --max-scan-pages int   maximum catalog pages to scan (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "indicators find",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "indicators find",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "indicators find",
+      "kind": "error_path",
+      "args": [
+        "indicators",
+        "find",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "indicators get",
+      "kind": "help",
+      "args": [
+        "indicators",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get indicator metadata by code (e.g. NY.GDP.MKTP.CD)\n\nUsage:\n  world-bank-pp-cli indicators get \u003cid\u003e [flags]\n\nExamples:\n  world-bank-pp-cli indicators get NY.GDP.MKTP.CD\n\nFlags:\n      --format string   Response format (json) (default \"json\")\n  -h, --help            help for get\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "indicators get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion failed at depth 0: exit 2"
+    },
+    {
+      "command": "indicators get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion failed at depth 0: exit 2"
+    },
+    {
+      "command": "indicators get",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "indicators list",
+      "kind": "help",
+      "args": [
+        "indicators",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List indicators\n\nUsage:\n  world-bank-pp-cli indicators list [flags]\n\nExamples:\n  world-bank-pp-cli indicators list\n\nFlags:\n      --format string   Response format (json) (default \"json\")\n  -h, --help            help for list\n      --page string     Page number (default \"1\")\n      --per-page int    Results per page (default 1000)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "indicators list",
+      "kind": "happy_path",
+      "args": [
+        "indicators",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"page\":1,\"pages\":30,\"per_page\":\"1000\",\"total\":29512},[{\"id\":\"1.0.HCount.1.90usd\",\"name\":\"\u003credacted\u003e\",\"source\":{\"id\":\"37\",\"value\":\"LAC Equity Lab\"},\"sourceNote\":\"The poverty headcount index measures the proportion of the population with daily per capita income (in 2011 PPP) below the poverty line.\",\"sourceOrganization\":\"LAC Equity Lab tabulations of SEDLAC (CEDLAS and the World Bank).\",\"topics\":[{\"id\":\"11\",\"value\":\"Poverty \"}],\"unit\":\"\"},{\"id\":\"1.0.HCount.2.5usd\",\"name\":\"\u003credacted\u003e\",\"source\":{\"id\":\"37\",\"value\":\"LAC Equity Lab\"},\"sourceNote\":\"The poverty headcount index measures the proportion of the population with daily per capita income (in 2005 PPP) below the poverty line.\",\"sourceOrganization\":\"LAC Equity Lab tabulations of SEDLAC (CEDLAS and the World Bank).\",\"topics\":[{\"id\":\"11\",\"value\":\"Poverty \"}],\"unit\":\"\"},{\"id\":\"1.0.HCount.Mid10to50\",\"name\":\"\u003credacted\u003e\",\"source\":{\"id\":\"37\",\"value\":\"LAC Equity Lab\"},\"sourceNote\":\"The poverty headcount index measures the proportion of the population with daily per capita income (in 2005 PPP) below the poverty line.\",\"sourceOrganization\":\"LAC Equity Lab tabulations of SEDLAC (CEDLAS and the World Bank).\",\"topics\":[{\"id\":\"11\",\"value\":\"Poverty \"}],\"unit\":\"\"},{\"id\":\"1.0.HCount.Ofcl\",\"name\":\"\u003credacted\u003e\",\"source\":{\"id\":\"37\",\"value\":\"LAC Equity Lab\"},\"sourceNote\":\"The poverty headcount index measures the proportion of the population with daily per capita income below the official poverty line developed by each country.\",\"sourceOrganization\":\"LAC Equity Lab tabulations of data from National Statistical Offices.\",\"topics\":[{\"id\":\"11\",\"value\":\"Poverty \"}],\"unit\":\"\"},{\"id\":\"1.0.HCount.Poor4uds\",\"name\":\"\u003credacted\u003e\",\"source\":{\"id\":\"37\",\"value\":\"LAC Equity Lab\"},\"sourceNote\":\"The poverty headcount index measures the proportion of the population with daily per capita income (in 2005 PPP) below the poverty line.\",\"sourceOrganization\":\"LAC Equity Lab tabulations of SEDLAC (CEDLAS and the World Bank).\",\"topics\":[{\"id\":\"11\",\"value\":\"Poverty \"}],\"unit\":\"\"},{\"id\":\"1.0.HCount.Vul4to10\",\"name\":\"\u003credacted\u003e\",\"source\":{\"id\":\"37\",\"value\":\"LAC Equity Lab\"},\"sourceNote\":\"The poverty headcount index measures the proportion of the population with daily per capita income (in 2005 PPP) below the poverty line.\",\"sourceOrganization\":\"LAC Equity Lab tabulations of SEDLAC (CEDLAS and the World Bank).\",\"topics\":[{\"id\":\"11\",\"value\":\"Poverty \"}],\"unit\":\"\"},{\"id\":\"1.0.PGap.1.90usd\",\"name\":\"\u003credacted\u003e\",\"source\":{\"id\":\"37\",\"value\":\"LAC Equity Lab\"},\"sourceNote\":\"The poverty gap captures the mean aggregate income or consumption shortfall relative to the poverty line across the entire population. It measures the total resources needed to bring all the poor to the level of the poverty line (averaged over the total population). \",\"sourceOrganization\":\"LAC Equity Lab tabulations of SEDLAC (CEDLAS and the World Bank).\",\"topics\":[{\"id\":\"11\",\"value\":\"Poverty \"}],\"unit\":\"\"},{\"id\":\"1.0.PGap.2.5usd\",\"name\":\"\u003credacted\u003e\",\"source\":{\"id\":\"37\",\"value\":\"LAC Equity Lab\"},\"sourceNote\":\"The poverty gap captures the mean aggregate income or consumption shortfall relative to the poverty line across the entire population. It measures the total resources needed to bring all the poor to the level of the poverty line (averaged over the total population). \",\"sourceOrganization\":\"LAC Equity Lab tabulations of SEDLAC (CEDLAS and the World Bank).\",\"topics\":[{\"id\":\"11\",\"value\":\"Poverty \"}],\"unit\":\"\"},{\"id\":\"1.0.PGap.Poor4uds\",\"name\":\"\u003credacted\u003e\",\"source\":{\"id\":\"37\",\"value\":\"LAC Equity Lab\"},\"sourceNote\":\"The poverty gap captures the mean aggregate income or consumption shortfall relative to the poverty line across the entire population. It measures the total resources needed to bring all the poor to the level of the poverty line (averaged over the total population). \",\"sourceOrganization\":\"LAC Equity Lab tabulations of SEDLAC (CEDLAS and the World Bank).\",\"topics\":[{\"id\":\"11\",\"value\":\"Poverty \"}],\"unit\":\"\"},{\"id\":\"1.0.PSev.1.90usd\",\"name\":\"\u003credacted\u003e\",\"source\":{\"id\":\"37\",\"value\":\"LAC Equity Lab\"},\"sourceNote\":\"The …[truncated]"
+    },
+    {
+      "command": "indicators list",
+      "kind": "json_fidelity",
+      "args": [
+        "indicators",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"page\":1,\"pages\":30,\"per_page\":\"1000\",\"total\":29512},[{\"id\":\"1.0.HCount.1.90usd\",\"name\":\"\u003credacted\u003e\",\"source\":{\"id\":\"37\",\"value\":\"LAC Equity Lab\"},\"sourceNote\":\"The poverty headcount index measures the proportion of the population with daily per capita income (in 2011 PPP) below the poverty line.\",\"sourceOrganization\":\"LAC Equity Lab tabulations of SEDLAC (CEDLAS and the World Bank).\",\"topics\":[{\"id\":\"11\",\"value\":\"Poverty \"}],\"unit\":\"\"},{\"id\":\"1.0.HCount.2.5usd\",\"name\":\"\u003credacted\u003e\",\"source\":{\"id\":\"37\",\"value\":\"LAC Equity Lab\"},\"sourceNote\":\"The poverty headcount index measures the proportion of the population with daily per capita income (in 2005 PPP) below the poverty line.\",\"sourceOrganization\":\"LAC Equity Lab tabulations of SEDLAC (CEDLAS and the World Bank).\",\"topics\":[{\"id\":\"11\",\"value\":\"Poverty \"}],\"unit\":\"\"},{\"id\":\"1.0.HCount.Mid10to50\",\"name\":\"\u003credacted\u003e\",\"source\":{\"id\":\"37\",\"value\":\"LAC Equity Lab\"},\"sourceNote\":\"The poverty headcount index measures the proportion of the population with daily per capita income (in 2005 PPP) below the poverty line.\",\"sourceOrganization\":\"LAC Equity Lab tabulations of SEDLAC (CEDLAS and the World Bank).\",\"topics\":[{\"id\":\"11\",\"value\":\"Poverty \"}],\"unit\":\"\"},{\"id\":\"1.0.HCount.Ofcl\",\"name\":\"\u003credacted\u003e\",\"source\":{\"id\":\"37\",\"value\":\"LAC Equity Lab\"},\"sourceNote\":\"The poverty headcount index measures the proportion of the population with daily per capita income below the official poverty line developed by each country.\",\"sourceOrganization\":\"LAC Equity Lab tabulations of data from National Statistical Offices.\",\"topics\":[{\"id\":\"11\",\"value\":\"Poverty \"}],\"unit\":\"\"},{\"id\":\"1.0.HCount.Poor4uds\",\"name\":\"\u003credacted\u003e\",\"source\":{\"id\":\"37\",\"value\":\"LAC Equity Lab\"},\"sourceNote\":\"The poverty headcount index measures the proportion of the population with daily per capita income (in 2005 PPP) below the poverty line.\",\"sourceOrganization\":\"LAC Equity Lab tabulations of SEDLAC (CEDLAS and the World Bank).\",\"topics\":[{\"id\":\"11\",\"value\":\"Poverty \"}],\"unit\":\"\"},{\"id\":\"1.0.HCount.Vul4to10\",\"name\":\"\u003credacted\u003e\",\"source\":{\"id\":\"37\",\"value\":\"LAC Equity Lab\"},\"sourceNote\":\"The poverty headcount index measures the proportion of the population with daily per capita income (in 2005 PPP) below the poverty line.\",\"sourceOrganization\":\"LAC Equity Lab tabulations of SEDLAC (CEDLAS and the World Bank).\",\"topics\":[{\"id\":\"11\",\"value\":\"Poverty \"}],\"unit\":\"\"},{\"id\":\"1.0.PGap.1.90usd\",\"name\":\"\u003credacted\u003e\",\"source\":{\"id\":\"37\",\"value\":\"LAC Equity Lab\"},\"sourceNote\":\"The poverty gap captures the mean aggregate income or consumption shortfall relative to the poverty line across the entire population. It measures the total resources needed to bring all the poor to the level of the poverty line (averaged over the total population). \",\"sourceOrganization\":\"LAC Equity Lab tabulations of SEDLAC (CEDLAS and the World Bank).\",\"topics\":[{\"id\":\"11\",\"value\":\"Poverty \"}],\"unit\":\"\"},{\"id\":\"1.0.PGap.2.5usd\",\"name\":\"\u003credacted\u003e\",\"source\":{\"id\":\"37\",\"value\":\"LAC Equity Lab\"},\"sourceNote\":\"The poverty gap captures the mean aggregate income or consumption shortfall relative to the poverty line across the entire population. It measures the total resources needed to bring all the poor to the level of the poverty line (averaged over the total population). \",\"sourceOrganization\":\"LAC Equity Lab tabulations of SEDLAC (CEDLAS and the World Bank).\",\"topics\":[{\"id\":\"11\",\"value\":\"Poverty \"}],\"unit\":\"\"},{\"id\":\"1.0.PGap.Poor4uds\",\"name\":\"\u003credacted\u003e\",\"source\":{\"id\":\"37\",\"value\":\"LAC Equity Lab\"},\"sourceNote\":\"The poverty gap captures the mean aggregate income or consumption shortfall relative to the poverty line across the entire population. It measures the total resources needed to bring all the poor to the level of the poverty line (averaged over the total population). \",\"sourceOrganization\":\"LAC Equity Lab tabulations of SEDLAC (CEDLAS and the World Bank).\",\"topics\":[{\"id\":\"11\",\"value\":\"Poverty \"}],\"unit\":\"\"},{\"id\":\"1.0.PSev.1.90usd\",\"name\":\"\u003credacted\u003e\",\"source\":{\"id\":\"37\",\"value\":\"LAC Equity Lab\"},\"sourceNote\":\"The …[truncated]"
+    },
+    {
+      "command": "indicators list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "lending-types",
+      "kind": "help",
+      "args": [
+        "lending-types",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List lending types\n\nUsage:\n  world-bank-pp-cli lending-types [flags]\n\nExamples:\n  world-bank-pp-cli lending-types\n\nFlags:\n      --format string   Response format (json) (default \"json\")\n  -h, --help            help for lending-types\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "lending-types",
+      "kind": "happy_path",
+      "args": [
+        "lending-types"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"page\": \"1\",\n      \"pages\": \"1\",\n      \"per_page\": \"50\",\n      \"total\": \"4\"\n    },\n    [\n      {\n        \"id\": \"IBD\",\n        \"iso2code\": \"XF\",\n        \"value\": \"IBRD\"\n      },\n      {\n        \"id\": \"IDB\",\n        \"iso2code\": \"XH\",\n        \"value\": \"Blend\"\n      },\n      {\n        \"id\": \"IDX\",\n        \"iso2code\": \"XI\",\n        \"value\": \"IDA\"\n      },\n      {\n        \"id\": \"LNX\",\n        \"iso2code\": \"XX\",\n        \"value\": \"Not classified\"\n      }\n    ]\n  ]\n}\nwarning: 2/2 lending_types items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "lending-types",
+      "kind": "json_fidelity",
+      "args": [
+        "lending-types",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"page\": \"1\",\n      \"pages\": \"1\",\n      \"per_page\": \"50\",\n      \"total\": \"4\"\n    },\n    [\n      {\n        \"id\": \"IBD\",\n        \"iso2code\": \"XF\",\n        \"value\": \"IBRD\"\n      },\n      {\n        \"id\": \"IDB\",\n        \"iso2code\": \"XH\",\n        \"value\": \"Blend\"\n      },\n      {\n        \"id\": \"IDX\",\n        \"iso2code\": \"XI\",\n        \"value\": \"IDA\"\n      },\n      {\n        \"id\": \"LNX\",\n        \"iso2code\": \"XX\",\n        \"value\": \"Not classified\"\n      }\n    ]\n  ]\n}\nwarning: 2/2 lending_types items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "lending-types",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  world-bank-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  world-bank-pp-cli profile delete my-defaults --yes\n  world-bank-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  world-bank-pp-cli profile list [flags]\n\nExamples:\n  world-bank-pp-cli profile list\n  world-bank-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  world-bank-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  world-bank-pp-cli profile save my-defaults --json --compact\n  world-bank-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  world-bank-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  world-bank-pp-cli profile show my-defaults\n  world-bank-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  world-bank-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  world-bank-pp-cli profile use my-defaults\n  world-bank-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "rank",
+      "kind": "help",
+      "args": [
+        "rank",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Rank all economies by an indicator for a year, optionally filtered by region or income level.\nUse this to find leaders/laggards on an indicator.\n\nUsage:\n  world-bank-pp-cli rank \u003cindicator\u003e [flags]\n\nExamples:\n  world-bank-pp-cli rank NY.GDP.PCAP.CD --year 2024 --top 10 --income HIC\n\nFlags:\n      --asc             Rank ascending (lowest first)\n  -h, --help            help for rank\n      --income string   Filter by income level code (e.g. HIC, LIC)\n      --region string   Filter by region code (e.g. EAS, ECS)\n      --top int         Keep only the top N (0 = all)\n      --year string     Year to rank (e.g. 2024). Defaults to most recent value.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "rank",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [rank] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "rank",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [rank] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "rank",
+      "kind": "error_path",
+      "args": [
+        "rank",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: World Bank API error: Invalid value — The provided parameter value is not valid\n"
+    },
+    {
+      "command": "regions",
+      "kind": "help",
+      "args": [
+        "regions",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List regions\n\nUsage:\n  world-bank-pp-cli regions [flags]\n\nExamples:\n  world-bank-pp-cli regions\n\nFlags:\n      --format string   Response format (json) (default \"json\")\n  -h, --help            help for regions\n      --per-page int    Results per page (default 200)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "regions",
+      "kind": "happy_path",
+      "args": [
+        "regions"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"page\":\"1\",\"pages\":\"1\",\"per_page\":\"200\",\"total\":\"44\"},[{\"code\":\"AFE\",\"id\":\"\",\"iso2code\":\"ZH\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"AFR\",\"id\":\"\",\"iso2code\":\"A9\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"AFW\",\"id\":\"\",\"iso2code\":\"ZI\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"ARB\",\"id\":\"\",\"iso2code\":\"1A\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"CAA\",\"id\":\"\",\"iso2code\":\"C9\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"CEA\",\"id\":\"\",\"iso2code\":\"C4\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"CEB\",\"id\":\"\",\"iso2code\":\"B8\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"CEU\",\"id\":\"\",\"iso2code\":\"C5\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"CLA\",\"id\":\"\",\"iso2code\":\"C6\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"CME\",\"id\":\"\",\"iso2code\":\"C7\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"CSA\",\"id\":\"\",\"iso2code\":\"C8\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"CSS\",\"id\":\"\",\"iso2code\":\"S3\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"EAP\",\"id\":\"\",\"iso2code\":\"4E\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"EAR\",\"id\":\"\",\"iso2code\":\"V2\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"EAS\",\"id\":\"1\",\"iso2code\":\"Z4\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"ECA\",\"id\":\"\",\"iso2code\":\"7E\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"ECS\",\"id\":\"2\",\"iso2code\":\"Z7\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"EMU\",\"id\":\"\",\"iso2code\":\"XC\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"EUU\",\"id\":\"\",\"iso2code\":\"EU\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"FCS\",\"id\":\"\",\"iso2code\":\"F1\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"HPC\",\"id\":\"\",\"iso2code\":\"XE\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"LAC\",\"id\":\"\",\"iso2code\":\"XJ\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"LCN\",\"id\":\"3\",\"iso2code\":\"ZJ\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"LDC\",\"id\":\"\",\"iso2code\":\"XL\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"LTE\",\"id\":\"\",\"iso2code\":\"V3\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"MDE\",\"id\":\"\",\"iso2code\":\"M1\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"MEA\",\"id\":\"4\",\"iso2code\":\"ZQ\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"MNA\",\"id\":\"\",\"iso2code\":\"XQ\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"NAC\",\"id\":\"6\",\"iso2code\":\"XU\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"NAF\",\"id\":\"\",\"iso2code\":\"M2\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"NRS\",\"id\":\"\",\"iso2code\":\"6X\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"OED\",\"id\":\"\",\"iso2code\":\"OE\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"OSS\",\"id\":\"\",\"iso2code\":\"S4\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"PRE\",\"id\":\"\",\"iso2code\":\"V1\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"PSS\",\"id\":\"\",\"iso2code\":\"S2\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"PST\",\"id\":\"\",\"iso2code\":\"V4\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"RRS\",\"id\":\"\",\"iso2code\":\"R6\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"SAS\",\"id\":\"8\",\"iso2code\":\"8S\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"SSA\",\"id\":\"\",\"iso2code\":\"ZF\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"SSF\",\"id\":\"9\",\"iso2code\":\"ZG\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"SST\",\"id\":\"\",\"iso2code\":\"S1\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"SXZ\",\"id\":\"\",\"iso2code\":\"A4\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"WLD\",\"id\":\"\",\"iso2code\":\"1W\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"XZN\",\"id\":\"\",\"iso2code\":\"A5\",\"name\":\"\u003credacted\u003e\"}]]}warning: 2/2 regions items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "regions",
+      "kind": "json_fidelity",
+      "args": [
+        "regions",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"page\":\"1\",\"pages\":\"1\",\"per_page\":\"200\",\"total\":\"44\"},[{\"code\":\"AFE\",\"id\":\"\",\"iso2code\":\"ZH\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"AFR\",\"id\":\"\",\"iso2code\":\"A9\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"AFW\",\"id\":\"\",\"iso2code\":\"ZI\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"ARB\",\"id\":\"\",\"iso2code\":\"1A\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"CAA\",\"id\":\"\",\"iso2code\":\"C9\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"CEA\",\"id\":\"\",\"iso2code\":\"C4\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"CEB\",\"id\":\"\",\"iso2code\":\"B8\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"CEU\",\"id\":\"\",\"iso2code\":\"C5\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"CLA\",\"id\":\"\",\"iso2code\":\"C6\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"CME\",\"id\":\"\",\"iso2code\":\"C7\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"CSA\",\"id\":\"\",\"iso2code\":\"C8\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"CSS\",\"id\":\"\",\"iso2code\":\"S3\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"EAP\",\"id\":\"\",\"iso2code\":\"4E\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"EAR\",\"id\":\"\",\"iso2code\":\"V2\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"EAS\",\"id\":\"1\",\"iso2code\":\"Z4\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"ECA\",\"id\":\"\",\"iso2code\":\"7E\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"ECS\",\"id\":\"2\",\"iso2code\":\"Z7\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"EMU\",\"id\":\"\",\"iso2code\":\"XC\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"EUU\",\"id\":\"\",\"iso2code\":\"EU\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"FCS\",\"id\":\"\",\"iso2code\":\"F1\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"HPC\",\"id\":\"\",\"iso2code\":\"XE\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"LAC\",\"id\":\"\",\"iso2code\":\"XJ\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"LCN\",\"id\":\"3\",\"iso2code\":\"ZJ\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"LDC\",\"id\":\"\",\"iso2code\":\"XL\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"LTE\",\"id\":\"\",\"iso2code\":\"V3\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"MDE\",\"id\":\"\",\"iso2code\":\"M1\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"MEA\",\"id\":\"4\",\"iso2code\":\"ZQ\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"MNA\",\"id\":\"\",\"iso2code\":\"XQ\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"NAC\",\"id\":\"6\",\"iso2code\":\"XU\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"NAF\",\"id\":\"\",\"iso2code\":\"M2\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"NRS\",\"id\":\"\",\"iso2code\":\"6X\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"OED\",\"id\":\"\",\"iso2code\":\"OE\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"OSS\",\"id\":\"\",\"iso2code\":\"S4\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"PRE\",\"id\":\"\",\"iso2code\":\"V1\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"PSS\",\"id\":\"\",\"iso2code\":\"S2\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"PST\",\"id\":\"\",\"iso2code\":\"V4\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"RRS\",\"id\":\"\",\"iso2code\":\"R6\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"SAS\",\"id\":\"8\",\"iso2code\":\"8S\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"SSA\",\"id\":\"\",\"iso2code\":\"ZF\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"SSF\",\"id\":\"9\",\"iso2code\":\"ZG\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"SST\",\"id\":\"\",\"iso2code\":\"S1\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"SXZ\",\"id\":\"\",\"iso2code\":\"A4\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"WLD\",\"id\":\"\",\"iso2code\":\"1W\",\"name\":\"\u003credacted\u003e\"},{\"code\":\"XZN\",\"id\":\"\",\"iso2code\":\"A5\",\"name\":\"\u003credacted\u003e\"}]]}warning: 2/2 regions items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "regions",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  world-bank-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  world-bank-pp-cli search \"error timeout\"\n\n  # Force local search only\n  world-bank-pp-cli search \"payment failed\" --data-source local\n\n  # Search a specific resource type locally\n  world-bank-pp-cli search \"critical\" --type transactions --data-source local\n\n  # JSON output for piping\n  world-bank-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     Database path (default: ~/.local/share/world-bank-pp-cli/data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"reason\": \"no_search_endpoint\",\n    \"resource_type\": \"search\",\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\nThis API has no search endpoint. Searching local data.\n"
+    },
+    {
+      "command": "sources",
+      "kind": "help",
+      "args": [
+        "sources",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List data sources\n\nUsage:\n  world-bank-pp-cli sources [flags]\n\nExamples:\n  world-bank-pp-cli sources\n\nFlags:\n      --format string   Response format (json) (default \"json\")\n  -h, --help            help for sources\n      --per-page int    Results per page (default 200)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sources",
+      "kind": "happy_path",
+      "args": [
+        "sources"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"page\":\"1\",\"pages\":\"1\",\"per_page\":\"200\",\"total\":\"71\"},[{\"code\":\"DBS\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"1\",\"lastupdated\":\"2021-08-18\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"WDI\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"2\",\"lastupdated\":\"2026-04-08\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"WGI\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"3\",\"lastupdated\":\"2026-03-18\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"SNM\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"5\",\"lastupdated\":\"2016-03-21\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"IDS\",\"concepts\":\"4\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"6\",\"lastupdated\":\"2025-12-03\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"ADI\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"11\",\"lastupdated\":\"2013-02-22\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"EDS\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"12\",\"lastupdated\":\"2024-06-25\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"ESY\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"13\",\"lastupdated\":\"2022-03-25\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"GDS\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"14\",\"lastupdated\":\"2026-05-13\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"GEM\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"15\",\"lastupdated\":\"2026-03-31\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"HNP\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"16\",\"lastupdated\":\"2026-04-29\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"IDA\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"18\",\"lastupdated\":\"2021-07-23\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"MDG\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"19\",\"lastupdated\":\"2018-09-19\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"PSD\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"20\",\"lastupdated\":\"2026-05-01\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"QDS\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"22\",\"lastupdated\":\"2026-04-30\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"QDG\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"23\",\"lastupdated\":\"2026-04-30\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"JOB\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"25\",\"lastupdated\":\"2025-07-01\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"GEP\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"27\",\"lastupdated\":\"2026-06-11\",\"metadataavailability\":\"N\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"FDX\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"28\",\"lastupdated\":\"2025-10-06\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"GSP\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"29\",\"lastupdated\":\"2025-08-25\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"ED1\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"30\",\"lastupdated\":\"2016-03-31\",\"metadataavailability\":\"N\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"CPI\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"31\",\"lastupdated\":\"2025-07-12\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"GFD\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"32\",\"lastupdated\":\"2022-09-23\",\"metadataavailability\":\"N\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"G2F\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"33\",\"lastupdated\":\"2019-02-27\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"GPE\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"34\",\"lastupdated\":\"20…[truncated]"
+    },
+    {
+      "command": "sources",
+      "kind": "json_fidelity",
+      "args": [
+        "sources",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"page\":\"1\",\"pages\":\"1\",\"per_page\":\"200\",\"total\":\"71\"},[{\"code\":\"DBS\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"1\",\"lastupdated\":\"2021-08-18\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"WDI\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"2\",\"lastupdated\":\"2026-04-08\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"WGI\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"3\",\"lastupdated\":\"2026-03-18\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"SNM\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"5\",\"lastupdated\":\"2016-03-21\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"IDS\",\"concepts\":\"4\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"6\",\"lastupdated\":\"2025-12-03\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"ADI\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"11\",\"lastupdated\":\"2013-02-22\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"EDS\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"12\",\"lastupdated\":\"2024-06-25\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"ESY\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"13\",\"lastupdated\":\"2022-03-25\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"GDS\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"14\",\"lastupdated\":\"2026-05-13\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"GEM\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"15\",\"lastupdated\":\"2026-03-31\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"HNP\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"16\",\"lastupdated\":\"2026-04-29\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"IDA\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"18\",\"lastupdated\":\"2021-07-23\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"MDG\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"19\",\"lastupdated\":\"2018-09-19\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"PSD\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"20\",\"lastupdated\":\"2026-05-01\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"QDS\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"22\",\"lastupdated\":\"2026-04-30\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"QDG\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"23\",\"lastupdated\":\"2026-04-30\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"JOB\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"25\",\"lastupdated\":\"2025-07-01\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"GEP\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"27\",\"lastupdated\":\"2026-06-11\",\"metadataavailability\":\"N\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"FDX\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"28\",\"lastupdated\":\"2025-10-06\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"GSP\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"29\",\"lastupdated\":\"2025-08-25\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"ED1\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"30\",\"lastupdated\":\"2016-03-31\",\"metadataavailability\":\"N\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"CPI\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"31\",\"lastupdated\":\"2025-07-12\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"GFD\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"32\",\"lastupdated\":\"2022-09-23\",\"metadataavailability\":\"N\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"G2F\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"33\",\"lastupdated\":\"2019-02-27\",\"metadataavailability\":\"Y\",\"name\":\"\u003credacted\u003e\",\"url\":\"\"},{\"code\":\"GPE\",\"concepts\":\"3\",\"dataavailability\":\"Y\",\"description\":\"\",\"id\":\"34\",\"lastupdated\":\"20…[truncated]"
+    },
+    {
+      "command": "sources",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  world-bank-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  world-bank-pp-cli sync\n\n  # Sync specific resources only\n  world-bank-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  world-bank-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  world-bank-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  world-bank-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  world-bank-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/world-bank-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config stri…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"indicators\"}\n{\"event\":\"sync_start\",\"resource\":\"countries\"}\n{\"event\":\"sync_start\",\"resource\":\"lending_types\"}\n{\"event\":\"sync_start\",\"resource\":\"income_levels\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"income_levels\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"income_levels\",\"total\":0,\"duration_ms\":96}\n{\"event\":\"sync_start\",\"resource\":\"regions\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"lending_types\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"lending_types\",\"total\":0,\"duration_ms\":109}\n{\"event\":\"sync_start\",\"resource\":\"sources\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"countries\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"countries\",\"total\":0,\"duration_ms\":114}\n{\"event\":\"sync_start\",\"resource\":\"topics\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"indicators\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"indicators\",\"total\":0,\"duration_ms\":164}\n{\"event\":\"sync_anomaly\",\"resource\":\"sources\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"sources\",\"total\":0,\"duration_ms\":57}\n{\"event\":\"sync_anomaly\",\"resource\":\"topics\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"topics\",\"total\":0,\"duration_ms\":56}\n{\"event\":\"sync_anomaly\",\"resource\":\"regions\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"regions\",\"total\":0,\"duration_ms\":78}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":7,\"success\":7,\"warned\":0,\"errored\":0,\"duration_ms\":174}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"income_levels\"}\n{\"event\":\"sync_start\",\"resource\":\"lending_types\"}\n{\"event\":\"sync_start\",\"resource\":\"countries\"}\n{\"event\":\"sync_start\",\"resource\":\"indicators\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"lending_types\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"lending_types\",\"total\":0,\"duration_ms\":104}\n{\"event\":\"sync_start\",\"resource\":\"regions\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"income_levels\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"income_levels\",\"total\":0,\"duration_ms\":109}\n{\"event\":\"sync_start\",\"resource\":\"sources\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"indicators\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"indicators\",\"total\":0,\"duration_ms\":112}\n{\"event\":\"sync_start\",\"resource\":\"topics\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"countries\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"countries\",\"total\":0,\"duration_ms\":115}\n{\"event\":\"sync_anomaly\",\"resource\":\"regions\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"regions\",\"total\":0,\"duration_ms\":51}\n{\"event\":\"sync_anomaly\",\"resource\":\"topics\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"topics\",\"total\":0,\"duration_ms\":48}\n{\"event\":\"sync_anomaly\",\"resource\":\"sources\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"sources\",\"total\":0,\"duration_ms\":65}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":7,\"success\":7,\"warned\":0,\"errored\":0,\"duration_ms\":175}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "topics indicators",
+      "kind": "help",
+      "args": [
+        "topics",
+        "indicators",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List indicators under a topic\n\nUsage:\n  world-bank-pp-cli topics indicators \u003cid\u003e [flags]\n\nExamples:\n  world-bank-pp-cli topics indicators 8\n\nFlags:\n      --format string   Response format (json) (default \"json\")\n  -h, --help            help for indicators\n      --per-page int    Results per page (default 1000)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "topics indicators",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "topics indicators",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "topics indicators",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "topics list",
+      "kind": "help",
+      "args": [
+        "topics",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List topics\n\nUsage:\n  world-bank-pp-cli topics list [flags]\n\nExamples:\n  world-bank-pp-cli topics list\n\nFlags:\n      --format string   Response format (json) (default \"json\")\n  -h, --help            help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "topics list",
+      "kind": "happy_path",
+      "args": [
+        "topics",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"page\": 1,\n      \"pages\": 1,\n      \"per_page\": \"50\",\n      \"total\": 21\n    },\n    [\n      {\n        \"id\": \"1\",\n        \"value\": \"Agriculture \\u0026 Rural Development\",\n        \"sourceNote\": \"For the 70 percent of the world's poor who live in rural areas, agriculture is the main source of income and employment. But depletion and degradation of land and water pose serious challenges to producing enough food and other agricultural products to sustain livelihoods here and meet the needs of urban populations. Data presented here include measures of agricultural inputs, outputs, and productivity compiled by the UN's Food and Agriculture Organization.\"\n      },\n      {\n        \"id\": \"2\",\n        \"value\": \"Aid Effectiveness\",\n        \"sourceNote\": \"Aid effectiveness is the impact that aid has in reducing poverty and inequality, increasing growth, building capacity, and accelerating achievement of the Millennium Development Goals set by the international community. Indicators here cover aid received as well as progress in reducing poverty and improving education, health, and other measures of human welfare.\"\n      },\n      {\n        \"id\": \"3\",\n        \"value\": \"Economy \\u0026 Growth\",\n        \"sourceNote\": \"Economic growth is central to economic development. When national income grows, real people benefit. While there is no known formula for stimulating economic growth, data can help policy-makers better understand their countries' economic situations and guide any work toward improvement. Data here covers measures of economic growth, such as gross domestic product (GDP) and gross national income (GNI). It also includes indicators representing factors known to be relevant to economic growth, such as capital stock, employment, investment, savings, consumption, government spending, imports, and exports.\"\n      },\n      {\n        \"id\": \"4\",\n        \"value\": \"Education\",\n        \"sourceNote\": \"Education is one of the most powerful instruments for reducing poverty and inequality and lays a foundation for sustained economic growth. The World Bank compiles data on education inputs, participation, efficiency, and outcomes. Data on education are compiled by the United Nations Educational, Scientific, and Cultural Organization (UNESCO) Institute for Statistics from official responses to surveys and from reports provided by education authorities in each country.\"\n      },\n      {\n        \"id\": \"5\",\n        \"value\": \"Energy \\u0026 Mining\",\n        \"sourceNote\": \"The world economy needs ever-increasing amounts of energy to sustain economic growth, raise living standards, and reduce poverty. But today's trends in energy use are not sustainable. As the world's population grows and economies become more industrialized, nonrenewable energy sources will become scarcer and more costly. Data here on energy production, use, dependency, and efficiency are compiled by the World Bank from the International Energy Agency and the Carbon Dioxide Information Analysis Center.\"\n      },\n      {\n        \"id\": \"6\",\n        \"value\": \"Environment\",\n        \"sourceNote\": \"Natural and man-made environmental resources – fresh water, clean air, forests, grasslands, marine resources, and agro-ecosystems – provide sustenance and a foundation for social and economic development.  The need to safeguard these resources crosses all borders.  Today, the World Bank is one of the key promoters and financiers of environmental upgrading in the developing world. Data here cover forests, biodiversity, emissions, and pollution. Other indicators relevant to the environment are found under data pages for Agriculture \\u0026 Rural Development, Energy \\u0026 Mining, Infrastructure, and Urban Development.\"\n      },\n      {\n        \"id\": \"7\",\n        \"value\": \"Financial Sector\",\n        \"sourceNote\": \"An economy's financial markets are critical to its overall development. Banking systems and stock markets enhance growth, the main factor in poverty reduction. Strong financial systems provide reliable and accessible inf…[truncated]"
+    },
+    {
+      "command": "topics list",
+      "kind": "json_fidelity",
+      "args": [
+        "topics",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"page\": 1,\n      \"pages\": 1,\n      \"per_page\": \"50\",\n      \"total\": 21\n    },\n    [\n      {\n        \"id\": \"1\",\n        \"value\": \"Agriculture \\u0026 Rural Development\",\n        \"sourceNote\": \"For the 70 percent of the world's poor who live in rural areas, agriculture is the main source of income and employment. But depletion and degradation of land and water pose serious challenges to producing enough food and other agricultural products to sustain livelihoods here and meet the needs of urban populations. Data presented here include measures of agricultural inputs, outputs, and productivity compiled by the UN's Food and Agriculture Organization.\"\n      },\n      {\n        \"id\": \"2\",\n        \"value\": \"Aid Effectiveness\",\n        \"sourceNote\": \"Aid effectiveness is the impact that aid has in reducing poverty and inequality, increasing growth, building capacity, and accelerating achievement of the Millennium Development Goals set by the international community. Indicators here cover aid received as well as progress in reducing poverty and improving education, health, and other measures of human welfare.\"\n      },\n      {\n        \"id\": \"3\",\n        \"value\": \"Economy \\u0026 Growth\",\n        \"sourceNote\": \"Economic growth is central to economic development. When national income grows, real people benefit. While there is no known formula for stimulating economic growth, data can help policy-makers better understand their countries' economic situations and guide any work toward improvement. Data here covers measures of economic growth, such as gross domestic product (GDP) and gross national income (GNI). It also includes indicators representing factors known to be relevant to economic growth, such as capital stock, employment, investment, savings, consumption, government spending, imports, and exports.\"\n      },\n      {\n        \"id\": \"4\",\n        \"value\": \"Education\",\n        \"sourceNote\": \"Education is one of the most powerful instruments for reducing poverty and inequality and lays a foundation for sustained economic growth. The World Bank compiles data on education inputs, participation, efficiency, and outcomes. Data on education are compiled by the United Nations Educational, Scientific, and Cultural Organization (UNESCO) Institute for Statistics from official responses to surveys and from reports provided by education authorities in each country.\"\n      },\n      {\n        \"id\": \"5\",\n        \"value\": \"Energy \\u0026 Mining\",\n        \"sourceNote\": \"The world economy needs ever-increasing amounts of energy to sustain economic growth, raise living standards, and reduce poverty. But today's trends in energy use are not sustainable. As the world's population grows and economies become more industrialized, nonrenewable energy sources will become scarcer and more costly. Data here on energy production, use, dependency, and efficiency are compiled by the World Bank from the International Energy Agency and the Carbon Dioxide Information Analysis Center.\"\n      },\n      {\n        \"id\": \"6\",\n        \"value\": \"Environment\",\n        \"sourceNote\": \"Natural and man-made environmental resources – fresh water, clean air, forests, grasslands, marine resources, and agro-ecosystems – provide sustenance and a foundation for social and economic development.  The need to safeguard these resources crosses all borders.  Today, the World Bank is one of the key promoters and financiers of environmental upgrading in the developing world. Data here cover forests, biodiversity, emissions, and pollution. Other indicators relevant to the environment are found under data pages for Agriculture \\u0026 Rural Development, Energy \\u0026 Mining, Infrastructure, and Urban Development.\"\n      },\n      {\n        \"id\": \"7\",\n        \"value\": \"Financial Sector\",\n        \"sourceNote\": \"An economy's financial markets are critical to its overall development. Banking systems and stock markets enhance growth, the main factor in poverty reduction. Strong financial systems provide reliable and accessible inf…[truncated]"
+    },
+    {
+      "command": "topics list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "trend",
+      "kind": "help",
+      "args": [
+        "trend",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Summarize one country's trajectory on one indicator: CAGR, year-over-year change, min/max, first/latest.\nUse this for a single series. Do NOT use it to compare countries; use 'compare'.\n\nUsage:\n  world-bank-pp-cli trend \u003ccountry\u003e \u003cindicator\u003e [flags]\n\nExamples:\n  world-bank-pp-cli trend USA NY.GDP.MKTP.CD --window 10\n\nFlags:\n  -h, --help         help for trend\n      --window int   Limit to the most recent N values (0 = full series)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trend",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [trend] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "trend",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [trend] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "trend",
+      "kind": "error_path",
+      "args": [
+        "trend",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Usage:\n  world-bank-pp-cli trend \u003ccountry\u003e \u003cindicator\u003e [flags]\n\nExamples:\n  world-bank-pp-cli trend USA NY.GDP.MKTP.CD --window 10\n\nFlags:\n  -h, --help         help for trend\n      --window int   Limit to the most recent N values (0 = full series)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\nError: country and indicator are required\n"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  world-bank-pp-cli which [query] [flags]\n\nExamples:\n  world-bank-pp-cli which \"stale tickets\"\n  world-bank-pp-cli which \"bottleneck\"\n  world-bank-pp-cli which --limit 1 \"send message\"\n  world-bank-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  world-bank-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  world-bank-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  world-bank-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/world-bank-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"countries\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"countries\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"countries\",\"total\":0,\"duration_ms\":96}\n{\"event\":\"sync_start\",\"resource\":\"income_levels\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"income_levels\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"income_levels\",\"total\":0,\"duration_ms\":67}\n{\"event\":\"sync_start\",\"resource\":\"indicators\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"indicators\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"indicators\",\"total\":0,\"duration_ms\":63}\n{\"event\":\"sync_start\",\"resource\":\"lending_types\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"lending_types\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"lending_types\",\"total\":0,\"duration_ms\":59}\n{\"event\":\"sync_start\",\"resource\":\"regions\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"regions\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"regions\",\"total\":0,\"duration_ms\":56}\n{\"event\":\"sync_start\",\"resource\":\"sources\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"sources\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"sources\",\"total\":0,\"duration_ms\":56}\n{\"event\":\"sync_start\",\"resource\":\"topics\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"topics\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"topics\",\"total\":0,\"duration_ms\":41}\nArchived 0 items across 7 resources to C:\\Users\\lukej\\AppData\\Local\\Temp\\printing-press-subprocess-614973919\\.local\\share\\world-bank-pp-cli\\data.db\n  countries: 0 synced\n  income_levels: 0 synced\n  indicators: 0 synced\n  lending_types: 0 synced\n  regions: 0 synced\n  sources: 0 synced\n  topics: 0 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 7,\n  \"store_path\": \"C:\\\\Users\\\\lukej\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-614973919\\\\.local\\\\share\\\\world-bank-pp-cli\\\\data.db\",\n  \"timestamp\": \"2026-06-17T08:39:07Z\",\n  \"total_items\": 0\n}\n{\"event\":\"sync_start\",\"resource\":\"countries\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"countries\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"countries\",\"total\":0,\"duration_ms\":117}\n  countries: 0 synced\n{\"event\":\"sync_start\",\"resource\":\"income_levels\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"income_levels\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"income_levels\",\"total\":0,\"duration_ms\":64}\n  income_levels: 0 synced\n{\"event\":\"sync_start\",\"resource\":\"indicators\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"indicators\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"indicators\",\"total\":0,\"duration_ms\":51}\n  indicators: 0 synced\n{\"event\":\"sync_start\",\"resource\":\"lending_types\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"lending_types\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"lending_types\",\"total\":0,\"duration_ms\":43}\n  lending_types: 0 synced\n{\"event\":\"sync_start\",\"resource\":\"regions\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"regions\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"regions\",\"total\":0,\"duration_ms\":64}\n  regions: 0 synced\n{\"event\":\"sync_start\",\"resource\":\"sources\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"sources\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"sources\",\"total\":0,\"duration_ms\":47}\n  sources: 0 synced\n{\"event\":\"sync_start\",\"resource\":\"topics\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"topics\",\"reason\":\"non_json_200_body\"}\n{\"event\":\"sync_complete\",\"resource\":\"topics\",\"total\":0,\"duration_ms\":42}\n  topics: 0 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  world-bank-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  world-bank-pp-cli workflow status\n\n  # Show status as JSON\n  world-bank-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'world-bank-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "No archived data. Run 'workflow archive' to sync.\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-17T08:39:01.6539135Z"
+}
