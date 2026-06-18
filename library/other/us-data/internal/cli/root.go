@@ -99,7 +99,7 @@ func printText(w io.Writer, value any) error {
 	case SeriesResult:
 		fmt.Fprintf(w, "%s (%s)\n", v.Title, v.SeriesID)
 		fmt.Fprintf(w, "Latest: %s %s = %s\n", v.Latest.PeriodName, v.Latest.Year, v.Latest.Value)
-		if v.Prior.Value != "" {
+		if v.Prior != nil && v.Prior.Value != "" {
 			fmt.Fprintf(w, "Prior: %s %s = %s\n", v.Prior.PeriodName, v.Prior.Year, v.Prior.Value)
 		}
 		if v.PercentChange != nil {

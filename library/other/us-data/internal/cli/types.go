@@ -16,7 +16,7 @@ type SeriesResult struct {
 	SeriesID      string        `json:"series_id"`
 	Title         string        `json:"title"`
 	Latest        Observation   `json:"latest"`
-	Prior         Observation   `json:"prior,omitempty"`
+	Prior         *Observation  `json:"prior,omitempty"`
 	PercentChange *float64      `json:"percent_change,omitempty"`
 	Observations  []Observation `json:"observations,omitempty"`
 	FreshnessNote string        `json:"freshness_note"`

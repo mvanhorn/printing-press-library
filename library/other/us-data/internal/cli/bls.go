@@ -96,7 +96,8 @@ func parseBLS(seriesID, title string, body []byte) (SeriesResult, error) {
 		},
 	}
 	if len(observations) > 1 {
-		result.Prior = observations[1]
+		prior := observations[1]
+		result.Prior = &prior
 		if pct, ok := percentChange(observations[1].Value, observations[0].Value); ok {
 			result.PercentChange = &pct
 		}
