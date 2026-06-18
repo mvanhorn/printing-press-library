@@ -1,0 +1,11 @@
+{
+  "id": "policy-intel-plan-curation",
+  "kind": "code",
+  "summary": "Curated the first-print command surface around source-backed Federal Register and Regulations.gov recipes instead of exposing raw endpoint mirrors.",
+  "files": [
+    "internal/cli/federal_register.go",
+    "internal/cli/regulations.go",
+    "internal/cli/commands.go"
+  ],
+  "reason": "The upstream issue requests agent-native policy intelligence workflows with stable JSON, live validation, and clear non-goals."
+}
