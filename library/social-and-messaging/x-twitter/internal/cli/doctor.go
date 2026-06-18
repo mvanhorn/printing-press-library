@@ -100,6 +100,26 @@ func probeAuthLane(ctx context.Context, c *client.Client, header, source, path, 
 		body := apiErr.Body
 		switch {
 		case apiErr.StatusCode == 401:
+			if path == "/2/users/me" {
+				if refreshed, refreshErr := c.RefreshOAuth2UserContext(ctx, true); refreshErr == nil && refreshed {
+					refreshedHeader := c.Config.UserContextAuthHeader()
+					if refreshedHeader != "" && refreshedHeader != header {
+						refreshedHeaders := map[string]string{
+							"Authorization": refreshedHeader,
+							"User-Agent":    "x-twitter-pp-cli",
+						}
+						if refreshedBody, retryErr := c.GetWithHeaders(ctx, path, nil, refreshedHeaders); retryErr == nil {
+							lane := authLane("ok", source, "")
+							lane["refreshed"] = true
+							if user := userSummaryFromMeProbe(refreshedBody); len(user) > 0 {
+								lane["probe"] = "/2/users/me ok"
+								lane["user"] = user
+							}
+							return lane
+						}
+					}
+				}
+			}
 			lane := authLane("invalid", source, "token was rejected; refresh or replace this credential")
 			lane["http_status"] = apiErr.StatusCode
 			return lane

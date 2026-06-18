@@ -196,6 +196,76 @@ func TestDoctorClassifiesAppOnlyTokenInUserContextLane(t *testing.T) {
 	}
 }
 
+func TestDoctorRefreshesOAuth2UserContextAfterUnauthorized(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/2/oauth2/token":
+			if err := r.ParseForm(); err != nil {
+				t.Fatalf("ParseForm: %v", err)
+			}
+			if got := r.Form.Get("refresh_token"); got != "doctor-refresh" && got != "doctor-rotated" {
+				t.Fatalf("unexpected refresh token: %#v", r.Form)
+			}
+			if r.Form.Get("client_id") != "doctor-client" {
+				t.Fatalf("unexpected refresh client_id: %#v", r.Form)
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"access_token":"doctor-fresh","refresh_token":"doctor-rotated","expires_in":3600}`))
+		case "/2/users/me":
+			switch r.Header.Get("Authorization") {
+			case "Bearer doctor-stale":
+				http.Error(w, "expired", http.StatusUnauthorized)
+			case "Bearer doctor-fresh":
+				w.Header().Set("Content-Type", "application/json")
+				_, _ = w.Write([]byte(`{"data":{"id":"123","username":"tester"}}`))
+			default:
+				http.Error(w, "invalid", http.StatusUnauthorized)
+			}
+		case xAppOnlyProbePath:
+			http.Error(w, "missing app token", http.StatusUnauthorized)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+	oldEndpoint := client.OAuth2TokenEndpoint
+	client.OAuth2TokenEndpoint = server.URL + "/2/oauth2/token"
+	defer func() { client.OAuth2TokenEndpoint = oldEndpoint }()
+
+	home := t.TempDir()
+	configPath := writeDoctorConfig(t, t.TempDir(), server.URL, `oauth2_user_token = "doctor-stale"
+refresh_token = "doctor-refresh"
+client_id = "doctor-client"
+token_expiry = 2026-06-08T12:00:00Z
+`)
+
+	report := runDoctorJSON(t, home, configPath)
+	userLane := laneFromReport(t, report, "oauth2_user_context")
+	if got, _ := userLane["status"].(string); got != "ok" {
+		t.Fatalf("oauth2_user_context status = %q, want ok after refresh (lane=%#v)", got, userLane)
+	}
+	if userLane["refreshed"] != true {
+		t.Fatalf("refreshed marker = %#v, want true (lane=%#v)", userLane["refreshed"], userLane)
+	}
+	encoded, err := os.ReadFile(configPath)
+	if err != nil {
+		t.Fatalf("read config: %v", err)
+	}
+	text := string(encoded)
+	if strings.Contains(text, "doctor-stale") || !strings.Contains(text, "doctor-fresh") || !strings.Contains(text, "doctor-rotated") {
+		t.Fatalf("config did not persist refreshed user-context tuple: %s", text)
+	}
+	out, err := json.Marshal(report)
+	if err != nil {
+		t.Fatalf("marshal report: %v", err)
+	}
+	for _, secret := range []string{"doctor-stale", "doctor-refresh", "doctor-fresh", "doctor-rotated"} {
+		if strings.Contains(string(out), secret) {
+			t.Fatalf("doctor report leaked secret %q: %s", secret, out)
+		}
+	}
+}
+
 func TestBuildAuthLaneReportProbesAPILanesConcurrently(t *testing.T) {
 	t.Setenv("HOME", t.TempDir())
 

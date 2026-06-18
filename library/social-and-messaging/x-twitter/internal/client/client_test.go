@@ -9,8 +9,10 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -155,6 +157,124 @@ func TestRequestRejectsEmptyMethod(t *testing.T) {
 	c := New(&config.Config{BaseURL: "https://api.x.com"}, time.Second, 0)
 	if _, _, err := c.Request(context.Background(), "  ", "/2/users/me", nil, nil, nil); err == nil {
 		t.Fatal("expected empty method error")
+	}
+}
+
+func TestRequestRefreshesExpiredOAuth2UserContextToken(t *testing.T) {
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	var sawAPIWithFresh bool
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/2/oauth2/token":
+			if got := r.Header.Get("Authorization"); strings.Contains(got, "old-access") || strings.Contains(got, "old-refresh") {
+				t.Fatalf("refresh request leaked token in Authorization header: %q", got)
+			}
+			if err := r.ParseForm(); err != nil {
+				t.Fatalf("ParseForm: %v", err)
+			}
+			if r.Form.Get("grant_type") != "refresh_token" || r.Form.Get("refresh_token") != "old-refresh" || r.Form.Get("client_id") != "client-id" {
+				t.Fatalf("unexpected refresh form: %#v", r.Form)
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"access_token":"fresh-access","refresh_token":"rotated-refresh","expires_in":3600,"scope":"tweet.read users.read offline.access"}`))
+		case "/2/users/me":
+			if got := r.Header.Get("Authorization"); got != "Bearer fresh-access" {
+				http.Error(w, "wrong token", http.StatusUnauthorized)
+				return
+			}
+			sawAPIWithFresh = true
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"data":{"id":"123"}}`))
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+	oldEndpoint := OAuth2TokenEndpoint
+	OAuth2TokenEndpoint = server.URL + "/2/oauth2/token"
+	defer func() { OAuth2TokenEndpoint = oldEndpoint }()
+
+	cfg := &config.Config{
+		BaseURL:          server.URL,
+		Path:             configPath,
+		XOauth2UserToken: "old-access",
+		RefreshToken:     "old-refresh",
+		ClientID:         "client-id",
+		TokenExpiry:      time.Now().Add(-time.Minute),
+		Scopes:           []string{"tweet.read"},
+	}
+	c := New(cfg, time.Second, 0)
+	c.NoCache = true
+	if _, err := c.Get(context.Background(), "/2/users/me", nil); err != nil {
+		t.Fatalf("Get: %v", err)
+	}
+	if !sawAPIWithFresh {
+		t.Fatal("API was not called with refreshed token")
+	}
+	if cfg.XOauth2UserToken != "fresh-access" || cfg.AccessToken != "" || cfg.RefreshToken != "rotated-refresh" {
+		t.Fatalf("tokens were not persisted into user-context fields: %#v", cfg)
+	}
+	if cfg.TokenExpiry.IsZero() || time.Until(cfg.TokenExpiry) < 30*time.Minute {
+		t.Fatalf("TokenExpiry was not updated: %s", cfg.TokenExpiry)
+	}
+	onDisk, err := config.Load(configPath)
+	if err != nil {
+		t.Fatalf("reload config: %v", err)
+	}
+	if onDisk.XOauth2UserToken != "fresh-access" || onDisk.AccessToken != "" || onDisk.RefreshToken != "rotated-refresh" {
+		t.Fatalf("disk config did not persist rotated tokens: %#v", onDisk)
+	}
+}
+
+func TestRequestRefreshesOAuth2UserContextTokenAfterUnauthorized(t *testing.T) {
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	apiCalls := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/2/oauth2/token":
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"access_token":"fresh-after-401","refresh_token":"rotated-after-401","expires_in":3600}`))
+		case "/2/users/me":
+			apiCalls++
+			if apiCalls == 1 {
+				if got := r.Header.Get("Authorization"); got != "Bearer stale-access" {
+					t.Fatalf("first request used %q, want stale token", got)
+				}
+				http.Error(w, "expired", http.StatusUnauthorized)
+				return
+			}
+			if got := r.Header.Get("Authorization"); got != "Bearer fresh-after-401" {
+				t.Fatalf("retry request used %q, want refreshed token", got)
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"data":{"id":"123"}}`))
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+	oldEndpoint := OAuth2TokenEndpoint
+	OAuth2TokenEndpoint = server.URL + "/2/oauth2/token"
+	defer func() { OAuth2TokenEndpoint = oldEndpoint }()
+
+	cfg := &config.Config{
+		BaseURL:          server.URL,
+		Path:             configPath,
+		XOauth2UserToken: "stale-access",
+		RefreshToken:     "stale-refresh",
+		ClientID:         "client-id",
+		TokenExpiry:      time.Now().Add(time.Hour),
+	}
+	c := New(cfg, time.Second, 0)
+	c.NoCache = true
+	if _, err := c.Get(context.Background(), "/2/users/me", nil); err != nil {
+		t.Fatalf("Get: %v", err)
+	}
+	if apiCalls != 2 {
+		t.Fatalf("apiCalls = %d, want initial 401 plus retry", apiCalls)
+	}
+	if cfg.XOauth2UserToken != "fresh-after-401" || cfg.RefreshToken != "rotated-after-401" {
+		t.Fatalf("refreshed tokens not stored: %#v", cfg)
 	}
 }
 

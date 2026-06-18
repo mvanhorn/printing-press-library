@@ -27,6 +27,8 @@ import (
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"
 
+var OAuth2TokenEndpoint = "https://api.twitter.com/2/oauth2/token"
+
 var ErrPlaceholderCredential = errors.New("auth placeholder credential")
 
 type Client struct {
@@ -196,6 +198,15 @@ func binaryResponseHeaderValue(headers map[string]string) (bool, bool) {
 		}
 	}
 	return false, found
+}
+
+func authorizationHeaderOverride(headers map[string]string) string {
+	for k, v := range headers {
+		if strings.EqualFold(k, "Authorization") {
+			return v
+		}
+	}
+	return ""
 }
 
 func (c *Client) validateCachedRequestAuth(ctx context.Context) error {
@@ -502,7 +513,9 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	// media-upload calls; their auth is injected per-request below via
 	// cookies.apply().
 	var authHeader string
-	if !hostUsesCookieAuth(hostFromURL(targetURL)) {
+	if overrideAuth := authorizationHeaderOverride(headerOverrides); overrideAuth != "" {
+		authHeader = overrideAuth
+	} else if !hostUsesCookieAuth(hostFromURL(targetURL)) {
 		h, err := c.authHeader(ctx)
 		if err != nil {
 			return nil, 0, err
@@ -517,6 +530,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 
 	const maxRetries = 3
 	var lastErr error
+	refreshedAfterUnauthorized := false
 
 	for attempt := 0; attempt <= maxRetries; attempt++ {
 		// Proactive rate limiting — wait before sending
@@ -563,6 +577,9 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		}
 		// Per-endpoint header overrides (e.g., different API version per resource)
 		for k, v := range headerOverrides {
+			if strings.EqualFold(k, "Authorization") && authHeader != "" && v != authHeader {
+				continue
+			}
 			req.Header.Set(k, v)
 		}
 		binaryResponse := strings.EqualFold(req.Header.Get(BinaryResponseHeader), "true")
@@ -635,6 +652,18 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			Path:       c.displayURL(path, authHeader),
 			StatusCode: resp.StatusCode,
 			Body:       c.maskCredentialText(truncateBody(respBody), authHeader),
+		}
+
+		if resp.StatusCode == http.StatusUnauthorized && !refreshedAfterUnauthorized && authorizationHeaderOverride(headerOverrides) == "" && !hostUsesCookieAuth(req.URL.Host) {
+			refreshed, refreshErr := c.RefreshOAuth2UserContext(ctx, true)
+			if refreshErr == nil && refreshed {
+				if h, err := c.authHeader(ctx); err == nil && h != "" {
+					authHeader = h
+					refreshedAfterUnauthorized = true
+					lastErr = apiErr
+					continue
+				}
+			}
 		}
 
 		// Rate limited - adjust adaptive limiter and retry
@@ -848,11 +877,82 @@ func (c *Client) authHeader(ctx context.Context) (string, error) {
 	if c.Config == nil {
 		return "", nil
 	}
+	if _, err := c.RefreshOAuth2UserContext(ctx, false); err != nil {
+		return "", err
+	}
 	authHeader := c.Config.AuthHeader()
 	if authHeaderLooksLikePlaceholderCredential(authHeader) {
 		return "", authPlaceholderCredentialError(c.Config)
 	}
 	return authHeader, nil
+}
+
+func (c *Client) RefreshOAuth2UserContext(ctx context.Context, force bool) (bool, error) {
+	if c == nil || c.Config == nil {
+		return false, nil
+	}
+	cfg := c.Config
+	if strings.TrimSpace(cfg.RefreshToken) == "" || strings.TrimSpace(cfg.ClientID) == "" {
+		return false, nil
+	}
+	if !force && (cfg.TokenExpiry.IsZero() || time.Until(cfg.TokenExpiry) > time.Minute) {
+		return false, nil
+	}
+	form := url.Values{}
+	form.Set("grant_type", "refresh_token")
+	form.Set("refresh_token", strings.TrimSpace(cfg.RefreshToken))
+	form.Set("client_id", strings.TrimSpace(cfg.ClientID))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, OAuth2TokenEndpoint, strings.NewReader(form.Encode()))
+	if err != nil {
+		return false, err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	if strings.TrimSpace(cfg.ClientSecret) != "" {
+		req.SetBasicAuth(strings.TrimSpace(cfg.ClientID), strings.TrimSpace(cfg.ClientSecret))
+	}
+	httpClient := c.HTTPClient
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return false, fmt.Errorf("refreshing OAuth2 user-context token: %w", err)
+	}
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(io.LimitReader(resp.Body, 64*1024))
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return false, fmt.Errorf("refreshing OAuth2 user-context token failed: HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(body)))
+	}
+	var token struct {
+		TokenType    string `json:"token_type"`
+		ExpiresIn    int    `json:"expires_in"`
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+		Scope        string `json:"scope"`
+	}
+	if err := json.Unmarshal(body, &token); err != nil {
+		return false, fmt.Errorf("parsing OAuth2 refresh response: %w", err)
+	}
+	accessToken := strings.TrimSpace(token.AccessToken)
+	if accessToken == "" {
+		return false, fmt.Errorf("OAuth2 refresh response did not include access_token")
+	}
+	refreshToken := strings.TrimSpace(token.RefreshToken)
+	if refreshToken == "" {
+		refreshToken = strings.TrimSpace(cfg.RefreshToken)
+	}
+	expiry := time.Time{}
+	if token.ExpiresIn > 0 {
+		expiry = time.Now().UTC().Add(time.Duration(token.ExpiresIn) * time.Second)
+	}
+	scopes := cfg.Scopes
+	if strings.TrimSpace(token.Scope) != "" {
+		scopes = strings.Fields(strings.ReplaceAll(token.Scope, ",", " "))
+	}
+	if err := cfg.SaveOAuth2UserContext(cfg.ClientID, cfg.ClientSecret, accessToken, refreshToken, expiry, scopes); err != nil {
+		return false, fmt.Errorf("saving refreshed OAuth2 user-context token: %w", err)
+	}
+	return true, nil
 }
 
 func authHeaderLooksLikePlaceholderCredential(header string) bool {
