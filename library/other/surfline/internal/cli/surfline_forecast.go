@@ -85,7 +85,7 @@ func (w wavePoint) topSwell() (swellComponent, bool) {
 	found := false
 	bestEnergy := -1.0
 	for _, s := range w.Swells {
-		if s.Height <= 0 && s.Period <= 0 {
+		if s.Height <= 0 || s.Period <= 0 {
 			continue
 		}
 		e := s.Height * s.Period * s.Period
