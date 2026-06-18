@@ -220,13 +220,20 @@ Resource scoping:
 			work := make(chan string, len(resources))
 			results := make(chan syncResult, len(resources))
 
+			// PATCH: serialize event writes across workers. When --deliver is
+			// set, syncEventWriter wraps a *bytes.Buffer (via io.MultiWriter),
+			// which is not goroutine-safe; concurrent syncResource writers
+			// would race and garble output. A mutex-guarded writer makes
+			// concurrent Fprint calls safe regardless of the underlying sink.
+			workerEventWriter := newLockedWriter(syncEventWriter)
+
 			var wg sync.WaitGroup
 			for i := 0; i < concurrency; i++ {
 				wg.Add(1)
 				go func() {
 					defer wg.Done()
 					for resource := range work {
-						res := syncResource(cmd.Context(), c, db, resource, sinceTS, full, maxPages, effectiveLatestOnly, userParams, syncEventWriter)
+						res := syncResource(cmd.Context(), c, db, resource, sinceTS, full, maxPages, effectiveLatestOnly, userParams, workerEventWriter)
 						results <- res
 					}
 				}()
@@ -347,6 +354,26 @@ Resource scoping:
 	cmd.Flags().StringArrayVar(&globalParamFlags, "global-param", nil, "Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.")
 
 	return cmd
+}
+
+// lockedWriter serializes concurrent writes to an underlying io.Writer.
+// The sync worker pool fans out across goroutines that all emit progress
+// events to the same writer; when --deliver wraps a *bytes.Buffer (not
+// goroutine-safe), unsynchronized writes race. Guarding Write with a mutex
+// keeps emitted JSON event lines intact regardless of the sink.
+type lockedWriter struct {
+	mu sync.Mutex
+	w  io.Writer
+}
+
+func newLockedWriter(w io.Writer) *lockedWriter {
+	return &lockedWriter{w: w}
+}
+
+func (l *lockedWriter) Write(p []byte) (int, error) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return l.w.Write(p)
 }
 
 // syncResource handles the full paginated sync of a single resource.
