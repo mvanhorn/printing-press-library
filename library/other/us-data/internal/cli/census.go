@@ -94,3 +94,17 @@ type guidanceError struct {
 func (e guidanceError) Error() string {
 	return e.result.Title + ": missing " + strings.Join(e.result.EnvVars, ", ")
 }
+
+func censusSetupGuidance(title string) GuidanceResult {
+	return GuidanceResult{
+		Kind:   "setup_guidance",
+		Status: "needs_auth",
+		Title:  title,
+		Messages: []string{
+			"Census Data API data queries currently require an API key.",
+			"Request a key from https://api.census.gov/data/key_signup.html and set US_DATA_CENSUS_API_KEY.",
+		},
+		EnvVars: []string{"US_DATA_CENSUS_API_KEY"},
+		Sources: []string{"https://www.census.gov/data/developers/guidance/api-user-guide.html"},
+	}
+}

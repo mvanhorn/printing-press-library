@@ -67,20 +67,6 @@ func beaSetupGuidance() GuidanceResult {
 	}
 }
 
-func censusSetupGuidance(title string) GuidanceResult {
-	return GuidanceResult{
-		Kind:   "setup_guidance",
-		Status: "needs_auth",
-		Title:  title,
-		Messages: []string{
-			"Census Data API data queries currently require an API key.",
-			"Request a key from https://api.census.gov/data/key_signup.html and set US_DATA_CENSUS_API_KEY.",
-		},
-		EnvVars: []string{"US_DATA_CENSUS_API_KEY"},
-		Sources: []string{"https://www.census.gov/data/developers/guidance/api-user-guide.html"},
-	}
-}
-
 func unsupportedWagesGuidance(occupation string) GuidanceResult {
 	message := "The first us-data print does not guess occupational wage tables without a source-backed mapping."
 	if occupation != "" {

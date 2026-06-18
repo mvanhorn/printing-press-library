@@ -24,9 +24,8 @@ type rootFlags struct {
 	timeout time.Duration
 }
 
-var flags rootFlags
-
 func Execute() error {
+	flags := rootFlags{}
 	rootCmd := &cobra.Command{
 		Use:          "us-data-pp-cli",
 		Short:        "Official US public data recipes for agents",
@@ -39,14 +38,14 @@ func Execute() error {
 	rootCmd.PersistentFlags().BoolVar(&flags.compact, "compact", false, "Print compact JSON")
 	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 20*time.Second, "HTTP timeout")
 
-	rootCmd.AddCommand(newCPICmd())
-	rootCmd.AddCommand(newUnemploymentCmd())
-	rootCmd.AddCommand(newPopulationCmd())
-	rootCmd.AddCommand(newWagesCmd())
-	rootCmd.AddCommand(newIndustryCmd())
-	rootCmd.AddCommand(newCompareRegionsCmd())
-	rootCmd.AddCommand(newSourcesCmd())
-	rootCmd.AddCommand(newDoctorCmd())
+	rootCmd.AddCommand(newCPICmd(&flags))
+	rootCmd.AddCommand(newUnemploymentCmd(&flags))
+	rootCmd.AddCommand(newPopulationCmd(&flags))
+	rootCmd.AddCommand(newWagesCmd(&flags))
+	rootCmd.AddCommand(newIndustryCmd(&flags))
+	rootCmd.AddCommand(newCompareRegionsCmd(&flags))
+	rootCmd.AddCommand(newSourcesCmd(&flags))
+	rootCmd.AddCommand(newDoctorCmd(&flags))
 	rootCmd.AddCommand(newVersionCmd())
 	return rootCmd.Execute()
 }
@@ -74,7 +73,7 @@ func usageErr(format string, args ...any) error {
 	return usageError{err: fmt.Errorf(format, args...)}
 }
 
-func commandContext(cmd *cobra.Command) (context.Context, context.CancelFunc) {
+func commandContext(cmd *cobra.Command, flags *rootFlags) (context.Context, context.CancelFunc) {
 	timeout := flags.timeout
 	if timeout <= 0 {
 		timeout = 20 * time.Second
@@ -82,14 +81,12 @@ func commandContext(cmd *cobra.Command) (context.Context, context.CancelFunc) {
 	return context.WithTimeout(cmd.Context(), timeout)
 }
 
-func printResult(cmd *cobra.Command, value any) error {
-	if flags.agent {
-		flags.json = true
-		flags.compact = true
-	}
-	if flags.json || flags.compact {
+func printResult(cmd *cobra.Command, flags *rootFlags, value any) error {
+	jsonOutput := flags.json || flags.agent
+	compact := flags.compact || flags.agent
+	if jsonOutput || compact {
 		enc := json.NewEncoder(cmd.OutOrStdout())
-		if !flags.compact {
+		if !compact {
 			enc.SetIndent("", "  ")
 		}
 		return enc.Encode(value)

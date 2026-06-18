@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newCPICmd() *cobra.Command {
+func newCPICmd(flags *rootFlags) *cobra.Command {
 	var series string
 	var years int
 	cmd := &cobra.Command{
@@ -17,13 +17,13 @@ func newCPICmd() *cobra.Command {
 		Example: "  us-data-pp-cli cpi --agent\n" +
 			"  us-data-pp-cli cpi --series CUUR0000SA0 --years 3 --json",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx, cancel := commandContext(cmd)
+			ctx, cancel := commandContext(cmd, flags)
 			defer cancel()
 			result, err := fetchBLSSeries(ctx, series, "Consumer Price Index for All Urban Consumers: All items in U.S. city average", years)
 			if err != nil {
 				return err
 			}
-			return printResult(cmd, result)
+			return printResult(cmd, flags, result)
 		},
 	}
 	cmd.Flags().StringVar(&series, "series", "CUUR0000SA0", "BLS CPI series ID")
@@ -31,7 +31,7 @@ func newCPICmd() *cobra.Command {
 	return cmd
 }
 
-func newUnemploymentCmd() *cobra.Command {
+func newUnemploymentCmd(flags *rootFlags) *cobra.Command {
 	var series string
 	var state string
 	var years int
@@ -42,7 +42,7 @@ func newUnemploymentCmd() *cobra.Command {
 			"  us-data-pp-cli unemployment --series LNS14000000 --json",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if state != "" && series == "LNS14000000" {
-				return printResult(cmd, GuidanceResult{
+				return printResult(cmd, flags, GuidanceResult{
 					Kind:   "source_guidance",
 					Status: "needs_series_mapping",
 					Title:  "State unemployment lookup",
@@ -53,13 +53,13 @@ func newUnemploymentCmd() *cobra.Command {
 					Sources: []string{"https://www.bls.gov/developers/", "https://www.bls.gov/lau/"},
 				})
 			}
-			ctx, cancel := commandContext(cmd)
+			ctx, cancel := commandContext(cmd, flags)
 			defer cancel()
 			result, err := fetchBLSSeries(ctx, series, "National unemployment rate", years)
 			if err != nil {
 				return err
 			}
-			return printResult(cmd, result)
+			return printResult(cmd, flags, result)
 		},
 	}
 	cmd.Flags().StringVar(&series, "series", "LNS14000000", "BLS unemployment series ID")
@@ -68,7 +68,7 @@ func newUnemploymentCmd() *cobra.Command {
 	return cmd
 }
 
-func newPopulationCmd() *cobra.Command {
+func newPopulationCmd(flags *rootFlags) *cobra.Command {
 	var place string
 	cmd := &cobra.Command{
 		Use:     "population",
@@ -78,24 +78,24 @@ func newPopulationCmd() *cobra.Command {
 			if place == "" {
 				return usageErr("--place is required")
 			}
-			ctx, cancel := commandContext(cmd)
+			ctx, cancel := commandContext(cmd, flags)
 			defer cancel()
 			result, err := fetchPopulation(ctx, place)
 			var guidance guidanceError
 			if errors.As(err, &guidance) {
-				return printResult(cmd, guidance.result)
+				return printResult(cmd, flags, guidance.result)
 			}
 			if err != nil {
 				return err
 			}
-			return printResult(cmd, result)
+			return printResult(cmd, flags, result)
 		},
 	}
 	cmd.Flags().StringVar(&place, "place", "", "Place label, for example Austin, TX")
 	return cmd
 }
 
-func newWagesCmd() *cobra.Command {
+func newWagesCmd(flags *rootFlags) *cobra.Command {
 	var occupation string
 	var state string
 	cmd := &cobra.Command{
@@ -104,7 +104,7 @@ func newWagesCmd() *cobra.Command {
 		Example: "  us-data-pp-cli wages --occupation \"software developer\" --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			_ = state
-			return printResult(cmd, unsupportedWagesGuidance(occupation))
+			return printResult(cmd, flags, unsupportedWagesGuidance(occupation))
 		},
 	}
 	cmd.Flags().StringVar(&occupation, "occupation", "", "Occupation name or SOC code")
@@ -112,7 +112,7 @@ func newWagesCmd() *cobra.Command {
 	return cmd
 }
 
-func newIndustryCmd() *cobra.Command {
+func newIndustryCmd(flags *rootFlags) *cobra.Command {
 	var naics string
 	var industry string
 	var state string
@@ -122,15 +122,15 @@ func newIndustryCmd() *cobra.Command {
 		Example: "  us-data-pp-cli industry --naics 541511 --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if env("US_DATA_BEA_API_KEY") == "" {
-				return printResult(cmd, beaSetupGuidance())
+				return printResult(cmd, flags, beaSetupGuidance())
 			}
-			ctx, cancel := commandContext(cmd)
+			ctx, cancel := commandContext(cmd, flags)
 			defer cancel()
 			result, err := fetchBEAIndustry(ctx, naics, industry, state)
 			if err != nil {
 				return err
 			}
-			return printResult(cmd, result)
+			return printResult(cmd, flags, result)
 		},
 	}
 	cmd.Flags().StringVar(&naics, "naics", "", "NAICS code")
@@ -139,7 +139,7 @@ func newIndustryCmd() *cobra.Command {
 	return cmd
 }
 
-func newCompareRegionsCmd() *cobra.Command {
+func newCompareRegionsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "compare-regions <left> <right>",
 		Short:   "Build an agent-readable comparison shell for two regions",
@@ -159,7 +159,7 @@ func newCompareRegionsCmd() *cobra.Command {
 			if env("US_DATA_CENSUS_API_KEY") == "" {
 				result.Notices = append(result.Notices, "Population comparison needs US_DATA_CENSUS_API_KEY because Census data queries require an API key.")
 			} else {
-				ctx, cancel := commandContext(cmd)
+				ctx, cancel := commandContext(cmd, flags)
 				defer cancel()
 				if left, err := fetchPopulation(ctx, args[0]); err == nil {
 					result.Left.Population = &left
@@ -176,18 +176,18 @@ func newCompareRegionsCmd() *cobra.Command {
 				result.Notices = append(result.Notices, "BEA regional economic facts need US_DATA_BEA_API_KEY.")
 			}
 			result.Notices = append(result.Notices, "BLS labor comparisons need explicit series mappings for local/state labor series in this first print.")
-			return printResult(cmd, result)
+			return printResult(cmd, flags, result)
 		},
 	}
 	return cmd
 }
 
-func newSourcesCmd() *cobra.Command {
+func newSourcesCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "sources",
 		Short: "Show source coverage and auth requirements",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return printResult(cmd, map[string]any{
+			return printResult(cmd, flags, map[string]any{
 				"kind": "source_coverage",
 				"sources": []map[string]any{
 					{
@@ -214,12 +214,12 @@ func newSourcesCmd() *cobra.Command {
 	}
 }
 
-func newDoctorCmd() *cobra.Command {
+func newDoctorCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "doctor",
 		Short: "Check local auth and source readiness",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return printResult(cmd, map[string]any{
+			return printResult(cmd, flags, map[string]any{
 				"kind":                  "doctor",
 				"status":                "ok",
 				"bls_key_configured":    env("US_DATA_BLS_API_KEY") != "",

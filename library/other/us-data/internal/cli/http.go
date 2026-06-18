@@ -9,10 +9,9 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 )
 
-var httpClient = &http.Client{Timeout: 20 * time.Second}
+var httpClient = &http.Client{}
 
 func getJSON(ctx context.Context, endpoint string, query url.Values, headers map[string]string) ([]byte, error) {
 	u, err := url.Parse(endpoint)
@@ -39,7 +38,28 @@ func getJSON(ctx context.Context, endpoint string, query url.Values, headers map
 		return nil, err
 	}
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		return nil, fmt.Errorf("GET %s returned %s: %s", u.String(), resp.Status, strings.TrimSpace(string(body)))
+		return nil, fmt.Errorf("GET %s returned %s: %s", sanitizedURLForError(u), resp.Status, strings.TrimSpace(string(body)))
 	}
 	return body, nil
+}
+
+func sanitizedURLForError(u *url.URL) string {
+	copyURL := *u
+	query := copyURL.Query()
+	for key := range query {
+		if isSensitiveQueryParam(key) {
+			query[key] = []string{"REDACTED"}
+		}
+	}
+	copyURL.RawQuery = query.Encode()
+	return copyURL.String()
+}
+
+func isSensitiveQueryParam(key string) bool {
+	switch strings.ToLower(key) {
+	case "key", "userid", "user_id", "api_key", "apikey", "token", "access_token":
+		return true
+	default:
+		return false
+	}
 }
