@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -14,6 +15,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 	"unicode/utf8"
@@ -275,6 +278,110 @@ func TestRequestRefreshesOAuth2UserContextTokenAfterUnauthorized(t *testing.T) {
 	}
 	if cfg.XOauth2UserToken != "fresh-after-401" || cfg.RefreshToken != "rotated-after-401" {
 		t.Fatalf("refreshed tokens not stored: %#v", cfg)
+	}
+}
+
+func TestRequestFallsBackToCurrentTokenWhenProactiveRefreshFails(t *testing.T) {
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	var apiCalls atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/2/oauth2/token":
+			http.Error(w, "temporary token endpoint outage", http.StatusBadGateway)
+		case "/2/users/me":
+			apiCalls.Add(1)
+			if got := r.Header.Get("Authorization"); got != "Bearer still-valid-access" {
+				t.Fatalf("request used %q, want fallback to current token", got)
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"data":{"id":"123"}}`))
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+	oldEndpoint := OAuth2TokenEndpoint
+	OAuth2TokenEndpoint = server.URL + "/2/oauth2/token"
+	defer func() { OAuth2TokenEndpoint = oldEndpoint }()
+
+	cfg := &config.Config{
+		BaseURL:          server.URL,
+		Path:             configPath,
+		XOauth2UserToken: "still-valid-access",
+		RefreshToken:     "refresh-token",
+		ClientID:         "client-id",
+		TokenExpiry:      time.Now().Add(30 * time.Second),
+	}
+	c := New(cfg, time.Second, 0)
+	c.NoCache = true
+	if _, err := c.Get(context.Background(), "/2/users/me", nil); err != nil {
+		t.Fatalf("Get: %v", err)
+	}
+	if got := apiCalls.Load(); got != 1 {
+		t.Fatalf("apiCalls = %d, want request attempted after proactive refresh failure", got)
+	}
+}
+
+func TestConcurrentOAuth2UserContextRefreshUsesRotatedTokenSerially(t *testing.T) {
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	var refreshCalls atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/2/oauth2/token":
+			call := refreshCalls.Add(1)
+			if err := r.ParseForm(); err != nil {
+				t.Fatalf("ParseForm: %v", err)
+			}
+			wantRefresh := "old-refresh"
+			if call == 2 {
+				wantRefresh = "rotated-refresh-1"
+			}
+			if got := r.Form.Get("refresh_token"); got != wantRefresh {
+				t.Fatalf("refresh call %d used %q, want %q", call, got, wantRefresh)
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(fmt.Sprintf(`{"access_token":"fresh-access-%d","refresh_token":"rotated-refresh-%d","expires_in":3600}`, call, call)))
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+	oldEndpoint := OAuth2TokenEndpoint
+	OAuth2TokenEndpoint = server.URL + "/2/oauth2/token"
+	defer func() { OAuth2TokenEndpoint = oldEndpoint }()
+
+	cfg := &config.Config{
+		BaseURL:          server.URL,
+		Path:             configPath,
+		XOauth2UserToken: "old-access",
+		RefreshToken:     "old-refresh",
+		ClientID:         "client-id",
+		TokenExpiry:      time.Now().Add(-time.Minute),
+	}
+	c := New(cfg, time.Second, 0)
+
+	var wg sync.WaitGroup
+	errs := make(chan error, 2)
+	for i := 0; i < 2; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			_, err := c.RefreshOAuth2UserContext(context.Background(), true)
+			errs <- err
+		}()
+	}
+	wg.Wait()
+	close(errs)
+	for err := range errs {
+		if err != nil {
+			t.Fatalf("RefreshOAuth2UserContext: %v", err)
+		}
+	}
+	if got := refreshCalls.Load(); got != 2 {
+		t.Fatalf("refreshCalls = %d, want two serialized forced refreshes", got)
+	}
+	if cfg.XOauth2UserToken != "fresh-access-2" || cfg.RefreshToken != "rotated-refresh-2" {
+		t.Fatalf("final tokens not persisted from serialized refreshes: %#v", cfg)
 	}
 }
 

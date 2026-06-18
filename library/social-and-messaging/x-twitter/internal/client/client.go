@@ -22,6 +22,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -39,6 +40,7 @@ type Client struct {
 	NoCache    bool
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
+	refreshMu  sync.Mutex
 }
 
 // RequestBaseURL returns the base URL used for requests.
@@ -657,7 +659,10 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		if resp.StatusCode == http.StatusUnauthorized && !refreshedAfterUnauthorized && authorizationHeaderOverride(headerOverrides) == "" && !hostUsesCookieAuth(req.URL.Host) {
 			refreshed, refreshErr := c.RefreshOAuth2UserContext(ctx, true)
 			if refreshErr == nil && refreshed {
-				if h, err := c.authHeader(ctx); err == nil && h != "" {
+				// The forced refresh above already exchanged and persisted the token.
+				// Read the current header directly so the retry does not perform a
+				// second proactive refresh before sending the recovered request.
+				if h, err := c.currentAuthHeader(); err == nil && h != "" {
 					authHeader = h
 					refreshedAfterUnauthorized = true
 					lastErr = apiErr
@@ -878,7 +883,19 @@ func (c *Client) authHeader(ctx context.Context) (string, error) {
 		return "", nil
 	}
 	if _, err := c.RefreshOAuth2UserContext(ctx, false); err != nil {
-		return "", err
+		// Proactive refresh is best-effort. If the token endpoint is briefly
+		// unavailable, keep the current access token on the wire and let the
+		// normal 401 path decide whether a forced refresh is actually required.
+		// This avoids turning a likely-successful near-expiry request into an
+		// immediate local failure.
+		return c.currentAuthHeader()
+	}
+	return c.currentAuthHeader()
+}
+
+func (c *Client) currentAuthHeader() (string, error) {
+	if c == nil || c.Config == nil {
+		return "", nil
 	}
 	authHeader := c.Config.AuthHeader()
 	if authHeaderLooksLikePlaceholderCredential(authHeader) {
@@ -891,6 +908,9 @@ func (c *Client) RefreshOAuth2UserContext(ctx context.Context, force bool) (bool
 	if c == nil || c.Config == nil {
 		return false, nil
 	}
+	c.refreshMu.Lock()
+	defer c.refreshMu.Unlock()
+
 	cfg := c.Config
 	if strings.TrimSpace(cfg.RefreshToken) == "" || strings.TrimSpace(cfg.ClientID) == "" {
 		return false, nil
