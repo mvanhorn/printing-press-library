@@ -88,7 +88,7 @@ func newNovelExternalImportCmd(flags *rootFlags) *cobra.Command {
 			var firstErr error
 			for _, r := range rows {
 				limiter.Wait()
-				_, status, perr := c.PostQueryWithParams(cmd.Context(), "/externalTime", params, r)
+				_, status, perr := c.PostWithParams(cmd.Context(), "/externalTime", params, r)
 				if perr != nil {
 					if status == 429 {
 						limiter.OnRateLimit()
