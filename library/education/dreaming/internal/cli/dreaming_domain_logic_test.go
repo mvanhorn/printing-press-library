@@ -1,0 +1,142 @@
+// Copyright 2026 Paul Bockewitz and contributors. Licensed under Apache-2.0. See LICENSE.
+
+package cli
+
+import (
+	"regexp"
+	"testing"
+)
+
+func TestLevelForHours(t *testing.T) {
+	cases := []struct {
+		hours float64
+		want  int
+	}{
+		{0, 1}, {49, 1}, {50, 2}, {149, 2}, {150, 3}, {300, 4}, {600, 5}, {1000, 6}, {1500, 7}, {2000, 7},
+	}
+	for _, c := range cases {
+		if got := levelForHours(c.hours); got != c.want {
+			t.Errorf("levelForHours(%v) = %d, want %d", c.hours, got, c.want)
+		}
+	}
+}
+
+func TestVideoLevelBands(t *testing.T) {
+	if got := videoLevelBands(3); len(got) != 1 || got[0] != "beginner" {
+		t.Errorf("videoLevelBands(3) = %v, want [beginner]", got)
+	}
+	if got := videoLevelBands(7); len(got) == 0 {
+		t.Errorf("videoLevelBands(7) returned no bands")
+	}
+}
+
+func TestParseVTT(t *testing.T) {
+	raw := "WEBVTT\n\n1\n00:00:01.000 --> 00:00:04.000\nHola mundo\n\n2\n00:00:04.000 --> 00:00:08.000\n<i>Segunda</i> línea"
+	cues := parseVTT(raw)
+	if len(cues) != 2 {
+		t.Fatalf("parseVTT returned %d cues, want 2", len(cues))
+	}
+	if cues[0].StartMS != 1000 || cues[0].EndMS != 4000 {
+		t.Errorf("cue0 timing = %d-%d, want 1000-4000", cues[0].StartMS, cues[0].EndMS)
+	}
+	if cues[0].Text != "Hola mundo" {
+		t.Errorf("cue0 text = %q", cues[0].Text)
+	}
+	if cues[1].Text != "Segunda línea" { // VTT tags stripped
+		t.Errorf("cue1 text = %q, want tags stripped", cues[1].Text)
+	}
+}
+
+func TestVTTToPlainText(t *testing.T) {
+	raw := "WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nuno\n\n00:00:02.000 --> 00:00:03.000\ndos"
+	if got := vttToPlainText(raw); got != "uno dos" {
+		t.Errorf("vttToPlainText = %q, want %q", got, "uno dos")
+	}
+}
+
+func TestTensePresetsCompileAndMatch(t *testing.T) {
+	cases := map[string]struct {
+		match   string
+		nomatch string
+	}{
+		"imperfect":             {"compraba", "compro"},
+		"future":                {"iré", "voy"},
+		"conditional":           {"compraría", "compra"},
+		"subjunctive-imperfect": {"tuviera", "tengo"},
+		"gerund":                {"comprando", "compra"},
+	}
+	for preset, c := range cases {
+		pat, ok := tensePresets[preset]
+		if !ok {
+			t.Errorf("missing preset %q", preset)
+			continue
+		}
+		re, err := regexp.Compile(pat)
+		if err != nil {
+			t.Errorf("preset %q does not compile: %v", preset, err)
+			continue
+		}
+		if !re.MatchString(c.match + " ") {
+			t.Errorf("preset %q should match %q", preset, c.match)
+		}
+		if re.MatchString(c.nomatch + " ") {
+			t.Errorf("preset %q should NOT match %q", preset, c.nomatch)
+		}
+	}
+}
+
+func TestParseWindowDays(t *testing.T) {
+	cases := []struct {
+		in   string
+		want int
+		err  bool
+	}{
+		{"90d", 90, false}, {"12w", 84, false}, {"3m", 90, false}, {"0", 0, false}, {"all", 0, false}, {"", 0, false}, {"xyz", 0, true},
+	}
+	for _, c := range cases {
+		got, err := parseWindowDays(c.in)
+		if c.err && err == nil {
+			t.Errorf("parseWindowDays(%q) expected error", c.in)
+		}
+		if !c.err && got != c.want {
+			t.Errorf("parseWindowDays(%q) = %d, want %d", c.in, got, c.want)
+		}
+	}
+}
+
+func TestParseTargetHours(t *testing.T) {
+	cases := []struct {
+		in   string
+		want float64
+		err  bool
+	}{
+		{"600h", 600, false}, {"5", 600, false}, {"L5", 600, false}, {"level5", 600, false}, {"1500h", 1500, false}, {"", 0, true}, {"abc", 0, true},
+	}
+	for _, c := range cases {
+		got, err := parseTargetHours(c.in)
+		if c.err {
+			if err == nil {
+				t.Errorf("parseTargetHours(%q) expected error", c.in)
+			}
+			continue
+		}
+		if err != nil || got != c.want {
+			t.Errorf("parseTargetHours(%q) = %v, %v; want %v", c.in, got, err, c.want)
+		}
+	}
+}
+
+func TestStreaks(t *testing.T) {
+	// Build a 5-day consecutive run ending today via relative formatting is
+	// awkward; instead test the gap-breaking logic with fixed dates.
+	series := []daySeconds{
+		{Date: "2026-01-01", Seconds: 600},
+		{Date: "2026-01-02", Seconds: 600},
+		{Date: "2026-01-03", Seconds: 600},
+		{Date: "2026-01-10", Seconds: 600}, // gap resets
+	}
+	_, longest := streaks(series)
+	if longest != 3 {
+		t.Errorf("longest streak = %d, want 3", longest)
+	}
+}
