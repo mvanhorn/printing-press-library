@@ -103,11 +103,9 @@ func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}
+	// PATCH: Keep api_key auth to one empty-token guard before returning the key.
 	token := c.MetacriticApiKey
 	if token == "" {
-		return ""
-	}
-	if c.MetacriticApiKey == "" {
 		return ""
 	}
 	return token

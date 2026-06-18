@@ -215,7 +215,9 @@ func (c *Client) cacheKey(path string, params map[string]string) string {
 	}
 	sort.Strings(paramKeys)
 	for _, k := range paramKeys {
-		key += k + "=" + params[k]
+		// PATCH: delimit each param entry so distinct param sets cannot
+		// collide into the same cache key (e.g. {ab:cd,ef:gh} vs {ab:cde,f:gh}).
+		key += "&" + k + "=" + params[k]
 	}
 	h := sha256.Sum256([]byte(key))
 	return hex.EncodeToString(h[:8])
