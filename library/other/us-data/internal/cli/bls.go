@@ -116,3 +116,21 @@ func percentChange(oldValue, newValue string) (float64, bool) {
 	}
 	return ((newFloat - oldFloat) / oldFloat) * 100, true
 }
+
+func unsupportedWagesGuidance(occupation string) GuidanceResult {
+	message := "The first us-data print does not guess occupational wage tables without a source-backed mapping."
+	if occupation != "" {
+		message = fmt.Sprintf("%s Requested occupation: %s.", message, occupation)
+	}
+	return GuidanceResult{
+		Kind:   "source_guidance",
+		Status: "needs_dataset_mapping",
+		Title:  "BLS occupational wage lookup",
+		Messages: []string{
+			message,
+			"Use BLS OEWS or Modeled Wage Estimates source tables for occupation-level wage expansion.",
+			"This command is intentionally honest rather than returning a national earnings proxy for an occupation.",
+		},
+		Sources: []string{"https://www.bls.gov/oes/", "https://www.bls.gov/developers/"},
+	}
+}
