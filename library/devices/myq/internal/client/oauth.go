@@ -22,20 +22,22 @@ type oauth struct {
 	challenge         string
 	verifier          string
 	verificationToken string
+	clientSecret      string
 	debug             bool
 }
 
-func newOAuth(debug bool) (*oauth, error) {
+func newOAuth(debug bool, clientSecret string) (*oauth, error) {
 	jar, err := cookiejar.New(nil)
 	if err != nil {
 		return nil, err
 	}
 	challenge, verifier := pkceChallenge()
 	return &oauth{
-		jar:       jar,
-		challenge: challenge,
-		verifier:  verifier,
-		debug:     debug,
+		jar:          jar,
+		challenge:    challenge,
+		verifier:     verifier,
+		clientSecret: clientSecret,
+		debug:        debug,
 	}, nil
 }
 
@@ -135,14 +137,7 @@ func (o *oauth) callback(ctx context.Context, u *url.URL) (*url.URL, error) {
 }
 
 func (o *oauth) token(ctx context.Context, u *url.URL) (string, error) {
-	params := url.Values{}
-	params.Set("client_id", "IOS_CGI_MYQ")
-	params.Set("client_secret", "VUQ0RFhuS3lQV3EyNUJTdw==")
-	params.Set("code", u.Query().Get("code"))
-	params.Set("code_verifier", o.verifier)
-	params.Set("grant_type", "authorization_code")
-	params.Set("redirect_uri", "com.myqops://ios")
-	params.Set("scope", u.Query().Get("scope"))
+	params := o.tokenParams(u)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://partner-identity.myq-cloud.com/connect/token", strings.NewReader(params.Encode()))
 	if err != nil {
@@ -172,6 +167,20 @@ func (o *oauth) token(ctx context.Context, u *url.URL) (string, error) {
 		return "", err
 	}
 	return tokenResponse.AccessToken, nil
+}
+
+func (o *oauth) tokenParams(u *url.URL) url.Values {
+	params := url.Values{}
+	params.Set("client_id", "IOS_CGI_MYQ")
+	params.Set("code", u.Query().Get("code"))
+	params.Set("code_verifier", o.verifier)
+	params.Set("grant_type", "authorization_code")
+	params.Set("redirect_uri", "com.myqops://ios")
+	params.Set("scope", u.Query().Get("scope"))
+	if o.clientSecret != "" {
+		params.Set("client_secret", o.clientSecret)
+	}
+	return params
 }
 
 func pkceChallenge() (challenge, verifier string) {

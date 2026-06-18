@@ -32,9 +32,10 @@ const (
 var ErrNotLoggedIn = errors.New("not logged in")
 
 type Client struct {
-	Username string
-	Password string
-	Debug    bool
+	Username     string
+	Password     string
+	Debug        bool
+	ClientSecret string
 
 	httpClient *http.Client
 	token      string
@@ -58,14 +59,15 @@ func doRequest(client *http.Client, req *http.Request) (*http.Response, error) {
 	return client.Do(req)
 }
 
-func New(username, password string, debug bool, timeout time.Duration) *Client {
+func New(username, password string, debug bool, timeout time.Duration, clientSecret string) *Client {
 	if timeout <= 0 {
 		timeout = 20 * time.Second
 	}
 	return &Client{
-		Username: username,
-		Password: password,
-		Debug:    debug,
+		Username:     username,
+		Password:     password,
+		Debug:        debug,
+		ClientSecret: clientSecret,
 		httpClient: &http.Client{
 			Timeout: timeout,
 		},
@@ -73,7 +75,7 @@ func New(username, password string, debug bool, timeout time.Duration) *Client {
 }
 
 func (c *Client) Login(ctx context.Context) error {
-	o, err := newOAuth(c.Debug)
+	o, err := newOAuth(c.Debug, c.ClientSecret)
 	if err != nil {
 		return err
 	}

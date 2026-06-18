@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -11,14 +12,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const version = "1.0.0"
+var version = "1.0.0"
+
+const pollInterval = 5 * time.Second
 
 type rootFlags struct {
-	username string
-	password string
-	debug    bool
-	timeout  time.Duration
-	waitFor  time.Duration
+	username     string
+	password     string
+	debug        bool
+	timeout      time.Duration
+	waitFor      time.Duration
+	clientSecret string
 }
 
 func Execute() error {
@@ -138,11 +142,14 @@ func newCloseCmd(flags *rootFlags) *cobra.Command {
 }
 
 func openOrClose(cmd *cobra.Command, flags *rootFlags, serialNumber string, action string) error {
+	ctx, cancel := context.WithTimeout(cmd.Context(), flags.waitFor)
+	defer cancel()
+
 	c, err := newClient(flags)
 	if err != nil {
 		return err
 	}
-	if err := c.SetDoorState(cmd.Context(), serialNumber, action); err != nil {
+	if err := c.SetDoorState(ctx, serialNumber, action); err != nil {
 		return err
 	}
 
@@ -152,10 +159,9 @@ func openOrClose(cmd *cobra.Command, flags *rootFlags, serialNumber string, acti
 	}
 	fmt.Fprintf(cmd.OutOrStdout(), "Waiting for door to be %s...\n", desiredState)
 
-	deadline := time.Now().Add(flags.waitFor)
 	lastState := ""
-	for time.Now().Before(deadline) {
-		state, err := c.DeviceState(cmd.Context(), serialNumber)
+	for {
+		state, err := c.DeviceState(ctx, serialNumber)
 		if err != nil {
 			return err
 		}
@@ -169,10 +175,20 @@ func openOrClose(cmd *cobra.Command, flags *rootFlags, serialNumber string, acti
 			fmt.Fprintf(cmd.OutOrStdout(), "Device %s is %s\n", serialNumber, desiredState)
 			return nil
 		}
-		time.Sleep(5 * time.Second)
-	}
 
-	return fmt.Errorf("timed out waiting for door to be %s", desiredState)
+		timer := time.NewTimer(pollInterval)
+		select {
+		case <-ctx.Done():
+			if !timer.Stop() {
+				<-timer.C
+			}
+			if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+				return fmt.Errorf("timed out waiting for door to be %s", desiredState)
+			}
+			return ctx.Err()
+		case <-timer.C:
+		}
+	}
 }
 
 func newClient(flags *rootFlags) (*client.Client, error) {
@@ -184,6 +200,10 @@ func newClient(flags *rootFlags) (*client.Client, error) {
 	if password == "" {
 		password = strings.TrimSpace(os.Getenv("MYQ_PASSWORD"))
 	}
+	clientSecret := strings.TrimSpace(flags.clientSecret)
+	if clientSecret == "" {
+		clientSecret = strings.TrimSpace(os.Getenv("MYQ_CLIENT_SECRET"))
+	}
 	if username == "" {
 		return nil, errors.New("set -username or MYQ_USERNAME")
 	}
@@ -191,6 +211,6 @@ func newClient(flags *rootFlags) (*client.Client, error) {
 		return nil, errors.New("set -password or MYQ_PASSWORD")
 	}
 
-	c := client.New(username, password, flags.debug, flags.timeout)
+	c := client.New(username, password, flags.debug, flags.timeout, clientSecret)
 	return c, nil
 }

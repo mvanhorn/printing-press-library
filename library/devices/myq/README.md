@@ -54,4 +54,5 @@ MYQ_USERNAME=you@example.com MYQ_PASSWORD=secret myq-pp-cli close 1234567890
 
 - `MYQ_USERNAME`
 - `MYQ_PASSWORD`
+- `MYQ_CLIENT_SECRET` - Optional. Only set this if your MyQ account still requires an application secret during token exchange.
 - `MYQ_TIMEOUT`

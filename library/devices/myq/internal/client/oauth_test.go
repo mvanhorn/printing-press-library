@@ -1,6 +1,7 @@
 package client
 
 import (
+	"net/url"
 	"strings"
 	"testing"
 
@@ -27,5 +28,35 @@ func TestVerificationToken(t *testing.T) {
 	}
 	if got := verificationToken(doc); got != "token-123" {
 		t.Fatalf("verificationToken() = %q, want %q", got, "token-123")
+	}
+}
+
+func TestTokenParamsOmitClientSecretWhenUnset(t *testing.T) {
+	o, err := newOAuth(false, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	u, err := url.Parse("https://example.com/callback?code=code-123&scope=scope-123")
+	if err != nil {
+		t.Fatal(err)
+	}
+	params := o.tokenParams(u)
+	if got := params.Get("client_secret"); got != "" {
+		t.Fatalf("client_secret = %q, want empty", got)
+	}
+}
+
+func TestTokenParamsIncludeClientSecretWhenSet(t *testing.T) {
+	o, err := newOAuth(false, "secret-123")
+	if err != nil {
+		t.Fatal(err)
+	}
+	u, err := url.Parse("https://example.com/callback?code=code-123&scope=scope-123")
+	if err != nil {
+		t.Fatal(err)
+	}
+	params := o.tokenParams(u)
+	if got := params.Get("client_secret"); got != "secret-123" {
+		t.Fatalf("client_secret = %q, want %q", got, "secret-123")
 	}
 }
