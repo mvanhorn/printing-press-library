@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"perplexity-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/cliutil"
 )
 
 func newTailCmd(flags *rootFlags) *cobra.Command {

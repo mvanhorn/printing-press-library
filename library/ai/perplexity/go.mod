@@ -1,4 +1,4 @@
-module perplexity-pp-cli
+module github.com/mvanhorn/printing-press-library/library/ai/perplexity
 
 go 1.26
 

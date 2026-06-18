@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"perplexity-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/store"
 )
 
 func newSyncHintTestStore(t *testing.T) *store.Store {

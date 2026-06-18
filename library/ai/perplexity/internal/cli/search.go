@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"perplexity-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/store"
 )
 
 // isNilOrEmpty checks whether a JSON object has nil or empty values for

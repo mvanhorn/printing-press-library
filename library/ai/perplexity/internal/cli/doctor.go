@@ -19,10 +19,10 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"perplexity-pp-cli/internal/client"
-	"perplexity-pp-cli/internal/cliutil"
-	"perplexity-pp-cli/internal/config"
-	"perplexity-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/store"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

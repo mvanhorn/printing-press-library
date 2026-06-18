@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/pelletier/go-toml/v2"
-	"perplexity-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/cliutil"
 )
 
 type Config struct {

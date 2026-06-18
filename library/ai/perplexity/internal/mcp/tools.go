@@ -17,12 +17,12 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"perplexity-pp-cli/internal/cli"
-	"perplexity-pp-cli/internal/client"
-	"perplexity-pp-cli/internal/cliutil"
-	"perplexity-pp-cli/internal/config"
-	"perplexity-pp-cli/internal/mcp/cobratree"
-	"perplexity-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/store"
 )
 
 const (

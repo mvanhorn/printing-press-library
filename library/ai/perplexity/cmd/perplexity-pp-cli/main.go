@@ -6,7 +6,7 @@ package main
 import (
 	"os"
 
-	"perplexity-pp-cli/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/cli"
 )
 
 func main() {

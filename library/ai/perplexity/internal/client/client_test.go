@@ -14,7 +14,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"perplexity-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/config"
 )
 
 func TestTruncateBody(t *testing.T) {

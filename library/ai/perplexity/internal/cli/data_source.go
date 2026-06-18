@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
-	"perplexity-pp-cli/internal/client"
-	"perplexity-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/store"
 )
 
 const networkFallbackReason = "synthetic_anchor_fallback"

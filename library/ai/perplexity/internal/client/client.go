@@ -25,8 +25,8 @@ import (
 	"strings"
 	"time"
 
-	"perplexity-pp-cli/internal/cliutil"
-	"perplexity-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/config"
 )
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"
