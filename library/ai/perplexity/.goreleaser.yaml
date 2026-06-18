@@ -1,0 +1,51 @@
+version: 2
+project_name: perplexity-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: perplexity-pp-cli
+    main: ./cmd/perplexity-pp-cli
+    binary: perplexity-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X perplexity-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: perplexity-pp-mcp
+    main: ./cmd/perplexity-pp-mcp
+    binary: perplexity-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: perplexity-pp-cli
+    repository:
+      owner: erikrogne
+      name: homebrew-tap
+    homepage: "https://github.com/erikrogne/perplexity-pp-cli"
+    description: "Browse and export Perplexity research traces from the terminal."
+    install: |
+      bin.install "perplexity-pp-cli"
+      bin.install "perplexity-pp-mcp"

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-18T20:23:50.056435Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "perplexity",
+  "display_name": "Perplexity",
+  "cli_name": "perplexity-pp-cli",
+  "creator": {
+    "handle": "erikrogne",
+    "name": "Erik Rogne"
+  },
+  "owner": "erikrogne",
+  "printer": "erikrogne",
+  "printer_name": "Erik Rogne",
+  "spec_path": "perplexity-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:d9d8899ea26bf4f5a42931109c3f95645e057eb532eff6b39ecc2ffecaa17939",
+  "run_id": "20260618-202350",
+  "catalog_entry": "perplexity",
+  "category": "ai",
+  "description": "Export Perplexity research traces and browse recent threads from a logged-in browser session.",
+  "mcp_binary": "perplexity-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Export trace",
+      "command": "history export",
+      "description": "Export a Perplexity thread as Markdown, PDF, or DOCX from the logged-in browser session."
+    },
+    {
+      "name": "Read thread",
+      "command": "history read",
+      "description": "Fetch a full Perplexity thread transcript by UUID or slug."
+    },
+    {
+      "name": "Recent threads",
+      "command": "history recent",
+      "description": "List recent Perplexity threads from the signed-in account."
+    },
+    {
+      "name": "Chrome auth",
+      "command": "auth login --chrome",
+      "description": "Capture the browser session from Chrome instead of asking for a paid API key."
+    }
+  ],
+  "spec_kind": "synthetic"
+}

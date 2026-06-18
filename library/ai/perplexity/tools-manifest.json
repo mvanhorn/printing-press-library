@@ -1,0 +1,17 @@
+{
+  "api_name": "perplexity",
+  "base_url": "https://www.perplexity.ai",
+  "description": "Export Perplexity research traces and browse recent threads from a logged-in browser session.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "cookie_domain": ".perplexity.ai",
+    "requires_browser_session": true,
+    "browser_session_validation_path": "/rest/user/info",
+    "browser_session_validation_method": "GET"
+  },
+  "required_headers": [],
+  "tools": []
+}

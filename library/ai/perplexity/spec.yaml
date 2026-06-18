@@ -1,0 +1,146 @@
+name: perplexity
+display_name: Perplexity
+description: Export Perplexity research traces and browse recent threads from a logged-in browser session.
+cli_description: Browse and export Perplexity research traces from the terminal.
+version: "0.1.0"
+kind: synthetic
+spec_source: sniffed
+http_transport: browser-chrome
+website_url: "https://www.perplexity.ai"
+category: ai
+base_url: "https://www.perplexity.ai"
+
+auth:
+  type: cookie
+  header: "Cookie"
+  cookie_domain: ".perplexity.ai"
+  login_url: "https://www.perplexity.ai/"
+  requires_browser_session: true
+  browser_session_reason: Perplexity history and exports require a logged-in browser session.
+  browser_session_validation_path: "/rest/user/info"
+  browser_session_validation_method: GET
+
+config:
+  format: toml
+  path: "~/.config/perplexity-pp-cli/config.toml"
+
+resources:
+  history:
+    description: Perplexity thread history, transcripts, and export helpers.
+    endpoints:
+      recent:
+        method: GET
+        path: "/rest/thread/list_recent"
+        description: List recent Perplexity threads from the signed-in account.
+        id_field: uuid
+        params:
+          - name: limit
+            type: integer
+            default: 20
+            description: Number of threads to return.
+          - name: ascending
+            type: boolean
+            default: false
+            description: Return oldest-first instead of newest-first.
+          - name: offset
+            type: integer
+            default: 0
+            description: Pagination offset.
+          - name: search_term
+            type: string
+            default: ""
+            description: Search term for thread titles or content.
+          - name: exclude_asi
+            type: boolean
+            default: false
+            description: Exclude ASI threads from results.
+          - name: include_assets
+            type: boolean
+            default: true
+            description: Include attached assets in the returned thread summaries.
+        response:
+          type: array
+          item: ThreadSummary
+        pagination:
+          type: offset
+          limit_param: limit
+          cursor_param: offset
+      read:
+        method: GET
+        path: "/rest/thread/{entry_uuid_or_slug}"
+        description: Fetch a full Perplexity thread transcript by UUID or slug.
+        params:
+          - name: entry_uuid_or_slug
+            type: string
+            required: true
+            positional: true
+            description: Thread UUID or slug.
+        response:
+          type: object
+          item: ThreadDetail
+      export:
+        method: POST
+        path: "/rest/thread/export"
+        description: Export a Perplexity thread as Markdown, PDF, or DOCX.
+        body:
+          - name: thread_uuid
+            type: string
+            required: true
+            description: Thread UUID to export.
+          - name: format
+            type: string
+            required: true
+            default: md
+            enum: [pdf, md, docx]
+            description: Export format.
+          - name: filename
+            type: string
+            description: Optional export filename. Perplexity can derive one if omitted.
+        response:
+          type: object
+          item: ThreadExport
+
+types:
+  ThreadSummary:
+    fields:
+      - name: uuid
+        type: string
+      - name: thread_title
+        type: string
+      - name: thread_url_slug
+        type: string
+      - name: created_us
+        type: integer
+      - name: updated_us
+        type: integer
+      - name: updated_datetime
+        type: string
+        format: date-time
+      - name: privacy_state
+        type: string
+      - name: status
+        type: string
+      - name: source
+        type: string
+
+  ThreadDetail:
+    fields:
+      - name: background_entries
+        type: array
+      - name: entries
+        type: array
+      - name: has_next_page
+        type: boolean
+      - name: next_cursor
+        type: string
+      - name: status
+        type: string
+      - name: thread_metadata
+        type: object
+
+  ThreadExport:
+    fields:
+      - name: file_content_64
+        type: string
+      - name: filename
+        type: string
