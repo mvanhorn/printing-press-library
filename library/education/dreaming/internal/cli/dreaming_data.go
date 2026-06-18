@@ -130,19 +130,20 @@ func loadDailyInput(ctx context.Context, db *store.Store) ([]daySeconds, error) 
 
 // recentAverageSeconds returns the mean input-seconds/day over the last n
 // calendar days (denominator is always n, not just active days), used as a
-// pace estimate. Dividing by n gives the true daily average including rest days.
+// pace estimate. The window is bounded by a calendar-date cutoff rather than an
+// entry count, because series holds one entry per *active* day — slicing by
+// count would span more than n calendar dates for a user with rest days and
+// inflate the pace. Dividing by n gives the true daily average including rest days.
 func recentAverageSeconds(series []daySeconds, days int) float64 {
 	if len(series) == 0 || days <= 0 {
 		return 0
 	}
-	start := len(series) - days
-	if start < 0 {
-		start = 0
-	}
-	window := series[start:]
+	cutoff := time.Now().AddDate(0, 0, -days).Format("2006-01-02")
 	var sum int64
-	for _, d := range window {
-		sum += d.Seconds
+	for _, d := range series {
+		if d.Date >= cutoff {
+			sum += d.Seconds
+		}
 	}
 	return float64(sum) / float64(days)
 }

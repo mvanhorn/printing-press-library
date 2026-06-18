@@ -5,6 +5,7 @@ package cli
 import (
 	"regexp"
 	"testing"
+	"time"
 )
 
 func TestLevelForHours(t *testing.T) {
@@ -138,5 +139,32 @@ func TestStreaks(t *testing.T) {
 	_, longest := streaks(series)
 	if longest != 3 {
 		t.Errorf("longest streak = %d, want 3", longest)
+	}
+}
+
+func TestRecentAverageSeconds(t *testing.T) {
+	day := func(offset int, secs int64) daySeconds {
+		return daySeconds{Date: time.Now().AddDate(0, 0, offset).Format("2006-01-02"), Seconds: secs}
+	}
+	// Three active days inside a 10-day window (every other day) plus one active
+	// day well outside it. The window is a calendar-day window, so the old entry
+	// must be excluded and the denominator must be 10 (not the active-day count,
+	// and not inflated by the out-of-window entry).
+	series := []daySeconds{
+		day(-30, 9999), // outside the 10-day window — must not count
+		day(-4, 3600),
+		day(-2, 3600),
+		day(0, 3600),
+	}
+	got := recentAverageSeconds(series, 10)
+	want := float64(3*3600) / 10.0 // 1080: only in-window seconds, divided by calendar days
+	if got != want {
+		t.Errorf("recentAverageSeconds = %v, want %v (out-of-window entry leaked or denominator wrong)", got, want)
+	}
+	if recentAverageSeconds(nil, 10) != 0 {
+		t.Error("empty series should average 0")
+	}
+	if recentAverageSeconds(series, 0) != 0 {
+		t.Error("zero days should average 0")
 	}
 }
