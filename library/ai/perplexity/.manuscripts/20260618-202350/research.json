@@ -1,0 +1,168 @@
+{
+  "api_name": "perplexity",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "dawid-szewc/perplexity-cli",
+      "url": "https://github.com/dawid-szewc/perplexity-cli",
+      "language": "Python",
+      "install_method": "binary",
+      "stars": 172,
+      "last_updated": "2026-06-18",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "noQuli/perplexity-cli",
+      "url": "https://github.com/noQuli/perplexity-cli",
+      "language": "TypeScript",
+      "install_method": "npm",
+      "stars": 32,
+      "last_updated": "2026-06-18",
+      "command_count": 8,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "sgaunet/pplx",
+      "url": "https://github.com/sgaunet/pplx",
+      "language": "Go",
+      "install_method": "binary",
+      "stars": 18,
+      "last_updated": "2026-06-18",
+      "command_count": 6,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "xerexcoded/pplx-cli",
+      "url": "https://github.com/xerexcoded/pplx-cli",
+      "language": "Python",
+      "install_method": "pip",
+      "stars": 32,
+      "last_updated": "2026-06-18",
+      "command_count": 10,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "nileshr/pplx-cli",
+      "url": "https://github.com/nileshr/pplx-cli",
+      "language": "TypeScript",
+      "install_method": "npm",
+      "stars": 3,
+      "last_updated": "2026-06-18",
+      "command_count": 5,
+      "has_json_output": true,
+      "has_auth_support": true
+    }
+  ],
+  "gaps": [
+    "Existing Perplexity CLIs mostly assume a paid API key and do not export a user's research trace history from the browser session that already holds it.",
+    "Most alternatives focus on chat/search; they do not provide thread read and export helpers for turning Perplexity conversations into durable local evidence.",
+    "Browser-session reuse matters for users who already pay for Perplexity Pro and want to avoid a separate API bill."
+  ],
+  "patterns": [
+    "API-key wrappers dominate the ecosystem.",
+    "A few tools add local history or RAG, but they still pivot around an API token.",
+    "Agent-friendly JSON output is a recurring differentiator."
+  ],
+  "recommendation": "proceed-with-gaps",
+  "researched_at": "2026-06-18T20:35:04Z",
+  "novel_features": [
+    {
+      "name": "Export trace",
+      "command": "history export",
+      "description": "Export a Perplexity thread as Markdown, PDF, or DOCX from the logged-in browser session.",
+      "rationale": "This is the trace-preservation path the user asked for.",
+      "example": "perplexity-pp-cli history export --thread-uuid \u003cuuid\u003e --format md"
+    },
+    {
+      "name": "Read thread",
+      "command": "history read",
+      "description": "Fetch a full Perplexity thread transcript by UUID or slug.",
+      "rationale": "Needed to turn Perplexity conversations into durable local knowledge.",
+      "example": "perplexity-pp-cli history read \u003centry_uuid_or_slug\u003e --agent"
+    },
+    {
+      "name": "Recent threads",
+      "command": "history recent",
+      "description": "List recent Perplexity threads from the signed-in account.",
+      "rationale": "Gives agents a discoverable index over the user’s research history.",
+      "example": "perplexity-pp-cli history recent --agent"
+    },
+    {
+      "name": "Chrome auth",
+      "command": "auth login --chrome",
+      "description": "Capture the browser session from Chrome instead of asking for a paid API key.",
+      "rationale": "Matches the user's preference to leverage their account without paying for the API.",
+      "example": "perplexity-pp-cli auth login --chrome"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Export trace",
+      "command": "history export",
+      "description": "Export a Perplexity thread as Markdown, PDF, or DOCX from the logged-in browser session.",
+      "rationale": "This is the trace-preservation path the user asked for.",
+      "example": "perplexity-pp-cli history export --thread-uuid \u003cuuid\u003e --format md"
+    },
+    {
+      "name": "Read thread",
+      "command": "history read",
+      "description": "Fetch a full Perplexity thread transcript by UUID or slug.",
+      "rationale": "Needed to turn Perplexity conversations into durable local knowledge.",
+      "example": "perplexity-pp-cli history read \u003centry_uuid_or_slug\u003e --agent"
+    },
+    {
+      "name": "Recent threads",
+      "command": "history recent",
+      "description": "List recent Perplexity threads from the signed-in account.",
+      "rationale": "Gives agents a discoverable index over the user’s research history.",
+      "example": "perplexity-pp-cli history recent --agent"
+    },
+    {
+      "name": "Chrome auth",
+      "command": "auth login --chrome",
+      "description": "Capture the browser session from Chrome instead of asking for a paid API key.",
+      "rationale": "Matches the user's preference to leverage their account without paying for the API.",
+      "example": "perplexity-pp-cli auth login --chrome"
+    }
+  ],
+  "narrative": {
+    "display_name": "Perplexity",
+    "headline": "Browse and export Perplexity research traces from the terminal.",
+    "value_prop": "Perplexity already holds the user's live research trail. This CLI turns that trail into a terminal-first workflow: browse recent threads, inspect full transcripts, and export individual conversations as Markdown, PDF, or DOCX for durable storage in the monorepo.",
+    "auth_narrative": "Perplexity uses a logged-in browser session for history and export flows. The CLI is designed to work from an authenticated Chrome session so agents can reuse the user's account without relying on the paid API.",
+    "when_to_use": "Use this CLI when you need to recover, export, or reuse research that already lives inside Perplexity. It is best for trace preservation, thread lookup, and turning ad hoc Perplexity research into local evidence.",
+    "anti_triggers": [
+      "Do not use this for brand-new web search when a normal browser or direct API key is already simpler.",
+      "Do not use this when the user explicitly wants the official Perplexity API or a paid API integration."
+    ],
+    "recipes": [
+      {
+        "title": "Export a thread",
+        "command": "perplexity-pp-cli history export --thread-uuid \u003cuuid\u003e --format md",
+        "explanation": "Exports the thread to Markdown so the transcript can be stored in raw knowledge or attached to a note."
+      },
+      {
+        "title": "Inspect recent research",
+        "command": "perplexity-pp-cli history recent --agent",
+        "explanation": "Lists the newest Perplexity threads in a machine-readable form for quick triage."
+      },
+      {
+        "title": "Read a transcript",
+        "command": "perplexity-pp-cli history read \u003centry_uuid_or_slug\u003e --agent",
+        "explanation": "Fetches the entire conversation and its source metadata for review or archival."
+      }
+    ],
+    "trigger_phrases": [
+      "export my Perplexity traces",
+      "show my recent Perplexity threads",
+      "read this Perplexity conversation",
+      "export this thread to Markdown",
+      "recover my Perplexity research history"
+    ]
+  }
+}

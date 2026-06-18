@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "perplexity-browser-cookie-auth",
+  "applied_at": "2026-06-18",
+  "base_run_id": "20260618-202350",
+  "base_printing_press_version": "4.24.0",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/client_test.go",
+    "internal/config/config.go",
+    "internal/config/config_test.go"
+  ],
+  "summary": "Treat browser-session AccessToken values as cookies, hydrate them into the HTTP client jar, and keep bearer tokens on the Authorization header.",
+  "reason": "auth login --chrome stores a raw cookie header string, and without a real cookie jar the signed-in browser session never reached Perplexity on the wire. The config split prevents browser-cookie sessions from being misclassified as bearer tokens while preserving the existing API-token path.",
+  "validated_outcome": "go test ./... passes; browser-cookie redirects retain the session cookie and JWT-shaped tokens still emit Bearer auth."
+}

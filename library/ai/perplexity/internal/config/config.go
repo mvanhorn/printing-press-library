@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/pelletier/go-toml/v2"
+	"perplexity-pp-cli/internal/cliutil"
 )
 
 type Config struct {
@@ -79,14 +80,28 @@ func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}
+	if cookieHeader := c.BrowserCookieHeader(); cookieHeader != "" {
+		c.AuthSource = "browser"
+		return cookieHeader
+	}
 	// Env-var token wins over file-stored AccessToken (env > config convention).
 	if c.AccessToken != "" {
-		if c.AuthSource == "" {
-			c.AuthSource = "browser"
-		}
+		c.AuthSource = "bearer"
 		return ensureAuthScheme("Bearer", c.AccessToken)
 	}
 	return ""
+}
+
+// BrowserCookieHeader returns the raw browser-session cookie jar string when
+// AccessToken holds cookies rather than a JWT bearer token.
+func (c *Config) BrowserCookieHeader() string {
+	if c == nil || c.AccessToken == "" {
+		return ""
+	}
+	if cliutil.LooksLikeJWT(c.AccessToken) {
+		return ""
+	}
+	return c.AccessToken
 }
 
 func applyAuthFormat(format string, replacements map[string]string) string {
@@ -201,8 +216,6 @@ func (c *Config) snapshotFileConfig() {
 
 func (c *Config) configForSave() Config {
 	out := *c
-	if c.fileConfig != nil {
-	}
 	out.envOverrides = nil
 	out.fileConfig = nil
 	return out

@@ -5,9 +5,16 @@ package client
 
 import (
 	"bytes"
+	"context"
+	"net/http"
+	"net/http/httptest"
 	"strings"
+	"sync"
 	"testing"
+	"time"
 	"unicode/utf8"
+
+	"perplexity-pp-cli/internal/config"
 )
 
 func TestTruncateBody(t *testing.T) {
@@ -68,5 +75,58 @@ func TestTruncateBody_UTF8RuneAtBoundary(t *testing.T) {
 	// Partial rune must be dropped, not replaced: 4094 valid bytes + "...".
 	if want := 4094 + 3; len(got) != want {
 		t.Fatalf("len = %d, want %d (partial rune should be dropped, not replaced)", len(got), want)
+	}
+}
+
+func TestBrowserCookieJarSurvivesRedirect(t *testing.T) {
+	t.Parallel()
+
+	const wantCookie = "session=abc; theme=dark"
+
+	var mu sync.Mutex
+	gotCookies := make([]string, 0, 2)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/first", func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
+		gotCookies = append(gotCookies, r.Header.Get("Cookie"))
+		mu.Unlock()
+		http.Redirect(w, r, "/second", http.StatusFound)
+	})
+	mux.HandleFunc("/second", func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
+		gotCookies = append(gotCookies, r.Header.Get("Cookie"))
+		mu.Unlock()
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	})
+
+	srv := httptest.NewServer(mux)
+	t.Cleanup(srv.Close)
+
+	cfg := &config.Config{
+		BaseURL:     srv.URL,
+		AccessToken: wantCookie,
+	}
+	c := New(cfg, 5*time.Second, 0)
+	c.NoCache = true
+
+	status, err := c.ProbeGet(context.Background(), "/first")
+	if err != nil {
+		t.Fatalf("ProbeGet returned error: %v", err)
+	}
+	if status != http.StatusOK {
+		t.Fatalf("status = %d, want %d", status, http.StatusOK)
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+	if len(gotCookies) != 2 {
+		t.Fatalf("recorded %d requests, want 2", len(gotCookies))
+	}
+	for i, got := range gotCookies {
+		if got != wantCookie {
+			t.Fatalf("request %d Cookie = %q, want %q", i+1, got, wantCookie)
+		}
 	}
 }

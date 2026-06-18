@@ -17,6 +17,7 @@ import (
 	"io"
 	"math"
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -134,7 +135,7 @@ func newHTTPClient(timeout time.Duration, jar http.CookieJar) *http.Client {
 func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 	homeDir, _ := os.UserHomeDir()
 	cacheDir := filepath.Join(homeDir, ".cache", "perplexity-pp-cli", "http")
-	httpClient := newHTTPClient(timeout, nil)
+	httpClient := newHTTPClient(timeout, browserCookieJar(cfg))
 	c := &Client{
 		BaseURL:    strings.TrimRight(cfg.BaseURL, "/"),
 		Config:     cfg,
@@ -271,8 +272,9 @@ func (c *Client) cacheKey(path string, params map[string]string) string {
 	key := path
 	key += "|base_url=" + c.BaseURL
 	if c.Config != nil {
+		authHeader := c.Config.AuthHeader()
 		key += "|auth_source=" + c.Config.AuthSource
-		if authHeader := c.Config.AuthHeader(); authHeader != "" {
+		if authHeader != "" {
 			authHash := sha256.Sum256([]byte(authHeader))
 			key += "|auth=" + hex.EncodeToString(authHash[:8])
 		}
@@ -556,17 +558,6 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			req.URL.RawQuery = q.Encode()
 		}
 
-		if authHeader != "" {
-			// Cookie-auth: LoadCookieJar is the sole source of outbound
-			// cookies. net/http's Client.send calls jar.Cookies + AddCookie
-			// for each cookie, which concatenates without dedup; a manual
-			// req.Header.Set here would ship every session cookie twice and
-			// trip upstream WAFs. auth login persists the same cookie set
-			// to both the jar and config, so the jar carries every value
-			// SaveTokens stores. authHeader is read only by the dry-run /
-			// signing paths above; intentionally not consumed on the live
-			// wire here.
-		}
 		if c.Config != nil {
 			for k, v := range c.Config.Headers {
 				req.Header.Set(k, v)
@@ -575,6 +566,9 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		// Per-endpoint header overrides (e.g., different API version per resource)
 		for k, v := range headerOverrides {
 			req.Header.Set(k, v)
+		}
+		if authHeader != "" && (c.Config == nil || authHeader != c.Config.BrowserCookieHeader()) {
+			req.Header.Set("Authorization", authHeader)
 		}
 		binaryResponse := strings.EqualFold(req.Header.Get(BinaryResponseHeader), "true")
 		if binaryResponse {
@@ -691,7 +685,11 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 		}
 	}
 	if authHeader != "" {
-		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Cookie", maskToken(authHeader))
+		headerName := "Cookie"
+		if strings.HasPrefix(strings.ToLower(strings.TrimSpace(authHeader)), "bearer ") || cliutil.LooksLikeJWT(authHeader) {
+			headerName = "Authorization"
+		}
+		fmt.Fprintf(os.Stderr, "  %s: %s\n", headerName, maskToken(authHeader))
 	}
 	fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
 	return json.RawMessage(`{"dry_run": true}`), 0, nil
@@ -758,6 +756,50 @@ func looksLikeCredentialPlaceholder(value string) bool {
 		}
 	}
 	return true
+}
+
+func browserCookieJar(cfg *config.Config) http.CookieJar {
+	if cfg == nil {
+		return nil
+	}
+	rawCookies := cfg.BrowserCookieHeader()
+	if rawCookies == "" {
+		return nil
+	}
+	baseURL, err := url.Parse(strings.TrimRight(cfg.BaseURL, "/"))
+	if err != nil {
+		return nil
+	}
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		return nil
+	}
+	cookies := parseCookieHeader(rawCookies)
+	if len(cookies) == 0 {
+		return nil
+	}
+	jar.SetCookies(baseURL, cookies)
+	return jar
+}
+
+func parseCookieHeader(cookieHeader string) []*http.Cookie {
+	var cookies []*http.Cookie
+	for _, pair := range strings.Split(cookieHeader, ";") {
+		pair = strings.TrimSpace(pair)
+		if pair == "" {
+			continue
+		}
+		name, value, ok := strings.Cut(pair, "=")
+		if !ok {
+			continue
+		}
+		cookies = append(cookies, &http.Cookie{
+			Name:  strings.TrimSpace(name),
+			Value: strings.TrimSpace(value),
+			Path:  "/",
+		})
+	}
+	return cookies
 }
 
 func authPlaceholderCredentialError(cfg *config.Config) error {
