@@ -1,0 +1,51 @@
+version: 2
+project_name: metacritic-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: metacritic-pp-cli
+    main: ./cmd/metacritic-pp-cli
+    binary: metacritic-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X metacritic-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: metacritic-pp-mcp
+    main: ./cmd/metacritic-pp-mcp
+    binary: metacritic-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: metacritic-pp-cli
+    repository:
+      owner: coopdogggs
+      name: homebrew-tap
+    homepage: "https://github.com/coopdogggs/metacritic-pp-cli"
+    description: "Undocumented internal JSON API powering metacritic.com (a Fandom property)."
+    install: |
+      bin.install "metacritic-pp-cli"
+      bin.install "metacritic-pp-mcp"
