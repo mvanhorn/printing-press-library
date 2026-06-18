@@ -260,6 +260,7 @@ Run 'linq-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newConsentAuditCmd(flags))
 	rootCmd.AddCommand(newNeedsHumanCmd(flags))
 	rootCmd.AddCommand(newLinkAuditCmd(flags))
+	rootCmd.AddCommand(newFrontDoorCheckCmd(flags))
 	rootCmd.AddCommand(newPurgeCmd(flags))
 	for _, name := range []string{"channel-health", "pick-number", "at-risk", "response-latency", "delivery-health", "message-stats", "health", "opt-outs", "trends"} {
 		rootCmd.AddCommand(newInsightCmd(name))

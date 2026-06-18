@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "ronanrx-front-door-click-to-text-contract",
+  "applied_at": "2026-06-18",
+  "base_run_id": "20260617-193043",
+  "base_printing_press_version": "4.24.0",
+  "summary": "RonanRx welcome tooling must distinguish the HTTPS front-door URL from the sms: handoff URI and preserve patient-first no-send semantics.",
+  "reason": "A published web URL can be mistaken for click-to-text unless the CLI exposes the required browser contract, validates safe params, and blocks real outbound preflight without inbound evidence.",
+  "files": [
+    "internal/cli/ronanrx_commands.go",
+    "internal/cli/ronanrx_safety.go",
+    "internal/cli/agent_context.go",
+    "internal/cli/which.go"
+  ],
+  "validated_outcome": "go test ./... passes and invite-link returns front_door_link, sms_uri_preview, first_sender=patient, and outbound_send_performed=false."
+}

@@ -1,9 +1,9 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"net/url"
 	"regexp"
 	"sort"
 	"strings"
@@ -15,10 +15,17 @@ import (
 )
 
 func newInviteLinkCmd(flags *rootFlags) *cobra.Command {
-	var base, from, routing, token string
+	var base, frontDoorPath, from, routing, token, prefillBody string
+	var patientAuthoredPrefill, devMode, checkFrontDoor bool
 	cmd := &cobra.Command{
-		Use:         "invite-link --base-url URL --from NUMBER --routing TEXT --token TOKEN",
-		Short:       "Build a click-to-text inbound front door link without PHI payloads",
+		Use:   "invite-link --base-url URL [--front-door-path PATH] --from NUMBER --routing WELCOME_FLOW --token TOKEN",
+		Short: "Build an inbound-first HTTPS front-door link plus sms: URI preview without sending",
+		Long: `Build the RonanRx click-to-text front-door contract.
+
+The HTTPS front_door_link is what belongs on the website or CTA. It does not
+itself open Messages unless that page performs the required sms: handoff. The
+sms_uri_preview shows the exact URI that the browser page should open after the
+patient taps Get Started. This command never sends a Linq message.`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if base == "" && from == "" && routing == "" && token == "" {
@@ -27,28 +34,48 @@ func newInviteLinkCmd(flags *rootFlags) *cobra.Command {
 			if base == "" || from == "" || routing == "" || token == "" {
 				return fmt.Errorf("--base-url, --from, --routing, and --token are required")
 			}
-			if containsPHI(routing) || containsPHI(token) {
-				return fmt.Errorf("invite-link refuses PHI-shaped routing text or token")
-			}
-			u, err := buildInviteURL(base, from, routing, token)
+			invite, err := buildInviteSchema(inviteLinkOptions{
+				BaseURL:                base,
+				FrontDoorPath:          frontDoorPath,
+				From:                   from,
+				Routing:                routing,
+				Token:                  token,
+				PrefillBody:            prefillBody,
+				PatientAuthoredPrefill: patientAuthoredPrefill,
+				DevMode:                devMode,
+			})
 			if err != nil {
 				return err
 			}
-			return printJSONMap(cmd, map[string]any{"invite_link": u.String(), "pointer_not_payload": true, "phi_in_body": false})
+			if checkFrontDoor {
+				ctx, cancel := context.WithTimeout(cmd.Context(), 10*time.Second)
+				defer cancel()
+				check := inspectFrontDoor(ctx, invite.FrontDoorLink, token, true)
+				invite.FrontDoorCheck = &check
+				if !check.Allowed {
+					invite.Warnings = append(invite.Warnings, "front-door check did not prove the page performs a safe sms: handoff")
+				}
+			}
+			return printJSONValue(cmd, invite)
 		},
 	}
-	cmd.Flags().StringVar(&base, "base-url", "", "HTTPS click-to-text/deep-link base URL")
-	cmd.Flags().StringVar(&from, "from", "", "Linq sender phone number")
-	cmd.Flags().StringVar(&routing, "routing", "", "Non-PHI routing text")
+	cmd.Flags().StringVar(&base, "base-url", "", "HTTPS front-door URL or origin")
+	cmd.Flags().StringVar(&frontDoorPath, "front-door-path", "", "Front-door path to apply to --base-url, e.g. /start/text/")
+	cmd.Flags().StringVar(&from, "from", "", "Linq sender phone number in E.164 format")
+	cmd.Flags().StringVar(&routing, "routing", "", "Allowlisted non-PHI route ID, e.g. WELCOME_FLOW")
 	cmd.Flags().StringVar(&token, "token", "", "Opaque authenticated token or link slug")
+	cmd.Flags().StringVar(&prefillBody, "prefill-body", "", "Optional patient-authored prefill body; must pass no-PHI checks")
+	cmd.Flags().BoolVar(&patientAuthoredPrefill, "patient-authored-prefill", false, "Required when overriding the default prefill body")
+	cmd.Flags().BoolVar(&devMode, "dev-mode", false, "Allow http://localhost front-door URLs for local development only")
+	cmd.Flags().BoolVar(&checkFrontDoor, "check-front-door", false, "Fetch and statically inspect the front-door page contract")
 	return cmd
 }
 
 func newWelcomeFlowCmd(flags *rootFlags) *cobra.Command {
-	var base, from, routing, token, secureLink, chatID string
+	var base, frontDoorPath, from, routing, token, secureLink, chatID, mode string
 	var allowedHosts []string
 	cmd := &cobra.Command{
-		Use:         "welcome-flow --base-url URL --from NUMBER --token TOKEN --secure-link URL",
+		Use:         "welcome-flow --base-url URL [--front-door-path PATH] --from NUMBER --token TOKEN --secure-link URL",
 		Short:       "Plan the RonanRx inbound-first welcome flow without sending",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -58,50 +85,68 @@ func newWelcomeFlowCmd(flags *rootFlags) *cobra.Command {
 			if base == "" || from == "" || routing == "" || token == "" || secureLink == "" {
 				return fmt.Errorf("--base-url, --from, --routing, --token, and --secure-link are required")
 			}
-			if containsPHI(routing) || containsPHI(token) || containsPHI(secureLink) {
-				return fmt.Errorf("welcome-flow refuses PHI-shaped routing text, token, or link")
-			}
-			invite, err := buildInviteURL(base, from, routing, token)
+			invite, err := buildInviteSchema(inviteLinkOptions{
+				BaseURL:       base,
+				FrontDoorPath: frontDoorPath,
+				From:          from,
+				Routing:       routing,
+				Token:         token,
+			})
 			if err != nil {
 				return err
 			}
 			linkAudit := auditLink(secureLink, allowedHosts)
-			preflight := evaluateSendGuard(chatID, "INBOUND_OK "+routing, secureLink)
+			preflight := evaluateSendPreflight(chatID, "INBOUND_OK "+routing, secureLink, sendPreflightOptions{
+				Mode:         mode,
+				AllowedHosts: allowedHosts,
+			})
 			if chatID == "" {
-				preflight = sendGuardResult{Allowed: false, Reasons: []string{"chat ID is not known until the patient enters through the invite link"}, Checks: map[string]string{"chat_id": "pending: wait for inbound chat", "inbound_first": "pending: wait for inbound patient message", "pointer_not_payload": "pass"}}
+				preflight.Allowed = false
+				preflight.Reasons = append(preflight.Reasons, "chat ID is not known until the patient sends the prefilled inbound message")
+				preflight.BlockingReasons = preflight.Reasons
+				preflight.Checks["chat_id"] = "pending: wait for inbound chat discovery"
+				preflight.Checks["inbound_evidence"] = "pending: wait for inbound patient message"
 			}
 			steps := []map[string]any{
-				{"name": "generate_invite_link", "status": "ready", "owner": "operator", "artifact": invite.String()},
-				{"name": "patient_inbound_opt_in", "status": "waiting", "owner": "patient", "rule": "patient must enter through the invite link before any outbound send"},
-				{"name": "sync_and_consent_audit", "status": "next", "owner": "agent", "command": "linq-pp-cli sync && linq-pp-cli consent-audit --chat-id <chat>"},
-				{"name": "draft_secure_welcome_reply", "status": "ready_after_inbound", "owner": "agent", "command": "linq-pp-cli safe-reply-draft --chat-id <chat> --intent 'welcome intake next step' --link <secure-link>"},
-				{"name": "guarded_send", "status": "blocked_until_human_and_inbound", "owner": "human", "command": "linq-pp-cli send --chat-id <chat> --routing 'INBOUND_OK WELCOME_FLOW' --link <secure-link>"},
-				{"name": "monitor", "status": "after_send", "owner": "agent", "command": "linq-pp-cli delivery-health && linq-pp-cli needs-human"},
+				{"step": 1, "name": "publish_front_door_link", "status": "ready", "owner": "operator", "artifact": invite.FrontDoorLink},
+				{"step": 2, "name": "patient_taps_and_sends_prefilled_inbound_message", "status": "waiting_on_patient", "owner": "patient", "prefill_body": invite.PrefillBody, "first_sender": "patient"},
+				{"step": 3, "name": "inbound_chat_created_or_discovered", "status": "blocked_until_step_2", "owner": "agent", "command": "linq-pp-cli sync && linq-pp-cli search WELCOME_FLOW"},
+				{"step": 4, "name": "consent_inbound_audit", "status": "blocked_until_chat_id", "owner": "agent", "command": "linq-pp-cli consent-audit --chat-id <inbound-chat-id>"},
+				{"step": 5, "name": "draft_and_preflight_secure_pointer_reply", "status": "draft_only", "owner": "agent", "command": "linq-pp-cli safe-reply-draft --chat-id <inbound-chat-id> --intent welcome_next_step --link <secure-link> && linq-pp-cli send-preflight --mode real --chat-id <inbound-chat-id> --routing 'INBOUND_OK WELCOME_FLOW' --link <secure-link> --allow-host <host>"},
+				{"step": 6, "name": "real_send_guard", "status": "blocked_until_human_approval_and_inbound_evidence", "owner": "human", "would_send": false},
 			}
-			return printJSONMap(cmd, map[string]any{
-				"flow":                "ronanrx_welcome",
-				"dry_run":             true,
-				"would_send":          false,
-				"pointer_not_payload": true,
-				"invite_link":         invite.String(),
-				"secure_link_audit":   linkAudit,
-				"send_preflight":      preflight,
-				"steps":               steps,
+			return printJSONValue(cmd, map[string]any{
+				"flow":                    "ronanrx_welcome",
+				"dry_run":                 true,
+				"would_send":              false,
+				"outbound_send_performed": false,
+				"first_real_action":       "patient_sends_prefilled_inbound_message",
+				"pointer_not_payload":     invite.PointerNotPayload && linkAudit["allowed"] == true,
+				"invite":                  invite,
+				"invite_link":             invite.FrontDoorLink,
+				"invite_link_deprecated":  true,
+				"secure_link_audit":       linkAudit,
+				"send_preflight":          preflight,
+				"steps":                   steps,
 			})
 		},
 	}
-	cmd.Flags().StringVar(&base, "base-url", "", "HTTPS click-to-text/deep-link base URL")
-	cmd.Flags().StringVar(&from, "from", "", "Linq sender phone number")
+	cmd.Flags().StringVar(&base, "base-url", "", "HTTPS front-door URL or origin")
+	cmd.Flags().StringVar(&frontDoorPath, "front-door-path", "", "Front-door path to apply to --base-url, e.g. /start/text/")
+	cmd.Flags().StringVar(&from, "from", "", "Linq sender phone number in E.164 format")
 	cmd.Flags().StringVar(&routing, "routing", "WELCOME_FLOW", "Non-PHI routing text")
 	cmd.Flags().StringVar(&token, "token", "", "Opaque authenticated token or link slug")
 	cmd.Flags().StringVar(&secureLink, "secure-link", "", "Opaque secure welcome/intake link")
 	cmd.Flags().StringVar(&chatID, "chat-id", "", "Optional known inbound chat ID for preflight")
 	cmd.Flags().StringArrayVar(&allowedHosts, "allow-host", nil, "Allowed secure-link host suffix; repeatable")
+	cmd.Flags().StringVar(&mode, "mode", "real", "Preflight mode: synthetic, demo, or real")
 	return cmd
 }
 
 func newGuardedSendCmd(flags *rootFlags) *cobra.Command {
-	var chatID, link, routing string
+	var chatID, link, routing, inboundMessageID, inboundAt string
+	var allowedHosts []string
+	var humanApproved bool
 	cmd := &cobra.Command{
 		Use:   "send --chat-id CHAT --link URL --routing TEXT",
 		Short: "Inbound-first pointer-not-payload send path",
@@ -113,9 +158,22 @@ func newGuardedSendCmd(flags *rootFlags) *cobra.Command {
 			if chatID == "" || link == "" || routing == "" {
 				return fmt.Errorf("--chat-id, --link, and --routing are required")
 			}
-			checks := evaluateSendGuard(chatID, routing, link)
+			checks := evaluateSendPreflight(chatID, routing, link, sendPreflightOptions{
+				Mode:             "real",
+				AllowedHosts:     allowedHosts,
+				InboundMessageID: inboundMessageID,
+				InboundAt:        inboundAt,
+			})
+			if !humanApproved {
+				checks.Allowed = false
+				checks.Reasons = append(checks.Reasons, "human approval is required for real send")
+				checks.BlockingReasons = checks.Reasons
+				checks.Checks["human_approval"] = "fail: --human-approved not set"
+			} else {
+				checks.Checks["human_approval"] = "pass"
+			}
 			if !checks.Allowed {
-				return fmt.Errorf("send refused: %s", strings.Join(checks.Reasons, "; "))
+				return fmt.Errorf("send refused: %s", strings.Join(checks.BlockingReasons, "; "))
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -139,23 +197,47 @@ func newGuardedSendCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&chatID, "chat-id", "", "Existing inbound chat ID")
 	cmd.Flags().StringVar(&link, "link", "", "Opaque authenticated link")
 	cmd.Flags().StringVar(&routing, "routing", "", "Non-PHI routing text; must include INBOUND_OK marker")
+	cmd.Flags().StringArrayVar(&allowedHosts, "allow-host", nil, "Allowed secure-link host suffix; repeatable")
+	cmd.Flags().StringVar(&inboundMessageID, "inbound-message-id", "", "Explicit inbound message evidence ID")
+	cmd.Flags().StringVar(&inboundAt, "inbound-at", "", "Explicit inbound message timestamp evidence")
+	cmd.Flags().BoolVar(&humanApproved, "human-approved", false, "Required final human approval for real send")
 	return cmd
 }
 
 func newSendPreflightCmd(flags *rootFlags) *cobra.Command {
-	var chatID, link, routing string
+	var chatID, link, routing, mode, inboundMessageID, inboundAt string
+	var allowedHosts []string
+	var limit int
 	cmd := &cobra.Command{
 		Use:         "send-preflight --chat-id CHAT --link URL --routing TEXT",
 		Short:       "Explain whether guarded send would be allowed without sending",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			checks := evaluateSendGuard(chatID, routing, link)
-			return printJSONMap(cmd, map[string]any{"allowed": checks.Allowed, "reasons": checks.Reasons, "checks": checks.Checks, "pointer_not_payload": true, "would_send": false})
+			var messages []map[string]any
+			if strings.EqualFold(mode, "real") && strings.TrimSpace(chatID) != "" && !isPlaceholderChatID(chatID) {
+				loaded, err := loadLocalMessages(limit)
+				if err == nil {
+					messages = loaded
+				}
+			}
+			checks := evaluateSendPreflight(chatID, routing, link, sendPreflightOptions{
+				Mode:             mode,
+				AllowedHosts:     allowedHosts,
+				InboundMessageID: inboundMessageID,
+				InboundAt:        inboundAt,
+				LocalMessages:    messages,
+			})
+			return printJSONValue(cmd, checks)
 		},
 	}
 	cmd.Flags().StringVar(&chatID, "chat-id", "", "Existing inbound chat ID")
 	cmd.Flags().StringVar(&link, "link", "", "Opaque authenticated link")
 	cmd.Flags().StringVar(&routing, "routing", "", "Non-PHI routing text; must include INBOUND_OK marker")
+	cmd.Flags().StringVar(&mode, "mode", "real", "Preflight mode: synthetic, demo, or real")
+	cmd.Flags().StringArrayVar(&allowedHosts, "allow-host", nil, "Allowed secure-link host suffix; repeatable")
+	cmd.Flags().StringVar(&inboundMessageID, "inbound-message-id", "", "Explicit inbound message evidence ID")
+	cmd.Flags().StringVar(&inboundAt, "inbound-at", "", "Explicit inbound message timestamp evidence")
+	cmd.Flags().IntVar(&limit, "limit", 250, "Local messages to inspect for inbound evidence in real mode")
 	return cmd
 }
 
@@ -244,11 +326,13 @@ func newNeedsHumanCmd(flags *rootFlags) *cobra.Command {
 func newLinkAuditCmd(flags *rootFlags) *cobra.Command {
 	var links, allowedHosts []string
 	var limit int
+	var networkCheck bool
 	cmd := &cobra.Command{
-		Use:         "link-audit [--link URL] [--allow-host HOST]",
+		Use:         "link-audit URL... [--link URL] [--allow-host HOST]",
 		Short:       "Check links for pointer-not-payload safety",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			links = append(links, args...)
 			if len(links) == 0 {
 				messages, err := loadLocalMessages(limit)
 				if err != nil {
@@ -258,7 +342,11 @@ func newLinkAuditCmd(flags *rootFlags) *cobra.Command {
 			}
 			results := make([]map[string]any, 0, len(links))
 			for _, raw := range links {
-				results = append(results, auditLink(raw, allowedHosts))
+				result := auditLink(raw, allowedHosts)
+				if networkCheck {
+					result = auditLinkPreview(cmd.Context(), raw, result)
+				}
+				results = append(results, result)
 			}
 			return printJSONMap(cmd, map[string]any{"links_checked": len(results), "results": results, "source": "explicit --link values or local encrypted mirror"})
 		},
@@ -266,6 +354,30 @@ func newLinkAuditCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringArrayVar(&links, "link", nil, "Link to audit; repeatable")
 	cmd.Flags().StringArrayVar(&allowedHosts, "allow-host", nil, "Allowed host suffix; repeatable")
 	cmd.Flags().IntVar(&limit, "limit", 250, "Local messages to inspect when --link is omitted")
+	cmd.Flags().BoolVar(&networkCheck, "network-check", false, "Fetch page metadata and verify link-preview surfaces are generic")
+	return cmd
+}
+
+func newFrontDoorCheckCmd(flags *rootFlags) *cobra.Command {
+	var rawURL, token string
+	var noFetch bool
+	cmd := &cobra.Command{
+		Use:         "front-door-check --url URL",
+		Short:       "Statically inspect a RonanRx front-door page for safe sms: handoff behavior",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if rawURL == "" {
+				return fmt.Errorf("--url is required")
+			}
+			ctx, cancel := context.WithTimeout(cmd.Context(), 10*time.Second)
+			defer cancel()
+			result := inspectFrontDoor(ctx, rawURL, token, !noFetch)
+			return printJSONValue(cmd, result)
+		},
+	}
+	cmd.Flags().StringVar(&rawURL, "url", "", "Front-door URL to inspect")
+	cmd.Flags().StringVar(&token, "token", "", "Expected opaque token; used only to ensure preview meta does not expose it")
+	cmd.Flags().BoolVar(&noFetch, "no-fetch", false, "Do not fetch the page; return the pluggable check shape only")
 	return cmd
 }
 
@@ -293,48 +405,6 @@ func newInsightCmd(name string) *cobra.Command {
 		out := map[string]any{"insight": name, "source": "local encrypted store", "status": "requires synced Linq chats/messages mirror"}
 		return printJSONMap(cmd, out)
 	}}
-}
-
-type sendGuardResult struct {
-	Allowed bool              `json:"allowed"`
-	Reasons []string          `json:"reasons"`
-	Checks  map[string]string `json:"checks"`
-}
-
-func buildInviteURL(base, from, routing, token string) (*url.URL, error) {
-	u, err := url.Parse(base)
-	if err != nil || u.Scheme != "https" || u.Host == "" {
-		return nil, fmt.Errorf("--base-url must be an https URL")
-	}
-	q := u.Query()
-	q.Set("from", from)
-	q.Set("text", routing+" "+token)
-	u.RawQuery = q.Encode()
-	return u, nil
-}
-
-func evaluateSendGuard(chatID, routing, link string) sendGuardResult {
-	checks := map[string]string{}
-	var reasons []string
-	add := func(name string, ok bool, reason string) {
-		if ok {
-			checks[name] = "pass"
-			return
-		}
-		checks[name] = "fail: " + reason
-		reasons = append(reasons, reason)
-	}
-	add("chat_id", strings.TrimSpace(chatID) != "", "chat ID is required")
-	add("routing", strings.TrimSpace(routing) != "", "routing text is required")
-	add("link", strings.TrimSpace(link) != "", "opaque link is required")
-	add("inbound_first", strings.Contains(strings.ToUpper(routing), "INBOUND_OK"), "inbound-first guard requires prior inbound marker INBOUND_OK; no cold-send override exists")
-	add("opt_out", !strings.Contains(strings.ToUpper(routing), "OPTED_OUT"), "recipient appears opted out")
-	add("phi_payload", !containsPHI(routing) && !containsPHI(link), "message body or link contains PHI-shaped content")
-	if link != "" {
-		u, err := url.Parse(link)
-		add("https_link", err == nil && u.Scheme == "https" && u.Host != "", "link must be an https URL")
-	}
-	return sendGuardResult{Allowed: len(reasons) == 0, Reasons: reasons, Checks: checks}
 }
 
 func loadLocalMessages(limit int) ([]map[string]any, error) {
@@ -429,38 +499,6 @@ func extractLinks(messages []map[string]any) []string {
 	return links
 }
 
-func auditLink(raw string, allowedHosts []string) map[string]any {
-	checks := map[string]string{}
-	var reasons []string
-	add := func(name string, ok bool, reason string) {
-		if ok {
-			checks[name] = "pass"
-		} else {
-			checks[name] = "fail: " + reason
-			reasons = append(reasons, reason)
-		}
-	}
-	u, err := url.Parse(raw)
-	add("parse", err == nil && u.Host != "", "not a valid absolute URL")
-	add("https", err == nil && u.Scheme == "https", "URL must use https")
-	add("no_phi", !containsPHI(raw), "URL contains PHI-shaped data")
-	if len(allowedHosts) > 0 && err == nil {
-		ok := false
-		for _, h := range allowedHosts {
-			h = strings.TrimPrefix(strings.ToLower(strings.TrimSpace(h)), ".")
-			host := strings.ToLower(u.Hostname())
-			if host == h || strings.HasSuffix(host, "."+h) {
-				ok = true
-				break
-			}
-		}
-		add("allowlisted_host", ok, "host is not allowlisted")
-	} else if len(allowedHosts) == 0 {
-		checks["allowlisted_host"] = "skip: pass --allow-host to enforce RonanRx host policy"
-	}
-	return map[string]any{"link": raw, "allowed": len(reasons) == 0, "reasons": reasons, "checks": checks}
-}
-
 func messageMatchesChat(msg map[string]any, chatID string) bool {
 	if chatID == "" {
 		return false
@@ -504,8 +542,12 @@ func truncateRonanRx(s string, n int) string {
 }
 
 func printJSONMap(cmd *cobra.Command, out map[string]any) error {
+	return printJSONValue(cmd, out)
+}
+
+func printJSONValue(cmd *cobra.Command, out any) error {
 	b, _ := json.Marshal(out)
 	return printOutput(cmd.OutOrStdout(), b, true)
 }
 
-func containsPHI(s string) bool { return store.RedactPHI(s) != s }
+func containsPHI(s string) bool { return analyzePHI(s).Contains || store.RedactPHI(s) != s }

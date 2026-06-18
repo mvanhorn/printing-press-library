@@ -26,6 +26,7 @@ type agentContext struct {
 	CLI                        agentContextCLI        `json:"cli"`
 	Auth                       agentContextAuth       `json:"auth"`
 	Discovery                  *agentContextDiscovery `json:"discovery,omitempty"`
+	RonanRx                    *agentContextRonanRx   `json:"ronanrx,omitempty"`
 	Commands                   []agentContextCommand  `json:"commands"`
 	AvailableProfiles          []string               `json:"available_profiles"`
 	FeedbackEndpointConfigured bool                   `json:"feedback_endpoint_configured"`
@@ -62,6 +63,17 @@ type agentContextDiscovery struct {
 	GenerationHints   []string `json:"generation_hints,omitempty"`
 	Warnings          []string `json:"warnings,omitempty"`
 	CandidateCommands []string `json:"candidate_commands,omitempty"`
+}
+
+type agentContextRonanRx struct {
+	Posture           string            `json:"posture"`
+	NoSendDefault     bool              `json:"no_send_default"`
+	FirstSender       string            `json:"first_sender"`
+	Examples          map[string]string `json:"examples"`
+	FrontDoorContract frontDoorContract `json:"front_door_contract"`
+	SafeTokens        []string          `json:"safe_tokens"`
+	UnsafeTokens      []string          `json:"unsafe_tokens"`
+	Guardrails        []string          `json:"guardrails"`
 }
 
 type agentContextCommand struct {
@@ -139,6 +151,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 			EnvVars: envVars,
 		},
 		Discovery:                  buildAgentDiscoveryContext(),
+		RonanRx:                    buildRonanRxAgentContext(),
 		Commands:                   collectAgentCommands(rootCmd),
 		AvailableProfiles:          profiles,
 		FeedbackEndpointConfigured: FeedbackEndpointConfigured(),
@@ -147,6 +160,41 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 
 func buildAgentDiscoveryContext() *agentContextDiscovery {
 	return nil
+}
+
+func buildRonanRxAgentContext() *agentContextRonanRx {
+	preview := buildSMSURI("+16282893046", "WELCOME_FLOW rrx_8Gk27sQp")
+	return &agentContextRonanRx{
+		Posture:       "inbound_first_pointer_not_payload_demo_transport",
+		NoSendDefault: true,
+		FirstSender:   "patient",
+		Examples: map[string]string{
+			"invite_link":      "linq-pp-cli invite-link --base-url https://ronanrx.com --front-door-path /start/text/ --from +16282893046 --routing WELCOME_FLOW --token rrx_8Gk27sQp --agent",
+			"front_door_check": "linq-pp-cli front-door-check --url 'https://ronanrx.com/start/text/?from=%2B16282893046&text=WELCOME_FLOW+rrx_8Gk27sQp' --token rrx_8Gk27sQp --agent",
+			"welcome_flow":     "linq-pp-cli welcome-flow --base-url https://ronanrx.com --front-door-path /start/text/ --from +16282893046 --routing WELCOME_FLOW --token rrx_8Gk27sQp --secure-link https://secure.ronanrx.com/t/opaque-123 --allow-host ronanrx.com --agent",
+			"send_preflight":   "linq-pp-cli send-preflight --mode real --chat-id <inbound-chat-id> --routing 'INBOUND_OK WELCOME_FLOW' --link https://secure.ronanrx.com/t/opaque-123 --allow-host ronanrx.com --agent",
+			"link_audit":       "linq-pp-cli link-audit https://secure.ronanrx.com/t/opaque-123 --allow-host ronanrx.com --network-check --agent",
+		},
+		FrontDoorContract: frontDoorContract{
+			FrontDoorPublishesHTTPSURL:           true,
+			BrowserMustBuildSMSURI:               true,
+			RequiredQueryParams:                  []string{"from", "text"},
+			SafeQueryParams:                      []string{"from", "text"},
+			RecipientParam:                       "from",
+			BodyParam:                            "text",
+			SMSURIScheme:                         "sms",
+			CanonicalSMSURIPreview:               preview,
+			IOSBodySeparator:                     "?&body=",
+			AndroidBodySeparator:                 "?body=",
+			FallbackButtonRequired:               true,
+			AutoredirectAllowedWithFallback:      true,
+			MustNotInlinePHIOrTokenInPreviewMeta: true,
+			ExpectedPatientAction:                "patient_taps_link_then_sends_prefilled_message",
+		},
+		SafeTokens:   []string{"rrx_8Gk27sQp", "wf_2Tz7Qm91"},
+		UnsafeTokens: []string{"patient@example.com", "john-smith-2026-06-17", "ozempic-2mg", "555-123-4567"},
+		Guardrails:   []string{"front_door_link is the HTTPS page/CTA URL; sms_uri_preview is the URI that page must open", "RonanRx never sends first; the patient must send the prefilled WELCOME_FLOW token message", "No drug, dose, diagnosis, DOB, address, email, full name, dollar amount, or patient payload may appear in body, path, query, fragment, or preview meta", "send-preflight in real mode requires a real chat ID plus local or explicit inbound evidence; INBOUND_OK alone is not enough"},
+	}
 }
 
 // collectAgentCommands walks the cobra tree from the given command and

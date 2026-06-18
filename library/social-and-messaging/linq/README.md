@@ -10,10 +10,11 @@ This private print adds an agent-safe messaging layer for RonanRx workflows. Age
 
 Novel commands:
 
-- `invite-link` — builds a click-to-text inbound front door using routing text plus an opaque token/link, never PHI.
-- `welcome-flow` — produces the full inbound-first welcome-flow plan: invite link, secure-link audit, consent audit step, safe draft, guarded send step, and monitoring commands.
+- `invite-link` — builds the HTTPS front-door link and the exact `sms:` URI preview the page must open; never sends.
+- `front-door-check` — statically inspects the front-door page for safe `sms:` handoff behavior.
+- `welcome-flow` — produces the full inbound-first welcome-flow plan: publish front-door link, patient sends the prefilled inbound message, discover chat, audit evidence, draft/preflight pointer reply, and keep real send blocked until human approval plus inbound evidence.
 - `send` — guarded outbound path; refuses cold sends, opted-out recipients, PHI-shaped bodies/links, and has no cold-send override.
-- `send-preflight` — explains whether a send would be allowed without sending.
+- `send-preflight` — explains whether a send would be allowed without sending; real mode requires a real chat ID and inbound evidence, not just `INBOUND_OK`.
 - `safe-reply-draft` — creates a redacted human-review draft without sending.
 - `consent-audit` — summarizes local inbound/opt-out evidence for a chat.
 - `needs-human` — finds conversations that should be reviewed by a human.
@@ -22,6 +23,61 @@ Novel commands:
 - `channel-health`, `pick-number`, `at-risk`, `response-latency`, `delivery-health`, `message-stats`, `health`, `opt-outs`, `trends` — local operational insight commands over the encrypted mirror.
 
 Raw mutating endpoint mirrors are hidden from MCP; `send`/`send-preflight` are the intended agent-facing outbound controls.
+
+### RonanRx click-to-text front door
+
+RonanRx uses an inbound-first demo transport posture: RonanRx does not send first. Publish the HTTPS `front_door_link` on the website or CTA. The patient taps it, the page opens Messages with `sms_uri_preview`, and the patient sends the prefilled `WELCOME_FLOW <opaque-token>` message. The front-door page must read only safe `from` and `text` query params, build the `sms:` URI in browser code, provide a fallback button for blocked redirects, handle iOS `?&body=` versus Android `?body=` behavior, and avoid putting token or PHI values into HTML, OpenGraph, Twitter, description meta, path, query, or script content.
+
+```bash
+linq-pp-cli invite-link \
+  --base-url https://ronanrx.com \
+  --front-door-path /start/text/ \
+  --from +16282893046 \
+  --routing WELCOME_FLOW \
+  --token rrx_8Gk27sQp \
+  --agent
+```
+
+Key output fields:
+
+- `front_door_link` is the HTTPS URL to publish. It is only a web front door.
+- `sms_uri_preview` is the exact Messages URI the front-door page should open.
+- `first_sender` is `patient` and `outbound_send_performed` is always `false`.
+- `invite_link` remains as a deprecated alias for older scripts.
+
+Validate the page contract when a front-door page is available:
+
+```bash
+linq-pp-cli front-door-check \
+  --url 'https://ronanrx.com/start/text/?from=%2B16282893046&text=WELCOME_FLOW+rrx_8Gk27sQp' \
+  --token rrx_8Gk27sQp \
+  --agent
+```
+
+Plan the whole no-send welcome flow:
+
+```bash
+linq-pp-cli welcome-flow \
+  --base-url https://ronanrx.com \
+  --front-door-path /start/text/ \
+  --from +16282893046 \
+  --routing WELCOME_FLOW \
+  --token rrx_8Gk27sQp \
+  --secure-link https://secure.ronanrx.com/t/opaque-123 \
+  --allow-host ronanrx.com \
+  --agent
+```
+
+Safe token examples: `rrx_8Gk27sQp`, `wf_2Tz7Qm91`. Unsafe token examples: `patient@example.com`, `john-smith-2026-06-17`, `ozempic-2mg`, `555-123-4567`.
+
+Safe pointer links are HTTPS, host-allowlisted, and opaque: `https://secure.ronanrx.com/t/opaque-123`. Unsafe links put PHI in URL surfaces: `/patient/Jane-Smith`, `?dob=2026-06-17`, `?drug=Ozempic`, `?email=patient@example.com`, `?price=25`.
+
+```bash
+linq-pp-cli link-audit https://secure.ronanrx.com/t/opaque-123 --allow-host ronanrx.com --agent
+linq-pp-cli send-preflight --mode real --chat-id <inbound-chat-id> --routing 'INBOUND_OK WELCOME_FLOW' --link https://secure.ronanrx.com/t/opaque-123 --allow-host ronanrx.com --agent
+```
+
+`send-preflight --mode real` blocks placeholders and blocks `INBOUND_OK` without local or explicit inbound evidence. Synthetic/demo mode can use a placeholder chat ID for planning, but still performs pointer-not-payload link checks.
 
 Created by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 

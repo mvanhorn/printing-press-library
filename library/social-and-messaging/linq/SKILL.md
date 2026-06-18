@@ -43,8 +43,9 @@ Community-curated OpenAPI 3.1 blueprint for the Linq Partner API, derived from h
 
 Use these private commands before any patient-adjacent automation:
 
-- `linq-pp-cli invite-link` — create an inbound click-to-text front door with routing text and an opaque token/link only.
-- `linq-pp-cli welcome-flow` — plan the full inbound-first welcome flow without sending: invite link, secure-link audit, consent audit, safe draft, guarded send, and monitoring.
+- `linq-pp-cli invite-link` — create the HTTPS front-door link and exact `sms:` URI preview with routing text and an opaque token only; never sends.
+- `linq-pp-cli front-door-check` — inspect a front-door page for safe `sms:` handoff behavior, fallback button, safe params, and preview-meta leakage.
+- `linq-pp-cli welcome-flow` — plan the full inbound-first welcome flow without sending: publish front-door link, patient sends prefilled inbound message, discover chat, audit consent evidence, draft/preflight pointer reply, and keep real send blocked.
 - `linq-pp-cli send-preflight` — explain whether guarded send would be allowed; no side effects.
 - `linq-pp-cli send` — the only intended outbound agent path; refuses cold sends, opted-out recipients, PHI-shaped content, and non-HTTPS links.
 - `linq-pp-cli safe-reply-draft` — draft a redacted reply for human review; never sends.
@@ -54,6 +55,57 @@ Use these private commands before any patient-adjacent automation:
 - `linq-pp-cli purge` — enforce local encrypted mirror retention.
 
 Raw mutating Linq endpoint mirrors are MCP-hidden; do not bypass these commands for RonanRx patient-adjacent workflows.
+
+### RonanRx inbound-first front door
+
+Use this exact shape for the website/CTA front door:
+
+```bash
+linq-pp-cli invite-link --base-url https://ronanrx.com --front-door-path /start/text/ --from +16282893046 --routing WELCOME_FLOW --token rrx_8Gk27sQp --agent
+```
+
+Read the output carefully:
+
+- `front_door_link` is the HTTPS URL to publish. It is only a web page URL.
+- `sms_uri_preview` is the exact `sms:` URI that page must open.
+- `first_sender` is `patient`; `outbound_send_performed` is `false`.
+- `invite_link` is a deprecated alias for older scripts.
+
+Front-door page contract:
+
+- Read only safe `from` and `text` params.
+- Build an `sms:` URI from those params in same-origin markup or JS.
+- Provide a fallback button when automatic redirects are blocked.
+- Account for iOS `?&body=` and Android `?body=` separator behavior.
+- Do not inline token, PHI, or patient payload in HTML, meta tags, OpenGraph/Twitter descriptions, scripts, paths, or query strings.
+
+Validate the page when available:
+
+```bash
+linq-pp-cli front-door-check --url 'https://ronanrx.com/start/text/?from=%2B16282893046&text=WELCOME_FLOW+rrx_8Gk27sQp' --token rrx_8Gk27sQp --agent
+```
+
+Safe tokens are opaque, non-human-readable values such as `rrx_8Gk27sQp` or `wf_2Tz7Qm91`. Unsafe tokens include names, email, dates, phones, drug/dose strings, diagnosis terms, addresses, DOBs, or dollar amounts, for example `patient@example.com`, `john-smith-2026-06-17`, `ozempic-2mg`, or `555-123-4567`.
+
+Safe pointer links are HTTPS, allowlisted, and opaque:
+
+```bash
+linq-pp-cli link-audit https://secure.ronanrx.com/t/opaque-123 --allow-host ronanrx.com --agent
+```
+
+Unsafe links expose payload in URL surfaces, such as `/patient/Jane-Smith`, `?dob=2026-06-17`, `?drug=Ozempic`, `?email=patient@example.com`, or `?price=25`.
+
+Plan without sending:
+
+```bash
+linq-pp-cli welcome-flow --base-url https://ronanrx.com --front-door-path /start/text/ --from +16282893046 --routing WELCOME_FLOW --token rrx_8Gk27sQp --secure-link https://secure.ronanrx.com/t/opaque-123 --allow-host ronanrx.com --agent
+```
+
+Real preflight requires a real inbound chat plus evidence. `INBOUND_OK` alone is not enough:
+
+```bash
+linq-pp-cli send-preflight --mode real --chat-id <inbound-chat-id> --routing 'INBOUND_OK WELCOME_FLOW' --link https://secure.ronanrx.com/t/opaque-123 --allow-host ronanrx.com --agent
+```
 
 ## Command Reference
 

@@ -27,6 +27,8 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
+	{Command: "invite-link", Description: "Build the RonanRx HTTPS front-door link and sms: URI preview without sending.", Group: "safety", WhyItMatters: "Makes the web CTA and Messages handoff explicit so operators do not confuse a front-door URL with a click-to-text send."},
+	{Command: "front-door-check", Description: "Statically inspect a RonanRx front-door page for safe sms: handoff behavior.", Group: "safety", WhyItMatters: "Warns when a page ignores from/text params, lacks a fallback button, or exposes PHI/token values in preview surfaces."},
 	{Command: "send-preflight", Description: "Explain whether a guarded outbound send would be allowed without sending.", Group: "safety", WhyItMatters: "Makes inbound-first, opt-out, HTTPS, and PHI checks inspectable before any side effect."},
 	{Command: "safe-reply-draft", Description: "Create a redacted human-review reply draft without sending.", Group: "safety", WhyItMatters: "Lets agents assist operators while keeping humans in the final-send loop."},
 	{Command: "consent-audit", Description: "Summarize local inbound/opt-out evidence for a chat.", Group: "safety", WhyItMatters: "Provides an auditable explanation for why a patient conversation is or is not safe to contact."},
