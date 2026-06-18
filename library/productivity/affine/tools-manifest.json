@@ -1,0 +1,5134 @@
+{
+  "api_name": "affine",
+  "base_url": "https://qtz-affine.fly.dev",
+  "description": "AFFiNE self-hosted GraphQL API wrapper generated from qtz-affine schema.gql and client .gql documents.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "AFFINE_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "AFFINE_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "admins_admin-all-shared-links",
+      "description": "Run AFFiNE query adminAllSharedLinks. Required: operationName (default: adminAllSharedLinks). Optional: query, variables. Returns the new adminAllSharedLinksResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "admins_admin-dashboard",
+      "description": "Run AFFiNE query adminDashboard. Required: operationName (default: adminDashboard). Optional: query, variables. Returns the new adminDashboardResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "admins_admin-server-config",
+      "description": "Run AFFiNE query adminServerConfig. Required: operationName (default: adminServerConfig). Optional: query, variables. Returns the new adminServerConfigResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "admins_admin-update-workspace",
+      "description": "Run AFFiNE mutation adminUpdateWorkspace. Required: operationName (default: adminUpdateWorkspace). Optional: query, variables. Returns the new adminUpdateWorkspaceResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "admins_admin-workspace",
+      "description": "Run AFFiNE query adminWorkspace. Required: operationName (default: adminWorkspace). Optional: query, variables. Returns the new adminWorkspaceResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "admins_admin-workspaces",
+      "description": "Run AFFiNE query adminWorkspaces. Required: operationName (default: adminWorkspaces). Optional: query, variables. Returns the new adminWorkspacesResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "admins_admin-workspaces-count",
+      "description": "Run AFFiNE query adminWorkspacesCount. Required: operationName (default: adminWorkspacesCount). Optional: query, variables. Returns the new adminWorkspacesCountResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "blobs_abort-blob-upload",
+      "description": "Run AFFiNE mutation abortBlobUpload. Required: operationName (default: abortBlobUpload). Optional: query, variables. Returns the new abortBlobUploadResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "blobs_complete-blob-upload",
+      "description": "Run AFFiNE mutation completeBlobUpload. Required: operationName (default: completeBlobUpload). Optional: query, variables. Returns the new completeBlobUploadResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "blobs_create-blob-upload",
+      "description": "Run AFFiNE mutation createBlobUpload. Required: operationName (default: createBlobUpload). Optional: query, variables. Returns the new createBlobUploadResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "blobs_delete-blob",
+      "description": "Run AFFiNE mutation deleteBlob. Required: operationName (default: deleteBlob). Optional: query, variables. Returns the new deleteBlobResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "blobs_get-blob-upload-part-url",
+      "description": "Run AFFiNE query getBlobUploadPartUrl. Required: operationName (default: getBlobUploadPartUrl). Optional: query, variables. Returns the new getBlobUploadPartUrlResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "blobs_list-blobs",
+      "description": "Run AFFiNE query listBlobs. Required: operationName (default: listBlobs). Optional: query, variables. Returns the new listBlobsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "blobs_release-deleted-blobs",
+      "description": "Run AFFiNE mutation releaseDeletedBlobs. Required: operationName (default: releaseDeletedBlobs). Optional: query, variables. Returns the new releaseDeletedBlobsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "blobs_set-blob",
+      "description": "Run AFFiNE mutation setBlob. Required: operationName (default: setBlob). Optional: query, variables. Returns the new setBlobResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "comments_create-comment",
+      "description": "Run AFFiNE mutation createComment. Required: operationName (default: createComment). Optional: query, variables. Returns the new createCommentResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "comments_create-reply",
+      "description": "Run AFFiNE mutation createReply. Required: operationName (default: createReply). Optional: query, variables. Returns the new createReplyResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "comments_delete-comment",
+      "description": "Run AFFiNE mutation deleteComment. Required: operationName (default: deleteComment). Optional: query, variables. Returns the new deleteCommentResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "comments_delete-reply",
+      "description": "Run AFFiNE mutation deleteReply. Required: operationName (default: deleteReply). Optional: query, variables. Returns the new deleteReplyResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "comments_list-comment-changes",
+      "description": "Run AFFiNE query listCommentChanges. Required: operationName (default: listCommentChanges). Optional: query, variables. Returns the new listCommentChangesResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "comments_list-comments",
+      "description": "Run AFFiNE query listComments. Required: operationName (default: listComments). Optional: query, variables. Returns the new listCommentsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "comments_resolve-comment",
+      "description": "Run AFFiNE mutation resolveComment. Required: operationName (default: resolveComment). Optional: query, variables. Returns the new resolveCommentResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "comments_update-comment",
+      "description": "Run AFFiNE mutation updateComment. Required: operationName (default: updateComment). Optional: query, variables. Returns the new updateCommentResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "comments_update-reply",
+      "description": "Run AFFiNE mutation updateReply. Required: operationName (default: updateReply). Optional: query, variables. Returns the new updateReplyResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "comments_upload-comment-attachment",
+      "description": "Run AFFiNE mutation uploadCommentAttachment. Required: operationName (default: uploadCommentAttachment). Optional: query, variables. Returns the new uploadCommentAttachmentResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_add-context-blob",
+      "description": "Run AFFiNE mutation addContextBlob. Required: operationName (default: addContextBlob). Optional: query, variables. Returns the new addContextBlobResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_add-context-category",
+      "description": "Run AFFiNE mutation addContextCategory. Required: operationName (default: addContextCategory). Optional: query, variables. Returns the new addContextCategoryResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_add-context-doc",
+      "description": "Run AFFiNE mutation addContextDoc. Required: operationName (default: addContextDoc). Optional: query, variables. Returns the new addContextDocResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_add-context-file",
+      "description": "Run AFFiNE mutation addContextFile. Required: operationName (default: addContextFile). Optional: query, variables. Returns the new addContextFileResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_add-workspace-embedding-files",
+      "description": "Run AFFiNE mutation addWorkspaceEmbeddingFiles. Required: operationName (default: addWorkspaceEmbeddingFiles). Optional: query, variables. Returns the new addWorkspaceEmbeddingFilesResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_add-workspace-embedding-ignored-docs",
+      "description": "Run AFFiNE mutation addWorkspaceEmbeddingIgnoredDocs. Required: operationName. Optional: query, variables. Returns the new addWorkspaceEmbeddingIgnoredDocsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_cleanup-copilot-session",
+      "description": "Run AFFiNE mutation cleanupCopilotSession. Required: operationName (default: cleanupCopilotSession). Optional: query, variables. Returns the new cleanupCopilotSessionResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_copilot-quota",
+      "description": "Run AFFiNE query copilotQuota. Required: operationName (default: copilotQuota). Optional: query, variables. Returns the new copilotQuotaResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_create-copilot-context",
+      "description": "Run AFFiNE mutation createCopilotContext. Required: operationName (default: createCopilotContext). Optional: query, variables. Returns the new createCopilotContextResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_create-copilot-message",
+      "description": "Run AFFiNE mutation createCopilotMessage. Required: operationName (default: createCopilotMessage). Optional: query, variables. Returns the new createCopilotMessageResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_create-copilot-session",
+      "description": "Run AFFiNE mutation createCopilotSession. Required: operationName (default: createCopilotSession). Optional: query, variables. Returns the new createCopilotSessionResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_create-copilot-session-with-history",
+      "description": "Run AFFiNE mutation createCopilotSessionWithHistory. Required: operationName. Optional: query, variables. Returns the new createCopilotSessionWithHistoryResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_fork-copilot-session",
+      "description": "Run AFFiNE mutation forkCopilotSession. Required: operationName (default: forkCopilotSession). Optional: query, variables. Returns the new forkCopilotSessionResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_get-all-workspace-embedding-ignored-docs",
+      "description": "Run AFFiNE query getAllWorkspaceEmbeddingIgnoredDocs. Required: operationName. Optional: query, variables. Returns the new getAllWorkspaceEmbeddingIgnoredDocsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_get-copilot-doc-sessions",
+      "description": "Run AFFiNE query getCopilotDocSessions. Required: operationName (default: getCopilotDocSessions). Optional: query, variables. Returns the new getCopilotDocSessionsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_get-copilot-histories",
+      "description": "Run AFFiNE query getCopilotHistories. Required: operationName (default: getCopilotHistories). Optional: query, variables. Returns the new getCopilotHistoriesResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_get-copilot-history-ids",
+      "description": "Run AFFiNE query getCopilotHistoryIds. Required: operationName (default: getCopilotHistoryIds). Optional: query, variables. Returns the new getCopilotHistoryIdsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_get-copilot-latest-doc-session",
+      "description": "Run AFFiNE query getCopilotLatestDocSession. Required: operationName (default: getCopilotLatestDocSession). Optional: query, variables. Returns the new getCopilotLatestDocSessionResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_get-copilot-pinned-sessions",
+      "description": "Run AFFiNE query getCopilotPinnedSessions. Required: operationName (default: getCopilotPinnedSessions). Optional: query, variables. Returns the new getCopilotPinnedSessionsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_get-copilot-recent-sessions",
+      "description": "Run AFFiNE query getCopilotRecentSessions. Required: operationName (default: getCopilotRecentSessions). Optional: query, variables. Returns the new getCopilotRecentSessionsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_get-copilot-session",
+      "description": "Run AFFiNE query getCopilotSession. Required: operationName (default: getCopilotSession). Optional: query, variables. Returns the new getCopilotSessionResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_get-copilot-sessions",
+      "description": "Run AFFiNE query getCopilotSessions. Required: operationName (default: getCopilotSessions). Optional: query, variables. Returns the new getCopilotSessionsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_get-copilot-workspace-sessions",
+      "description": "Run AFFiNE query getCopilotWorkspaceSessions. Required: operationName (default: getCopilotWorkspaceSessions). Optional: query, variables. Returns the new getCopilotWorkspaceSessionsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_get-prompt-models",
+      "description": "Run AFFiNE query getPromptModels. Required: operationName (default: getPromptModels). Optional: query, variables. Returns the new getPromptModelsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_get-transcript-task",
+      "description": "Run AFFiNE query getTranscriptTask. Required: operationName (default: getTranscriptTask). Optional: query, variables. Returns the new getTranscriptTaskResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_get-workspace-embedding-files",
+      "description": "Run AFFiNE query getWorkspaceEmbeddingFiles. Required: operationName (default: getWorkspaceEmbeddingFiles). Optional: query, variables. Returns the new getWorkspaceEmbeddingFilesResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_get-workspace-embedding-ignored-docs",
+      "description": "Run AFFiNE query getWorkspaceEmbeddingIgnoredDocs. Required: operationName. Optional: query, variables. Returns the new getWorkspaceEmbeddingIgnoredDocsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_list-context",
+      "description": "Run AFFiNE query listContext. Required: operationName (default: listContext). Optional: query, variables. Returns the new listContextResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_list-context-object",
+      "description": "Run AFFiNE query listContextObject. Required: operationName (default: listContextObject). Optional: query, variables. Returns the new listContextObjectResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_match-context",
+      "description": "Run AFFiNE query matchContext. Required: operationName (default: matchContext). Optional: query, variables. Returns the new matchContextResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_match-files",
+      "description": "Run AFFiNE query matchFiles. Required: operationName (default: matchFiles). Optional: query, variables. Returns the new matchFilesResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_match-workspace-docs",
+      "description": "Run AFFiNE query matchWorkspaceDocs. Required: operationName (default: matchWorkspaceDocs). Optional: query, variables. Returns the new matchWorkspaceDocsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_queue-workspace-embedding",
+      "description": "Run AFFiNE mutation queueWorkspaceEmbedding. Required: operationName (default: queueWorkspaceEmbedding). Optional: query, variables. Returns the new queueWorkspaceEmbeddingResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_remove-context-blob",
+      "description": "Run AFFiNE mutation removeContextBlob. Required: operationName (default: removeContextBlob). Optional: query, variables. Returns the new removeContextBlobResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_remove-context-category",
+      "description": "Run AFFiNE mutation removeContextCategory. Required: operationName (default: removeContextCategory). Optional: query, variables. Returns the new removeContextCategoryResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_remove-context-doc",
+      "description": "Run AFFiNE mutation removeContextDoc. Required: operationName (default: removeContextDoc). Optional: query, variables. Returns the new removeContextDocResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_remove-context-file",
+      "description": "Run AFFiNE mutation removeContextFile. Required: operationName (default: removeContextFile). Optional: query, variables. Returns the new removeContextFileResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_remove-workspace-embedding-files",
+      "description": "Run AFFiNE mutation removeWorkspaceEmbeddingFiles. Required: operationName (default: removeWorkspaceEmbeddingFiles). Optional: query, variables. Returns the new removeWorkspaceEmbeddingFilesResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_remove-workspace-embedding-ignored-docs",
+      "description": "Run AFFiNE mutation removeWorkspaceEmbeddingIgnoredDocs. Required: operationName. Optional: query, variables. Returns the new removeWorkspaceEmbeddingIgnoredDocsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_retry-transcript-task",
+      "description": "Run AFFiNE mutation retryTranscriptTask. Required: operationName (default: retryTranscriptTask). Optional: query, variables. Returns the new retryTranscriptTaskResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_settle-transcript-task",
+      "description": "Run AFFiNE mutation settleTranscriptTask. Required: operationName (default: settleTranscriptTask). Optional: query, variables. Returns the new settleTranscriptTaskResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_submit-transcript-task",
+      "description": "Run AFFiNE mutation submitTranscriptTask. Required: operationName (default: submitTranscriptTask). Optional: query, variables. Returns the new submitTranscriptTaskResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "copilots_update-copilot-session",
+      "description": "Run AFFiNE mutation updateCopilotSession. Required: operationName (default: updateCopilotSession). Optional: query, variables. Returns the new updateCopilotSessionResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_activate-license",
+      "description": "Run AFFiNE mutation activateLicense. Required: operationName (default: activateLicense). Optional: query, variables. Returns the new activateLicenseResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_app-config",
+      "description": "Run AFFiNE query appConfig. Required: operationName (default: appConfig). Optional: query, variables. Returns the new appConfigResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_calendar-accounts",
+      "description": "Run AFFiNE query calendarAccounts. Required: operationName (default: calendarAccounts). Optional: query, variables. Returns the new calendarAccountsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_calendar-providers",
+      "description": "Run AFFiNE query calendarProviders. Required: operationName (default: calendarProviders). Optional: query, variables. Returns the new calendarProvidersResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_cancel-subscription",
+      "description": "Run AFFiNE mutation cancelSubscription. Required: operationName (default: cancelSubscription). Optional: query, variables. Returns the new cancelSubscriptionResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_change-email",
+      "description": "Run AFFiNE mutation changeEmail. Required: operationName (default: changeEmail). Optional: query, variables. Returns the new changeEmailResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_change-password",
+      "description": "Run AFFiNE mutation changePassword. Required: operationName (default: changePassword). Optional: query, variables. Returns the new changePasswordResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_create-change-password-url",
+      "description": "Run AFFiNE mutation createChangePasswordUrl. Required: operationName (default: createChangePasswordUrl). Optional: query, variables. Returns the new createChangePasswordUrlResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_create-checkout-session",
+      "description": "Run AFFiNE mutation createCheckoutSession. Required: operationName (default: createCheckoutSession). Optional: query, variables. Returns the new createCheckoutSessionResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_create-customer-portal",
+      "description": "Run AFFiNE mutation createCustomerPortal. Required: operationName (default: createCustomerPortal). Optional: query, variables. Returns the new createCustomerPortalResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_create-selfhost-customer-portal",
+      "description": "Run AFFiNE mutation createSelfhostCustomerPortal. Required: operationName (default: createSelfhostCustomerPortal). Optional: query, variables. Returns the new createSelfhostCustomerPortalResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_create-user",
+      "description": "Run AFFiNE mutation createUser. Required: operationName (default: createUser). Optional: query, variables. Returns the new createUserResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_create-workspace",
+      "description": "Run AFFiNE mutation createWorkspace. Required: operationName (default: createWorkspace). Optional: query, variables. Returns the new createWorkspaceResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_deactivate-license",
+      "description": "Run AFFiNE mutation deactivateLicense. Required: operationName (default: deactivateLicense). Optional: query, variables. Returns the new deactivateLicenseResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_delete-account",
+      "description": "Run AFFiNE mutation deleteAccount. Required: operationName (default: deleteAccount). Optional: query, variables. Returns the new deleteAccountResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_delete-user",
+      "description": "Run AFFiNE mutation deleteUser. Required: operationName (default: deleteUser). Optional: query, variables. Returns the new deleteUserResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_delete-workspace",
+      "description": "Run AFFiNE mutation deleteWorkspace. Required: operationName (default: deleteWorkspace). Optional: query, variables. Returns the new deleteWorkspaceResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_disable-user",
+      "description": "Run AFFiNE mutation disableUser. Required: operationName (default: disableUser). Optional: query, variables. Returns the new disableUserResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_enable-user",
+      "description": "Run AFFiNE mutation enableUser. Required: operationName (default: enableUser). Optional: query, variables. Returns the new enableUserResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_generate-license-key",
+      "description": "Run AFFiNE mutation generateLicenseKey. Required: operationName (default: generateLicenseKey). Optional: query, variables. Returns the new generateLicenseKeyResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_generate-user-access-token",
+      "description": "Run AFFiNE mutation generateUserAccessToken. Required: operationName (default: generateUserAccessToken). Optional: query, variables. Returns the new generateUserAccessTokenResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_get-current-user",
+      "description": "Run AFFiNE query getCurrentUser. Required: operationName (default: getCurrentUser). Optional: query, variables. Returns the new getCurrentUserResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_get-current-user-features",
+      "description": "Run AFFiNE query getCurrentUserFeatures. Required: operationName (default: getCurrentUserFeatures). Optional: query, variables. Returns the new getCurrentUserFeaturesResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_get-doc-role-permissions",
+      "description": "Run AFFiNE query getDocRolePermissions. Required: operationName (default: getDocRolePermissions). Optional: query, variables. Returns the new getDocRolePermissionsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_get-invite-info",
+      "description": "Run AFFiNE query getInviteInfo. Required: operationName (default: getInviteInfo). Optional: query, variables. Returns the new getInviteInfoResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_get-invoices-count",
+      "description": "Run AFFiNE query getInvoicesCount. Required: operationName (default: getInvoicesCount). Optional: query, variables. Returns the new getInvoicesCountResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_get-public-user-by-id",
+      "description": "Run AFFiNE query getPublicUserById. Required: operationName (default: getPublicUserById). Optional: query, variables. Returns the new getPublicUserByIdResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_get-user-features",
+      "description": "Run AFFiNE query getUserFeatures. Required: operationName (default: getUserFeatures). Optional: query, variables. Returns the new getUserFeaturesResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_get-user-settings",
+      "description": "Run AFFiNE query getUserSettings. Required: operationName (default: getUserSettings). Optional: query, variables. Returns the new getUserSettingsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_get-workspaces",
+      "description": "Run AFFiNE query getWorkspaces. Required: operationName (default: getWorkspaces). Optional: query, variables. Returns the new getWorkspacesResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_grant-doc-user-roles",
+      "description": "Run AFFiNE mutation grantDocUserRoles. Required: operationName (default: grantDocUserRoles). Optional: query, variables. Returns the new grantDocUserRolesResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_import-users",
+      "description": "Run AFFiNE mutation ImportUsers. Required: operationName (default: ImportUsers). Optional: query, variables. Returns the new ImportUsersResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_install-license",
+      "description": "Run AFFiNE mutation installLicense. Required: operationName (default: installLicense). Optional: query, variables. Returns the new installLicenseResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_invoices",
+      "description": "Run AFFiNE query invoices. Required: operationName (default: invoices). Optional: query, variables. Returns the new invoicesResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_leave-workspace",
+      "description": "Run AFFiNE mutation leaveWorkspace. Required: operationName (default: leaveWorkspace). Optional: query, variables. Returns the new leaveWorkspaceResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_link-cal-dav-account",
+      "description": "Run AFFiNE mutation linkCalDavAccount. Required: operationName (default: linkCalDavAccount). Optional: query, variables. Returns the new linkCalDavAccountResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_link-calendar-account",
+      "description": "Run AFFiNE mutation linkCalendarAccount. Required: operationName (default: linkCalendarAccount). Optional: query, variables. Returns the new linkCalendarAccountResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_list-notifications",
+      "description": "Run AFFiNE query listNotifications. Required: operationName (default: listNotifications). Optional: query, variables. Returns the new listNotificationsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_list-users",
+      "description": "Run AFFiNE query listUsers. Required: operationName (default: listUsers). Optional: query, variables. Returns the new listUsersResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_mention-user",
+      "description": "Run AFFiNE mutation mentionUser. Required: operationName (default: mentionUser). Optional: query, variables. Returns the new mentionUserResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_oauth-providers",
+      "description": "Run AFFiNE query oauthProviders. Required: operationName (default: oauthProviders). Optional: query, variables. Returns the new oauthProvidersResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_preview-license",
+      "description": "Run AFFiNE mutation previewLicense. Required: operationName (default: previewLicense). Optional: query, variables. Returns the new previewLicenseResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_prices",
+      "description": "Run AFFiNE query prices. Required: operationName (default: prices). Optional: query, variables. Returns the new pricesResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_publish-page",
+      "description": "Run AFFiNE mutation publishPage. Required: operationName (default: publishPage). Optional: query, variables. Returns the new publishPageResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_quota",
+      "description": "Run AFFiNE query quota. Required: operationName (default: quota). Optional: query, variables. Returns the new quotaResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_read-all-notifications",
+      "description": "Run AFFiNE mutation readAllNotifications. Required: operationName (default: readAllNotifications). Optional: query, variables. Returns the new readAllNotificationsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_read-notification",
+      "description": "Run AFFiNE mutation readNotification. Required: operationName (default: readNotification). Optional: query, variables. Returns the new readNotificationResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_recover-doc",
+      "description": "Run AFFiNE mutation recoverDoc. Required: operationName (default: recoverDoc). Optional: query, variables. Returns the new recoverDocResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_remove-avatar",
+      "description": "Run AFFiNE mutation removeAvatar. Required: operationName (default: removeAvatar). Optional: query, variables. Returns the new removeAvatarResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_resume-subscription",
+      "description": "Run AFFiNE mutation resumeSubscription. Required: operationName (default: resumeSubscription). Optional: query, variables. Returns the new resumeSubscriptionResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_revoke-doc-user-roles",
+      "description": "Run AFFiNE mutation revokeDocUserRoles. Required: operationName (default: revokeDocUserRoles). Optional: query, variables. Returns the new revokeDocUserRolesResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_revoke-member-permission",
+      "description": "Run AFFiNE mutation revokeMemberPermission. Required: operationName (default: revokeMemberPermission). Optional: query, variables. Returns the new revokeMemberPermissionResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_revoke-public-page",
+      "description": "Run AFFiNE mutation revokePublicPage. Required: operationName (default: revokePublicPage). Optional: query, variables. Returns the new revokePublicPageResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_revoke-user-access-token",
+      "description": "Run AFFiNE mutation revokeUserAccessToken. Required: operationName (default: revokeUserAccessToken). Optional: query, variables. Returns the new revokeUserAccessTokenResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_send-change-email",
+      "description": "Run AFFiNE mutation sendChangeEmail. Required: operationName (default: sendChangeEmail). Optional: query, variables. Returns the new sendChangeEmailResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_send-change-password-email",
+      "description": "Run AFFiNE mutation sendChangePasswordEmail. Required: operationName (default: sendChangePasswordEmail). Optional: query, variables. Returns the new sendChangePasswordEmailResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_send-set-password-email",
+      "description": "Run AFFiNE mutation sendSetPasswordEmail. Required: operationName (default: sendSetPasswordEmail). Optional: query, variables. Returns the new sendSetPasswordEmailResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_send-test-email",
+      "description": "Run AFFiNE mutation sendTestEmail. Required: operationName (default: sendTestEmail). Optional: query, variables. Returns the new sendTestEmailResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_send-verify-change-email",
+      "description": "Run AFFiNE mutation sendVerifyChangeEmail. Required: operationName (default: sendVerifyChangeEmail). Optional: query, variables. Returns the new sendVerifyChangeEmailResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_send-verify-email",
+      "description": "Run AFFiNE mutation sendVerifyEmail. Required: operationName (default: sendVerifyEmail). Optional: query, variables. Returns the new sendVerifyEmailResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_server-config",
+      "description": "Run AFFiNE query serverConfig. Required: operationName (default: serverConfig). Optional: query, variables. Returns the new serverConfigResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_set-workspace-public-by-id",
+      "description": "Run AFFiNE mutation setWorkspacePublicById. Required: operationName (default: setWorkspacePublicById). Optional: query, variables. Returns the new setWorkspacePublicByIdResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_unlink-calendar-account",
+      "description": "Run AFFiNE mutation unlinkCalendarAccount. Required: operationName (default: unlinkCalendarAccount). Optional: query, variables. Returns the new unlinkCalendarAccountResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_update-account",
+      "description": "Run AFFiNE mutation updateAccount. Required: operationName (default: updateAccount). Optional: query, variables. Returns the new updateAccountResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_update-account-features",
+      "description": "Run AFFiNE mutation updateAccountFeatures. Required: operationName (default: updateAccountFeatures). Optional: query, variables. Returns the new updateAccountFeaturesResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_update-app-config",
+      "description": "Run AFFiNE mutation updateAppConfig. Required: operationName (default: updateAppConfig). Optional: query, variables. Returns the new updateAppConfigResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_update-calendar-account",
+      "description": "Run AFFiNE mutation updateCalendarAccount. Required: operationName (default: updateCalendarAccount). Optional: query, variables. Returns the new updateCalendarAccountResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_update-doc-default-role",
+      "description": "Run AFFiNE mutation updateDocDefaultRole. Required: operationName (default: updateDocDefaultRole). Optional: query, variables. Returns the new updateDocDefaultRoleResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_update-doc-user-role",
+      "description": "Run AFFiNE mutation updateDocUserRole. Required: operationName (default: updateDocUserRole). Optional: query, variables. Returns the new updateDocUserRoleResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_update-subscription",
+      "description": "Run AFFiNE mutation updateSubscription. Required: operationName (default: updateSubscription). Optional: query, variables. Returns the new updateSubscriptionResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_update-user-profile",
+      "description": "Run AFFiNE mutation updateUserProfile. Required: operationName (default: updateUserProfile). Optional: query, variables. Returns the new updateUserProfileResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_update-user-settings",
+      "description": "Run AFFiNE mutation updateUserSettings. Required: operationName (default: updateUserSettings). Optional: query, variables. Returns the new updateUserSettingsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_update-workspace-calendars",
+      "description": "Run AFFiNE mutation updateWorkspaceCalendars. Required: operationName (default: updateWorkspaceCalendars). Optional: query, variables. Returns the new updateWorkspaceCalendarsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_upload-avatar",
+      "description": "Run AFFiNE mutation uploadAvatar. Required: operationName (default: uploadAvatar). Optional: query, variables. Returns the new uploadAvatarResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_validate-config",
+      "description": "Run AFFiNE query validateConfig. Required: operationName (default: validateConfig). Optional: query, variables. Returns the new validateConfigResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "docs_verify-email",
+      "description": "Run AFFiNE mutation verifyEmail. Required: operationName (default: verifyEmail). Optional: query, variables. Returns the new verifyEmailResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "graphql_execute",
+      "description": "Execute any AFFiNE GraphQL document. Required: query. Optional: operationName, variables. Returns the new GraphQLResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "Optional GraphQL operation name."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query or mutation document.",
+          "required": true
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_refresh-subscription",
+      "description": "Run AFFiNE mutation refreshSubscription. Required: operationName (default: refreshSubscription). Optional: query, variables. Returns the new refreshSubscriptionResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_request-apply-subscription",
+      "description": "Run AFFiNE mutation requestApplySubscription. Required: operationName (default: requestApplySubscription). Optional: query, variables. Returns the new requestApplySubscriptionResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_subscription",
+      "description": "Run AFFiNE query subscription. Required: operationName (default: subscription). Optional: query, variables. Returns the new subscriptionResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "users_get-user",
+      "description": "Run AFFiNE query getUser. Required: operationName (default: getUser). Optional: query, variables. Returns the new getUserResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "users_get-user-by-email",
+      "description": "Run AFFiNE query getUserByEmail. Required: operationName (default: getUserByEmail). Optional: query, variables. Returns the new getUserByEmailResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_accept-invite-by-invite-id",
+      "description": "Run AFFiNE mutation acceptInviteByInviteId. Required: operationName (default: acceptInviteByInviteId). Optional: query, variables. Returns the new acceptInviteByInviteIdResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_approve-workspace-team-member",
+      "description": "Run AFFiNE mutation approveWorkspaceTeamMember. Required: operationName (default: approveWorkspaceTeamMember). Optional: query, variables. Returns the new approveWorkspaceTeamMemberResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_calendar-events",
+      "description": "Run AFFiNE query calendarEvents. Required: operationName (default: calendarEvents). Optional: query, variables. Returns the new calendarEventsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_clear-workspace-byok-configs",
+      "description": "Run AFFiNE mutation clearWorkspaceByokConfigs. Required: operationName (default: clearWorkspaceByokConfigs). Optional: query, variables. Returns the new clearWorkspaceByokConfigsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_create-invite-link",
+      "description": "Run AFFiNE mutation createInviteLink. Required: operationName (default: createInviteLink). Optional: query, variables. Returns the new createInviteLinkResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_create-workspace-byok-local-lease",
+      "description": "Run AFFiNE mutation createWorkspaceByokLocalLease. Required: operationName (default: createWorkspaceByokLocalLease). Optional: query, variables. Returns the new createWorkspaceByokLocalLeaseResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_delete-workspace-byok-config",
+      "description": "Run AFFiNE mutation deleteWorkspaceByokConfig. Required: operationName (default: deleteWorkspaceByokConfig). Optional: query, variables. Returns the new deleteWorkspaceByokConfigResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_get-doc-created-by-updated-by-list",
+      "description": "Run AFFiNE query getDocCreatedByUpdatedByList. Required: operationName (default: getDocCreatedByUpdatedByList). Optional: query, variables. Returns the new getDocCreatedByUpdatedByListResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_get-doc-last-accessed-members",
+      "description": "Run AFFiNE query getDocLastAccessedMembers. Required: operationName (default: getDocLastAccessedMembers). Optional: query, variables. Returns the new getDocLastAccessedMembersResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_get-doc-page-analytics",
+      "description": "Run AFFiNE query getDocPageAnalytics. Required: operationName (default: getDocPageAnalytics). Optional: query, variables. Returns the new getDocPageAnalyticsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_get-doc-summary",
+      "description": "Run AFFiNE query getDocSummary. Required: operationName (default: getDocSummary). Optional: query, variables. Returns the new getDocSummaryResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_get-license",
+      "description": "Run AFFiNE query getLicense. Required: operationName (default: getLicense). Optional: query, variables. Returns the new getLicenseResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_get-member-count-by-workspace-id",
+      "description": "Run AFFiNE query getMemberCountByWorkspaceId. Required: operationName (default: getMemberCountByWorkspaceId). Optional: query, variables. Returns the new getMemberCountByWorkspaceIdResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_get-recently-updated-docs",
+      "description": "Run AFFiNE query getRecentlyUpdatedDocs. Required: operationName (default: getRecentlyUpdatedDocs). Optional: query, variables. Returns the new getRecentlyUpdatedDocsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_get-workspace",
+      "description": "Run AFFiNE query getWorkspace. Required: operationName (default: getWorkspace). Optional: query, variables. Returns the new getWorkspaceResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_get-workspace-page-by-id",
+      "description": "Run AFFiNE query getWorkspacePageById. Required: operationName (default: getWorkspacePageById). Optional: query, variables. Returns the new getWorkspacePageByIdResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_get-workspace-page-meta-by-id",
+      "description": "Run AFFiNE query getWorkspacePageMetaById. Required: operationName (default: getWorkspacePageMetaById). Optional: query, variables. Returns the new getWorkspacePageMetaByIdResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_get-workspace-public-by-id",
+      "description": "Run AFFiNE query getWorkspacePublicById. Required: operationName (default: getWorkspacePublicById). Optional: query, variables. Returns the new getWorkspacePublicByIdResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_get-workspace-public-pages",
+      "description": "Run AFFiNE query getWorkspacePublicPages. Required: operationName (default: getWorkspacePublicPages). Optional: query, variables. Returns the new getWorkspacePublicPagesResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_get-workspace-role-permissions",
+      "description": "Run AFFiNE query getWorkspaceRolePermissions. Required: operationName (default: getWorkspaceRolePermissions). Optional: query, variables. Returns the new getWorkspaceRolePermissionsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_get-workspace-subscription",
+      "description": "Run AFFiNE query getWorkspaceSubscription. Required: operationName (default: getWorkspaceSubscription). Optional: query, variables. Returns the new getWorkspaceSubscriptionResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_grant-workspace-team-member",
+      "description": "Run AFFiNE mutation grantWorkspaceTeamMember. Required: operationName (default: grantWorkspaceTeamMember). Optional: query, variables. Returns the new grantWorkspaceTeamMemberResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_indexer-aggregate",
+      "description": "Run AFFiNE query indexerAggregate. Required: operationName (default: indexerAggregate). Optional: query, variables. Returns the new indexerAggregateResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_indexer-search",
+      "description": "Run AFFiNE query indexerSearch. Required: operationName (default: indexerSearch). Optional: query, variables. Returns the new indexerSearchResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_indexer-search-docs",
+      "description": "Run AFFiNE query indexerSearchDocs. Required: operationName (default: indexerSearchDocs). Optional: query, variables. Returns the new indexerSearchDocsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_invite-by-emails",
+      "description": "Run AFFiNE mutation inviteByEmails. Required: operationName (default: inviteByEmails). Optional: query, variables. Returns the new inviteByEmailsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_list-history",
+      "description": "Run AFFiNE query listHistory. Required: operationName (default: listHistory). Optional: query, variables. Returns the new listHistoryResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_reorder-workspace-byok-configs",
+      "description": "Run AFFiNE mutation reorderWorkspaceByokConfigs. Required: operationName (default: reorderWorkspaceByokConfigs). Optional: query, variables. Returns the new reorderWorkspaceByokConfigsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_revoke-invite-link",
+      "description": "Run AFFiNE mutation revokeInviteLink. Required: operationName (default: revokeInviteLink). Optional: query, variables. Returns the new revokeInviteLinkResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_set-enable-ai",
+      "description": "Run AFFiNE mutation setEnableAi. Required: operationName (default: setEnableAi). Optional: query, variables. Returns the new setEnableAiResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_set-enable-doc-embedding",
+      "description": "Run AFFiNE mutation setEnableDocEmbedding. Required: operationName (default: setEnableDocEmbedding). Optional: query, variables. Returns the new setEnableDocEmbeddingResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_set-enable-sharing",
+      "description": "Run AFFiNE mutation setEnableSharing. Required: operationName (default: setEnableSharing). Optional: query, variables. Returns the new setEnableSharingResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_set-enable-url-preview",
+      "description": "Run AFFiNE mutation setEnableUrlPreview. Required: operationName (default: setEnableUrlPreview). Optional: query, variables. Returns the new setEnableUrlPreviewResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_test-workspace-byok-config",
+      "description": "Run AFFiNE mutation testWorkspaceByokConfig. Required: operationName (default: testWorkspaceByokConfig). Optional: query, variables. Returns the new testWorkspaceByokConfigResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_upsert-workspace-byok-config",
+      "description": "Run AFFiNE mutation upsertWorkspaceByokConfig. Required: operationName (default: upsertWorkspaceByokConfig). Optional: query, variables. Returns the new upsertWorkspaceByokConfigResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_workspace-blob-quota",
+      "description": "Run AFFiNE query workspaceBlobQuota. Required: operationName (default: workspaceBlobQuota). Optional: query, variables. Returns the new workspaceBlobQuotaResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_workspace-byok-settings",
+      "description": "Run AFFiNE query workspaceByokSettings. Required: operationName (default: workspaceByokSettings). Optional: query, variables. Returns the new workspaceByokSettingsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_workspace-calendars",
+      "description": "Run AFFiNE query workspaceCalendars. Required: operationName (default: workspaceCalendars). Optional: query, variables. Returns the new workspaceCalendarsResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_workspace-invoices",
+      "description": "Run AFFiNE query workspaceInvoices. Required: operationName (default: workspaceInvoices). Optional: query, variables. Returns the new workspaceInvoicesResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document."
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON."
+        }
+      ]
+    }
+  ]
+}

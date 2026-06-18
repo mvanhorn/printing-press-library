@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "affine-canvas-publish-dogfood",
+  "applied_at": "2026-06-18",
+  "base_run_id": "20260617-174848",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Adds publish-ready dogfood metadata, runnable examples, local canvas fallbacks, and rate-limit handling for AFFiNE canvas helpers.",
+  "reason": "Publishing requires live dogfood, examples for hand-authored canvas commands, explicit novel-feature provenance, and source-client throttling signals.",
+  "files": [
+    "internal/cli/canvas.go",
+    "internal/canvaswrite/block_inspect.go",
+    "internal/canvaswrite/card_image.go",
+    "internal/canvaswrite/card_inspect.go",
+    "internal/canvaswrite/connect.go",
+    "internal/canvaswrite/doc_audit.go",
+    "internal/canvaswrite/integrity.go",
+    "internal/canvaswrite/rebuild_quartzo.go",
+    "cmd/affine-history-positions/main.go",
+    "cmd/affine-root-inspect/main.go",
+    "cmd/affine-snapshot-audit/main.go",
+    ".manuscripts/20260617-174848/research.json",
+    ".manuscripts/20260617-174848/research/affine-research.md"
+  ],
+  "validated_outcome": "go test ./..., live dogfood full, and publish validate pass."
+}

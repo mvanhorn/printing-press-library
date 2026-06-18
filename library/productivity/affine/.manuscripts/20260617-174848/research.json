@@ -1,0 +1,143 @@
+{
+  "api_name": "affine",
+  "novelty_score": 7,
+  "alternatives": [],
+  "gaps": [
+    "AFFiNE's GraphQL API exposes document data, but canvas spatial modeling and safe repair workflows need agent-oriented command composition."
+  ],
+  "patterns": [
+    "Use generated GraphQL coverage for breadth and hand-authored canvas commands for spatial AFFiNE workflows."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-18T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Canvas layout planner",
+      "command": "canvas plan",
+      "description": "Builds a deterministic AFFiNE canvas card layout from a compact JSON tree spec.",
+      "rationale": "Agents can plan spatial boards before touching live AFFiNE data.",
+      "example": "affine-pp-cli canvas plan --json",
+      "why_it_matters": "Use this before applying or reviewing a new canvas structure.",
+      "group": "Canvas operations"
+    },
+    {
+      "name": "Canvas model normalizer",
+      "command": "canvas model",
+      "description": "Normalizes AFFiNE canvas JSON into explicit nodes and connectors.",
+      "rationale": "Raw Blocksuite/Y.js shapes are too noisy for reliable agent inspection.",
+      "example": "affine-pp-cli canvas model --json",
+      "why_it_matters": "Use this when comparing or auditing canvas structure.",
+      "group": "Canvas operations"
+    },
+    {
+      "name": "Canvas plan validator",
+      "command": "canvas validate",
+      "description": "Checks planned canvas nodes and connectors for invalid geometry and orphaned links.",
+      "rationale": "Canvas writes need a local safety gate before mutation.",
+      "example": "affine-pp-cli canvas validate --json",
+      "why_it_matters": "Use this before applying generated canvas plans.",
+      "group": "Canvas safety"
+    },
+    {
+      "name": "Canvas dry-run apply",
+      "command": "canvas apply",
+      "description": "Converts a canvas plan into explicit dry-run operations without enabling live Y.js writes.",
+      "rationale": "Agents need a reviewable operation list before modifying AFFiNE documents.",
+      "example": "affine-pp-cli canvas apply --dry-run --json",
+      "why_it_matters": "Use this to inspect the exact operations a plan would perform.",
+      "group": "Canvas safety"
+    },
+    {
+      "name": "Canvas card image patch",
+      "command": "canvas card set-image",
+      "description": "Patches an existing AFFiNE canvas card image/logo while preserving card identity and text.",
+      "rationale": "Replacing a whole card to update an image breaks layout and links.",
+      "example": "affine-pp-cli canvas card set-image --workspace \u003cworkspace-id\u003e --doc \u003cdoc-id\u003e --card \u003ccard-id\u003e --source-id \u003cblob-id\u003e --alt LightRAG --dry-run --json",
+      "why_it_matters": "Use this when a visual card asset needs to change without rebuilding the board.",
+      "group": "Canvas repair"
+    },
+    {
+      "name": "Canvas document integrity check",
+      "command": "canvas doc integrity",
+      "description": "Checks AFFiNE canvas document snapshots for structural issues such as missing children maps.",
+      "rationale": "Broken Blocksuite/Y.js parent-child state can hide blocks that still exist.",
+      "example": "affine-pp-cli canvas doc integrity --snapshot-file doc.bin --json",
+      "why_it_matters": "Use this before repairing a canvas that renders incomplete content.",
+      "group": "Canvas repair"
+    },
+    {
+      "name": "Canvas document repair",
+      "command": "canvas doc repair",
+      "description": "Repairs a narrow set of AFFiNE canvas integrity issues with dry-run and backup controls.",
+      "rationale": "Common missing-children corruption needs a bounded, auditable repair command.",
+      "example": "affine-pp-cli canvas doc repair --workspace \u003cworkspace-id\u003e --doc \u003cdoc-id\u003e --dry-run --json",
+      "why_it_matters": "Use this only after integrity diagnostics identify a supported repair.",
+      "group": "Canvas repair"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Canvas layout planner",
+      "command": "canvas plan",
+      "description": "Builds a deterministic AFFiNE canvas card layout from a compact JSON tree spec.",
+      "rationale": "Agents can plan spatial boards before touching live AFFiNE data.",
+      "example": "affine-pp-cli canvas plan --json",
+      "why_it_matters": "Use this before applying or reviewing a new canvas structure.",
+      "group": "Canvas operations"
+    },
+    {
+      "name": "Canvas model normalizer",
+      "command": "canvas model",
+      "description": "Normalizes AFFiNE canvas JSON into explicit nodes and connectors.",
+      "rationale": "Raw Blocksuite/Y.js shapes are too noisy for reliable agent inspection.",
+      "example": "affine-pp-cli canvas model --json",
+      "why_it_matters": "Use this when comparing or auditing canvas structure.",
+      "group": "Canvas operations"
+    },
+    {
+      "name": "Canvas plan validator",
+      "command": "canvas validate",
+      "description": "Checks planned canvas nodes and connectors for invalid geometry and orphaned links.",
+      "rationale": "Canvas writes need a local safety gate before mutation.",
+      "example": "affine-pp-cli canvas validate --json",
+      "why_it_matters": "Use this before applying generated canvas plans.",
+      "group": "Canvas safety"
+    },
+    {
+      "name": "Canvas dry-run apply",
+      "command": "canvas apply",
+      "description": "Converts a canvas plan into explicit dry-run operations without enabling live Y.js writes.",
+      "rationale": "Agents need a reviewable operation list before modifying AFFiNE documents.",
+      "example": "affine-pp-cli canvas apply --dry-run --json",
+      "why_it_matters": "Use this to inspect the exact operations a plan would perform.",
+      "group": "Canvas safety"
+    },
+    {
+      "name": "Canvas card image patch",
+      "command": "canvas card set-image",
+      "description": "Patches an existing AFFiNE canvas card image/logo while preserving card identity and text.",
+      "rationale": "Replacing a whole card to update an image breaks layout and links.",
+      "example": "affine-pp-cli canvas card set-image --workspace \u003cworkspace-id\u003e --doc \u003cdoc-id\u003e --card \u003ccard-id\u003e --source-id \u003cblob-id\u003e --alt LightRAG --dry-run --json",
+      "why_it_matters": "Use this when a visual card asset needs to change without rebuilding the board.",
+      "group": "Canvas repair"
+    },
+    {
+      "name": "Canvas document integrity check",
+      "command": "canvas doc integrity",
+      "description": "Checks AFFiNE canvas document snapshots for structural issues such as missing children maps.",
+      "rationale": "Broken Blocksuite/Y.js parent-child state can hide blocks that still exist.",
+      "example": "affine-pp-cli canvas doc integrity --snapshot-file doc.bin --json",
+      "why_it_matters": "Use this before repairing a canvas that renders incomplete content.",
+      "group": "Canvas repair"
+    },
+    {
+      "name": "Canvas document repair",
+      "command": "canvas doc repair",
+      "description": "Repairs a narrow set of AFFiNE canvas integrity issues with dry-run and backup controls.",
+      "rationale": "Common missing-children corruption needs a bounded, auditable repair command.",
+      "example": "affine-pp-cli canvas doc repair --workspace \u003cworkspace-id\u003e --doc \u003cdoc-id\u003e --dry-run --json",
+      "why_it_matters": "Use this only after integrity diagnostics identify a supported repair.",
+      "group": "Canvas repair"
+    }
+  ]
+}

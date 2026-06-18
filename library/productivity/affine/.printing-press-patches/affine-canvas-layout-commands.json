@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "affine-canvas-layout-commands",
+  "applied_at": "2026-06-18",
+  "base_run_id": "20260617-174848",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Adds AFFiNE canvas planning, model normalization, validation, and dry-run apply commands.",
+  "reason": "AFFiNE canvas spatial operations are not represented by the generated GraphQL operation list.",
+  "files": [
+    "internal/cli/canvas.go",
+    "internal/cli/canvas_test.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go test ./... covers command wiring, model parsing, and validation."
+}

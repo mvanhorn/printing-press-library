@@ -1,0 +1,8 @@
+{
+  "dir": "\u003ccli-dir\u003e\\affine",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

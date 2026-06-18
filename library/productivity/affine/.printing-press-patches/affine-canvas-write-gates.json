@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "affine-canvas-write-gates",
+  "applied_at": "2026-06-18",
+  "base_run_id": "20260617-174848",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Adds pre/post structural integrity gates around AFFiNE canvas Y.js write paths.",
+  "files": [
+    "internal/canvaswrite/card_image.go",
+    "internal/canvaswrite/rebuild_quartzo.go",
+    "internal/yjs/engine.go",
+    "internal/yjs/engine_test.go"
+  ],
+  "reason": "Canvas mutators must refuse to write over a structurally invalid document and must prove generated leaf blocks include sys:children.",
+  "validated_outcome": "go test ./... and live doc integrity check against Quartzo Ecosystem."
+}

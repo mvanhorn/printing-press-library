@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "affine",
+  "run_id": "20260617-174848",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 595,
+  "tests_passed": 595,
+  "tests_skipped": 434,
+  "auth_context": {
+    "type": "bearer_token",
+    "api_key_available": true
+  }
+}

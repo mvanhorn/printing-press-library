@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "affine-pp-mcp",
+  "display_name": "AFFiNE",
+  "version": "0.0.0",
+  "description": "Operate AFFiNE GraphQL from the terminal.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/affine-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/affine-pp-mcp",
+      "args": [],
+      "env": {
+        "AFFINE_TOKEN": "${user_config.affine_token}"
+      }
+    }
+  },
+  "user_config": {
+    "affine_token": {
+      "type": "string",
+      "title": "AFFINE_TOKEN",
+      "description": "Sets AFFINE_TOKEN for the AFFiNE MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

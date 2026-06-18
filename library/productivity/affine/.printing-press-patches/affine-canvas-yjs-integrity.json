@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "affine-canvas-yjs-integrity",
+  "applied_at": "2026-06-18",
+  "base_run_id": "20260617-174848",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Adds AFFiNE Y.js document integrity checks and a narrow missing-children repair command.",
+  "files": [
+    "internal/canvaswrite/integrity.go",
+    "internal/canvaswrite/integrity_test.go",
+    "internal/cli/canvas.go",
+    "internal/cli/canvas_test.go"
+  ],
+  "reason": "AFFiNE Blocksuite requires every block, including leaves, to carry sys:children as a Y.Array. Live docs can become unreadable in FramePreview when generated blocks omit it.",
+  "validated_outcome": "go test ./... and publish validate cover build, CLI wiring, and integrity unit tests."
+}

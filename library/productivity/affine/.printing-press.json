@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-17T17:48:48.7596584Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "affine",
+  "display_name": "AFFiNE",
+  "cli_name": "affine-pp-cli",
+  "creator": {
+    "handle": "gabrieldasf",
+    "name": "gabrieldasf"
+  },
+  "owner": "gabrieldasf",
+  "printer": "gabrieldasf",
+  "printer_name": "gabrieldasf",
+  "spec_path": "affine-graphql.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:06c83d19d75179e2338b1ad34193248944dc076c518684cb0eeab3a5e4e66d16",
+  "run_id": "20260617-174848",
+  "category": "productivity",
+  "description": "Operate AFFiNE GraphQL from the terminal.",
+  "mcp_binary": "affine-pp-mcp",
+  "mcp_tool_count": 189,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "AFFINE_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Canvas layout planner",
+      "command": "canvas plan",
+      "description": "Builds a deterministic AFFiNE canvas card layout from a compact JSON tree spec."
+    },
+    {
+      "name": "Canvas model normalizer",
+      "command": "canvas model",
+      "description": "Normalizes AFFiNE canvas JSON into explicit nodes and connectors."
+    },
+    {
+      "name": "Canvas plan validator",
+      "command": "canvas validate",
+      "description": "Checks planned canvas nodes and connectors for invalid geometry and orphaned links."
+    },
+    {
+      "name": "Canvas dry-run apply",
+      "command": "canvas apply",
+      "description": "Converts a canvas plan into explicit dry-run operations without enabling live Y.js writes."
+    },
+    {
+      "name": "Canvas card image patch",
+      "command": "canvas card set-image",
+      "description": "Patches an existing AFFiNE canvas card image/logo while preserving card identity and text."
+    },
+    {
+      "name": "Canvas document integrity check",
+      "command": "canvas doc integrity",
+      "description": "Checks AFFiNE canvas document snapshots for structural issues such as missing children maps."
+    },
+    {
+      "name": "Canvas document repair",
+      "command": "canvas doc repair",
+      "description": "Repairs a narrow set of AFFiNE canvas integrity issues with dry-run and backup controls."
+    }
+  ]
+}
