@@ -17,7 +17,7 @@ func TestParseFederalRegister(t *testing.T) {
 	    "pdf_url": "https://www.govinfo.gov/example.pdf",
 	    "publication_date": "2026-06-17",
 	    "agencies": [{"name": "General Services Administration", "slug": "general-services-administration"}],
-	    "excerpts": "Large Language Model <span class=\"match\">Artificial</span> Intelligence"
+	    "excerpts": "Large Language Model <span class=\"match\">Artificial</span> Intelligence &amp; Policy"
 	  }]
 	}`)
 
@@ -35,7 +35,7 @@ func TestParseFederalRegister(t *testing.T) {
 	if got.Agencies[0] != "General Services Administration" {
 		t.Fatalf("agency = %v", got.Agencies)
 	}
-	if got.Excerpt != "Large Language Model Artificial Intelligence" {
+	if got.Excerpt != "Large Language Model Artificial Intelligence & Policy" {
 		t.Fatalf("excerpt = %q", got.Excerpt)
 	}
 }

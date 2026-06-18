@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"html"
 	"net/url"
 	"strconv"
 	"strings"
@@ -14,14 +15,13 @@ import (
 const federalRegisterDocumentsURL = "https://www.federalregister.gov/api/v1/documents.json"
 
 type federalRegisterOptions struct {
-	Term     string
-	Agency   string
-	Since    string
-	Types    []string
-	Limit    int
-	Kind     string
-	Source   string
-	Commands string
+	Term   string
+	Agency string
+	Since  string
+	Types  []string
+	Limit  int
+	Kind   string
+	Source string
 }
 
 type federalRegisterResponse struct {
@@ -153,5 +153,6 @@ func cleanExcerpt(value string) string {
 	value = strings.ReplaceAll(value, "\n", " ")
 	value = strings.ReplaceAll(value, "<span class=\"match\">", "")
 	value = strings.ReplaceAll(value, "</span>", "")
+	value = html.UnescapeString(value)
 	return strings.Join(strings.Fields(value), " ")
 }

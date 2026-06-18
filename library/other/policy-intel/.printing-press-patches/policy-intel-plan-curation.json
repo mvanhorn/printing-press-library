@@ -4,12 +4,12 @@
   "applied_at": "2026-06-18",
   "base_run_id": "20260618-063000",
   "base_printing_press_version": "4.18.1",
-  "summary": "Curated the first-print command surface around source-backed Federal Register and Regulations.gov recipes instead of exposing raw endpoint mirrors.",
-  "reason": "Policy monitoring workflows need stable agent-ready outputs with explicit source caveats, not raw endpoint mirroring that pushes upstream filter details into every caller.",
+  "summary": "Curated the first-print command surface around source-backed Federal Register and Regulations.gov recipes, with clean agent-ready Federal Register excerpts.",
+  "reason": "Policy monitoring workflows need stable agent-ready outputs with explicit source caveats and readable excerpt text, not raw endpoint mirroring that pushes upstream filter details and HTML entity cleanup into every caller.",
   "files": [
     "internal/cli/federal_register.go",
     "internal/cli/regulations.go",
     "internal/cli/commands.go"
   ],
-  "validated_outcome": "Live validation covered Federal Register search/rules plus Regulations.gov docket and comments reads; deadline polling is documented for a configured api.data.gov key because DEMO_KEY can rate-limit."
+  "validated_outcome": "Live validation covered Federal Register search/rules plus Regulations.gov docket and comments reads; unit tests cover Federal Register span stripping and HTML entity unescaping. Deadline polling is documented for a configured api.data.gov key because DEMO_KEY can rate-limit."
 }
