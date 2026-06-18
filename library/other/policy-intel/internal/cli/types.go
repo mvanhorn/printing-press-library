@@ -44,8 +44,8 @@ type RegulationsDocument struct {
 	PostedDate          string `json:"posted_date,omitempty"`
 	CommentStartDate    string `json:"comment_start_date,omitempty"`
 	CommentEndDate      string `json:"comment_end_date,omitempty"`
-	OpenForComment      bool   `json:"open_for_comment,omitempty"`
-	WithinCommentPeriod bool   `json:"within_comment_period,omitempty"`
+	OpenForComment      bool   `json:"open_for_comment"`
+	WithinCommentPeriod bool   `json:"within_comment_period"`
 }
 
 type RegulationsListResult struct {

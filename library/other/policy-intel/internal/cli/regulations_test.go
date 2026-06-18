@@ -2,7 +2,11 @@
 
 package cli
 
-import "testing"
+import (
+	"encoding/json"
+	"strings"
+	"testing"
+)
 
 func TestParseRegulationsList(t *testing.T) {
 	body := []byte(`{
@@ -49,5 +53,23 @@ func TestRegulationsAPIKeyFallsBackToDemoKey(t *testing.T) {
 	t.Setenv("POLICY_INTEL_REGULATIONS_API_KEY", "real-key")
 	if got := regulationsAPIKey(); got != "real-key" {
 		t.Fatalf("regulationsAPIKey = %q, want configured key", got)
+	}
+}
+
+func TestRegulationsDocumentJSONIncludesFalseCommentFlags(t *testing.T) {
+	doc := RegulationsDocument{
+		ID:                  "EPA-HQ-OPPT-2018-0462-0001",
+		OpenForComment:      false,
+		WithinCommentPeriod: false,
+	}
+	body, err := json.Marshal(doc)
+	if err != nil {
+		t.Fatalf("json.Marshal returned error: %v", err)
+	}
+	got := string(body)
+	for _, want := range []string{`"open_for_comment":false`, `"within_comment_period":false`} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("expected %s in JSON, got %s", want, got)
+		}
 	}
 }
