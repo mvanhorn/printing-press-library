@@ -122,7 +122,7 @@ us-data-pp-cli wages --occupation "software developer" --agent
 
 ### `industry`
 
-Uses BEA setup guidance unless `US_DATA_BEA_API_KEY` is configured. With a key, it queries BEA Regional data and includes the raw BEA response for extension work.
+Uses BEA setup guidance unless `US_DATA_BEA_API_KEY` is configured. With a key, it queries a starter BEA Regional `SAINC5N` state-level table and includes the raw BEA response for extension work. The `--naics`, `--industry`, and `--state` flags are returned as request context only in this first print; they are not applied to the live BEA query until table and line mappings are expanded.
 
 ```bash
 us-data-pp-cli industry --naics 541511 --agent

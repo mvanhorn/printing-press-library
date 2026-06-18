@@ -39,17 +39,33 @@ func fetchBEAIndustry(ctx context.Context, naics, industry, state string) (map[s
 		return nil, err
 	}
 	return map[string]any{
-		"kind":   "bea_industry_regional",
-		"source": "BEA API Regional dataset",
-		"requested": map[string]string{
-			"naics":    naics,
-			"industry": industry,
-			"state":    state,
+		"kind":            "bea_industry_regional",
+		"source":          "BEA API Regional dataset",
+		"request_context": beaIndustryRequestContext(naics, industry, state),
+		"applied_query": map[string]string{
+			"dataset":   "Regional",
+			"table":     "SAINC5N",
+			"line_code": "10",
+			"geo_fips":  "STATE",
+			"year":      "LAST5",
 		},
 		"dataset": "Regional SAINC5N",
-		"note":    "The first release focuses on source-backed retrieval plus setup; use BEA metadata methods for exact table/line discovery when extending industry mappings.",
-		"raw":     decoded,
+		"caveats": []string{
+			"The --naics, --industry, and --state flags are returned as caller context only; they are not applied to the first-print BEA query.",
+			"The live BEA request uses Regional SAINC5N, LineCode 10, GeoFips STATE, Year LAST5 until table and line mappings are expanded.",
+		},
+		"note": "Use BEA metadata methods for exact dataset, table, line, and geography discovery when extending industry mappings.",
+		"raw":  decoded,
 	}, nil
+}
+
+func beaIndustryRequestContext(naics, industry, state string) map[string]any {
+	return map[string]any{
+		"naics":                naics,
+		"industry":             industry,
+		"state":                state,
+		"applied_to_bea_query": false,
+	}
 }
 
 func beaSetupGuidance() GuidanceResult {
