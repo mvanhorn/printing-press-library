@@ -42,6 +42,16 @@
       "files": [
         "internal/cli/tail.go"
       ]
+    },
+    {
+      "id": "sync-tail-deliver-stdout-routing",
+      "summary": "Route sync/tail streamed NDJSON through cmd.OutOrStdout() (sync via a mutex-guarded writer for its concurrent workers) so --deliver tees the stream to its sink instead of producing an empty file.",
+      "reason": "sync and tail wrote events directly to os.Stdout, bypassing the cobra writer the --deliver MultiWriter tees; --deliver file:... silently produced an empty file.",
+      "files": [
+        "internal/cli/sync.go",
+        "internal/cli/tail.go"
+      ],
+      "validated_outcome": "morgen-pp-cli sync --json --deliver file:out.json now writes populated NDJSON (verified live); go build/vet clean."
     }
   ]
 }

@@ -69,7 +69,9 @@ native streaming instead of polling.`,
 			ticker := time.NewTicker(interval)
 			defer ticker.Stop()
 
-			enc := json.NewEncoder(os.Stdout)
+			// Write through the command's stdout sink (not os.Stdout) so
+			// --deliver can tee the stream into its sink.
+			enc := json.NewEncoder(cmd.OutOrStdout())
 
 			fmt.Fprintf(os.Stderr, "Tailing %s every %s (Ctrl+C to stop)\n", resource, interval)
 
@@ -117,7 +119,9 @@ func tailKnownResources() []string {
 	}
 }
 
-func fetchAndEmit(c interface{ Get(string, map[string]string) (json.RawMessage, error) }, path string, enc *json.Encoder) error {
+func fetchAndEmit(c interface {
+	Get(string, map[string]string) (json.RawMessage, error)
+}, path string, enc *json.Encoder) error {
 	data, err := c.Get(path, nil)
 	if err != nil {
 		return err
