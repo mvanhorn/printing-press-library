@@ -1,0 +1,417 @@
+{
+  "api_name": "boardgamegeek",
+  "base_url": "https://boardgamegeek.com/xmlapi2",
+  "description": "BoardGameGeek's official XMLAPI2 (https://boardgamegeek.com/xmlapi2), the\ncanonical database for board games, RPGs, and video games. Every endpoint\nreturns XML; the generated client normalizes it to JSON so --json/--select\nand MCP tools work like any JSON API.\n\nAuthorization: as of 2025-07-02 BGG requires a registered application and an\nAuthorization: Bearer \u003ctoken\u003e header on every request (register at\nhttps://boardgamegeek.com/applications, then create a token). Requests go to\nboardgamegeek.com (no leading www).\n\nScope: read-only lookup across the BGG taste graph — search, full game/thing\ndetail with stats and rankings, the live \"hot\" list, user profiles, user game\ncollections, logged plays, families, and guilds. No write/mutating endpoints.\n\nQuirk worth knowing: collection (and occasionally thing/plays) can answer with\nHTTP 202 and a \"your request is queued, retry shortly\" body the first time a\nlarge query is requested; repeat the call until the data is returned.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "BGG_TOKEN",
+      "BOARDGAMEGEEK_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "BGG_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "BOARDGAMEGEEK_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://boardgamegeek.com/applications"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "collection_get",
+      "description": "A user's collection by login name. Filter with the 0/1 status flags (own, rated, played, wishlist, want, trade). `stats=1` adds per-game rating and rank. Large collections may answer with HTTP 202 the first time and need a retry. Required: username. Optional: subtype (default: boardgame), excludesubtype, own (plus 8 more). Returns the Xmlresponse.",
+      "method": "GET",
+      "path": "/collection",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "query",
+          "description": "BGG user login name",
+          "required": true
+        },
+        {
+          "name": "subtype",
+          "type": "string",
+          "location": "query",
+          "description": "Collection subtype (default boardgame)"
+        },
+        {
+          "name": "excludesubtype",
+          "type": "string",
+          "location": "query",
+          "description": "Subtype to exclude (e.g. boardgameexpansion)"
+        },
+        {
+          "name": "own",
+          "type": "int",
+          "location": "query",
+          "description": "1 = only owned items, 0 = only not-owned"
+        },
+        {
+          "name": "rated",
+          "type": "int",
+          "location": "query",
+          "description": "1 = only rated items"
+        },
+        {
+          "name": "played",
+          "type": "int",
+          "location": "query",
+          "description": "1 = only played items"
+        },
+        {
+          "name": "wishlist",
+          "type": "int",
+          "location": "query",
+          "description": "1 = only wishlist items"
+        },
+        {
+          "name": "want",
+          "type": "int",
+          "location": "query",
+          "description": "1 = only items flagged 'want in trade'"
+        },
+        {
+          "name": "trade",
+          "type": "int",
+          "location": "query",
+          "description": "1 = only items flagged 'for trade'"
+        },
+        {
+          "name": "stats",
+          "type": "int",
+          "location": "query",
+          "description": "1 = include rating and rank stats per item"
+        },
+        {
+          "name": "brief",
+          "type": "int",
+          "location": "query",
+          "description": "1 = abbreviated results"
+        },
+        {
+          "name": "modifiedsince",
+          "type": "string",
+          "location": "query",
+          "description": "Only items changed since this date (YYYY-MM-DD)"
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/xml"
+        }
+      ]
+    },
+    {
+      "name": "family_get",
+      "description": "A BGG family (a shared series, theme, or IP grouping related things) by id. Comma-separate ids for a batch lookup. Required: id. Optional: type. Returns the Xmlresponse.",
+      "method": "GET",
+      "path": "/family",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Family id, or comma-separated ids",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Family type (e.g. boardgamefamily)"
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/xml"
+        }
+      ]
+    },
+    {
+      "name": "guild_get",
+      "description": "A BGG guild by id. Set `members=1` to include the member roster (paginated with `page`). Required: id. Optional: members, sort, page. Returns the Xmlresponse.",
+      "method": "GET",
+      "path": "/guild",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Guild id",
+          "required": true
+        },
+        {
+          "name": "members",
+          "type": "int",
+          "location": "query",
+          "description": "1 = include the member roster"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Member sort order (e.g. username, date)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Member roster page (25 members per page)"
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/xml"
+        }
+      ]
+    },
+    {
+      "name": "hot_get-items",
+      "description": "The live BoardGameGeek Hot list. `type` selects the ranking (boardgame is the default and most common). Optional: type (default: boardgame). Returns the Xmlresponse.",
+      "method": "GET",
+      "path": "/hot",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Hot list type: boardgame, rpg, videogame, boardgameperson, rpgperson, boardgamecompany, rpgcompany, videogamecompany."
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/xml"
+        }
+      ]
+    },
+    {
+      "name": "plays_get",
+      "description": "Logged play sessions. Provide `username` (a user's plays) or `id` (a game's plays). Filter by date range and paginate with `page`. Optional: username, id, type (plus 4 more). Returns the Xmlresponse.",
+      "method": "GET",
+      "path": "/plays",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "query",
+          "description": "BGG user login name (plays logged by this user)"
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Thing id (plays logged for this game)"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Id type when `id` is set: thing or family"
+        },
+        {
+          "name": "mindate",
+          "type": "string",
+          "location": "query",
+          "description": "Earliest play date (YYYY-MM-DD)"
+        },
+        {
+          "name": "maxdate",
+          "type": "string",
+          "location": "query",
+          "description": "Latest play date (YYYY-MM-DD)"
+        },
+        {
+          "name": "subtype",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict to a subtype (default boardgame)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (100 plays per page)"
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/xml"
+        }
+      ]
+    },
+    {
+      "name": "searches_search-things",
+      "description": "Full-text search across the BGG database. Returns matching things (id, name, year). Narrow with `type` and set `exact=1` for exact-name matches. Required: query. Optional: type, exact.",
+      "method": "GET",
+      "path": "/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search string",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated thing types to include: boardgame, boardgameexpansion, boardgameaccessory, rpgitem, rpgissue, videogame."
+        },
+        {
+          "name": "exact",
+          "type": "int",
+          "location": "query",
+          "description": "1 = only exact name matches"
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/xml"
+        }
+      ]
+    },
+    {
+      "name": "thing_get",
+      "description": "Full record for a game/expansion/accessory by id (comma-separate ids for a batch). Opt into extra sections with the 0/1 flags. `stats=1` adds the rating, rank, and ownership statistics most callers want. Required: id. Optional: type, stats, versions (plus 5 more). Returns the Xmlresponse.",
+      "method": "GET",
+      "path": "/thing",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Thing id, or comma-separated ids for a batch lookup",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict to a thing type (e.g. boardgame, boardgameexpansion)"
+        },
+        {
+          "name": "stats",
+          "type": "int",
+          "location": "query",
+          "description": "1 = include rating, rank, and ownership stats"
+        },
+        {
+          "name": "versions",
+          "type": "int",
+          "location": "query",
+          "description": "1 = include published versions"
+        },
+        {
+          "name": "videos",
+          "type": "int",
+          "location": "query",
+          "description": "1 = include linked videos"
+        },
+        {
+          "name": "comments",
+          "type": "int",
+          "location": "query",
+          "description": "1 = include user comments"
+        },
+        {
+          "name": "marketplace",
+          "type": "int",
+          "location": "query",
+          "description": "1 = include marketplace listings"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for paged sub-sections (comments)"
+        },
+        {
+          "name": "pagesize",
+          "type": "int",
+          "location": "query",
+          "description": "Page size for paged sub-sections (10-100)"
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/xml"
+        }
+      ]
+    },
+    {
+      "name": "user_get",
+      "description": "Public profile for a BGG user by login name. Opt into buddies, guilds, and the user's personal hot/top lists with the 0/1 flags. Required: name. Optional: buddies, guilds, hot (plus 2 more). Returns the Xmlresponse.",
+      "method": "GET",
+      "path": "/user",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "BGG user login name",
+          "required": true
+        },
+        {
+          "name": "buddies",
+          "type": "int",
+          "location": "query",
+          "description": "1 = include the user's buddy list"
+        },
+        {
+          "name": "guilds",
+          "type": "int",
+          "location": "query",
+          "description": "1 = include the user's guild memberships"
+        },
+        {
+          "name": "hot",
+          "type": "int",
+          "location": "query",
+          "description": "1 = include the user's hot list"
+        },
+        {
+          "name": "top",
+          "type": "int",
+          "location": "query",
+          "description": "1 = include the user's top list"
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict hot/top lists to a domain: boardgame, rpg, videogame"
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/xml"
+        }
+      ]
+    }
+  ]
+}

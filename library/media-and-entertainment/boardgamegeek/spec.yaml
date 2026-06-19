@@ -1,0 +1,454 @@
+openapi: "3.0.3"
+info:
+  title: BoardGameGeek XML API2
+  description: |
+    BoardGameGeek's official XMLAPI2 (https://boardgamegeek.com/xmlapi2), the
+    canonical database for board games, RPGs, and video games. Every endpoint
+    returns XML; the generated client normalizes it to JSON so --json/--select
+    and MCP tools work like any JSON API.
+
+    Authorization: as of 2025-07-02 BGG requires a registered application and an
+    Authorization: Bearer <token> header on every request (register at
+    https://boardgamegeek.com/applications, then create a token). Requests go to
+    boardgamegeek.com (no leading www).
+
+    Scope: read-only lookup across the BGG taste graph — search, full game/thing
+    detail with stats and rankings, the live "hot" list, user profiles, user game
+    collections, logged plays, families, and guilds. No write/mutating endpoints.
+
+    Quirk worth knowing: collection (and occasionally thing/plays) can answer with
+    HTTP 202 and a "your request is queued, retry shortly" body the first time a
+    large query is requested; repeat the call until the data is returned.
+  version: "2.0.0"
+  contact:
+    name: BoardGameGeek (Community, official XMLAPI2)
+
+servers:
+  - url: https://boardgamegeek.com/xmlapi2
+    description: BoardGameGeek XMLAPI2 (no leading www)
+
+tags:
+  - name: search
+    description: Full-text search for games, expansions, and other things
+  - name: things
+    description: Full detail for one or more things (games, expansions, accessories)
+  - name: hot
+    description: The current BoardGameGeek "Hot" rankings
+  - name: users
+    description: Public user profiles, buddies, and guild membership
+  - name: collections
+    description: A user's owned/rated/wishlisted game collection
+  - name: plays
+    description: Logged play sessions for a user or a game
+  - name: families
+    description: Game families (shared series, themes, or IP)
+  - name: guilds
+    description: Guild details and membership
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      x-auth-env-vars:
+        - BGG_TOKEN
+        - BOARDGAMEGEEK_TOKEN
+      x-auth-key-url: https://boardgamegeek.com/applications
+      x-auth-title: BoardGameGeek Application Token
+      x-auth-description: >
+        Register an application at https://boardgamegeek.com/applications
+        (Non-commercial licenses are free), wait for approval, then create a
+        token under your application and send it as Authorization: Bearer <token>.
+
+  schemas:
+    XMLResponse:
+      type: object
+      description: >
+        XML document normalized to JSON by the client. Element attributes become
+        @-prefixed keys, text becomes #text, and repeated elements become arrays.
+
+  responses:
+    Xml:
+      description: XML document (normalized to JSON by the generated client)
+      content:
+        application/xml:
+          schema:
+            $ref: "#/components/schemas/XMLResponse"
+
+  parameters:
+    BooleanFlag01:
+      name: flag
+      in: query
+      description: "Boolean flag: 1 to include, 0 to exclude"
+      schema:
+        type: integer
+        enum: [0, 1]
+
+security:
+  - bearerAuth: []
+
+paths:
+  /search:
+    get:
+      operationId: searchThings
+      summary: Search for things by name
+      description: |
+        Full-text search across the BGG database. Returns matching things (id,
+        name, year). Narrow with `type` and set `exact=1` for exact-name matches.
+      tags: [search]
+      x-pp-resource: searches
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: Search string
+          schema:
+            type: string
+        - name: type
+          in: query
+          description: >
+            Comma-separated thing types to include: boardgame, boardgameexpansion,
+            boardgameaccessory, rpgitem, rpgissue, videogame.
+          schema:
+            type: string
+        - name: exact
+          in: query
+          description: "1 = only exact name matches"
+          schema:
+            type: integer
+            enum: [0, 1]
+      responses:
+        "200":
+          $ref: "#/components/responses/Xml"
+
+  /thing:
+    get:
+      operationId: getThing
+      summary: Get full detail for one or more things
+      description: |
+        Full record for a game/expansion/accessory by id (comma-separate ids for
+        a batch). Opt into extra sections with the 0/1 flags. `stats=1` adds the
+        rating, rank, and ownership statistics most callers want.
+      tags: [things]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: Thing id, or comma-separated ids for a batch lookup
+          schema:
+            type: string
+        - name: type
+          in: query
+          description: Restrict to a thing type (e.g. boardgame, boardgameexpansion)
+          schema:
+            type: string
+        - name: stats
+          in: query
+          description: "1 = include rating, rank, and ownership stats"
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: versions
+          in: query
+          description: "1 = include published versions"
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: videos
+          in: query
+          description: "1 = include linked videos"
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: comments
+          in: query
+          description: "1 = include user comments"
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: marketplace
+          in: query
+          description: "1 = include marketplace listings"
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: page
+          in: query
+          description: Page number for paged sub-sections (comments)
+          schema:
+            type: integer
+            minimum: 1
+        - name: pagesize
+          in: query
+          description: Page size for paged sub-sections (10-100)
+          schema:
+            type: integer
+            minimum: 10
+            maximum: 100
+      responses:
+        "200":
+          $ref: "#/components/responses/Xml"
+
+  /hot:
+    get:
+      operationId: getHotItems
+      summary: Get the current "Hot" rankings
+      description: |
+        The live BoardGameGeek Hot list. `type` selects the ranking
+        (boardgame is the default and most common).
+      tags: [hot]
+      parameters:
+        - name: type
+          in: query
+          description: >
+            Hot list type: boardgame, rpg, videogame, boardgameperson, rpgperson,
+            boardgamecompany, rpgcompany, videogamecompany.
+          schema:
+            type: string
+            default: boardgame
+      responses:
+        "200":
+          $ref: "#/components/responses/Xml"
+
+  /user:
+    get:
+      operationId: getUser
+      summary: Get a public user profile
+      description: |
+        Public profile for a BGG user by login name. Opt into buddies, guilds,
+        and the user's personal hot/top lists with the 0/1 flags.
+      tags: [users]
+      parameters:
+        - name: name
+          in: query
+          required: true
+          description: BGG user login name
+          schema:
+            type: string
+        - name: buddies
+          in: query
+          description: "1 = include the user's buddy list"
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: guilds
+          in: query
+          description: "1 = include the user's guild memberships"
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: hot
+          in: query
+          description: "1 = include the user's hot list"
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: top
+          in: query
+          description: "1 = include the user's top list"
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: domain
+          in: query
+          description: "Restrict hot/top lists to a domain: boardgame, rpg, videogame"
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Xml"
+
+  /collection:
+    get:
+      operationId: getCollection
+      summary: Get a user's game collection
+      description: |
+        A user's collection by login name. Filter with the 0/1 status flags
+        (own, rated, played, wishlist, want, trade). `stats=1` adds per-game
+        rating and rank. Large collections may answer with HTTP 202 the first
+        time and need a retry.
+      tags: [collections]
+      parameters:
+        - name: username
+          in: query
+          required: true
+          description: BGG user login name
+          schema:
+            type: string
+        - name: subtype
+          in: query
+          description: "Collection subtype (default boardgame)"
+          schema:
+            type: string
+            default: boardgame
+        - name: excludesubtype
+          in: query
+          description: Subtype to exclude (e.g. boardgameexpansion)
+          schema:
+            type: string
+        - name: own
+          in: query
+          description: "1 = only owned items, 0 = only not-owned"
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: rated
+          in: query
+          description: "1 = only rated items"
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: played
+          in: query
+          description: "1 = only played items"
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: wishlist
+          in: query
+          description: "1 = only wishlist items"
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: want
+          in: query
+          description: "1 = only items flagged 'want in trade'"
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: trade
+          in: query
+          description: "1 = only items flagged 'for trade'"
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: stats
+          in: query
+          description: "1 = include rating and rank stats per item"
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: brief
+          in: query
+          description: "1 = abbreviated results"
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: modifiedsince
+          in: query
+          description: "Only items changed since this date (YYYY-MM-DD)"
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Xml"
+
+  /plays:
+    get:
+      operationId: getPlays
+      summary: Get logged plays for a user or a game
+      description: |
+        Logged play sessions. Provide `username` (a user's plays) or `id` (a
+        game's plays). Filter by date range and paginate with `page`.
+      tags: [plays]
+      parameters:
+        - name: username
+          in: query
+          description: BGG user login name (plays logged by this user)
+          schema:
+            type: string
+        - name: id
+          in: query
+          description: Thing id (plays logged for this game)
+          schema:
+            type: integer
+        - name: type
+          in: query
+          description: "Id type when `id` is set: thing or family"
+          schema:
+            type: string
+            enum: [thing, family]
+        - name: mindate
+          in: query
+          description: "Earliest play date (YYYY-MM-DD)"
+          schema:
+            type: string
+        - name: maxdate
+          in: query
+          description: "Latest play date (YYYY-MM-DD)"
+          schema:
+            type: string
+        - name: subtype
+          in: query
+          description: "Restrict to a subtype (default boardgame)"
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number (100 plays per page)
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          $ref: "#/components/responses/Xml"
+
+  /family:
+    get:
+      operationId: getFamily
+      summary: Get a game family
+      description: |
+        A BGG family (a shared series, theme, or IP grouping related things) by
+        id. Comma-separate ids for a batch lookup.
+      tags: [families]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: Family id, or comma-separated ids
+          schema:
+            type: string
+        - name: type
+          in: query
+          description: "Family type (e.g. boardgamefamily)"
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Xml"
+
+  /guild:
+    get:
+      operationId: getGuild
+      summary: Get guild details and membership
+      description: |
+        A BGG guild by id. Set `members=1` to include the member roster
+        (paginated with `page`).
+      tags: [guilds]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: Guild id
+          schema:
+            type: integer
+        - name: members
+          in: query
+          description: "1 = include the member roster"
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: sort
+          in: query
+          description: "Member sort order (e.g. username, date)"
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Member roster page (25 members per page)
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          $ref: "#/components/responses/Xml"
