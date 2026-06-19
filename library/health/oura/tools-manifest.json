@@ -1,0 +1,1678 @@
+{
+  "api_name": "oura",
+  "base_url": "https://api.ouraring.com",
+  "description": "# Overview \nThe Oura API allows Oura users and partner applications to improve their user experience with Oura data.\nThis document describes the Oura API Version 2 (V2), which is the only available integration point for Oura data. The previous V1 API has been sunset.\n# Getting Started \n## What is an API?\nAn API (Application Programming Interface) allows different software applications to communicate with each other. The Oura API enables you to access your Oura Ring data programmatically.\n## Quick Start Guide\n1. Register an [API Application](https://cloud.ouraring.com/oauth/applications) and implement OAuth2\n2. **Make Your First API Call**:\n   ```\n   curl -X GET https://api.ouraring.com/v2/usercollection/personal_info \\\n   -H \"Authorization: Bearer YOUR_TOKEN_HERE\"\n   ```\n3. **Explore Data Types**:\n   - Browse the available endpoints in this documentation to discover what data you can access\n   - Each endpoint includes example requests and responses\n4. **Set Up Webhooks (Strongly Recommended)**:\n   - Webhooks are the preferred way to consume Oura data\n   - We have not had customers hit rate limits with webhooks properly implemented\n   - Make a single request for historical data when a user first connects, then use webhooks for ongoing updates\n   - Webhook notifications come approximately 30 seconds after data syncs from the mobile app\n   - [Set up webhooks](#tag/Webhook-Subscription-Routes) to receive notifications when data changes\n## Common Questions\n- **Data Delay**: Different data types sync at different times - sleep data requires users to open the Oura app, while daily activity and stress may sync in the background\n# Data Access\nIn order to access data, a registered [API Application](https://cloud.ouraring.com/oauth/applications) is required.\n API Applications are limited to **10** users before requiring approval from Oura. There is no limit once an application is approved.\n Additionally, Oura users **must provide consent** to share each data type an API Application has access to.\nAll data access requests through the Oura API require [Authentication](https://cloud.ouraring.com/docs/authentication).\nAdditionally, we recommend that Oura users keep their mobile app updated to support API access for the latest data types.\n# Authentication\nThe Oura Cloud API supports authentication through the industry-standard OAuth2 protocol. For more information, see our [Authentication instructions](https://cloud.ouraring.com/docs/authentication).\nAccess tokens must be included in the request header as follows:\n```http\nGET /v2/usercollection/personal_info HTTP/1.1\nHost: api.ouraring.com\nAuthorization: Bearer \u003ctoken\u003e\n```\nPlease note that personal access tokens were deprecated in December 2025 and are no longer available for use.\n# Oura HTTP Response Codes\n| Response Code                        | Description |\n| ------------------------------------ | - |\n| 200 OK                               | Successful Response         |\n| 400 Query Parameter Validation Error | The request contains query parameters that are invalid or incorrectly formatted. |\n| 401 Unauthorized                     | Invalid or expired authentication token. |\n| 403 Forbidden                        | The requested resource requires additional permissions or the user's Oura subscription has expired. |\n| 429 Too Many Requests                | Rate limit exceeded. See response headers for retry guidance. |\n\n## Rate Limits\nThe API enforces rate limits at two layers to ensure fair access across all applications:\n- a per-access-token limit, which throttles single-token floods, and\n- a per-application limit, which caps the aggregate traffic across all of an application's end-user tokens so one fan-out app can't dominate shared capacity.\n\nA request that trips either layer receives a `429 Too Many Requests`. The `X-RateLimit-Tier` response header identifies which layer fired.\n\nIf your application regularly approaches rate limits, [webhooks](#tag/Webhook-Subscription-Routes) are strongly recommended — most applications that implement webhooks correctly do not encounter rate limit issues.\n\n[Contact us](mailto:api-support@ouraring.com) if you expect your usage to require higher limits.\n\n## Rate Limit Response Headers\nWhen a `429 Too Many Requests` response is returned, five headers are included to guide retries. Prefer these over fixed-interval backoff:\n- **`Retry-After`** — integer seconds to wait before retrying. RFC 7231-compliant; safe to feed directly into your client's backoff logic.\n- **`X-RateLimit-Limit`** — the request ceiling for the current window.\n- **`X-RateLimit-Window`** — the rolling window length in seconds that the ceiling applies to.\n- **`X-RateLimit-Reset`** — Unix epoch (seconds) at which the window resets and quota is fully restored.\n- **`X-RateLimit-Tier`** — identifies which limit was exceeded, useful when contacting support.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "OURA_OAUTH2"
+    ],
+    "env_var_specs": [
+      {
+        "name": "OURA_OAUTH2",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://cloud.ouraring.com/oauth/applications"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "sandbox_multiple-daily-activity-documents",
+      "description": "Sandbox - Multiple Daily Activity Documents. Optional: start_date, end_date, next_token.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/daily_activity",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        }
+      ]
+    },
+    {
+      "name": "sandbox_multiple-daily-cardiovascular-age-documents",
+      "description": "Sandbox - Multiple Daily Cardiovascular Age Documents. Optional: start_date, end_date, next_token.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/daily_cardiovascular_age",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        }
+      ]
+    },
+    {
+      "name": "sandbox_multiple-daily-readiness-documents",
+      "description": "Sandbox - Multiple Daily Readiness Documents. Optional: start_date, end_date, next_token.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/daily_readiness",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        }
+      ]
+    },
+    {
+      "name": "sandbox_multiple-daily-resilience-documents",
+      "description": "Sandbox - Multiple Daily Resilience Documents. Optional: start_date, end_date, next_token.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/daily_resilience",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        }
+      ]
+    },
+    {
+      "name": "sandbox_multiple-daily-sleep-documents",
+      "description": "Sandbox - Multiple Daily Sleep Documents. Optional: start_date, end_date, next_token.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/daily_sleep",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        }
+      ]
+    },
+    {
+      "name": "sandbox_multiple-daily-spo2-documents",
+      "description": "Sandbox - Multiple Daily Spo2 Documents. Optional: start_date, end_date, next_token.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/daily_spo2",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        }
+      ]
+    },
+    {
+      "name": "sandbox_multiple-daily-stress-documents",
+      "description": "Sandbox - Multiple Daily Stress Documents. Optional: start_date, end_date, next_token.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/daily_stress",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        }
+      ]
+    },
+    {
+      "name": "sandbox_multiple-enhanced-tag-documents",
+      "description": "Sandbox - Multiple Enhanced Tag Documents. Optional: start_date, end_date, next_token.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/enhanced_tag",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        }
+      ]
+    },
+    {
+      "name": "sandbox_multiple-heartrate-documents",
+      "description": "Sandbox - Multiple Heartrate Documents. Optional: start_datetime, end_datetime, next_token.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/heartrate",
+      "params": [
+        {
+          "name": "start_datetime",
+          "type": "string",
+          "location": "query",
+          "description": "Start datetime"
+        },
+        {
+          "name": "end_datetime",
+          "type": "string",
+          "location": "query",
+          "description": "End datetime"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        }
+      ]
+    },
+    {
+      "name": "sandbox_multiple-rest-mode-period-documents",
+      "description": "Sandbox - Multiple Rest Mode Period Documents. Optional: start_date, end_date, next_token.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/rest_mode_period",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        }
+      ]
+    },
+    {
+      "name": "sandbox_multiple-ring-battery-level-documents",
+      "description": "Sandbox - Multiple Ring Battery Level Documents. Optional: start_datetime, end_datetime, next_token.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/ring_battery_level",
+      "params": [
+        {
+          "name": "start_datetime",
+          "type": "string",
+          "location": "query",
+          "description": "Start datetime"
+        },
+        {
+          "name": "end_datetime",
+          "type": "string",
+          "location": "query",
+          "description": "End datetime"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        }
+      ]
+    },
+    {
+      "name": "sandbox_multiple-ring-configuration-documents",
+      "description": "Sandbox - Multiple Ring Configuration Documents. Optional: next_token.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/ring_configuration",
+      "params": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        }
+      ]
+    },
+    {
+      "name": "sandbox_multiple-session-documents",
+      "description": "Sandbox - Multiple Session Documents. Optional: start_date, end_date, next_token.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/session",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        }
+      ]
+    },
+    {
+      "name": "sandbox_multiple-sleep-documents",
+      "description": "Sandbox - Multiple Sleep Documents. Optional: start_date, end_date, next_token.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/sleep",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        }
+      ]
+    },
+    {
+      "name": "sandbox_multiple-sleep-time-documents",
+      "description": "Sandbox - Multiple Sleep Time Documents. Optional: start_date, end_date, next_token.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/sleep_time",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        }
+      ]
+    },
+    {
+      "name": "sandbox_multiple-tag-documents",
+      "description": "Sandbox - Multiple Tag Documents. Optional: start_date, end_date, next_token.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/tag",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        }
+      ]
+    },
+    {
+      "name": "sandbox_multiple-v-o2-max-documents",
+      "description": "Sandbox - Multiple Vo2 Max Documents. Optional: start_date, end_date, next_token.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/vO2_max",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        }
+      ]
+    },
+    {
+      "name": "sandbox_multiple-workout-documents",
+      "description": "Sandbox - Multiple Workout Documents. Optional: start_date, end_date, next_token.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/workout",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        }
+      ]
+    },
+    {
+      "name": "sandbox_single-daily-activity-document",
+      "description": "Sandbox - Single Daily Activity Document. Required: document_id. Returns the PublicDailyActivity.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/daily_activity/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandbox_single-daily-cardiovascular-age-document",
+      "description": "Sandbox - Single Daily Cardiovascular Age Document. Required: document_id. Returns the PublicDailyCardiovascularAge.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/daily_cardiovascular_age/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandbox_single-daily-readiness-document",
+      "description": "Sandbox - Single Daily Readiness Document. Required: document_id. Returns the PublicDailyReadiness.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/daily_readiness/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandbox_single-daily-resilience-document",
+      "description": "Sandbox - Single Daily Resilience Document. Required: document_id. Returns the DailyResilienceModel.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/daily_resilience/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandbox_single-daily-sleep-document",
+      "description": "Sandbox - Single Daily Sleep Document. Required: document_id. Returns the PublicDailySleep.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/daily_sleep/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandbox_single-daily-spo2-document",
+      "description": "Sandbox - Single Daily Spo2 Document. Required: document_id. Returns the PublicDailySpO2.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/daily_spo2/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandbox_single-daily-stress-document",
+      "description": "Sandbox - Single Daily Stress Document. Required: document_id. Returns the PublicDailyStress.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/daily_stress/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandbox_single-enhanced-tag-document",
+      "description": "Sandbox - Single Enhanced Tag Document. Required: document_id. Returns the EnhancedTagModel.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/enhanced_tag/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandbox_single-rest-mode-period-document",
+      "description": "Sandbox - Single Rest Mode Period Document. Required: document_id. Returns array of PublicRestModeEpisode.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/rest_mode_period/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandbox_single-ring-configuration-document",
+      "description": "Sandbox - Single Ring Configuration Document. Required: document_id. Returns the PublicRingConfiguration.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/ring_configuration/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandbox_single-session-document",
+      "description": "Sandbox - Single Session Document. Required: document_id. Returns the PublicSession.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/session/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandbox_single-sleep-document",
+      "description": "Sandbox - Single Sleep Document. Required: document_id. Returns the PublicModifiedSleepModel.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/sleep/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandbox_single-sleep-time-document",
+      "description": "Sandbox - Single Sleep Time Document. Required: document_id. Returns the PublicSleepTime.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/sleep_time/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandbox_single-tag-document",
+      "description": "Sandbox - Single Tag Document. Required: document_id. Returns array of string.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/tag/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandbox_single-v-o2-max-document",
+      "description": "Sandbox - Single Vo2 Max Document. Required: document_id. Returns the PublicVo2Max.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/vO2_max/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandbox_single-workout-document",
+      "description": "Sandbox - Single Workout Document. Required: document_id. Returns the PublicWorkout.",
+      "method": "GET",
+      "path": "/v2/sandbox/usercollection/workout/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usercollection_multiple-daily-activity-documents",
+      "description": "Multiple Daily Activity Documents. Optional: start_date, end_date, next_token (plus 1 more).",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_activity",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in the response, in addition to the always..."
+        }
+      ]
+    },
+    {
+      "name": "usercollection_multiple-daily-cardiovascular-age-documents",
+      "description": "Multiple Daily Cardiovascular Age Documents. Optional: start_date, end_date, next_token (plus 1 more).",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_cardiovascular_age",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in the response, in addition to the always..."
+        }
+      ]
+    },
+    {
+      "name": "usercollection_multiple-daily-readiness-documents",
+      "description": "Multiple Daily Readiness Documents. Optional: start_date, end_date, next_token (plus 1 more).",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_readiness",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in the response, in addition to the always..."
+        }
+      ]
+    },
+    {
+      "name": "usercollection_multiple-daily-resilience-documents",
+      "description": "Multiple Daily Resilience Documents. Optional: start_date, end_date, next_token (plus 1 more).",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_resilience",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "N/A. This route does not support field selection yet, all fields will be returned."
+        }
+      ]
+    },
+    {
+      "name": "usercollection_multiple-daily-sleep-documents",
+      "description": "Multiple Daily Sleep Documents. Optional: start_date, end_date, next_token (plus 1 more).",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_sleep",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in the response, in addition to the always..."
+        }
+      ]
+    },
+    {
+      "name": "usercollection_multiple-daily-spo2-documents",
+      "description": "Multiple Daily Spo2 Documents. Optional: start_date, end_date, next_token (plus 1 more).",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_spo2",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in the response, in addition to the always..."
+        }
+      ]
+    },
+    {
+      "name": "usercollection_multiple-daily-stress-documents",
+      "description": "Multiple Daily Stress Documents. Optional: start_date, end_date, next_token (plus 1 more).",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_stress",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in the response, in addition to the always..."
+        }
+      ]
+    },
+    {
+      "name": "usercollection_multiple-enhanced-tag-documents",
+      "description": "Multiple Enhanced Tag Documents. Optional: start_date, end_date, next_token (plus 1 more).",
+      "method": "GET",
+      "path": "/v2/usercollection/enhanced_tag",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "N/A. This route does not support field selection yet, all fields will be returned."
+        }
+      ]
+    },
+    {
+      "name": "usercollection_multiple-heartrate-documents",
+      "description": "Multiple Heartrate Documents. Optional: start_datetime, end_datetime, next_token (plus 2 more).",
+      "method": "GET",
+      "path": "/v2/usercollection/heartrate",
+      "params": [
+        {
+          "name": "start_datetime",
+          "type": "string",
+          "location": "query",
+          "description": "Start datetime"
+        },
+        {
+          "name": "end_datetime",
+          "type": "string",
+          "location": "query",
+          "description": "End datetime"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        },
+        {
+          "name": "latest",
+          "type": "string",
+          "location": "query",
+          "description": "If True, returns most recent sample."
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in the response, in addition to the always..."
+        }
+      ]
+    },
+    {
+      "name": "usercollection_multiple-rest-mode-period-documents",
+      "description": "Multiple Rest Mode Period Documents. Optional: start_date, end_date, next_token (plus 1 more).",
+      "method": "GET",
+      "path": "/v2/usercollection/rest_mode_period",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in the response, in addition to the always..."
+        }
+      ]
+    },
+    {
+      "name": "usercollection_multiple-ring-battery-level-documents",
+      "description": "Multiple Ring Battery Level Documents. Optional: start_datetime, end_datetime, next_token (plus 2 more).",
+      "method": "GET",
+      "path": "/v2/usercollection/ring_battery_level",
+      "params": [
+        {
+          "name": "start_datetime",
+          "type": "string",
+          "location": "query",
+          "description": "Start datetime"
+        },
+        {
+          "name": "end_datetime",
+          "type": "string",
+          "location": "query",
+          "description": "End datetime"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        },
+        {
+          "name": "latest",
+          "type": "string",
+          "location": "query",
+          "description": "If True, returns most recent sample."
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in the response, in addition to the always..."
+        }
+      ]
+    },
+    {
+      "name": "usercollection_multiple-ring-configuration-documents",
+      "description": "Multiple Ring Configuration Documents. Optional: fields, next_token.",
+      "method": "GET",
+      "path": "/v2/usercollection/ring_configuration",
+      "params": [
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in the response, in addition to the always..."
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        }
+      ]
+    },
+    {
+      "name": "usercollection_multiple-session-documents",
+      "description": "Multiple Session Documents. Optional: start_date, end_date, next_token (plus 1 more).",
+      "method": "GET",
+      "path": "/v2/usercollection/session",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in the response, in addition to the always..."
+        }
+      ]
+    },
+    {
+      "name": "usercollection_multiple-sleep-documents",
+      "description": "Multiple Sleep Documents. Optional: start_date, end_date, next_token (plus 1 more).",
+      "method": "GET",
+      "path": "/v2/usercollection/sleep",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in the response, in addition to the always..."
+        }
+      ]
+    },
+    {
+      "name": "usercollection_multiple-sleep-time-documents",
+      "description": "Multiple Sleep Time Documents. Optional: start_date, end_date, next_token (plus 1 more).",
+      "method": "GET",
+      "path": "/v2/usercollection/sleep_time",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in the response, in addition to the always..."
+        }
+      ]
+    },
+    {
+      "name": "usercollection_multiple-tag-documents",
+      "description": "Multiple Tag Documents. Optional: start_date, end_date, next_token (plus 1 more).",
+      "method": "GET",
+      "path": "/v2/usercollection/tag",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "N/A. This route does not support field selection yet, all fields will be returned."
+        }
+      ]
+    },
+    {
+      "name": "usercollection_multiple-v-o2-max-documents",
+      "description": "Multiple Vo2 Max Documents. Optional: start_date, end_date, next_token (plus 1 more).",
+      "method": "GET",
+      "path": "/v2/usercollection/vO2_max",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in the response, in addition to the always..."
+        }
+      ]
+    },
+    {
+      "name": "usercollection_multiple-workout-documents",
+      "description": "Multiple Workout Documents. Optional: start_date, end_date, next_token (plus 1 more).",
+      "method": "GET",
+      "path": "/v2/usercollection/workout",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in the response, in addition to the always..."
+        }
+      ]
+    },
+    {
+      "name": "usercollection_single-daily-activity-document",
+      "description": "Single Daily Activity Document. Required: document_id. Returns the PublicDailyActivity.",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_activity/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usercollection_single-daily-cardiovascular-age-document",
+      "description": "Single Daily Cardiovascular Age Document. Required: document_id. Returns the PublicDailyCardiovascularAge.",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_cardiovascular_age/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usercollection_single-daily-readiness-document",
+      "description": "Single Daily Readiness Document. Required: document_id. Returns the PublicDailyReadiness.",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_readiness/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usercollection_single-daily-resilience-document",
+      "description": "Single Daily Resilience Document. Required: document_id. Returns the DailyResilienceModel.",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_resilience/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usercollection_single-daily-sleep-document",
+      "description": "Single Daily Sleep Document. Required: document_id. Returns the PublicDailySleep.",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_sleep/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usercollection_single-daily-spo2-document",
+      "description": "Single Daily Spo2 Document. Required: document_id. Returns the PublicDailySpO2.",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_spo2/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usercollection_single-daily-stress-document",
+      "description": "Single Daily Stress Document. Required: document_id. Returns the PublicDailyStress.",
+      "method": "GET",
+      "path": "/v2/usercollection/daily_stress/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usercollection_single-enhanced-tag-document",
+      "description": "Single Enhanced Tag Document. Required: document_id. Returns the EnhancedTagModel.",
+      "method": "GET",
+      "path": "/v2/usercollection/enhanced_tag/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usercollection_single-personal-info-document",
+      "description": "Single Personal Info Document. Returns the PersonalInfoResponse.",
+      "method": "GET",
+      "path": "/v2/usercollection/personal_info",
+      "params": []
+    },
+    {
+      "name": "usercollection_single-rest-mode-period-document",
+      "description": "Single Rest Mode Period Document. Required: document_id. Returns array of PublicRestModeEpisode.",
+      "method": "GET",
+      "path": "/v2/usercollection/rest_mode_period/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usercollection_single-ring-configuration-document",
+      "description": "Single Ring Configuration Document. Required: document_id. Returns the PublicRingConfiguration.",
+      "method": "GET",
+      "path": "/v2/usercollection/ring_configuration/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usercollection_single-session-document",
+      "description": "Single Session Document. Required: document_id. Returns the PublicSession.",
+      "method": "GET",
+      "path": "/v2/usercollection/session/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usercollection_single-sleep-document",
+      "description": "Single Sleep Document. Required: document_id. Returns the PublicModifiedSleepModel.",
+      "method": "GET",
+      "path": "/v2/usercollection/sleep/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usercollection_single-sleep-time-document",
+      "description": "Single Sleep Time Document. Required: document_id. Returns the PublicSleepTime.",
+      "method": "GET",
+      "path": "/v2/usercollection/sleep_time/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usercollection_single-tag-document",
+      "description": "Single Tag Document. Required: document_id. Returns array of string.",
+      "method": "GET",
+      "path": "/v2/usercollection/tag/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usercollection_single-v-o2-max-document",
+      "description": "Single Vo2 Max Document. Required: document_id. Returns the PublicVo2Max.",
+      "method": "GET",
+      "path": "/v2/usercollection/vO2_max/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usercollection_single-workout-document",
+      "description": "Single Workout Document. Required: document_id. Returns the PublicWorkout.",
+      "method": "GET",
+      "path": "/v2/usercollection/workout/{document_id}",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhook_create",
+      "description": "Create Webhook Subscription. Required: callback_url, data_type, event_type, verification_token. Returns the new WebhookSubscriptionModel.",
+      "method": "POST",
+      "path": "/v2/webhook/subscription",
+      "params": [
+        {
+          "name": "callback_url",
+          "type": "string",
+          "location": "body",
+          "description": "Callback url",
+          "required": true
+        },
+        {
+          "name": "data_type",
+          "type": "string",
+          "location": "body",
+          "description": "Data type",
+          "required": true
+        },
+        {
+          "name": "event_type",
+          "type": "string",
+          "location": "body",
+          "description": "Event type",
+          "required": true
+        },
+        {
+          "name": "verification_token",
+          "type": "string",
+          "location": "body",
+          "description": "Verification token",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhook_delete",
+      "description": "Delete Webhook Subscription. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/webhook/subscription/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhook_get-subscription",
+      "description": "Get Webhook Subscription. Required: id. Returns the WebhookSubscriptionModel.",
+      "method": "GET",
+      "path": "/v2/webhook/subscription/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhook_list-subscriptions",
+      "description": "List Webhook Subscriptions. Returns array of WebhookSubscriptionModel.",
+      "method": "GET",
+      "path": "/v2/webhook/subscription",
+      "params": []
+    },
+    {
+      "name": "webhook_renew-subscription",
+      "description": "Renew Webhook Subscription. Required: id. Returns the updated WebhookSubscriptionModel.",
+      "method": "PUT",
+      "path": "/v2/webhook/subscription/renew/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhook_update",
+      "description": "Update Webhook Subscription. Required: id, verification_token. Optional: callback_url, data_type, event_type. Returns the updated WebhookSubscriptionModel.",
+      "method": "PUT",
+      "path": "/v2/webhook/subscription/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "callback_url",
+          "type": "string",
+          "location": "body",
+          "description": "Callback url"
+        },
+        {
+          "name": "data_type",
+          "type": "string",
+          "location": "body",
+          "description": "Data type"
+        },
+        {
+          "name": "event_type",
+          "type": "string",
+          "location": "body",
+          "description": "Event type"
+        },
+        {
+          "name": "verification_token",
+          "type": "string",
+          "location": "body",
+          "description": "Verification token",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

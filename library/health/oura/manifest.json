@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "oura-pp-mcp",
+  "display_name": "Oura",
+  "version": "0.0.0",
+  "description": "Personal health data from the Oura Ring - sleep, readiness, daily activity, heart rate, workouts, SpO2, stress, and resilience.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/oura-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/oura-pp-mcp",
+      "args": [],
+      "env": {
+        "OURA_OAUTH2": "${user_config.oura_oauth2}"
+      }
+    }
+  },
+  "user_config": {
+    "oura_oauth2": {
+      "type": "string",
+      "title": "OURA_OAUTH2",
+      "description": "Sets OURA_OAUTH2 for the Oura MCP server. Get a credential from https://cloud.ouraring.com/oauth/applications.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
