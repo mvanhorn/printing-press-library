@@ -30,7 +30,10 @@ func newHistoryReadCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/rest/thread/{entry_uuid_or_slug}"
 			path = replacePathParam(path, "entry_uuid_or_slug", args[0])
-			params := map[string]string{}
+			params := map[string]string{
+				"version": "2.18",
+				"source":  "default",
+			}
 			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "history", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)

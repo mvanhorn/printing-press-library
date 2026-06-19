@@ -1012,7 +1012,7 @@ func extractCookies(tool cookieTool, domain, profileDir string) (string, error) 
 }
 
 func extractViaPycookiecheat(tool cookieTool, domain, profileDir string) (string, error) {
-	cleanDomain := strings.TrimPrefix(domain, ".")
+	cleanDomain := browserCookieURLHost(domain)
 	cookiePath := ""
 	if profileDir != "" {
 		dataDir, err := chromeDataDir()
@@ -1057,7 +1057,7 @@ func extractViaPycookiecheat(tool cookieTool, domain, profileDir string) (string
 }
 
 func extractViaPycookiecheatCLI(tool cookieTool, domain, profileDir string) (string, error) {
-	cleanDomain := strings.TrimPrefix(domain, ".")
+	cleanDomain := browserCookieURLHost(domain)
 	var args []string
 	if profileDir != "" {
 		dataDir, err := chromeDataDir()
@@ -1086,6 +1086,14 @@ func extractViaPycookiecheatCLI(tool cookieTool, domain, profileDir string) (str
 		parts = append(parts, name+"="+value)
 	}
 	return strings.Join(parts, "; "), nil
+}
+
+func browserCookieURLHost(domain string) string {
+	cleanDomain := strings.TrimPrefix(domain, ".")
+	if cleanDomain == "perplexity.ai" {
+		return "www.perplexity.ai"
+	}
+	return cleanDomain
 }
 
 func extractViaCookiesCLI(domain string) (string, error) {

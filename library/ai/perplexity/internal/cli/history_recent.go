@@ -33,6 +33,8 @@ func newHistoryRecentCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/rest/thread/list_recent"
 			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "history", path, map[string]string{
+				"version":        "2.18",
+				"source":         "default",
 				"limit":          formatCLIParamValue(flagLimit),
 				"ascending":      formatCLIParamValue(flagAscending),
 				"offset":         formatCLIParamValue(flagOffset),

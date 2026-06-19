@@ -41,7 +41,10 @@ func newHistoryExportCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/rest/thread/export"
-			params := map[string]string{}
+			params := map[string]string{
+				"version": "2.18",
+				"source":  "default",
+			}
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

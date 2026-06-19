@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "perplexity-www-cookie-host",
+  "applied_at": "2026-06-19",
+  "base_run_id": "20260618-202350",
+  "base_printing_press_version": "4.24.0",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/auth_test.go",
+    "internal/cli/history_export.go",
+    "internal/cli/history_read.go",
+    "internal/cli/history_recent.go"
+  ],
+  "summary": "Read Perplexity browser cookies from the account host and send the browser API version/source parameters on history endpoints.",
+  "reason": "Chrome stores Perplexity's account-session cookies on www.perplexity.ai, while the CLI previously extracted from perplexity.ai and saved only edge/challenge cookies. That made recent/read/export calls look authenticated to Cloudflare but unauthenticated to Perplexity. The browser app also sends version=2.18 and source=default on the history APIs.",
+  "validated_outcome": "go test ./internal/cli ./internal/client ./internal/config ./internal/store passes; auth login --chrome saves account-session cookies; history recent/read/export succeed against a logged-in Chrome session."
+}
