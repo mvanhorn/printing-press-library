@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "boardgamegeek-review-fixes",
+  "applied_at": "2026-06-19",
+  "base_run_id": "20260618-160601",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Resolve three automated-review findings: collide-free TOML tag for the second auth env var, single required MCP credential, and an XML-correct default Accept header.",
+  "reason": "The generated CLI exposes two interchangeable bearer env vars (BGG_TOKEN and its BOARDGAMEGEEK_TOKEN alias). The print derived an identical `toml:\"token\"` tag for both Config fields, so go-toml/v2 last-wins made BggToken unserializable and risked duplicate `token =` keys corrupting a saved config; the MCP manifest also marked both aliases required, forcing the same secret to be entered twice; and the if-empty Accept default was application/json on an XML-only API, so any direct client call (outside the promoted commands that set an application/xml headerOverride) could draw a 406.",
+  "files": [
+    "internal/config/config.go",
+    "manifest.json",
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass. config.go now tags BoardgamegeekToken as toml:\"boardgamegeek_token\" (distinct from BggToken's toml:\"token\"), so both round-trip independently and env-var bearer auth is unchanged. manifest.json marks only bgg_token required (boardgamegeek_token is an optional alias). client.go defaults Accept to application/xml for this XML-only API while binary responses still negotiate */*.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Generator-level dedupe of credential-field TOML tags when two auth env vars share a suffix (e.g. BGG_TOKEN + BOARDGAMEGEEK_TOKEN both reduce to `token` via EnvVarPlaceholder).",
+      "reason": "credentialFields() derives each tag from the env-var suffix and does not detect collisions, so any multi-alias bearer auth prints two struct fields with the same toml tag. The fix belongs in cli-printing-press credentialFields(), not per-CLI."
+    },
+    {
+      "feature": "Generator-level XML-aware Accept default (now landed upstream): client.go.tmpl defaults the if-empty Accept header to application/xml when the spec HasXMLResponse.",
+      "reason": "Carried as a patch here because the published print predates the cli-printing-press change; regenerating against a press that includes the XML Accept default reproduces this byte-for-byte."
+    }
+  ]
+}

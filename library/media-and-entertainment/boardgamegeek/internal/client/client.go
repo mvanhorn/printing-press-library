@@ -528,7 +528,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			if binaryResponse {
 				req.Header.Set("Accept", "*/*")
 			} else {
-				req.Header.Set("Accept", "application/json")
+				req.Header.Set("Accept", "application/xml")
 			}
 		}
 

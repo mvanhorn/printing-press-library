@@ -27,7 +27,7 @@ type Config struct {
 	envOverrides       map[string]bool   `toml:"-"`
 	fileConfig         *Config           `toml:"-"`
 	BggToken           string            `toml:"token"`
-	BoardgamegeekToken string            `toml:"token"`
+	BoardgamegeekToken string            `toml:"boardgamegeek_token"`
 }
 
 func Load(configPath string) (*Config, error) {

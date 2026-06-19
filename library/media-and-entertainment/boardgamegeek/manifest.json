@@ -31,9 +31,9 @@
     "boardgamegeek_token": {
       "type": "string",
       "title": "BOARDGAMEGEEK_TOKEN",
-      "description": "Sets BOARDGAMEGEEK_TOKEN for the Boardgamegeek Xml Api2 MCP server. Get a credential from https://boardgamegeek.com/applications.",
+      "description": "Sets BOARDGAMEGEEK_TOKEN for the Boardgamegeek Xml Api2 MCP server. Optional alias for BGG_TOKEN. Get a credential from https://boardgamegeek.com/applications.",
       "sensitive": true,
-      "required": true
+      "required": false
     }
   },
   "compatibility": {
