@@ -1,0 +1,180 @@
+{
+  "api_name": "tv-time",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [
+    "binge and since are stubs awaiting a local sync mirror with season-episode listings and historical snapshots."
+  ],
+  "patterns": [
+    "positional user_id"
+  ],
+  "recommendation": "ship",
+  "researched_at": "2026-06-18T17:28:22Z",
+  "novel_features": [
+    {
+      "name": "stats",
+      "command": "stats",
+      "description": "Roll up your watched history into episodes, estimated hours, and your most-watched shows — straight from /user/{user_id}/stats.",
+      "rationale": "The TV Time mobile app shows this on a profile screen; no public tool exposes it for scripting or dashboards.",
+      "example": "tv-time-pp-cli stats \"$USER_ID\" --json",
+      "why_it_matters": "Pipe your watch totals into a dashboard, a homepage stat widget, or a year-in-review post.",
+      "group": "Personal analytics"
+    },
+    {
+      "name": "agenda",
+      "command": "agenda",
+      "description": "See what airs today or in the next N days for the shows you follow.",
+      "rationale": "TV Time has a calendar in the app but no good way to surface 'what airs this week' to other tools.",
+      "example": "tv-time-pp-cli agenda \"$USER_ID\" --days 7",
+      "why_it_matters": "Drives a daily 'what's new' email, a Raycast widget, or a homepage 'on tonight' block.",
+      "group": "Calendar"
+    },
+    {
+      "name": "next",
+      "command": "next",
+      "description": "Pick the single best next episode to watch across all your in-progress shows.",
+      "rationale": "The to-watch queue is a flat list; deciding 'one thing to watch now' is its own decision.",
+      "example": "tv-time-pp-cli next \"$USER_ID\"",
+      "why_it_matters": "Removes the choose-what-to-watch tax. Wire it into a 'one button to start tonight's show' flow.",
+      "group": "Queue"
+    },
+    {
+      "name": "backlog",
+      "command": "backlog",
+      "description": "Rank the shows you follow by how many unwatched episodes are piling up.",
+      "rationale": "Aggregating the to-watch queue by show is a one-line script people keep rewriting.",
+      "example": "tv-time-pp-cli backlog \"$USER_ID\" --limit 10",
+      "why_it_matters": "Tells you which shows are slipping. Useful for 'shows I should drop' or 'shows to catch up on this weekend'.",
+      "group": "Queue"
+    },
+    {
+      "name": "binge",
+      "command": "binge",
+      "description": "(stub) Bulk-mark a whole season or show as watched in one command. Not yet wired — requires a season-episode listing from a sync mirror that isn't implemented yet.",
+      "rationale": "TV Time's app makes you tap each episode; bulk-mark is the #1 quality-of-life request.",
+      "example": "tv-time-pp-cli binge --help",
+      "why_it_matters": "Stubbed for now so the shape is visible; intent is to ship once the sync mirror lands.",
+      "group": "Bulk write"
+    },
+    {
+      "name": "since",
+      "command": "since",
+      "description": "(stub) Show what changed in your queue since a point in time. Not yet wired — requires a local sync mirror with historical snapshots that isn't implemented yet.",
+      "rationale": "After time away you want a diff, not the whole queue.",
+      "example": "tv-time-pp-cli since --help",
+      "why_it_matters": "Stubbed for now; intent is to ship once the sync mirror lands.",
+      "group": "Queue"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "stats",
+      "command": "stats",
+      "description": "Roll up your watched history into episodes, estimated hours, and your most-watched shows — straight from /user/{user_id}/stats.",
+      "rationale": "The TV Time mobile app shows this on a profile screen; no public tool exposes it for scripting or dashboards.",
+      "example": "tv-time-pp-cli stats \"$USER_ID\" --json",
+      "why_it_matters": "Pipe your watch totals into a dashboard, a homepage stat widget, or a year-in-review post.",
+      "group": "Personal analytics"
+    },
+    {
+      "name": "agenda",
+      "command": "agenda",
+      "description": "See what airs today or in the next N days for the shows you follow.",
+      "rationale": "TV Time has a calendar in the app but no good way to surface 'what airs this week' to other tools.",
+      "example": "tv-time-pp-cli agenda \"$USER_ID\" --days 7",
+      "why_it_matters": "Drives a daily 'what's new' email, a Raycast widget, or a homepage 'on tonight' block.",
+      "group": "Calendar"
+    },
+    {
+      "name": "next",
+      "command": "next",
+      "description": "Pick the single best next episode to watch across all your in-progress shows.",
+      "rationale": "The to-watch queue is a flat list; deciding 'one thing to watch now' is its own decision.",
+      "example": "tv-time-pp-cli next \"$USER_ID\"",
+      "why_it_matters": "Removes the choose-what-to-watch tax. Wire it into a 'one button to start tonight's show' flow.",
+      "group": "Queue"
+    },
+    {
+      "name": "backlog",
+      "command": "backlog",
+      "description": "Rank the shows you follow by how many unwatched episodes are piling up.",
+      "rationale": "Aggregating the to-watch queue by show is a one-line script people keep rewriting.",
+      "example": "tv-time-pp-cli backlog \"$USER_ID\" --limit 10",
+      "why_it_matters": "Tells you which shows are slipping. Useful for 'shows I should drop' or 'shows to catch up on this weekend'.",
+      "group": "Queue"
+    },
+    {
+      "name": "binge",
+      "command": "binge",
+      "description": "(stub) Bulk-mark a whole season or show as watched in one command. Not yet wired — requires a season-episode listing from a sync mirror that isn't implemented yet.",
+      "rationale": "TV Time's app makes you tap each episode; bulk-mark is the #1 quality-of-life request.",
+      "example": "tv-time-pp-cli binge --help",
+      "why_it_matters": "Stubbed for now so the shape is visible; intent is to ship once the sync mirror lands.",
+      "group": "Bulk write"
+    },
+    {
+      "name": "since",
+      "command": "since",
+      "description": "(stub) Show what changed in your queue since a point in time. Not yet wired — requires a local sync mirror with historical snapshots that isn't implemented yet.",
+      "rationale": "After time away you want a diff, not the whole queue.",
+      "example": "tv-time-pp-cli since --help",
+      "why_it_matters": "Stubbed for now; intent is to ship once the sync mirror lands.",
+      "group": "Queue"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "TV Time",
+    "headline": "Every TV Time feature, plus stats, agenda, next, and backlog queries no TV Time tool has.",
+    "value_prop": "Drives 'what to watch tonight' and 'how am I doing this year' surfaces from the same TV Time account you already use on your phone.",
+    "quickstart": [
+      {
+        "command": "tv-time-pp-cli doctor --dry-run",
+        "comment": "Check the binary can run and env is set"
+      },
+      {
+        "command": "tv-time-pp-cli session",
+        "comment": "Sign in with HTTP Basic and capture your user_id"
+      },
+      {
+        "command": "tv-time-pp-cli stats \"$USER_ID\" --json",
+        "comment": "Profile rollup — episodes, hours, top shows"
+      },
+      {
+        "command": "tv-time-pp-cli next \"$USER_ID\"",
+        "comment": "Pick the single best next episode across all in-progress shows"
+      },
+      {
+        "command": "tv-time-pp-cli backlog \"$USER_ID\" --limit 10",
+        "comment": "Top 10 shows by unwatched-episode count"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 from any user-scoped command",
+        "fix": "Re-run `tv-time-pp-cli session` to refresh the user_id; TVTIME_USERNAME / TVTIME_PASSWORD must be set."
+      },
+      {
+        "symptom": "`binge` or `since` returns '(stub) not yet wired'",
+        "fix": "These commands are stubs awaiting the local sync mirror. Use `episodes mark-watched` per episode in the meantime."
+      }
+    ],
+    "recipes": [
+      {
+        "title": "Year-in-review widget",
+        "command": "tv-time-pp-cli stats \"$USER_ID\" --json | jq '.episodes_watched, .hours_watched'",
+        "explanation": "Feed your watch totals into a homepage stat widget."
+      },
+      {
+        "title": "What airs this week",
+        "command": "tv-time-pp-cli agenda \"$USER_ID\" --days 7",
+        "explanation": "Surface only what airs in the next seven days for the shows you follow."
+      },
+      {
+        "title": "Shows I should drop",
+        "command": "tv-time-pp-cli backlog \"$USER_ID\" --limit 5",
+        "explanation": "The top 5 shows piling up unwatched — useful pruning signal."
+      }
+    ]
+  }
+}

@@ -1,0 +1,464 @@
+name: tv-time
+description: "TV Time CLI — track shows, log episodes, and query your watch history from the terminal"
+version: "0.1.0"
+base_url: "https://api2.tozelabs.com/v2"
+category: media-and-entertainment
+cli_description: "Every TV Time feature, plus an offline watch-history mirror and agenda/backlog/stats queries no TV Time tool has."
+
+required_headers:
+  - name: User-Agent
+    value: "tv-time-pp-cli"
+
+# TV Time has no public API. Auth is HTTP Basic against the mobile backend
+# (username:password), applied to every request. A POST /signin handshake
+# returns the authenticated user id used in user-scoped paths.
+auth:
+  type: api_key
+  header: "Authorization"
+  format: "Basic {username}:{password}"
+  env_vars:
+    - TVTIME_USERNAME
+    - TVTIME_PASSWORD
+
+config:
+  format: toml
+  path: "~/.config/tv-time-pp-cli/config.toml"
+
+cache:
+  enabled: true
+  stale_after: 24h
+
+resources:
+  session:
+    description: "Authenticate against TV Time"
+    endpoints:
+      signin:
+        method: POST
+        path: "/signin"
+        no_auth: true
+        description: "Sign in (HTTP Basic) and resolve your user id"
+        response:
+          type: object
+
+  shows:
+    description: "Search and browse TV shows"
+    endpoints:
+      search:
+        method: GET
+        path: "/show"
+        description: "Search shows by name"
+        params:
+          - name: q
+            type: string
+            required: true
+            description: "Search query (show name)"
+          - name: limit
+            type: int
+            default: 10
+            description: "Max results to return"
+        response:
+          type: array
+          item: Show
+        response_path: shows
+      actors:
+        method: GET
+        path: "/show/{show_id}/actors"
+        description: "List actors for a show"
+        params:
+          - name: show_id
+            type: string
+            required: true
+            positional: true
+            description: "Show ID"
+        response:
+          type: array
+          item: Actor
+        response_path: actors
+      my-shows:
+        method: GET
+        path: "/my_shows"
+        description: "Your shows grouped by category (watching, up_to_date, finished, for_later, ...)"
+        response:
+          type: object
+      followed:
+        method: GET
+        path: "/user/{user_id}/followed_shows"
+        description: "Shows you follow"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "Your TV Time user ID (see: doctor / user profile)"
+        response:
+          type: array
+          item: Show
+        response_path: shows
+      for-later:
+        method: GET
+        path: "/user/{user_id}/for_later"
+        description: "Shows you saved for later"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "Your TV Time user ID"
+        response:
+          type: array
+          item: Show
+        response_path: shows
+
+  user:
+    description: "Your profile, stats, friends, calendar, and notifications"
+    endpoints:
+      profile:
+        method: GET
+        path: "/user/{user_id}/profile"
+        description: "Your profile"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "Your TV Time user ID"
+        response:
+          type: object
+      friends:
+        method: GET
+        path: "/user/{user_id}/friends"
+        description: "Your friends list"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "Your TV Time user ID"
+        response:
+          type: array
+          item: Friend
+        response_path: friends
+      stats:
+        method: GET
+        path: "/user/{user_id}/stats"
+        description: "Your viewing stats"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "Your TV Time user ID"
+        response:
+          type: object
+      badges:
+        method: GET
+        path: "/user/{user_id}/badges"
+        description: "Your earned badges"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "Your TV Time user ID"
+        response:
+          type: array
+          item: Badge
+        response_path: badges
+      calendar:
+        method: GET
+        path: "/user/{user_id}/calendar"
+        description: "Calendar of upcoming airings for shows you follow"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "Your TV Time user ID"
+        response:
+          type: object
+      notifications:
+        method: GET
+        path: "/user/{user_id}/notifications"
+        description: "Your notifications"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "Your TV Time user ID"
+          - name: page
+            type: int
+            default: 0
+            description: "Page number"
+          - name: limit
+            type: int
+            default: 20
+            description: "Notifications per page"
+        response:
+          type: array
+          item: Notification
+        response_path: notifications
+
+  episodes:
+    description: "Your watch queue, history, and episode actions"
+    endpoints:
+      to-watch:
+        method: GET
+        path: "/user/{user_id}/to_watch"
+        description: "Episodes in your to-watch queue"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "Your TV Time user ID"
+        response:
+          type: array
+          item: Episode
+        response_path: objects
+      watched:
+        method: GET
+        path: "/user/{user_id}/watched_episodes"
+        description: "Episodes you have watched (paged, most recent first)"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "Your TV Time user ID"
+          - name: page
+            type: int
+            default: 0
+            description: "Page number"
+          - name: limit
+            type: int
+            default: 30
+            description: "Episodes per page"
+          - name: include_recent_watchers
+            type: int
+            default: 1
+            description: "Include recent watchers in the response"
+        response:
+          type: array
+          item: Episode
+        response_path: objects
+      mark-watched:
+        method: POST
+        path: "/watched_episodes/episode/{episode_id}"
+        description: "Mark an episode as watched"
+        params:
+          - name: episode_id
+            type: string
+            required: true
+            positional: true
+            description: "Episode ID"
+          - name: is_rewatch
+            type: int
+            default: 0
+            description: "Set to 1 to count this as a rewatch"
+        response:
+          type: object
+      mark-unwatched:
+        method: DELETE
+        path: "/watched_episodes/episode/{episode_id}"
+        description: "Mark an episode as not watched"
+        params:
+          - name: episode_id
+            type: string
+            required: true
+            positional: true
+            description: "Episode ID"
+        response:
+          type: object
+      comment:
+        method: POST
+        path: "/user/{user_id}/comment_episode"
+        description: "Comment on an episode"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "Your TV Time user ID"
+        body:
+          - name: episode_id
+            type: string
+            required: true
+            description: "Episode ID to comment on"
+          - name: message
+            type: string
+            required: true
+            description: "Comment text"
+          - name: should_delete_old_comment
+            type: string
+            default: "false"
+            description: "Replace your previous comment (true/false)"
+        response:
+          type: object
+      delete-comment:
+        method: DELETE
+        path: "/user/{user_id}/comment_episode"
+        description: "Delete one of your episode comments"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "Your TV Time user ID"
+          - name: comment_id
+            type: string
+            required: true
+            description: "Comment ID to delete"
+        response:
+          type: object
+      react:
+        method: POST
+        path: "/user/{user_id}/episode_emotion"
+        description: "React to an episode (star-meter). emotion_id: great=1 wow=3 ok=6 bad=7 good=8"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "Your TV Time user ID"
+        body:
+          - name: episode_id
+            type: string
+            required: true
+            description: "Episode ID to react to"
+          - name: emotion_id
+            type: int
+            required: true
+            description: "Reaction id: great=1, wow=3, ok=6, bad=7, good=8"
+        response:
+          type: object
+      delete-reaction:
+        method: DELETE
+        path: "/user/{user_id}/episode_emotion"
+        description: "Remove your reaction from an episode"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "Your TV Time user ID"
+          - name: episode_id
+            type: string
+            required: true
+            description: "Episode ID"
+        response:
+          type: object
+      vote-actor:
+        method: PUT
+        path: "/user/{user_id}/actor_vote"
+        description: "Vote for an actor on an episode"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "Your TV Time user ID"
+          - name: actor_id
+            type: string
+            required: true
+            description: "Actor ID"
+          - name: episode_id
+            type: string
+            required: true
+            description: "Episode ID"
+        response:
+          type: object
+      delete-actor-vote:
+        method: DELETE
+        path: "/user/{user_id}/actor_vote"
+        description: "Remove your actor vote on an episode"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "Your TV Time user ID"
+          - name: actor_id
+            type: string
+            required: true
+            description: "Actor ID"
+          - name: episode_id
+            type: string
+            required: true
+            description: "Episode ID"
+        response:
+          type: object
+
+types:
+  Show:
+    fields:
+      - name: id
+        type: string
+        description: "Show ID"
+      - name: name
+        type: string
+        description: "Show name"
+      - name: number_of_seasons
+        type: int
+        description: "Number of seasons"
+      - name: status
+        type: string
+        description: "Airing status"
+  Episode:
+    fields:
+      - name: id
+        type: string
+        description: "Episode ID"
+      - name: name
+        type: string
+        description: "Episode name"
+      - name: season_number
+        type: int
+        description: "Season number"
+      - name: number
+        type: int
+        description: "Episode number within season"
+      - name: show_name
+        type: string
+        description: "Parent show name"
+      - name: air_date
+        type: string
+        description: "Air date"
+  Actor:
+    fields:
+      - name: id
+        type: string
+        description: "Actor ID"
+      - name: name
+        type: string
+        description: "Actor name"
+      - name: character
+        type: string
+        description: "Character played"
+  Friend:
+    fields:
+      - name: id
+        type: string
+        description: "Friend user ID"
+      - name: name
+        type: string
+        description: "Friend name"
+  Badge:
+    fields:
+      - name: id
+        type: string
+        description: "Badge ID"
+      - name: name
+        type: string
+        description: "Badge name"
+  Notification:
+    fields:
+      - name: id
+        type: string
+        description: "Notification ID"
+      - name: type
+        type: string
+        description: "Notification type"
+      - name: message
+        type: string
+        description: "Notification text"

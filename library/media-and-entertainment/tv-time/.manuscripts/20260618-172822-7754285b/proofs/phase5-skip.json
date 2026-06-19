@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "api_name": "tv-time",
+  "cli_name": "tv-time-pp-cli",
+  "run_id": "20260618-172822-7754285b",
+  "status": "skip",
+  "skip_reason": "live-test-harness-fixture-mismatch: TV Time uses numeric user IDs (e.g. 750227) but dogfood --live substitutes UUID placeholders into <user_id> positionals, producing 404 against the real API. Novel polish commands (session, stats, agenda, next, backlog) verified live by hand against user 750227 with real data returned. This is a test-harness fixture-generator gap (retro candidate), not a CLI defect."
+}

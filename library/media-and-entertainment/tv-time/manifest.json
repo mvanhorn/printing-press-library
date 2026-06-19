@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "tv-time-pp-mcp",
+  "display_name": "TV Time",
+  "version": "0.0.0",
+  "description": "Every TV Time feature, plus an offline watch-history mirror, bulk episode logging, and agenda/backlog/stats queries no TV Time tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/tv-time-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/tv-time-pp-mcp",
+      "args": [],
+      "env": {
+        "TVTIME_PASSWORD": "${user_config.tvtime_password}",
+        "TVTIME_USERNAME": "${user_config.tvtime_username}"
+      }
+    }
+  },
+  "user_config": {
+    "tvtime_password": {
+      "type": "string",
+      "title": "TVTIME_PASSWORD",
+      "description": "Sets TVTIME_PASSWORD for the TV Time MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "tvtime_username": {
+      "type": "string",
+      "title": "TVTIME_USERNAME",
+      "description": "Sets TVTIME_USERNAME for the TV Time MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

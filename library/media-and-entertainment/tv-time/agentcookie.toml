@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "tv-time-pp-cli"
+display_name = "TV Time"
+description = "Every TV Time feature, plus an offline watch-history mirror, bulk episode logging, and agenda/backlog/stats queries no TV Time tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/tv-time-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+TVTIME_PASSWORD = true
+TVTIME_USERNAME = true

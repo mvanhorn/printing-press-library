@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-06-19T11:52:34.344199Z",
+  "cli_dir": "\u003ccli-dir\u003e/tv-time-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-mcp-description",
+      "command": "user_profile",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Your profile. Required: user_id."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "user_stats",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Your viewing stats. Required: user_id."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-06-19T11:52:34.344201Z"
+  }
+}

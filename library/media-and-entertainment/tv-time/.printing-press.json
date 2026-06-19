@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-18T16:09:03.307972Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "tv-time",
+  "display_name": "TV Time",
+  "cli_name": "tv-time-pp-cli",
+  "creator": {
+    "handle": "ekrof",
+    "name": "Jonas Ekerhovd"
+  },
+  "owner": "ekrof",
+  "printer": "ekrof",
+  "printer_name": "Jonas Ekerhovd",
+  "spec_path": "tv-time-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:a555d2c2b0e36a3700c80ffa0cfefffb2d8737f461d5723415a70c4162ce988d",
+  "run_id": "20260618-172822-7754285b",
+  "category": "media-and-entertainment",
+  "description": "Every TV Time feature, plus an offline watch-history mirror, bulk episode logging, and agenda/backlog/stats queries no TV Time tool has.",
+  "mcp_binary": "tv-time-pp-mcp",
+  "mcp_tool_count": 22,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "TVTIME_USERNAME",
+    "TVTIME_PASSWORD"
+  ],
+  "novel_features": [
+    {
+      "name": "stats",
+      "command": "stats",
+      "description": "Roll up your watched history into episodes, estimated hours, and your most-watched shows — straight from /user/{user_id}/stats."
+    },
+    {
+      "name": "agenda",
+      "command": "agenda",
+      "description": "See what airs today or in the next N days for the shows you follow."
+    },
+    {
+      "name": "next",
+      "command": "next",
+      "description": "Pick the single best next episode to watch across all your in-progress shows."
+    },
+    {
+      "name": "backlog",
+      "command": "backlog",
+      "description": "Rank the shows you follow by how many unwatched episodes are piling up."
+    },
+    {
+      "name": "binge",
+      "command": "binge",
+      "description": "(stub) Bulk-mark a whole season or show as watched in one command. Not yet wired — requires a season-episode listing from a sync mirror that isn't implemented yet."
+    },
+    {
+      "name": "since",
+      "command": "since",
+      "description": "(stub) Show what changed in your queue since a point in time. Not yet wired — requires a local sync mirror with historical snapshots that isn't implemented yet."
+    }
+  ]
+}

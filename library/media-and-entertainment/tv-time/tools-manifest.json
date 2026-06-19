@@ -1,0 +1,473 @@
+{
+  "api_name": "tv-time",
+  "base_url": "https://api2.tozelabs.com/v2",
+  "description": "TV Time CLI — track shows, log episodes, and query your watch history from the terminal",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "Basic {TVTIME_USERNAME}:{TVTIME_PASSWORD}",
+    "env_vars": [
+      "TVTIME_USERNAME",
+      "TVTIME_PASSWORD"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TVTIME_USERNAME",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "TVTIME_PASSWORD",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "tv-time-pp-cli"
+    }
+  ],
+  "tools": [
+    {
+      "name": "episodes_comment",
+      "description": "Comment on an episode. Required: user_id, episode_id, message. Optional: should_delete_old_comment (default: false).",
+      "method": "POST",
+      "path": "/user/{user_id}/comment_episode",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "Your TV Time user ID",
+          "required": true
+        },
+        {
+          "name": "episode_id",
+          "type": "string",
+          "location": "body",
+          "description": "Episode ID to comment on",
+          "required": true
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "Comment text",
+          "required": true
+        },
+        {
+          "name": "should_delete_old_comment",
+          "type": "string",
+          "location": "body",
+          "description": "Replace your previous comment (true/false)"
+        }
+      ]
+    },
+    {
+      "name": "episodes_delete-actor-vote",
+      "description": "Remove your actor vote on an episode. Required: user_id, actor_id, episode_id. Destructive.",
+      "method": "DELETE",
+      "path": "/user/{user_id}/actor_vote",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "Your TV Time user ID",
+          "required": true
+        },
+        {
+          "name": "actor_id",
+          "type": "string",
+          "location": "query",
+          "description": "Actor ID",
+          "required": true
+        },
+        {
+          "name": "episode_id",
+          "type": "string",
+          "location": "query",
+          "description": "Episode ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "episodes_delete-comment",
+      "description": "Delete one of your episode comments. Required: user_id, comment_id. Destructive.",
+      "method": "DELETE",
+      "path": "/user/{user_id}/comment_episode",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "Your TV Time user ID",
+          "required": true
+        },
+        {
+          "name": "comment_id",
+          "type": "string",
+          "location": "query",
+          "description": "Comment ID to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "episodes_delete-reaction",
+      "description": "Remove your reaction from an episode. Required: user_id, episode_id. Destructive.",
+      "method": "DELETE",
+      "path": "/user/{user_id}/episode_emotion",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "Your TV Time user ID",
+          "required": true
+        },
+        {
+          "name": "episode_id",
+          "type": "string",
+          "location": "query",
+          "description": "Episode ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "episodes_mark-unwatched",
+      "description": "Mark an episode as not watched. Required: episode_id. Destructive.",
+      "method": "DELETE",
+      "path": "/watched_episodes/episode/{episode_id}",
+      "params": [
+        {
+          "name": "episode_id",
+          "type": "string",
+          "location": "path",
+          "description": "Episode ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "episodes_mark-watched",
+      "description": "Mark an episode as watched. Required: episode_id. Optional: is_rewatch (default: 0).",
+      "method": "POST",
+      "path": "/watched_episodes/episode/{episode_id}",
+      "params": [
+        {
+          "name": "episode_id",
+          "type": "string",
+          "location": "path",
+          "description": "Episode ID",
+          "required": true
+        },
+        {
+          "name": "is_rewatch",
+          "type": "int",
+          "location": "body",
+          "description": "Set to 1 to count this as a rewatch"
+        }
+      ]
+    },
+    {
+      "name": "episodes_react",
+      "description": "React to an episode (star-meter). emotion_id: great=1 wow=3 ok=6 bad=7 good=8. Required: user_id, episode_id, emotion_id.",
+      "method": "POST",
+      "path": "/user/{user_id}/episode_emotion",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "Your TV Time user ID",
+          "required": true
+        },
+        {
+          "name": "episode_id",
+          "type": "string",
+          "location": "body",
+          "description": "Episode ID to react to",
+          "required": true
+        },
+        {
+          "name": "emotion_id",
+          "type": "int",
+          "location": "body",
+          "description": "Reaction id: great=1, wow=3, ok=6, bad=7, good=8",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "episodes_to-watch",
+      "description": "Episodes in your to-watch queue. Required: user_id. Returns array of Episode.",
+      "method": "GET",
+      "path": "/user/{user_id}/to_watch",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "Your TV Time user ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "episodes_vote-actor",
+      "description": "Vote for an actor on an episode. Required: user_id, actor_id, episode_id.",
+      "method": "PUT",
+      "path": "/user/{user_id}/actor_vote",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "Your TV Time user ID",
+          "required": true
+        },
+        {
+          "name": "actor_id",
+          "type": "string",
+          "location": "body",
+          "description": "Actor ID",
+          "required": true
+        },
+        {
+          "name": "episode_id",
+          "type": "string",
+          "location": "body",
+          "description": "Episode ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "episodes_watched",
+      "description": "Episodes you have watched (paged, most recent first). Required: user_id. Optional: page (default: 0), limit (default: 30), include_recent_watchers (default: 1). Returns array of Episode.",
+      "method": "GET",
+      "path": "/user/{user_id}/watched_episodes",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "Your TV Time user ID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Episodes per page"
+        },
+        {
+          "name": "include_recent_watchers",
+          "type": "int",
+          "location": "query",
+          "description": "Include recent watchers in the response"
+        }
+      ]
+    },
+    {
+      "name": "session_signin",
+      "description": "Sign in (HTTP Basic) and resolve your user id. (public)",
+      "method": "POST",
+      "path": "/signin",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "shows_actors",
+      "description": "List actors for a show. Required: show_id. Returns array of Actor.",
+      "method": "GET",
+      "path": "/show/{show_id}/actors",
+      "params": [
+        {
+          "name": "show_id",
+          "type": "string",
+          "location": "path",
+          "description": "Show ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shows_followed",
+      "description": "Shows you follow. Required: user_id. Returns array of Show.",
+      "method": "GET",
+      "path": "/user/{user_id}/followed_shows",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "Your TV Time user ID (see: doctor / user profile)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shows_for-later",
+      "description": "Shows you saved for later. Required: user_id. Returns array of Show.",
+      "method": "GET",
+      "path": "/user/{user_id}/for_later",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "Your TV Time user ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shows_my-shows",
+      "description": "Your shows grouped by category (watching, up_to_date, finished, for_later, ...).",
+      "method": "GET",
+      "path": "/my_shows",
+      "params": []
+    },
+    {
+      "name": "shows_search",
+      "description": "Search shows by name. Required: q. Optional: limit (default: 10). Returns array of Show.",
+      "method": "GET",
+      "path": "/show",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query (show name)",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max results to return"
+        }
+      ]
+    },
+    {
+      "name": "user_badges",
+      "description": "Your earned badges. Required: user_id. Returns array of Badge.",
+      "method": "GET",
+      "path": "/user/{user_id}/badges",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "Your TV Time user ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user_calendar",
+      "description": "Calendar of upcoming airings for shows you follow. Required: user_id.",
+      "method": "GET",
+      "path": "/user/{user_id}/calendar",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "Your TV Time user ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user_friends",
+      "description": "Your friends list. Required: user_id. Returns array of Friend.",
+      "method": "GET",
+      "path": "/user/{user_id}/friends",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "Your TV Time user ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user_notifications",
+      "description": "Your notifications. Required: user_id. Optional: page (default: 0), limit (default: 20). Returns array of Notification.",
+      "method": "GET",
+      "path": "/user/{user_id}/notifications",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "Your TV Time user ID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Notifications per page"
+        }
+      ]
+    },
+    {
+      "name": "user_profile",
+      "description": "Your profile. Required: user_id.",
+      "method": "GET",
+      "path": "/user/{user_id}/profile",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "Your TV Time user ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user_stats",
+      "description": "Your viewing stats. Required: user_id.",
+      "method": "GET",
+      "path": "/user/{user_id}/stats",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "Your TV Time user ID",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
