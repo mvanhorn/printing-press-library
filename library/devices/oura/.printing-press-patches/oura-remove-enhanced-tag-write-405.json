@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "oura-remove-enhanced-tag-write-405",
+  "applied_at": "2026-06-19",
+  "base_run_id": "20260616-121104-c128aae1",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Removed enhanced-tag create/delete entirely (spec, generated command files, MCP tool registrations, tools-manifest.json, README.md, SKILL.md). enhanced-tag list is unaffected.",
+  "reason": "A maintainer-requested live write-side smoke test (real OURA_ACCESS_TOKEN) showed POST /v2/usercollection/enhanced_tag returns HTTP 405 Method Not Allowed with an `Allow: GET` response header, confirmed independently via both the CLI and a raw curl probe. The Allow header indicates the live Oura v2 API does not support write methods on this resource for any caller, not an auth/scope issue. The hand-authored spec assumed full CRUD (list/create/delete) based on documentation that does not match the live API's actual behavior, so create/delete were research-time errors rather than reachable endpoints; shipping them would mean commands that always fail.",
+  "files": [
+    "spec.yaml",
+    "internal/cli/enhanced-tag.go",
+    "internal/mcp/tools.go",
+    "tools-manifest.json",
+    ".printing-press.json",
+    "README.md",
+    "SKILL.md"
+  ],
+  "files_removed": [
+    "internal/cli/enhanced-tag_create.go",
+    "internal/cli/enhanced-tag_delete.go"
+  ],
+  "validated_outcome": "go build/vet/test pass after removal; enhanced-tag --help now shows only the list subcommand. webhook-subscription create was also tested live in the same pass and confirmed to correctly require x-client-id/x-client-secret (401), matching the PR's existing documented gap — no change needed there."
+}

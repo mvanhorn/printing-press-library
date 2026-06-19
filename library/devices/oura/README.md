@@ -328,8 +328,6 @@ Daily stress levels and recovery status
 
 User-created enhanced tags with timestamps and text notes
 
-- **`oura-pp-cli enhanced-tag create`** - Create an enhanced tag
-- **`oura-pp-cli enhanced-tag delete`** - Delete an enhanced tag by document ID
 - **`oura-pp-cli enhanced-tag list`** - List enhanced tags (user annotations with optional text)
 
 ### heartrate

@@ -424,45 +424,6 @@ resources:
           cursor_field: next_token
           has_more_field: next_token
         response_path: data
-      create:
-        method: POST
-        path: "/v2/usercollection/enhanced_tag"
-        description: "Create an enhanced tag"
-        body:
-          - name: tag_type_code
-            type: string
-            required: true
-            description: "Tag type identifier"
-          - name: start_time
-            type: string
-            required: true
-            description: "Tag start timestamp (ISO 8601)"
-            format: date-time
-          - name: end_time
-            type: string
-            required: false
-            description: "Tag end timestamp (ISO 8601)"
-            format: date-time
-          - name: comment
-            type: string
-            required: false
-            description: "Optional text note"
-        response:
-          type: object
-          item: EnhancedTag
-      delete:
-        method: DELETE
-        path: "/v2/usercollection/enhanced_tag/{document_id}"
-        description: "Delete an enhanced tag by document ID"
-        params:
-          - name: document_id
-            type: string
-            required: true
-            positional: true
-            description: "Tag document ID"
-        response:
-          type: object
-          item: DeleteResponse
 
   rest-mode-period:
     description: "Rest mode periods (user-activated recovery mode)"

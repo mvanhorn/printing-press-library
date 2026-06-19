@@ -18,7 +18,7 @@
   "category": "devices",
   "description": "The only Oura Ring CLI that remembers everything: sync all metrics to local SQLite, correlate habits with scores, detect anomalies, and alert on multi-day recovery deficits no app can surface.",
   "mcp_binary": "oura-pp-mcp",
-  "mcp_tool_count": 21,
+  "mcp_tool_count": 19,
   "mcp_ready": "full",
   "api_version": "0.1.0",
   "auth_type": "bearer_token",

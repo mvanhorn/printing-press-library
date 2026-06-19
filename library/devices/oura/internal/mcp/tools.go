@@ -121,27 +121,6 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/v2/usercollection/daily_stress", true, false, nil, []mcpParamBinding{{PublicName: "start_date", WireName: "start_date", Location: "query"}, {PublicName: "end_date", WireName: "end_date", Location: "query"}, {PublicName: "next_token", WireName: "next_token", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
-		mcplib.NewTool("enhanced-tag_create",
-			mcplib.WithDescription("Create an enhanced tag. Required: tag_type_code, start_time. Optional: end_time, comment. Returns the new EnhancedTag."),
-			mcplib.WithString("tag_type_code", mcplib.Required(), mcplib.Description("Tag type identifier")),
-			mcplib.WithString("start_time", mcplib.Required(), mcplib.Description("Tag start timestamp (ISO 8601)")),
-			mcplib.WithString("end_time", mcplib.Description("Tag end timestamp (ISO 8601)")),
-			mcplib.WithString("comment", mcplib.Description("Optional text note")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/v2/usercollection/enhanced_tag", false, false, nil, []mcpParamBinding{{PublicName: "tag_type_code", WireName: "tag_type_code", Location: "body"}, {PublicName: "start_time", WireName: "start_time", Location: "body"}, {PublicName: "end_time", WireName: "end_time", Location: "body"}, {PublicName: "comment", WireName: "comment", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("enhanced-tag_delete",
-			mcplib.WithDescription("Delete an enhanced tag by document ID. Required: document_id. Returns the DeleteResponse. Destructive."),
-			mcplib.WithString("document_id", mcplib.Required(), mcplib.Description("Tag document ID")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/v2/usercollection/enhanced_tag/{document_id}", false, false, nil, []mcpParamBinding{{PublicName: "document_id", WireName: "document_id", Location: "path"}}, []string{"document_id"}),
-	)
-	s.AddTool(
 		mcplib.NewTool("enhanced-tag_list",
 			mcplib.WithDescription("List enhanced tags (user annotations with optional text). Optional: start_date, end_date, next_token. Returns array of EnhancedTag."),
 			mcplib.WithString("start_date", mcplib.Description("Start date (YYYY-MM-DD)")),
@@ -966,7 +945,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{
 				"name":        "enhanced-tag",
 				"description": "User-created enhanced tags with timestamps and text notes",
-				"endpoints":   []string{"create", "delete", "list"},
+				"endpoints":   []string{"list"},
 				"syncable":    true,
 				"searchable":  true,
 			},

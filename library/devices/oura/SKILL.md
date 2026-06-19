@@ -170,8 +170,6 @@ These capabilities aren't available in any other tool for this API.
 
 **enhanced-tag** — User-created enhanced tags with timestamps and text notes
 
-- `oura-pp-cli enhanced-tag create` — Create an enhanced tag
-- `oura-pp-cli enhanced-tag delete` — Delete an enhanced tag by document ID
 - `oura-pp-cli enhanced-tag list` — List enhanced tags (user annotations with optional text)
 
 **heartrate** — Continuous heart rate time-series samples

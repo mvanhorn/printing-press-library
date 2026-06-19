@@ -207,55 +207,6 @@
       ]
     },
     {
-      "name": "enhanced-tag_create",
-      "description": "Create an enhanced tag. Required: tag_type_code, start_time. Optional: end_time, comment. Returns the new EnhancedTag.",
-      "method": "POST",
-      "path": "/v2/usercollection/enhanced_tag",
-      "params": [
-        {
-          "name": "tag_type_code",
-          "type": "string",
-          "location": "body",
-          "description": "Tag type identifier",
-          "required": true
-        },
-        {
-          "name": "start_time",
-          "type": "string",
-          "location": "body",
-          "description": "Tag start timestamp (ISO 8601)",
-          "required": true
-        },
-        {
-          "name": "end_time",
-          "type": "string",
-          "location": "body",
-          "description": "Tag end timestamp (ISO 8601)"
-        },
-        {
-          "name": "comment",
-          "type": "string",
-          "location": "body",
-          "description": "Optional text note"
-        }
-      ]
-    },
-    {
-      "name": "enhanced-tag_delete",
-      "description": "Delete an enhanced tag by document ID. Required: document_id. Returns the DeleteResponse. Destructive.",
-      "method": "DELETE",
-      "path": "/v2/usercollection/enhanced_tag/{document_id}",
-      "params": [
-        {
-          "name": "document_id",
-          "type": "string",
-          "location": "path",
-          "description": "Tag document ID",
-          "required": true
-        }
-      ]
-    },
-    {
       "name": "enhanced-tag_list",
       "description": "List enhanced tags (user annotations with optional text). Optional: start_date, end_date, next_token. Returns array of EnhancedTag.",
       "method": "GET",

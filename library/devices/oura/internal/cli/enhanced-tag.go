@@ -16,8 +16,6 @@ func newEnhancedTagCmd(flags *rootFlags) *cobra.Command {
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 
-	cmd.AddCommand(newEnhancedTagCreateCmd(flags))
-	cmd.AddCommand(newEnhancedTagDeleteCmd(flags))
 	cmd.AddCommand(newEnhancedTagListCmd(flags))
 	return cmd
 }
