@@ -1,0 +1,71 @@
+{
+  "api_name": "exa",
+  "api_version": "2.0.0",
+  "auth_env_vars": [
+    "EXA_TOKEN"
+  ],
+  "auth_type": "bearer_token",
+  "category": "developer-tools",
+  "cli_name": "exa-pp-cli",
+  "creator": {
+    "name": "Anchal Sharma",
+    "handle": "AnchalSharma19"
+  },
+  "description": "Printing Press CLI for Exa.",
+  "display_name": "Exa Public",
+  "generated_at": "2026-06-19T09:23:42.466006Z",
+  "mcp_binary": "exa-pp-mcp",
+  "mcp_ready": "full",
+  "mcp_tool_count": 60,
+  "novel_features": [
+    {
+      "command": "workflow drift",
+      "name": "Result-Set Drift Detector",
+      "description": "Compares URL result sets for a query across two sync dates to surface what appeared, disappeared, or persisted between runs."
+    },
+    {
+      "command": "workflow entities",
+      "name": "Cross-Query Entity Co-occurrence",
+      "description": "Extracts named entities from locally stored result text and ranks which entities co-appear most frequently across multiple queries."
+    },
+    {
+      "command": "workflow monitor-digest",
+      "name": "Monitor Delivery Digest",
+      "description": "Aggregates locally-logged monitor delivery events into a weekly roll-up showing which monitors fired, how often, and what URLs they returned."
+    },
+    {
+      "command": "workflow velocity",
+      "name": "URL Discovery Velocity",
+      "description": "Counts net-new URLs discovered per time bucket across successive syncs to visualize how fast a topic is being covered."
+    },
+    {
+      "command": "workflow contradiction",
+      "name": "Answer Contradiction Finder",
+      "description": "Fires two /answer calls for the same question using different search strategies (auto vs keyword) and diffs their sentences to surface contradictory claims."
+    },
+    {
+      "command": "workflow template",
+      "name": "Reusable Query Templates",
+      "description": "Save parameterized query templates with {{variable}} interpolation, then run them by name — no re-typing flags on recurring research workflows."
+    },
+    {
+      "command": "workflow budget",
+      "name": "Spend Budget Tracker",
+      "description": "Set a daily spend ceiling (in cents) and track estimated API spend per command so you never accidentally burn through your Exa quota."
+    },
+    {
+      "command": "workflow intersect",
+      "name": "Cross-Search URL Intersection",
+      "description": "SQL JOIN across stored search results to find URLs that appear in two or more distinct queries — surfaces the most-cited sources across a research session."
+    }
+  ],
+  "printer": "AnchalSharma19",
+  "printer_name": "Anchal Sharma",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260619-142438-818ac7f6",
+  "schema_version": 1,
+  "spec_checksum": "sha256:ccc58dba66b0471b9aff06e3b0b91fe58d7c6d9c86b83354f98a666ba5ed144d",
+  "spec_format": "openapi3",
+  "spec_path": "exa-spec-patched.yaml",
+  "spec_url": "https://exa.ai/docs/exa-spec.yaml"
+}
