@@ -1,0 +1,52 @@
+{
+  "api_name": "gamma",
+  "api_version": "1.0",
+  "auth_env_vars": [
+    "GAMMA_API_KEY"
+  ],
+  "auth_type": "api_key",
+  "category": "ai",
+  "cli_name": "gamma-pp-cli",
+  "creator": {
+    "handle": "AnchalSharma19",
+    "name": "Anchal Sharma"
+  },
+  "description": "Generate presentations, documents, websites, and social posts programmatically.",
+  "display_name": "Gamma Public",
+  "generated_at": "2026-06-19T10:17:06.458445Z",
+  "mcp_binary": "gamma-pp-mcp",
+  "mcp_ready": "full",
+  "mcp_tool_count": 7,
+  "novel_features": [
+    {
+      "command": "generations create --watch",
+      "name": "Async Generation Watcher",
+      "description": "Polls GET /v1.0/generations/{id} every 5s until status is completed or failed, showing a spinner on TTY and NDJSON events for piped output. Bridges the async gap so users don't have to manually poll get-status."
+    },
+    {
+      "command": "generations create --download",
+      "name": "Export Auto-Downloader",
+      "description": "After --watch completes, downloads the exportUrl to a local directory with the gammaId as filename. Eliminates the manual curl step after generation."
+    },
+    {
+      "command": "generations create --sharing",
+      "name": "Sharing Preset Shorthand",
+      "description": "Maps convenient preset names (private, view-link, edit-link, workspace-view) to the workspaceAccess + externalAccess flag pair, replacing 2 flags with 1."
+    },
+    {
+      "command": "generations create --image-source",
+      "name": "Image Source Shorthand",
+      "description": "Short alias for --image-options-source that sets the AI model for image generation without the nested flag path."
+    }
+  ],
+  "owner": "anchalsharma19",
+  "printer": "AnchalSharma19",
+  "printer_name": "Anchal Sharma",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260619-101706",
+  "schema_version": 1,
+  "spec_checksum": "sha256:e48716a3ce12fa9a9576051ffb97f3cb59d52b1da9f71593d24f05d40e91f333",
+  "spec_format": "openapi3",
+  "spec_path": "gamma-openapi.json",
+  "spec_url": "https://public-api.gamma.app"
+}
