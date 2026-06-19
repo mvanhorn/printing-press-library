@@ -2663,6 +2663,7 @@ components:
       x-auth-env-vars:
       - FIGMA_ACCESS_TOKEN
       - FIGMA_API_TOKEN
+      - FIGMA_API_KEY
     PlanAccessToken:
       type: apiKey
       name: X-Figma-Token

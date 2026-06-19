@@ -9,8 +9,11 @@ import (
 
 func newFigmaAnalyticsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "figma-analytics",
-		Short: "Manage figma analytics",
+		Use:         "figma-analytics",
+		Short:       "Manage figma analytics command groups",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newFigmaAnalyticsGetLibraryComponentActionsCmd(flags))

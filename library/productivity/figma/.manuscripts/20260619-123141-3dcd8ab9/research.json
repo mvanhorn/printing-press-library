@@ -94,7 +94,7 @@
   "gaps": [],
   "patterns": [],
   "recommendation": "proceed",
-  "researched_at": "2026-05-09T19:21:00Z",
+  "researched_at": "2026-06-19T10:49:38Z",
   "novel_features": [
     {
       "name": "Compaction-aware frame extract for codegen prompts",
@@ -243,16 +243,15 @@
       "group": "Local state that compounds"
     }
   ],
+  "auth": {
+    "canonical_env_var": "FIGMA_API_TOKEN"
+  },
   "narrative": {
     "display_name": "Figma",
     "headline": "Every Figma endpoint, plus codegen-ready frame extracts, comments audit, orphans finder, tokens diff, and webhook replay no other Figma tool ships.",
     "value_prop": "This CLI is the offline-first, agent-native Figma operator. It absorbs every REST endpoint as one Cobra command, ports GLips's compaction pipeline so frame extracts fit in an LLM context window, and adds the analytical primitives no other tool unifies: cross-file comments audit, stale-component orphans finder, semantic tokens diff between file versions, deterministic file fingerprint for CI, and webhook delivery replay.",
     "auth_narrative": "Figma supports two auth modes: Personal Access Token (header X-Figma-Token, prefix figd_) for personal/automation use, and OAuth 2.0 (Authorization: Bearer) for /v1/me, /v1/activity_logs, and /v1/developer_logs. Set FIGMA_API_TOKEN (PAT) or FIGMA_OAUTH2 (OAuth Bearer); the CLI auto-routes to the right header. Run `figma-pp-cli auth login` for OAuth, or save a PAT to the config file via `figma-pp-cli auth set-token`. Doctor surfaces X-Figma-Plan-Tier and X-Figma-Rate-Limit-Type from response headers.",
     "quickstart": [
-      {
-        "command": "figma-pp-cli auth status",
-        "comment": "Check what auth is currently active. Set FIGMA_API_TOKEN=figd_... for PAT, or run `figma-pp-cli auth login --client-id \u003cid\u003e` for OAuth."
-      },
       {
         "command": "figma-pp-cli doctor",
         "comment": "Confirm auth + reachability + plan tier; warns on Enterprise endpoints when only PAT is available."

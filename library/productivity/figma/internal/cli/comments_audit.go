@@ -49,7 +49,10 @@ func parseAge(s string) (time.Time, error) {
 	}
 }
 
-func newCommentsAuditCmd(flags *rootFlags) *cobra.Command {
+// pp:data-source local
+// comments-audit aggregates over comments already synced into the local SQLite
+// store; it never calls the live API. Run 'figma-pp-cli sync' to populate it.
+func newNovelCommentsAuditCmd(flags *rootFlags) *cobra.Command {
 	var olderThan, groupBy, dbPath string
 
 	cmd := &cobra.Command{

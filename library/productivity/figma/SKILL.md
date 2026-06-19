@@ -1,6 +1,6 @@
 ---
 name: pp-figma
-description: "Every Figma endpoint, plus codegen-ready frame extracts, comments-audit, orphans finder, tokens diff, and webhook... Trigger phrases: `extract a figma frame for codegen`, `compact figma file context for AI`, `find unresolved figma comments`, `figma stale components`, `diff figma design tokens`, `figma file fingerprint for CI`, `replay figma webhook deliveries`, `where is this figma variable used`, `use figma`, `run figma-pp-cli`."
+description: "Every Figma endpoint, plus codegen-ready frame extracts, comments audit, orphans finder, tokens diff Trigger phrases: `extract a figma frame for codegen`, `compact figma file context for AI`, `find unresolved figma comments`, `figma stale components`, `diff figma design tokens`, `figma file fingerprint for CI`, `replay figma webhook deliveries`, `where is this figma variable used`, `use figma`, `run figma-pp-cli`."
 author: "Giuliano Giacaglia"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -10,6 +10,10 @@ metadata:
     requires:
       bins:
         - figma-pp-cli
+    install:
+      - kind: go
+        bins: [figma-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/productivity/figma/cmd/figma-pp-cli
 ---
 
 # Figma — Printing Press CLI
@@ -25,7 +29,7 @@ This skill drives the `figma-pp-cli` binary. **You must verify the CLI is instal
 2. Verify: `figma-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/productivity/figma/cmd/figma-pp-cli@latest
@@ -33,9 +37,11 @@ go install github.com/mvanhorn/printing-press-library/library/productivity/figma
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
+This CLI is the offline-first, agent-native Figma operator. It absorbs every REST endpoint as one Cobra command, ports GLips's compaction pipeline so frame extracts fit in an LLM context window, and adds the analytical primitives no other tool unifies: cross-file comments audit, stale-component orphans finder, semantic tokens diff between file versions, deterministic file fingerprint for CI, and webhook delivery replay.
+
 ## When to Use This CLI
 
-Use figma-pp-cli when an agent or engineer needs to reason about a Figma file as data — not pixels. It shines for codegen prompt context (`frame extract`, `dev-mode dump`), design-system ops (`orphans`, `tokens diff`, `fingerprint`), comment hygiene (`comments-audit`), and webhook iteration (`webhooks test`). For interactive design work, the Figma desktop app is fine — figma-pp-cli covers everything Figma's REST API exposes and adds the cross-file analytical commands the dashboard hides.
+Use figma-pp-cli when an agent or engineer needs to reason about a Figma file as data — not pixels. It shines for codegen prompt context (`frame extract`, `dev-mode dump`), design-system ops (`orphans`, `tokens diff`, `fingerprint`), comment hygiene (`comments audit`), and webhook iteration (`webhooks test`). For interactive design work, the Figma desktop app is fine — figma-pp-cli covers everything Figma's REST API exposes and adds the cross-file analytical commands the dashboard hides.
 
 ## Unique Capabilities
 
@@ -117,12 +123,12 @@ These capabilities aren't available in any other tool for this API.
 
 **dev-resources** — Interact with dev resources in Figma Dev Mode.
 
-- `figma-pp-cli dev-resources post` — Bulk create dev resources across multiple files. Dev resources that are successfully created will show up in the...
-- `figma-pp-cli dev-resources put` — Bulk update dev resources across multiple files. Ids for dev resources that are successfully updated will show up in...
+- `figma-pp-cli dev-resources post` — Bulk create dev resources across multiple files.
+- `figma-pp-cli dev-resources put` — Bulk update dev resources across multiple files.
 
 **developer-logs** — Get developer logs for REST API and MCP server requests in an organization.
 
-- `figma-pp-cli developer-logs` — Returns a list of developer log entries for REST API and MCP server requests made within the organization. This...
+- `figma-pp-cli developer-logs` — Returns a list of developer log entries for REST API and MCP server requests made within the organization.
 
 **figma-analytics** — Manage figma analytics
 
@@ -135,11 +141,11 @@ These capabilities aren't available in any other tool for this API.
 
 **files** — Get file JSON, images, and other file-related content.
 
-- `figma-pp-cli files <file_key>` — Returns the document identified by `file_key` as a JSON object. The file key can be parsed from any Figma file url:...
+- `figma-pp-cli files <file_key>` — Returns the document identified by `file_key` as a JSON object.
 
 **images** — Manage images
 
-- `figma-pp-cli images <file_key>` — Renders images from a file. If no error occurs, `'images'` will be populated with a map from node IDs to URLs of the...
+- `figma-pp-cli images <file_key>` — Renders images from a file.
 
 **me** — Manage me
 
@@ -147,11 +153,11 @@ These capabilities aren't available in any other tool for this API.
 
 **oembed** — Get oEmbed data for Figma files and published Makes.
 
-- `figma-pp-cli oembed` — Returns oEmbed data for a Figma file or published Make site URL, following the [oEmbed...
+- `figma-pp-cli oembed` — Returns oEmbed data for a Figma file or published Make site URL, following the [oEmbed specification](https://oembed.
 
 **payments** — Get purchase information for your Community resources.
 
-- `figma-pp-cli payments` — There are two methods to query for a user's payment information on a plugin, widget, or Community file. The first...
+- `figma-pp-cli payments` — There are two methods to query for a user's payment information on a plugin, widget, or Community file.
 
 **projects** — Get information about projects and files in teams.
 
@@ -166,9 +172,9 @@ These capabilities aren't available in any other tool for this API.
 **webhooks** — Interact with team webhooks as a team admin.
 
 - `figma-pp-cli webhooks delete` — Deletes the specified webhook. This operation cannot be reversed.
-- `figma-pp-cli webhooks get` — Returns a list of webhooks corresponding to the context or plan provided, if they exist. For plan, the webhooks for...
+- `figma-pp-cli webhooks get` — Returns a list of webhooks corresponding to the context or plan provided, if they exist.
 - `figma-pp-cli webhooks get-webhookid` — Get a webhook by ID.
-- `figma-pp-cli webhooks post` — Create a new webhook which will call the specified endpoint when the event triggers. By default, this webhook will...
+- `figma-pp-cli webhooks post` — Create a new webhook which will call the specified endpoint when the event triggers.
 - `figma-pp-cli webhooks put` — Update a webhook by ID.
 
 
@@ -183,7 +189,6 @@ figma-pp-cli which "<capability in your own words>"
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
 ## Recipes
-
 
 ### Extract a frame for an AI codegen prompt
 
@@ -223,11 +228,11 @@ Resolves the version ids, snapshots variables at each, and emits a Markdown chan
 figma-pp-cli webhooks test wh_abc --replay-failed --target-url http://localhost:3000/figma
 ```
 
-Fetches the request log via /v2/webhooks/{id}/requests, filters status >= 400, and replays each delivery against your local URL with the original headers and HMAC re-signed under the webhook's passcode.
+Fetches the request log via /v2/webhooks/{id}/requests, filters status >= 400, and replays each delivery against your local URL with the captured payload and original headers. (HMAC re-signing is not yet wired — your handler must accept unsigned replays for testing.)
 
 ## Auth Setup
 
-Figma supports two auth modes: Personal Access Token (header X-Figma-Token, prefix figd_) for personal/automation use, and OAuth 2.0 (Authorization: Bearer) for /v1/me, /v1/activity_logs, and /v1/developer_logs. Set FIGMA_API_TOKEN (PAT) or FIGMA_OAUTH2 (OAuth Bearer); the CLI auto-routes to the right header. Run `figma-pp-cli auth login` for OAuth, or just figma-pp-cli auth login for PAT. Doctor surfaces X-Figma-Plan-Tier and X-Figma-Rate-Limit-Type from response headers.
+Figma supports two auth modes: Personal Access Token (header X-Figma-Token, prefix figd_) for personal/automation use, and OAuth 2.0 (Authorization: Bearer) for /v1/me, /v1/activity_logs, and /v1/developer_logs. Set FIGMA_API_TOKEN (PAT) or FIGMA_OAUTH2 (OAuth Bearer); the CLI auto-routes to the right header. Run `figma-pp-cli auth login` for OAuth, or save a PAT to the config file via `figma-pp-cli auth set-token`. Doctor surfaces X-Figma-Plan-Tier and X-Figma-Rate-Limit-Type from response headers.
 
 Run `figma-pp-cli doctor` to verify setup.
 
@@ -257,7 +262,7 @@ Commands that read from the local store or the API wrap output in a provenance e
 }
 ```
 
-Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal — piped/agent consumers get pure JSON on stdout.
+Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal AND no machine-format flag (`--json`, `--csv`, `--compact`, `--quiet`, `--plain`, `--select`) is set — piped/agent consumers and explicit-format runs get pure JSON on stdout.
 
 ## Agent Feedback
 
@@ -269,7 +274,7 @@ figma-pp-cli feedback --stdin < notes.txt
 figma-pp-cli feedback list --json --limit 10
 ```
 
-Entries are stored locally at `~/.figma-pp-cli/feedback.jsonl`. They are never POSTed unless `FIGMA_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `FIGMA_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+Entries are stored locally at `~/.local/share/figma-pp-cli/feedback.jsonl`. They are never POSTed unless `FIGMA_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `FIGMA_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
 Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
 
@@ -321,13 +326,15 @@ Parse `$ARGUMENTS`:
 
 ## MCP Server Installation
 
-Install the MCP binary from this CLI's published public-library entry or pre-built release, then register it:
-
-```bash
-claude mcp add figma-pp-mcp -- figma-pp-mcp
-```
-
-Verify: `claude mcp list`
+1. Install the MCP server:
+   ```bash
+   go install github.com/mvanhorn/printing-press-library/library/productivity/figma/cmd/figma-pp-mcp@latest
+   ```
+2. Register with Claude Code:
+   ```bash
+   claude mcp add figma-pp-mcp -- figma-pp-mcp
+   ```
+3. Verify: `claude mcp list`
 
 ## Direct Use
 
@@ -339,13 +346,3 @@ Verify: `claude mcp list`
    figma-pp-cli <command> [subcommand] [args] --agent
    ```
 4. If ambiguous, drill into subcommand help: `figma-pp-cli <command> --help`.
-
-## Known Gaps
-
-The following are documented limitations from Phase 5 live dogfood (152/165 = 92% pass), all environmental — the CLI itself is correct.
-
-- **OAuth-only endpoints**: `activity-logs`, `developer-logs`, and (in some scopes) `me` require OAuth Bearer auth, not PAT. Set `FIGMA_OAUTH2` to your OAuth Bearer token to use these. The CLI surfaces the API's 401 with a clear message.
-- **`oembed`, `payments`, `webhooks get`** require runtime parameters the printed-CLI dogfood matrix cannot synthesize (`--url`, `--user-id`, `--context`). They work correctly when invoked with proper arguments.
-- **`comments-audit`** requires a populated local cache: run `figma-pp-cli sync --resources comments` against a known file before invoking it. Returns an honest empty-store error otherwise.
-- **`orphans`** depends on Figma's Library Analytics API (Enterprise tier). On non-Enterprise plans it returns exit 0 with a clear "analytics data is empty" message rather than failing.
-

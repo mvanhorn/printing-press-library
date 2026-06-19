@@ -1,7 +1,3 @@
-# Figma CLI Absorb Manifest
-
-Best Source legend: **DC** = direct OpenAPI surface, **G** = GLips/Figma-Context-MCP, **O** = Official Figma Dev Mode MCP, **FM** = mikaelvesavuori/figmagic, **FE-RMR** = RedMadRobot/figma-export, **FE-MM** = marcomontalbano/figma-export, **TS** = Tokens Studio, **NEW** = original to figma-pp-cli.
-
 ## Absorbed (match or beat everything that exists)
 
 | # | Feature | Best Source | Our Implementation | Added Value |
@@ -54,15 +50,3 @@ Best Source legend: **DC** = direct OpenAPI surface, **G** = GLips/Figma-Context
 | 46 | --confirm flag | DC | global flag for delete ops | |
 | 47 | --dry-run flag | DC | global flag | |
 
-## Transcendence (only possible with our approach)
-
-| # | Feature | Command | Why Only We Can Do This | Persona Served | Score | Buildability Proof |
-|---|---|---|---|---|---|---|
-| T1 | Compaction-aware frame extract for codegen prompts | `figma frame extract <key> --ids=1234-5678 --depth=4 --include=variables,dev-resources,code-connect` | GLips ships compaction in a Node MCP only; no other tool fuses node tree + in-scope variables + dev resources + Code Connect into one compact payload, accepts both `1234:5678` and `1234-5678`, and resolves instance-override chains like `I5666:180910;1:10515`. | Maya | 10/10 | `GET /v1/files/{key}/nodes` + `GET /v1/files/{key}/dev_resources` + locally-synced `variables_local` joined by node id; ported `simplifyRawFigmaObject` compaction in Go; emits compact JSON with `simplifiedNodeCount`. |
-| T2 | Dev-mode resource bundle for a single node | `figma dev-mode dump <key> --node=<id> --format=md` | Official Dev Mode MCP is closed-source and Desktop-bound; no surveyed tool emits a portable Markdown bundle fusing dev-resource links, variables in scope, render permalink, and Code Connect mapping for one node. | Maya | 9/10 | `GET /v1/files/{key}/nodes?ids=<id>` + `GET /v1/files/{key}/dev_resources` filtered by node + `variables_published` joined by `variableId`; emits Markdown. |
-| T3 | Cross-file unresolved comments audit | `figma comments audit --older-than=14d --group-by=file,author` | `figma comments list` ships per-file; no surveyed tool aggregates comments across every synced team file with age + group-by; brief Top Workflow #3. | Priya / design-ops | 10/10 | Locally-synced `comments`; SQL `WHERE resolved_at IS NULL AND created_at < now()-INTERVAL`. |
-| T4 | Stale-component / style / variable orphans finder | `figma orphans <team_id> --kind=component,style,variable --window=30d` | Library analytics is per-entity-per-file in the UI; no surveyed tool joins `components` ⨝ `analytics.usages` to surface published-but-zero-usage entities across an entire team library. | Priya | 10/10 | Locally-synced `components`/`styles`/`variables_published` ⨝ `analytics_*_usages` on `key`; aggregate `SUM(total) = 0` over window. Enterprise-gated. |
-| T5 | Semantic tokens diff between file versions | `figma tokens diff <key> --from=<v1> --to=<v2> --format=md` | No surveyed tool diffs Figma variables across two `file_versions` with mode-awareness. | Diego | 9/10 | `GET /v1/files/{key}/versions` resolves ids; `GET /v1/files/{key}/variables/local` snapshotted by `file_version`; set-diff + value-compare in Go. |
-| T6 | Deterministic file fingerprint for CI contract | `figma fingerprint <key> --expect=<hash>` | No surveyed tool offers a stable hash of a Figma file's token + component + style surface; figmagic emits artifacts but not a contract-check exit code. | Diego | 7/10 | Locally-synced `variables_local` + `components` + `styles`; sort by `key`, content-hash canonical JSON via `crypto/sha256`; exit 0/2 on match/mismatch. |
-| T7 | Webhook delivery replay against new target | `figma webhooks test <id> --replay-failed --target-url=https://localhost:3000/figma` | No surveyed tool pulls Figma's webhook request log and replays stored payloads (with original headers + HMAC) against an arbitrary target. | Sam | 9/10 | `GET /v2/webhooks/{id}/requests` fetches deliveries; filter `status >= 400`; replay via stdlib `net/http` with captured payload + original headers + HMAC re-signed under the webhook's `passcode`. |
-| T8 | Variable usage tracer | `figma variables explain <key> --variable=<name>` | Figma's UI shows variable references per-node modally; no surveyed tool emits a flat list of every node + component that references a given variable across the file. | Priya | 8/10 | Locally-synced `variables_local` + `node_variable_refs` join table populated during `figma sync files` (extracted from each node's `boundVariables`); SQL JOIN on `variable_id`. |

@@ -12,11 +12,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// newOrphansCmd surfaces published library entities (components, styles,
+// newNovelOrphansCmd surfaces published library entities (components, styles,
 // variables) with zero usage over a window by joining the team-library
 // publish tables with the figma_analytics rows. Empty analytics is treated as
 // a soft skip (Enterprise tier required).
-func newOrphansCmd(flags *rootFlags) *cobra.Command {
+// pp:data-source local
+// orphans joins the team-library publish tables with figma_analytics rows in
+// the local SQLite store; it never calls the live API. Run 'figma-pp-cli sync'
+// (with an Enterprise-tier token for analytics) to populate it.
+func newNovelOrphansCmd(flags *rootFlags) *cobra.Command {
 	var team, kind, window, dbPath string
 
 	cmd := &cobra.Command{
@@ -68,12 +72,14 @@ gracefully with a guidance message.`,
 			}
 			defer db.Close()
 
-			// Soft check: any analytics rows at all?
+			// Soft check: any analytics rows at all? Library analytics is an
+			// Enterprise-tier prerequisite, not a genuine "no orphans" result —
+			// signal it with notFoundErr (exit 3) so agents and scripts can tell
+			// a tier/permission gate apart from a real empty result (exit 0).
 			var analyticsRows int
 			_ = db.DB().QueryRowContext(cmd.Context(), `SELECT COUNT(*) FROM figma_analytics`).Scan(&analyticsRows)
 			if analyticsRows == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "library analytics data is empty — Enterprise tier required; run 'figma-pp-cli sync' with an OAuth token if you have access")
-				return nil
+				return notFoundErr(fmt.Errorf("library analytics data is empty — Enterprise tier required\nhint: run 'figma-pp-cli sync' with an Enterprise-tier OAuth token to populate analytics"))
 			}
 
 			// Build per-kind usage maps from figma_analytics. Each row has

@@ -34,24 +34,30 @@ func newTeamsComponentSetsGetTeamCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/teams/{team_id}/component_sets"
 			path = replacePathParam(path, "team_id", args[0])
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "component-sets", path, map[string]string{
-				"page_size": fmt.Sprintf("%v", flagPageSize),
-				"after":     fmt.Sprintf("%v", flagAfter),
-				"before":    fmt.Sprintf("%v", flagBefore),
-			}, nil, flagAll, "after", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "component-sets", path, map[string]string{
+				"page_size": formatCLIParamValue(flagPageSize),
+				"after":     formatCLIParamValue(flagAfter),
+				"before":    formatCLIParamValue(flagBefore),
+			}, nil, flagAll, "after", "cursor", "page_size", "meta.cursor", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -81,8 +87,8 @@ func newTeamsComponentSetsGetTeamCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().Float64Var(&flagPageSize, "page-size", 30.000000, "Number of items to return in a paged list of results. Defaults to 30.")
-	cmd.Flags().Float64Var(&flagAfter, "after", 0.0, "Cursor indicating which id after which to start retrieving component sets for. Exclusive with before. The cursor...")
-	cmd.Flags().Float64Var(&flagBefore, "before", 0.0, "Cursor indicating which id before which to start retrieving component sets for. Exclusive with after. The cursor...")
+	cmd.Flags().Float64Var(&flagAfter, "after", 0.0, "Cursor indicating which id after which to start retrieving component sets for. Exclusive with before.")
+	cmd.Flags().Float64Var(&flagBefore, "before", 0.0, "Cursor indicating which id before which to start retrieving component sets for. Exclusive with after.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd
