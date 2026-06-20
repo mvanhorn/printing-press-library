@@ -18,3 +18,14 @@ func TestMoveCommandRequiresFolderOrUnfiled(t *testing.T) {
 		t.Fatalf("err = %v, want folder/unfiled validation", err)
 	}
 }
+
+func TestMoveCommandRejectsFolderAndUnfiled(t *testing.T) {
+	t.Parallel()
+	flags := &rootFlags{}
+	cmd := newNovelMoveCmd(flags)
+	cmd.SetArgs([]string{"abc", "--folder-id", "folder_123", "--unfiled"})
+	err := cmd.Execute()
+	if err == nil || !strings.Contains(err.Error(), "--folder-id and --unfiled are mutually exclusive") {
+		t.Fatalf("err = %v, want mutually exclusive validation", err)
+	}
+}

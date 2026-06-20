@@ -5,7 +5,9 @@ package cli
 
 import (
 	"path/filepath"
+	"strings"
 	"testing"
+	"unicode/utf8"
 )
 
 func TestSafeAudioFilename(t *testing.T) {
@@ -13,6 +15,17 @@ func TestSafeAudioFilename(t *testing.T) {
 	got := safeAudioFilename(`Client / "Review"?`, "fallback")
 	if got != "Client - Review" {
 		t.Fatalf("safeAudioFilename = %q, want %q", got, "Client - Review")
+	}
+}
+
+func TestSafeAudioFilenameTruncatesOnRuneBoundary(t *testing.T) {
+	t.Parallel()
+	got := safeAudioFilename(strings.Repeat("録", 181), "fallback")
+	if !utf8.ValidString(got) {
+		t.Fatalf("safeAudioFilename returned invalid UTF-8: %q", got)
+	}
+	if len([]rune(got)) != 180 {
+		t.Fatalf("safeAudioFilename rune length = %d, want 180", len([]rune(got)))
 	}
 }
 

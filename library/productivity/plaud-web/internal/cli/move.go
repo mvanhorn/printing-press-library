@@ -25,6 +25,9 @@ func newNovelMoveCmd(flags *rootFlags) *cobra.Command {
 			if flagFolderId == "" && !flagUnfiled {
 				return usageErr(fmt.Errorf("provide --folder-id or --unfiled"))
 			}
+			if flagFolderId != "" && flagUnfiled {
+				return usageErr(fmt.Errorf("--folder-id and --unfiled are mutually exclusive"))
+			}
 			if dryRunOK(flags) {
 				return nil
 			}

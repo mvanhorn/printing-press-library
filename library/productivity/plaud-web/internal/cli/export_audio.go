@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -27,8 +28,8 @@ func safeAudioFilename(value, fallback string) string {
 	name = regexp.MustCompile(`(?:\s*-\s*)+`).ReplaceAllString(name, " - ")
 	name = regexp.MustCompile(`\s+`).ReplaceAllString(name, " ")
 	name = strings.Trim(name, " .-")
-	if len(name) > 180 {
-		name = name[:180]
+	if runes := []rune(name); len(runes) > 180 {
+		name = string(runes[:180])
 	}
 	if name == "" {
 		return fallback
@@ -146,12 +147,14 @@ func newNovelExportAudioCmd(flags *rootFlags) *cobra.Command {
 			if _, err := os.Stat(outputPath); err == nil && !flagForce {
 				return usageErr(fmt.Errorf("%s already exists; pass --force to overwrite", outputPath))
 			}
-			request, err := http.NewRequestWithContext(cmd.Context(), http.MethodGet, audioURL, nil)
+			downloadCtx := context.WithoutCancel(cmd.Context())
+			request, err := http.NewRequestWithContext(downloadCtx, http.MethodGet, audioURL, nil)
 			if err != nil {
 				return err
 			}
-			request.Header.Set("User-Agent", "plaud-web-pp-cli/0.1.0")
-			response, err := c.HTTPClient.Do(request)
+			request.Header.Set("User-Agent", "plaud-web-pp-cli/"+version)
+			downloadClient := &http.Client{Transport: c.HTTPClient.Transport}
+			response, err := downloadClient.Do(request)
 			if err != nil {
 				return err
 			}
@@ -162,17 +165,27 @@ func newNovelExportAudioCmd(flags *rootFlags) *cobra.Command {
 			if err := os.MkdirAll(filepath.Dir(outputPath), 0o755); err != nil {
 				return err
 			}
-			out, err := os.Create(outputPath)
+			tempPath := outputPath + ".tmp"
+			out, err := os.Create(tempPath)
 			if err != nil {
 				return err
 			}
 			size, copyErr := io.Copy(out, response.Body)
 			closeErr := out.Close()
 			if copyErr != nil {
+				_ = os.Remove(tempPath)
 				return copyErr
 			}
 			if closeErr != nil {
+				_ = os.Remove(tempPath)
 				return closeErr
+			}
+			if flagForce {
+				_ = os.Remove(outputPath)
+			}
+			if err := os.Rename(tempPath, outputPath); err != nil {
+				_ = os.Remove(tempPath)
+				return err
 			}
 			if flags.asJSON {
 				return flags.printJSON(cmd, map[string]any{"path": outputPath, "bytes": size})
