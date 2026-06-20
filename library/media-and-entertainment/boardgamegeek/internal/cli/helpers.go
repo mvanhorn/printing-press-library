@@ -794,6 +794,41 @@ func paginationCursorToken(raw json.RawMessage) string {
 }
 
 func extractPaginatedItems(obj map[string]json.RawMessage) ([]json.RawMessage, bool) {
+	// Conventional JSON list envelopes and a single top-level array.
+	if items, ok := extractArrayItems(obj); ok {
+		return items, true
+	}
+
+	// XML-normalized APIs (e.g. BoardGameGeek's XMLAPI2) wrap the collection
+	// one level deeper: {"plays": {"@total": "500", "play": [...]}}. The scan
+	// above only sees a single object-valued key (the "@"-prefixed attributes
+	// the XML→JSON mapper emits are not arrays), so unwrap a lone object
+	// wrapper and search inside it. The repeated element is an array when there
+	// is more than one item, or — because the BadgerFish-lite mapper collapses
+	// a single occurrence to an object rather than a one-element array — a lone
+	// object, which is returned as a one-item page.
+	if len(obj) == 1 {
+		for _, raw := range obj {
+			var nested map[string]json.RawMessage
+			if json.Unmarshal(raw, &nested) != nil {
+				continue
+			}
+			if items, ok := extractArrayItems(nested); ok {
+				return items, true
+			}
+			if item, ok := loneChildObject(nested); ok {
+				return []json.RawMessage{item}, true
+			}
+		}
+	}
+	return nil, false
+}
+
+// extractArrayItems returns the collection array from a decoded object: a
+// conventional envelope key, or a single non-attribute array-valued child.
+// "@"-prefixed attribute keys and "#text" (emitted by the XML→JSON mapper) are
+// skipped so XML-normalized payloads resolve to their repeated element.
+func extractArrayItems(obj map[string]json.RawMessage) ([]json.RawMessage, bool) {
 	for _, field := range []string{"data", "items", "results", "messages", "members", "values"} {
 		if arr, ok := obj[field]; ok {
 			var nested []json.RawMessage
@@ -805,7 +840,10 @@ func extractPaginatedItems(obj map[string]json.RawMessage) ([]json.RawMessage, b
 
 	var onlyArray []json.RawMessage
 	arrayCount := 0
-	for _, raw := range obj {
+	for key, raw := range obj {
+		if strings.HasPrefix(key, "@") || key == "#text" {
+			continue
+		}
 		var candidate []json.RawMessage
 		if json.Unmarshal(raw, &candidate) == nil {
 			onlyArray = candidate
@@ -814,6 +852,29 @@ func extractPaginatedItems(obj map[string]json.RawMessage) ([]json.RawMessage, b
 	}
 	if arrayCount == 1 {
 		return onlyArray, true
+	}
+	return nil, false
+}
+
+// loneChildObject returns the single non-attribute object-valued child of a
+// decoded XML element. The BadgerFish-lite mapper collapses one repeated
+// element to an object instead of a one-element array, so a collection with
+// exactly one member arrives as {"member": {…}} rather than {"member": [{…}]}.
+func loneChildObject(obj map[string]json.RawMessage) (json.RawMessage, bool) {
+	var only json.RawMessage
+	count := 0
+	for key, raw := range obj {
+		if strings.HasPrefix(key, "@") || key == "#text" {
+			continue
+		}
+		var single map[string]json.RawMessage
+		if json.Unmarshal(raw, &single) == nil {
+			only = raw
+			count++
+		}
+	}
+	if count == 1 {
+		return only, true
 	}
 	return nil, false
 }
