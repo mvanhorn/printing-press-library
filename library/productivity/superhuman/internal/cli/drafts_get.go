@@ -68,7 +68,7 @@ func runDraftsGet(cmd *cobra.Command, flags *rootFlags, draftID string) error {
 		envelope := map[string]any{
 			"action":   "drafts.get",
 			"resource": "drafts",
-			"path":     "/v3/userdata.read",
+			"path":     "/v3/userdata.getThreads",
 			"draft_id": draftID,
 			"status":   statusCode,
 			"success":  statusCode >= 200 && statusCode < 300,
