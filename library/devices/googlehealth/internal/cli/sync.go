@@ -754,7 +754,13 @@ func determinePaginationDefaults() paginationDefaults {
 }
 
 func resourceSupportsPagination(resource string) bool {
-	switch resource {
+	// Every Google Health data-point collection paginates via pageToken /
+	// nextPageToken (the generator's default cursor params). Without this,
+	// sync stops after the first page and silently drops older data points.
+	for _, dt := range googleHealthDataTypes() {
+		if dt == resource {
+			return true
+		}
 	}
 	return false
 }

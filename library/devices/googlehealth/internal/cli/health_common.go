@@ -28,5 +28,8 @@ func loadHealthPoints(db *store.Store) ([]health.Point, error) {
 		}
 		raws = append(raws, data)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("reading local data: %w", err)
+	}
 	return health.ExtractPoints(raws), nil
 }

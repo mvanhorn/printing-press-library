@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "greptile-review-fixes",
+  "applied_at": "2026-06-20",
+  "base_run_id": "20260619-180224",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Address four correctness findings from the PR #1301 Greptile review: a streaks LongestStart bug, non-deterministic metric-field selection, a missing rows.Err() check, and always-disabled sync pagination.",
+  "reason": "Greptile's review (confidence 3/5) flagged four real correctness issues in the analytics layer. (1) internal/health/health.go Streaks: the `if qualifies && consecutive { run++ }` branch incremented the run without setting runStart, so when the longest streak followed a non-qualifying day (which resets runStart to \"\"), LongestStart was emitted as empty (dropped via omitempty). Rewrote the run-tracking as a switch whose first branch only continues an existing run (run > 0); any other qualifying day restarts the run AND sets runStart to that day. Added a LongestStart assertion to TestStreaks (the dataset reproduces the bug; the test previously only checked Longest/LongestEnd). (2) internal/health/health.go findMetricField iterated a map[string]any in non-deterministic order; now iterates keys in sorted order so metric selection is deterministic even if a row carries more than one object-valued field. (3) internal/cli/health_common.go loadHealthPoints did not check rows.Err() after the rows.Next() loop, so a mid-iteration driver error was silently swallowed; added the check. (4) internal/cli/sync.go resourceSupportsPagination had an empty switch and always returned false, so sync stopped after the first page and silently dropped older data points; it now returns true for every Google Health data type (the generator's default cursor params pageToken/nextPageToken + pageSize already match Google Health's pagination, so only the gate was missing). All four are generator-shaped gaps (empty pagination switch) or hand-authored-analytics bugs surfaced by review.",
+  "files": [
+    "internal/health/health.go",
+    "internal/health/health_test.go",
+    "internal/cli/health_common.go",
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "go build ./... && go vet ./... && go test ./... (TestStreaks now asserts LongestStart == 2026-06-04)"
+}

@@ -133,11 +133,20 @@ func ExtractPoint(raw []byte) (Point, bool) {
 // non-metric key. Returns ok=false when none is found (e.g. a profile or
 // identity row that wandered into the scan).
 func findMetricField(obj map[string]any) (field string, body map[string]any, ok bool) {
-	for key, val := range obj {
+	// Iterate keys in sorted order so the chosen field is deterministic.
+	// A well-formed DataPoint is a union with exactly one metric member, but
+	// sorting guards against non-deterministic selection if a row ever
+	// carries more than one object-valued field.
+	keys := make([]string, 0, len(obj))
+	for key := range obj {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	for _, key := range keys {
 		if nonMetricKeys[key] {
 			continue
 		}
-		if m, isObj := val.(map[string]any); isObj {
+		if m, isObj := obj[key].(map[string]any); isObj {
 			return key, m, true
 		}
 	}
@@ -466,12 +475,18 @@ func Streaks(points []Point, metric string, threshold float64, op string) (Strea
 		}
 		d, _ := time.Parse("2006-01-02", day)
 		consecutive := havePrev && d.Sub(prev) == 24*time.Hour
-		if qualifies && consecutive {
+		switch {
+		case qualifies && consecutive && run > 0:
+			// Continue the current unbroken run.
 			run++
-		} else if qualifies {
+		case qualifies:
+			// Start (or restart) a run on this day — either the first
+			// qualifying day, a non-consecutive qualifying day, or the
+			// day after a non-qualifying day reset run to 0. In every
+			// case runStart must be this day, not a stale empty string.
 			run = 1
 			runStart = day
-		} else {
+		default:
 			run = 0
 			runStart = ""
 		}

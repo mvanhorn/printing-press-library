@@ -185,6 +185,11 @@ func TestStreaks(t *testing.T) {
 	if res.LongestEnd != "2026-06-06" {
 		t.Errorf("longest end = %q", res.LongestEnd)
 	}
+	// The longest streak (Day4–Day6) follows a non-qualifying day, so this
+	// guards the LongestStart reset-after-gap bug.
+	if res.LongestStart != "2026-06-04" {
+		t.Errorf("longest start = %q, want 2026-06-04", res.LongestStart)
+	}
 }
 
 func TestStreaksGapBreaksRun(t *testing.T) {
