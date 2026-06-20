@@ -67,43 +67,54 @@ type item struct {
 	RacesCount      int     `json:"racesCount"`
 }
 
-// fetch calls the finishers-filter endpoint with the given searchString and
-// returns all returned items.
-func (c *Client) fetch(ctx context.Context, ev domain.Event, searchString string) ([]item, error) {
+const nyrrPageSize = 100
+
+// fetchPage calls one page of the finishers-filter endpoint.
+func (c *Client) fetchPage(ctx context.Context, ev domain.Event, searchString string, pageIndex int) (searchResponse, error) {
 	reqBody := searchRequest{
 		EventCode:      ev.ID,
 		SearchString:   searchString,
-		PageIndex:      1,
-		PageSize:       50,
+		PageIndex:      pageIndex,
+		PageSize:       nyrrPageSize,
 		SortColumn:     "overallTime",
 		SortDescending: false,
 	}
 
 	bodyBytes, err := json.Marshal(reqBody)
 	if err != nil {
-		return nil, fmt.Errorf("nyrr: marshal request: %w", err)
+		return searchResponse{}, fmt.Errorf("nyrr: marshal request: %w", err)
 	}
 
 	url := c.BaseURL + "/api/v2/runners/finishers-filter"
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(bodyBytes))
 	if err != nil {
-		return nil, fmt.Errorf("nyrr: create request: %w", err)
+		return searchResponse{}, fmt.Errorf("nyrr: create request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := c.HTTP.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("nyrr: http request: %w", err)
+		return searchResponse{}, fmt.Errorf("nyrr: http request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("nyrr: unexpected status %d", resp.StatusCode)
+		return searchResponse{}, fmt.Errorf("nyrr: unexpected status %d", resp.StatusCode)
 	}
 
 	var sr searchResponse
 	if err := json.NewDecoder(resp.Body).Decode(&sr); err != nil {
-		return nil, fmt.Errorf("nyrr: decode response: %w", err)
+		return searchResponse{}, fmt.Errorf("nyrr: decode response: %w", err)
+	}
+	return sr, nil
+}
+
+// fetch calls the first page of the finishers-filter endpoint with the given
+// searchString and returns the page's items.
+func (c *Client) fetch(ctx context.Context, ev domain.Event, searchString string) ([]item, error) {
+	sr, err := c.fetchPage(ctx, ev, searchString, 1)
+	if err != nil {
+		return nil, err
 	}
 	return sr.Items, nil
 }
@@ -125,16 +136,22 @@ func (c *Client) mapItem(ev domain.Event, it item) domain.Result {
 
 // Lookup implements provider.Provider.
 func (c *Client) Lookup(ctx context.Context, ev domain.Event, bib string) (domain.Result, error) {
-	items, err := c.fetch(ctx, ev, bib)
-	if err != nil {
-		return domain.Result{}, err
-	}
-
-	for _, it := range items {
-		if it.Bib != bib {
-			continue
+	seen := 0
+	for page := 1; ; page++ {
+		sr, err := c.fetchPage(ctx, ev, bib, page)
+		if err != nil {
+			return domain.Result{}, err
 		}
-		return c.mapItem(ev, it), nil
+		for _, it := range sr.Items {
+			if it.Bib != bib {
+				continue
+			}
+			return c.mapItem(ev, it), nil
+		}
+		seen += len(sr.Items)
+		if len(sr.Items) == 0 || seen >= sr.TotalItems {
+			break
+		}
 	}
 
 	return domain.Result{}, provider.ErrBibNotFound

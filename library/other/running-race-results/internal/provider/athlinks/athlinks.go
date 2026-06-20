@@ -212,7 +212,7 @@ func (c *Client) Lookup(ctx context.Context, ev domain.Event, bib string) (domai
 		Year:      ev.Year,
 		Runner:    dr.DisplayName,
 		Bib:       bib,
-		SourceURL: detailURL,
+		SourceURL: fmt.Sprintf("https://www.athlinks.com/events/%s/results", ev.ID),
 	}
 
 	for _, iv := range dr.Intervals {

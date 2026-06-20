@@ -122,6 +122,9 @@ func TestLookup_Hit(t *testing.T) {
 	if got.Provider != "athlinks" {
 		t.Errorf("Provider: got %q, want %q", got.Provider, "athlinks")
 	}
+	if got.SourceURL != "https://www.athlinks.com/events/1094411/results" {
+		t.Errorf("SourceURL: got %q", got.SourceURL)
+	}
 }
 
 func TestLookup_Miss(t *testing.T) {

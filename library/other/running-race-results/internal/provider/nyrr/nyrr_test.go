@@ -3,7 +3,9 @@ package nyrr
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -77,6 +79,75 @@ func TestLookup_Miss(t *testing.T) {
 	_, err := c.Lookup(context.Background(), testEvent, "999999")
 	if !errors.Is(err, provider.ErrBibNotFound) {
 		t.Errorf("expected ErrBibNotFound, got: %v", err)
+	}
+}
+
+func TestLookup_PaginatesBibSearch(t *testing.T) {
+	requests := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/api/v2/runners/finishers-filter" {
+			http.NotFound(w, r)
+			return
+		}
+		var req searchRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			t.Fatalf("decode request: %v", err)
+		}
+		if req.SearchString != "100" {
+			t.Errorf("SearchString: got %q, want %q", req.SearchString, "100")
+		}
+		if req.PageSize != 100 {
+			t.Errorf("PageSize: got %d, want %d", req.PageSize, 100)
+		}
+
+		requests++
+		w.Header().Set("Content-Type", "application/json")
+		switch req.PageIndex {
+		case 1:
+			items := make([]item, 100)
+			for i := range items {
+				items[i] = item{
+					FirstName:    "Nearby",
+					LastName:     fmt.Sprintf("Runner%d", i),
+					Bib:          fmt.Sprintf("100%d", i),
+					OverallTime:  "4:00:00",
+					OverallPlace: i + 1,
+				}
+			}
+			json.NewEncoder(w).Encode(searchResponse{TotalItems: 101, Items: items})
+		case 2:
+			json.NewEncoder(w).Encode(searchResponse{
+				TotalItems: 101,
+				Items: []item{{
+					FirstName:    "Exact",
+					LastName:     "Runner",
+					Bib:          "100",
+					OverallTime:  "5:00:00",
+					OverallPlace: 101,
+				}},
+			})
+		default:
+			t.Errorf("unexpected PageIndex %d", req.PageIndex)
+			json.NewEncoder(w).Encode(searchResponse{TotalItems: 101})
+		}
+	}))
+	defer srv.Close()
+
+	c := New()
+	c.BaseURL = srv.URL
+
+	got, err := c.Lookup(context.Background(), testEvent, "100")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got.Runner != "Exact Runner" {
+		t.Errorf("Runner: got %q, want %q", got.Runner, "Exact Runner")
+	}
+	if got.OverallPlace != 101 {
+		t.Errorf("OverallPlace: got %d, want %d", got.OverallPlace, 101)
+	}
+	if requests != 2 {
+		t.Errorf("requests: got %d, want %d", requests, 2)
 	}
 }
 
