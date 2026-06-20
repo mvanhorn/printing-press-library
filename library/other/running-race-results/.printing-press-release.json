@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "slug": "running-race-results",
+  "cli_name": "running-race-results-pp-cli",
+  "version": "",
+  "released_at": "",
+  "source_commit": "",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260620-093412-manual-port",
+  "changes": []
+}
