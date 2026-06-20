@@ -42,7 +42,16 @@ func newDraftsListCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				// PATCH(drafts-list-needs-filter-type): /v3/userdata.getThreads
+				// rejects an empty {} body with HTTP 400. The backend's
+				// BackendListFetcher requires a {filter:{type:"draft"}} shape —
+				// the same lesson threads_list.go already carries as PATCH(U3).
+				// Without this, `drafts list` 400s against live Superhuman while
+				// `threads list --type draft` (which sends this shape) succeeds.
+				body = map[string]any{
+					"filter": map[string]any{"type": "draft"},
+					"offset": 0,
+				}
 				if bodyLimit != 0 {
 					body["limit"] = bodyLimit
 				}
