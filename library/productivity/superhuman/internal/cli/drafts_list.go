@@ -14,6 +14,7 @@ import (
 
 func newDraftsListCmd(flags *rootFlags) *cobra.Command {
 	var bodyLimit int
+	var bodyOffset int
 	var stdinBody bool
 
 	cmd := &cobra.Command{
@@ -50,10 +51,8 @@ func newDraftsListCmd(flags *rootFlags) *cobra.Command {
 				// `threads list --type draft` (which sends this shape) succeeds.
 				body = map[string]any{
 					"filter": map[string]any{"type": "draft"},
-					"offset": 0,
-				}
-				if bodyLimit != 0 {
-					body["limit"] = bodyLimit
+					"limit":  bodyLimit,
+					"offset": bodyOffset,
 				}
 			}
 			data, statusCode, err := c.Post(path, body)
@@ -124,6 +123,7 @@ func newDraftsListCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVar(&bodyLimit, "limit", 50, "Max drafts")
+	cmd.Flags().IntVar(&bodyOffset, "offset", 0, "Pagination offset (mirrors `threads list --offset`)")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd
