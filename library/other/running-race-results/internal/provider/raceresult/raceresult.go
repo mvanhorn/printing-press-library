@@ -152,8 +152,8 @@ func (c *Client) Lookup(ctx context.Context, ev domain.Event, bib string) (domai
 //     AnzeigeName or TIME1 returns ok=true, found=false.
 func (c *Client) searchList(ctx context.Context, dataBase string, ev domain.Event, key, listName, contestID, bib string) (domain.Result, bool /*found*/, bool /*ok*/) {
 	listURL := fmt.Sprintf(
-		"%s/%s/results/list?key=%s&listname=%s&page=results&contest=%s&r=leaders&l=50&fav=&openedGroups=%%7B%%7D&term=",
-		dataBase, ev.ID, key, url.QueryEscape(listName), contestID,
+		"%s/%s/results/list?key=%s&listname=%s&page=results&contest=%s&r=leaders&l=50&fav=&openedGroups=%%7B%%7D&term=%s",
+		dataBase, ev.ID, key, url.QueryEscape(listName), contestID, url.QueryEscape(bib),
 	)
 	resp, err := c.get(ctx, listURL)
 	if err != nil {

@@ -50,6 +50,9 @@ func TestLookup(t *testing.T) {
 		case strings.Contains(r.URL.Path, "/results/config"):
 			w.Write(configFixture)
 		case strings.Contains(r.URL.Path, "/results/list"):
+			if r.URL.Query().Get("term") == "" {
+				t.Errorf("results/list request must include a server-side term filter: %s", r.URL.RawQuery)
+			}
 			// Route by the listname query parameter: team lists get the team
 			// fixture (no name/time columns); individual lists get the real data.
 			listname := r.URL.Query().Get("listname")

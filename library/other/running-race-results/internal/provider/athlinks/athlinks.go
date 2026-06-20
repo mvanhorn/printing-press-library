@@ -146,13 +146,12 @@ func (c *Client) SearchByName(ctx context.Context, ev domain.Event, name string)
 			continue
 		}
 		out = append(out, domain.Result{
-			Provider: "athlinks",
-			RaceName: ev.Name,
-			Year:     ev.Year,
-			Runner:   e.DisplayName,
-			Bib:      e.Bib,
-			SourceURL: fmt.Sprintf("%s/event/%s/results/search?term=%s",
-				c.BaseURL, ev.ID, url.QueryEscape(name)),
+			Provider:  "athlinks",
+			RaceName:  ev.Name,
+			Year:      ev.Year,
+			Runner:    e.DisplayName,
+			Bib:       e.Bib,
+			SourceURL: fmt.Sprintf("https://www.athlinks.com/events/%s/results", ev.ID),
 		})
 	}
 	return out, nil

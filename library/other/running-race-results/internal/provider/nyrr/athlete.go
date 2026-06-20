@@ -138,8 +138,9 @@ func (c *Client) FindAthletes(ctx context.Context, name string) ([]domain.Athlet
 	return out, nil
 }
 
-// AthleteHistory implements provider.AthleteSearcher. NYRR caps pageSize at 100
-// (larger values 400), so the full history is paged in 100-race chunks.
+// AthleteHistory implements provider.AthleteSearcher. NYRR caps pageSize at
+// 100; larger values return HTTP 400, so full history is paged in 100-race
+// chunks.
 func (c *Client) AthleteHistory(ctx context.Context, racerID string) ([]domain.Result, error) {
 	const pageSize = 100
 	var out []domain.Result

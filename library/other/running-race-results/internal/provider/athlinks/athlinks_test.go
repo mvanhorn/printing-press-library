@@ -202,5 +202,8 @@ func TestSearchByName(t *testing.T) {
 		if r.Bib == "" {
 			t.Errorf("result has empty Bib: %+v", r)
 		}
+		if r.SourceURL != "https://www.athlinks.com/events/1094411/results" {
+			t.Errorf("SourceURL: got %q", r.SourceURL)
+		}
 	}
 }
