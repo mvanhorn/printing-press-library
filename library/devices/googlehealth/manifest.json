@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "googlehealth-pp-mcp",
+  "display_name": "Google Health",
+  "version": "0.0.0",
+  "description": "View and manage health and fitness metrics and measurement data from Fitbit, Pixel Watch",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/googlehealth-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/googlehealth-pp-mcp",
+      "args": [],
+      "env": {
+        "GOOGLEHEALTH_OAUTH2C": "${user_config.googlehealth_oauth2c}"
+      }
+    }
+  },
+  "user_config": {
+    "googlehealth_oauth2c": {
+      "type": "string",
+      "title": "GOOGLEHEALTH_OAUTH2C",
+      "description": "Sets GOOGLEHEALTH_OAUTH2C for the Google Health MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

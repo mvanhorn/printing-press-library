@@ -1,0 +1,185 @@
+{
+  "api_name": "googlehealth",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "davidmosiah/google-health-mcp",
+      "url": "https://github.com/davidmosiah/google-health-mcp",
+      "language": "TypeScript",
+      "install_method": "npm i google-health-mcp-unofficial",
+      "stars": 10,
+      "last_updated": "2026-06",
+      "command_count": 3,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "Google official client libraries (health/v4)",
+      "url": "https://github.com/googleapis",
+      "language": "multi (Go/Python/Node/Java/.NET/Ruby/PHP)",
+      "install_method": "language package managers",
+      "stars": 0,
+      "last_updated": "2026-06",
+      "command_count": 0,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "orcasgit/python-fitbit",
+      "url": "https://github.com/orcasgit/python-fitbit",
+      "language": "Python",
+      "install_method": "pip install fitbit",
+      "stars": 633,
+      "last_updated": "2016",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "veerendra2/fitbit-cli",
+      "url": "https://github.com/veerendra2/fitbit-cli",
+      "language": "Python",
+      "install_method": "pip install fitbit-cli",
+      "stars": 10,
+      "last_updated": "2025",
+      "command_count": 6,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "bes-dev/garmy",
+      "url": "https://github.com/bes-dev/garmy",
+      "language": "Python",
+      "install_method": "pip install garmy",
+      "stars": 61,
+      "last_updated": "2025",
+      "command_count": 4,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "drakulavich/oura-cli",
+      "url": "https://github.com/drakulavich/oura-cli",
+      "language": "TypeScript",
+      "install_method": "bun",
+      "stars": 3,
+      "last_updated": "2026",
+      "command_count": 5,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "tcgoetz/GarminDB",
+      "url": "https://github.com/tcgoetz/GarminDB",
+      "language": "Python",
+      "install_method": "pip install garmindb",
+      "stars": 3200,
+      "last_updated": "2026",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": true
+    }
+  ],
+  "gaps": [
+    "webhook subscriptions need separate credentials: projects/{projectsId}/subscribers and subscriptions routes require a Google Cloud project and service identity distinct from the user OAuth flow, so they sit outside the default user-data read surface.",
+    "data-type sync fans out per type: Google Health exposes data points only under users/me/dataTypes/{type}/dataPoints, so a full sync issues one paginated request per data type; the default resource set is curated to the common metrics to keep a bare sync cheap.",
+    "API is newly launched (v4): The Google Health API replaced the Fitbit Web API in 2026 and is still stabilizing; field availability depends on the user's connected devices (Fitbit, Pixel Watch, third-party)."
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-19T20:44:37Z",
+  "novel_features": [
+    {
+      "name": "Metric Trend Lines",
+      "command": "trends",
+      "description": "Per-metric trailing rolling-average trend lines with net first-to-last delta, de-noising day-to-day scale-weight and resting-HR whiplash",
+      "rationale": "No tool on the Google Health API computes trend lines; garmy/oura-cli offer this only for other vendors and Google's own SDKs return raw points"
+    },
+    {
+      "name": "Goal Streaks",
+      "command": "streaks",
+      "description": "Current and longest consecutive-calendar-day streaks where a metric met a goal (e.g. 10k steps, resting HR under 60), with calendar gaps breaking the run",
+      "rationale": "Streak tracking over local history is absent from every verified Google Health tool and from Google's SDKs"
+    },
+    {
+      "name": "Cross-Metric Correlation",
+      "command": "correlate",
+      "description": "Pearson correlation plus best-lag scan between any two daily metrics (steps vs resting HR, sleep vs HRV) over locally synced history",
+      "rationale": "Cross-data-type correlation is the one capability even garmy and oura-cli lack; no Google Health tool offers it"
+    },
+    {
+      "name": "Local SQLite Sync",
+      "command": "sync",
+      "description": "Mirror Google Health data points across data types into a local SQLite store for offline analysis",
+      "rationale": "The only third-party Google Health tool is a live-read MCP bridge with no durable datastore; Google's SDKs are stateless"
+    },
+    {
+      "name": "Full-Text Search",
+      "command": "search",
+      "description": "FTS5 full-text search across locally synced Google Health records",
+      "rationale": "Requires the local SQLite index; not offered by any Google Health tool or SDK"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Metric Trend Lines",
+      "command": "trends",
+      "description": "Per-metric trailing rolling-average trend lines with net first-to-last delta, de-noising day-to-day scale-weight and resting-HR whiplash",
+      "rationale": "No tool on the Google Health API computes trend lines; garmy/oura-cli offer this only for other vendors and Google's own SDKs return raw points"
+    },
+    {
+      "name": "Goal Streaks",
+      "command": "streaks",
+      "description": "Current and longest consecutive-calendar-day streaks where a metric met a goal (e.g. 10k steps, resting HR under 60), with calendar gaps breaking the run",
+      "rationale": "Streak tracking over local history is absent from every verified Google Health tool and from Google's SDKs"
+    },
+    {
+      "name": "Cross-Metric Correlation",
+      "command": "correlate",
+      "description": "Pearson correlation plus best-lag scan between any two daily metrics (steps vs resting HR, sleep vs HRV) over locally synced history",
+      "rationale": "Cross-data-type correlation is the one capability even garmy and oura-cli lack; no Google Health tool offers it"
+    },
+    {
+      "name": "Local SQLite Sync",
+      "command": "sync",
+      "description": "Mirror Google Health data points across data types into a local SQLite store for offline analysis",
+      "rationale": "The only third-party Google Health tool is a live-read MCP bridge with no durable datastore; Google's SDKs are stateless"
+    },
+    {
+      "name": "Full-Text Search",
+      "command": "search",
+      "description": "FTS5 full-text search across locally synced Google Health records",
+      "rationale": "Requires the local SQLite index; not offered by any Google Health tool or SDK"
+    }
+  ],
+  "narrative": {
+    "quickstart": [
+      {
+        "command": "googlehealth-pp-cli doctor"
+      },
+      {
+        "command": "googlehealth-pp-cli sync --resources steps,distance,daily-resting-heart-rate"
+      },
+      {
+        "command": "googlehealth-pp-cli trends --window 7 --json"
+      },
+      {
+        "command": "googlehealth-pp-cli correlate --a steps --b daily-resting-heart-rate --max-lag 3 --json"
+      }
+    ],
+    "recipes": [
+      {
+        "title": "Step-goal streak",
+        "command": "googlehealth-pp-cli streaks --metric steps --threshold 10000 --op \"\u003e=\" --json"
+      },
+      {
+        "title": "Resting-HR trend",
+        "command": "googlehealth-pp-cli trends --metric daily-resting-heart-rate --window 14 --json"
+      },
+      {
+        "title": "Live data points for a metric",
+        "command": "googlehealth-pp-cli users data-types list me steps --json"
+      }
+    ]
+  }
+}

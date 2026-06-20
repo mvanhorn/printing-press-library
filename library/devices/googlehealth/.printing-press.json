@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-19T18:02:24.6561208Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "googlehealth",
+  "display_name": "Google Health",
+  "cli_name": "googlehealth-pp-cli",
+  "creator": {
+    "handle": "coopdogGGs",
+    "name": "ryanc00per"
+  },
+  "owner": "coopdogggs",
+  "printer": "coopdogGGs",
+  "printer_name": "ryanc00per",
+  "spec_url": "https://health.googleapis.com/$discovery/rest?version=v4",
+  "spec_path": "googlehealth-spec.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:160a19e310c2c6b45ab45625ba826266bcafd22d38cc42b4bf8b5479cdadbe37",
+  "run_id": "20260619-180224",
+  "category": "devices",
+  "description": "View and manage health and fitness metrics and measurement data from Fitbit, Pixel Watch",
+  "mcp_binary": "googlehealth-pp-mcp",
+  "mcp_tool_count": 25,
+  "mcp_ready": "full",
+  "api_version": "v4",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "GOOGLEHEALTH_OAUTH2C"
+  ],
+  "novel_features": [
+    {
+      "name": "Metric Trend Lines",
+      "command": "trends",
+      "description": "Per-metric trailing rolling-average trend lines with net first-to-last delta, de-noising day-to-day scale-weight and resting-HR whiplash"
+    },
+    {
+      "name": "Goal Streaks",
+      "command": "streaks",
+      "description": "Current and longest consecutive-calendar-day streaks where a metric met a goal (e.g. 10k steps, resting HR under 60), with calendar gaps breaking the run"
+    },
+    {
+      "name": "Cross-Metric Correlation",
+      "command": "correlate",
+      "description": "Pearson correlation plus best-lag scan between any two daily metrics (steps vs resting HR, sleep vs HRV) over locally synced history"
+    },
+    {
+      "name": "Local SQLite Sync",
+      "command": "sync",
+      "description": "Mirror Google Health data points across data types into a local SQLite store for offline analysis"
+    },
+    {
+      "name": "Full-Text Search",
+      "command": "search",
+      "description": "FTS5 full-text search across locally synced Google Health records"
+    }
+  ]
+}

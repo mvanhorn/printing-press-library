@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "wire-sync-googlehealth-datatypes",
+  "applied_at": "2026-06-19",
+  "base_run_id": "20260619-180224",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Wire the empty sync resource functions so sync populates Google Health data points across data types into the local store.",
+  "reason": "The generator emitted defaultSyncResources(), knownSyncResourceNames(), and syncResourcePath() as empty stubs because every Google Health data-point endpoint is parent-keyed (/v4/users/{usersId}/dataTypes/{dataTypesId}/dataPoints) and flat-list sync cannot auto-derive a path. With empty stubs, `sync` was a runtime no-op and the local store (and therefore the trends/streaks/correlate analytics) had no data. Added googleHealthDataTypes() listing the 38 kebab-case data types from the DataPoint union; populated defaultSyncResources() with a curated 15 common metrics (steps, distance, weight, heart rates, sleep, etc.) so a bare `sync` stays cheap; set knownSyncResourceNames() to the full 38 so any type is reachable via `sync --resources <type>`; and implemented syncResourcePath() to return \"/v4/users/me/dataTypes/<type>/dataPoints\" (the leading slash and /v4 prefix are required — without them the base URL and path concatenate into a malformed host like health.googleapis.comusers). The 'me' segment is Google Health's alias for the authenticated user. Verified end-to-end: without credentials, sync now reaches the real endpoint and returns a clean HTTP 401 UNAUTHENTICATED from health.googleapis.com. Generator-shaped gap: parent-keyed data-point APIs need their sync paths hand-wired.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "go build ./... && go vet ./... && cli-printing-press verify --dir . --spec spec.json (Data Pipeline PASS) && cli-printing-press shipcheck --dir . --spec spec.json --research-dir .manuscripts/20260619-204437 (6/6 legs PASS)"
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "replace-pm-slop-with-health-analytics",
+  "applied_at": "2026-06-19",
+  "base_run_id": "20260619-180224",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Replace the generic project-management novel commands (load/orphans/stale) with genuine health analytics (trends/streaks/correlate) appropriate to the Google Health API domain.",
+  "reason": "A plain `generate` with no health research context emitted project-management transcend commands: `load` (workload per assignee), `orphans` (items missing assignee/project/priority/labels), and `stale` (forgotten work). None of these map to health-and-fitness data points, which have no assignees, projects, or work items. They were domain-mismatched AI slop. Deleted internal/cli/pm_load.go, pm_orphans.go, and pm_stale.go, and changed the three corresponding rootCmd.AddCommand registrations in internal/cli/root.go to register newTrendsCmd, newStreaksCmd, and newCorrelateCmd instead. The replacement analytics live in a new agent-authored internal/health package (Point extraction over the 50-field DataPoint union and three time-wrapper shapes; rolling-average trends, consecutive-day goal streaks, and Pearson + best-lag cross-metric correlation) with full unit tests, surfaced by new internal/cli/health_common.go, health_trends.go, health_streaks.go, and health_correlate.go. This is a generator-shaped gap: the transcend-feature templates default to a project-management vocabulary that is wrong for non-PM APIs.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/pm_load.go",
+    "internal/cli/pm_orphans.go",
+    "internal/cli/pm_stale.go",
+    "internal/health/health.go",
+    "internal/health/health_test.go",
+    "internal/cli/health_common.go",
+    "internal/cli/health_trends.go",
+    "internal/cli/health_streaks.go",
+    "internal/cli/health_correlate.go"
+  ],
+  "validated_outcome": "go build ./... && go vet ./... && go test ./... && cli-printing-press dogfood --dir . --spec spec.json --research-dir .manuscripts/20260619-204437 (Novel Features 5/5 PASS)"
+}

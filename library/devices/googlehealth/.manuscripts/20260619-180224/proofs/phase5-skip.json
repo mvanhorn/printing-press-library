@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "api_name": "googlehealth",
+  "run_id": "20260619-180224",
+  "status": "skip",
+  "skip_reason": "auth_required_no_credential",
+  "auth_context": {
+    "type": "bearer_token",
+    "api_key_available": false
+  }
+}
