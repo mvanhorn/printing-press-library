@@ -52,6 +52,60 @@ func readDraft(c *client.Client, providerID, draftID string) (draftValue, int, e
 // did not carry a draft body in any of the known wrapper shapes.
 var ErrDraftNotFound = fmt.Errorf("draft not found")
 
+// resolveDraftViaThreadList fetches the draft list via /v3/userdata.getThreads
+// and returns the draftValue whose message id, thread id, or containing-thread
+// id matches draftID.
+//
+// PATCH(drafts-get-via-getthreads): the single-id userdata.read path
+// (users/<uid>/threads/<id>/messages/<id>/draft, same id twice) does not
+// resolve, because real Superhuman drafts have a *distinct* thread id and
+// message id (e.g. threads/draft007cf1…/messages/draft00f93…). getThreads —
+// which returns the full draftValue per message — is the reliable lookup,
+// so drafts get resolves through it instead of guessing the read path.
+func resolveDraftViaThreadList(c *client.Client, draftID string) (draftValue, int, error) {
+	// limit is capped at 100 by the backend (>100 returns HTTP 400).
+	body := map[string]any{
+		"filter": map[string]any{"type": "draft"},
+		"limit":  100,
+		"offset": 0,
+	}
+	data, statusCode, err := c.Post("/v3/userdata.getThreads", body)
+	if err != nil {
+		return draftValue{}, statusCode, err
+	}
+	// getThreads returns {threadList:[...]} either at the top level or under
+	// a {data:{...}} wrapper depending on the response path; accept both.
+	type threadEntry struct {
+		ID     string `json:"id"`
+		Thread struct {
+			Messages map[string]struct {
+				Draft draftValue `json:"draft"`
+			} `json:"messages"`
+		} `json:"thread"`
+	}
+	var resp struct {
+		ThreadList []threadEntry `json:"threadList"`
+		Data       struct {
+			ThreadList []threadEntry `json:"threadList"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(data, &resp); err != nil {
+		return draftValue{}, statusCode, err
+	}
+	threads := resp.ThreadList
+	if len(threads) == 0 {
+		threads = resp.Data.ThreadList
+	}
+	for _, t := range threads {
+		for _, m := range t.Thread.Messages {
+			if m.Draft.ID == draftID || m.Draft.ThreadID == draftID || t.ID == draftID {
+				return m.Draft, statusCode, nil
+			}
+		}
+	}
+	return draftValue{}, statusCode, ErrDraftNotFound
+}
+
 // unmarshalDraftValue tries the four known response shapes for
 // /v3/userdata.read against a draft path:
 //

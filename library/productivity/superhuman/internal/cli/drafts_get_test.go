@@ -3,192 +3,85 @@
 package cli
 
 import (
-	"encoding/json"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 )
 
-// TestDraftsGet_HappyPath_BareDraftValueShape covers the most common
-// response shape: /v3/userdata.read returns a bare draftValue object.
-func TestDraftsGet_HappyPath_BareDraftValueShape(t *testing.T) {
-	var observedPath string
-	var observedBody map[string]any
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !strings.HasSuffix(r.URL.Path, "/v3/userdata.read") {
-			http.Error(w, "wrong path: "+r.URL.Path, 404)
+// draftThreadListBody is a minimal /v3/userdata.getThreads response carrying
+// one draft whose thread id and message id differ — the real Superhuman
+// shape that the single-id userdata.read path could not resolve.
+const draftThreadListBody = `{"data":{"threadList":[{
+  "id":"draft007cf1fe328668c3",
+  "thread":{"messages":{"draft00f9306577168708":{"draft":{
+    "id":"draft00f9306577168708",
+    "threadId":"draft007cf1fe328668c3",
+    "action":"forward",
+    "from":"user@example.com",
+    "to":["alice@example.com"],
+    "cc":[],
+    "bcc":[],
+    "subject":"Resolved subject",
+    "body":"Resolved body",
+    "labelIds":["DRAFT"],
+    "fingerprint":{"from":"","to":"","cc":"","bcc":"","subject":"","body":"","attachments":""},
+    "schemaVersion":3
+  }}}}
+}]}}`
+
+func draftsGetServer(t *testing.T) *httptest.Server {
+	t.Helper()
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !strings.HasSuffix(r.URL.Path, "/v3/userdata.getThreads") {
+			http.Error(w, "wrong path: "+r.URL.Path, http.StatusNotFound)
 			return
 		}
-		body, _ := io.ReadAll(r.Body)
-		_ = json.Unmarshal(body, &observedBody)
-		if reads, ok := observedBody["reads"].([]any); ok && len(reads) > 0 {
-			if first, ok := reads[0].(map[string]any); ok {
-				if p, ok := first["path"].(string); ok {
-					observedPath = p
-				}
-			}
-		}
-		// Bare draftValue response.
-		_, _ = w.Write([]byte(`{
-			"id":"draft0012ab34cd56ef",
-			"threadId":"draft0012ab34cd56ef",
-			"action":"draft_persist",
-			"name":null,
-			"from":"user@example.com",
-			"to":["alice@example.com"],
-			"cc":[],
-			"bcc":[],
-			"subject":"Edited subject",
-			"body":"Edited body",
-			"snippet":"",
-			"inReplyToRfc822Id":null,
-			"labelIds":[],
-			"clientCreatedAt":"2026-05-22T00:00:00.000Z",
-			"date":"2026-05-22T00:00:00.000Z",
-			"fingerprint":{"from":"","to":"","cc":"","bcc":"","subject":"","body":"","attachments":""},
-			"lastSessionId":"sess",
-			"quotedContent":"",
-			"quotedContentInlined":false,
-			"references":[],
-			"reminder":null,
-			"rfc822Id":"<rfc@example.com>",
-			"scheduledFor":null,
-			"scheduledReplyInterruptedAt":null,
-			"schemaVersion":1,
-			"totalComposeSeconds":0,
-			"timeZone":"UTC"
-		}`))
+		_, _ = w.Write([]byte(draftThreadListBody))
 	}))
+}
+
+// TestDraftsGet_ResolvesByThreadID confirms `drafts get <thread-id>` resolves
+// the draft via getThreads even though thread id != message id.
+func TestDraftsGet_ResolvesByThreadID(t *testing.T) {
+	srv := draftsGetServer(t)
 	defer srv.Close()
 
 	configPath, tokenStorePath := withConfigPath(t)
 	seedSendStore(t, tokenStorePath, "user@example.com", "gid-001")
 	writeConfigPointingAt(t, configPath, srv.URL, "user@example.com")
 
-	stdout, _, err := executeCmd(t, "--config", configPath, "--json", "drafts", "get", "draft0012ab34cd56ef")
+	stdout, _, err := executeCmd(t, "--config", configPath, "--json", "drafts", "get", "draft007cf1fe328668c3")
 	if err != nil {
-		t.Fatalf("drafts get --json: %v", err)
+		t.Fatalf("drafts get by thread id: %v", err)
 	}
-	wantPath := "users/gid-001/threads/draft0012ab34cd56ef/messages/draft0012ab34cd56ef/draft"
-	if observedPath != wantPath {
-		t.Fatalf("path = %q want %q", observedPath, wantPath)
-	}
-	if !strings.Contains(stdout, "drafts.get") {
-		t.Fatalf("envelope missing action: %s", stdout)
-	}
-	if !strings.Contains(stdout, "Edited body") {
-		t.Fatalf("body not in envelope: %s", stdout)
-	}
-	if !strings.Contains(stdout, "Edited subject") {
-		t.Fatalf("subject not in envelope: %s", stdout)
+	if !strings.Contains(stdout, "Resolved body") || !strings.Contains(stdout, "Resolved subject") {
+		t.Fatalf("draft not resolved by thread id: %s", stdout)
 	}
 }
 
-// TestDraftsGet_DataWrapperShape covers the {data: draftValue} wrapper
-// shape that mirrors threads.get.
-func TestDraftsGet_DataWrapperShape(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, _ = w.Write([]byte(`{"data":{
-			"id":"draft00wrapped",
-			"threadId":"draft00wrapped",
-			"action":"draft_persist",
-			"name":null,
-			"from":"user@example.com",
-			"to":["alice@example.com"],
-			"cc":[],
-			"bcc":[],
-			"subject":"wrap",
-			"body":"wb",
-			"snippet":"",
-			"inReplyToRfc822Id":null,
-			"labelIds":[],
-			"clientCreatedAt":"2026-05-22T00:00:00.000Z",
-			"date":"2026-05-22T00:00:00.000Z",
-			"fingerprint":{"from":"","to":"","cc":"","bcc":"","subject":"","body":"","attachments":""},
-			"lastSessionId":"sess",
-			"quotedContent":"",
-			"quotedContentInlined":false,
-			"references":[],
-			"reminder":null,
-			"rfc822Id":"<r@e>",
-			"scheduledFor":null,
-			"scheduledReplyInterruptedAt":null,
-			"schemaVersion":1,
-			"totalComposeSeconds":0,
-			"timeZone":"UTC"
-		}}`))
-	}))
+// TestDraftsGet_ResolvesByMessageID confirms the message id also resolves.
+func TestDraftsGet_ResolvesByMessageID(t *testing.T) {
+	srv := draftsGetServer(t)
 	defer srv.Close()
 
 	configPath, tokenStorePath := withConfigPath(t)
 	seedSendStore(t, tokenStorePath, "user@example.com", "gid-001")
 	writeConfigPointingAt(t, configPath, srv.URL, "user@example.com")
 
-	stdout, _, err := executeCmd(t, "--config", configPath, "--json", "drafts", "get", "draft00wrapped")
+	stdout, _, err := executeCmd(t, "--config", configPath, "--json", "drafts", "get", "draft00f9306577168708")
 	if err != nil {
-		t.Fatalf("drafts get --json: %v", err)
+		t.Fatalf("drafts get by message id: %v", err)
 	}
-	if !strings.Contains(stdout, "draft00wrapped") {
-		t.Fatalf("data-wrapper shape not unmarshaled: %s", stdout)
-	}
-}
-
-// TestDraftsGet_ReadsWrapperShape covers the {reads:[{value: …}]} shape.
-func TestDraftsGet_ReadsWrapperShape(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, _ = w.Write([]byte(`{"reads":[{"value":{
-			"id":"draft00reads",
-			"threadId":"draft00reads",
-			"action":"draft_persist",
-			"name":null,
-			"from":"user@example.com",
-			"to":[],
-			"cc":[],
-			"bcc":[],
-			"subject":"r",
-			"body":"rb",
-			"snippet":"",
-			"inReplyToRfc822Id":null,
-			"labelIds":[],
-			"clientCreatedAt":"2026-05-22T00:00:00.000Z",
-			"date":"2026-05-22T00:00:00.000Z",
-			"fingerprint":{"from":"","to":"","cc":"","bcc":"","subject":"","body":"","attachments":""},
-			"lastSessionId":"s",
-			"quotedContent":"",
-			"quotedContentInlined":false,
-			"references":[],
-			"reminder":null,
-			"rfc822Id":"<r@e>",
-			"scheduledFor":null,
-			"scheduledReplyInterruptedAt":null,
-			"schemaVersion":1,
-			"totalComposeSeconds":0,
-			"timeZone":"UTC"
-		}}]}`))
-	}))
-	defer srv.Close()
-
-	configPath, tokenStorePath := withConfigPath(t)
-	seedSendStore(t, tokenStorePath, "user@example.com", "gid-001")
-	writeConfigPointingAt(t, configPath, srv.URL, "user@example.com")
-
-	stdout, _, err := executeCmd(t, "--config", configPath, "--json", "drafts", "get", "draft00reads")
-	if err != nil {
-		t.Fatalf("drafts get --json: %v", err)
-	}
-	if !strings.Contains(stdout, "draft00reads") {
-		t.Fatalf("reads-wrapper shape not unmarshaled: %s", stdout)
+	if !strings.Contains(stdout, "draft00f9306577168708") {
+		t.Fatalf("draft not resolved by message id: %s", stdout)
 	}
 }
 
 // TestDraftsGet_NotFound surfaces a typed not-found error (exit code 3)
-// when the response is empty or carries no draft body.
+// when no draft in the list matches the requested id.
 func TestDraftsGet_NotFound(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, _ = w.Write([]byte(`{}`))
-	}))
+	srv := draftsGetServer(t)
 	defer srv.Close()
 
 	configPath, tokenStorePath := withConfigPath(t)
@@ -197,7 +90,7 @@ func TestDraftsGet_NotFound(t *testing.T) {
 
 	_, _, err := executeCmd(t, "--config", configPath, "--json", "drafts", "get", "draft00gone")
 	if err == nil {
-		t.Fatalf("expected not-found error for empty response")
+		t.Fatalf("expected not-found error for unmatched id")
 	}
 	if got := ExitCode(err); got != 3 {
 		t.Fatalf("exit code = %d want 3", got)
