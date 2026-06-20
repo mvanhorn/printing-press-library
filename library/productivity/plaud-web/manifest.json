@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "plaud-web-pp-mcp",
+  "display_name": "Plaud Web",
+  "version": "0.0.0",
+  "description": "Unofficial Plaud Web endpoints observed from a user's signed-in Plaud Web session for organizing user-owned recordings.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/plaud-web-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/plaud-web-pp-mcp",
+      "args": [],
+      "env": {
+        "PLAUD_WEB_BEARER_AUTH": "${user_config.plaud_web_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "plaud_web_bearer_auth": {
+      "type": "string",
+      "title": "PLAUD_WEB_BEARER_AUTH",
+      "description": "Sets PLAUD_WEB_BEARER_AUTH for the Plaud Web MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,51 @@
+version: 2
+project_name: plaud-web-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: plaud-web-pp-cli
+    main: ./cmd/plaud-web-pp-cli
+    binary: plaud-web-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X plaud-web-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: plaud-web-pp-mcp
+    main: ./cmd/plaud-web-pp-mcp
+    binary: plaud-web-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: plaud-web-pp-cli
+    repository:
+      owner: eranium21
+      name: homebrew-tap
+    homepage: "https://github.com/eranium21/plaud-web-pp-cli"
+    description: "Unofficial Plaud Web endpoints observed from a user's signed-in Plaud Web session for organizing user-owned recordings."
+    install: |
+      bin.install "plaud-web-pp-cli"
+      bin.install "plaud-web-pp-mcp"

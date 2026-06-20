@@ -1,0 +1,227 @@
+{
+  "api_name": "plaud-web",
+  "base_url": "https://api.plaud.ai",
+  "description": "Unofficial Plaud Web endpoints observed from a user's signed-in Plaud Web session for organizing user-owned recordings.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "PLAUD_WEB_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "PLAUD_WEB_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "file_get-detail",
+      "description": "Fetch detail metadata for one recording. Required: recording_id. Returns the GenericResponse.",
+      "method": "GET",
+      "path": "/file/detail/{recording_id}",
+      "params": [
+        {
+          "name": "recording_id",
+          "type": "string",
+          "location": "path",
+          "description": "Plaud recording/file identifier.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "file_get-temporary-audio-url",
+      "description": "Fetch a short-lived audio download URL. Required: recording_id. Optional: is_opus. Returns the TemporaryAudioUrlresponse.",
+      "method": "GET",
+      "path": "/file/temp-url/{recording_id}",
+      "params": [
+        {
+          "name": "recording_id",
+          "type": "string",
+          "location": "path",
+          "description": "Plaud recording/file identifier.",
+          "required": true
+        },
+        {
+          "name": "is_opus",
+          "type": "int",
+          "location": "query",
+          "description": "Set to 1 to request the OPUS temporary URL when available."
+        }
+      ]
+    },
+    {
+      "name": "file_rename",
+      "description": "Rename one recording. Required: recording_id, filename. Optional: support_mul_summ (default: true). Returns the updated GenericResponse.",
+      "method": "PATCH",
+      "path": "/file/{recording_id}",
+      "params": [
+        {
+          "name": "recording_id",
+          "type": "string",
+          "location": "path",
+          "description": "Plaud recording/file identifier.",
+          "required": true
+        },
+        {
+          "name": "filename",
+          "type": "string",
+          "location": "body",
+          "description": "Filename",
+          "required": true
+        },
+        {
+          "name": "support_mul_summ",
+          "type": "bool",
+          "location": "body",
+          "description": "Support mul summ"
+        }
+      ]
+    },
+    {
+      "name": "file_update-tags",
+      "description": "Move recordings into a folder/tag or back to unfiled. Required: file_id_list, filetag_id. Returns the new GenericResponse.",
+      "method": "POST",
+      "path": "/file/update-tags",
+      "params": [
+        {
+          "name": "file_id_list",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "File id list",
+          "required": true
+        },
+        {
+          "name": "filetag_id",
+          "type": "string",
+          "location": "body",
+          "description": "Folder/tag ID. Use an empty string to move recordings back to unfiled.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "filetag_create-file-tag",
+      "description": "Create a Plaud folder/tag. Required: name. Optional: color, icon. Returns the new GenericResponse.",
+      "method": "POST",
+      "path": "/filetag/",
+      "params": [
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Color"
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "location": "body",
+          "description": "Icon"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "filetag_list-file-tags",
+      "description": "List Plaud folders/tags. Returns the GenericResponse.",
+      "method": "GET",
+      "path": "/filetag/",
+      "params": []
+    },
+    {
+      "name": "filetag_update-file-tag",
+      "description": "Rename or update a Plaud folder/tag. Required: folder_id, name. Optional: color, icon. Returns the updated GenericResponse.",
+      "method": "PATCH",
+      "path": "/filetag/{folder_id}",
+      "params": [
+        {
+          "name": "folder_id",
+          "type": "string",
+          "location": "path",
+          "description": "Folder id",
+          "required": true
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Color"
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "location": "body",
+          "description": "Icon"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "gsearch_search-recordings",
+      "description": "Search recordings and generated note content. Required: query. Optional: date_from, date_to, from. Returns the new GenericResponse.",
+      "method": "POST",
+      "path": "/gsearch/v1/search",
+      "params": [
+        {
+          "name": "date_from",
+          "type": "int",
+          "location": "body",
+          "description": "UTC timestamp in milliseconds."
+        },
+        {
+          "name": "date_to",
+          "type": "int",
+          "location": "body",
+          "description": "UTC timestamp in milliseconds."
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "body",
+          "description": "Optional Plaud source filter."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "speaker_list",
+      "description": "List cloud speaker labels when speaker cloud is enabled. Returns the GenericResponse.",
+      "method": "GET",
+      "path": "/speaker/list",
+      "params": []
+    },
+    {
+      "name": "user_get-file-stats",
+      "description": "Fetch recording statistics. Returns the GenericResponse.",
+      "method": "GET",
+      "path": "/user/stat/file",
+      "params": []
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-20T19:44:50.24821Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "plaud-web",
+  "display_name": "Plaud Web",
+  "cli_name": "plaud-web-pp-cli",
+  "creator": {
+    "handle": "eranium21",
+    "name": "Stefan Erschwendner"
+  },
+  "owner": "eranium21",
+  "printer": "eranium21",
+  "printer_name": "Stefan Erschwendner",
+  "spec_path": "openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:58c7163f89b3bd550eba9004833425bc508da8900254bad2685d76bf172eadd0",
+  "run_id": "20260620-194450",
+  "category": "productivity",
+  "description": "Unofficial Plaud Web endpoints observed from a user's signed-in Plaud Web session for organizing user-owned recordings.",
+  "mcp_binary": "plaud-web-pp-mcp",
+  "mcp_tool_count": 10,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "PLAUD_WEB_BEARER_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Batch recording rename",
+      "command": "batch-rename",
+      "description": "Rename multiple Plaud recordings from a JSON or CSV mapping after transcription or note synthesis."
+    },
+    {
+      "name": "Local audio export",
+      "command": "export-audio",
+      "description": "Resolve a short-lived Plaud audio URL and download the recording to a local file with a safe title-based filename."
+    },
+    {
+      "name": "Folder organization",
+      "command": "move",
+      "description": "Move one or more recordings into a Plaud folder/tag or back to unfiled."
+    }
+  ]
+}

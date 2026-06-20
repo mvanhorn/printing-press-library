@@ -1,0 +1,87 @@
+{
+  "api_name": "plaud-web",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "eranium21/plaud-web-workflows",
+      "url": "https://github.com/eranium21/plaud-web-workflows",
+      "language": "Python",
+      "install_method": "pipx install git+https://github.com/eranium21/plaud-web-workflows.git",
+      "stars": 0,
+      "last_updated": "2026-06-20",
+      "command_count": 11,
+      "has_json_output": true,
+      "has_auth_support": true
+    }
+  ],
+  "gaps": [
+    "Plaud Web does not publish a public OpenAPI specification for these workflow endpoints.",
+    "Recording organization actions such as rename, folder movement, and local export are useful power-user workflows but are not currently covered by the official public CLI surface."
+  ],
+  "patterns": [
+    "Use a user-provided Plaud Web bearer token from the user's own signed-in browser session.",
+    "Keep destructive operations out of the first release; no permanent delete command.",
+    "Use dry-run support for batch rename workflows.",
+    "Never print or persist bearer tokens, cookies, signed audio URLs, or downloaded private audio in manuscripts."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-20T19:40:00Z",
+  "novel_features": [
+    {
+      "name": "Batch recording rename",
+      "command": "batch-rename",
+      "description": "Rename multiple Plaud recordings from a JSON or CSV mapping after transcription or note synthesis.",
+      "rationale": "Plaud captures recordings quickly, but synthesized knowledge workflows often produce meaningful titles later; pushing those titles back keeps the cloud library searchable.",
+      "example": "plaud-web-pp-cli batch-rename titles.json --dry-run",
+      "why_it_matters": "Lets agents keep Plaud Web aligned with Obsidian, CRM, and meeting-note systems without manual timestamp cleanup.",
+      "group": "Knowledge-work organization"
+    },
+    {
+      "name": "Local audio export",
+      "command": "export-audio",
+      "description": "Resolve a short-lived Plaud audio URL and download the recording to a local file with a safe title-based filename.",
+      "rationale": "The web app exposes temporary audio URLs, but agents need a durable local export primitive for owned recordings.",
+      "example": "plaud-web-pp-cli export-audio <recording-id> --output-dir exports",
+      "why_it_matters": "Supports data portability and downstream transcript, archival, or review workflows.",
+      "group": "Data portability"
+    },
+    {
+      "name": "Folder organization",
+      "command": "move",
+      "description": "Move one or more recordings into a Plaud folder/tag or back to unfiled.",
+      "rationale": "Folder operations turn Plaud from a timestamp list into an organized source library.",
+      "example": "plaud-web-pp-cli move <recording-id> --folder-id <folder-id>",
+      "why_it_matters": "Useful for client calls, event recordings, and presentation-prep batches.",
+      "group": "Knowledge-work organization"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Batch recording rename",
+      "command": "batch-rename",
+      "description": "Rename multiple Plaud recordings from a JSON or CSV mapping after transcription or note synthesis.",
+      "rationale": "Plaud captures recordings quickly, but synthesized knowledge workflows often produce meaningful titles later; pushing those titles back keeps the cloud library searchable.",
+      "example": "plaud-web-pp-cli batch-rename titles.json --dry-run",
+      "why_it_matters": "Lets agents keep Plaud Web aligned with Obsidian, CRM, and meeting-note systems without manual timestamp cleanup.",
+      "group": "Knowledge-work organization"
+    },
+    {
+      "name": "Local audio export",
+      "command": "export-audio",
+      "description": "Resolve a short-lived Plaud audio URL and download the recording to a local file with a safe title-based filename.",
+      "rationale": "The web app exposes temporary audio URLs, but agents need a durable local export primitive for owned recordings.",
+      "example": "plaud-web-pp-cli export-audio <recording-id> --output-dir exports",
+      "why_it_matters": "Supports data portability and downstream transcript, archival, or review workflows.",
+      "group": "Data portability"
+    },
+    {
+      "name": "Folder organization",
+      "command": "move",
+      "description": "Move one or more recordings into a Plaud folder/tag or back to unfiled.",
+      "rationale": "Folder operations turn Plaud from a timestamp list into an organized source library.",
+      "example": "plaud-web-pp-cli move <recording-id> --folder-id <folder-id>",
+      "why_it_matters": "Useful for client calls, event recordings, and presentation-prep batches.",
+      "group": "Knowledge-work organization"
+    }
+  ]
+}

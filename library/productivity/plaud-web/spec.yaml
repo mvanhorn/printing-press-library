@@ -1,0 +1,255 @@
+openapi: 3.0.3
+info:
+  title: Plaud Web
+  version: 0.1.0
+  description: Unofficial Plaud Web endpoints observed from a user's signed-in Plaud Web session for organizing user-owned recordings.
+servers:
+  - url: https://api.plaud.ai
+security:
+  - bearerAuth: []
+paths:
+  /user/stat/file:
+    get:
+      operationId: getFileStats
+      summary: Fetch recording statistics.
+      responses:
+        "200":
+          description: Recording statistics response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+  /file/detail/{recording_id}:
+    get:
+      operationId: getFileDetail
+      summary: Fetch detail metadata for one recording.
+      parameters:
+        - $ref: "#/components/parameters/RecordingId"
+      responses:
+        "200":
+          description: Recording detail response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+  /file/{recording_id}:
+    patch:
+      operationId: renameFile
+      summary: Rename one recording.
+      parameters:
+        - $ref: "#/components/parameters/RecordingId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RenameFileRequest"
+      responses:
+        "200":
+          description: Rename response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+  /file/temp-url/{recording_id}:
+    get:
+      operationId: getTemporaryAudioURL
+      summary: Fetch a short-lived audio download URL.
+      parameters:
+        - $ref: "#/components/parameters/RecordingId"
+        - name: is_opus
+          in: query
+          required: false
+          schema:
+            type: integer
+            enum: [1]
+          description: Set to 1 to request the OPUS temporary URL when available.
+      responses:
+        "200":
+          description: Temporary audio URL response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TemporaryAudioURLResponse"
+  /gsearch/v1/search:
+    post:
+      operationId: searchRecordings
+      summary: Search recordings and generated note content.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchRequest"
+      responses:
+        "200":
+          description: Search response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+  /filetag/:
+    get:
+      operationId: listFileTags
+      summary: List Plaud folders/tags.
+      responses:
+        "200":
+          description: Folder/tag list response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+    post:
+      operationId: createFileTag
+      summary: Create a Plaud folder/tag.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FileTagRequest"
+      responses:
+        "200":
+          description: Folder/tag creation response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+  /filetag/{folder_id}:
+    patch:
+      operationId: updateFileTag
+      summary: Rename or update a Plaud folder/tag.
+      parameters:
+        - name: folder_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FileTagRequest"
+      responses:
+        "200":
+          description: Folder/tag update response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+  /file/update-tags:
+    post:
+      operationId: updateFileTags
+      summary: Move recordings into a folder/tag or back to unfiled.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFileTagsRequest"
+      responses:
+        "200":
+          description: Move response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+  /speaker/list:
+    get:
+      operationId: listSpeakers
+      summary: List cloud speaker labels when speaker cloud is enabled.
+      responses:
+        "200":
+          description: Speaker list response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Plaud Web session token
+  parameters:
+    RecordingId:
+      name: recording_id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Plaud recording/file identifier.
+  schemas:
+    GenericResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        status:
+          type: integer
+        msg:
+          type: string
+        data:
+          type: object
+          additionalProperties: true
+    RenameFileRequest:
+      type: object
+      required: [filename]
+      properties:
+        filename:
+          type: string
+        support_mul_summ:
+          type: boolean
+          default: true
+    TemporaryAudioURLResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        status:
+          type: integer
+        temp_url:
+          type: string
+          format: uri
+        temp_url_opus:
+          type: string
+          format: uri
+    SearchRequest:
+      type: object
+      required: [query]
+      properties:
+        query:
+          type: string
+        date_from:
+          type: integer
+          format: int64
+          nullable: true
+          description: UTC timestamp in milliseconds.
+        date_to:
+          type: integer
+          format: int64
+          nullable: true
+          description: UTC timestamp in milliseconds.
+        from:
+          type: string
+          description: Optional Plaud source filter.
+    FileTagRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        icon:
+          type: string
+        color:
+          type: string
+    UpdateFileTagsRequest:
+      type: object
+      required: [file_id_list, filetag_id]
+      properties:
+        file_id_list:
+          type: array
+          items:
+            type: string
+        filetag_id:
+          type: string
+          description: Folder/tag ID. Use an empty string to move recordings back to unfiled.
