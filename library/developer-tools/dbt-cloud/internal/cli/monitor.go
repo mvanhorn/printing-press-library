@@ -151,8 +151,12 @@ func pollRunToCompletion(ctx context.Context, c *client.Client, accountID, runID
 
 		select {
 		case <-ctx.Done():
-			// Fetch one last time to get terminal state if it just finished
-			final, ferr := fetchRun(context.Background(), c, accountID, runID)
+			// Fetch one last time to get terminal state if it just finished.
+			// Bound it with a short deadline so a slow or unavailable API
+			// cannot hang the CLI indefinitely past the monitoring timeout.
+			finalCtx, finalCancel := context.WithTimeout(context.Background(), 15*time.Second)
+			final, ferr := fetchRun(finalCtx, c, accountID, runID)
+			finalCancel()
 			if ferr == nil {
 				return &MonitorResult{Run: final, Timedout: !isTerminalStatus(final)}, nil
 			}

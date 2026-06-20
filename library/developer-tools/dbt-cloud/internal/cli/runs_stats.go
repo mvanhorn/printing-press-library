@@ -106,10 +106,9 @@ Use --job to filter to a single job definition ID.`,
   dbt-cloud-pp-cli runs stats --days 7 --json
   dbt-cloud-pp-cli runs stats --job 12345`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
-				return cmd.Help()
-			}
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			// No required input — bare invocation runs with defaults
+			// (30-day window, all jobs), matching the documented example.
 			if dryRunOK(flags) {
 				fmt.Fprintf(cmd.OutOrStdout(), "would compute run stats (days=%d)\n", flagDays)
 				return nil

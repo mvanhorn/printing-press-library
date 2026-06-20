@@ -70,19 +70,17 @@ func TestLastNLines(t *testing.T) {
 	for _, tc := range cases {
 		got := lastNLines(tc.input, tc.n)
 		lines := 0
-		for _, ch := range got {
-			if ch == '\n' {
-				lines++
+		if got != "" {
+			lines = 1
+			for _, ch := range got {
+				if ch == '\n' {
+					lines++
+				}
 			}
 		}
-		// count non-empty result
-		if got != "" {
-			lines++
+		if lines != tc.want {
+			t.Errorf("lastNLines(%q, %d) = %q (%d lines); want %d", tc.input, tc.n, got, lines, tc.want)
 		}
-		if lines < tc.want && got != "" {
-			// just ensure we don't get more lines than n
-		}
-		_ = got
 	}
 }
 
