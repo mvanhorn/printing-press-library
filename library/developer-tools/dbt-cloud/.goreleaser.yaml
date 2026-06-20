@@ -1,0 +1,51 @@
+version: 2
+project_name: dbt-cloud-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: dbt-cloud-pp-cli
+    main: ./cmd/dbt-cloud-pp-cli
+    binary: dbt-cloud-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/dbt-cloud/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: dbt-cloud-pp-mcp
+    main: ./cmd/dbt-cloud-pp-mcp
+    binary: dbt-cloud-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: dbt-cloud-pp-cli
+    repository:
+      owner: nimast
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Operate dbt Cloud jobs and runs from one static Go binary — trigger, watch to completion with honest exit codes"
+    install: |
+      bin.install "dbt-cloud-pp-cli"
+      bin.install "dbt-cloud-pp-mcp"

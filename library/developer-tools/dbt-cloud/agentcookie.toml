@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "dbt-cloud-pp-cli"
+display_name = "dbt Cloud"
+description = "Operate dbt Cloud jobs and runs from one static Go binary — trigger, watch to completion with honest exit codes, and query run history offline."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/dbt-cloud-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+DBT_CLOUD_TOKEN = true

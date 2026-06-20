@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "dbt-cloud-pp-mcp",
+  "display_name": "dbt Cloud",
+  "version": "0.0.0",
+  "description": "Operate dbt Cloud jobs and runs from one static Go binary — trigger, watch to completion with honest exit codes, and query run history offline.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/dbt-cloud-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/dbt-cloud-pp-mcp",
+      "args": [],
+      "env": {
+        "DBT_CLOUD_TOKEN": "${user_config.dbt_cloud_token}"
+      }
+    }
+  },
+  "user_config": {
+    "dbt_cloud_token": {
+      "type": "string",
+      "title": "DBT_CLOUD_TOKEN",
+      "description": "Sets DBT_CLOUD_TOKEN for the dbt Cloud MCP server. Get a credential from https://docs.getdbt.com/dbt-cloud/api-v3#/.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

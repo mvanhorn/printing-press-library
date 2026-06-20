@@ -1,0 +1,1215 @@
+{
+  "api_name": "dbt-cloud",
+  "base_url": "https://cloud.getdbt.com",
+  "description": "Operate dbt Cloud jobs and runs from one static Go binary — trigger, watch to completion with honest exit codes, and query run history offline.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "DBT_CLOUD_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "DBT_CLOUD_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://docs.getdbt.com/dbt-cloud/api-v3#/"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "dbt-cloud-admin-jobs_create",
+      "description": "Create a new job. Required: account_id, account_id, environment_id, errors_on_lint_failure, execution, generate_docs, lifecycle_webhooks, name, project_id, run_compare_changes, run_generate_sources, run_lint, settings, state, triggers. Optional: compare_changes_flags (default: --select state:modified), cost_optimization_features, dbt_version (plus 8 more). Returns the new HumanReadableJobDefinitionEnveloped.",
+      "method": "POST",
+      "path": "/api/v2/accounts/{account_id}/jobs/",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "account_id-2",
+          "wire_name": "account_id",
+          "type": "int",
+          "location": "body",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "compare_changes_flags",
+          "type": "string",
+          "location": "body",
+          "description": "dbt syntax flags to be used for compare changes"
+        },
+        {
+          "name": "cost_optimization_features",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "\u003cb\u003e[Private Beta]\u003c/b\u003e List of cost optimization features to enable for this job. Requires job to be running on a fusion dbt_version. \u003cb\u003eValid values:\u003c/b\u003e 'state_aware_orchestration' - Enable orchestration that adapts to state changes 'efficient_testing' - Aggregate generic tests into a single query and reuse redundant tests across lineage \u003cb\u003eExample:\u003c/b\u003e ['state_aware_orchestration', 'efficient_testing']"
+        },
+        {
+          "name": "dbt_version",
+          "type": "string",
+          "location": "body",
+          "description": "When set, overrides the dbt_version specified in the Job's Environment"
+        },
+        {
+          "name": "deferring_environment_id",
+          "type": "int",
+          "location": "body",
+          "description": "Deferring environment id"
+        },
+        {
+          "name": "deferring_job_definition_id",
+          "type": "int",
+          "location": "body",
+          "description": "Deferring job definition id"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "environment_id",
+          "type": "int",
+          "location": "body",
+          "description": "Environment id",
+          "required": true
+        },
+        {
+          "name": "errors_on_lint_failure",
+          "type": "bool",
+          "location": "body",
+          "description": "Errors on lint failure",
+          "required": true
+        },
+        {
+          "name": "execute_steps",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of dbt commands to run"
+        },
+        {
+          "name": "execution-timeout-seconds",
+          "wire_name": "execution.timeout_seconds",
+          "type": "int",
+          "location": "body",
+          "description": "Timeout seconds",
+          "required": true
+        },
+        {
+          "name": "generate_docs",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, `dbt docs generate` will be run at the end of all runs for this Job",
+          "required": true
+        },
+        {
+          "name": "generate_sources",
+          "type": "bool",
+          "location": "body",
+          "description": "Generate sources"
+        },
+        {
+          "name": "job_type",
+          "type": "string",
+          "location": "body",
+          "description": "* `ci` - ci * `scheduled` - scheduled * `other` - other * `merge` - merge * `exposure_sync` - exposure_sync * `adaptive` - adaptive * `hybrid` - hybrid"
+        },
+        {
+          "name": "lifecycle_webhooks",
+          "type": "bool",
+          "location": "body",
+          "description": "Lifecycle webhooks",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the job",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "int",
+          "location": "body",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "run_compare_changes",
+          "type": "bool",
+          "location": "body",
+          "description": "Run compare changes",
+          "required": true
+        },
+        {
+          "name": "run_generate_sources",
+          "type": "bool",
+          "location": "body",
+          "description": "Run generate sources",
+          "required": true
+        },
+        {
+          "name": "run_lint",
+          "type": "bool",
+          "location": "body",
+          "description": "Run lint",
+          "required": true
+        },
+        {
+          "name": "schedule-cron",
+          "wire_name": "schedule.cron",
+          "type": "string",
+          "location": "body",
+          "description": "Cron syntax schedule for the job string"
+        },
+        {
+          "name": "schedule-date-cron",
+          "wire_name": "schedule.date.cron",
+          "type": "string",
+          "location": "body",
+          "description": "Cron syntax schedule for the job string"
+        },
+        {
+          "name": "schedule-date-days",
+          "wire_name": "schedule.date.days",
+          "type": "array",
+          "location": "body",
+          "description": "Days"
+        },
+        {
+          "name": "schedule-date-type",
+          "wire_name": "schedule.date.type",
+          "type": "string",
+          "location": "body",
+          "description": "* `every_day` - every_day * `days_of_week` - days_of_week * `custom_cron` - custom_cron * `interval_cron` - interval_cron",
+          "required": true
+        },
+        {
+          "name": "schedule-time-hours",
+          "wire_name": "schedule.time.hours",
+          "type": "array",
+          "location": "body",
+          "description": "Hours"
+        },
+        {
+          "name": "schedule-time-interval",
+          "wire_name": "schedule.time.interval",
+          "type": "int",
+          "location": "body",
+          "description": "Interval"
+        },
+        {
+          "name": "schedule-time-type",
+          "wire_name": "schedule.time.type",
+          "type": "string",
+          "location": "body",
+          "description": "* `every_hour` - every_hour * `at_exact_hours` - at_exact_hours",
+          "required": true
+        },
+        {
+          "name": "settings-target-name",
+          "wire_name": "settings.target_name",
+          "type": "string",
+          "location": "body",
+          "description": "Informational field that can be consumed in dbt project code with `{{ target.name }}`",
+          "required": true
+        },
+        {
+          "name": "settings-threads",
+          "wire_name": "settings.threads",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of models to run in parallel in a single dbt run",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "int",
+          "location": "body",
+          "description": "A value of 1 means this entity is active and a value of 2 means this entity is deleted",
+          "required": true
+        },
+        {
+          "name": "triggers-custom-branch-only",
+          "wire_name": "triggers.custom_branch_only",
+          "type": "bool",
+          "location": "body",
+          "description": "(Deprecated)"
+        },
+        {
+          "name": "triggers-git-provider-webhook",
+          "wire_name": "triggers.git_provider_webhook",
+          "type": "bool",
+          "location": "body",
+          "description": "Git provider webhook"
+        },
+        {
+          "name": "triggers-github-webhook",
+          "wire_name": "triggers.github_webhook",
+          "type": "bool",
+          "location": "body",
+          "description": "Github webhook",
+          "required": true
+        },
+        {
+          "name": "triggers-on-merge",
+          "wire_name": "triggers.on_merge",
+          "type": "bool",
+          "location": "body",
+          "description": "On merge"
+        },
+        {
+          "name": "triggers-schedule",
+          "wire_name": "triggers.schedule",
+          "type": "bool",
+          "location": "body",
+          "description": "Schedule",
+          "required": true
+        },
+        {
+          "name": "triggers_on_draft_pr",
+          "type": "bool",
+          "location": "body",
+          "description": "Triggers on draft pr"
+        }
+      ]
+    },
+    {
+      "name": "dbt-cloud-admin-jobs_destroy",
+      "description": "Delete a job. Required: account_id, id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v2/accounts/{account_id}/jobs/{id}/",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dbt-cloud-admin-jobs_list",
+      "description": "List jobs for the given account. Required: account_id. Optional: dbt_version__in, environment_id, include_related (plus 11 more). Returns array of HumanReadableJobDefinitionResponse.",
+      "method": "GET",
+      "path": "/api/v2/accounts/{account_id}/jobs/",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "dbt_version__in",
+          "type": "array",
+          "location": "query",
+          "description": "Dbt version in"
+        },
+        {
+          "name": "environment_id",
+          "type": "int",
+          "location": "query",
+          "description": "Environment id"
+        },
+        {
+          "name": "include_related",
+          "type": "string",
+          "location": "query",
+          "description": "A list of related objects to include in the response. Valid values are `environment`, `custom_environment_variables`, `most_recent_run`, `most_recent_completed_run`, and `fusion_readiness`."
+        },
+        {
+          "name": "is_fusion_ready",
+          "type": "bool",
+          "location": "query",
+          "description": "Filters jobs by fusion readiness. When true, returns conformant or override-ready jobs. When false, returns non-ready jobs."
+        },
+        {
+          "name": "is_system",
+          "type": "bool",
+          "location": "query",
+          "description": "Is system"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "name__icontains",
+          "type": "string",
+          "location": "query",
+          "description": "Name icontains"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order the results by. Use `-` to reverse the order."
+        },
+        {
+          "name": "pk",
+          "type": "int",
+          "location": "query",
+          "description": "Pk"
+        },
+        {
+          "name": "project_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filters the results to a specific Project"
+        },
+        {
+          "name": "project_id__in",
+          "type": "array",
+          "location": "query",
+          "description": "Project id in"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "Filters by soft deletion state. 'active' / 1 : Only active resources 'deleted' / 2 : Only deleted resources 'all' : All resources"
+        },
+        {
+          "name": "triggers_schedule",
+          "type": "bool",
+          "location": "query",
+          "description": "Triggers schedule"
+        }
+      ]
+    },
+    {
+      "name": "dbt-cloud-admin-jobs_retrieve",
+      "description": "Retrieve the details of a job. Required: account_id, id. Optional: include_related. Returns the HumanReadableJobDefinitionEnveloped.",
+      "method": "GET",
+      "path": "/api/v2/accounts/{account_id}/jobs/{id}/",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "include_related",
+          "type": "string",
+          "location": "query",
+          "description": "A list of related objects to include in the response. Valid values are `environment`, `custom_environment_variables`, `most_recent_run`, `most_recent_completed_run`, and `fusion_readiness`."
+        }
+      ]
+    },
+    {
+      "name": "dbt-cloud-admin-jobs_update",
+      "description": "Update a job. Required: account_id, id, account_id, environment_id, errors_on_lint_failure, execution, generate_docs, lifecycle_webhooks, name, project_id, run_compare_changes, run_generate_sources, run_lint, settings, state, triggers. Optional: compare_changes_flags (default: --select state:modified), cost_optimization_features, dbt_version (plus 8 more). Returns the new HumanReadableJobDefinitionEnveloped.",
+      "method": "POST",
+      "path": "/api/v2/accounts/{account_id}/jobs/{id}/",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "account_id-2",
+          "wire_name": "account_id",
+          "type": "int",
+          "location": "body",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "compare_changes_flags",
+          "type": "string",
+          "location": "body",
+          "description": "dbt syntax flags to be used for compare changes"
+        },
+        {
+          "name": "cost_optimization_features",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "\u003cb\u003e[Private Beta]\u003c/b\u003e List of cost optimization features to enable for this job. Requires job to be running on a fusion dbt_version. \u003cb\u003eValid values:\u003c/b\u003e 'state_aware_orchestration' - Enable orchestration that adapts to state changes 'efficient_testing' - Aggregate generic tests into a single query and reuse redundant tests across lineage \u003cb\u003eExample:\u003c/b\u003e ['state_aware_orchestration', 'efficient_testing']"
+        },
+        {
+          "name": "dbt_version",
+          "type": "string",
+          "location": "body",
+          "description": "When set, overrides the dbt_version specified in the Job's Environment"
+        },
+        {
+          "name": "deferring_environment_id",
+          "type": "int",
+          "location": "body",
+          "description": "Deferring environment id"
+        },
+        {
+          "name": "deferring_job_definition_id",
+          "type": "int",
+          "location": "body",
+          "description": "Deferring job definition id"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "environment_id",
+          "type": "int",
+          "location": "body",
+          "description": "Environment id",
+          "required": true
+        },
+        {
+          "name": "errors_on_lint_failure",
+          "type": "bool",
+          "location": "body",
+          "description": "Errors on lint failure",
+          "required": true
+        },
+        {
+          "name": "execute_steps",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of dbt commands to run"
+        },
+        {
+          "name": "execution-timeout-seconds",
+          "wire_name": "execution.timeout_seconds",
+          "type": "int",
+          "location": "body",
+          "description": "Timeout seconds",
+          "required": true
+        },
+        {
+          "name": "generate_docs",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, `dbt docs generate` will be run at the end of all runs for this Job",
+          "required": true
+        },
+        {
+          "name": "generate_sources",
+          "type": "bool",
+          "location": "body",
+          "description": "Generate sources"
+        },
+        {
+          "name": "job_type",
+          "type": "string",
+          "location": "body",
+          "description": "* `ci` - ci * `scheduled` - scheduled * `other` - other * `merge` - merge * `exposure_sync` - exposure_sync * `adaptive` - adaptive * `hybrid` - hybrid"
+        },
+        {
+          "name": "lifecycle_webhooks",
+          "type": "bool",
+          "location": "body",
+          "description": "Lifecycle webhooks",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the job",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "int",
+          "location": "body",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "run_compare_changes",
+          "type": "bool",
+          "location": "body",
+          "description": "Run compare changes",
+          "required": true
+        },
+        {
+          "name": "run_generate_sources",
+          "type": "bool",
+          "location": "body",
+          "description": "Run generate sources",
+          "required": true
+        },
+        {
+          "name": "run_lint",
+          "type": "bool",
+          "location": "body",
+          "description": "Run lint",
+          "required": true
+        },
+        {
+          "name": "schedule-cron",
+          "wire_name": "schedule.cron",
+          "type": "string",
+          "location": "body",
+          "description": "Cron syntax schedule for the job string"
+        },
+        {
+          "name": "schedule-date-cron",
+          "wire_name": "schedule.date.cron",
+          "type": "string",
+          "location": "body",
+          "description": "Cron syntax schedule for the job string"
+        },
+        {
+          "name": "schedule-date-days",
+          "wire_name": "schedule.date.days",
+          "type": "array",
+          "location": "body",
+          "description": "Days"
+        },
+        {
+          "name": "schedule-date-type",
+          "wire_name": "schedule.date.type",
+          "type": "string",
+          "location": "body",
+          "description": "* `every_day` - every_day * `days_of_week` - days_of_week * `custom_cron` - custom_cron * `interval_cron` - interval_cron",
+          "required": true
+        },
+        {
+          "name": "schedule-time-hours",
+          "wire_name": "schedule.time.hours",
+          "type": "array",
+          "location": "body",
+          "description": "Hours"
+        },
+        {
+          "name": "schedule-time-interval",
+          "wire_name": "schedule.time.interval",
+          "type": "int",
+          "location": "body",
+          "description": "Interval"
+        },
+        {
+          "name": "schedule-time-type",
+          "wire_name": "schedule.time.type",
+          "type": "string",
+          "location": "body",
+          "description": "* `every_hour` - every_hour * `at_exact_hours` - at_exact_hours",
+          "required": true
+        },
+        {
+          "name": "settings-target-name",
+          "wire_name": "settings.target_name",
+          "type": "string",
+          "location": "body",
+          "description": "Informational field that can be consumed in dbt project code with `{{ target.name }}`",
+          "required": true
+        },
+        {
+          "name": "settings-threads",
+          "wire_name": "settings.threads",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of models to run in parallel in a single dbt run",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "int",
+          "location": "body",
+          "description": "A value of 1 means this entity is active and a value of 2 means this entity is deleted",
+          "required": true
+        },
+        {
+          "name": "triggers-custom-branch-only",
+          "wire_name": "triggers.custom_branch_only",
+          "type": "bool",
+          "location": "body",
+          "description": "(Deprecated)"
+        },
+        {
+          "name": "triggers-git-provider-webhook",
+          "wire_name": "triggers.git_provider_webhook",
+          "type": "bool",
+          "location": "body",
+          "description": "Git provider webhook"
+        },
+        {
+          "name": "triggers-github-webhook",
+          "wire_name": "triggers.github_webhook",
+          "type": "bool",
+          "location": "body",
+          "description": "Github webhook",
+          "required": true
+        },
+        {
+          "name": "triggers-on-merge",
+          "wire_name": "triggers.on_merge",
+          "type": "bool",
+          "location": "body",
+          "description": "On merge"
+        },
+        {
+          "name": "triggers-schedule",
+          "wire_name": "triggers.schedule",
+          "type": "bool",
+          "location": "body",
+          "description": "Schedule",
+          "required": true
+        },
+        {
+          "name": "triggers_on_draft_pr",
+          "type": "bool",
+          "location": "body",
+          "description": "Triggers on draft pr"
+        }
+      ]
+    },
+    {
+      "name": "dbt-cloud-admin-jobs_artifacts_retrieve-job",
+      "description": "Given a job id and *a set of Run filters* return the latest matching artifact for that job. Required: account_id, job_id, remainder. Optional: include_related.",
+      "method": "GET",
+      "path": "/api/v2/accounts/{account_id}/jobs/{job_id}/artifacts/{remainder}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "include_related",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related objects to include in the response."
+        },
+        {
+          "name": "job_id",
+          "type": "int",
+          "location": "path",
+          "description": "Job id",
+          "required": true
+        },
+        {
+          "name": "remainder",
+          "type": "string",
+          "location": "path",
+          "description": "Remainder",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dbt-cloud-admin-jobs_rerun_retry-failed-job",
+      "description": "Use this endpoint to retry a failed run for a job from the point of failure, if the run failed. Otherwise trigger a new run. When this endpoint returns a successful response, a new run will be enqueued for the account. Users can poll the Get run endpoint to poll the run until it completes. After the run has completed, users can use the Get run artifact endpoint to download artifacts generated by the run. Required: account_id, job_id.",
+      "method": "POST",
+      "path": "/api/v2/accounts/{account_id}/jobs/{job_id}/rerun/",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "job_id",
+          "type": "int",
+          "location": "path",
+          "description": "Job id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dbt-cloud-admin-jobs_run_trigger-job",
+      "description": "Use this endpoint to kick off a run for a job. When this endpoint returns a successful response, a new run will be enqueued for the account. Users can poll the Get run endpoint to poll the run until it completes. After the run has completed, users can use the Get run artifact endpoint to download artifacts generated by the run. Required: account_id, job_id, cause. Optional: azure_pull_request_id, dbt_version_override, generate_docs_override (plus 10 more).",
+      "method": "POST",
+      "path": "/api/v2/accounts/{account_id}/jobs/{job_id}/run/",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "job_id",
+          "type": "int",
+          "location": "path",
+          "description": "Job id",
+          "required": true
+        },
+        {
+          "name": "azure_pull_request_id",
+          "type": "int",
+          "location": "body",
+          "description": "Azure pull request id"
+        },
+        {
+          "name": "cause",
+          "type": "string",
+          "location": "body",
+          "description": "A text description of the reason for running",
+          "required": true
+        },
+        {
+          "name": "dbt_version_override",
+          "type": "string",
+          "location": "body",
+          "description": "Overrides the version of dbt. Allowed values are:"
+        },
+        {
+          "name": "generate_docs_override",
+          "type": "bool",
+          "location": "body",
+          "description": "Overrides whether or not to generate docs"
+        },
+        {
+          "name": "git_branch",
+          "type": "string",
+          "location": "body",
+          "description": "The git branch to checkout before running"
+        },
+        {
+          "name": "git_sha",
+          "type": "string",
+          "location": "body",
+          "description": "The git sha to checkout before running"
+        },
+        {
+          "name": "github_pull_request_id",
+          "type": "int",
+          "location": "body",
+          "description": "Github pull request id"
+        },
+        {
+          "name": "gitlab_merge_request_id",
+          "type": "int",
+          "location": "body",
+          "description": "Gitlab merge request id"
+        },
+        {
+          "name": "non_native_pull_request_id",
+          "type": "int",
+          "location": "body",
+          "description": "Non native pull request id"
+        },
+        {
+          "name": "schema_override",
+          "type": "string",
+          "location": "body",
+          "description": "Overrides the destination schema in the configured target"
+        },
+        {
+          "name": "steps_override",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Overrides the list of dbt commands"
+        },
+        {
+          "name": "target_name_override",
+          "type": "string",
+          "location": "body",
+          "description": "Overrides the `target.name` context variable"
+        },
+        {
+          "name": "threads_override",
+          "type": "int",
+          "location": "body",
+          "description": "Overrides the number of threads used"
+        },
+        {
+          "name": "timeout_seconds_override",
+          "type": "int",
+          "location": "body",
+          "description": "Overrides the timeout in seconds"
+        }
+      ]
+    },
+    {
+      "name": "runs_list",
+      "description": "List runs for an account. Required: account_id. Optional: created_at__range, dbt_version, dbt_version__in (plus 18 more). Returns array of RunResponse.",
+      "method": "GET",
+      "path": "/api/v2/accounts/{account_id}/runs/",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "created_at__range",
+          "type": "array",
+          "location": "query",
+          "description": "Created at range"
+        },
+        {
+          "name": "dbt_version",
+          "type": "string",
+          "location": "query",
+          "description": "Dbt version"
+        },
+        {
+          "name": "dbt_version__in",
+          "type": "array",
+          "location": "query",
+          "description": "Dbt version in"
+        },
+        {
+          "name": "deferring_run_id",
+          "type": "int",
+          "location": "query",
+          "description": "Deferring run id"
+        },
+        {
+          "name": "environment_id",
+          "type": "int",
+          "location": "query",
+          "description": "Environment id"
+        },
+        {
+          "name": "finished_at__range",
+          "type": "array",
+          "location": "query",
+          "description": "Finished at range"
+        },
+        {
+          "name": "has_docs_generated",
+          "type": "bool",
+          "location": "query",
+          "description": "Has docs generated"
+        },
+        {
+          "name": "has_sources_generated",
+          "type": "bool",
+          "location": "query",
+          "description": "Has sources generated"
+        },
+        {
+          "name": "id__gt",
+          "type": "int",
+          "location": "query",
+          "description": "Id gt"
+        },
+        {
+          "name": "include_related",
+          "type": "string",
+          "location": "query",
+          "description": "A list of related objects to include in the response. Valid values are `trigger`, `job`, `audit`, and `debug_logs`. If `debug_logs` is not provided, then the included debug logs will be truncated to the last 1,000 lines of the debug log output file."
+        },
+        {
+          "name": "job_definition_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filters the results to a specific Job"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order the results by. Use `-` to reverse the order. Options are `id`, `created_at`, and `finished_at`"
+        },
+        {
+          "name": "pk",
+          "type": "int",
+          "location": "query",
+          "description": "Pk"
+        },
+        {
+          "name": "pk__in",
+          "type": "array",
+          "location": "query",
+          "description": "Pk in"
+        },
+        {
+          "name": "project_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filters the results to a specific Project"
+        },
+        {
+          "name": "project_id__in",
+          "type": "array",
+          "location": "query",
+          "description": "Project id in"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "State"
+        },
+        {
+          "name": "status",
+          "type": "int",
+          "location": "query",
+          "description": "Filters the results to a specific run status"
+        },
+        {
+          "name": "status__in",
+          "type": "array",
+          "location": "query",
+          "description": "Filters the results to a specific set of run statuses. `1: Queued`, `2: Starting`, `3: Running`, `10: Success`, `20: Error`, `30: Cancelled`"
+        }
+      ]
+    },
+    {
+      "name": "runs_retrieve",
+      "description": "Retrieve details of a run. Required: account_id, id. Optional: include_related. Returns the RunResponseEnveloped.",
+      "method": "GET",
+      "path": "/api/v2/accounts/{account_id}/runs/{id}/",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "include_related",
+          "type": "string",
+          "location": "query",
+          "description": "A list of related objects to include in the response. Valid values are `trigger`, `job`, `environment`, `repository`, `run_steps`, `run_retries`, `used_repo_cache`, `repo_cache_restore`, `audit`, and `debug_logs`. If `debug_logs` is not provided, then the included debug logs will be truncated to the last 1,000 lines of the debug log output file."
+        }
+      ]
+    },
+    {
+      "name": "runs_artifacts_list-run",
+      "description": "Retrieve the list of artifacts generated for a run. Required: account_id, run_id. Optional: include_related. Returns array of string.",
+      "method": "GET",
+      "path": "/api/v2/accounts/{account_id}/runs/{run_id}/artifacts/",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "include_related",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related objects to include in the response."
+        },
+        {
+          "name": "run_id",
+          "type": "int",
+          "location": "path",
+          "description": "Run id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "runs_artifacts_retrieve-run",
+      "description": "Use this endpoint to fetch artifacts from a completed run. Once a run has been completed, you can use this endpoint to download the `manifest.json`, `run_results.json`, or `catalog.json` files from dbt Cloud. These artifacts contain information about the models in your dbt project, timing information around their execution, and a status message indicating the result of the model build. By default, this endpoint returns artifacts from the last step in the run. To list artifacts from other steps in the run, use the step query parameter described below. Required: account_id, remainder, run_id. Optional: include_related, step.",
+      "method": "GET",
+      "path": "/api/v2/accounts/{account_id}/runs/{run_id}/artifacts/{remainder}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "include_related",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related objects to include in the response."
+        },
+        {
+          "name": "remainder",
+          "type": "string",
+          "location": "path",
+          "description": "Remainder",
+          "required": true
+        },
+        {
+          "name": "run_id",
+          "type": "int",
+          "location": "path",
+          "description": "Run id",
+          "required": true
+        },
+        {
+          "name": "step",
+          "type": "int",
+          "location": "query",
+          "description": "The index of the Step in the Run to query for artifacts. The first step in the run has the index `1`. If the `step` parameter is omitted, then this endpoint will return the artifacts compiled for the last step in the run."
+        }
+      ]
+    },
+    {
+      "name": "runs_cancel_run",
+      "description": "Cancel a run. Required: account_id, run_id. Returns the new RunResponseEnveloped.",
+      "method": "POST",
+      "path": "/api/v2/accounts/{account_id}/runs/{run_id}/cancel/",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "run_id",
+          "type": "int",
+          "location": "path",
+          "description": "Run id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "runs_retry_retrieve-run-failure-details",
+      "description": "Use this endpoint to get details about a retryable run that has failed. Required: account_id, run_id. Optional: include_related. Returns the RunFailureDetailsEnveloped.",
+      "method": "GET",
+      "path": "/api/v2/accounts/{account_id}/runs/{run_id}/retry/",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "include_related",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related objects to include in the response."
+        },
+        {
+          "name": "run_id",
+          "type": "int",
+          "location": "path",
+          "description": "Run id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "runs_retry_run",
+      "description": "Use this endpoint to retry a failed run. When this endpoint returns a successful response, a new run will be enqueued. Users can poll the Get Run endpoint until it completes. After the run has completed, users can use the Get Run Artifact endpoint to download artifacts generated by the run. Required: account_id, run_id.",
+      "method": "POST",
+      "path": "/api/v2/accounts/{account_id}/runs/{run_id}/retry/",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "run_id",
+          "type": "int",
+          "location": "path",
+          "description": "Run id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "steps_retrieve-run",
+      "description": "Retrieve the details of a specific step of a run. Required: account_id, id. Optional: include_related. Returns the RunStepEnveloped.",
+      "method": "GET",
+      "path": "/api/v2/accounts/{account_id}/steps/{id}/",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "include_related",
+          "type": "string",
+          "location": "query",
+          "description": "A list of related objects to include in the response. Valid values are `trigger`, `job`, and `debug_logs`. If `debug_logs` is not provided, then the included debug logs will be truncated to the last 1,000 lines of the debug log output file."
+        }
+      ]
+    }
+  ]
+}

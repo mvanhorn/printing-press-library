@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-20T17:15:26.852465007Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "dbt-cloud",
+  "display_name": "dbt Cloud",
+  "cli_name": "dbt-cloud-pp-cli",
+  "creator": {
+    "handle": "nimast",
+    "name": "Nimrod Astarhan"
+  },
+  "owner": "nimast",
+  "printer": "nimast",
+  "printer_name": "Nimrod Astarhan",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:66f22adfaa858ae6039c150b2c5672d1cb306638ad77cb950be3bb31683e3e67",
+  "run_id": "20260617-112100",
+  "category": "developer-tools",
+  "description": "Operate dbt Cloud jobs and runs from one static Go binary — trigger, watch to completion with honest exit codes, and query run history offline.",
+  "mcp_binary": "dbt-cloud-pp-mcp",
+  "mcp_tool_count": 16,
+  "mcp_ready": "full",
+  "api_version": "2.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "DBT_CLOUD_TOKEN"
+  ],
+  "auth_key_url": "https://docs.getdbt.com/dbt-cloud/api-v3#/",
+  "novel_features": [
+    {
+      "name": "Monitor run to completion",
+      "command": "monitor",
+      "description": "Watch a dbt Cloud run until it finishes, with live status and an exit code that reflects success or failure."
+    },
+    {
+      "name": "Trigger and wait",
+      "command": "trigger",
+      "description": "Trigger a job and watch the resulting run to completion in one command, returning the run's exit status."
+    },
+    {
+      "name": "Run-history stats",
+      "command": "runs stats",
+      "description": "Success rate, average and p95 duration, and failure counts per job over a time window from the local run mirror."
+    },
+    {
+      "name": "Recent failures",
+      "command": "failures",
+      "description": "Recently failed runs in a time window, grouped by job, with each run's failed-step names."
+    },
+    {
+      "name": "Artifact diff",
+      "command": "artifacts diff",
+      "description": "Diff run_results.json between two runs to show which models newly failed or changed timing."
+    }
+  ]
+}

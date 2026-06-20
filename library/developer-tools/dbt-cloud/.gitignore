@@ -1,0 +1,16 @@
+# Built binaries
+/dbt-cloud-pp-cli
+/pp-dbt-cloud
+*.exe
+
+# Release / MCP bundle artifacts (regenerable)
+/build/
+/dist/
+
+# Transient verification output
+/dogfood-results.json
+/workflow-verify-report.json
+
+# Local data / secrets
+*.db
+.env

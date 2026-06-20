@@ -1,0 +1,189 @@
+{
+  "api_name": "dbt-cloud",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "dbtc",
+      "url": "https://github.com/dbt-labs/dbtc",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "dbt-cloud-cli",
+      "url": "https://github.com/data-mie/dbt-cloud-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-17T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Monitor run to completion",
+      "command": "monitor",
+      "description": "Watch a dbt Cloud run until it finishes, with live status and an exit code that reflects success or failure.",
+      "rationale": "No single API call blocks until a run completes; this polls and surfaces failed-step logs so CI and scripts can gate on the result.",
+      "example": "dbt-cloud-pp-cli monitor 460826060 --interval 15s --json",
+      "why_it_matters": "Reach for this to block a script or CI step on a dbt run and get a real exit code plus failure context.",
+      "group": "Operate and watch"
+    },
+    {
+      "name": "Trigger and wait",
+      "command": "trigger",
+      "description": "Trigger a job and watch the resulting run to completion in one command, returning the run's exit status.",
+      "rationale": "Combines trigger plus monitor plus failure surfacing into one compound workflow the API exposes only as separate calls.",
+      "example": "dbt-cloud-pp-cli trigger 12345 --cause 'ci deploy' --wait --json",
+      "why_it_matters": "Reach for this as the CI-grade run-a-job-and-fail-on-error loop.",
+      "group": "Operate and watch"
+    },
+    {
+      "name": "Run-history stats",
+      "command": "runs stats",
+      "description": "Success rate, average and p95 duration, and failure counts per job over a time window from the local run mirror.",
+      "rationale": "Requires aggregating run history that lives only as paginated API responses; computed locally after sync.",
+      "example": "dbt-cloud-pp-cli runs stats --days 30 --json",
+      "why_it_matters": "Reach for this for reliability and velocity review across many runs, not a single run.",
+      "group": "Local run analytics"
+    },
+    {
+      "name": "Recent failures",
+      "command": "failures",
+      "description": "Recently failed runs in a time window, grouped by job, with each run's failed-step names.",
+      "rationale": "Time-windowed cross-job failure clustering that no single endpoint returns.",
+      "example": "dbt-cloud-pp-cli failures --days 1 --json",
+      "why_it_matters": "Reach for this to triage what broke recently across all jobs.",
+      "group": "Local run analytics"
+    },
+    {
+      "name": "Artifact diff",
+      "command": "artifacts diff",
+      "description": "Diff run_results.json between two runs to show which models newly failed or changed timing.",
+      "rationale": "Correlates artifacts from two runs locally; the API only serves one artifact per call.",
+      "example": "dbt-cloud-pp-cli artifacts diff 460826060 460900111 --json",
+      "why_it_matters": "Reach for this to hunt regressions between two runs.",
+      "group": "Local run analytics"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Monitor run to completion",
+      "command": "monitor",
+      "description": "Watch a dbt Cloud run until it finishes, with live status and an exit code that reflects success or failure.",
+      "rationale": "No single API call blocks until a run completes; this polls and surfaces failed-step logs so CI and scripts can gate on the result.",
+      "example": "dbt-cloud-pp-cli monitor 460826060 --interval 15s --json",
+      "why_it_matters": "Reach for this to block a script or CI step on a dbt run and get a real exit code plus failure context.",
+      "group": "Operate and watch"
+    },
+    {
+      "name": "Trigger and wait",
+      "command": "trigger",
+      "description": "Trigger a job and watch the resulting run to completion in one command, returning the run's exit status.",
+      "rationale": "Combines trigger plus monitor plus failure surfacing into one compound workflow the API exposes only as separate calls.",
+      "example": "dbt-cloud-pp-cli trigger 12345 --cause 'ci deploy' --wait --json",
+      "why_it_matters": "Reach for this as the CI-grade run-a-job-and-fail-on-error loop.",
+      "group": "Operate and watch"
+    },
+    {
+      "name": "Run-history stats",
+      "command": "runs stats",
+      "description": "Success rate, average and p95 duration, and failure counts per job over a time window from the local run mirror.",
+      "rationale": "Requires aggregating run history that lives only as paginated API responses; computed locally after sync.",
+      "example": "dbt-cloud-pp-cli runs stats --days 30 --json",
+      "why_it_matters": "Reach for this for reliability and velocity review across many runs, not a single run.",
+      "group": "Local run analytics"
+    },
+    {
+      "name": "Recent failures",
+      "command": "failures",
+      "description": "Recently failed runs in a time window, grouped by job, with each run's failed-step names.",
+      "rationale": "Time-windowed cross-job failure clustering that no single endpoint returns.",
+      "example": "dbt-cloud-pp-cli failures --days 1 --json",
+      "why_it_matters": "Reach for this to triage what broke recently across all jobs.",
+      "group": "Local run analytics"
+    },
+    {
+      "name": "Artifact diff",
+      "command": "artifacts diff",
+      "description": "Diff run_results.json between two runs to show which models newly failed or changed timing.",
+      "rationale": "Correlates artifacts from two runs locally; the API only serves one artifact per call.",
+      "example": "dbt-cloud-pp-cli artifacts diff 460826060 460900111 --json",
+      "why_it_matters": "Reach for this to hunt regressions between two runs.",
+      "group": "Local run analytics"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "DBT_CLOUD_TOKEN"
+  },
+  "narrative": {
+    "display_name": "dbt Cloud",
+    "headline": "Operate dbt Cloud jobs and runs from one static Go binary — trigger, watch to completion with honest exit codes, and query run history offline.",
+    "value_prop": "Covers the dbt Cloud Administrative API v2 jobs, runs, and artifacts surface, then adds the operate-and-watch loop (monitor, trigger --wait) and local run-history analytics (runs stats, failures, artifacts diff) that thin API wrappers don't. Agent-native --json output throughout.",
+    "auth_narrative": "Set DBT_CLOUD_TOKEN (a Personal Access Token or service token) and DBT_CLOUD_ACCOUNT_ID. For regional dbt Cloud, set DBT_CLOUD_HOST (default https://cloud.getdbt.com). Tokens are sent as Authorization: Bearer.",
+    "quickstart": [
+      {
+        "command": "dbt-cloud-pp-cli doctor --dry-run",
+        "comment": "verify config and reachability before anything else"
+      },
+      {
+        "command": "dbt-cloud-pp-cli runs list 123456789 --limit 10 --json",
+        "comment": "see recent runs (replace 123456789 with your account_id or set DBT_CLOUD_ACCOUNT_ID)"
+      },
+      {
+        "command": "dbt-cloud-pp-cli monitor 460826060 --interval 15s",
+        "comment": "watch a run to completion"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "Check DBT_CLOUD_TOKEN is a valid PAT or service token with API access."
+      },
+      {
+        "symptom": "404 on every call",
+        "fix": "Set DBT_CLOUD_ACCOUNT_ID; confirm DBT_CLOUD_HOST matches your dbt Cloud region."
+      }
+    ],
+    "when_to_use": "Use when operating dbt Cloud jobs from a terminal, CI, or an agent: triggering jobs and blocking on the result, inspecting run history, or fetching artifacts. Strongest where you need a real exit code on run success/failure.",
+    "anti_triggers": [
+      "Do not use this CLI to run dbt models locally (that is the open-source dbt CLI).",
+      "Do not use it for dbt Cloud account/user/project administration (out of scope; that is API v3)."
+    ],
+    "recipes": [
+      {
+        "title": "Fail CI on a bad run",
+        "command": "dbt-cloud-pp-cli trigger 12345 --cause 'ci' --wait",
+        "explanation": "Triggers the job and exits non-zero if the run fails."
+      },
+      {
+        "title": "Narrow run output for an agent",
+        "command": "dbt-cloud-pp-cli runs list 123456789 --limit 20 --json --select data.id,data.status_humanized,data.job_definition_id,data.duration",
+        "explanation": "Returns only the high-gravity fields from a verbose run payload."
+      },
+      {
+        "title": "Triage today's failures",
+        "command": "dbt-cloud-pp-cli failures --days 1 --json",
+        "explanation": "Lists failed runs in the last day with their failed-step names."
+      }
+    ],
+    "trigger_phrases": [
+      "trigger a dbt job",
+      "watch a dbt run",
+      "did my dbt run pass",
+      "list dbt cloud runs",
+      "use dbt-cloud",
+      "run dbt-cloud"
+    ]
+  }
+}

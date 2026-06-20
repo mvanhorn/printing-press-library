@@ -1,0 +1,4434 @@
+openapi: 3.0.3
+info:
+  title: dbt Cloud Admin API (jobs/runs/artifacts)
+  version: 2.0.0
+  description: "# How to use this API\n\nThe dbt Cloud API v2 contains endpoints for enqueuing runs from a job, polling for\
+    \ run progress,\nand downloading artifacts after jobs have completed running. For operational endpoints to\ncreate, modify,\
+    \ and delete _objects_ in dbt Cloud, consider using [API v3](https://docs.getdbt.com/dbt-cloud/api-v3#/)\n\nThe API docs\
+    \ are generated from an openapi spec defined in the\n[dbt-cloud-openapi-spec](https://github.com/dbt-labs/dbt-cloud-openapi-spec/blob/master/openapi-v2.yaml)\n\
+    repository. If you find issues in these docs or have questions about using the dbt Cloud\nAPI, please open an issue in\
+    \ the dbt-cloud-openapi-spec repo or contact support@getdbt.com.\n\n## Authentication\n\nTo authenticate an application\
+    \ with the dbt Cloud API, navigate to the\nAccount Settings page and go to Personal Tokens from the left sidebar. Create\
+    \ one if you don't have one already.\nIf you cannot access this page, confirm that your dbt Cloud account has access to\
+    \ the API,\nand that you are using the hosted version of dbt Cloud. If dbt Cloud is running inside of a VPC\nin an Enterprise\
+    \ account, contact your account manager for help finding your account-scoped Personal Access Token.\n\nOnce you've found\
+    \ your Personal Access Token (PAT) for your account, use it in the Authorization header of requests to the dbt Cloud API.\n\
+    Be sure to include the `Token` prefix in the Authorization header, or the request will fail with a\n\"401 Unauthorized\"\
+    \ error.\n\n*Note: `Bearer` can be used in place of `Token` in the Authorization header. Both syntaxes are equivalent.*\n\
+    \n**Headers**\n```\nAccept: application/json\nAuthorization: Token <your token>\n```  \n\n## Pagination\n\nAll top-level\
+    \ API resources support bulk fetches using the \"list\" or `GET` API methods. These API methods accept `limit` and `offset`\
+    \ query parameters that you can use together to paginate results and return a subset of those results.\n\n* Offset: Specifies\
+    \ how many records to skip. Can be an integer 0 and higher.\n* Limit: Specifies the maximum records you want to retrieve\
+    \ in a single request. Can be an integer up to 100. This limit makes responses easier to handle for servers and people.\n\
+    \nEndpoints that support pagination include some useful extra information about the pagination state. For example:\n\n\
+    ```json\n{\n  data: [...],\n  extra: {\n    // How the results were filtered\n    filters: {...},\n    // The order of\
+    \ the results\n    order_by: \"id\",\n    // The pagination state\n    pagination: {\n      // The number of records returned\
+    \ in this response\n      count: 5,\n      // The total number of available records\n      total_count: 10,\n    }\n\n\
+    \  }\n}\n````\n\n## Example request\n\nThe following example uses the list projects endpoint to list the projects that\
+    \ your token is authorized to access.\nThis request skips the first 10 projects and lists the next 10 projects.\nBe sure\
+    \ to replace `<YOUR_TOKEN>` in the Authorization header with your actual API token and `<YOUR_ACCOUNT_ID>` with your actual\
+    \ account ID.\n\n```bash\ncurl --request GET \\\n  --url 'https://cloud.getdbt.com/api/v3/accounts/<YOUR_ACCOUNT_ID>/projects/?limit=10&offset=5'\
+    \ \\\n  --header 'Content-Type: application/json' \\\n  --header 'Authorization: Token <YOUR_TOKEN>'\n```\n"
+  termsOfService: https://www.getdbt.com/terms-of-service
+  contact:
+    email: support@getdbt.com
+paths:
+  /api/v2/accounts/{account_id}/jobs/:
+    get:
+      operationId: List Jobs
+      description: List jobs for the given account
+      parameters:
+      - in: path
+        name: account_id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: dbt_version__in
+        schema:
+          type: array
+          items:
+            type: string
+      - in: query
+        name: environment_id
+        schema:
+          type: integer
+      - in: query
+        name: include_related
+        schema:
+          type: string
+        description: A list of related objects to include in the response. Valid values are `environment`, `custom_environment_variables`,
+          `most_recent_run`, `most_recent_completed_run`, and `fusion_readiness`.
+      - in: query
+        name: is_fusion_ready
+        schema:
+          type: boolean
+        description: Filters jobs by fusion readiness. When true, returns conformant or override-ready jobs. When false, returns
+          non-ready jobs.
+      - in: query
+        name: is_system
+        schema:
+          type: boolean
+          default: false
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          default: 100
+      - in: query
+        name: name__icontains
+        schema:
+          type: string
+      - in: query
+        name: offset
+        schema:
+          type: integer
+          default: 0
+      - in: query
+        name: order_by
+        schema:
+          type: string
+        description: Field to order the results by. Use `-` to reverse the order.
+      - in: query
+        name: pk
+        schema:
+          type: integer
+      - in: query
+        name: project_id
+        schema:
+          type: integer
+        description: Filters the results to a specific Project
+      - in: query
+        name: project_id__in
+        schema:
+          type: array
+          items:
+            type: integer
+      - in: query
+        name: state
+        schema:
+          oneOf:
+          - type: integer
+          - type: string
+            enum:
+            - active
+            - deleted
+            - all
+          default: active
+        description: "Filters by soft deletion state.\n            <ul>\n                <li>\n                    <strong>\"\
+          active\"</strong> / <strong>1</strong>: Only active resources\n                </li>\n                <li>\n   \
+          \                 <strong>\"deleted\"</strong> / <strong>2</strong>: Only deleted resources\n                </li>\n\
+          \                <li>\n                    <strong>\"all\"</strong>: All resources\n                </li>\n    \
+          \        </ul>\n            "
+      - in: query
+        name: triggers_schedule
+        schema:
+          type: boolean
+      tags:
+      - Jobs
+      security:
+      - BearerAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HumanReadableJobDefinitionListEnveloped'
+          description: ''
+    post:
+      operationId: Create Job
+      description: Create a new job.
+      parameters:
+      - in: path
+        name: account_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Jobs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HumanReadableJobDefinitionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/HumanReadableJobDefinitionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/HumanReadableJobDefinitionRequest'
+        required: true
+      security:
+      - BearerAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HumanReadableJobDefinitionEnveloped'
+          description: ''
+  /api/v2/accounts/{account_id}/jobs/{job_id}/artifacts/{remainder}:
+    get:
+      operationId: Retrieve Job Artifact
+      description: Given a job id and *a set of Run filters* return the latest matching artifact for that job.
+      parameters:
+      - in: path
+        name: account_id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: include_related
+        schema:
+          type: string
+        description: Comma-separated list of related objects to include in the response.
+      - in: path
+        name: job_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: remainder
+        schema:
+          type: string
+        required: true
+      tags:
+      - Jobs
+      security:
+      - BearerAuthentication: []
+      responses:
+        '200':
+          description: A run artifact file
+  /api/v2/accounts/{account_id}/jobs/{job_id}/rerun/:
+    post:
+      operationId: Retry Failed Job
+      description: Use this endpoint to retry a failed run for a job from the point of failure, if the run failed. Otherwise
+        trigger a new run. When this endpoint returns a successful response, a new run will be enqueued for the account. Users
+        can poll the Get run endpoint to poll the run until it completes. After the run has completed, users can use the Get
+        run artifact endpoint to download artifacts generated by the run.
+      parameters:
+      - in: path
+        name: account_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: job_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Jobs
+      security:
+      - BearerAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunResponseEnveloped'
+          description: ''
+  /api/v2/accounts/{account_id}/jobs/{job_id}/run/:
+    post:
+      operationId: Trigger Job Run
+      description: Use this endpoint to kick off a run for a job. When this endpoint returns a successful response, a new
+        run will be enqueued for the account. Users can poll the Get run endpoint to poll the run until it completes. After
+        the run has completed, users can use the Get run artifact endpoint to download artifacts generated by the run.
+      parameters:
+      - in: path
+        name: account_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: job_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Jobs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TriggerRunRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TriggerRunRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TriggerRunRequestRequest'
+        required: true
+      security:
+      - BearerAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunResponseEnveloped'
+          description: ''
+  /api/v2/accounts/{account_id}/jobs/{id}/:
+    get:
+      operationId: Retrieve Job
+      description: Retrieve the details of a job.
+      parameters:
+      - in: path
+        name: account_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: include_related
+        schema:
+          type: string
+        description: A list of related objects to include in the response. Valid values are `environment`, `custom_environment_variables`,
+          `most_recent_run`, `most_recent_completed_run`, and `fusion_readiness`.
+      tags:
+      - Jobs
+      security:
+      - BearerAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HumanReadableJobDefinitionEnveloped'
+          description: ''
+    post:
+      operationId: Update Job
+      description: Update a job.
+      parameters:
+      - in: path
+        name: account_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Jobs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HumanReadableJobDefinitionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/HumanReadableJobDefinitionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/HumanReadableJobDefinitionRequest'
+        required: true
+      security:
+      - BearerAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HumanReadableJobDefinitionEnveloped'
+          description: ''
+    delete:
+      operationId: Destroy Job
+      description: Delete a job
+      parameters:
+      - in: path
+        name: account_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Jobs
+      security:
+      - BearerAuthentication: []
+      responses:
+        '204':
+          description: No response body
+  /api/v2/accounts/{account_id}/runs/:
+    get:
+      operationId: List Runs
+      description: List runs for an account.
+      parameters:
+      - in: path
+        name: account_id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: created_at__range
+        schema:
+          type: array
+          items:
+            type: string
+            format: date-time
+      - in: query
+        name: dbt_version
+        schema:
+          type: string
+      - in: query
+        name: dbt_version__in
+        schema:
+          type: array
+          items:
+            type: string
+      - in: query
+        name: deferring_run_id
+        schema:
+          type: integer
+      - in: query
+        name: environment_id
+        schema:
+          type: integer
+      - in: query
+        name: finished_at__range
+        schema:
+          type: array
+          items:
+            type: string
+            format: date-time
+      - in: query
+        name: has_docs_generated
+        schema:
+          type: boolean
+      - in: query
+        name: has_sources_generated
+        schema:
+          type: boolean
+      - in: query
+        name: id__gt
+        schema:
+          type: integer
+      - in: query
+        name: include_related
+        schema:
+          type: string
+        description: A list of related objects to include in the response. Valid values are `trigger`, `job`, `audit`, and
+          `debug_logs`. If `debug_logs` is not provided, then the included debug logs will be truncated to the last 1,000
+          lines of the debug log output file.
+      - in: query
+        name: job_definition_id
+        schema:
+          type: integer
+        description: Filters the results to a specific Job
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          default: 100
+        description: Pagination limit
+      - in: query
+        name: offset
+        schema:
+          type: integer
+          default: 0
+        description: Pagination offset
+      - in: query
+        name: order_by
+        schema:
+          type: string
+          default: id
+        description: Field to order the results by. Use `-` to reverse the order. Options are `id`, `created_at`, and `finished_at`
+      - in: query
+        name: pk
+        schema:
+          type: integer
+      - in: query
+        name: pk__in
+        schema:
+          type: array
+          items:
+            type: integer
+      - in: query
+        name: project_id
+        schema:
+          type: integer
+        description: Filters the results to a specific Project
+      - in: query
+        name: project_id__in
+        schema:
+          type: array
+          items:
+            type: integer
+      - in: query
+        name: state
+        schema:
+          oneOf:
+          - type: integer
+          - type: string
+            enum:
+            - active
+            - deleted
+            - all
+          default: all
+      - in: query
+        name: status
+        schema:
+          type: integer
+        description: Filters the results to a specific run status
+      - in: query
+        name: status__in
+        schema:
+          type: array
+          items:
+            type: integer
+        description: 'Filters the results to a specific set of run statuses. `1: Queued`, `2: Starting`, `3: Running`, `10:
+          Success`, `20: Error`, `30: Cancelled`'
+      tags:
+      - Runs
+      security:
+      - BearerAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunResponseListEnveloped'
+          description: ''
+  /api/v2/accounts/{account_id}/runs/{id}/:
+    get:
+      operationId: Retrieve Run
+      description: Retrieve details of a run.
+      parameters:
+      - in: path
+        name: account_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: include_related
+        schema:
+          type: string
+        description: A list of related objects to include in the response. Valid values are `trigger`, `job`, `environment`,
+          `repository`, `run_steps`, `run_retries`, `used_repo_cache`, `repo_cache_restore`, `audit`, and `debug_logs`. If
+          `debug_logs` is not provided, then the included debug logs will be truncated to the last 1,000 lines of the debug
+          log output file.
+      tags:
+      - Runs
+      security:
+      - BearerAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunResponseEnveloped'
+          description: ''
+  /api/v2/accounts/{account_id}/runs/{run_id}/artifacts/:
+    get:
+      operationId: List Run Artifacts
+      description: Retrieve the list of artifacts generated for a run.
+      parameters:
+      - in: path
+        name: account_id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: include_related
+        schema:
+          type: string
+        description: Comma-separated list of related objects to include in the response.
+      - in: path
+        name: run_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Runs
+      security:
+      - BearerAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOfStringsEnveloped'
+          description: ''
+  /api/v2/accounts/{account_id}/runs/{run_id}/artifacts/{remainder}:
+    get:
+      operationId: Retrieve Run Artifact
+      description: Use this endpoint to fetch artifacts from a completed run. Once a run has been completed, you can use this
+        endpoint to download the `manifest.json`, `run_results.json`, or `catalog.json` files from dbt Cloud. These artifacts
+        contain information about the models in your dbt project, timing information around their execution, and a status
+        message indicating the result of the model build. By default, this endpoint returns artifacts from the last step in
+        the run. To list artifacts from other steps in the run, use the step query parameter described below.
+      parameters:
+      - in: path
+        name: account_id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: include_related
+        schema:
+          type: string
+        description: Comma-separated list of related objects to include in the response.
+      - in: path
+        name: remainder
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: run_id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: step
+        schema:
+          type: integer
+        description: The index of the Step in the Run to query for artifacts. The first step in the run has the index `1`.
+          If the `step` parameter is omitted, then this endpoint will return the artifacts compiled for the last step in the
+          run.
+      tags:
+      - Runs
+      security:
+      - BearerAuthentication: []
+      responses:
+        '200':
+          description: A run artifact file
+  /api/v2/accounts/{account_id}/runs/{run_id}/cancel/:
+    post:
+      operationId: Cancel Run
+      description: Cancel a run.
+      parameters:
+      - in: path
+        name: account_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: run_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Runs
+      security:
+      - BearerAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunResponseEnveloped'
+          description: ''
+  /api/v2/accounts/{account_id}/runs/{run_id}/retry/:
+    get:
+      operationId: Retrieve Run Failure Details
+      description: Use this endpoint to get details about a retryable run that has failed.
+      parameters:
+      - in: path
+        name: account_id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: include_related
+        schema:
+          type: string
+        description: Comma-separated list of related objects to include in the response.
+      - in: path
+        name: run_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Runs
+      security:
+      - BearerAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunFailureDetailsEnveloped'
+          description: ''
+    post:
+      operationId: Retry Run
+      description: Use this endpoint to retry a failed run. When this endpoint returns a successful response, a new run will
+        be enqueued. Users can poll the Get Run endpoint until it completes. After the run has completed, users can use the
+        Get Run Artifact endpoint to download artifacts generated by the run.
+      parameters:
+      - in: path
+        name: account_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: run_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Runs
+      security:
+      - BearerAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunResponseEnveloped'
+          description: ''
+  /api/v2/accounts/{account_id}/steps/{id}/:
+    get:
+      operationId: Retrieve Run Step
+      description: Retrieve the details of a specific step of a run.
+      parameters:
+      - in: path
+        name: account_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: include_related
+        schema:
+          type: string
+        description: A list of related objects to include in the response. Valid values are `trigger`, `job`, and `debug_logs`.
+          If `debug_logs` is not provided, then the included debug logs will be truncated to the last 1,000 lines of the debug
+          log output file.
+      tags:
+      - Runs
+      security:
+      - BearerAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunStepEnveloped'
+          description: ''
+components:
+  schemas:
+    Account:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the account
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        docs_job_id:
+          type: integer
+          format: int64
+          description: (Deprecated)
+        freshness_job_id:
+          type: integer
+          format: int64
+          description: (Deprecated)
+      required:
+      - name
+      - state
+    AccountEnveloped:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/AccountResponse'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - status
+    AccountListEnveloped:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountResponse'
+        extra:
+          $ref: '#/components/schemas/Extra'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - extra
+      - status
+    AccountRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: The name of the account
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        docs_job_id:
+          type: integer
+          format: int64
+          description: (Deprecated)
+        freshness_job_id:
+          type: integer
+          format: int64
+          description: (Deprecated)
+      required:
+      - name
+      - state
+    AccountResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        name:
+          type: string
+          description: The name of the account
+        plan:
+          allOf:
+          - $ref: '#/components/schemas/PlanEnum'
+          readOnly: true
+          description: 'The active plan type for the account
+
+
+            * `cancelled` - CANCELLED
+
+            * `cancelled_2022` - CANCELLED_2022
+
+            * `cancelled_2025` - CANCELLED_2025
+
+            * `developer` - DEVELOPER
+
+            * `developer_2022` - DEVELOPER_2022
+
+            * `enterprise` - ENTERPRISE
+
+            * `enterprise_2025` - ENTERPRISE_2025
+
+            * `enterprise_plus_2025` - ENTERPRISE_PLUS_2025
+
+            * `free` - FREE
+
+            * `starter_2025` - STARTER_2025
+
+            * `team` - TEAM
+
+            * `team_2022` - TEAM_2022
+
+            * `team_annual` - TEAM_ANNUAL
+
+            * `trial` - TRIAL
+
+            * `trial_2022` - TRIAL_2022
+
+            * `trial_2025` - TRIAL_2025
+
+            * `usage_2026` - USAGE_2026'
+        run_slots:
+          type: integer
+          readOnly: true
+          default: 1
+          description: The total number of run slots the account may use
+        developer_seats:
+          type: integer
+          readOnly: true
+          default: 0
+          description: The total number of developer seats the account may use
+        it_seats:
+          type: integer
+          readOnly: true
+          default: 0
+          description: The total number of IT seats the account may use
+        explorer_seats:
+          type: integer
+          readOnly: true
+          default: 0
+          description: The total number of explorer seats the account may use
+        analyst_seats:
+          type: integer
+          readOnly: true
+          default: 0
+          description: The total number of pre-purchased analyst seats for the account
+        read_only_seats:
+          type: integer
+          readOnly: true
+          default: 0
+          description: The total number of Read Only seats the account may use
+        locked:
+          type: boolean
+          readOnly: true
+          default: false
+          description: Whether the account is currently locked
+        lock_reason:
+          type: string
+          readOnly: true
+          description: Why the account is locked
+        lock_cause:
+          allOf:
+          - $ref: '#/components/schemas/LockCauseEnum'
+          readOnly: true
+          description: 'Why the account is locked
+
+
+            * `trial_expired` - TRIAL_EXPIRED
+
+            * `cancelled` - CANCELLED
+
+            * `unpaid` - UNPAID
+
+            * `provisioned_team_annual` - PROVISIONED_TEAM_ANNUAL
+
+            * `other` - OTHER
+
+            * `migrated` - MIGRATED
+
+            * `workshop` - WORKSHOP'
+        unlocked_at:
+          type: string
+          format: date-time
+          readOnly: true
+        pending_cancel:
+          type: boolean
+          readOnly: true
+          default: false
+          description: Whether the account is pending cancellation
+        billing_email_address:
+          type: string
+          readOnly: true
+          description: The email address to send billing notifications to
+        pod_memory_request_mebibytes:
+          type: integer
+          readOnly: true
+          default: 600
+          description: The amount of memory (in MiB) to request for run pods
+        develop_pod_memory_request_mebibytes:
+          type: integer
+          readOnly: true
+          default: 0
+          description: The amount of memory (in MiB) to request for develop pods
+        run_duration_limit_seconds:
+          type: integer
+          readOnly: true
+          default: 86400
+          description: The maximum duration that a run may is permitted to execute for before it is terminated
+        queue_limit:
+          type: integer
+          readOnly: true
+          default: 50
+          description: The maximum number of runs that may be queued at once
+        enterprise_login_slug:
+          type: string
+          readOnly: true
+          description: The enterprise login URL, if available
+        business_critical:
+          type: boolean
+          readOnly: true
+          default: false
+          description: Whether this account is on a Business Critical plan
+        starter_repo_url:
+          type: string
+          readOnly: true
+          description: If defined, the URL used to initialize new dbt projects
+        git_auth_level:
+          type: string
+          readOnly: true
+        identifier:
+          type: string
+          readOnly: true
+          description: A globally unique (cross-cell) identifier
+        trial_end_date:
+          type: string
+          format: date-time
+          readOnly: true
+        static_subdomain:
+          type: string
+          readOnly: true
+        vanity_subdomain:
+          type: string
+          readOnly: true
+        run_locked_until:
+          type: string
+          format: date-time
+          readOnly: true
+        state:
+          example: 1
+          type: integer
+          default: 1
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        docs_job_id:
+          type: integer
+          format: int64
+          description: (Deprecated)
+        freshness_job_id:
+          type: integer
+          format: int64
+          description: (Deprecated)
+        copilot_locked_until:
+          type: string
+          format: date-time
+          readOnly: true
+          description: When copilot will be enabled again for the account
+        agent_credit_locked:
+          type: boolean
+          readOnly: true
+          default: false
+          description: True when the account's agent-credit balance is depleted and dbt-owned-key agent calls should be refused.
+            Cleared on successful top-up.
+        account_migration_events:
+          type: array
+          items: {}
+          readOnly: true
+          description: (Deprecated)
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group'
+          readOnly: true
+          default: []
+          description: The user groups in the account
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - account_migration_events
+      - agent_credit_locked
+      - analyst_seats
+      - billing_email_address
+      - business_critical
+      - copilot_locked_until
+      - created_at
+      - develop_pod_memory_request_mebibytes
+      - developer_seats
+      - enterprise_login_slug
+      - explorer_seats
+      - git_auth_level
+      - groups
+      - id
+      - identifier
+      - it_seats
+      - lock_cause
+      - lock_reason
+      - locked
+      - pending_cancel
+      - plan
+      - pod_memory_request_mebibytes
+      - queue_limit
+      - read_only_seats
+      - run_duration_limit_seconds
+      - run_locked_until
+      - run_slots
+      - starter_repo_url
+      - static_subdomain
+      - trial_end_date
+      - unlocked_at
+      - updated_at
+      - vanity_subdomain
+    AdapterVersionEnum:
+      enum:
+      - apache_spark_v0
+      - databricks_spark_v0
+      - databricks_v0
+      - trino_v0
+      - snowflake_v0
+      - bigquery_v0
+      - bigquery_v1
+      - postgres_v0
+      - redshift_v0
+      - salesforce_v0
+      - synapse_v0
+      - fabric_v0
+      - athena_v0
+      - teradata_v0
+      type: string
+      description: '* `apache_spark_v0` - apache_spark_v0
+
+        * `databricks_spark_v0` - databricks_spark_v0
+
+        * `databricks_v0` - databricks_v0
+
+        * `trino_v0` - trino_v0
+
+        * `snowflake_v0` - snowflake_v0
+
+        * `bigquery_v0` - bigquery_v0
+
+        * `bigquery_v1` - bigquery_v1
+
+        * `postgres_v0` - postgres_v0
+
+        * `redshift_v0` - redshift_v0
+
+        * `salesforce_v0` - salesforce_v0
+
+        * `synapse_v0` - synapse_v0
+
+        * `fabric_v0` - fabric_v0
+
+        * `athena_v0` - athena_v0
+
+        * `teradata_v0` - teradata_v0'
+    BaseConnectionV3:
+      type: object
+      properties:
+        account_id:
+          type: integer
+          format: int64
+          description: The account the connection is associated with
+        project_id:
+          type: integer
+          format: int64
+          description: The project the connection is associated with
+        name:
+          type: string
+          description: The name of the connection
+        type:
+          $ref: '#/components/schemas/ConnectionTypeEnum'
+        adapter_version:
+          $ref: '#/components/schemas/AdapterVersionEnum'
+        created_by_id:
+          type: integer
+          format: int64
+        created_by_service_token_id:
+          type: integer
+          format: int64
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        private_link_endpoint_id:
+          type: string
+        oauth_configuration_id:
+          type: integer
+          format: int64
+          description: The OAuth Configuration associated with this connection. When set,developer credentials leveraging
+            OAuth may be created.
+      required:
+      - account_id
+      - name
+      - project_id
+      - state
+      - type
+    CauseCategoryEnum:
+      enum:
+      - api
+      - ci
+      - scheduled
+      - ui
+      - rerun
+      - job completion
+      - merge
+      - exposures generated
+      - adaptive
+      - ingest
+      type: string
+      description: '* `api` - api
+
+        * `ci` - ci
+
+        * `scheduled` - scheduled
+
+        * `ui` - ui
+
+        * `rerun` - rerun
+
+        * `job completion` - job_completion
+
+        * `merge` - merge
+
+        * `exposures generated` - exposures_generated
+
+        * `adaptive` - adaptive
+
+        * `ingest` - ingest'
+    ConnectionEncryptionEnveloped:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ConnectionEncryptionResponse'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - status
+    ConnectionEncryptionListEnveloped:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectionEncryptionResponse'
+        extra:
+          $ref: '#/components/schemas/Extra'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - extra
+      - status
+    ConnectionEncryptionRequest:
+      type: object
+      properties:
+        account_id:
+          type: integer
+          format: int64
+          description: The account the connection is associated with
+        connection_id:
+          type: integer
+          format: int64
+          description: The connection to use the SSH tunnel with
+        username:
+          type: string
+          minLength: 1
+          description: SSH username
+        port:
+          type: integer
+          description: SSH port
+        hostname:
+          type: string
+          minLength: 1
+          description: SSH hostname
+        public_key:
+          type: string
+          minLength: 1
+          description: SSH Public key
+        private_key:
+          type: string
+          writeOnly: true
+          minLength: 1
+          description: SSH private key
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+      required:
+      - account_id
+      - connection_id
+      - hostname
+      - port
+      - state
+      - username
+    ConnectionEncryptionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        account_id:
+          type: integer
+          format: int64
+          description: The account the connection is associated with
+        connection_id:
+          type: integer
+          format: int64
+          description: The connection to use the SSH tunnel with
+        username:
+          type: string
+          description: SSH username
+        port:
+          type: integer
+          description: SSH port
+        hostname:
+          type: string
+          description: SSH hostname
+        public_key:
+          type: string
+          description: SSH Public key
+        state:
+          example: 1
+          type: integer
+          default: 1
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+      required:
+      - id
+    ConnectionTypeEnum:
+      enum:
+      - postgres
+      - redshift
+      - snowflake
+      - bigquery
+      - adapter
+      type: string
+      description: '* `postgres` - postgres
+
+        * `redshift` - redshift
+
+        * `snowflake` - snowflake
+
+        * `bigquery` - bigquery
+
+        * `adapter` - adapter'
+    CustomEnvironmentVariable:
+      type: object
+      properties:
+        account_id:
+          type: integer
+          format: int64
+        project_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/CustomEnvironmentVariableTypeEnum'
+        user_id:
+          type: integer
+          format: int64
+        environment_id:
+          type: integer
+          format: int64
+        job_definition_id:
+          type: integer
+          format: int64
+        display_value:
+          type: string
+        state:
+          example: 1
+          type: integer
+          default: 1
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+      required:
+      - account_id
+      - name
+      - project_id
+      - type
+    CustomEnvironmentVariableTypeEnum:
+      enum:
+      - project
+      - environment
+      - job
+      - user
+      type: string
+      description: '* `project` - project
+
+        * `environment` - environment
+
+        * `job` - job
+
+        * `user` - user'
+    CustomPagination:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Number of items in the current page
+        total_count:
+          type: integer
+          description: Total number of items
+      required:
+      - count
+      - total_count
+    DeployKey:
+      type: object
+      properties:
+        account_id:
+          type: integer
+          format: int64
+        public_key:
+          type: string
+        state:
+          example: 1
+          type: integer
+          default: 1
+          description: (Deprecated)
+      required:
+      - account_id
+      - public_key
+    DeploymentTypeEnum:
+      enum:
+      - production
+      - staging
+      type: string
+      description: '* `production` - production
+
+        * `staging` - staging'
+    DeprecationWarnings:
+      type: object
+      properties:
+        count:
+          type: integer
+      required:
+      - count
+    EnvironmentV2:
+      type: object
+      properties:
+        account_id:
+          type: integer
+          format: int64
+        project_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        connection_id:
+          type: integer
+          format: int64
+        credentials_id:
+          type: integer
+          format: int64
+        repository_id:
+          type: integer
+          format: int64
+        extended_attributes_id:
+          type: integer
+          format: int64
+        custom_branch:
+          type: string
+        use_custom_branch:
+          type: boolean
+        dbt_project_subdirectory:
+          type: string
+        dbt_version:
+          type: string
+        supports_docs:
+          type: boolean
+        deployment_type:
+          $ref: '#/components/schemas/DeploymentTypeEnum'
+        type:
+          $ref: '#/components/schemas/Type76eEnum'
+        created_by_id:
+          type: integer
+          format: int64
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+      required:
+      - account_id
+      - name
+      - project_id
+      - state
+      - supports_docs
+      - type
+      - use_custom_branch
+    EnvironmentV2Enveloped:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/EnvironmentV2Response'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - status
+    EnvironmentV2ListEnveloped:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnvironmentV2Response'
+        extra:
+          $ref: '#/components/schemas/Extra'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - extra
+      - status
+    EnvironmentV2Request:
+      type: object
+      properties:
+        account_id:
+          type: integer
+          format: int64
+        project_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          minLength: 1
+        connection_id:
+          type: integer
+          format: int64
+        credentials_id:
+          type: integer
+          format: int64
+        repository_id:
+          type: integer
+          format: int64
+        extended_attributes_id:
+          type: integer
+          format: int64
+        custom_branch:
+          type: string
+          minLength: 1
+        use_custom_branch:
+          type: boolean
+        dbt_project_subdirectory:
+          type: string
+          minLength: 1
+        dbt_version:
+          type: string
+          minLength: 1
+        supports_docs:
+          type: boolean
+        deployment_type:
+          $ref: '#/components/schemas/DeploymentTypeEnum'
+        type:
+          $ref: '#/components/schemas/Type76eEnum'
+        created_by_id:
+          type: integer
+          format: int64
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+      required:
+      - account_id
+      - name
+      - project_id
+      - state
+      - supports_docs
+      - type
+      - use_custom_branch
+    EnvironmentV2Response:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        account_id:
+          type: integer
+          format: int64
+        project_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        connection_id:
+          type: integer
+          format: int64
+        credentials_id:
+          type: integer
+          format: int64
+        repository_id:
+          type: integer
+          format: int64
+        extended_attributes_id:
+          type: integer
+          format: int64
+        custom_branch:
+          type: string
+        use_custom_branch:
+          type: boolean
+          default: false
+        dbt_project_subdirectory:
+          type: string
+        dbt_version:
+          type: string
+        raw_dbt_version:
+          type: string
+          readOnly: true
+        supports_docs:
+          type: boolean
+          default: false
+        deployment_type:
+          $ref: '#/components/schemas/DeploymentTypeEnum'
+        type:
+          allOf:
+          - $ref: '#/components/schemas/Type76eEnum'
+          default: deployment
+        created_by_id:
+          type: integer
+          format: int64
+        state:
+          example: 1
+          type: integer
+          default: 1
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        repository:
+          allOf:
+          - $ref: '#/components/schemas/RepositoryV2'
+          readOnly: true
+        connection:
+          allOf:
+          - $ref: '#/components/schemas/PostgresConnection'
+          readOnly: true
+        jobs:
+          type: array
+          items:
+            $ref: '#/components/schemas/HumanReadableJobDefinition'
+          readOnly: true
+        custom_environment_variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomEnvironmentVariable'
+          readOnly: true
+      required:
+      - connection
+      - created_at
+      - custom_environment_variables
+      - id
+      - jobs
+      - raw_dbt_version
+      - repository
+      - updated_at
+    EnvironmentV3:
+      type: object
+      properties:
+        account_id:
+          type: integer
+          format: int64
+          description: The account the environment is associated with
+        project_id:
+          type: integer
+          format: int64
+          description: The project the environment is associated with
+        credentials_id:
+          type: integer
+          format: int64
+          description: The id of the associated credentials. Null for development environments. Must be included when updating
+            a deployment environment or the value will be reset to null.
+        connection_id:
+          type: integer
+          format: int64
+          description: The id of the associated connection. Must be included when updating an environment or the value will
+            be reset to null.
+        extended_attributes_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          description: The name of the environment
+        dbt_version:
+          type: string
+          description: The default dbt Version to use for this environment
+        type:
+          $ref: '#/components/schemas/Type76eEnum'
+        use_custom_branch:
+          type: boolean
+        custom_branch:
+          type: string
+        supports_docs:
+          type: boolean
+        deployment_type:
+          $ref: '#/components/schemas/DeploymentTypeEnum'
+        enable_model_query_history:
+          type: boolean
+          default: false
+        enable_dbt_state:
+          type: boolean
+          default: false
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        primary_profile_id:
+          type: integer
+          format: int64
+          description: The id of the primary profile for this environment
+      required:
+      - account_id
+      - dbt_version
+      - name
+      - project_id
+      - state
+      - supports_docs
+      - type
+      - use_custom_branch
+    Extra:
+      type: object
+      properties:
+        filters:
+          type: object
+          additionalProperties: {}
+          description: Filters applied to the request
+        order_by:
+          type: string
+          description: Ordering applied to the request
+        pagination:
+          $ref: '#/components/schemas/CustomPagination'
+      required:
+      - filters
+      - order_by
+      - pagination
+    GitCloneStrategyEnum:
+      enum:
+      - azure_active_directory_app
+      - deploy_key
+      - deploy_token
+      - github_app
+      - git_token
+      type: string
+      description: '* `azure_active_directory_app` - azure_active_directory_app
+
+        * `deploy_key` - deploy_key
+
+        * `deploy_token` - deploy_token
+
+        * `github_app` - github_app
+
+        * `git_token` - git_token'
+    Group:
+      type: object
+      properties:
+        account_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        assign_by_default:
+          type: boolean
+        sso_mapping_groups:
+          type: array
+          items:
+            type: string
+      required:
+      - account_id
+      - assign_by_default
+      - name
+      - state
+    GroupPermission:
+      type: object
+      properties:
+        account_id:
+          type: integer
+          format: int64
+        group_id:
+          type: integer
+          format: int64
+        project_id:
+          type: integer
+          format: int64
+        all_projects:
+          type: boolean
+        permission_set:
+          $ref: '#/components/schemas/PermissionSetEnum'
+        permission_level:
+          type: integer
+        state:
+          example: 1
+          type: integer
+          default: 1
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        writable_environment_categories:
+          type: array
+          items:
+            type: string
+      required:
+      - account_id
+      - all_projects
+      - group_id
+      - permission_set
+      - writable_environment_categories
+    HumanReadableDateStrategy:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/HumanReadableDateStrategyTypeEnum'
+        days:
+          type: array
+          items:
+            type: integer
+        cron:
+          type: string
+          description: Cron syntax schedule for the job string
+      required:
+      - type
+    HumanReadableDateStrategyRequest:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/HumanReadableDateStrategyTypeEnum'
+        days:
+          type: array
+          items:
+            type: integer
+        cron:
+          type: string
+          minLength: 1
+          description: Cron syntax schedule for the job string
+      required:
+      - type
+    HumanReadableDateStrategyTypeEnum:
+      enum:
+      - every_day
+      - days_of_week
+      - custom_cron
+      - interval_cron
+      type: string
+      description: '* `every_day` - every_day
+
+        * `days_of_week` - days_of_week
+
+        * `custom_cron` - custom_cron
+
+        * `interval_cron` - interval_cron'
+    HumanReadableJobDefinition:
+      type: object
+      properties:
+        account_id:
+          type: integer
+          format: int64
+        project_id:
+          type: integer
+          format: int64
+        environment_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          description: The name of the job
+        dbt_version:
+          type: string
+          description: When set, overrides the dbt_version specified in the Job's Environment
+        deferring_environment_id:
+          type: integer
+          format: int64
+        deferring_job_definition_id:
+          type: integer
+          format: int64
+        description:
+          type: string
+          default: ''
+        execute_steps:
+          type: array
+          items:
+            type: string
+          description: A list of dbt commands to run
+        execution:
+          $ref: '#/components/schemas/JobDefinitionExecution'
+        generate_docs:
+          type: boolean
+          description: When true, `dbt docs generate` will be run at the end of all runs for this Job
+        job_type:
+          $ref: '#/components/schemas/JobTypeEnum'
+        lifecycle_webhooks:
+          type: boolean
+        run_compare_changes:
+          type: boolean
+        compare_changes_flags:
+          type: string
+          default: --select state:modified
+          description: dbt syntax flags to be used for compare changes
+        run_generate_sources:
+          type: boolean
+        run_lint:
+          type: boolean
+        errors_on_lint_failure:
+          type: boolean
+        cost_optimization_features:
+          type: array
+          items:
+            type: string
+          description: "<b>[Private Beta]</b> List of cost optimization features to enable for this job.\n            Requires\
+            \ job to be running on a fusion dbt_version.\n            <br/><br/>\n            <b>Valid values:</b>\n     \
+            \       <ul>\n              <li>\"state_aware_orchestration\" - Enable orchestration that adapts to state changes</li>\n\
+            \              <li>\"efficient_testing\" - Aggregate generic tests into a single query and reuse redundant tests\
+            \ across lineage</li>\n            </ul>\n            <b>Example:</b> [\"state_aware_orchestration\", \"efficient_testing\"\
+            ]\n            "
+        settings:
+          $ref: '#/components/schemas/JobDefinitionSettings'
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        triggers_on_draft_pr:
+          type: boolean
+          default: false
+        triggers:
+          $ref: '#/components/schemas/JobDefinitionTriggers'
+        schedule:
+          $ref: '#/components/schemas/HumanReadableSchedule'
+        generate_sources:
+          type: boolean
+          default: false
+      required:
+      - account_id
+      - environment_id
+      - errors_on_lint_failure
+      - execution
+      - generate_docs
+      - lifecycle_webhooks
+      - name
+      - project_id
+      - run_compare_changes
+      - run_generate_sources
+      - run_lint
+      - settings
+      - state
+      - triggers
+    HumanReadableJobDefinitionEnveloped:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/HumanReadableJobDefinitionResponse'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - status
+    HumanReadableJobDefinitionListEnveloped:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/HumanReadableJobDefinitionResponse'
+        extra:
+          $ref: '#/components/schemas/Extra'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - extra
+      - status
+    HumanReadableJobDefinitionRequest:
+      type: object
+      properties:
+        account_id:
+          type: integer
+          format: int64
+        project_id:
+          type: integer
+          format: int64
+        environment_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          minLength: 1
+          description: The name of the job
+        dbt_version:
+          type: string
+          minLength: 1
+          description: When set, overrides the dbt_version specified in the Job's Environment
+        deferring_environment_id:
+          type: integer
+          format: int64
+        deferring_job_definition_id:
+          type: integer
+          format: int64
+        description:
+          type: string
+          minLength: 1
+          default: ''
+        execute_steps:
+          type: array
+          items:
+            type: string
+            minLength: 1
+          description: A list of dbt commands to run
+        execution:
+          $ref: '#/components/schemas/JobDefinitionExecutionRequest'
+        generate_docs:
+          type: boolean
+          description: When true, `dbt docs generate` will be run at the end of all runs for this Job
+        job_type:
+          $ref: '#/components/schemas/JobTypeEnum'
+        lifecycle_webhooks:
+          type: boolean
+        run_compare_changes:
+          type: boolean
+        compare_changes_flags:
+          type: string
+          minLength: 1
+          default: --select state:modified
+          description: dbt syntax flags to be used for compare changes
+        run_generate_sources:
+          type: boolean
+        run_lint:
+          type: boolean
+        errors_on_lint_failure:
+          type: boolean
+        cost_optimization_features:
+          type: array
+          items:
+            type: string
+            minLength: 1
+          description: "<b>[Private Beta]</b> List of cost optimization features to enable for this job.\n            Requires\
+            \ job to be running on a fusion dbt_version.\n            <br/><br/>\n            <b>Valid values:</b>\n     \
+            \       <ul>\n              <li>\"state_aware_orchestration\" - Enable orchestration that adapts to state changes</li>\n\
+            \              <li>\"efficient_testing\" - Aggregate generic tests into a single query and reuse redundant tests\
+            \ across lineage</li>\n            </ul>\n            <b>Example:</b> [\"state_aware_orchestration\", \"efficient_testing\"\
+            ]\n            "
+        settings:
+          $ref: '#/components/schemas/JobDefinitionSettingsRequest'
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        triggers_on_draft_pr:
+          type: boolean
+          default: false
+        triggers:
+          $ref: '#/components/schemas/JobDefinitionTriggersRequest'
+        schedule:
+          $ref: '#/components/schemas/HumanReadableScheduleRequest'
+        generate_sources:
+          type: boolean
+          default: false
+      required:
+      - account_id
+      - environment_id
+      - errors_on_lint_failure
+      - execution
+      - generate_docs
+      - lifecycle_webhooks
+      - name
+      - project_id
+      - run_compare_changes
+      - run_generate_sources
+      - run_lint
+      - settings
+      - state
+      - triggers
+    HumanReadableJobDefinitionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        account_id:
+          type: integer
+          format: int64
+        project_id:
+          type: integer
+          format: int64
+        environment_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          description: The name of the job
+        dbt_version:
+          type: string
+          description: When set, overrides the dbt_version specified in the Job's Environment
+        deferring_environment_id:
+          type: integer
+          format: int64
+        deferring_job_definition_id:
+          type: integer
+          format: int64
+        description:
+          type: string
+          default: ''
+        execute_steps:
+          type: array
+          items:
+            type: string
+          description: A list of dbt commands to run
+        execution:
+          allOf:
+          - $ref: '#/components/schemas/JobDefinitionExecution'
+          default:
+            timeout_seconds: 0
+        generate_docs:
+          type: boolean
+          default: false
+          description: When true, `dbt docs generate` will be run at the end of all runs for this Job
+        is_deferrable:
+          type: boolean
+          readOnly: true
+          default: false
+        job_type:
+          $ref: '#/components/schemas/JobTypeEnum'
+        lifecycle_webhooks_url:
+          type: string
+          readOnly: true
+        lifecycle_webhooks:
+          type: boolean
+          default: false
+        raw_dbt_version:
+          type: string
+          readOnly: true
+        run_compare_changes:
+          type: boolean
+          default: false
+        compare_changes_flags:
+          type: string
+          default: --select state:modified
+          description: dbt syntax flags to be used for compare changes
+        run_failure_count:
+          type: integer
+          readOnly: true
+          default: 0
+        run_generate_sources:
+          type: boolean
+          default: false
+        run_lint:
+          type: boolean
+          default: false
+        errors_on_lint_failure:
+          type: boolean
+          default: true
+        cost_optimization_features:
+          type: array
+          items:
+            type: string
+          description: "<b>[Private Beta]</b> List of cost optimization features to enable for this job.\n            Requires\
+            \ job to be running on a fusion dbt_version.\n            <br/><br/>\n            <b>Valid values:</b>\n     \
+            \       <ul>\n              <li>\"state_aware_orchestration\" - Enable orchestration that adapts to state changes</li>\n\
+            \              <li>\"efficient_testing\" - Aggregate generic tests into a single query and reuse redundant tests\
+            \ across lineage</li>\n            </ul>\n            <b>Example:</b> [\"state_aware_orchestration\", \"efficient_testing\"\
+            ]\n            "
+        settings:
+          allOf:
+          - $ref: '#/components/schemas/JobDefinitionSettings'
+          default:
+            threads: 1
+            target_name: default
+        state:
+          example: 1
+          type: integer
+          default: 1
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        triggers_on_draft_pr:
+          type: boolean
+          default: false
+        triggers:
+          allOf:
+          - $ref: '#/components/schemas/JobDefinitionTriggers'
+          default:
+            github_webhook: false
+            schedule: false
+            git_provider_webhook: null
+            on_merge: null
+            custom_branch_only: null
+        job_completion_trigger_condition:
+          readOnly: true
+          description: "Use this to set up job completion triggers\n            which would trigger a run of a job when another\
+            \ run finishes. If you have a\n            child job that you want triggered on the completion of a parent job,\
+            \ then\n            configure the trigger on the child job to be on job completion and select\n            the\
+            \ project, parent job and the statuses of the parent job on which to\n            trigger the child job.\n   \
+            \         The statuses which is an array can be one or more of:\n            <ul>\n              <li>success (10)</li>\n\
+            \              <li>error (20)</li>\n              <li>canceled (30)</li>\n            </ul>\n            Once\
+            \ the parent job completes, a new run will be enqueued for the child job.\n            <br/>\n            Example\
+            \ of a job completion trigger:<br/>\n            <pre>\n            {\n                \"condition\": {\n    \
+            \                \"job_id\": 1,\n                    \"project_id\": 1,\n                    \"statuses\": [10,\
+            \ 20],\n                }\n            }\n            </pre>\n            "
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        account:
+          allOf:
+          - $ref: '#/components/schemas/Account'
+          readOnly: true
+        project:
+          allOf:
+          - $ref: '#/components/schemas/Project'
+          readOnly: true
+        environment:
+          allOf:
+          - $ref: '#/components/schemas/EnvironmentV2'
+          readOnly: true
+        fusion_readiness:
+          readOnly: true
+        schedule:
+          $ref: '#/components/schemas/HumanReadableSchedule'
+        generate_sources:
+          type: boolean
+          default: false
+      required:
+      - account
+      - created_at
+      - environment
+      - fusion_readiness
+      - id
+      - is_deferrable
+      - job_completion_trigger_condition
+      - lifecycle_webhooks_url
+      - project
+      - raw_dbt_version
+      - run_failure_count
+      - updated_at
+    HumanReadableSchedule:
+      type: object
+      properties:
+        date:
+          $ref: '#/components/schemas/HumanReadableDateStrategy'
+        time:
+          $ref: '#/components/schemas/HumanReadableTimeStrategy'
+        cron:
+          type: string
+          description: Cron syntax schedule for the job string
+      required:
+      - date
+      - time
+    HumanReadableScheduleRequest:
+      type: object
+      properties:
+        date:
+          $ref: '#/components/schemas/HumanReadableDateStrategyRequest'
+        time:
+          $ref: '#/components/schemas/HumanReadableTimeStrategyRequest'
+        cron:
+          type: string
+          minLength: 1
+          description: Cron syntax schedule for the job string
+      required:
+      - date
+      - time
+    HumanReadableTimeStrategTypeEnum:
+      enum:
+      - every_hour
+      - at_exact_hours
+      type: string
+      description: '* `every_hour` - every_hour
+
+        * `at_exact_hours` - at_exact_hours'
+    HumanReadableTimeStrategy:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/HumanReadableTimeStrategTypeEnum'
+        hours:
+          type: array
+          items:
+            type: integer
+        interval:
+          type: integer
+          default: 1
+      required:
+      - type
+    HumanReadableTimeStrategyRequest:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/HumanReadableTimeStrategTypeEnum'
+        hours:
+          type: array
+          items:
+            type: integer
+        interval:
+          type: integer
+          default: 1
+      required:
+      - type
+    InternalJobDefinition:
+      type: object
+      properties:
+        account_id:
+          type: integer
+          format: int64
+        project_id:
+          type: integer
+          format: int64
+        environment_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          description: The name of the job
+        dbt_version:
+          type: string
+          description: When set, overrides the dbt_version specified in the Job's Environment
+        deferring_environment_id:
+          type: integer
+          format: int64
+        deferring_job_definition_id:
+          type: integer
+          format: int64
+        description:
+          type: string
+          default: ''
+        execute_steps:
+          type: array
+          items:
+            type: string
+          description: A list of dbt commands to run
+        execution:
+          $ref: '#/components/schemas/JobDefinitionExecution'
+        generate_docs:
+          type: boolean
+          description: When true, `dbt docs generate` will be run at the end of all runs for this Job
+        job_type:
+          $ref: '#/components/schemas/JobTypeEnum'
+        lifecycle_webhooks:
+          type: boolean
+        run_compare_changes:
+          type: boolean
+        compare_changes_flags:
+          type: string
+          default: --select state:modified
+          description: dbt syntax flags to be used for compare changes
+        run_generate_sources:
+          type: boolean
+        run_lint:
+          type: boolean
+        errors_on_lint_failure:
+          type: boolean
+        cost_optimization_features:
+          type: array
+          items:
+            type: string
+          description: "<b>[Private Beta]</b> List of cost optimization features to enable for this job.\n            Requires\
+            \ job to be running on a fusion dbt_version.\n            <br/><br/>\n            <b>Valid values:</b>\n     \
+            \       <ul>\n              <li>\"state_aware_orchestration\" - Enable orchestration that adapts to state changes</li>\n\
+            \              <li>\"efficient_testing\" - Aggregate generic tests into a single query and reuse redundant tests\
+            \ across lineage</li>\n            </ul>\n            <b>Example:</b> [\"state_aware_orchestration\", \"efficient_testing\"\
+            ]\n            "
+        settings:
+          $ref: '#/components/schemas/JobDefinitionSettings'
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        triggers_on_draft_pr:
+          type: boolean
+          default: false
+        triggers:
+          $ref: '#/components/schemas/JobDefinitionTriggers'
+        schedule:
+          $ref: '#/components/schemas/JobDefinitionSchedule'
+      required:
+      - account_id
+      - environment_id
+      - errors_on_lint_failure
+      - execution
+      - generate_docs
+      - lifecycle_webhooks
+      - name
+      - project_id
+      - run_compare_changes
+      - run_generate_sources
+      - run_lint
+      - settings
+      - state
+      - triggers
+    InviteEnveloped:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/InviteResponse'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - status
+    InviteListEnveloped:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/InviteResponse'
+        extra:
+          $ref: '#/components/schemas/Extra'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - extra
+      - status
+    InviteResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        account_id:
+          type: integer
+          format: int64
+          readOnly: true
+        email_address:
+          type: string
+          readOnly: true
+        license_type:
+          $ref: '#/components/schemas/LicenseTypeEnum'
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        type:
+          $ref: '#/components/schemas/InviteResponseTypeEnum'
+        group_ids:
+          type: array
+          items:
+            type: integer
+          default: []
+        redeemed_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        account:
+          allOf:
+          - $ref: '#/components/schemas/Account'
+          readOnly: true
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group'
+          readOnly: true
+          default: []
+      required:
+      - account
+      - account_id
+      - created_at
+      - email_address
+      - groups
+      - id
+      - redeemed_at
+    InviteResponseTypeEnum:
+      enum:
+      - standard
+      - scim
+      type: string
+      description: '* `standard` - STANDARD
+
+        * `scim` - SCIM'
+    JobDefinitionExecution:
+      type: object
+      properties:
+        timeout_seconds:
+          type: integer
+      required:
+      - timeout_seconds
+    JobDefinitionExecutionRequest:
+      type: object
+      properties:
+        timeout_seconds:
+          type: integer
+      required:
+      - timeout_seconds
+    JobDefinitionSchedule:
+      type: object
+      properties:
+        cron:
+          type: string
+          description: Cron syntax schedule for the job string
+        date:
+          $ref: '#/components/schemas/HumanReadableDateStrategyTypeEnum'
+        time:
+          $ref: '#/components/schemas/HumanReadableTimeStrategTypeEnum'
+      required:
+      - cron
+      - date
+      - time
+    JobDefinitionSettings:
+      type: object
+      properties:
+        threads:
+          type: integer
+          description: The maximum number of models to run in parallel in a single dbt run
+        target_name:
+          type: string
+          description: Informational field that can be consumed in dbt project code with `{{ target.name }}`
+      required:
+      - target_name
+      - threads
+    JobDefinitionSettingsRequest:
+      type: object
+      properties:
+        threads:
+          type: integer
+          description: The maximum number of models to run in parallel in a single dbt run
+        target_name:
+          type: string
+          minLength: 1
+          description: Informational field that can be consumed in dbt project code with `{{ target.name }}`
+      required:
+      - target_name
+      - threads
+    JobDefinitionTriggers:
+      type: object
+      properties:
+        github_webhook:
+          type: boolean
+        schedule:
+          type: boolean
+        git_provider_webhook:
+          type: boolean
+        on_merge:
+          type: boolean
+        custom_branch_only:
+          type: boolean
+          description: (Deprecated)
+      required:
+      - github_webhook
+      - schedule
+    JobDefinitionTriggersRequest:
+      type: object
+      properties:
+        github_webhook:
+          type: boolean
+        schedule:
+          type: boolean
+        git_provider_webhook:
+          type: boolean
+        on_merge:
+          type: boolean
+        custom_branch_only:
+          type: boolean
+          description: (Deprecated)
+      required:
+      - github_webhook
+      - schedule
+    JobDefinitionV2:
+      type: object
+      properties:
+        environment_id:
+          type: integer
+          format: int64
+        account_id:
+          type: integer
+          format: int64
+        project_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          description: The name of the job
+        description:
+          type: string
+        generate_docs:
+          type: boolean
+          description: When true, `dbt docs generate` will be run at the end of all runs for this Job
+        run_generate_sources:
+          type: boolean
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        dbt_version:
+          type: string
+          description: When set, overrides the dbt_version specified in the Job's Environment
+        triggers:
+          $ref: '#/components/schemas/JobDefinitionTriggers'
+        settings:
+          $ref: '#/components/schemas/JobDefinitionSettings'
+        execution:
+          $ref: '#/components/schemas/JobDefinitionExecution'
+        schedule:
+          $ref: '#/components/schemas/JobDefinitionSchedule'
+        execute_steps:
+          type: array
+          items:
+            type: string
+          description: A list of dbt commands to run
+        job_type:
+          $ref: '#/components/schemas/JobTypeEnum'
+        triggers_on_draft_pr:
+          type: boolean
+          default: false
+        run_compare_changes:
+          type: boolean
+          default: false
+        compare_changes_flags:
+          type: string
+          default: --select state:modified
+          description: dbt syntax flags to be used for compare changes
+        run_lint:
+          type: boolean
+          default: false
+        errors_on_lint_failure:
+          type: boolean
+          default: true
+        deferring_environment_id:
+          type: integer
+          format: int64
+        deferring_job_definition_id:
+          type: integer
+          format: int64
+        cost_optimization_features:
+          type: array
+          items:
+            type: string
+          description: "<b>[Private Beta]</b> List of cost optimization features to enable for this job.\n            Requires\
+            \ job to be running on a fusion dbt_version.\n            <br/><br/>\n            <b>Valid values:</b>\n     \
+            \       <ul>\n              <li>\"state_aware_orchestration\" - Enable orchestration that adapts to state changes</li>\n\
+            \              <li>\"efficient_testing\" - Aggregate generic tests into a single query and reuse redundant tests\
+            \ across lineage</li>\n            </ul>\n            <b>Example:</b> [\"state_aware_orchestration\", \"efficient_testing\"\
+            ]\n            "
+      required:
+      - account_id
+      - environment_id
+      - execution
+      - generate_docs
+      - name
+      - project_id
+      - run_generate_sources
+      - settings
+      - state
+    JobNotificationSettingsEnveloped:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/JobNotificationSettingsResponse'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - status
+    JobNotificationSettingsListEnveloped:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/JobNotificationSettingsResponse'
+        extra:
+          $ref: '#/components/schemas/Extra'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - extra
+      - status
+    JobNotificationSettingsRequest:
+      type: object
+      properties:
+        account_id:
+          type: integer
+          format: int64
+          description: The account the job notification setting is associated with
+        user_id:
+          type: integer
+          format: int64
+          description: For internal email notifications, the ID of the user to send notifications to. For all other notifications,
+            the ID of the user who created the configuration.
+        type:
+          allOf:
+          - $ref: '#/components/schemas/TypeFe6Enum'
+          description: "\n                The destination type.\n                1: Internal Email\n                2: Slack\n\
+            \                3: Deprecated - do not use\n                4: External Email\n            \n\n* `1` - EMAIL\n\
+            * `2` - SLACK\n* `3` - WEBHOOK\n* `4` - EXTERNAL_EMAIL\n* `5` - SLACK_V2"
+        external_email:
+          type: string
+          minLength: 1
+          description: The external email to send notifications to. Required for External Email types.
+        slack_channel_id:
+          type: string
+          minLength: 1
+          description: The ID of the Slack channel to send notifications to. Required for Slack notification types.
+        slack_channel_name:
+          type: string
+          minLength: 1
+          description: The name of the Slack channel to send notifications to. Required for Slack notification types.
+        on_cancel:
+          type: array
+          items:
+            type: integer
+          description: List of job IDs to send notifications for when the job is cancelled.
+        on_failure:
+          type: array
+          items:
+            type: integer
+          description: List of job IDs to send notifications for when the job fails.
+        on_success:
+          type: array
+          items:
+            type: integer
+          description: List of job IDs to send notifications for when the job succeeds.
+        on_warning:
+          type: array
+          items:
+            type: integer
+          description: List of job IDs to send notifications for when the job warns.
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+      required:
+      - account_id
+      - on_cancel
+      - on_failure
+      - on_success
+      - on_warning
+      - state
+      - type
+      - user_id
+    JobNotificationSettingsResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        account_id:
+          type: integer
+          format: int64
+          description: The account the job notification setting is associated with
+        user_id:
+          type: integer
+          format: int64
+          description: For internal email notifications, the ID of the user to send notifications to. For all other notifications,
+            the ID of the user who created the configuration.
+        type:
+          allOf:
+          - $ref: '#/components/schemas/TypeFe6Enum'
+          description: "\n                The destination type.\n                1: Internal Email\n                2: Slack\n\
+            \                3: Deprecated - do not use\n                4: External Email\n            \n\n* `1` - EMAIL\n\
+            * `2` - SLACK\n* `3` - WEBHOOK\n* `4` - EXTERNAL_EMAIL\n* `5` - SLACK_V2"
+        external_email:
+          type: string
+          description: The external email to send notifications to. Required for External Email types.
+        slack_channel_id:
+          type: string
+          description: The ID of the Slack channel to send notifications to. Required for Slack notification types.
+        slack_channel_name:
+          type: string
+          description: The name of the Slack channel to send notifications to. Required for Slack notification types.
+        on_cancel:
+          type: array
+          items:
+            type: integer
+          default: []
+          description: List of job IDs to send notifications for when the job is cancelled.
+        on_failure:
+          type: array
+          items:
+            type: integer
+          default: []
+          description: List of job IDs to send notifications for when the job fails.
+        on_success:
+          type: array
+          items:
+            type: integer
+          default: []
+          description: List of job IDs to send notifications for when the job succeeds.
+        on_warning:
+          type: array
+          items:
+            type: integer
+          default: []
+          description: List of job IDs to send notifications for when the job warns.
+        state:
+          example: 1
+          type: integer
+          default: 1
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+          description: For internal email notifications, the user to send notifications to. For all other notifications, the
+            user who created the configuration.
+      required:
+      - created_at
+      - id
+      - updated_at
+      - user
+    JobTypeEnum:
+      enum:
+      - ci
+      - scheduled
+      - other
+      - merge
+      - exposure_sync
+      - adaptive
+      - hybrid
+      type: string
+      description: '* `ci` - ci
+
+        * `scheduled` - scheduled
+
+        * `other` - other
+
+        * `merge` - merge
+
+        * `exposure_sync` - exposure_sync
+
+        * `adaptive` - adaptive
+
+        * `hybrid` - hybrid'
+    LicenseAllocationListEnveloped:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/LicenseAllocationResponse'
+        extra:
+          $ref: '#/components/schemas/Extra'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - extra
+      - status
+    LicenseAllocationResponse:
+      type: object
+      properties:
+        developer:
+          $ref: '#/components/schemas/LicenseDetail'
+        explorer:
+          $ref: '#/components/schemas/LicenseDetail'
+        read_only:
+          $ref: '#/components/schemas/LicenseDetail'
+        it:
+          $ref: '#/components/schemas/LicenseDetail'
+        analyst:
+          $ref: '#/components/schemas/LicenseDetail'
+    LicenseDetail:
+      type: object
+      properties:
+        limited:
+          type: boolean
+        over_limit:
+          type: boolean
+        total:
+          type: integer
+        in_use:
+          type: integer
+        available:
+          type: integer
+        assigned:
+          type: integer
+        enterprise_plan:
+          type: boolean
+      required:
+      - assigned
+      - available
+      - enterprise_plan
+      - in_use
+      - limited
+      - over_limit
+      - total
+    LicenseTypeEnum:
+      enum:
+      - developer
+      - read_only
+      - analyst
+      - it
+      type: string
+      description: '* `developer` - DEVELOPER
+
+        * `read_only` - READ_ONLY
+
+        * `analyst` - ANALYST
+
+        * `it` - IT'
+    ListOfStringsEnveloped:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: string
+          description: List of artifact paths. Can be used to fetch individual artifacts via the Retrieve Run Artifact endpoint.
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - status
+    LockCauseEnum:
+      enum:
+      - trial_expired
+      - cancelled
+      - unpaid
+      - provisioned_team_annual
+      - other
+      - migrated
+      - workshop
+      type: string
+      description: '* `trial_expired` - TRIAL_EXPIRED
+
+        * `cancelled` - CANCELLED
+
+        * `unpaid` - UNPAID
+
+        * `provisioned_team_annual` - PROVISIONED_TEAM_ANNUAL
+
+        * `other` - OTHER
+
+        * `migrated` - MIGRATED
+
+        * `workshop` - WORKSHOP'
+    PermissionSetEnum:
+      enum:
+      - account_admin
+      - account_viewer
+      - admin
+      - analyst
+      - analyst_read
+      - billing_admin
+      - cost_insights_admin
+      - cost_insights_viewer
+      - cost_management_admin
+      - cost_management_viewer
+      - database_admin
+      - developer
+      - fusion_admin
+      - git_admin
+      - job_admin
+      - job_creator
+      - job_runner
+      - job_viewer
+      - manage_marketplace_apps
+      - member
+      - metadata_only
+      - notification_manager
+      - owner
+      - project_creator
+      - readonly
+      - scim_only
+      - security_admin
+      - semantic_layer_only
+      - stakeholder
+      - team_admin
+      - webhooks_only
+      type: string
+      description: '* `account_admin` - ACCOUNT_ADMIN
+
+        * `account_viewer` - ACCOUNT_VIEWER
+
+        * `admin` - ADMIN
+
+        * `analyst` - ANALYST
+
+        * `analyst_read` - ANALYST_READ
+
+        * `billing_admin` - BILLING_ADMIN
+
+        * `cost_insights_admin` - COST_INSIGHTS_ADMIN
+
+        * `cost_insights_viewer` - COST_INSIGHTS_VIEWER
+
+        * `cost_management_admin` - COST_MANAGEMENT_ADMIN
+
+        * `cost_management_viewer` - COST_MANAGEMENT_VIEWER
+
+        * `database_admin` - DATABASE_ADMIN
+
+        * `developer` - DEVELOPER
+
+        * `fusion_admin` - FUSION_ADMIN
+
+        * `git_admin` - GIT_ADMIN
+
+        * `job_admin` - JOB_ADMIN
+
+        * `job_creator` - JOB_CREATOR
+
+        * `job_runner` - JOB_RUNNER
+
+        * `job_viewer` - JOB_VIEWER
+
+        * `manage_marketplace_apps` - MANAGE_MARKETPLACE_APPS
+
+        * `member` - MEMBER
+
+        * `metadata_only` - METADATA_ONLY
+
+        * `notification_manager` - NOTIFICATION_MANAGER
+
+        * `owner` - OWNER
+
+        * `project_creator` - PROJECT_CREATOR
+
+        * `readonly` - READONLY
+
+        * `scim_only` - SCIM_ONLY
+
+        * `security_admin` - SECURITY_ADMIN
+
+        * `semantic_layer_only` - SEMANTIC_LAYER_ONLY
+
+        * `stakeholder` - STAKEHOLDER
+
+        * `team_admin` - TEAM_ADMIN
+
+        * `webhooks_only` - WEBHOOKS_ONLY'
+    PlanEnum:
+      enum:
+      - cancelled
+      - cancelled_2022
+      - cancelled_2025
+      - developer
+      - developer_2022
+      - enterprise
+      - enterprise_2025
+      - enterprise_plus_2025
+      - free
+      - starter_2025
+      - team
+      - team_2022
+      - team_annual
+      - trial
+      - trial_2022
+      - trial_2025
+      - usage_2026
+      type: string
+      description: '* `cancelled` - CANCELLED
+
+        * `cancelled_2022` - CANCELLED_2022
+
+        * `cancelled_2025` - CANCELLED_2025
+
+        * `developer` - DEVELOPER
+
+        * `developer_2022` - DEVELOPER_2022
+
+        * `enterprise` - ENTERPRISE
+
+        * `enterprise_2025` - ENTERPRISE_2025
+
+        * `enterprise_plus_2025` - ENTERPRISE_PLUS_2025
+
+        * `free` - FREE
+
+        * `starter_2025` - STARTER_2025
+
+        * `team` - TEAM
+
+        * `team_2022` - TEAM_2022
+
+        * `team_annual` - TEAM_ANNUAL
+
+        * `trial` - TRIAL
+
+        * `trial_2022` - TRIAL_2022
+
+        * `trial_2025` - TRIAL_2025
+
+        * `usage_2026` - USAGE_2026'
+    PostgresConnection:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        account_id:
+          type: integer
+          format: int64
+        dbt_project_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/ConnectionTypeEnum'
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        created_by_id:
+          type: integer
+          format: int64
+        created_by_service_token_id:
+          type: integer
+          format: int64
+        hostname:
+          type: string
+        dbname:
+          type: string
+        port:
+          type: integer
+        tunnel_enabled:
+          type: boolean
+      required:
+      - account_id
+      - dbname
+      - hostname
+      - name
+      - port
+      - state
+      - tunnel_enabled
+      - type
+    Project:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the project
+        account_id:
+          type: integer
+          format: int64
+          description: The account the project is associated with
+        description:
+          type: string
+          description: The description of the project
+        connection_id:
+          type: integer
+          format: int64
+          description: The active connection
+        repository_id:
+          type: integer
+          format: int64
+          description: The active repository
+        semantic_layer_config_id:
+          type: integer
+          format: int64
+          description: The active semantic layer configuration
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        dbt_project_subdirectory:
+          type: string
+          description: The path in the associated repository where a dbt project can be found
+        docs_job_id:
+          type: integer
+          format: int64
+          description: The job used for docs generation
+        freshness_job_id:
+          type: integer
+          format: int64
+          description: The job used for source freshness generation
+        type:
+          allOf:
+          - $ref: '#/components/schemas/Type24eEnum'
+          description: 'The type of the project
+
+
+            * `0` - DEFAULT
+
+            * `1` - HYBRID'
+      required:
+      - account_id
+      - name
+      - state
+      - type
+    ProjectEnveloped:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ProjectResponse'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - status
+    ProjectListEnveloped:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectResponse'
+        extra:
+          $ref: '#/components/schemas/Extra'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - extra
+      - status
+    ProjectRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: The name of the project
+        account_id:
+          type: integer
+          format: int64
+          description: The account the project is associated with
+        description:
+          type: string
+          minLength: 1
+          description: The description of the project
+        connection_id:
+          type: integer
+          format: int64
+          description: The active connection
+        repository_id:
+          type: integer
+          format: int64
+          description: The active repository
+        semantic_layer_config_id:
+          type: integer
+          format: int64
+          description: The active semantic layer configuration
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        dbt_project_subdirectory:
+          type: string
+          minLength: 1
+          description: The path in the associated repository where a dbt project can be found
+        docs_job_id:
+          type: integer
+          format: int64
+          description: The job used for docs generation
+        freshness_job_id:
+          type: integer
+          format: int64
+          description: The job used for source freshness generation
+        type:
+          allOf:
+          - $ref: '#/components/schemas/Type24eEnum'
+          description: 'The type of the project
+
+
+            * `0` - DEFAULT
+
+            * `1` - HYBRID'
+      required:
+      - account_id
+      - name
+      - state
+      - type
+    ProjectResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        name:
+          type: string
+          description: The name of the project
+        account_id:
+          type: integer
+          format: int64
+          description: The account the project is associated with
+        description:
+          type: string
+          description: The description of the project
+        connection_id:
+          type: integer
+          format: int64
+          description: The active connection
+        repository_id:
+          type: integer
+          format: int64
+          description: The active repository
+        semantic_layer_config_id:
+          type: integer
+          format: int64
+          description: The active semantic layer configuration
+        state:
+          example: 1
+          type: integer
+          default: 1
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        dbt_project_subdirectory:
+          type: string
+          description: The path in the associated repository where a dbt project can be found
+        docs_job_id:
+          type: integer
+          format: int64
+          description: The job used for docs generation
+        freshness_job_id:
+          type: integer
+          format: int64
+          description: The job used for source freshness generation
+        type:
+          allOf:
+          - $ref: '#/components/schemas/Type24eEnum'
+          default: 0
+          description: 'The type of the project
+
+
+            * `0` - DEFAULT
+
+            * `1` - HYBRID'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        connection:
+          allOf:
+          - $ref: '#/components/schemas/BaseConnectionV3'
+          readOnly: true
+        environments:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnvironmentV3'
+          readOnly: true
+        repository:
+          allOf:
+          - $ref: '#/components/schemas/RepositoryV3'
+          readOnly: true
+        group_permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupPermission'
+          readOnly: true
+        docs_job:
+          allOf:
+          - $ref: '#/components/schemas/JobDefinitionV2'
+          readOnly: true
+        freshness_job:
+          allOf:
+          - $ref: '#/components/schemas/JobDefinitionV2'
+          readOnly: true
+        fusion_readiness:
+          readOnly: true
+        default_version:
+          type: string
+          readOnly: true
+          description: The default dbt version for new environments in this project. Only populated when the project is fetched
+            directly; null when the project is included as a nested object on another resource.
+      required:
+      - connection
+      - created_at
+      - default_version
+      - docs_job
+      - environments
+      - freshness_job
+      - fusion_readiness
+      - group_permissions
+      - id
+      - repository
+      - updated_at
+    RemoteBackendEnum:
+      enum:
+      - ado
+      - github
+      - managed
+      - gitlab
+      - manual_config
+      type: string
+      description: '* `ado` - ado
+
+        * `github` - github
+
+        * `managed` - managed
+
+        * `gitlab` - gitlab
+
+        * `manual_config` - manual_config'
+    RepositoryV2:
+      type: object
+      properties:
+        account_id:
+          type: integer
+          format: int64
+          description: The account the repo is associated with
+        project_id:
+          type: integer
+          format: int64
+          description: The project the repo is associated with
+        full_name:
+          type: string
+          description: "The name of the repo\u26A0\uFE0F If not set to the correct values, CI jobs may not trigger and the\
+            \ branch link from the dbt Cloud IDE may not work.For example, if the remote URL is 'git://github.com/your_org/your_repo_name.git',the\
+            \ correct full_name is 'your_org/your_repo_name'."
+        remote_backend:
+          allOf:
+          - $ref: '#/components/schemas/RemoteBackendEnum'
+          description: "The associated git provider\u26A0\uFE0F If not set to the correct values, CI jobs may not trigger\
+            \ and the branch link from the dbt Cloud IDE may not work.\n\n* `ado` - ado\n* `github` - github\n* `managed`\
+            \ - managed\n* `gitlab` - gitlab\n* `manual_config` - manual_config"
+        git_clone_strategy:
+          allOf:
+          - $ref: '#/components/schemas/GitCloneStrategyEnum'
+          description: 'The strategy to use when cloning the repo
+
+
+            * `azure_active_directory_app` - azure_active_directory_app
+
+            * `deploy_key` - deploy_key
+
+            * `deploy_token` - deploy_token
+
+            * `github_app` - github_app
+
+            * `git_token` - git_token'
+        deploy_key_id:
+          type: integer
+          format: int64
+        repository_credentials_id:
+          type: integer
+          format: int64
+        github_installation_id:
+          type: integer
+          format: int64
+        github_webhook_id:
+          type: integer
+          format: int64
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        git_provider_id:
+          type: integer
+          format: int64
+        private_link_endpoint_id:
+          type: string
+      required:
+      - account_id
+      - state
+    RepositoryV2Enveloped:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/RepositoryV2Response'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - status
+    RepositoryV2ListEnveloped:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RepositoryV2Response'
+        extra:
+          $ref: '#/components/schemas/Extra'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - extra
+      - status
+    RepositoryV2Request:
+      type: object
+      properties:
+        account_id:
+          type: integer
+          format: int64
+          description: The account the repo is associated with
+        project_id:
+          type: integer
+          format: int64
+          description: The project the repo is associated with
+        full_name:
+          type: string
+          minLength: 1
+          description: "The name of the repo\u26A0\uFE0F If not set to the correct values, CI jobs may not trigger and the\
+            \ branch link from the dbt Cloud IDE may not work.For example, if the remote URL is 'git://github.com/your_org/your_repo_name.git',the\
+            \ correct full_name is 'your_org/your_repo_name'."
+        remote_backend:
+          allOf:
+          - $ref: '#/components/schemas/RemoteBackendEnum'
+          description: "The associated git provider\u26A0\uFE0F If not set to the correct values, CI jobs may not trigger\
+            \ and the branch link from the dbt Cloud IDE may not work.\n\n* `ado` - ado\n* `github` - github\n* `managed`\
+            \ - managed\n* `gitlab` - gitlab\n* `manual_config` - manual_config"
+        git_clone_strategy:
+          allOf:
+          - $ref: '#/components/schemas/GitCloneStrategyEnum'
+          description: 'The strategy to use when cloning the repo
+
+
+            * `azure_active_directory_app` - azure_active_directory_app
+
+            * `deploy_key` - deploy_key
+
+            * `deploy_token` - deploy_token
+
+            * `github_app` - github_app
+
+            * `git_token` - git_token'
+        deploy_key_id:
+          type: integer
+          format: int64
+        repository_credentials_id:
+          type: integer
+          format: int64
+        github_installation_id:
+          type: integer
+          format: int64
+        github_webhook_id:
+          type: integer
+          format: int64
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        git_provider_id:
+          type: integer
+          format: int64
+        private_link_endpoint_id:
+          type: string
+          minLength: 1
+      required:
+      - account_id
+      - state
+    RepositoryV2Response:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        account_id:
+          type: integer
+          format: int64
+          description: The account the repo is associated with
+        project_id:
+          type: integer
+          format: int64
+          description: The project the repo is associated with
+        full_name:
+          type: string
+          description: "The name of the repo\u26A0\uFE0F If not set to the correct values, CI jobs may not trigger and the\
+            \ branch link from the dbt Cloud IDE may not work.For example, if the remote URL is 'git://github.com/your_org/your_repo_name.git',the\
+            \ correct full_name is 'your_org/your_repo_name'."
+        remote_backend:
+          allOf:
+          - $ref: '#/components/schemas/RemoteBackendEnum'
+          description: "The associated git provider\u26A0\uFE0F If not set to the correct values, CI jobs may not trigger\
+            \ and the branch link from the dbt Cloud IDE may not work.\n\n* `ado` - ado\n* `github` - github\n* `managed`\
+            \ - managed\n* `gitlab` - gitlab\n* `manual_config` - manual_config"
+        git_clone_strategy:
+          allOf:
+          - $ref: '#/components/schemas/GitCloneStrategyEnum'
+          description: 'The strategy to use when cloning the repo
+
+
+            * `azure_active_directory_app` - azure_active_directory_app
+
+            * `deploy_key` - deploy_key
+
+            * `deploy_token` - deploy_token
+
+            * `github_app` - github_app
+
+            * `git_token` - git_token'
+        deploy_key_id:
+          type: integer
+          format: int64
+        repository_credentials_id:
+          type: integer
+          format: int64
+        github_installation_id:
+          type: integer
+          format: int64
+        github_webhook_id:
+          type: integer
+          format: int64
+        state:
+          example: 1
+          type: integer
+          default: 1
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        git_provider_id:
+          type: integer
+          format: int64
+        private_link_endpoint_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        deploy_key:
+          allOf:
+          - $ref: '#/components/schemas/DeployKey'
+          readOnly: true
+      required:
+      - created_at
+      - deploy_key
+      - id
+      - updated_at
+    RepositoryV3:
+      type: object
+      properties:
+        account_id:
+          type: integer
+          format: int64
+          description: The account the repo is associated with
+        project_id:
+          type: integer
+          format: int64
+          description: The project the repo is associated with
+        full_name:
+          type: string
+          description: "The name of the repo\u26A0\uFE0F If not set to the correct values, CI jobs may not trigger and the\
+            \ branch link from the dbt Cloud IDE may not work.For example, if the remote URL is 'git://github.com/your_org/your_repo_name.git',the\
+            \ correct full_name is 'your_org/your_repo_name'."
+        remote_backend:
+          allOf:
+          - $ref: '#/components/schemas/RemoteBackendEnum'
+          description: "The associated git provider\u26A0\uFE0F If not set to the correct values, CI jobs may not trigger\
+            \ and the branch link from the dbt Cloud IDE may not work.\n\n* `ado` - ado\n* `github` - github\n* `managed`\
+            \ - managed\n* `gitlab` - gitlab\n* `manual_config` - manual_config"
+        git_clone_strategy:
+          allOf:
+          - $ref: '#/components/schemas/GitCloneStrategyEnum'
+          description: 'The strategy to use when cloning the repo
+
+
+            * `azure_active_directory_app` - azure_active_directory_app
+
+            * `deploy_key` - deploy_key
+
+            * `deploy_token` - deploy_token
+
+            * `github_app` - github_app
+
+            * `git_token` - git_token'
+        deploy_key_id:
+          type: integer
+          format: int64
+        repository_credentials_id:
+          type: integer
+          format: int64
+        github_installation_id:
+          type: integer
+          format: int64
+        github_webhook_id:
+          type: integer
+          format: int64
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        private_link_endpoint_id:
+          type: string
+        git_provider_id:
+          type: integer
+          format: int64
+      required:
+      - account_id
+      - state
+    ResponseStatus:
+      type: object
+      properties:
+        code:
+          type: integer
+          default: 200
+          description: HTTP status code
+        is_success:
+          type: boolean
+          description: Whether the request was successful or not
+        user_message:
+          type: string
+          description: End-user friendly success or error message
+        developer_message:
+          type: string
+          description: Developer friendly success or error message
+      required:
+      - developer_message
+      - is_success
+      - user_message
+    RetryNotSupportedReasonEnum:
+      enum:
+      - RETRY_UNSUPPORTED_CMD
+      - RETRY_UNSUPPORTED_VERSION
+      - RETRY_NOT_LATEST_RUN
+      - RETRY_NOT_FAILED_RUN
+      - RETRY_NO_RUN_RESULTS
+      type: string
+      description: '* `RETRY_UNSUPPORTED_CMD` - RETRY_UNSUPPORTED_CMD
+
+        * `RETRY_UNSUPPORTED_VERSION` - RETRY_UNSUPPORTED_VERSION
+
+        * `RETRY_NOT_LATEST_RUN` - RETRY_NOT_LATEST_RUN
+
+        * `RETRY_NOT_FAILED_RUN` - RETRY_NOT_FAILED_RUN
+
+        * `RETRY_NO_RUN_RESULTS` - RETRY_NO_RUN_RESULTS'
+    RunAuditActor:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        name:
+          type: string
+    RunAuditEvent:
+      type: object
+      properties:
+        actor:
+          $ref: '#/components/schemas/RunAuditActor'
+    RunAuditResult:
+      type: object
+      properties:
+        trigger:
+          $ref: '#/components/schemas/RunAuditEvent'
+        cancellation:
+          $ref: '#/components/schemas/RunAuditEvent'
+    RunFailureDetailsEnveloped:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/RunFailureDetailsResponse'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - status
+    RunFailureDetailsResponse:
+      type: object
+      properties:
+        failed_step:
+          type: string
+        skipped_steps:
+          type: array
+          items:
+            type: string
+    RunResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        trigger_id:
+          type: integer
+          format: int64
+        account_id:
+          type: integer
+          format: int64
+        environment_id:
+          type: integer
+          format: int64
+        project_id:
+          type: integer
+          format: int64
+        job_definition_id:
+          type: integer
+          format: int64
+        status:
+          type: integer
+          description: "\n                A number representing the status of the run.\n                1: Queued\n      \
+            \          2: Starting\n                3: Running\n                10: Success\n                20: Error\n \
+            \               30: Cancelled\n                "
+        dbt_version:
+          type: string
+        git_branch:
+          type: string
+          description: The git branch that was checked out for this run.
+        git_sha:
+          type: string
+          description: The git sha that was checked out for this run.
+        status_message:
+          type: string
+        owner_thread_id:
+          type: string
+        executed_by_thread_id:
+          type: string
+        deferring_run_id:
+          type: integer
+          format: int64
+        artifacts_saved:
+          type: boolean
+        artifact_s3_path:
+          type: string
+        has_docs_generated:
+          type: boolean
+        has_sources_generated:
+          type: boolean
+        notifications_sent:
+          type: boolean
+        blocked_by:
+          type: array
+          items:
+            type: integer
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        dequeued_at:
+          type: string
+          format: date-time
+          description: When the run was picked up by a processor node
+        started_at:
+          type: string
+          format: date-time
+          description: When the run began execution
+        finished_at:
+          type: string
+          format: date-time
+          description: When the run completed execution
+        last_checked_at:
+          type: string
+          format: date-time
+        last_heartbeat_at:
+          type: string
+          format: date-time
+        should_start_at:
+          type: string
+          format: date-time
+        trigger:
+          $ref: '#/components/schemas/RunTrigger'
+        job:
+          $ref: '#/components/schemas/InternalJobDefinition'
+        environment:
+          $ref: '#/components/schemas/EnvironmentV2'
+        run_steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/RunStep'
+        deprecation:
+          $ref: '#/components/schemas/DeprecationWarnings'
+        status_humanized:
+          type: string
+        in_progress:
+          type: boolean
+        is_complete:
+          type: boolean
+        is_success:
+          type: boolean
+        is_error:
+          type: boolean
+        is_cancelled:
+          type: boolean
+        duration:
+          type: string
+        queued_duration:
+          type: string
+        run_duration:
+          type: string
+        duration_humanized:
+          type: string
+        queued_duration_humanized:
+          type: string
+        run_duration_humanized:
+          type: string
+        created_at_humanized:
+          type: string
+        finished_at_humanized:
+          type: string
+        retrying_run_id:
+          type: integer
+          format: int64
+        can_retry:
+          type: boolean
+        retry_not_supported_reason:
+          $ref: '#/components/schemas/RetryNotSupportedReasonEnum'
+        job_id:
+          type: integer
+          format: int64
+        is_running:
+          type: boolean
+        href:
+          type: string
+        used_repo_cache:
+          type: boolean
+        audit:
+          $ref: '#/components/schemas/RunAuditResult'
+      required:
+      - created_at
+      - updated_at
+    RunResponseEnveloped:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/RunResponse'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - status
+    RunResponseListEnveloped:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RunResponse'
+        extra:
+          $ref: '#/components/schemas/Extra'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - extra
+      - status
+    RunStep:
+      type: object
+      properties:
+        run_id:
+          type: integer
+          format: int64
+        account_id:
+          type: integer
+          format: int64
+        index:
+          type: integer
+        status:
+          type: integer
+        name:
+          type: string
+        logs:
+          type: string
+          description: High level logs
+        debug_logs:
+          type: string
+          description: The full debug logs
+        log_path:
+          type: string
+          description: The path to the logs, if available
+        debug_log_path:
+          type: string
+          description: The path to the debug logs, if available
+      required:
+      - account_id
+      - index
+      - name
+      - run_id
+      - status
+    RunStepCommand:
+      type: object
+      properties:
+        run_step_id:
+          type: integer
+          format: int64
+        dbt_command:
+          type: string
+      required:
+      - dbt_command
+      - run_step_id
+    RunStepEnveloped:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/RunStepResponse'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - status
+    RunStepInvocation:
+      type: object
+      properties:
+        run_step_id:
+          type: integer
+          format: int64
+        run_id:
+          type: integer
+          format: int64
+      required:
+      - run_id
+      - run_step_id
+    RunStepResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        run_id:
+          type: integer
+          format: int64
+        account_id:
+          type: integer
+          format: int64
+        index:
+          type: integer
+        status:
+          type: integer
+        name:
+          type: string
+        logs:
+          type: string
+          description: High level logs
+        debug_logs:
+          type: string
+          description: The full debug logs
+        log_path:
+          type: string
+          description: The path to the logs, if available
+        debug_log_path:
+          type: string
+          description: The path to the debug logs, if available
+        truncated_debug_logs:
+          type: string
+          readOnly: true
+          description: A truncated subset of the debug logs
+        started_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: When execution of the step began
+        finished_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: When execution of the step completed
+        status_color:
+          type: string
+          readOnly: true
+          description: A status color code, in hex format
+        status_humanized:
+          type: string
+          readOnly: true
+        duration:
+          type: string
+          readOnly: true
+          description: How long execution of the step took
+        duration_humanized:
+          type: string
+          readOnly: true
+          description: A human-readable verison of the execution duration
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        run_step_command:
+          allOf:
+          - $ref: '#/components/schemas/RunStepCommand'
+          readOnly: true
+        run_step_invocation:
+          allOf:
+          - $ref: '#/components/schemas/RunStepInvocation'
+          readOnly: true
+      required:
+      - created_at
+      - duration
+      - duration_humanized
+      - finished_at
+      - id
+      - run_step_command
+      - run_step_invocation
+      - started_at
+      - status_color
+      - status_humanized
+      - truncated_debug_logs
+      - updated_at
+    RunTrigger:
+      type: object
+      properties:
+        cause:
+          type: string
+        job_definition_id:
+          type: integer
+          format: int64
+        git_branch:
+          type: string
+        git_sha:
+          type: string
+        azure_pull_request_id:
+          type: integer
+        github_pull_request_id:
+          type: integer
+        gitlab_merge_request_id:
+          type: integer
+        non_native_pull_request_id:
+          type: integer
+        schema_override:
+          type: string
+        dbt_version_override:
+          type: string
+        threads_override:
+          type: integer
+        target_name_override:
+          type: string
+        generate_docs_override:
+          type: boolean
+        timeout_seconds_override:
+          type: integer
+        steps_override:
+          type: array
+          items:
+            type: string
+        cause_category:
+          $ref: '#/components/schemas/CauseCategoryEnum'
+      required:
+      - cause
+      - job_definition_id
+    StatusEnum:
+      enum:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      type: integer
+      description: '* `1` - PENDING
+
+        * `2` - REDEEMED
+
+        * `3` - EXPIRED
+
+        * `4` - PENDING_EMAIL_VERIFICATION
+
+        * `5` - EMAIL_VERIFIED_SSO'
+    TriggerRunRequestRequest:
+      type: object
+      properties:
+        cause:
+          type: string
+          minLength: 1
+          description: A text description of the reason for running
+        git_sha:
+          type: string
+          minLength: 1
+          description: The git sha to checkout before running
+        git_branch:
+          type: string
+          minLength: 1
+          description: The git branch to checkout before running
+        azure_pull_request_id:
+          type: integer
+        github_pull_request_id:
+          type: integer
+        gitlab_merge_request_id:
+          type: integer
+        non_native_pull_request_id:
+          type: integer
+        schema_override:
+          type: string
+          minLength: 1
+          description: Overrides the destination schema in the configured target
+        dbt_version_override:
+          type: string
+          minLength: 1
+          description: 'Overrides the version of dbt. Allowed values are: '
+        threads_override:
+          type: integer
+          description: Overrides the number of threads used
+        target_name_override:
+          type: string
+          minLength: 1
+          description: Overrides the `target.name` context variable
+        generate_docs_override:
+          type: boolean
+          description: Overrides whether or not to generate docs
+        timeout_seconds_override:
+          type: integer
+          description: Overrides the timeout in seconds
+        steps_override:
+          type: array
+          items:
+            type: string
+            minLength: 1
+          description: Overrides the list of dbt commands
+      required:
+      - cause
+    Type24eEnum:
+      enum:
+      - 0
+      - 1
+      type: integer
+      description: '* `0` - DEFAULT
+
+        * `1` - HYBRID'
+    Type76eEnum:
+      enum:
+      - development
+      - deployment
+      type: string
+      description: '* `development` - DEVELOPMENT
+
+        * `deployment` - DEPLOYMENT'
+    TypeFe6Enum:
+      enum:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      type: integer
+      description: '* `1` - EMAIL
+
+        * `2` - SLACK
+
+        * `3` - WEBHOOK
+
+        * `4` - EXTERNAL_EMAIL
+
+        * `5` - SLACK_V2'
+    User:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+      required:
+      - first_name
+      - last_name
+    UserEnveloped:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/UserResponse'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - status
+    UserLicense:
+      type: object
+      properties:
+        license_type:
+          type: string
+          description: The type of license, e.g. `developer` or `read_only`
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+      required:
+      - license_type
+      - state
+    UserLicenseEnveloped:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/UserLicenseResponse'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - status
+    UserLicenseRequest:
+      type: object
+      properties:
+        license_type:
+          type: string
+          minLength: 1
+          description: The type of license, e.g. `developer` or `read_only`
+        state:
+          example: 1
+          type: integer
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+      required:
+      - license_type
+      - state
+    UserLicenseResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        account_id:
+          type: integer
+          format: int64
+          readOnly: true
+          description: The account the user license is associated with
+        user_id:
+          type: integer
+          format: int64
+          readOnly: true
+          description: The user the user license is associated with
+        license_type:
+          type: string
+          default: developer
+          description: The type of license, e.g. `developer` or `read_only`
+        state:
+          example: 1
+          type: integer
+          default: 1
+          description: A value of 1 means this entity is active and a value of 2 means this entity is deleted
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group'
+          readOnly: true
+          default: []
+        scim_managed:
+          type: boolean
+          readOnly: true
+      required:
+      - account_id
+      - created_at
+      - groups
+      - id
+      - scim_managed
+      - updated_at
+      - user_id
+    UserListEnveloped:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResponse'
+        extra:
+          $ref: '#/components/schemas/Extra'
+        status:
+          $ref: '#/components/schemas/ResponseStatus'
+      required:
+      - data
+      - extra
+      - status
+    UserRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+        last_name:
+          type: string
+          minLength: 1
+      required:
+      - first_name
+      - last_name
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          readOnly: true
+        apitoken_last_used:
+          type: string
+          format: date-time
+          readOnly: true
+        azure_active_directory_connected:
+          type: boolean
+          readOnly: true
+          default: false
+        azure_active_directory_token_retrieval_failure:
+          type: boolean
+          readOnly: true
+        azure_active_directory_username:
+          type: string
+          readOnly: true
+        email_connected:
+          type: boolean
+          readOnly: true
+          default: false
+        email_verified:
+          type: boolean
+          readOnly: true
+          default: false
+        enterprise_connected:
+          type: boolean
+          readOnly: true
+          default: false
+        enterprise_authentication_method:
+          type: string
+          readOnly: true
+        github_connected:
+          type: boolean
+          readOnly: true
+          default: false
+        github_username:
+          type: string
+          readOnly: true
+        gitlab_connected:
+          type: boolean
+          readOnly: true
+          default: false
+        gitlab_username:
+          type: string
+          readOnly: true
+        is_active:
+          type: boolean
+          readOnly: true
+          default: false
+        is_staff:
+          type: boolean
+          readOnly: true
+          default: false
+        last_login:
+          type: string
+          format: date-time
+          readOnly: true
+        sso_only_user:
+          type: boolean
+          readOnly: true
+        github_token_retrieval_failure:
+          type: boolean
+          readOnly: true
+        gitlab_token_retrieval_failure:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserLicense'
+          readOnly: true
+        auth_provider_infos:
+          readOnly: true
+        licenses:
+          readOnly: true
+      required:
+      - apitoken_last_used
+      - auth_provider_infos
+      - azure_active_directory_connected
+      - azure_active_directory_token_retrieval_failure
+      - azure_active_directory_username
+      - created_at
+      - email
+      - email_connected
+      - email_verified
+      - enterprise_authentication_method
+      - enterprise_connected
+      - github_connected
+      - github_token_retrieval_failure
+      - github_username
+      - gitlab_connected
+      - gitlab_token_retrieval_failure
+      - gitlab_username
+      - id
+      - is_active
+      - is_staff
+      - last_login
+      - licenses
+      - permissions
+      - sso_only_user
+  securitySchemes:
+    BearerAuthentication:
+      type: http
+      scheme: bearer
+      bearerFormat: Bearer
+      x-auth-env-vars:
+      - DBT_CLOUD_TOKEN
+servers:
+- url: https://cloud.getdbt.com/
+  description: dbt Cloud (US default; override host via DBT_CLOUD_HOST)
+security:
+- BearerAuthentication: []

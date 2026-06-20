@@ -1,0 +1,1528 @@
+{
+  "dir": "/home/nimast/printing-press/library/dbt-cloud",
+  "binary": "/home/nimast/printing-press/library/dbt-cloud/dbt-cloud-pp-cli-dogfood",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 81,
+  "passed": 81,
+  "failed": 0,
+  "skipped": 83,
+  "commands": [
+    "analytics",
+    "api",
+    "artifacts diff",
+    "cloud-jobs artifacts retrieve-job",
+    "cloud-jobs create",
+    "cloud-jobs destroy",
+    "cloud-jobs list",
+    "cloud-jobs rerun retry-failed-job",
+    "cloud-jobs retrieve",
+    "cloud-jobs run trigger-job",
+    "cloud-jobs update",
+    "doctor",
+    "failures",
+    "feedback list",
+    "import",
+    "jobs get",
+    "jobs list",
+    "jobs prune",
+    "monitor",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "runs artifacts list-run",
+    "runs artifacts retrieve-run",
+    "runs cancel run",
+    "runs list",
+    "runs retrieve",
+    "runs retry retrieve-run-failure-details",
+    "runs retry run",
+    "runs stats",
+    "steps",
+    "sync",
+    "tail",
+    "trigger",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  dbt-cloud-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  dbt-cloud-pp-cli analytics --type messages\n\n  # Group by a field\n  dbt-cloud-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  dbt-cloud-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         Database path\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\nhint: local store has not been synced yet. Run 'dbt-cloud-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\nhint: local store has not been synced yet. Run 'dbt-cloud-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  dbt-cloud-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  dbt-cloud-pp-cli api\n\n  # Show methods for a specific interface\n  dbt-cloud-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'dbt-cloud-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "artifacts diff",
+      "kind": "help",
+      "args": [
+        "artifacts",
+        "diff",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch run_results.json for two dbt Cloud runs and diff them.\n\nReports:\n  - Models that newly failed (passed/success in run A, error/fail in run B)\n  - Models that newly passed (error/fail in run A, passed/success in run B)\n  - Models with a large execution time change (\u003e --timing-threshold seconds)\n\nThis command is read-only — it fetches artifact data from the live API.\n\nUsage:\n  dbt-cloud-pp-cli artifacts diff \u003crun_a\u003e \u003crun_b\u003e [flags]\n\nExamples:\n  dbt-cloud-pp-cli artifacts diff 12345 12346\n  dbt-cloud-pp-cli artifacts diff 12345 12346 --json\n  dbt-cloud-pp-cli artifacts diff 12345 12346 --timing-threshold 30\n\nFlags:\n      --account-id string        dbt Cloud account ID (default: DBT_CLOUD_ACCOUNT_ID env var)\n      --artifact string          Artifact file to diff (default: run_results.json) (default \"run_results.json\")\n  -h, --help                     help for diff\n      --timing-threshold float   Minimum execution time delta in seconds to report (default 10) (default 10)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "artifacts diff",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [artifacts diff] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "artifacts diff",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [artifacts diff] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "artifacts diff",
+      "kind": "error_path",
+      "args": [
+        "artifacts",
+        "diff",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: two run IDs are required\nUsage: dbt-cloud-pp-cli artifacts diff \u003crun_a\u003e \u003crun_b\u003e [flags]\n"
+    },
+    {
+      "command": "cloud-jobs artifacts retrieve-job",
+      "kind": "help",
+      "args": [
+        "cloud-jobs",
+        "artifacts",
+        "retrieve-job",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Given a job id and *a set of Run filters* return the latest matching artifact for that job.\n\nUsage:\n  dbt-cloud-pp-cli cloud-jobs artifacts retrieve-job [account_id] \u003cjob_id\u003e \u003cremainder\u003e [flags]\n\nAliases:\n  retrieve-job, get\n\nExamples:\n  dbt-cloud-pp-cli cloud-jobs artifacts retrieve-job 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 example-value\n\nFlags:\n  -h, --help                     help for retrieve-job\n      --include-related string   Comma-separated list of related objects to include in the response.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "cloud-jobs artifacts retrieve-job",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [cloud-jobs artifacts retrieve-job] has fewer segments than placeholders (3)"
+    },
+    {
+      "command": "cloud-jobs artifacts retrieve-job",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [cloud-jobs artifacts retrieve-job] has fewer segments than placeholders (3)"
+    },
+    {
+      "command": "cloud-jobs artifacts retrieve-job",
+      "kind": "error_path",
+      "args": [
+        "cloud-jobs",
+        "artifacts",
+        "retrieve-job",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: job_id is required\nUsage: dbt-cloud-pp-cli cloud-jobs artifacts retrieve-job \u003cjob_id\u003e\n"
+    },
+    {
+      "command": "cloud-jobs create",
+      "kind": "help",
+      "args": [
+        "cloud-jobs",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create a new job.\n\nUsage:\n  dbt-cloud-pp-cli cloud-jobs create [account_id] [flags]\n\nExamples:\n  dbt-cloud-pp-cli cloud-jobs create 550e8400-e29b-41d4-a716-446655440000 --name example-resource\n\nFlags:\n      --account-id-2 string                      Account id\n      --compare-changes-flags string             dbt syntax flags to be used for compare changes (default \"--select state:modified\")\n      --cost-optimization-features string        \u003cb\u003e[Private Beta]\u003c/b\u003e List of cost optimization features to enable for this job.\n      --dbt-version string                       When set, overrides the dbt_version specified in the Job's Environment\n      --deferring-environment-id string          Deferring environment id\n      --deferring-job-definition-id string       Deferring job definition id\n      --description string                       Description\n      --environment-id string                    Environment id\n      --errors-on-lint-failure string            Errors on lint failure\n      --execute-steps string                     A list of dbt commands to run\n      --execution-timeout-seconds int            Timeout seconds\n      --generate-docs dbt docs generate          When true, dbt docs generate will be run at the end of all runs for this Job\n      --generate-sources                         Generate sources\n  -h, --help                                     help for create\n      --job-type ci                              * ci - ci * `scheduled` - scheduled * `other` - other * `merge` - merge * `exposure_sync` - exposure_sync *\n      --lifecycle-webhooks string                Lifecycle webhooks\n      --name string                              The name of the job\n      --project-id string                        Project id\n      --run-compare-changes string               Run compare changes\n      --run-generate-sources string              Run generate sources\n      --run-lint string                          Run lint\n      --schedule-cron string                     Cron syntax schedule for the job string\n      --schedule-date-cron string                Cron syntax schedule for the job string\n      --schedule-date-days string                Days\n      --schedule-date-type every_day             * every_day - every_day * `days_of_week` - days_of_week * `custom_cron` - custom_cron * `interval_cron` -\n      --schedule-time-hours string               Hours\n      --schedule-time-interval int               Interval\n      --schedule-time-type every_hour            * every_hour - every_hour * `at_exact_hours` - at_exact_hours\n      --settings-target-name {{ target.name }}   Informational field that can be consumed in dbt project code with {{ target.name }}\n      --settings-threads int                     The maximum number of models to run in parallel in a single dbt run\n      --state int                                A value of 1 means this entity is active and a value of 2 means this entity is deleted\n      --stdin                                    Read request body as JSON from stdin\n      --triggers-custom-branch-only              (Deprecated)\n      --triggers-git-provider-webhook            Git provider webhook\n      --triggers-github-webhook string           Github webhook\n      --triggers-on-draft-pr                     Triggers on draft pr\n      --triggers-on-merge                        On merge\n      --triggers-schedule string                 Schedule\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Ro…[truncated]"
+    },
+    {
+      "command": "cloud-jobs create",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "cloud-jobs create",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "cloud-jobs create",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "cloud-jobs create",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "cloud-jobs destroy",
+      "kind": "help",
+      "args": [
+        "cloud-jobs",
+        "destroy",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Delete a job\n\nUsage:\n  dbt-cloud-pp-cli cloud-jobs destroy [account_id] \u003cid\u003e [flags]\n\nAliases:\n  destroy, delete\n\nExamples:\n  dbt-cloud-pp-cli cloud-jobs destroy 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help   help for destroy\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "cloud-jobs destroy",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [cloud-jobs destroy] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "cloud-jobs destroy",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [cloud-jobs destroy] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "cloud-jobs destroy",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "cloud-jobs destroy",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [cloud-jobs destroy] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "cloud-jobs list",
+      "kind": "help",
+      "args": [
+        "cloud-jobs",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List jobs for the given account\n\nUsage:\n  dbt-cloud-pp-cli cloud-jobs list [account_id] [flags]\n\nAliases:\n  list, get\n\nExamples:\n  dbt-cloud-pp-cli cloud-jobs list 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --all                      Fetch all pages\n      --dbt-version-in string    Dbt version in\n      --environment-id string    Environment id\n  -h, --help                     help for list\n      --include-related string   A list of related objects to include in the response.\n      --is-fusion-ready          Filters jobs by fusion readiness. When true, returns conformant or override-ready jobs.\n      --is-system                Is system\n      --limit int                Limit (default 100)\n      --name-icontains string    Name icontains\n      --offset string            Offset (default \"0\")\n      --order-by -               Field to order the results by. Use - to reverse the order.\n      --pk int                   Pk\n      --project-id string        Filters the results to a specific Project\n      --project-id-in string     Project id in\n      --state string             Filters by soft deletion state. (default \"active\")\n      --triggers-schedule        Triggers schedule\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "cloud-jobs list",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"account_id\""
+    },
+    {
+      "command": "cloud-jobs list",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"account_id\""
+    },
+    {
+      "command": "cloud-jobs list",
+      "kind": "error_path",
+      "args": [
+        "cloud-jobs",
+        "list",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /api/v2/accounts/__printing_press_invalid__/jobs/ returned HTTP 404: \n\u003c!doctype html\u003e\n\u003chtml lang=\"en\"\u003e\n\u003chead\u003e\n  \u003ctitle\u003eNot Found\u003c/title\u003e\n\u003c/head\u003e\n\u003cbody\u003e\n  \u003ch1\u003eNot Found\u003c/h1\u003e\u003cp\u003eThe requested resource was not found on this server.\u003c/p\u003e\n\u003c/body\u003e\n\u003c/html\u003e\n\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "cloud-jobs rerun retry-failed-job",
+      "kind": "help",
+      "args": [
+        "cloud-jobs",
+        "rerun",
+        "retry-failed-job",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Use this endpoint to retry a failed run for a job from the point of failure, if the run failed.\n\nUsage:\n  dbt-cloud-pp-cli cloud-jobs rerun retry-failed-job [account_id] \u003cjob_id\u003e [flags]\n\nAliases:\n  retry-failed-job, create\n\nExamples:\n  dbt-cloud-pp-cli cloud-jobs rerun retry-failed-job 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help    help for retry-failed-job\n      --stdin   Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "cloud-jobs rerun retry-failed-job",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"account_id\""
+    },
+    {
+      "command": "cloud-jobs rerun retry-failed-job",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"account_id\""
+    },
+    {
+      "command": "cloud-jobs rerun retry-failed-job",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "cloud-jobs rerun retry-failed-job",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"account_id\""
+    },
+    {
+      "command": "cloud-jobs retrieve",
+      "kind": "help",
+      "args": [
+        "cloud-jobs",
+        "retrieve",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Retrieve the details of a job.\n\nUsage:\n  dbt-cloud-pp-cli cloud-jobs retrieve [account_id] \u003cid\u003e [flags]\n\nExamples:\n  dbt-cloud-pp-cli cloud-jobs retrieve 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help                     help for retrieve\n      --include-related string   A list of related objects to include in the response.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "cloud-jobs retrieve",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [cloud-jobs retrieve] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "cloud-jobs retrieve",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [cloud-jobs retrieve] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "cloud-jobs retrieve",
+      "kind": "error_path",
+      "args": [
+        "cloud-jobs",
+        "retrieve",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: id is required\nUsage: dbt-cloud-pp-cli cloud-jobs retrieve \u003cid\u003e\n"
+    },
+    {
+      "command": "cloud-jobs run trigger-job",
+      "kind": "help",
+      "args": [
+        "cloud-jobs",
+        "run",
+        "trigger-job",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Use this endpoint to kick off a run for a job.\n\nUsage:\n  dbt-cloud-pp-cli cloud-jobs run trigger-job [account_id] \u003cjob_id\u003e [flags]\n\nAliases:\n  trigger-job, create\n\nExamples:\n  dbt-cloud-pp-cli cloud-jobs run trigger-job 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 --cause example-value\n\nFlags:\n      --azure-pull-request-id string        Azure pull request id\n      --cause string                        A text description of the reason for running\n      --dbt-version-override string         Overrides the version of dbt. Allowed values are:\n      --generate-docs-override              Overrides whether or not to generate docs\n      --git-branch string                   The git branch to checkout before running\n      --git-sha string                      The git sha to checkout before running\n      --github-pull-request-id string       Github pull request id\n      --gitlab-merge-request-id string      Gitlab merge request id\n  -h, --help                                help for trigger-job\n      --non-native-pull-request-id string   Non native pull request id\n      --schema-override string              Overrides the destination schema in the configured target\n      --stdin                               Read request body as JSON from stdin\n      --steps-override string               Overrides the list of dbt commands\n      --target-name-override target.name    Overrides the target.name context variable\n      --threads-override int                Overrides the number of threads used\n      --timeout-seconds-override int        Overrides the timeout in seconds\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "cloud-jobs run trigger-job",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"account_id\""
+    },
+    {
+      "command": "cloud-jobs run trigger-job",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"account_id\""
+    },
+    {
+      "command": "cloud-jobs run trigger-job",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "cloud-jobs run trigger-job",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"account_id\""
+    },
+    {
+      "command": "cloud-jobs update",
+      "kind": "help",
+      "args": [
+        "cloud-jobs",
+        "update",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Update a job.\n\nUsage:\n  dbt-cloud-pp-cli cloud-jobs update [account_id] \u003cid\u003e [flags]\n\nExamples:\n  dbt-cloud-pp-cli cloud-jobs update 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 --name example-resource\n\nFlags:\n      --account-id-2 string                      Account id\n      --compare-changes-flags string             dbt syntax flags to be used for compare changes (default \"--select state:modified\")\n      --cost-optimization-features string        \u003cb\u003e[Private Beta]\u003c/b\u003e List of cost optimization features to enable for this job.\n      --dbt-version string                       When set, overrides the dbt_version specified in the Job's Environment\n      --deferring-environment-id string          Deferring environment id\n      --deferring-job-definition-id string       Deferring job definition id\n      --description string                       Description\n      --environment-id string                    Environment id\n      --errors-on-lint-failure string            Errors on lint failure\n      --execute-steps string                     A list of dbt commands to run\n      --execution-timeout-seconds int            Timeout seconds\n      --generate-docs dbt docs generate          When true, dbt docs generate will be run at the end of all runs for this Job\n      --generate-sources                         Generate sources\n  -h, --help                                     help for update\n      --job-type ci                              * ci - ci * `scheduled` - scheduled * `other` - other * `merge` - merge * `exposure_sync` - exposure_sync *\n      --lifecycle-webhooks string                Lifecycle webhooks\n      --name string                              The name of the job\n      --project-id string                        Project id\n      --run-compare-changes string               Run compare changes\n      --run-generate-sources string              Run generate sources\n      --run-lint string                          Run lint\n      --schedule-cron string                     Cron syntax schedule for the job string\n      --schedule-date-cron string                Cron syntax schedule for the job string\n      --schedule-date-days string                Days\n      --schedule-date-type every_day             * every_day - every_day * `days_of_week` - days_of_week * `custom_cron` - custom_cron * `interval_cron` -\n      --schedule-time-hours string               Hours\n      --schedule-time-interval int               Interval\n      --schedule-time-type every_hour            * every_hour - every_hour * `at_exact_hours` - at_exact_hours\n      --settings-target-name {{ target.name }}   Informational field that can be consumed in dbt project code with {{ target.name }}\n      --settings-threads int                     The maximum number of models to run in parallel in a single dbt run\n      --state int                                A value of 1 means this entity is active and a value of 2 means this entity is deleted\n      --stdin                                    Read request body as JSON from stdin\n      --triggers-custom-branch-only              (Deprecated)\n      --triggers-git-provider-webhook            Git provider webhook\n      --triggers-github-webhook string           Github webhook\n      --triggers-on-draft-pr                     Triggers on draft pr\n      --triggers-on-merge                        On merge\n      --triggers-schedule string                 Schedule\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"aut…[truncated]"
+    },
+    {
+      "command": "cloud-jobs update",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [cloud-jobs update] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "cloud-jobs update",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [cloud-jobs update] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "cloud-jobs update",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "cloud-jobs update",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [cloud-jobs update] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  dbt-cloud-pp-cli doctor [flags]\n\nExamples:\n  dbt-cloud-pp-cli doctor\n  dbt-cloud-pp-cli doctor --json\n  dbt-cloud-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK 1/1 available\n  OK Verify Mode: normal operation\n  OK API: reachable (HTTP 400 at /)\n  INFO Credentials: present, not verified. Run any read command to confirm the token works end-to-end.\n  config_path: /tmp/printing-press-subprocess-1977660996/.config/dbt-cloud-pp-cli/config.toml\n  base_url: https://cloud.getdbt.com\n  auth_source: env:DBT_CLOUD_TOKEN\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /tmp/printing-press-subprocess-1977660996/.local/share/dbt-cloud-pp-cli/data.db\n    schema_version: 4\n    db_bytes: 245760\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'dbt-cloud-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"agentcookie\": \"not detected (optional)\",\n  \"api\": \"reachable (HTTP 400 at /)\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:DBT_CLOUD_TOKEN\",\n  \"base_url\": \"https://cloud.getdbt.com\",\n  \"cache\": {\n    \"db_bytes\": 245760,\n    \"db_path\": \"/tmp/printing-press-subprocess-1977660996/.local/share/dbt-cloud-pp-cli/data.db\",\n    \"hint\": \"sync_state is empty; run 'dbt-cloud-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 4,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/tmp/printing-press-subprocess-1977660996/.config/dbt-cloud-pp-cli/config.toml\",\n  \"credentials\": \"present, not verified. Run any read command to confirm the token works end-to-end.\",\n  \"env_vars\": \"OK 1/1 available\",\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "failures",
+      "kind": "help",
+      "args": [
+        "failures",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List runs with error or cancelled status from the local SQLite mirror, grouped by job.\n\nRequires a prior 'dbt-cloud-pp-cli sync' to populate the local database.\nResults cover the last --days days (default 7).\n\nUsage:\n  dbt-cloud-pp-cli failures [flags]\n\nExamples:\n  dbt-cloud-pp-cli failures\n  dbt-cloud-pp-cli failures --days 14 --json\n\nFlags:\n      --days int    Number of days to look back (default 7) (default 7)\n      --db string   Path to local SQLite database (default: auto-detected)\n  -h, --help        help for failures\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "failures",
+      "kind": "happy_path",
+      "args": [
+        "failures"
+      ],
+      "status": "pass",
+      "output_sample": "List runs with error or cancelled status from the local SQLite mirror, grouped by job.\n\nRequires a prior 'dbt-cloud-pp-cli sync' to populate the local database.\nResults cover the last --days days (default 7).\n\nUsage:\n  dbt-cloud-pp-cli failures [flags]\n\nExamples:\n  dbt-cloud-pp-cli failures\n  dbt-cloud-pp-cli failures --days 14 --json\n\nFlags:\n      --days int    Number of days to look back (default 7) (default 7)\n      --db string   Path to local SQLite database (default: auto-detected)\n  -h, --help        help for failures\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "failures",
+      "kind": "json_fidelity",
+      "args": [
+        "failures",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "failures",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  dbt-cloud-pp-cli feedback list [flags]\n\nExamples:\n  dbt-cloud-pp-cli feedback list\n  dbt-cloud-pp-cli feedback list --limit 5\n  dbt-cloud-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  dbt-cloud-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  dbt-cloud-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  dbt-cloud-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | dbt-cloud-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "jobs get",
+      "kind": "help",
+      "args": [
+        "jobs",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show the latest state row for a job\n\nUsage:\n  dbt-cloud-pp-cli jobs get \u003cjob-id\u003e [flags]\n\nExamples:\n  dbt-cloud-pp-cli jobs get 12345\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "jobs get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "jobs get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "jobs get",
+      "kind": "error_path",
+      "args": [
+        "jobs",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: job \"__printing_press_invalid__\" not found in local ledger\n"
+    },
+    {
+      "command": "jobs list",
+      "kind": "help",
+      "args": [
+        "jobs",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent async jobs\n\nUsage:\n  dbt-cloud-pp-cli jobs list [flags]\n\nExamples:\n  dbt-cloud-pp-cli jobs list\n  dbt-cloud-pp-cli jobs list --all --limit 100\n\nFlags:\n      --all         Show every state transition rather than the latest row per job\n  -h, --help        help for list\n      --limit int   Maximum rows to list (0 for unlimited) (default 50)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "jobs list",
+      "kind": "happy_path",
+      "args": [
+        "jobs",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "JOB_ID  RESOURCE  STATUS  SUBMITTED  UPDATED\n"
+    },
+    {
+      "command": "jobs list",
+      "kind": "json_fidelity",
+      "args": [
+        "jobs",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "jobs list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "jobs prune",
+      "kind": "help",
+      "args": [
+        "jobs",
+        "prune",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove job rows older than --older-than\n\nUsage:\n  dbt-cloud-pp-cli jobs prune [flags]\n\nExamples:\n  dbt-cloud-pp-cli jobs prune --older-than 168h\n\nFlags:\n  -h, --help                  help for prune\n      --older-than duration   Prune rows whose latest update is older than this duration (default 168h0m0s)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "jobs prune",
+      "kind": "happy_path",
+      "args": [
+        "jobs",
+        "prune",
+        "--older-than",
+        "168h"
+      ],
+      "status": "pass",
+      "output_sample": "pruned 0, kept 0\n"
+    },
+    {
+      "command": "jobs prune",
+      "kind": "json_fidelity",
+      "args": [
+        "jobs",
+        "prune",
+        "--older-than",
+        "168h",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"kept\": 0,\n  \"pruned\": 0\n}\n"
+    },
+    {
+      "command": "jobs prune",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "monitor",
+      "kind": "help",
+      "args": [
+        "monitor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Poll a dbt Cloud run until it reaches a terminal state (Success, Error, or Cancelled).\n\nExits 0 on success, 1 on failure or cancellation. Prints live status to stderr\nevery --interval seconds (default 15s). Uses --account-id flag or DBT_CLOUD_ACCOUNT_ID env var.\n\nUsage:\n  dbt-cloud-pp-cli monitor \u003crun_id\u003e [flags]\n\nExamples:\n  dbt-cloud-pp-cli monitor 12345678\n  dbt-cloud-pp-cli monitor 12345678 --interval 30s --timeout 30m\n\nFlags:\n      --account-id string   dbt Cloud account ID (default: DBT_CLOUD_ACCOUNT_ID env var)\n  -h, --help                help for monitor\n      --interval duration   Poll interval (default 15s) (default 15s)\n      --timeout duration    Maximum time to wait (0 = no timeout)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "monitor",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [monitor] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "monitor",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [monitor] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "monitor",
+      "kind": "error_path",
+      "args": [
+        "monitor",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: fetching run __printing_press_invalid__: GET /api/v2/accounts/7767/runs/__printing_press_invalid__/ returned HTTP 404: \n\u003c!doctype html\u003e\n\u003chtml lang=\"en\"\u003e\n\u003chead\u003e\n  \u003ctitle\u003eNot Found\u003c/title\u003e\n\u003c/head\u003e\n\u003cbody\u003e\n  \u003ch1\u003eNot Found\u003c/h1\u003e\u003cp\u003eThe requested resource was not found on this server.\u003c/p\u003e\n\u003c/body\u003e\n\u003c/html\u003e\n\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  dbt-cloud-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  dbt-cloud-pp-cli profile delete my-defaults --yes\n  dbt-cloud-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  dbt-cloud-pp-cli profile list [flags]\n\nExamples:\n  dbt-cloud-pp-cli profile list\n  dbt-cloud-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  dbt-cloud-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  dbt-cloud-pp-cli profile save my-defaults --json --compact\n  dbt-cloud-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  dbt-cloud-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  dbt-cloud-pp-cli profile show my-defaults\n  dbt-cloud-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  dbt-cloud-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  dbt-cloud-pp-cli profile use my-defaults\n  dbt-cloud-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "runs artifacts list-run",
+      "kind": "help",
+      "args": [
+        "runs",
+        "artifacts",
+        "list-run",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Retrieve the list of artifacts generated for a run.\n\nUsage:\n  dbt-cloud-pp-cli runs artifacts list-run [account_id] \u003crun_id\u003e [flags]\n\nAliases:\n  list-run, get\n\nExamples:\n  dbt-cloud-pp-cli runs artifacts list-run 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help                     help for list-run\n      --include-related string   Comma-separated list of related objects to include in the response.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "runs artifacts list-run",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "runs artifacts list-run",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "runs artifacts list-run",
+      "kind": "error_path",
+      "args": [
+        "runs",
+        "artifacts",
+        "list-run",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: run_id is required\nUsage: dbt-cloud-pp-cli runs artifacts list-run \u003crun_id\u003e\n"
+    },
+    {
+      "command": "runs artifacts retrieve-run",
+      "kind": "help",
+      "args": [
+        "runs",
+        "artifacts",
+        "retrieve-run",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Use this endpoint to fetch artifacts from a completed run.\n\nUsage:\n  dbt-cloud-pp-cli runs artifacts retrieve-run [account_id] \u003cremainder\u003e \u003crun_id\u003e [flags]\n\nExamples:\n  dbt-cloud-pp-cli runs artifacts retrieve-run 550e8400-e29b-41d4-a716-446655440000 example-value 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help                     help for retrieve-run\n      --include-related string   Comma-separated list of related objects to include in the response.\n      --step 1                   The index of the Step in the Run to query for artifacts. The first step in the run has the index 1.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "runs artifacts retrieve-run",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [runs artifacts retrieve-run] has fewer segments than placeholders (3)"
+    },
+    {
+      "command": "runs artifacts retrieve-run",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [runs artifacts retrieve-run] has fewer segments than placeholders (3)"
+    },
+    {
+      "command": "runs artifacts retrieve-run",
+      "kind": "error_path",
+      "args": [
+        "runs",
+        "artifacts",
+        "retrieve-run",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: remainder is required\nUsage: dbt-cloud-pp-cli runs artifacts retrieve-run \u003cremainder\u003e\n"
+    },
+    {
+      "command": "runs cancel run",
+      "kind": "help",
+      "args": [
+        "runs",
+        "cancel",
+        "run",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Cancel a run.\n\nUsage:\n  dbt-cloud-pp-cli runs cancel run [account_id] \u003crun_id\u003e [flags]\n\nAliases:\n  run, create\n\nExamples:\n  dbt-cloud-pp-cli runs cancel run 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help    help for run\n      --stdin   Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "runs cancel run",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"account_id\""
+    },
+    {
+      "command": "runs cancel run",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"account_id\""
+    },
+    {
+      "command": "runs cancel run",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "runs cancel run",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"account_id\""
+    },
+    {
+      "command": "runs list",
+      "kind": "help",
+      "args": [
+        "runs",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List runs for an account.\n\naccount_id is optional: if omitted, it defaults from the DBT_CLOUD_ACCOUNT_ID\nenvironment variable. Provide it explicitly as the first positional argument to\noverride the env default (e.g. when targeting a different account).\n\nUsage:\n  dbt-cloud-pp-cli runs list [account_id] [flags]\n\nAliases:\n  list, get\n\nExamples:\n  dbt-cloud-pp-cli runs list 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --all                        Fetch all pages\n      --created-at-range string    Created at range\n      --dbt-version string         Dbt version\n      --dbt-version-in string      Dbt version in\n      --deferring-run-id string    Deferring run id\n      --environment-id string      Environment id\n      --finished-at-range string   Finished at range\n      --has-docs-generated         Has docs generated\n      --has-sources-generated      Has sources generated\n  -h, --help                       help for list\n      --id-gt int                  Id gt\n      --include-related trigger    A list of related objects to include in the response. Valid values are trigger, `job`, `audit`, and `debug_logs`.\n      --job-definition-id string   Filters the results to a specific Job\n      --limit int                  Pagination limit (default 100)\n      --offset string              Pagination offset (default \"0\")\n      --order-by -                 Field to order the results by. Use - to reverse the order. Options are `id`, `created_at`, and `finished_at` (default \"id\")\n      --pk int                     Pk\n      --pk-in string               Pk in\n      --project-id string          Filters the results to a specific Project\n      --project-id-in string       Project id in\n      --state string               State (default \"all\")\n      --status int                 Filters the results to a specific run status\n      --status-in string           Filters the results to a specific set of run statuses.\n      --wait                       Block until the submitted job reaches a terminal status\n      --wait-interval duration     Initial poll interval when --wait is set (default 2s)\n      --wait-timeout duration      Maximum duration to wait when --wait is set (0 = no timeout) (default 10m0s)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        R…[truncated]"
+    },
+    {
+      "command": "runs list",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"account_id\""
+    },
+    {
+      "command": "runs list",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"account_id\""
+    },
+    {
+      "command": "runs list",
+      "kind": "error_path",
+      "args": [
+        "runs",
+        "list",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /api/v2/accounts/__printing_press_invalid__/runs/ returned HTTP 404: \n\u003c!doctype html\u003e\n\u003chtml lang=\"en\"\u003e\n\u003chead\u003e\n  \u003ctitle\u003eNot Found\u003c/title\u003e\n\u003c/head\u003e\n\u003cbody\u003e\n  \u003ch1\u003eNot Found\u003c/h1\u003e\u003cp\u003eThe requested resource was not found on this server.\u003c/p\u003e\n\u003c/body\u003e\n\u003c/html\u003e\n\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "runs retrieve",
+      "kind": "help",
+      "args": [
+        "runs",
+        "retrieve",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Retrieve details of a run.\n\nUsage:\n  dbt-cloud-pp-cli runs retrieve [account_id] \u003cid\u003e [flags]\n\nExamples:\n  dbt-cloud-pp-cli runs retrieve 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help                     help for retrieve\n      --include-related string   A list of related objects to include in the response.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "runs retrieve",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [runs retrieve] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "runs retrieve",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [runs retrieve] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "runs retrieve",
+      "kind": "error_path",
+      "args": [
+        "runs",
+        "retrieve",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: id is required\nUsage: dbt-cloud-pp-cli runs retrieve \u003cid\u003e\n"
+    },
+    {
+      "command": "runs retry retrieve-run-failure-details",
+      "kind": "help",
+      "args": [
+        "runs",
+        "retry",
+        "retrieve-run-failure-details",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Use this endpoint to get details about a retryable run that has failed.\n\nUsage:\n  dbt-cloud-pp-cli runs retry retrieve-run-failure-details [account_id] \u003crun_id\u003e [flags]\n\nAliases:\n  retrieve-run-failure-details, get\n\nExamples:\n  dbt-cloud-pp-cli runs retry retrieve-run-failure-details 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help                     help for retrieve-run-failure-details\n      --include-related string   Comma-separated list of related objects to include in the response.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "runs retry retrieve-run-failure-details",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"account_id\""
+    },
+    {
+      "command": "runs retry retrieve-run-failure-details",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"account_id\""
+    },
+    {
+      "command": "runs retry retrieve-run-failure-details",
+      "kind": "error_path",
+      "args": [
+        "runs",
+        "retry",
+        "retrieve-run-failure-details",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: run_id is required\nUsage: dbt-cloud-pp-cli runs retry retrieve-run-failure-details \u003crun_id\u003e\n"
+    },
+    {
+      "command": "runs retry run",
+      "kind": "help",
+      "args": [
+        "runs",
+        "retry",
+        "run",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Use this endpoint to retry a failed run. When this endpoint returns a successful response, a new run will be enqueued.\n\nUsage:\n  dbt-cloud-pp-cli runs retry run [account_id] \u003crun_id\u003e [flags]\n\nAliases:\n  run, create\n\nExamples:\n  dbt-cloud-pp-cli runs retry run 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help    help for run\n      --stdin   Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "runs retry run",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"account_id\""
+    },
+    {
+      "command": "runs retry run",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"account_id\""
+    },
+    {
+      "command": "runs retry run",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "runs retry run",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"account_id\""
+    },
+    {
+      "command": "runs stats",
+      "kind": "help",
+      "args": [
+        "runs",
+        "stats",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Read the local synced run mirror and compute per-job statistics.\n\nRequires a prior 'dbt-cloud-pp-cli sync' to populate the local database.\nStatistics are computed over runs in the last --days days (default 30).\nUse --job to filter to a single job definition ID.\n\nUsage:\n  dbt-cloud-pp-cli runs stats [flags]\n\nExamples:\n  dbt-cloud-pp-cli runs stats\n  dbt-cloud-pp-cli runs stats --days 7 --json\n  dbt-cloud-pp-cli runs stats --job 12345\n\nFlags:\n      --days int    Number of days to look back (default 30) (default 30)\n      --db string   Path to local SQLite database (default: auto-detected)\n  -h, --help        help for stats\n      --job int     Filter to a specific job definition ID\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "runs stats",
+      "kind": "happy_path",
+      "args": [
+        "runs",
+        "stats"
+      ],
+      "status": "pass",
+      "output_sample": "Read the local synced run mirror and compute per-job statistics.\n\nRequires a prior 'dbt-cloud-pp-cli sync' to populate the local database.\nStatistics are computed over runs in the last --days days (default 30).\nUse --job to filter to a single job definition ID.\n\nUsage:\n  dbt-cloud-pp-cli runs stats [flags]\n\nExamples:\n  dbt-cloud-pp-cli runs stats\n  dbt-cloud-pp-cli runs stats --days 7 --json\n  dbt-cloud-pp-cli runs stats --job 12345\n\nFlags:\n      --days int    Number of days to look back (default 30) (default 30)\n      --db string   Path to local SQLite database (default: auto-detected)\n  -h, --help        help for stats\n      --job int     Filter to a specific job definition ID\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "runs stats",
+      "kind": "json_fidelity",
+      "args": [
+        "runs",
+        "stats",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "runs stats",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "steps",
+      "kind": "help",
+      "args": [
+        "steps",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Retrieve the details of a specific step of a run.\n\nUsage:\n  dbt-cloud-pp-cli steps [account_id] \u003cid\u003e [flags]\n\nExamples:\n  dbt-cloud-pp-cli steps 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help                      help for steps\n      --include-related trigger   A list of related objects to include in the response. Valid values are trigger, `job`, and `debug_logs`.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "steps",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [steps] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "steps",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [steps] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "steps",
+      "kind": "error_path",
+      "args": [
+        "steps",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: id is required\nUsage: dbt-cloud-pp-cli steps \u003cid\u003e\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  dbt-cloud-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  dbt-cloud-pp-cli sync\n\n  # Sync specific resources only\n  dbt-cloud-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  dbt-cloud-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  dbt-cloud-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  dbt-cloud-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  dbt-cloud-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/dbt-cloud-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, …[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_warning\",\"reason\":\"no_bulk_list_endpoints\",\"detail\":\"no default sync resources in spec; use --resources for explicit sync targets or populate the store via single-fetch commands\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_warning\",\"reason\":\"no_bulk_list_endpoints\",\"detail\":\"no default sync resources in spec; use --resources for explicit sync targets or populate the store via single-fetch commands\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "tail",
+      "kind": "help",
+      "args": [
+        "tail",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Tail streams live data changes by polling the API at configurable intervals.\nEvents are emitted as NDJSON to stdout for piping to other tools.\nGracefully shuts down on SIGTERM/SIGINT.\n\nNote: For APIs with WebSocket or SSE support, a future version will use\nnative streaming instead of polling.\n\nUsage:\n  dbt-cloud-pp-cli tail [resource] [flags]\n\nExamples:\n  # Tail all changes every 10 seconds\n  dbt-cloud-pp-cli tail --interval 10s\n\n  # Tail a specific resource\n  dbt-cloud-pp-cli tail messages --interval 5s\n\n  # Pipe to jq for filtering\n  dbt-cloud-pp-cli tail events --interval 30s | jq 'select(.type == \"error\")'\n\nFlags:\n      --follow              Keep running (set --follow=false for single poll) (default true)\n  -h, --help                help for tail\n      --interval duration   Poll interval (default 10s)\n      --resource string     Resource type to tail\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "tail",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "error_path",
+      "args": [
+        "tail",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: initial fetch failed: GET /__printing_press_invalid__ returned HTTP 400: \u003c?xml version=\"1.0\" encoding=\"UTF-8\"?\u003e\n\u003cError\u003e\u003cCode\u003eInvalidArgument\u003c/Code\u003e\u003cMessage\u003eUnsupported Authorization Type\u003c/Message\u003e\u003cArgumentName\u003eAuthorization\u003c/ArgumentName\u003e\u003cArgumentValue\u003e****sk9o\u003c/ArgumentValue\u003e\u003cRequestId\u003eHF7PCZVGSARQ5Q6A\u003c/RequestId\u003e\u003cHostId\u003ewtroPxFZo9NPkfiAKuz0+ord+ruBPmumLg8AV4r0U2b36CKUEeKMMYBOSDYv9noZzlkGebL5KffM6s/d5Usyt+Q+CrpymTgJ\u003c/HostId\u003e\u003c/Error\u003e\n"
+    },
+    {
+      "command": "trigger",
+      "kind": "help",
+      "args": [
+        "trigger",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "POST /api/v2/accounts/{account_id}/jobs/{job_id}/run/ to trigger a job run.\n\nPrints the new run ID. With --wait, polls the run to completion and exits with\nthe run's status code (0=success, 1=failure/cancelled). This command MUTATES\nremote state — use --dry-run to preview the request without sending it.\n\nUsage:\n  dbt-cloud-pp-cli trigger \u003cjob_id\u003e [flags]\n\nExamples:\n  dbt-cloud-pp-cli trigger 12345 --cause \"manual test\"\n  dbt-cloud-pp-cli trigger 12345 --cause \"CI\" --wait\n  dbt-cloud-pp-cli trigger 12345 --cause \"feature\" --git-branch main --wait --timeout 30m\n  dbt-cloud-pp-cli trigger 12345 --dry-run\n\nFlags:\n      --account-id string        dbt Cloud account ID (default: DBT_CLOUD_ACCOUNT_ID env var)\n      --cause string             Reason for triggering the run (required)\n      --git-branch string        Git branch to run against\n      --git-sha string           Git commit SHA to run against\n  -h, --help                     help for trigger\n      --interval duration        Poll interval when --wait is set (default 15s) (default 15s)\n      --schema-override string   Override the target schema\n      --timeout duration         Maximum time to wait when --wait is set (0 = no timeout)\n      --wait                     Wait for the run to complete and exit with its status code\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trigger",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [trigger] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "trigger",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [trigger] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "trigger",
+      "kind": "error_path",
+      "args": [
+        "trigger",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: --cause is required\n"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  dbt-cloud-pp-cli which [query] [flags]\n\nExamples:\n  dbt-cloud-pp-cli which \"stale tickets\"\n  dbt-cloud-pp-cli which \"bottleneck\"\n  dbt-cloud-pp-cli which --limit 1 \"send message\"\n  dbt-cloud-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  dbt-cloud-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  dbt-cloud-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  dbt-cloud-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/dbt-cloud-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "Archived 0 items across 0 resources to /tmp/printing-press-subprocess-1977660996/.local/share/dbt-cloud-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 0,\n  \"store_path\": \"/tmp/printing-press-subprocess-1977660996/.local/share/dbt-cloud-pp-cli/data.db\",\n  \"timestamp\": \"2026-06-20T17:15:49Z\",\n  \"total_items\": 0\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  dbt-cloud-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  dbt-cloud-pp-cli workflow status\n\n  # Show status as JSON\n  dbt-cloud-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'dbt-cloud-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  runs                           1 items\n\n  Total: 1 items\n  Store: /tmp/printing-press-subprocess-1977660996/.local/share/dbt-cloud-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"runs\": 1\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-20T17:15:44.640371431Z"
+}
