@@ -986,7 +986,7 @@ If you use agentcookie to sync secrets across machines, this CLI auto-adopts age
 ## Troubleshooting
 **Authentication errors (exit code 4)**
 - Run `github-pp-cli doctor` to check credentials
-- Verify the environment variable is set: `echo $GITHUB_TOKEN`
+- Verify the environment variable is present without printing it: `test -n "${GITHUB_TOKEN:-}" && echo "GITHUB_TOKEN is set"`
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
