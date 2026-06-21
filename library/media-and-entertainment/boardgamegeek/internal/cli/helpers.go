@@ -561,6 +561,11 @@ func paginatedGet(ctx context.Context, c interface {
 	// Fetch all pages
 	allItems := make([]json.RawMessage, 0)
 	page := 0
+	// Inferred page size for APIs that paginate by page number but declare no
+	// page-size (limit) parameter and expose no next-cursor / has-more signal
+	// (e.g. BoardGameGeek's XMLAPI2). Set from the first non-empty page and used
+	// by nextFullPagePageCursor to decide whether a full page implies more.
+	pageSize := 0
 	for {
 		page++
 		if humanFriendly {
@@ -578,7 +583,18 @@ func paginatedGet(ctx context.Context, c interface {
 		var items []json.RawMessage
 		if json.Unmarshal(data, &items) == nil {
 			allItems = append(allItems, items...)
+			if pageSize == 0 {
+				pageSize = len(items)
+			}
 			if next, ok := nextFullPageOffsetCursor(clean, cursorParam, paginationType, limitParam, len(items)); ok {
+				if page >= paginatedGetMaxPages {
+					emitPaginatedGetMaxPagesWarning()
+					break
+				}
+				clean[cursorParam] = next
+				continue
+			}
+			if next, ok := nextFullPagePageCursor(clean, cursorParam, paginationType, limitParam, len(items), pageSize, len(allItems), 0); ok {
 				if page >= paginatedGetMaxPages {
 					emitPaginatedGetMaxPagesWarning()
 					break
@@ -595,6 +611,10 @@ func paginatedGet(ctx context.Context, c interface {
 					allItems = append(allItems, nested...)
 					itemCount = len(nested)
 				}
+				if pageSize == 0 {
+					pageSize = itemCount
+				}
+				envelopeTotal := paginationTotalFromEnvelope(obj)
 
 				// Check for next cursor
 				if nextCursorPath != "" {
@@ -642,6 +662,14 @@ func paginatedGet(ctx context.Context, c interface {
 						clean[cursorParam] = next
 						continue
 					}
+					if next, ok := nextFullPagePageCursor(clean, cursorParam, paginationType, limitParam, itemCount, pageSize, len(allItems), envelopeTotal); ok {
+						if page >= paginatedGetMaxPages {
+							emitPaginatedGetMaxPagesWarning()
+							break
+						}
+						clean[cursorParam] = next
+						continue
+					}
 				}
 			}
 			// No more pages
@@ -673,6 +701,79 @@ func nextFullPageOffsetCursor(params map[string]string, cursorParam, paginationT
 		return "", false
 	}
 	return nextClientSidePaginationCursor(params, cursorParam, paginationType, limitParam)
+}
+
+// nextFullPagePageCursor advances page-number pagination for APIs that return a
+// server-fixed page of items but declare no page-size (limit) parameter and
+// expose no next-cursor or has-more field — e.g. BoardGameGeek's XMLAPI2, where
+// plays and guild members come back as {"plays": {"@total": "...", "play": [...]}}
+// with a fixed 100-item page. When the envelope declares a total (passed via
+// total), it stops exactly once every item has been collected. When no total is
+// available it infers the page size from the first non-empty page and keeps
+// going while a full page comes back (costing one extra empty fetch only when
+// the total is an exact multiple of the page size). Capped by
+// paginatedGetMaxPages. Restricted to page pagination with no limit param so
+// limit-driven offset pagination (nextFullPageOffsetCursor) and cursor/has-more
+// APIs are left untouched.
+func nextFullPagePageCursor(params map[string]string, cursorParam, paginationType, limitParam string, itemCount, pageSize, collected, total int) (string, bool) {
+	if paginationType != "page" || limitParam != "" {
+		return "", false
+	}
+	if itemCount == 0 {
+		return "", false
+	}
+	if total > 0 {
+		if collected >= total {
+			return "", false
+		}
+		return nextClientSidePaginationCursor(params, cursorParam, paginationType, limitParam)
+	}
+	if pageSize <= 0 || itemCount < pageSize {
+		return "", false
+	}
+	return nextClientSidePaginationCursor(params, cursorParam, paginationType, limitParam)
+}
+
+// paginationTotalFromEnvelope extracts a total-item count from a response
+// object, handling flat ({"total": N}) and XML-normalized nested envelopes
+// ({"plays": {"@total": "N", "play": [...]}}). XML attributes normalize to
+// strings, so string values are parsed too. Returns 0 when no usable total is
+// present.
+func paginationTotalFromEnvelope(obj map[string]json.RawMessage) int {
+	if n := totalFromAttributes(obj); n > 0 {
+		return n
+	}
+	if len(obj) == 1 {
+		for _, raw := range obj {
+			var nested map[string]json.RawMessage
+			if json.Unmarshal(raw, &nested) == nil {
+				if n := totalFromAttributes(nested); n > 0 {
+					return n
+				}
+			}
+		}
+	}
+	return 0
+}
+
+func totalFromAttributes(obj map[string]json.RawMessage) int {
+	for _, key := range []string{"@total", "total", "totalCount", "total_count", "totalItems"} {
+		raw, ok := obj[key]
+		if !ok {
+			continue
+		}
+		var n int
+		if json.Unmarshal(raw, &n) == nil && n > 0 {
+			return n
+		}
+		var s string
+		if json.Unmarshal(raw, &s) == nil {
+			if parsed, err := strconv.Atoi(strings.TrimSpace(s)); err == nil && parsed > 0 {
+				return parsed
+			}
+		}
+	}
+	return 0
 }
 
 func nextClientSidePaginationCursor(params map[string]string, cursorParam, paginationType, limitParam string) (string, bool) {
