@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "valyu",
+  "run_id": "20260619-151616-c25a2c3a",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 27,
+  "tests_passed": 27,
+  "tests_skipped": 0,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

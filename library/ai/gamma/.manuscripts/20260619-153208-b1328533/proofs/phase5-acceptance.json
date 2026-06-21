@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "gamma",
+  "run_id": "20260619-153208-b1328533",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 21,
+  "tests_passed": 21,
+  "tests_skipped": 0,
+  "auth_context": {
+    "type": "api_key"
+  }
+}
