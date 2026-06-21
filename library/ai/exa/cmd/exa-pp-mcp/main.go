@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	mcptools "exa-pp-cli/internal/mcp"
+	mcptools "github.com/mvanhorn/printing-press-library/library/ai/exa/internal/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
 

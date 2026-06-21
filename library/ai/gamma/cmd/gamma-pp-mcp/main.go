@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	mcptools "gamma-pp-cli/internal/mcp"
+	mcptools "github.com/mvanhorn/printing-press-library/library/ai/gamma/internal/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
 
