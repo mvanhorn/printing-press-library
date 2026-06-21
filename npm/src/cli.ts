@@ -84,6 +84,10 @@ Install options:
   --bin-dir <dir>        Install the Go binary into this directory via GOBIN
   --json                 Emit machine-readable output
 
+Update options:
+  --stale-only           Skip CLIs whose installed version matches the registry (default)
+  --all                  Re-install all detected CLIs regardless of version
+
 Top-level options:
   -h, --help             Show help
   -v, --version          Show version`);

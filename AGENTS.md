@@ -335,6 +335,8 @@ Adding or updating a CLI does not require an npm publish. The package is a thin 
 
 The repo is public, the package is published, and `npx -y @mvanhorn/printing-press install <name>` works end-to-end for unauthenticated users.
 
+`update` (no name) is **smart by default**: it stamps each installed CLI's `printing_press_version` into `~/.agents/.pp-cli-versions.json` at install time, then on the next run compares that stamp against the registry to skip current CLIs and re-install only stale/unknown ones. `--all` forces the old unconditional sweep; `--stale-only` is the default. CLIs whose registry entry lacks `printing_press_version` are treated as unknown and always re-installed, so smart-update degrades gracefully to the old sweep until the field propagates across the catalog.
+
 ## Releasing the npm installer
 
 Single rule: **bump `npm/package.json`'s `version` field in your release PR.** Everything else is automated.

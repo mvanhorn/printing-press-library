@@ -14,6 +14,11 @@ import {
   type Registry,
 } from "../registry.js";
 import { installSkill } from "../skill.js";
+import {
+  defaultStampDeps,
+  readInstalledVersions,
+  writeInstalledVersion,
+} from "../versions.js";
 
 interface InstallOptions {
   agents: string[];
@@ -43,6 +48,13 @@ interface InstallDeps {
   home?: string;
   /** Environment inherited by subprocesses; injectable for targeted install tests. */
   env: NodeJS.ProcessEnv;
+  /**
+   * Installed-version stamp IO (defaults to `~/.agents/.pp-cli-versions.json`).
+   * Injectable so install tests can capture the stamped version without touching
+   * the real filesystem. See `../versions.ts`.
+   */
+  readInstalledVersions: () => Promise<Record<string, string>>;
+  writeInstalledVersion: (name: string, version: string | undefined) => Promise<void>;
 }
 
 interface InstallSummary {
@@ -97,6 +109,8 @@ export function createInstallCommand(overrides: Partial<InstallDeps> = {}) {
     shell: process.env.SHELL,
     home: process.env.HOME ?? process.env.USERPROFILE,
     env: process.env,
+    readInstalledVersions: () => readInstalledVersions(defaultStampDeps),
+    writeInstalledVersion: (name, version) => writeInstalledVersion(name, version, defaultStampDeps),
     ...overrides,
   };
 
@@ -253,6 +267,14 @@ async function installOne(
     if (summary.skill) {
       deps.stdout(`  skill: ${summary.skill}`);
     }
+  }
+
+  // Stamp the installed generator version so `update --stale-only` can skip this
+  // CLI on the next run. Only stamped when the registry carries a version; entries
+  // without `printing_press_version` are left unstamped so `update` treats them as
+  // unknown (→ re-install) rather than silently current.
+  if (entry.printing_press_version) {
+    await deps.writeInstalledVersion(entry.name, entry.printing_press_version);
   }
 
   return { ok: true, name: entry.name, data: summary };

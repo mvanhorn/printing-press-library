@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.19
+
+- Make `update` smart by default: skip CLIs whose installed generator version (`printing_press_version`) matches the registry, re-installing only stale or unknown ones. Adds `--stale-only` (default) and `--all` flags; `--all` restores the old unconditional sweep.
+- Record the installed `printing_press_version` per CLI in `~/.agents/.pp-cli-versions.json` on every successful `install`, so `update --stale-only` can compare against the live registry.
+
+## 0.1.18
+
+- Surface an additive `printing_press_version` field on `RegistryEntry` (TS) and the Go registry generator, sourced verbatim from each CLI's `.printing-press.json`.
+
 ## 0.1.17
 
 - Raise the documented direct `go install` floor to Go 1.26.4 so npm installer guidance matches the catalog-wide module enforcement floor.

@@ -801,3 +801,66 @@ test("install command points at the install dir when nothing is on PATH", async 
   // The error message names the specific path the user needs to add to PATH.
   assert.match(stderr.join("\n"), /\/Users\/example\/\.local\/bin\/espn-pp-cli/);
 });
+
+test("install stamps printing_press_version after a successful install", async () => {
+  const stampedRegistry: Registry = {
+    schema_version: 2,
+    entries: [
+      {
+        name: "espn",
+        category: "sports",
+        api: "ESPN",
+        description: "Sports scores",
+        path: "library/sports/espn",
+        printing_press_version: "4.24.0",
+      },
+    ],
+  };
+  const stamped: Array<{ name: string; version: string | undefined }> = [];
+  const command = createInstallCommand({
+    fetchRegistry: async () => stampedRegistry,
+    resolveModulePath: async () => null,
+    detectGo: async () => ({ installed: true }),
+    goInstall: async () => ok(),
+    goInstallDir: async () => goBinDir("/Users/example/go/bin"),
+    commandOnPath: async () => "/Users/example/go/bin/espn-pp-cli",
+    mkdir: async () => {},
+    installSkill: async () => ok(),
+    stdout: () => {},
+    stderr: () => {},
+    home: "/Users/example",
+    env: {},
+    readInstalledVersions: async () => ({}),
+    writeInstalledVersion: async (name, version) => {
+      stamped.push({ name, version });
+    },
+  });
+
+  assert.equal(await command(["espn"]), 0);
+  assert.deepEqual(stamped, [{ name: "espn", version: "4.24.0" }]);
+});
+
+test("install does not stamp when registry entry has no printing_press_version", async () => {
+  const stamped: Array<{ name: string; version: string | undefined }> = [];
+  const command = createInstallCommand({
+    fetchRegistry: async () => registry,
+    resolveModulePath: async () => null,
+    detectGo: async () => ({ installed: true }),
+    goInstall: async () => ok(),
+    goInstallDir: async () => goBinDir("/Users/example/go/bin"),
+    commandOnPath: async () => "/Users/example/go/bin/espn-pp-cli",
+    mkdir: async () => {},
+    installSkill: async () => ok(),
+    stdout: () => {},
+    stderr: () => {},
+    home: "/Users/example",
+    env: {},
+    readInstalledVersions: async () => ({}),
+    writeInstalledVersion: async (name, version) => {
+      stamped.push({ name, version });
+    },
+  });
+
+  assert.equal(await command(["espn"]), 0);
+  assert.deepEqual(stamped, []);
+});

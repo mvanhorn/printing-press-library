@@ -99,6 +99,18 @@ npx -y @mvanhorn/printing-press-library uninstall espn --yes
 
 `reinstall` is an alias for `update`: `reinstall <name>` rebuilds one CLI from the latest catalog code and re-adds its skill, while `reinstall` with no name refreshes every Printing Press CLI already on your `PATH`. Reach for it when a binary or skill needs a clean refresh — `install <name>` overwrites in place too, so either works.
 
+`update` (with no name) is smart by default: it skips CLIs whose installed generator version matches the registry and only re-installs the stale ones. Pass `--all` to force the old unconditional sweep:
+
+```bash
+# Smart: skip current CLIs, re-install only stale ones (default)
+npx -y @mvanhorn/printing-press-library update
+
+# Force: re-install every detected CLI regardless of version
+npx -y @mvanhorn/printing-press-library update --all
+```
+
+The version comparison uses the `printing_press_version` field in the catalog. CLIs whose registry entry does not carry that field (older prints) are treated as unknown and always re-installed, so smart-update degrades to the old sweep until the field propagates across the catalog.
+
 ## Options
 
 ```bash

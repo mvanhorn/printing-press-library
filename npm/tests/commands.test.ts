@@ -334,6 +334,201 @@ test("update skips a CLI whose PATH probe throws instead of aborting the run", a
   assert.deepEqual(installed.sort(), ["cal-com", "espn"]);
 });
 
+// --- update --stale-only (smart skip) -------------------------------------
+
+const versionedRegistry: Registry = {
+  schema_version: 2,
+  entries: [
+    {
+      name: "espn",
+      category: "sports",
+      api: "ESPN",
+      description: "Live sports scores",
+      path: "library/sports/espn",
+      printing_press_version: "4.24.0",
+    },
+    {
+      name: "cal-com",
+      category: "productivity",
+      api: "Cal.com",
+      description: "Scheduling and booking links",
+      path: "library/productivity/cal-com",
+      printing_press_version: "4.25.0",
+    },
+  ],
+};
+
+test("update --stale-only skips current CLIs and re-installs stale ones", async () => {
+  const installs: string[] = [];
+  const stdout: string[] = [];
+  const command = createUpdateCommand({
+    fetchRegistry: async () => versionedRegistry,
+    commandOnPath: async (binary) =>
+      binary === "espn-pp-cli" || binary === "cal-com-pp-cli" ? `/bin/${binary}` : null,
+    readInstalledVersions: async () => ({
+      // espn was installed at 4.24.0 → matches registry → current (skip).
+      espn: "4.24.0",
+      // cal-com was installed at 4.24.0 → registry says 4.25.0 → stale (update).
+      "cal-com": "4.24.0",
+    }),
+    createInstall: () => async (args) => {
+      installs.push(args[0]!);
+      return 0;
+    },
+    stdout: (message) => stdout.push(message),
+  });
+
+  assert.equal(await command([]), 0);
+  // Only the stale CLI re-installs.
+  assert.deepEqual(installs, ["cal-com"]);
+  // The current CLI gets a skip notice.
+  assert.match(stdout.join("\n"), /espn is current.*skipping/);
+});
+
+test("update defaults to stale-only without an explicit flag", async () => {
+  const installs: string[] = [];
+  const command = createUpdateCommand({
+    fetchRegistry: async () => versionedRegistry,
+    commandOnPath: async (binary) => `/bin/${binary}`,
+    readInstalledVersions: async () => ({
+      espn: "4.24.0",
+      "cal-com": "4.25.0",
+    }),
+    createInstall: () => async (args) => {
+      installs.push(args[0]!);
+      return 0;
+    },
+  });
+
+  // No flag → stale-only is the default. Both CLIs are current → no installs.
+  assert.equal(await command([]), 0);
+  assert.deepEqual(installs, []);
+});
+
+test("update --all forces re-install of current CLIs", async () => {
+  const installs: string[] = [];
+  const command = createUpdateCommand({
+    fetchRegistry: async () => versionedRegistry,
+    commandOnPath: async (binary) =>
+      binary === "espn-pp-cli" || binary === "cal-com-pp-cli" ? `/bin/${binary}` : null,
+    readInstalledVersions: async () => ({
+      espn: "4.24.0",
+      "cal-com": "4.25.0",
+    }),
+    createInstall: () => async (args) => {
+      installs.push(args[0]!);
+      return 0;
+    },
+  });
+
+  assert.equal(await command(["--all"]), 0);
+  // --all ignores the stamp and re-installs everything detected.
+  assert.deepEqual(installs.sort(), ["cal-com", "espn"]);
+});
+
+test("update --stale-only treats a missing stamp entry as unknown and updates", async () => {
+  const installs: string[] = [];
+  const command = createUpdateCommand({
+    fetchRegistry: async () => versionedRegistry,
+    commandOnPath: async (binary) => `/bin/${binary}`,
+    readInstalledVersions: async () => ({
+      // espn stamped, cal-com missing from stamp entirely.
+      espn: "4.24.0",
+    }),
+    createInstall: () => async (args) => {
+      installs.push(args[0]!);
+      return 0;
+    },
+  });
+
+  assert.equal(await command([]), 0);
+  // espn is current (skip); cal-com is unknown → re-install.
+  assert.deepEqual(installs, ["cal-com"]);
+});
+
+test("update --stale-only treats a registry entry without printing_press_version as unknown and updates", async () => {
+  const unstampedRegistry: Registry = {
+    schema_version: 2,
+    entries: [
+      {
+        name: "espn",
+        category: "sports",
+        api: "ESPN",
+        description: "Live sports scores",
+        path: "library/sports/espn",
+        // no printing_press_version — can't determine currency → update.
+      },
+    ],
+  };
+  const installs: string[] = [];
+  const command = createUpdateCommand({
+    fetchRegistry: async () => unstampedRegistry,
+    commandOnPath: async () => "/bin/espn-pp-cli",
+    readInstalledVersions: async () => ({ espn: "4.24.0" }),
+    createInstall: () => async (args) => {
+      installs.push(args[0]!);
+      return 0;
+    },
+  });
+
+  assert.equal(await command([]), 0);
+  // No registry version → unknown → re-install rather than silently skip.
+  assert.deepEqual(installs, ["espn"]);
+});
+
+test("update --stale-only reports all-current and installs nothing", async () => {
+  const installs: string[] = [];
+  const stdout: string[] = [];
+  const command = createUpdateCommand({
+    fetchRegistry: async () => versionedRegistry,
+    commandOnPath: async (binary) => `/bin/${binary}`,
+    readInstalledVersions: async () => ({
+      espn: "4.24.0",
+      "cal-com": "4.25.0",
+    }),
+    createInstall: () => async (args) => {
+      installs.push(args[0]!);
+      return 0;
+    },
+    stdout: (message) => stdout.push(message),
+  });
+
+  assert.equal(await command([]), 0);
+  assert.deepEqual(installs, []);
+  assert.match(stdout.join("\n"), /2 detected CLIs are current/);
+  assert.match(stdout.join("\n"), /--all/);
+});
+
+test("update --stale-only then --all lets the last flag win (force all)", async () => {
+  const installs: string[] = [];
+  const command = createUpdateCommand({
+    fetchRegistry: async () => versionedRegistry,
+    commandOnPath: async (binary) => (binary === "espn-pp-cli" ? "/bin/espn-pp-cli" : null),
+    readInstalledVersions: async () => ({ espn: "4.24.0" }),
+    createInstall: () => async (args) => {
+      installs.push(args[0]!);
+      return 0;
+    },
+  });
+
+  // --all appears after --stale-only → last flag wins → force re-install.
+  assert.equal(await command(["--stale-only", "--all"]), 0);
+  assert.deepEqual(installs, ["espn"]);
+});
+
+test("help documents the --stale-only and --all update flags", async () => {
+  const lines: string[] = [];
+  const originalLog = console.log;
+  console.log = (message) => lines.push(String(message));
+  try {
+    await run(["--help"]);
+  } finally {
+    console.log = originalLog;
+  }
+  assert.match(lines.join("\n"), /--stale-only/);
+  assert.match(lines.join("\n"), /--all/);
+});
+
 test("uninstall command requires --yes", async () => {
   const stderr: string[] = [];
   const command = createUninstallCommand({
