@@ -1,0 +1,1318 @@
+{
+  "api_name": "valyu",
+  "base_url": "https://api.valyu.ai",
+  "description": "The search API built for AI agents.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-API-Key",
+    "in": "header",
+    "env_vars": [
+      "VALYU_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "VALYU_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://platform.valyu.ai"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "answer_answer",
+      "description": "Searches across web, academic, and financial sources, then uses AI to generate a readable, cited response. Returns results as a **Server-Sent Events (SSE)** stream. The AI agent performs multi-round search with up to 2 tool call rounds (3 in `fast_mode`), can decompose queries into sub-queries, and synthesizes findings into a coherent answer. ## SSE Event Types Events are sent as `data: {json}nn` with the following types: | Event | Description | | --- | --- | | `search_results` | Search sources found (may occur multiple times) | | `content` | Partial answer text chunk (OpenAI-compatible delta format) | | `metadata` | Final metadata with costs, token usage, and all search results | | `[DONE]` | Stream complete | ## Cost Structure Each request costs a base of ~$0.10 plus variable search and AI token costs. The `cost` object in the metadata event provides a full breakdown. Required: query. Optional: country_code, data_max_price (default: 1), end_date (plus 7 more).",
+      "method": "POST",
+      "path": "/v1/answer",
+      "params": [
+        {
+          "name": "country_code",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 3166-1 alpha-2 country code for geo-targeted search."
+        },
+        {
+          "name": "data_max_price",
+          "type": "float",
+          "location": "body",
+          "description": "Maximum budget in USD for the search data component. Converted to CPM internally."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "body",
+          "description": "Filter results published on or before this date. Format: `YYYY-MM-DD`."
+        },
+        {
+          "name": "excluded_sources",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Sources to exclude. Same format as `included_sources` except presets are not supported."
+        },
+        {
+          "name": "fast_mode",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable fast mode for lower latency. Uses 3 tool call rounds instead of 2 and higher result counts per query."
+        },
+        {
+          "name": "included_sources",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Sources to include. Accepts domains, URLs, dataset identifiers, or presets (`'finance'`, `'medical'`)."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "The question or research query to answer.",
+          "required": true
+        },
+        {
+          "name": "search_type",
+          "type": "string",
+          "location": "body",
+          "description": "Controls which data sources are searched. - `all` - Web and proprietary sources (default) - `web` - Web search only - `proprietary` - Academic, financial, and premium sources only - `news` - News articles only"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Filter results published on or after this date. Format: `YYYY-MM-DD`."
+        },
+        {
+          "name": "structured_output",
+          "type": "object",
+          "location": "body",
+          "description": "JSON Schema defining the desired output structure. When set, the AI returns a JSON object matching this schema instead of free-form text. Max depth 10, max 50 properties, max 5000 characters."
+        },
+        {
+          "name": "system_instructions",
+          "type": "string",
+          "location": "body",
+          "description": "Custom system instructions for the AI. Replaces the default research agent prompt. Max 2000 characters."
+        }
+      ]
+    },
+    {
+      "name": "contents_extract",
+      "description": "Turn any web page into clean, structured data. Extract content from up to 10 URLs per request with optional AI-powered summaries, structured extraction via JSON schemas, and screenshot capture. - **Synchronous (default)**: Returns extracted content directly - **Async**: Set `async: true` to process in the background and poll a `job_id` - **Pay-per-success**: Only charged for URLs that are successfully processed ($0.001/URL, +$0.001 with AI features). Failed URLs are free - **Partial / total failure**: A `206` is returned when some URLs fail; a `422` is returned when every URL fails. Required: urls. Optional: async (default: false), extract_effort (default: auto), max_price_dollars (plus 4 more).",
+      "method": "POST",
+      "path": "/v1/contents",
+      "params": [
+        {
+          "name": "async",
+          "type": "bool",
+          "location": "body",
+          "description": "Process URLs asynchronously in the background. Returns a `job_id` to poll via `GET /v1/contents/jobs/{job_id}`. Useful for slow, JavaScript-heavy pages."
+        },
+        {
+          "name": "extract_effort",
+          "type": "string",
+          "location": "body",
+          "description": "Controls how pages are rendered for extraction. - `'auto'` - Automatically selects the best method per URL (default) - `'normal'` - HTTP-only extraction, fastest - `'high'` - Full Chrome rendering, best for JavaScript-heavy pages"
+        },
+        {
+          "name": "max_price_dollars",
+          "type": "float",
+          "location": "body",
+          "description": "Maximum budget in USD for this request. If estimated cost exceeds this, the request is rejected. Defaults to 2x the maximum possible cost."
+        },
+        {
+          "name": "response_length",
+          "type": "string",
+          "location": "body",
+          "description": "Maximum character length of extracted content per URL. - `'short'` - 25,000 characters (default) - `'medium'` - 50,000 characters - `'large'` - 100,000 characters - `'max'` - No limit - Any positive integer for a custom character limit"
+        },
+        {
+          "name": "screenshot",
+          "type": "bool",
+          "location": "body",
+          "description": "Capture a screenshot of each page. Screenshot URL returned in `screenshot_url` field of each result."
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "location": "body",
+          "description": "Controls AI-powered content processing. Adds $0.001 per URL when enabled. - `false` - No AI processing, raw extracted content only (default) - `true` - Generate a text summary of each page - `'string'` - Generate a summary guided by custom instructions (max 500 characters) - `{json_schema}` - Extract structured data matching the provided JSON schema"
+        },
+        {
+          "name": "urls",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "URLs to extract content from. Must be valid HTTP/HTTPS URLs. Duplicates are silently removed.",
+          "required": true
+        },
+        {
+          "name": "webhook_url",
+          "type": "string",
+          "location": "body",
+          "description": "HTTPS URL to receive a webhook POST when async processing completes. Only used when `async` is `true`. The webhook payload is signed with HMAC-SHA256."
+        }
+      ]
+    },
+    {
+      "name": "contents_get-job",
+      "description": "Check the status and retrieve results of an async content extraction job. Required: job_id. Returns array of ContentResult.",
+      "method": "GET",
+      "path": "/v1/contents/jobs/{job_id}",
+      "params": [
+        {
+          "name": "job_id",
+          "type": "string",
+          "location": "path",
+          "description": "The job ID returned by the async contents request.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "datasources_list",
+      "description": "Discover all data sources available through Valyu's search API. Each datasource includes metadata, example queries (optimized for few-shot prompting), pricing information, and response schemas. Use this endpoint to build dynamic tool manifests for AI agents instead of hardcoding knowledge of available datasets. Optional: category. Returns array of Datasource.",
+      "method": "GET",
+      "path": "/v1/datasources",
+      "params": [
+        {
+          "name": "category",
+          "type": "string",
+          "location": "query",
+          "description": "Filter datasources by category. Use the categories endpoint to discover available categories."
+        }
+      ]
+    },
+    {
+      "name": "datasources_list-categories",
+      "description": "Retrieve all available datasource categories. Use these to filter the datasources endpoint. Categories include: `research`, `healthcare`, `markets`, `company`, `economic`, `predictions`, `transportation`, `legal`, `politics`, `patents`. Returns array of DatasourceCategory.",
+      "method": "GET",
+      "path": "/v1/datasources/categories",
+      "params": []
+    },
+    {
+      "name": "deepresearch_add-batch-tasks",
+      "description": "Add up to 100 research tasks to an existing batch. The batch must be in `open` or `processing` status. Required: id, tasks. Returns array of DeepresearchAddBatchTasksItem.",
+      "method": "POST",
+      "path": "/v1/deepresearch/batches/{id}/tasks",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Batch ID.",
+          "required": true
+        },
+        {
+          "name": "tasks",
+          "type": "array",
+          "location": "body",
+          "description": "Tasks to add. Max 100 per request.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deepresearch_cancel-batch",
+      "description": "Cancel all queued and running tasks in a batch. The batch must be in `open` or `processing` status. Required: id. Returns the new CancelBatchResponse.",
+      "method": "POST",
+      "path": "/v1/deepresearch/batches/{id}/cancel",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Batch ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deepresearch_cancel-deep-research",
+      "description": "Cancel a DeepResearch task that is currently running or queued. Completed, failed, or already cancelled tasks cannot be cancelled. Required: id. Returns the new DeepResearchCancelResponse.",
+      "method": "POST",
+      "path": "/v1/deepresearch/tasks/{id}/cancel",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "DeepResearch task ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deepresearch_create-batch",
+      "description": "Create a batch for running multiple DeepResearch tasks with shared configuration. After creation, add tasks with the Add Tasks endpoint. The batch transitions from `open` to `processing` when tasks are added. Optional: metadata, mode (default: standard), model (plus 4 more). Returns array of DeepresearchCreateBatchItem.",
+      "method": "POST",
+      "path": "/v1/deepresearch/batches",
+      "params": [
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Arbitrary key-value metadata."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "body",
+          "description": "Research mode applied to all tasks in the batch."
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "**Deprecated.** Use `mode` instead."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Optional name for the batch."
+        },
+        {
+          "name": "output_formats",
+          "type": "array",
+          "location": "body",
+          "description": "Output formats applied to all tasks."
+        },
+        {
+          "name": "search-country-code",
+          "wire_name": "search.country_code",
+          "type": "string",
+          "location": "body",
+          "description": "Country code for geo-targeted search."
+        },
+        {
+          "name": "search-end-date",
+          "wire_name": "search.end_date",
+          "type": "string",
+          "location": "body",
+          "description": "Filter results until this date. Format: `YYYY-MM-DD`. Must be \u003e= `start_date`."
+        },
+        {
+          "name": "search-excluded-sources",
+          "wire_name": "search.excluded_sources",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Sources to exclude. Max 20 items."
+        },
+        {
+          "name": "search-included-sources",
+          "wire_name": "search.included_sources",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Sources to include. Max 20 items."
+        },
+        {
+          "name": "search-search-type",
+          "wire_name": "search.search_type",
+          "type": "string",
+          "location": "body",
+          "description": "Controls which data sources are searched."
+        },
+        {
+          "name": "search-source-biases",
+          "wire_name": "search.source_biases",
+          "type": "object",
+          "location": "body",
+          "description": "Bias values for specific sources to influence ranking (-5 to +5). Applied to every search call during research."
+        },
+        {
+          "name": "search-start-date",
+          "wire_name": "search.start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Filter results from this date. Format: `YYYY-MM-DD`."
+        },
+        {
+          "name": "webhook_url",
+          "type": "string",
+          "location": "body",
+          "description": "HTTPS URL to receive a webhook when all tasks complete."
+        }
+      ]
+    },
+    {
+      "name": "deepresearch_create-deep-research",
+      "description": "Start an async research task that performs comprehensive, multi-step research. The research agent searches multiple sources, analyzes content, executes code, and generates a detailed report with citations. Tasks run in the background and typically take 1-10 minutes depending on the `mode`. Poll the status endpoint or use webhooks to get results. Required: query. Optional: alert_email, code_execution (default: false), deliverables (plus 19 more). Returns the new DeepResearchCreateResponse.",
+      "method": "POST",
+      "path": "/v1/deepresearch/tasks",
+      "params": [
+        {
+          "name": "alert_email",
+          "type": "string",
+          "location": "body",
+          "description": "Email notification on completion. Pass a string (email address) or an object with email and optional custom_url. The custom_url must contain {id} which gets replaced with the task ID. Email must belong to your organization."
+        },
+        {
+          "name": "code_execution",
+          "type": "bool",
+          "location": "body",
+          "description": "Deprecated: use tools.code_execution instead. Enable code execution capability."
+        },
+        {
+          "name": "deliverables",
+          "type": "array",
+          "location": "body",
+          "description": "Deliverable files to generate from the research (e.g. Excel reports, presentations). Max 10."
+        },
+        {
+          "name": "files",
+          "type": "array",
+          "location": "body",
+          "description": "Files to analyze as part of the research. Max 10."
+        },
+        {
+          "name": "hitl-outline-review",
+          "wire_name": "hitl.outline_review",
+          "type": "bool",
+          "location": "body",
+          "description": "Pause after source review for user to review the report outline."
+        },
+        {
+          "name": "hitl-plan-review",
+          "wire_name": "hitl.plan_review",
+          "type": "bool",
+          "location": "body",
+          "description": "Pause after planning for user to review the research plan."
+        },
+        {
+          "name": "hitl-planning-questions",
+          "wire_name": "hitl.planning_questions",
+          "type": "bool",
+          "location": "body",
+          "description": "Pause before research to ask clarifying questions."
+        },
+        {
+          "name": "hitl-source-review",
+          "wire_name": "hitl.source_review",
+          "type": "bool",
+          "location": "body",
+          "description": "Pause after research for user to filter sources by domain."
+        },
+        {
+          "name": "input",
+          "type": "string",
+          "location": "body",
+          "description": "**Deprecated.** Use `query` instead."
+        },
+        {
+          "name": "mcp_servers",
+          "type": "array",
+          "location": "body",
+          "description": "MCP servers to provide additional tools during research. Max 5."
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Arbitrary key-value metadata to attach to the task."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "body",
+          "description": "Research mode controlling depth and cost. | Mode | Price | Best For | Max Steps | | --- | --- | --- | --- | | `fast` | $0.10 | Quick queries, batch processing | 10 | | `standard` | $0.50 | Balanced research | 15 | | `heavy` | $2.50 | Complex topics requiring deep analysis | 15 | | `max` | $15.00 | Exhaustive research with maximum quality | 25 |"
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "**Deprecated.** Use `mode` instead."
+        },
+        {
+          "name": "output_formats",
+          "type": "array",
+          "location": "body",
+          "description": "Desired output formats. Defaults to `['markdown']`. - `'markdown'` - Markdown report (default) - `'pdf'` - PDF document (can combine with `'markdown'`) - `'toon'` - Token-efficient structured output; requires a JSON Schema object to also be supplied - JSON Schema object - Structured JSON output A JSON Schema object cannot be combined with `'markdown'` or `'pdf'`. `'toon'` requires a JSON Schema object."
+        },
+        {
+          "name": "previous_reports",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "DeepResearch task IDs to use as context for this task. Max 3."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "The research query or question. Use `query` (preferred) or `input` (deprecated). Maximum 25,000 characters. Mutually exclusive with `workflow_id`.",
+          "required": true
+        },
+        {
+          "name": "report_format",
+          "type": "string",
+          "location": "body",
+          "description": "Natural language instructions for the output format. Has highest priority and overrides default formatting. Controls structure, style, length, and presentation of the final report. Combined length of `research_strategy` and `report_format` must not exceed 15,000 characters."
+        },
+        {
+          "name": "research_strategy",
+          "type": "string",
+          "location": "body",
+          "description": "Natural language strategy to guide the research phase. Controls how the agent searches, what sources to prioritize, and research methodology. Combined length of `research_strategy` and `report_format` must not exceed 15,000 characters."
+        },
+        {
+          "name": "search-country-code",
+          "wire_name": "search.country_code",
+          "type": "string",
+          "location": "body",
+          "description": "Country code for geo-targeted search."
+        },
+        {
+          "name": "search-end-date",
+          "wire_name": "search.end_date",
+          "type": "string",
+          "location": "body",
+          "description": "Filter results until this date. Format: `YYYY-MM-DD`. Must be \u003e= `start_date`."
+        },
+        {
+          "name": "search-excluded-sources",
+          "wire_name": "search.excluded_sources",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Sources to exclude. Max 20 items."
+        },
+        {
+          "name": "search-included-sources",
+          "wire_name": "search.included_sources",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Sources to include. Max 20 items."
+        },
+        {
+          "name": "search-search-type",
+          "wire_name": "search.search_type",
+          "type": "string",
+          "location": "body",
+          "description": "Controls which data sources are searched."
+        },
+        {
+          "name": "search-source-biases",
+          "wire_name": "search.source_biases",
+          "type": "object",
+          "location": "body",
+          "description": "Bias values for specific sources to influence ranking (-5 to +5). Applied to every search call during research."
+        },
+        {
+          "name": "search-start-date",
+          "wire_name": "search.start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Filter results from this date. Format: `YYYY-MM-DD`."
+        },
+        {
+          "name": "strategy",
+          "type": "string",
+          "location": "body",
+          "description": "**Deprecated.** Use `research_strategy` instead. Natural language strategy to guide the research agent's approach."
+        },
+        {
+          "name": "tools-browser-use",
+          "wire_name": "tools.browser_use",
+          "type": "string",
+          "location": "body",
+          "description": "Enable autonomous browser sessions. System default max_calls: 5."
+        },
+        {
+          "name": "tools-charts",
+          "wire_name": "tools.charts",
+          "type": "string",
+          "location": "body",
+          "description": "Enable chart and graph generation embedded in the final report. Free, no per-call surcharge. Unlimited per task."
+        },
+        {
+          "name": "tools-code-execution",
+          "wire_name": "tools.code_execution",
+          "type": "string",
+          "location": "body",
+          "description": "Enable code execution in a sandboxed Python environment. System default max_calls: 10."
+        },
+        {
+          "name": "tools-screenshots",
+          "wire_name": "tools.screenshots",
+          "type": "string",
+          "location": "body",
+          "description": "Enable visual screenshot capture of web pages. System default max_calls: 15."
+        },
+        {
+          "name": "urls",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "URLs to include in the research context. Max 10."
+        },
+        {
+          "name": "webhook_url",
+          "type": "string",
+          "location": "body",
+          "description": "HTTPS URL to receive a webhook POST when the task completes. Signed with HMAC-SHA256."
+        },
+        {
+          "name": "workflow_id",
+          "type": "string",
+          "location": "body",
+          "description": "**Beta.** Slug of a workflow to run instead of a freeform query. When set, the task is resolved from the workflow's prompt template using `workflow_params`. Mutually exclusive with freeform fields (`query`, `input`, `research_strategy`, `report_format`); supplying both returns `400 workflow_and_freeform_mutually_exclusive`. See the [Workflows](#tag/Workflows) endpoints."
+        },
+        {
+          "name": "workflow_params",
+          "type": "object",
+          "location": "body",
+          "description": "**Beta.** Values for the workflow's template variables, keyed by variable `key`. Required when `workflow_id` is set. Values must satisfy the workflow's declared variable types and validation rules."
+        },
+        {
+          "name": "workflow_version",
+          "type": "int",
+          "location": "body",
+          "description": "**Beta.** Pin the run to a specific immutable version of the workflow. Defaults to the workflow's current version when omitted. Only valid with `workflow_id`."
+        }
+      ]
+    },
+    {
+      "name": "deepresearch_delete-deep-research",
+      "description": "Permanently delete a DeepResearch task and its associated data (output, sources, PDF, images). Running or queued tasks must be cancelled first. Required: id. Returns the DeepResearchDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/deepresearch/tasks/{id}/delete",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "DeepResearch task ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deepresearch_get-batch-status",
+      "description": "Retrieve the current status, task counts, and aggregated cost of a batch. Required: id. Returns array of DeepresearchGetBatchStatusItem.",
+      "method": "GET",
+      "path": "/v1/deepresearch/batches/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Batch ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deepresearch_get-deep-research-status",
+      "description": "Retrieve the current status, progress, and results of a DeepResearch task. Poll this endpoint to track research progress and retrieve the final output. Required: id. Returns the DeepResearchStatusResponse.",
+      "method": "GET",
+      "path": "/v1/deepresearch/tasks/{id}/status",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "DeepResearch task ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deepresearch_list-batch-tasks",
+      "description": "Retrieve tasks within a batch with optional status filtering and cursor-based pagination. Use `include_output=true` to get full output, sources, images, and cost for each task. When `include_output` is false (default), returns a lightweight listing with status only. Required: id. Optional: status, limit, last_key (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/deepresearch/batches/{id}/tasks",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Batch ID.",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter tasks by status."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of tasks to return."
+        },
+        {
+          "name": "last_key",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor. Omit on first request. Pass the `last_key` value from a previous response to fetch the next page."
+        },
+        {
+          "name": "include_output",
+          "type": "bool",
+          "location": "query",
+          "description": "Include full output, sources, images, and cost for each task. When false (default), returns lightweight task listing with status only."
+        }
+      ]
+    },
+    {
+      "name": "deepresearch_list-batches",
+      "description": "Retrieve all batches for the authenticated API key. Optional: limit. Returns array of BatchResponse.",
+      "method": "GET",
+      "path": "/v1/deepresearch/batches",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of batches to return."
+        }
+      ]
+    },
+    {
+      "name": "deepresearch_list-deep-research-tasks",
+      "description": "Retrieve a list of all DeepResearch tasks for the authenticated API key. Optional: limit. Returns array of DeepResearchListItem.",
+      "method": "GET",
+      "path": "/v1/deepresearch/list",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of tasks to return."
+        }
+      ]
+    },
+    {
+      "name": "deepresearch_respond-to-deep-research",
+      "description": "Respond to a human-in-the-loop checkpoint. The task must be in `awaiting_input` or `paused` status. Pass the `interaction_id` from the task's `interaction` field along with the response data matching the checkpoint type. Required: id, interaction_id, response. Returns the new DeepresearchRespondToDeepResearchResponse.",
+      "method": "POST",
+      "path": "/v1/deepresearch/tasks/{id}/respond",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "DeepResearch task ID.",
+          "required": true
+        },
+        {
+          "name": "interaction_id",
+          "type": "string",
+          "location": "body",
+          "description": "The interaction_id from the task's interaction field.",
+          "required": true
+        },
+        {
+          "name": "response",
+          "type": "string",
+          "location": "body",
+          "description": "Response data — shape depends on the checkpoint type (`interaction.type`).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deepresearch_toggle-deep-research-public",
+      "description": "Toggle the public visibility of a DeepResearch task. When set to `true`, the task results become accessible via a public share link without authentication. Only the task owner can modify the public flag. Required: id, public. Returns the new DeepResearchTogglePublicResponse.",
+      "method": "POST",
+      "path": "/v1/deepresearch/tasks/{id}/public",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "DeepResearch task ID.",
+          "required": true
+        },
+        {
+          "name": "public",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to `true` to make the task publicly accessible, or `false` to make it private.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deepresearch_update-deep-research",
+      "description": "Send a follow-up instruction to a running DeepResearch task. The instruction can only be added before the writing phase begins. Use this to steer the research in a specific direction based on intermediate findings. Required: id, instruction. Returns the new DeepResearchUpdateResponse.",
+      "method": "POST",
+      "path": "/v1/deepresearch/tasks/{id}/update",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "DeepResearch task ID.",
+          "required": true
+        },
+        {
+          "name": "instruction",
+          "type": "string",
+          "location": "body",
+          "description": "Follow-up instruction for the research agent.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "semantic_search_search",
+      "description": "Search the web, academic journals, financial databases, and 40+ proprietary data sources. Returns ranked results with extracted content, ready for RAG pipelines and AI agents. Results are ranked by relevance using semantic reranking (unless `fast_mode` is enabled). You only pay for results returned - pricing is CPM-based (cost per mille tokens). **Integrating search into an agent?** Consider [DeepResearch](https://docs.valyu.ai/guides/deepresearch) - a cost-effective autonomous agent built on top of this search engine, purpose-built for knowledge work. Required: query. Optional: category, country_code, end_date (plus 14 more).",
+      "method": "POST",
+      "path": "/v1/search",
+      "params": [
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "**Deprecated.** Use `instructions` instead. Falls back to this value if `instructions` is not set."
+        },
+        {
+          "name": "country_code",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 3166-1 alpha-2 country code for geo-targeted web search results."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "body",
+          "description": "Filter results published on or before this date. Format: `YYYY-MM-DD`. If set without `start_date`, defaults to `1900-01-01`."
+        },
+        {
+          "name": "excluded_sources",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Sources to exclude from the search. Same format as `included_sources` except presets are not supported."
+        },
+        {
+          "name": "fast_mode",
+          "type": "bool",
+          "location": "body",
+          "description": "Bypass LLM query rewriting and reranking for lower latency. Forces web-only search. Cannot be used with `search_type: 'proprietary'`."
+        },
+        {
+          "name": "historical_cache",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow results to be served from the historical cache when available. Useful for reproducible queries and lower latency."
+        },
+        {
+          "name": "included_sources",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Sources to include in the search. Accepts: - Domain names or URLs for web filtering (e.g. `'arxiv.org'`, `'https://arxiv.org'`) - Dataset identifiers for proprietary sources (e.g. `'valyu/valyu-arxiv'`) - Preset names that expand to curated source groups: `'academic'`, `'finance'`, `'patent'`, `'transportation'`, `'politics'`, `'legal'`, `'health'`, `'genomics'`, `'chemistry'`, `'physics'` - `'web'` keyword to explicitly include web search alongside proprietary sources - `'collection:NAME'` to reference an org-scoped saved source collection Note: most specialised and proprietary sources require a subscription. All plans include web search and open academic sources (arXiv, PubMed)."
+        },
+        {
+          "name": "instructions",
+          "type": "string",
+          "location": "body",
+          "description": "Natural language instructions to help rank results by relevance to user intent. Acts as a system prompt for the search. Max 500 characters. Ignored when fast_mode is true."
+        },
+        {
+          "name": "is_tool_call",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates whether this request originates from an AI tool call. Affects query rewriting behavior."
+        },
+        {
+          "name": "max_num_results",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of results to return. Higher limits (up to 100) available on request."
+        },
+        {
+          "name": "max_price",
+          "type": "float",
+          "location": "body",
+          "description": "Maximum budget in CPM (cost per mille/thousand tokens). When not set, automatically calculated based on `max_num_results` and `search_type`."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "The search query to execute. Supports natural language queries.",
+          "required": true
+        },
+        {
+          "name": "relevance_threshold",
+          "type": "float",
+          "location": "body",
+          "description": "Minimum relevance score (0.0-1.0) for results after reranking. Results below this threshold are filtered out."
+        },
+        {
+          "name": "response_length",
+          "type": "string",
+          "location": "body",
+          "description": "Controls the maximum character length of content per result. - `'short'` - 25,000 characters (default) - `'medium'` - 50,000 characters - `'large'` - 100,000 characters - `'max'` - No limit - Any positive integer for a custom character limit"
+        },
+        {
+          "name": "search_type",
+          "type": "string",
+          "location": "body",
+          "description": "Controls which data sources are searched. - `all` - Web and proprietary sources (default). An LLM router selects the best sources for your query. - `web` - Web search only. Best for current events and general topics. - `proprietary` - Academic, financial, and premium sources only. Best for research and technical analysis. - `news` - News articles only. Best for recent news and current events."
+        },
+        {
+          "name": "source_biases",
+          "type": "object",
+          "location": "body",
+          "description": "Bias values for specific sources to influence ranking without hard filtering. Keys are domains (e.g., 'nasa.gov') or URL paths (e.g., 'nih.gov/research'). Values are integers from -5 (strong demotion) to +5 (strong boost). Most specific path match wins."
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Filter results published on or after this date. Format: `YYYY-MM-DD`. If set without `end_date`, defaults to today."
+        },
+        {
+          "name": "url_only",
+          "type": "bool",
+          "location": "body",
+          "description": "Return only URLs without full content extraction. Only available when `search_type` is `'web'` or `'news'`. Skips reranking."
+        }
+      ]
+    },
+    {
+      "name": "workflows_create",
+      "description": "**Beta.** Create a private workflow owned by your organization. Subject to your org's workflow quota (default 100). Returns `409 workflow_quota_exceeded` when the quota is reached. Required: slug, title, version. Optional: description, icon, subtitle (plus 2 more).",
+      "method": "POST",
+      "path": "/v1/workflows",
+      "params": [
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "location": "body",
+          "description": "Icon"
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "body",
+          "description": "Unique slug within your org.",
+          "required": true
+        },
+        {
+          "name": "subtitle",
+          "type": "string",
+          "location": "body",
+          "description": "Subtitle"
+        },
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Tags"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title",
+          "required": true
+        },
+        {
+          "name": "version-changelog",
+          "wire_name": "version.changelog",
+          "type": "string",
+          "location": "body",
+          "description": "Notes describing what changed. Required when publishing a new version on update."
+        },
+        {
+          "name": "version-deliverables",
+          "wire_name": "version.deliverables",
+          "type": "array",
+          "location": "body",
+          "description": "Deliverables produced by the workflow. Up to 20."
+        },
+        {
+          "name": "version-estimated-time",
+          "wire_name": "version.estimated_time",
+          "type": "string",
+          "location": "body",
+          "description": "Estimated time"
+        },
+        {
+          "name": "version-output-formats",
+          "wire_name": "version.output_formats",
+          "type": "array",
+          "location": "body",
+          "description": "Output formats the workflow produces. Items are the strings `'markdown'`, `'pdf'`, or `'toon'`, and/or a single JSON Schema object for structured output. Rules: at most one JSON Schema object; a JSON Schema object cannot be combined with `'markdown'` or `'pdf'`; `'toon'` requires a JSON Schema object. An invalid combination returns `400 invalid_output_formats`. At run time, a task created with `workflow_id` inherits the workflow's `output_formats` when the request does not pass its own; a request-level `output_formats` always wins."
+        },
+        {
+          "name": "version-prompt",
+          "wire_name": "version.prompt",
+          "type": "string",
+          "location": "body",
+          "description": "Prompt template with `{key}` placeholders. Up to 64 KB.",
+          "required": true
+        },
+        {
+          "name": "version-recommended-mode",
+          "wire_name": "version.recommended_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Recommended DeepResearch mode for a workflow. Maps directly to the DeepResearch `mode` parameter."
+        },
+        {
+          "name": "version-report-format",
+          "wire_name": "version.report_format",
+          "type": "string",
+          "location": "body",
+          "description": "Report format instructions. Maps to DeepResearch `report_format`. Up to 64 KB.",
+          "required": true
+        },
+        {
+          "name": "version-strategy",
+          "wire_name": "version.strategy",
+          "type": "string",
+          "location": "body",
+          "description": "Research strategy. Maps to DeepResearch `research_strategy`. Up to 64 KB.",
+          "required": true
+        },
+        {
+          "name": "version-tools-browser-use",
+          "wire_name": "version.tools.browser_use",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable autonomous browser sessions."
+        },
+        {
+          "name": "version-tools-charts",
+          "wire_name": "version.tools.charts",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable chart and graph generation in the report."
+        },
+        {
+          "name": "version-tools-code-execution",
+          "wire_name": "version.tools.code_execution",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable code execution in a sandboxed environment."
+        },
+        {
+          "name": "version-tools-screenshots",
+          "wire_name": "version.tools.screenshots",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable visual screenshot capture of web pages."
+        },
+        {
+          "name": "version-variables",
+          "wire_name": "version.variables",
+          "type": "array",
+          "location": "body",
+          "description": "Typed template variables. Up to 50."
+        },
+        {
+          "name": "vertical",
+          "type": "string",
+          "location": "body",
+          "description": "Vertical"
+        }
+      ]
+    },
+    {
+      "name": "workflows_delete",
+      "description": "**Beta.** Soft-delete an organization workflow. Valyu-curated workflows cannot be deleted and return `403 cannot_delete_valyu_workflow`. Required: slug. Returns the WorkflowDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/workflows/{slug}",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "The workflow slug.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_get",
+      "description": "**Beta.** Retrieve a single workflow with its resolved version. By default returns the current version; pass `version` to fetch a specific one. Required: slug. Optional: version.",
+      "method": "GET",
+      "path": "/v1/workflows/{slug}",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "The workflow slug.",
+          "required": true
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "location": "query",
+          "description": "Version to return. Defaults to the current version."
+        }
+      ]
+    },
+    {
+      "name": "workflows_list",
+      "description": "**Beta.** List workflows visible to your organization. Includes both your org's private workflows and curated Valyu workflows. Run a workflow by passing its `slug` as `workflow_id` to `POST /v1/deepresearch/tasks`. Optional: vertical, scope (default: all), q (plus 3 more). Returns the WorkflowListResponse.",
+      "method": "GET",
+      "path": "/v1/workflows",
+      "params": [
+        {
+          "name": "vertical",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by vertical (e.g. `finance`, `life-sciences`)."
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "query",
+          "description": "Which workflows to return: `valyu` (curated only), `org` (your org only), or `all` (both, default)."
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text search across title, subtitle, and description."
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated tags to filter by."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of workflows to return (max 100)."
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to expand. Pass `version` to include the full current version row for each workflow."
+        }
+      ]
+    },
+    {
+      "name": "workflows_update",
+      "description": "**Beta.** Edit an organization workflow, publishing a new immutable version. A `changelog` is required (`changelog_required` otherwise). Valyu-curated workflows are read-only and return `403 cannot_edit_valyu_workflow`. Required: slug. Optional: description, icon, set_current (plus 5 more). Returns the updated WorkflowResponse.",
+      "method": "PATCH",
+      "path": "/v1/workflows/{slug}",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "The workflow slug.",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "location": "body",
+          "description": "Icon"
+        },
+        {
+          "name": "set_current",
+          "type": "bool",
+          "location": "body",
+          "description": "When publishing a new version, whether to point the workflow's current (floating) version at it."
+        },
+        {
+          "name": "subtitle",
+          "type": "string",
+          "location": "body",
+          "description": "Subtitle"
+        },
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Tags"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        },
+        {
+          "name": "version-changelog",
+          "wire_name": "version.changelog",
+          "type": "string",
+          "location": "body",
+          "description": "Notes describing what changed. Required when publishing a new version on update."
+        },
+        {
+          "name": "version-deliverables",
+          "wire_name": "version.deliverables",
+          "type": "array",
+          "location": "body",
+          "description": "Deliverables produced by the workflow. Up to 20."
+        },
+        {
+          "name": "version-estimated-time",
+          "wire_name": "version.estimated_time",
+          "type": "string",
+          "location": "body",
+          "description": "Estimated time"
+        },
+        {
+          "name": "version-output-formats",
+          "wire_name": "version.output_formats",
+          "type": "array",
+          "location": "body",
+          "description": "Output formats the workflow produces. Items are the strings `'markdown'`, `'pdf'`, or `'toon'`, and/or a single JSON Schema object for structured output. Rules: at most one JSON Schema object; a JSON Schema object cannot be combined with `'markdown'` or `'pdf'`; `'toon'` requires a JSON Schema object. An invalid combination returns `400 invalid_output_formats`. At run time, a task created with `workflow_id` inherits the workflow's `output_formats` when the request does not pass its own; a request-level `output_formats` always wins."
+        },
+        {
+          "name": "version-prompt",
+          "wire_name": "version.prompt",
+          "type": "string",
+          "location": "body",
+          "description": "Prompt template with `{key}` placeholders. Up to 64 KB.",
+          "required": true
+        },
+        {
+          "name": "version-recommended-mode",
+          "wire_name": "version.recommended_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Recommended DeepResearch mode for a workflow. Maps directly to the DeepResearch `mode` parameter."
+        },
+        {
+          "name": "version-report-format",
+          "wire_name": "version.report_format",
+          "type": "string",
+          "location": "body",
+          "description": "Report format instructions. Maps to DeepResearch `report_format`. Up to 64 KB.",
+          "required": true
+        },
+        {
+          "name": "version-strategy",
+          "wire_name": "version.strategy",
+          "type": "string",
+          "location": "body",
+          "description": "Research strategy. Maps to DeepResearch `research_strategy`. Up to 64 KB.",
+          "required": true
+        },
+        {
+          "name": "version-tools-browser-use",
+          "wire_name": "version.tools.browser_use",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable autonomous browser sessions."
+        },
+        {
+          "name": "version-tools-charts",
+          "wire_name": "version.tools.charts",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable chart and graph generation in the report."
+        },
+        {
+          "name": "version-tools-code-execution",
+          "wire_name": "version.tools.code_execution",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable code execution in a sandboxed environment."
+        },
+        {
+          "name": "version-tools-screenshots",
+          "wire_name": "version.tools.screenshots",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable visual screenshot capture of web pages."
+        },
+        {
+          "name": "version-variables",
+          "wire_name": "version.variables",
+          "type": "array",
+          "location": "body",
+          "description": "Typed template variables. Up to 50."
+        },
+        {
+          "name": "vertical",
+          "type": "string",
+          "location": "body",
+          "description": "Vertical"
+        }
+      ]
+    },
+    {
+      "name": "workflows_preview_workflow",
+      "description": "**Beta.** Resolve a workflow's prompt template against supplied `workflow_params` without running it. Returns the resolved prompt, research strategy, report format, deliverables, recommended mode, and tools - exactly what a run would use. Useful for validating parameters before incurring a DeepResearch cost. Required: slug. Optional: workflow_params, workflow_version.",
+      "method": "POST",
+      "path": "/v1/workflows/{slug}/preview",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "The workflow slug.",
+          "required": true
+        },
+        {
+          "name": "workflow_params",
+          "type": "object",
+          "location": "body",
+          "description": "Values for the workflow's template variables, keyed by variable `key`."
+        },
+        {
+          "name": "workflow_version",
+          "type": "int",
+          "location": "body",
+          "description": "Version to preview. Defaults to the current version."
+        }
+      ]
+    },
+    {
+      "name": "workflows_versions_get-workflow",
+      "description": "**Beta.** Retrieve a workflow resolved at a specific immutable version. Returns the same flat workflow object as `GET /v1/workflows/{slug}?version={n}`. Required: slug, n.",
+      "method": "GET",
+      "path": "/v1/workflows/{slug}/versions/{n}",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "The workflow slug.",
+          "required": true
+        },
+        {
+          "name": "n",
+          "type": "int",
+          "location": "path",
+          "description": "The version number.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_versions_list-workflow",
+      "description": "**Beta.** List all immutable versions of a workflow, newest first. Required: slug. Returns array of WorkflowVersionSummary.",
+      "method": "GET",
+      "path": "/v1/workflows/{slug}/versions",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "The workflow slug.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

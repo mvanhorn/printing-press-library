@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-21T08:30:22.411101Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "valyu",
+  "display_name": "Valyu",
+  "cli_name": "valyu-pp-cli",
+  "creator": {
+    "handle": "AnchalSharma19",
+    "name": "Anchal Sharma"
+  },
+  "owner": "anchalsharma19",
+  "printer": "AnchalSharma19",
+  "printer_name": "Anchal Sharma",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:3f7382873f76feb4ae1c36bbf809c4ab1d9f2bc06152bb720f45f3ea5f3b0df7",
+  "run_id": "20260619-151616-c25a2c3a",
+  "category": "ai",
+  "description": "The search API built for AI agents.",
+  "mcp_binary": "valyu-pp-mcp",
+  "mcp_tool_count": 28,
+  "mcp_ready": "full",
+  "api_version": "2.3.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "VALYU_API_KEY"
+  ],
+  "auth_key_url": "https://platform.valyu.ai",
+  "novel_features": [
+    {
+      "name": "Search A/B comparison",
+      "command": "semantic-search compare",
+      "description": "Run the same query against two source configurations and diff results, overlap, and cost side-by-side."
+    },
+    {
+      "name": "Cost ledger",
+      "command": "cost",
+      "description": "Show cumulative Valyu API spend tracked locally by this CLI."
+    },
+    {
+      "name": "Multi-query batch search",
+      "command": "semantic-search batch",
+      "description": "Run multiple searches from a query file and emit JSONL results."
+    },
+    {
+      "name": "Search history with replay",
+      "command": "history",
+      "description": "View past searches stored locally and re-run any with the original parameters."
+    },
+    {
+      "name": "Saved search templates",
+      "command": "semantic-search run",
+      "description": "Save a named search configuration once, then run it on demand without re-specifying flags."
+    },
+    {
+      "name": "Contents pipeline (search-to-extract)",
+      "command": "contents pipe",
+      "description": "Pipe search result URLs directly into content extraction in one step."
+    },
+    {
+      "name": "Citation export from answer",
+      "command": "cited-answer",
+      "description": "Get a cited answer and export references as BibTeX, RIS, or JSON."
+    },
+    {
+      "name": "Research task queue",
+      "command": "deepresearch queue",
+      "description": "Submit a batch of async deep-research tasks and track their progress."
+    }
+  ]
+}

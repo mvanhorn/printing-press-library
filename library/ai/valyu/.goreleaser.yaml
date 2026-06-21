@@ -1,0 +1,51 @@
+version: 2
+project_name: valyu-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: valyu-pp-cli
+    main: ./cmd/valyu-pp-cli
+    binary: valyu-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/ai/valyu/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: valyu-pp-mcp
+    main: ./cmd/valyu-pp-mcp
+    binary: valyu-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: valyu-pp-cli
+    repository:
+      owner: anchalsharma19
+      name: homebrew-tap
+    homepage: "https://github.com/anchalsharma19/valyu-pp-cli"
+    description: "The search API built for AI agents."
+    install: |
+      bin.install "valyu-pp-cli"
+      bin.install "valyu-pp-mcp"

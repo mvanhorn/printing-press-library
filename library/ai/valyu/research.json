@@ -1,0 +1,256 @@
+{
+  "api_name": "valyu",
+  "cli_name": "valyu-pp-cli",
+  "run_id": "20260619-151616-c25a2c3a",
+  "spec_url": "https://docs.valyu.ai/api-reference/openapi.json",
+  "spec_version": "2.3.0",
+  "auth_type": "api-key",
+  "auth_header": "X-API-Key",
+  "auth_env_var": "VALYU_API_KEY",
+  "domain": "AI-native search and research for LLMs and autonomous agents",
+  "endpoint_count": 27,
+  "endpoint_families": [
+    "search",
+    "contents",
+    "answer",
+    "deepresearch",
+    "datasources",
+    "workflows"
+  ],
+  "ecosystem_tools_found": 10,
+  "table_stakes_count": 37,
+  "novel_features": [
+    {
+      "id": "T1",
+      "name": "Search A/B comparison",
+      "command": "valyu-pp-cli semantic-search compare",
+      "score": 9,
+      "buildability": "hand-code",
+      "persona_served": "Maya (RAG infrastructure engineer)"
+    },
+    {
+      "id": "T2",
+      "name": "Cost ledger",
+      "command": "valyu-pp-cli cost",
+      "score": 8,
+      "buildability": "hand-code",
+      "persona_served": "Carlos (quantitative analyst)"
+    },
+    {
+      "id": "T3",
+      "name": "Multi-query batch search",
+      "command": "valyu-pp-cli semantic-search batch",
+      "score": 9,
+      "buildability": "hand-code",
+      "persona_served": "Carlos (watchlist), Maya (regression suite)"
+    },
+    {
+      "id": "T4",
+      "name": "Search history with replay",
+      "command": "valyu-pp-cli history",
+      "score": 9,
+      "buildability": "hand-code",
+      "persona_served": "Carlos (weekly intelligence diff)"
+    },
+    {
+      "id": "T5",
+      "name": "Saved search templates",
+      "command": "valyu-pp-cli semantic-search save / semantic-search run",
+      "score": 8,
+      "buildability": "hand-code",
+      "persona_served": "Carlos (repeatable weekly routine)"
+    },
+    {
+      "id": "T6",
+      "name": "Contents pipeline (search-to-extract)",
+      "command": "valyu-pp-cli contents pipe --from-stdin",
+      "score": 9,
+      "buildability": "hand-code",
+      "persona_served": "Priya (literature review ingestion)"
+    },
+    {
+      "id": "T7",
+      "name": "Citation export from answer",
+      "command": "valyu-pp-cli cited-answer --cite-output",
+      "score": 8,
+      "buildability": "hand-code",
+      "persona_served": "Priya (citation manager), Dev (grounded generation demo)"
+    },
+    {
+      "id": "T8",
+      "name": "Research task queue",
+      "command": "valyu-pp-cli deepresearch queue",
+      "score": 9,
+      "buildability": "hand-code",
+      "persona_served": "Priya (compound research batches)"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "id": "T1",
+      "name": "Search A/B comparison",
+      "command": "valyu-pp-cli semantic-search compare",
+      "score": 9,
+      "buildability": "hand-code",
+      "persona_served": "Maya (RAG infrastructure engineer)"
+    },
+    {
+      "id": "T2",
+      "name": "Cost ledger",
+      "command": "valyu-pp-cli cost",
+      "score": 8,
+      "buildability": "hand-code",
+      "persona_served": "Carlos (quantitative analyst)"
+    },
+    {
+      "id": "T3",
+      "name": "Multi-query batch search",
+      "command": "valyu-pp-cli semantic-search batch",
+      "score": 9,
+      "buildability": "hand-code",
+      "persona_served": "Carlos (watchlist), Maya (regression suite)"
+    },
+    {
+      "id": "T4",
+      "name": "Search history with replay",
+      "command": "valyu-pp-cli history",
+      "score": 9,
+      "buildability": "hand-code",
+      "persona_served": "Carlos (weekly intelligence diff)"
+    },
+    {
+      "id": "T5",
+      "name": "Saved search templates",
+      "command": "valyu-pp-cli semantic-search save / semantic-search run",
+      "score": 8,
+      "buildability": "hand-code",
+      "persona_served": "Carlos (repeatable weekly routine)"
+    },
+    {
+      "id": "T6",
+      "name": "Contents pipeline (search-to-extract)",
+      "command": "valyu-pp-cli contents pipe --from-stdin",
+      "score": 9,
+      "buildability": "hand-code",
+      "persona_served": "Priya (literature review ingestion)"
+    },
+    {
+      "id": "T7",
+      "name": "Citation export from answer",
+      "command": "valyu-pp-cli cited-answer --cite-output",
+      "score": 8,
+      "buildability": "hand-code",
+      "persona_served": "Priya (citation manager), Dev (grounded generation demo)"
+    },
+    {
+      "id": "T8",
+      "name": "Research task queue",
+      "command": "valyu-pp-cli deepresearch queue",
+      "score": 9,
+      "buildability": "hand-code",
+      "persona_served": "Priya (compound research batches)"
+    }
+  ],
+  "hand_code_count": 8,
+  "build_priorities": [
+    "search",
+    "answer",
+    "research",
+    "contents",
+    "datasources",
+    "workflows",
+    "batch"
+  ],
+  "narrative": {
+    "quickstart": [
+      {
+        "step": "Set your API key",
+        "command": "valyu-pp-cli auth set-token your-key-here",
+        "description": "Store your API key (get it from https://platform.valyu.ai). Alternatively set VALYU_API_KEY in your shell."
+      },
+      {
+        "step": "Verify connectivity",
+        "command": "valyu-pp-cli doctor",
+        "description": "Check that auth and API connectivity are working"
+      },
+      {
+        "step": "Run your first search",
+        "command": "valyu-pp-cli semantic-search --query \"CRISPR gene editing\" --search-type proprietary --max-num-results 5",
+        "description": "Search across 40+ proprietary sources including academic journals, financial data, and news"
+      },
+      {
+        "step": "Get an AI-synthesized answer",
+        "command": "valyu-pp-cli answer --query \"What are the latest CRISPR clinical trials?\"",
+        "description": "Submit a research question and receive a grounded answer with citations"
+      }
+    ],
+    "recipes": [
+      {
+        "title": "Compare web vs proprietary sources for RAG source selection",
+        "description": "Find which source configuration gives better recall for your RAG use case before committing to production",
+        "commands": [
+          "valyu-pp-cli semantic-search compare --query \"drug resistance mechanisms\" --config-a \"type=web\" --config-b \"type=proprietary,max=10\""
+        ]
+      },
+      {
+        "title": "Run a batch of ticker queries for financial intelligence",
+        "description": "Run a watchlist of searches from a file, track total cost, and emit JSONL for downstream processing",
+        "commands": [
+          "echo -e 'NVDA Q2 earnings\\nAMD chip shortage\\nTSMC capacity' > tickers.txt",
+          "valyu-pp-cli semantic-search batch --file tickers.txt --type all --parallel 3 --max-total-cost 2.00 | jq '.result.results[].url'"
+        ]
+      },
+      {
+        "title": "Save and reuse a research query template",
+        "description": "Save a named search config for weekly reuse without re-typing all flags",
+        "commands": [
+          "valyu-pp-cli semantic-search save weekly-sec --query \"SEC 10-K filings insider trading\" --type proprietary --max 20",
+          "valyu-pp-cli semantic-search run weekly-sec",
+          "valyu-pp-cli semantic-search list-saved"
+        ]
+      },
+      {
+        "title": "Replay last week's search and see what changed",
+        "description": "Re-run a stored search and diff new results against the stored snapshot",
+        "commands": [
+          "valyu-pp-cli history list --limit 10",
+          "valyu-pp-cli history replay 1 --diff"
+        ]
+      },
+      {
+        "title": "Search and immediately extract full text from results",
+        "description": "One-pipe literature review: search for papers, pipe URLs to batch content extraction",
+        "commands": [
+          "valyu-pp-cli semantic-search --query \"RNA folding\" --search-type proprietary --json | valyu-pp-cli contents pipe --from-stdin --wait --out ./papers/"
+        ]
+      },
+      {
+        "title": "Get a cited answer and export citations to BibTeX",
+        "description": "Submit a research question and export source citations to a BibTeX file for reference managers",
+        "commands": [
+          "valyu-pp-cli cited-answer --query \"What are the FDA-approved CAR-T therapies?\" --cite-output refs.bib --format bibtex"
+        ]
+      },
+      {
+        "title": "Submit a batch of deep research tasks and track them",
+        "description": "Submit multiple research questions Monday morning and check their collective status",
+        "commands": [
+          "echo -e 'KRAS G12C inhibitor resistance mechanisms\\nPD-L1 expression in lung cancer\\nATRX mutations in glioma' > topics.txt",
+          "valyu-pp-cli deepresearch queue --file topics.txt --mode standard",
+          "valyu-pp-cli deepresearch queue status",
+          "valyu-pp-cli deepresearch queue download --dir ~/reports/"
+        ]
+      },
+      {
+        "title": "Track and budget your API spend",
+        "description": "View cumulative API costs with a budget warning threshold",
+        "commands": [
+          "valyu-pp-cli cost --since 7d --budget 10.00 --breakdown"
+        ]
+      }
+    ]
+  },
+  "brief_path": "research/2026-06-19-151616-feat-valyu-pp-cli-brief.md",
+  "absorb_manifest_path": "research/2026-06-19-151616-feat-valyu-pp-cli-absorb-manifest.md",
+  "brainstorm_path": "research/2026-06-19-151616-novel-features-brainstorm.md"
+}
