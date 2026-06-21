@@ -91,8 +91,16 @@ type RegistryEntry struct {
 	Creator *Person `json:"creator,omitempty"`
 	// Contributors accrue as others improve a CLI (reprinter first), sourced
 	// from .printing-press.json's `contributors` array.
-	Contributors []Person  `json:"contributors,omitempty"`
-	MCP          *MCPBlock `json:"mcp,omitempty"`
+	Contributors []Person `json:"contributors,omitempty"`
+	// PrintingPressVersion is the version of the Printing Press generator
+	// that produced this CLI, sourced verbatim from .printing-press.json's
+	// `printing_press_version` field (a semver string like "4.24.0"). It
+	// answers "which generator binary printed this CLI?", distinct from the
+	// per-CLI release version in .printing-press-release.json. Emitted with
+	// omitempty so entries whose manifest predates the field (and any
+	// hand-authored registry.json without it) keep loading unchanged.
+	PrintingPressVersion string `json:"printing_press_version,omitempty"`
+	MCP                  *MCPBlock `json:"mcp,omitempty"`
 }
 
 // Person is one credited human (creator or contributor): a slug-safe GitHub
@@ -131,15 +139,16 @@ type MCPBlock struct {
 // (scorecard_total, run_id, etc.); we ignore them so a future generator
 // version that adds fields doesn't break this consumer.
 type printingPressManifest struct {
-	APIName            string   `json:"api_name"`
-	DisplayName        string   `json:"display_name"`
-	CatalogDescription string   `json:"catalog_description"`
-	Description        string   `json:"description"`
-	Creator            *Person  `json:"creator"`
-	Contributors       []Person `json:"contributors"`
-	Printer            string   `json:"printer"`
-	PrinterName        string   `json:"printer_name"`
-	CLIName            string   `json:"cli_name"`
+	APIName              string   `json:"api_name"`
+	DisplayName          string   `json:"display_name"`
+	CatalogDescription   string   `json:"catalog_description"`
+	Description          string   `json:"description"`
+	Creator              *Person  `json:"creator"`
+	Contributors         []Person `json:"contributors"`
+	Printer              string   `json:"printer"`
+	PrinterName          string   `json:"printer_name"`
+	PrintingPressVersion string   `json:"printing_press_version"`
+	CLIName              string   `json:"cli_name"`
 	AuthDescription    string   `json:"auth_description"`
 	MCPBinary          string   `json:"mcp_binary"`
 	MCPToolCount       int      `json:"mcp_tool_count"`
@@ -394,6 +403,11 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 		// transition; both come straight from .printing-press.json.
 		Creator:      pp.Creator,
 		Contributors: pp.Contributors,
+		// PrintingPressVersion is manifest-sourced like the other
+		// provenance fields. Entries whose manifest predates the field
+		// emit no key (omitempty), so the registry stays backward-
+		// compatible with hand-authored entries that lack it.
+		PrintingPressVersion: pp.PrintingPressVersion,
 	}
 
 	// Description preference: explicit .printing-press.json catalog_description

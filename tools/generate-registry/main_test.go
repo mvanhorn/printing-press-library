@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -840,4 +841,112 @@ No sentinels here.
 	if !strings.Contains(err.Error(), "missing begin sentinel") {
 		t.Errorf("expected missing-sentinel error, got: %v", err)
 	}
+}
+
+// TestRegistryEntry_PrintingPressVersionRoundTrip pins the JSON
+// serialization contract for printing_press_version: a set value
+// round-trips through marshal/unmarshal, and an empty value is omitted
+// (omitempty) so existing registry.json entries without the field keep
+// loading unchanged. This is the backward-compatibility guarantee the
+// additive field rests on.
+func TestRegistryEntry_PrintingPressVersionRoundTrip(t *testing.T) {
+	t.Run("set value round-trips", func(t *testing.T) {
+		entry := RegistryEntry{
+			Name:                 "espn",
+			Category:             "media",
+			API:                  "ESPN",
+			Description:          "Scores.",
+			Path:                 "library/media/espn",
+			PrintingPressVersion: "4.24.0",
+		}
+		data, err := json.Marshal(entry)
+		if err != nil {
+			t.Fatalf("marshal: %v", err)
+		}
+		if !strings.Contains(string(data), `"printing_press_version":"4.24.0"`) {
+			t.Fatalf("marshaled JSON missing printing_press_version, got: %s", data)
+		}
+		var back RegistryEntry
+		if err := json.Unmarshal(data, &back); err != nil {
+			t.Fatalf("unmarshal: %v", err)
+		}
+		if back.PrintingPressVersion != "4.24.0" {
+			t.Errorf("round-trip PrintingPressVersion = %q, want %q", back.PrintingPressVersion, "4.24.0")
+		}
+	})
+
+	t.Run("empty value is omitted", func(t *testing.T) {
+		entry := RegistryEntry{
+			Name:        "legacy",
+			Category:    "tools",
+			API:         "Legacy",
+			Description: "Old entry.",
+			Path:        "library/tools/legacy",
+		}
+		data, err := json.Marshal(entry)
+		if err != nil {
+			t.Fatalf("marshal: %v", err)
+		}
+		if strings.Contains(string(data), "printing_press_version") {
+			t.Fatalf("empty PrintingPressVersion should be omitted, got: %s", data)
+		}
+	})
+
+	t.Run("missing field loads as empty", func(t *testing.T) {
+		raw := `{"name":"x","category":"c","api":"X","description":"d","path":"p"}`
+		var entry RegistryEntry
+		if err := json.Unmarshal([]byte(raw), &entry); err != nil {
+			t.Fatalf("unmarshal: %v", err)
+		}
+		if entry.PrintingPressVersion != "" {
+			t.Errorf("PrintingPressVersion = %q, want empty for entry without the field", entry.PrintingPressVersion)
+		}
+	})
+}
+
+// TestBuildEntry_PropagatesPrintingPressVersion verifies the manifest's
+// printing_press_version reaches the registry entry. Uses a temp CLI
+// directory with a minimal .printing-press.json so the buildEntry path
+// (the real source-of-truth wiring) is exercised end-to-end.
+func TestBuildEntry_PropagatesPrintingPressVersion(t *testing.T) {
+	cliDir := t.TempDir()
+	manifest := `{
+		"api_name": "demo",
+		"cli_name": "demo-pp-cli",
+		"printing_press_version": "4.19.0",
+		"display_name": "Demo",
+		"description": "A demo CLI."
+	}`
+	if err := os.WriteFile(filepath.Join(cliDir, ".printing-press.json"), []byte(manifest), 0o644); err != nil {
+		t.Fatalf("write manifest: %v", err)
+	}
+
+	entry, err := buildEntry(cliDir, "tools", "demo", map[string]RegistryEntry{})
+	if err != nil {
+		t.Fatalf("buildEntry: %v", err)
+	}
+	if entry == nil {
+		t.Fatal("buildEntry returned nil entry")
+	}
+	if entry.PrintingPressVersion != "4.19.0" {
+		t.Errorf("entry.PrintingPressVersion = %q, want %q", entry.PrintingPressVersion, "4.19.0")
+	}
+
+	t.Run("manifest without field yields empty entry value", func(t *testing.T) {
+		emptyDir := t.TempDir()
+		noVersion := `{"api_name":"nov","cli_name":"nov-pp-cli","display_name":"Nov","description":"No version."}`
+		if err := os.WriteFile(filepath.Join(emptyDir, ".printing-press.json"), []byte(noVersion), 0o644); err != nil {
+			t.Fatalf("write manifest: %v", err)
+		}
+		entry, err := buildEntry(emptyDir, "tools", "nov", map[string]RegistryEntry{})
+		if err != nil {
+			t.Fatalf("buildEntry: %v", err)
+		}
+		if entry == nil {
+			t.Fatal("buildEntry returned nil entry")
+		}
+		if entry.PrintingPressVersion != "" {
+			t.Errorf("entry.PrintingPressVersion = %q, want empty when manifest lacks the field", entry.PrintingPressVersion)
+		}
+	})
 }

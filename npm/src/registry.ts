@@ -18,6 +18,8 @@ export interface RegistryEntry {
   description: string;
   search_terms?: string[];
   path: string;
+  /** Version of the Printing Press generator that printed this CLI (semver). Optional for backward compatibility. */
+  printing_press_version?: string;
   mcp?: MCPBlock;
 }
 
@@ -152,6 +154,10 @@ function parseRegistryEntry(value: unknown): RegistryEntry {
     description: requiredString(value, "description"),
     search_terms: optionalStringArray(value, "search_terms"),
     path: requiredString(value, "path"),
+    printing_press_version:
+      typeof value.printing_press_version === "string" && value.printing_press_version.trim() !== ""
+        ? value.printing_press_version
+        : undefined,
   };
 
   return isRecord(value.mcp)
