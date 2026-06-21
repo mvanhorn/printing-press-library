@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "patch_id": "boardgamegeek-collection-zero-value-filters",
+  "base_run_id": "20260618-160601",
+  "title": "Honor explicit 0-value collection filters (Greptile P1, re-review)",
+  "rationale": "The collection command gated each 0/1 filter flag (own, rated, played, wishlist, want, trade, stats, brief) on `if flagX != 0`, which cannot distinguish the Go zero value (flag unset) from an explicit `--own 0` (user wants only not-owned items). BGG treats `own=0` as a real filter, so `collection --username foo --own 0` silently returned all items instead of only not-owned ones.",
+  "files": [
+    "internal/cli/promoted_collection.go"
+  ],
+  "changes": [
+    {
+      "file": "internal/cli/promoted_collection.go",
+      "summary": "Replaced the `if flagX != 0` gates with `if cmd.Flags().Changed(\"x\")` for own, rated, played, wishlist, want, trade, stats, and brief, so an explicitly-set 0 is sent to BGG and an unset flag is omitted. String flags (username, subtype, excludesubtype, modifiedsince) are unaffected.",
+      "validated_outcome": "go build/vet/test pass; `--own 0` now sends own=0; unset flags still omitted (no change to existing behavior or golden output)."
+    }
+  ]
+}

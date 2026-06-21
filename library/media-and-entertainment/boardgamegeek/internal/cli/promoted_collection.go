@@ -61,28 +61,33 @@ func newCollectionPromotedCmd(flags *rootFlags) *cobra.Command {
 			if flagExcludesubtype != "" {
 				params["excludesubtype"] = formatCLIParamValue(flagExcludesubtype)
 			}
-			if flagOwn != 0 {
+			// These are 0/1 filter flags where 0 is a meaningful value
+			// (e.g. --own 0 means "only items I do NOT own"). Gate on whether
+			// the user explicitly set the flag rather than on != 0, otherwise
+			// an explicit 0 is indistinguishable from the Go zero value and
+			// gets silently dropped, causing BGG to return unfiltered results.
+			if cmd.Flags().Changed("own") {
 				params["own"] = formatCLIParamValue(flagOwn)
 			}
-			if flagRated != 0 {
+			if cmd.Flags().Changed("rated") {
 				params["rated"] = formatCLIParamValue(flagRated)
 			}
-			if flagPlayed != 0 {
+			if cmd.Flags().Changed("played") {
 				params["played"] = formatCLIParamValue(flagPlayed)
 			}
-			if flagWishlist != 0 {
+			if cmd.Flags().Changed("wishlist") {
 				params["wishlist"] = formatCLIParamValue(flagWishlist)
 			}
-			if flagWant != 0 {
+			if cmd.Flags().Changed("want") {
 				params["want"] = formatCLIParamValue(flagWant)
 			}
-			if flagTrade != 0 {
+			if cmd.Flags().Changed("trade") {
 				params["trade"] = formatCLIParamValue(flagTrade)
 			}
-			if flagStats != 0 {
+			if cmd.Flags().Changed("stats") {
 				params["stats"] = formatCLIParamValue(flagStats)
 			}
-			if flagBrief != 0 {
+			if cmd.Flags().Changed("brief") {
 				params["brief"] = formatCLIParamValue(flagBrief)
 			}
 			if flagModifiedsince != "" {
