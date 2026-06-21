@@ -862,8 +862,8 @@ This endpoint triggers [notifications](https://docs.github.com/github/managing-s
 - **`github-pp-cli releases get-asset`** - To download the asset's binary content:
 
 - If within a browser, fetch the location specified in the `browser_download_url` key provided in the response.
-- Alternatively, set the `Accept` header of the request to 
-  [`application/octet-stream`](https://docs.github.com/rest/using-the-rest-api/getting-started-with-the-rest-api#media-types). 
+- Alternatively, set the `Accept` header of the request to
+  [`application/octet-stream`](https://docs.github.com/rest/using-the-rest-api/getting-started-with-the-rest-api#media-types).
   The API will either redirect the client to the location, or stream it directly if possible.
   API clients should handle both a `200` or `302` response.
 - **`github-pp-cli releases get-by-tag`** - Get a published release with the specified tag.

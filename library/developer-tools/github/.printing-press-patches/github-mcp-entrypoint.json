@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "github-mcp-entrypoint",
+  "applied_at": "2026-06-21",
+  "base_run_id": "20260617-101859-30092ba9",
+  "base_printing_press_version": "4.24.0",
+  "summary": "GitHub MCP publications must include the github-pp-mcp command entrypoint whenever MCP artifacts are advertised.",
+  "reason": "The generated package included manifest.json, tools-manifest.json, release config, and docs for github-pp-mcp, but omitted cmd/github-pp-mcp/main.go; the published MCPB contract and go install path fail without the binary entrypoint.",
+  "files": [
+    "cmd/github-pp-mcp/main.go"
+  ],
+  "validated_outcome": "python3 .github/scripts/verify-manifest/verify_manifest.py passes for library/developer-tools/github after restoring the entrypoint."
+}
