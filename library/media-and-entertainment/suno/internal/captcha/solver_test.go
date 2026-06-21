@@ -71,6 +71,7 @@ type fakeBrowser struct {
 	tokenResults []string // /*pp:token*/ results, in sequence
 	tokenCalls   int
 	visible      string // /*pp:visible*/ result; "" defaults to "visible"
+	kickResult   string // /*pp:kick*/ result; "" defaults to "ok"
 	shown        bool
 	cookiesSet   bool
 	kicks        int
@@ -91,6 +92,9 @@ func (f *fakeBrowser) evaluate(_ context.Context, js string) (string, error) {
 		return f.firstResult, nil
 	case strings.Contains(js, "/*pp:kick*/"):
 		f.kicks++
+		if f.kickResult != "" {
+			return f.kickResult, nil
+		}
 		return "ok", nil
 	case strings.Contains(js, "/*pp:token*/"):
 		r := ""
@@ -200,6 +204,23 @@ func TestSolve_InteractiveChallengeNeverRenders_Errors(t *testing.T) {
 	_, err := s.Solve(context.Background(), Options{Profile: "default", Interactive: true})
 	if err == nil || !strings.Contains(err.Error(), "did not render") {
 		t.Fatalf("want 'did not render' error, got %v", err)
+	}
+}
+
+// TestSolve_InteractiveKickError_SurfacesImmediately: when the kick script throws
+// synchronously (hcaptcha.render/execute), it returns "ERR:..." without ever
+// setting window.__ppErr. The solver must report that JS failure right away
+// rather than waiting out the render-grace and blaming a non-rendered challenge.
+func TestSolve_InteractiveKickError_SurfacesImmediately(t *testing.T) {
+	defer swapTiming(1*time.Millisecond, time.Hour)() // huge grace: a render-grace fallthrough would hang, not fail fast
+	fb := &fakeBrowser{firstResult: "", kickResult: "ERR:hcaptcha is not defined"}
+	s := newTestSolver(fb, func(context.Context) ([]CDPCookie, error) { return nil, nil })
+	_, err := s.Solve(context.Background(), Options{Profile: "default", Interactive: true})
+	if err == nil || !strings.Contains(err.Error(), "hcaptcha is not defined") {
+		t.Fatalf("want kick failure surfaced, got %v", err)
+	}
+	if strings.Contains(err.Error(), "did not render") {
+		t.Fatalf("must not mask the real JS error as a render timeout: %v", err)
 	}
 }
 

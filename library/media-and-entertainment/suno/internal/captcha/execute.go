@@ -92,7 +92,7 @@ func challengeVisibleJS() string {
     const s = (f.src || '').toLowerCase();
     if (t.indexOf('hcaptcha') < 0 && s.indexOf('hcaptcha') < 0) continue;
     const r = f.getBoundingClientRect();
-    if (r.width > 40 && r.height > 40 && f.offsetParent !== null) return 'visible';
+    if (r.width > 40 && r.height > 40) return 'visible';
   }
   return 'hidden';
 })()`

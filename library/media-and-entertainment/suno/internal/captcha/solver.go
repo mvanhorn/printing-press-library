@@ -127,6 +127,23 @@ func (s *solver) Solve(ctx context.Context, opts Options) (string, error) {
 	return solveInteractively(ctx, b, timeout)
 }
 
+// kickInteractive renders+executes a fresh invisible hCaptcha challenge. The
+// kick script's outer try/catch returns "ERR:..." synchronously when
+// hcaptcha.render/execute throws (e.g. hcaptcha not loaded, widget limit hit)
+// — a path that never sets window.__ppErr, so the token poll would otherwise
+// stay empty and the caller would wait out the render-grace before reporting a
+// misleading "never rendered". Surface that JS failure immediately instead.
+func kickInteractive(ctx context.Context, b browser) error {
+	raw, err := b.evaluate(ctx, interactiveKickJS())
+	if err != nil {
+		return err
+	}
+	if r := strings.TrimSpace(raw); strings.HasPrefix(r, "ERR:") {
+		return fmt.Errorf("captcha: could not start the interactive challenge: %s", strings.TrimPrefix(r, "ERR:"))
+	}
+	return nil
+}
+
 // solveInteractively brings the offscreen solver window onto the desktop,
 // presents a fresh hCaptcha challenge, verifies it actually rendered, then polls
 // for the user-submitted token until the deadline. It distinguishes three
@@ -136,7 +153,7 @@ func solveInteractively(ctx context.Context, b browser, budget time.Duration) (s
 	if err := b.showOnScreen(ctx); err != nil {
 		return "", fmt.Errorf("captcha: could not bring the solver window on-screen: %w", err)
 	}
-	if _, err := b.evaluate(ctx, interactiveKickJS()); err != nil {
+	if err := kickInteractive(ctx, b); err != nil {
 		return "", err
 	}
 
@@ -165,7 +182,7 @@ func solveInteractively(ctx context.Context, b browser, budget time.Duration) (s
 			if strings.Contains(reason, "expired") {
 				// The challenge timed out before the user finished. Present a
 				// fresh one and restart the render-grace window.
-				if _, err := b.evaluate(ctx, interactiveKickJS()); err != nil {
+				if err := kickInteractive(ctx, b); err != nil {
 					return "", err
 				}
 				sawChallenge = false
