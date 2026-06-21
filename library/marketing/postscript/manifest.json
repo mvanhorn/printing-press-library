@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "postscript-pp-mcp",
+  "display_name": "Postscript Partner",
+  "version": "0.0.0",
+  "description": "Compact OpenAPI spec assembled from the official Postscript ReadMe endpoint pages listed in https://developers.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/postscript-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/postscript-pp-mcp",
+      "args": [],
+      "env": {
+        "POSTSCRIPT_API_KEY": "${user_config.postscript_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "postscript_api_key": {
+      "type": "string",
+      "title": "Postscript API key",
+      "description": "Postscript shop or partner API key.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

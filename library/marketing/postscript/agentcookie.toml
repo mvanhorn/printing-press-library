@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "postscript-pp-cli"
+display_name = "Postscript Partner"
+description = "Compact OpenAPI spec assembled from the official Postscript ReadMe endpoint pages listed in https://developers."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/postscript-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+POSTSCRIPT_API_KEY = true

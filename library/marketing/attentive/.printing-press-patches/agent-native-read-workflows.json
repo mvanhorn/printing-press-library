@@ -1,0 +1,9 @@
+{
+  "workflows": [
+    {
+      "name": "segment-audience-discovery",
+      "commands": ["segments list", "segments get-by-external-id", "bulk get-job-status"],
+      "description": "Discover Attentive segments, inspect a segment by external ID, and monitor related bulk ingestion jobs."
+    }
+  ]
+}

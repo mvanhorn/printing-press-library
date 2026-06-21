@@ -1,0 +1,4 @@
+{
+  "resources": ["subscribers"],
+  "reason": "Generated default sync resources are non-empty and target the subscriber list endpoint."
+}

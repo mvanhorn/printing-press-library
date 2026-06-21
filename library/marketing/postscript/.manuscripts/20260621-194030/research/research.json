@@ -1,0 +1,76 @@
+{
+  "api_name": "postscript",
+  "novelty_score": 0,
+  "alternatives": null,
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Subscriber Directory",
+      "command": "subscribers list",
+      "description": "List Postscript subscribers with documented email, phone, Shopify customer, ps_id, date, page, and sort filters.",
+      "rationale": ""
+    },
+    {
+      "name": "Subscriber Lookup",
+      "command": "subscribers get",
+      "description": "Retrieve an individual Postscript subscriber by ID, including contact fields, tags, custom properties, and subscription sendability state.",
+      "rationale": ""
+    },
+    {
+      "name": "Custom Event Intake",
+      "command": "events",
+      "description": "Send documented Postscript custom events with subscriber identifiers, occurrence timestamps, external IDs, and event properties for flows.",
+      "rationale": ""
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Subscriber Directory",
+      "command": "subscribers list",
+      "description": "List Postscript subscribers with documented email, phone, Shopify customer, ps_id, date, page, and sort filters.",
+      "rationale": ""
+    },
+    {
+      "name": "Subscriber Lookup",
+      "command": "subscribers get",
+      "description": "Retrieve an individual Postscript subscriber by ID, including contact fields, tags, custom properties, and subscription sendability state.",
+      "rationale": ""
+    },
+    {
+      "name": "Custom Event Intake",
+      "command": "events",
+      "description": "Send documented Postscript custom events with subscriber identifiers, occurrence timestamps, external IDs, and event properties for flows.",
+      "rationale": ""
+    }
+  ],
+  "narrative": {
+    "value_prop": "Inspect Postscript subscribers and send documented custom events from a local CLI/MCP surface.",
+    "quickstart": [
+      {
+        "command": "postscript-pp-cli subscribers list --email-contains example.com --json",
+        "comment": "Find subscribers matching an email fragment."
+      },
+      {
+        "command": "postscript-pp-cli subscribers get 550e8400-e29b-41d4-a716-446655440000 --json",
+        "comment": "Inspect a subscriber by ID."
+      },
+      {
+        "command": "postscript-pp-cli events --type OrderPlaced --email customer@example.com --external-id evt_123 --json",
+        "comment": "Prepare a documented custom event request."
+      }
+    ],
+    "recipes": [
+      {
+        "title": "",
+        "command": "postscript-pp-cli subscribers list --phone-number-contains 555 --json"
+      },
+      {
+        "title": "",
+        "command": "postscript-pp-cli events --type BackInStock --email customer@example.com --external-id evt_123 --json"
+      }
+    ]
+  }
+}

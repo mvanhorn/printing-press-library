@@ -1,0 +1,1682 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "description": "For any questions, reach out to your Attentive point of contact (if applicable) or [api@attentivemobile.com](mailto:api@attentivemobile.com).",
+    "title": "Attentive API V2",
+    "version": "2.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.attentivemobile.com/",
+      "description": "Attentive API V2"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Test Authentication V2",
+      "description": "Use the V2 Test Authentication endpoint to test your unique token that you received from Attentive. Make sure to save your token because all API requests are authenticated using bearer tokens. The response should include information specific to your company.\n"
+    },
+    {
+      "name": "User Properties",
+      "description": "This API will either create a new user if it doesn't already exist or update an existing one with the attributes provided. You can then use these attributes as macros in messages or build segments to send targeted campaigns and journeys.\nThis data cannot contain any sensitive or special categories of information as defined in applicable data protection and privacy laws, including the California Consumer Privacy Act (CCPA) and California Privacy Rights Act (CPRA). See a list of specific categories of data you cannot share with Attentive [here](https://docs.attentivemobile.com/pages/legal-docs/pi-disclaimer/).\n",
+      "x-beta": true
+    },
+    {
+      "name": "Bulk User Operations",
+      "x-beta": true
+    },
+    {
+      "name": "User Attributes",
+      "description": "Endpoints for submitting bulk user attribute updates. Use these endpoints to upload large datasets of user data in a single request and monitor the processing status asynchronously. Typical use cases include importing records in batch and retrieving job completion results via status checks.\n\n## Processing Times\n\nThe Bulk API processes jobs with the following targets:\n- **Standard Processing**: The first 10,000 user records per day per customer typically complete within 4 hours of request acceptance.\n- **High-Volume Processing**: Additional records beyond 10,000 per day typically complete within 12 hours.\n\n**Note**: For jobs with more than 1 million records, processing times may vary.\n",
+      "x-beta": true
+    },
+    {
+      "name": "Bulk Segment Operations",
+      "x-beta": true
+    },
+    {
+      "name": "Segments",
+      "description": "Endpoints for submitting bulk segment member additions and removals. Use these endpoints to manage segment memberships in bulk and monitor the processing status asynchronously.\n\n## Processing Times\n\nThe Bulk API processes jobs with the following targets:\n- **Standard Processing**: The first 10,000 records per day per customer typically complete within 4 hours of request acceptance.\n- **High-Volume Processing**: Additional records beyond 10,000 per day typically complete within 12 hours.\n\n**Note**: For jobs with more than 1 million records, processing times may vary.\n",
+      "x-beta": true
+    },
+    {
+      "name": "Bulk Status",
+      "description": "Endpoints for managing bulk data ingestion jobs. Use these endpoints to monitor the processing status asynchronously.\n",
+      "x-beta": true
+    }
+  ],
+  "paths": {
+    "/v2/me": {
+      "x-external": true,
+      "get": {
+        "x-external": true,
+        "x-emits-event": true,
+        "summary": "Me",
+        "description": "Make a call to this endpoint to test your unique token that you generate in the Attentive product.",
+        "operationId": "getMeV2",
+        "tags": [
+          "Test Authentication V2"
+        ],
+        "responses": {
+          "200": {
+            "description": "Get information about the authenticated user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetMeResponseDtoV2"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidParameter"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccessDenied"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/v2/user/attributes": {
+      "x-external": true,
+      "post": {
+        "x-external": true,
+        "x-emits-event": true,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Create or update a single user with attributes, subscriptions, and identifiers",
+        "description": "Creates or updates a single user record, including associated attributes, subscriptions, and identifiers. If a user with the provided identifiers already exists, their information will be updated; otherwise, a new user will be created.\n\nThere is a limit of 100 of custom attributes that can be created. If intending to update an existing attribute, the name of the key must match the name of the existing attribute. If an existing attribute does not exist, a new attribute will be created with the given key as the name. Attributes with enumerated values must have a value that matches an existing enum value; new enum values will not be created.  Attempting to pass custom attributes as an array or a map such as `[\"New York City]` or `{\"favorite city\": \"Boston\"}` will result in a 400 error.\n\nDefault Rate Limit: 150 requests per second\n",
+        "operationId": "postUserAttributes",
+        "tags": [
+          "User Properties"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserAttributesRequestDtoV2"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidParameter"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccessDenied"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/v2/bulk/job/{bulkJobId}": {
+      "x-external": "hidden",
+      "x-requires-auth": true,
+      "get": {
+        "operationId": "getBulkJobStatus",
+        "x-external": true,
+        "x-emits-event": true,
+        "summary": "Retrieve the status of a bulk ingestion job",
+        "description": "Checks the status of a bulk ingestion job identified by bulkJobId. This endpoint returns the current state of the job (e.g. `PENDING`, `IN_PROGRESS`, `COMPLETED`, `FAILED`) along with metadata such as timestamps and error messages if applicable.\n\nIf the job has completed successfully, the response includes a downloadable link to a `.jsonl` (JSON Lines) file containing a record of each request and its corresponding response. User's can audit results or process downstream outcomes of the bulk operation. You can fetch requests up to 2 weeks old.\n\nScopes Required: No Additional scopes required.\n\nDefault Rate Limit: 100 requests per second\n",
+        "tags": [
+          "Bulk Status"
+        ],
+        "parameters": [
+          {
+            "name": "bulkJobId",
+            "description": "id of the bulk job",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the status of the bulk job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkJobStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/bulk/user/attributes": {
+      "x-external": "hidden",
+      "x-requires-auth": false,
+      "post": {
+        "x-external": true,
+        "x-emits-event": true,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Bulk User Attributes",
+        "description": "This endpoint allows clients to submit multiple user attribute updates in bulk, accepting up to 256 payloads per request. Each request is validated, and a unique batch ID is returned for tracking the status of the batch.\n\nScopes Required: [attributes:all, subscriptions:all]\n\nDefault Rate Limit: 100 requests per second\n",
+        "operationId": "postBulkUserAttributes",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Authorization for the request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "Bulk User Operations",
+          "User Attributes"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserAttributes"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "The bulk job request was successfully received and accepted for asynchronous processing. The response includes a batchJobId to track the status of the job, along with a confirmation message. Processing has not yet completed, please use the job status endpoint to monitor progress and retrieve results once available.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidParameter"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccessDenied"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/v2/bulk/segments/members": {
+      "x-external": "hidden",
+      "x-requires-auth": false,
+      "post": {
+        "x-external": true,
+        "x-emits-event": true,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Add Bulk Segment Members",
+        "description": "Add members to a segment in bulk. This endpoint accepts 1 to 10,000 members per request. Members are identified by email, phone number, and/or client user ID. The request is validated, queued for asynchronous processing, and a unique batch job ID is returned for tracking the status.\n\n**Request Limits:**\n- Minimum: 1 member per request\n- Maximum: 10,000 members per request\n- At least one identifier (email, phone, or clientUserId) required per member\n\n**Processing:**\n- Jobs are processed asynchronously\n- Use the batch job ID to check status via `GET /v2/bulk/job/{bulkJobId}`\n- Results available as downloadable `.jsonl` file when completed\n\nScopes Required: [segments:all]\n\nDefault Rate Limit: 100 requests per second\n",
+        "operationId": "postBulkSegmentMembers",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Authorization for the request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "Bulk Segment Operations",
+          "Segments"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SegmentMembers"
+              },
+              "examples": {
+                "addThreeMembers": {
+                  "summary": "Add three members to loyalty segment",
+                  "description": "Example showing adding members with different identifier combinations",
+                  "value": {
+                    "externalId": "loyalty_gold_2025",
+                    "members": [
+                      {
+                        "email": "customer1@example.com",
+                        "phone": "+14155551234"
+                      },
+                      {
+                        "email": "customer2@example.com",
+                        "clientUserId": "user-abc-123"
+                      },
+                      {
+                        "phone": "+14155555678",
+                        "clientUserId": "user-xyz-789"
+                      }
+                    ]
+                  }
+                },
+                "addByEmailOnly": {
+                  "summary": "Add members by email only",
+                  "description": "Example showing members identified by email address",
+                  "value": {
+                    "externalId": "newsletter_subscribers",
+                    "members": [
+                      {
+                        "email": "subscriber1@example.com"
+                      },
+                      {
+                        "email": "subscriber2@example.com"
+                      },
+                      {
+                        "email": "subscriber3@example.com"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "The bulk job request was successfully received and accepted for asynchronous processing. The response includes a batchJobId to track the status of the job, along with a confirmation message. Processing has not yet completed, please use the job status endpoint to monitor progress and retrieve results once available.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkSuccessResponse"
+                },
+                "examples": {
+                  "successResponse": {
+                    "summary": "Successful job submission",
+                    "description": "The job was accepted and queued for processing",
+                    "value": {
+                      "message": "Bulk segment member add job successfully submitted",
+                      "batchJobId": "550e8400-e29b-41d4-a716-446655440000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidParameter"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccessDenied"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/v2/segments": {
+      "x-external": "hidden",
+      "x-requires-auth": true,
+      "post": {
+        "x-external": true,
+        "x-emits-event": true,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Create new segment",
+        "description": "Creates a new empty segment with the specified name and optional description.\n\nScopes Required: [segments:Write]\n\nDefault Rate Limit: 100 requests per second\n",
+        "operationId": "createSegment",
+        "tags": [
+          "Segments"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSegmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Segment created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateSegmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - invalid parameters"
+          },
+          "401": {
+            "description": "Unauthorized - invalid or missing token"
+          },
+          "403": {
+            "description": "Access denied - insufficient permissions"
+          },
+          "429": {
+            "description": "Too many requests - rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "get": {
+        "x-external": true,
+        "x-requires-auth": true,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "List segments",
+        "description": "Lists segments with optional filtering by name, external ID, or update timestamp.\n\nScopes Required: [segments:Read OR segments:Write]\n\nDefault Rate Limit: 100 requests per second\n",
+        "operationId": "listSegments",
+        "tags": [
+          "Segments"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Filter by segment name (partial match). Cannot be empty or whitespace only.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 240
+            }
+          },
+          {
+            "name": "externalId",
+            "in": "query",
+            "description": "Filter by external ID. Cannot be empty or whitespace only.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            }
+          },
+          {
+            "name": "updatedSince",
+            "in": "query",
+            "description": "Filter by segments updated since this timestamp (ISO 8601 format)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "Pagination cursor from previous response. Cannot be empty or whitespace only.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of results to return (default 20, max 1000)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of segments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListSegmentsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - invalid parameters"
+          },
+          "401": {
+            "description": "Unauthorized - invalid or missing token"
+          },
+          "403": {
+            "description": "Access denied - insufficient permissions"
+          },
+          "429": {
+            "description": "Too many requests - rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/v2/segments/external/{externalId}": {
+      "x-external": "hidden",
+      "x-requires-auth": true,
+      "get": {
+        "x-external": true,
+        "x-requires-auth": true,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get segment by external ID",
+        "description": "Retrieves segment details by external ID.\n\nScopes Required: [segments:Read OR segments:Write]\n\nDefault Rate Limit: 100 requests per second\n",
+        "operationId": "getSegmentByExternalId",
+        "tags": [
+          "Segments"
+        ],
+        "parameters": [
+          {
+            "name": "externalId",
+            "in": "path",
+            "description": "External ID of the segment",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Segment details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SegmentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - invalid or missing token"
+          },
+          "403": {
+            "description": "Access denied - insufficient permissions"
+          },
+          "404": {
+            "description": "Segment not found"
+          },
+          "429": {
+            "description": "Too many requests - rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "patch": {
+        "x-external": true,
+        "x-requires-auth": true,
+        "x-emits-event": true,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Partial update segment by external ID",
+        "description": "Partially updates an existing segment. Only provided fields will be updated.\n\nScopes Required: [segments:Write]\n\nDefault Rate Limit: 100 requests per second\n",
+        "operationId": "patchSegmentByExternalId",
+        "tags": [
+          "Segments"
+        ],
+        "parameters": [
+          {
+            "name": "externalId",
+            "in": "path",
+            "description": "External ID of the segment",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchSegmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Segment updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SegmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - invalid parameters"
+          },
+          "401": {
+            "description": "Unauthorized - invalid or missing token"
+          },
+          "403": {
+            "description": "Access denied - insufficient permissions"
+          },
+          "404": {
+            "description": "Segment not found"
+          },
+          "429": {
+            "description": "Too many requests - rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "x-external": true,
+        "x-requires-auth": true,
+        "x-emits-event": true,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Archive segment by external ID",
+        "description": "Archives (soft deletes) a segment by external ID. The segment will no longer be visible in list operations but can be restored if needed.\n\nScopes Required: [segments:Write]\n\nDefault Rate Limit: 100 requests per second\n",
+        "operationId": "deleteSegmentByExternalId",
+        "tags": [
+          "Segments"
+        ],
+        "parameters": [
+          {
+            "name": "externalId",
+            "in": "path",
+            "description": "External ID of the segment to archive",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Segment archived successfully"
+          },
+          "401": {
+            "description": "Unauthorized - invalid or missing token"
+          },
+          "403": {
+            "description": "Access denied - insufficient permissions"
+          },
+          "404": {
+            "description": "Segment not found"
+          },
+          "429": {
+            "description": "Too many requests - rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "GetMeResponseDtoV2": {
+        "type": "object",
+        "properties": {
+          "applicationName": {
+            "type": "string",
+            "description": "The application name.",
+            "example": "Pillow Api"
+          },
+          "attentiveDomainName": {
+            "type": "string",
+            "description": "The Attentive domain name.",
+            "example": "hudsonivy.attn.tv"
+          },
+          "companyName": {
+            "type": "string",
+            "description": "The company name in the Attentive platform.",
+            "example": "Hudson & Ivy"
+          },
+          "contactEmail": {
+            "type": "string",
+            "description": "The contact email associated with the application.",
+            "example": "name@company.com"
+          },
+          "companyId": {
+            "type": "string",
+            "description": "The installer company ID",
+            "example": "MDc6Q29tcGFueTI"
+          }
+        }
+      },
+      "CreateUserAttributesRequestDtoV2": {
+        "type": "object",
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "description": "Personal details about the user. These attributes will take priority over custom properties. All fields are considered optional.\n",
+            "properties": {
+              "firstName": {
+                "type": "string",
+                "description": "The user's first name.",
+                "example": "John"
+              },
+              "lastName": {
+                "type": "string",
+                "description": "The user's last name.",
+                "example": "Smith"
+              },
+              "demographic": {
+                "type": "object",
+                "description": "An object containing additional personal and professional details.",
+                "properties": {
+                  "language": {
+                    "type": "string",
+                    "description": "The user's preferred language.",
+                    "example": "English/American"
+                  },
+                  "dateOfBirth": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "The user's date of birth in YYYY-MM-DD (ISO-8601 format).",
+                    "example": "2022-11-08"
+                  },
+                  "age": {
+                    "type": "integer",
+                    "description": "The user's age.",
+                    "example": 29
+                  },
+                  "organization": {
+                    "type": "string",
+                    "description": "The organization the user is associated with.",
+                    "example": "Acme Sports"
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "The user's title (e.g., Mr, Ms, Dr).",
+                    "example": "Mr"
+                  },
+                  "website": {
+                    "type": "string",
+                    "description": "The user's website URL.",
+                    "example": "http://johnsmith.com"
+                  }
+                }
+              },
+              "location": {
+                "type": "object",
+                "description": "An object containing the user's address and geographical details.",
+                "properties": {
+                  "address1": {
+                    "type": "string",
+                    "description": "The first line of the address (e.g., street name and number).",
+                    "example": "456 Elm Avenue"
+                  },
+                  "address2": {
+                    "type": "string",
+                    "description": "The second line of the address (e.g., apartment or suite).",
+                    "example": "Suite 300"
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "The city where the user is located.",
+                    "example": "Brooklyn"
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "The state where the user is located.",
+                    "example": "NY"
+                  },
+                  "zip": {
+                    "type": "string",
+                    "description": "The postal or ZIP code.",
+                    "example": "11222"
+                  },
+                  "latitude": {
+                    "type": "string",
+                    "description": "The geographical latitude.",
+                    "example": "40.730610"
+                  },
+                  "longitude": {
+                    "type": "string",
+                    "description": "The geographical longitude.",
+                    "example": "-73.935242"
+                  },
+                  "country": {
+                    "type": "string",
+                    "description": "The country of the user provided in ISO-3166-1 format",
+                    "example": "US"
+                  },
+                  "region": {
+                    "type": "string",
+                    "description": "The region of the user in ISO-3166-2 format",
+                    "example": "AU-NSW"
+                  },
+                  "timezone": {
+                    "type": "string",
+                    "description": "The user's timezone (e.g., EST).",
+                    "example": "EST"
+                  }
+                }
+              },
+              "locale": {
+                "type": "object",
+                "description": "An object representing the user's locale information.",
+                "properties": {
+                  "language": {
+                    "type": "string",
+                    "description": "The preferred language in ISO 639-1 format.",
+                    "example": "French"
+                  },
+                  "country": {
+                    "type": "string",
+                    "description": "The user's country in ISO 3166-1 alpha-2 format.",
+                    "example": "CA"
+                  }
+                }
+              },
+              "custom": {
+                "type": "object",
+                "description": "A key-value object for custom attributes. Please use the correct primitive type for the value. DateTime strings must adhere to ISO-8601 format for proper recognition.\nThe key will be assigned a type corresponding to the type seen of the first value. For example, if 'Age' is passed with the first value of '24', 'Age' will be typed as a 'Number'. There is no need to pass strings in double quotes. Both object keys and object values are case sensitive. \"Favorite color\" and \"Favorite Color\" would be considered different custom attributes.\n",
+                "additionalProperties": {},
+                "example": {
+                  "lucky number": 6,
+                  "favorite color": "green",
+                  "has pets": true
+                }
+              }
+            }
+          },
+          "subscriptions": {
+            "type": "array",
+            "description": "An array of subscription details, defining how the user prefers to receive communications.\n\nNotes:\n- A legal disclosure is required when a user is opted-in programmatically.\n    - For marketing messages, required [legal language](https://docs.attentivemobile.com/pages/legal-docs/legal-disclosure-language/) must be included.\n   - For transactional messages, you must include a [transactional opt-in unit](https://docs.attentivemobile.com/pages/legal-docs/legal-transactional/).\n\n- By default, if a subscription already exists, it will try and record the attempt to create the subscription again. For TEXT subscriptions, this may result in a message being sent to the person indicating that they are already subscribed.\n- Requests to opt-in subscribers must contain a sign-up source id.\n  - The unique identifier of a sign-up source can be found in the Sign-up Units tab of the Attentive platform in the ID column.\n  If this value is provided in the request, then this sign-up unit will be used for opting in the user in the request.\n\n- Callers of this endpoint have the option to omit `signUpSourceId` and, instead, provide both a `locale` and a `subscriptionType` (see below for field details). Given the locale and subscription type, Attentive will resolve any matching API opt-in units. To opt-in a user to a subscription without a `signUpSourceId` and exclusively based on locale and subscription type, there must be exactly one API sign-up unit that matches the provided locale and subscription type. Conversely, requests that contain a locale and a subscription type that do not have a corresponding sign-up unit or that have multiple matching sign-up units will receive a `400` response and will not opt a user into a subscription.\n- Phone numbers must be submitted in [e164 format](https://en.wikipedia.org/wiki/E.164).\n    - valid examples: `+19148440001`, `+442071838750`, `+551155256325`\n    - invalid examples: `19148440001`, `+1---914---844---0001`, `1 () 914 844 0001`\n",
+            "items": {
+              "type": "object",
+              "properties": {
+                "signUpSourceId": {
+                  "type": "string",
+                  "description": "A string identifying the source of the user's sign-up.",
+                  "example": "string"
+                },
+                "channel": {
+                  "type": "string",
+                  "description": "The communication channel the user is subscribed to (e.g., TEXT). Supported channels include:\n  - TEXT\n  - EMAIL\n",
+                  "example": "TEXT",
+                  "enum": [
+                    "TEXT",
+                    "EMAIL"
+                  ]
+                },
+                "singleOptIn": {
+                  "type": "boolean",
+                  "description": "Opt in subscriber silently (do not send a Reply Y to subscribe text).\n\nNOTE: This property is disabled (set to false) by default. We strongly recommend maintaining the standard \ndouble opt-in flow, as it serves important legal and compliance purposes. If you want to enable single opt-in, \nwe encourage you to speak with your dedicated Client Strategy Manager (CSM) or our White Glove team \n(whiteglove@attentivemobile.com) before you enable it. If this property is set to true, subscribers will be \nadded without receiving the initial \u201cReply Y\u201d confirmation text message. This setting bypasses only the \n\u201cReply Y\u201d message. The mandatory legal message will still be sent.\n",
+                  "example": true
+                }
+              },
+              "required": [
+                "signUpSourceId",
+                "channel",
+                "subscriptionType"
+              ]
+            }
+          },
+          "identifiers": {
+            "type": "object",
+            "description": "Contains various identifiers used to uniquely identify the user.\n\nNotes:\n- Sending duplicate values could lead to unintentionally bridging users together.\n- Don't use customIdentifiers to send attributes (e.g., first name, last name). To send those types of attributes, add to the attributes payload.\n- Avoid sending null values or empty strings. If you don't have a valid identifier, you should omit the field from the payload.\n",
+            "minProperties": 1,
+            "properties": {
+              "email": {
+                "type": "string",
+                "description": "The user's email address.",
+                "example": "jsmith@attentive.com"
+              },
+              "phone": {
+                "type": "string",
+                "description": "The user's phone number.",
+                "example": "+15008675309"
+              },
+              "shopifyId": {
+                "type": "string",
+                "description": "The user's Shopify ID, if applicable.",
+                "example": "345678901"
+              },
+              "klaviyoId": {
+                "type": "string",
+                "description": "The user's Klaviyo ID, if applicable.",
+                "example": "a1b2c3d4e5f6a7b8c9d0e1f2"
+              },
+              "clientUserId": {
+                "type": "string",
+                "description": "Your own unique identifier to be associated with a user to be associated with a user through a phone, email, shopify id, klaviyo id, or custom identifier. Please do NOT put Shopify IDs or Klaviyo IDs here, there are dedicated fields for those identifiers. There is a 100-character limit.\n",
+                "example": "freeform-client-id"
+              },
+              "customIdentifiers": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CustomIdentifier"
+                }
+              }
+            }
+          }
+        }
+      },
+      "CustomIdentifier": {
+        "type": "object",
+        "description": "An object containing custom identifiers to associate with an incoming user\n",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "The name of the custom identifier.",
+            "example": "loyalty_points_id"
+          },
+          "value": {
+            "type": "string",
+            "description": "The value of the custom identifier.",
+            "example": "ADFK4D7D"
+          }
+        },
+        "required": [
+          "key",
+          "value"
+        ]
+      },
+      "CustomAttributeDto": {
+        "type": "object",
+        "description": "A definition of a custom attribute\n",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the attribute"
+          },
+          "propertyType": {
+            "type": "string",
+            "enum": [
+              "number",
+              "boolean",
+              "enum",
+              "string",
+              "date"
+            ],
+            "description": "The data type of the attribute"
+          },
+          "enumPropertyValues": {
+            "type": "array",
+            "description": "If the type provided is 'enum', the list of acceptable values.",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "propertyType"
+        ]
+      },
+      "UpdateCustomAttributeDto": {
+        "type": "object",
+        "description": "Properties of a custom attribute to update\n",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the attribute"
+          },
+          "propertyType": {
+            "type": "string",
+            "enum": [
+              "number",
+              "boolean",
+              "enum",
+              "string",
+              "date"
+            ],
+            "description": "The data type of the attribute"
+          },
+          "enumPropertyValues": {
+            "type": "array",
+            "description": "If the type provided is 'enum', the list of acceptable values.",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CustomAttributeListDto": {
+        "type": "array",
+        "description": "A list of custom attributes",
+        "items": {
+          "$ref": "#/components/schemas/CustomAttributeDto"
+        }
+      },
+      "CustomAttributeUsagesList": {
+        "type": "object",
+        "description": "The list of journeys and segments using this attribute",
+        "properties": {
+          "totalUsages": {
+            "type": "integer"
+          },
+          "journeyUsages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "segmentUsages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "BulkJobStatusResponse": {
+        "type": "object",
+        "properties": {
+          "bulkJobId": {
+            "type": "string",
+            "description": "A unique identifier representing the submitted batch job. Use this ID to query the job's status, retrieve results, or diagnose any errors related to the job. This ID is returned upon successful job submission and required for all follow-up actions related to the batch.\n"
+          },
+          "status": {
+            "type": "string",
+            "description": "The current state of the batch job. Common values include:\n\n  - `IN_PROGRESS` \u2013 The job has been accepted and is waiting to be processed.\n\n  - `COMPLETED` \u2013 The job finished successfully.\n"
+          },
+          "totalRecords": {
+            "type": "integer",
+            "description": "The total number of records included in the batch job. This represents the full count of items submitted for processing, regardless of whether they ultimately succeeded or failed.\n"
+          },
+          "url": {
+            "type": "string",
+            "description": "A direct URL to download the results of the batch job, when available. This field is typically populated once the job has completed successfully. The file will contain per-record results in a JSON Lines (.jsonl) file.\n"
+          }
+        }
+      },
+      "BulkSuccessResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "A human-readable message confirming that the bulk job was successfully submitted.\n"
+          },
+          "batchJobId": {
+            "type": "string",
+            "description": "A unique identifier representing the submitted batch job. Use this ID to query the job's status, retrieve results, or diagnose any errors related to the job. This ID is returned upon successful job submission and required for all follow-up actions related to the batch.\n"
+          }
+        }
+      },
+      "UserAttributes": {
+        "properties": {
+          "users": {
+            "type": "array",
+            "description": "Array of user attribute records to submit (up to 256 users).",
+            "minItems": 1,
+            "maxItems": 256,
+            "items": {
+              "$ref": "#/components/schemas/CreateUserAttributesRequestDtoV21"
+            }
+          }
+        }
+      },
+      "CreateUserAttributesRequestDtoV21": {
+        "type": "object",
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "description": "Personal details about the user. These attributes will take priority over custom properties. All fields are considered optional.\n",
+            "properties": {
+              "firstName": {
+                "type": "string",
+                "description": "The user's first name.",
+                "example": "John"
+              },
+              "lastName": {
+                "type": "string",
+                "description": "The user's last name.",
+                "example": "Smith"
+              },
+              "demographic": {
+                "type": "object",
+                "description": "An object containing additional personal and professional details.",
+                "properties": {
+                  "language": {
+                    "type": "string",
+                    "description": "The user's preferred language.",
+                    "example": "English/American"
+                  },
+                  "dateOfBirth": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "The user's date of birth in YYYY-MM-DD (ISO-8601 format).",
+                    "example": "2022-11-08"
+                  },
+                  "age": {
+                    "type": "integer",
+                    "description": "The user's age.",
+                    "example": 29
+                  },
+                  "organization": {
+                    "type": "string",
+                    "description": "The organization the user is associated with.",
+                    "example": "Acme Sports"
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "The user's title (e.g., Mr, Ms, Dr).",
+                    "example": "Mr"
+                  },
+                  "website": {
+                    "type": "string",
+                    "description": "The user's website URL.",
+                    "example": "http://johnsmith.com"
+                  }
+                }
+              },
+              "location": {
+                "type": "object",
+                "description": "An object containing the user's address and geographical details.",
+                "properties": {
+                  "address1": {
+                    "type": "string",
+                    "description": "The first line of the address (e.g., street name and number).",
+                    "example": "456 Elm Avenue"
+                  },
+                  "address2": {
+                    "type": "string",
+                    "description": "The second line of the address (e.g., apartment or suite).",
+                    "example": "Suite 300"
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "The city where the user is located.",
+                    "example": "Brooklyn"
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "The state where the user is located.",
+                    "example": "NY"
+                  },
+                  "zip": {
+                    "type": "string",
+                    "description": "The postal or ZIP code.",
+                    "example": "11222"
+                  },
+                  "latitude": {
+                    "type": "string",
+                    "description": "The geographical latitude.",
+                    "example": "40.730610"
+                  },
+                  "longitude": {
+                    "type": "string",
+                    "description": "The geographical longitude.",
+                    "example": "-73.935242"
+                  },
+                  "country": {
+                    "type": "string",
+                    "description": "The country of the user provided in ISO-3166-1 format",
+                    "example": "US"
+                  },
+                  "region": {
+                    "type": "string",
+                    "description": "The region of the user in ISO-3166-2 format",
+                    "example": "AU-NSW"
+                  },
+                  "timezone": {
+                    "type": "string",
+                    "description": "The user's timezone (e.g., EST).",
+                    "example": "EST"
+                  }
+                }
+              },
+              "locale": {
+                "type": "object",
+                "description": "An object representing the user's locale information.",
+                "properties": {
+                  "language": {
+                    "type": "string",
+                    "description": "The preferred language in ISO 639-1 format.",
+                    "example": "French"
+                  },
+                  "country": {
+                    "type": "string",
+                    "description": "The user's country in ISO 3166-1 alpha-2 format.",
+                    "example": "CA"
+                  }
+                }
+              },
+              "custom": {
+                "type": "object",
+                "description": "A key-value object for custom attributes. Please use the correct primitive type for the value. DateTime strings must adhere to ISO-8601 format for proper recognition.\nThe key will be assigned a type corresponding to the type seen of the first value. For example, if 'Age' is passed with the first value of '24', 'Age' will be typed as a 'Number'. There is no need to pass strings in double quotes. Both object keys and object values are case sensitive. \"Favorite color\" and \"Favorite Color\" would be considered different custom attributes.\n",
+                "additionalProperties": {},
+                "example": {
+                  "lucky number": 6,
+                  "favorite color": "green",
+                  "has pets": true
+                }
+              }
+            }
+          },
+          "subscriptions": {
+            "type": "array",
+            "description": "An array of subscription details, defining how the user prefers to receive communications.\n\nNotes:\n- A legal disclosure is required when a user is opted-in programmatically.\n    - For marketing messages, required [legal language](https://docs.attentivemobile.com/pages/legal-docs/legal-disclosure-language/) must be included.\n   - For transactional messages, you must include a [transactional opt-in unit](https://docs.attentivemobile.com/pages/legal-docs/legal-transactional/).\n\n- By default, if a subscription already exists, it will try and record the attempt to create the subscription again. For TEXT subscriptions, this may result in a message being sent to the person indicating that they are already subscribed.\n- Requests to opt-in subscribers must contain a sign-up source id.\n  - The unique identifier of a sign-up source can be found in the Sign-up Units tab of the Attentive platform in the ID column.\n  If this value is provided in the request, then this sign-up unit will be used for opting in the user in the request.\n\n- Callers of this endpoint have the option to omit `signUpSourceId` and, instead, provide both a `locale` and a `subscriptionType` (see below for field details). Given the locale and subscription type, Attentive will resolve any matching API opt-in units. To opt-in a user to a subscription without a `signUpSourceId` and exclusively based on locale and subscription type, there must be exactly one API sign-up unit that matches the provided locale and subscription type. Conversely, requests that contain a locale and a subscription type that do not have a corresponding sign-up unit or that have multiple matching sign-up units will receive a `400` response and will not opt a user into a subscription.\n- Phone numbers must be submitted in [e164 format](https://en.wikipedia.org/wiki/E.164).\n    - valid examples: `+19148440001`, `+442071838750`, `+551155256325`\n    - invalid examples: `19148440001`, `+1---914---844---0001`, `1 () 914 844 0001`\n",
+            "items": {
+              "type": "object",
+              "properties": {
+                "signUpSourceId": {
+                  "type": "string",
+                  "description": "A string identifying the source of the user's sign-up.",
+                  "example": "string"
+                },
+                "channel": {
+                  "type": "string",
+                  "description": "The communication channel the user is subscribed to (e.g., TEXT). Supported channels include:\n  - TEXT\n  - EMAIL\n",
+                  "example": "TEXT",
+                  "enum": [
+                    "TEXT",
+                    "EMAIL"
+                  ]
+                },
+                "singleOptIn": {
+                  "type": "boolean",
+                  "description": "Opt in subscriber silently (do not send a Reply Y to subscribe text).\n\nNOTE: This property is disabled (set to false) by default. We strongly recommend maintaining the standard \ndouble opt-in flow, as it serves important legal and compliance purposes. If you want to enable single opt-in, \nwe encourage you to speak with your dedicated Client Strategy Manager (CSM) or our White Glove team \n(whiteglove@attentivemobile.com) before you enable it. If this property is set to true, subscribers will be \nadded without receiving the initial \u201cReply Y\u201d confirmation text message. This setting bypasses only the \n\u201cReply Y\u201d message. The mandatory legal message will still be sent.\n",
+                  "example": true
+                }
+              },
+              "required": [
+                "signUpSourceId",
+                "channel",
+                "subscriptionType"
+              ]
+            }
+          },
+          "identifiers": {
+            "type": "object",
+            "description": "Contains various identifiers used to uniquely identify the user.\n\nNotes:\n- Sending duplicate values could lead to unintentionally bridging users together.\n- Don't use customIdentifiers to send attributes (e.g., first name, last name). To send those types of attributes, add to the attributes payload.\n- Avoid sending null values or empty strings. If you don't have a valid identifier, you should omit the field from the payload.\n",
+            "minProperties": 1,
+            "properties": {
+              "email": {
+                "type": "string",
+                "description": "The user's email address.",
+                "example": "jsmith@attentive.com"
+              },
+              "phone": {
+                "type": "string",
+                "description": "The user's phone number.",
+                "example": "+15008675309"
+              },
+              "shopifyId": {
+                "type": "string",
+                "description": "The user's Shopify ID, if applicable.",
+                "example": "345678901"
+              },
+              "klaviyoId": {
+                "type": "string",
+                "description": "The user's Klaviyo ID, if applicable.",
+                "example": "a1b2c3d4e5f6a7b8c9d0e1f2"
+              },
+              "clientUserId": {
+                "type": "string",
+                "description": "Your own unique identifier to be associated with a user to be associated with a user through a phone, email, shopify id, klaviyo id, or custom identifier. Please do NOT put Shopify IDs or Klaviyo IDs here, there are dedicated fields for those identifiers. There is a 100-character limit.\n",
+                "example": "freeform-client-id"
+              },
+              "customIdentifiers": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CustomIdentifier"
+                }
+              }
+            }
+          }
+        }
+      },
+      "CustomEvents": {
+        "type": "object",
+        "required": [
+          "events"
+        ],
+        "properties": {
+          "events": {
+            "type": "array",
+            "description": "Array of custom events to submit (up to 256 events).",
+            "minItems": 1,
+            "maxItems": 256,
+            "items": {
+              "$ref": "#/components/schemas/CustomEvent"
+            }
+          }
+        }
+      },
+      "CustomEvent": {
+        "type": "object",
+        "required": [
+          "type",
+          "user"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "The type of event. This name is case sensitive.\n\"Order shipped\" and \"Order Shipped\" would be considered different event types.\n\nThe Custom Event type cannot contain any of the following special characters:\n* double quote \"\n* single quote '\n* parentheses ( )\n* curly braces { }\n* square brackets [ ]\n* backslash \\\n* vertical bar |\n* commas ,\n",
+            "example": "Order Shipped"
+          },
+          "properties": {
+            "type": "object",
+            "description": "Any metadata associated with the event.\n\nObject keys are expected to be strings, and cannot contain any of the following special characters:\n* double quote \"\n* curly braces { }\n* square brackets [ ]\n* backslash \\\n* vertical bar |\n\nObject values can be any type. Note that both object keys and object values are case sensitive.\nThere is a maximum of 200 object keys per custom event type.\n",
+            "additionalProperties": {},
+            "example": {
+              "orderStatusURL": "https://example.com/orderstatus/54321",
+              "delivery_date": "May 10",
+              "Order Id": "54321"
+            }
+          },
+          "externalEventId": {
+            "type": "string",
+            "description": "A unique identifier representing this specific event. A UUID is recommended.",
+            "example": "37fb97a9-6cfd-4983-bd65-68d104d53b70"
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of when the action occurred in ISO 8601 format. If the timestamp is older than 12 hours, it will not trigger any relevant Journeys. If no timestamp is provided, it is assumed the event occurred when the endpoint is called.\n",
+            "example": "2021-03-30T14:38:29+0000"
+          },
+          "user": {
+            "$ref": "#/components/schemas/CustomEventUser"
+          }
+        }
+      },
+      "CustomEventUser": {
+        "type": "object",
+        "description": "User associated with the event. At least one identifier (phone or email) must be provided.\n",
+        "minProperties": 1,
+        "properties": {
+          "phone": {
+            "type": "string",
+            "description": "The user's phone number in E.164 format.",
+            "example": "+15008675309"
+          },
+          "email": {
+            "type": "string",
+            "description": "The user's email address.",
+            "example": "user@example.com"
+          }
+        }
+      },
+      "SegmentMembers": {
+        "type": "object",
+        "required": [
+          "externalId",
+          "members"
+        ],
+        "properties": {
+          "externalId": {
+            "type": "string",
+            "description": "The external ID of the segment. This is the client-provided unique identifier for the segment, as defined when creating the segment via the Segment API.\n",
+            "example": "loyalty_gold_2025"
+          },
+          "members": {
+            "type": "array",
+            "description": "Array of segment members to add or remove. Each member must have at least one identifier (email, phone, or clientUserId). Minimum 1 member, maximum 10,000 members per request.\n",
+            "minItems": 1,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/SegmentMember"
+            }
+          }
+        },
+        "example": {
+          "externalId": "loyalty_gold_2025",
+          "members": [
+            {
+              "email": "customer1@example.com",
+              "phone": "+14155551234"
+            },
+            {
+              "email": "customer2@example.com",
+              "clientUserId": "user-abc-123"
+            },
+            {
+              "phone": "+14155555678",
+              "clientUserId": "user-xyz-789"
+            }
+          ]
+        }
+      },
+      "SegmentMember": {
+        "type": "object",
+        "description": "A segment member identified by one or more of: email, phone, or clientUserId. At least one identifier must be provided. Multiple identifiers can be provided to increase matching accuracy.\n",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "The member's email address. Use this to identify users by their email. At least one of email, phone, or clientUserId must be provided.\n",
+            "example": "user1@example.com"
+          },
+          "phone": {
+            "type": "string",
+            "description": "The member's phone number in E.164 format (e.g., +14155551234). At least one of email, phone, or clientUserId must be provided.\n\n**E.164 Format Requirements:**\n- Must start with '+'\n- Include country code\n- No spaces, dashes, or parentheses\n",
+            "example": "+14155551234"
+          },
+          "clientUserId": {
+            "type": "string",
+            "description": "Your system's unique identifier for this user. Use this when you want to identify users by your own internal ID system. At least one of email, phone, or clientUserId must be provided. Maximum 100 characters.\n",
+            "maxLength": 100,
+            "example": "client-user-123"
+          }
+        },
+        "example": {
+          "email": "loyalty.member@example.com",
+          "phone": "+14155551234",
+          "clientUserId": "cust-789-xyz"
+        }
+      },
+      "CreateSegmentRequest": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the segment. Cannot be empty or whitespace only. Leading and trailing whitespace will be trimmed.",
+            "example": "Loyalty Gold Members",
+            "minLength": 1,
+            "maxLength": 240
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional description of the segment. If not provided, defaults to \"Manual Segment Upload Public API V2\". When provided, cannot be empty or whitespace only and must be at least 2 characters. Leading and trailing whitespace will be trimmed.",
+            "example": "Customers with gold loyalty status",
+            "minLength": 2,
+            "maxLength": 500
+          },
+          "externalId": {
+            "type": "string",
+            "description": "Auto generated if not supplied. Optional externalId set on the segment. Cannot be empty or whitespace only. Leading and trailing whitespace will be trimmed.",
+            "example": "SEG_abc123def456",
+            "minLength": 1,
+            "maxLength": 255
+          }
+        }
+      },
+      "CreateSegmentResponse": {
+        "type": "object",
+        "properties": {
+          "externalId": {
+            "type": "string",
+            "description": "The external segment ID (client-facing identifier)",
+            "example": "loyalty_gold_2025"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the segment",
+            "example": "Loyalty Gold Members"
+          },
+          "description": {
+            "type": "string",
+            "description": "The description of the segment",
+            "example": "Customers with gold loyalty status"
+          }
+        }
+      },
+      "SegmentResponse": {
+        "type": "object",
+        "properties": {
+          "externalId": {
+            "type": "string",
+            "description": "The external segment ID (client-facing identifier)",
+            "example": "loyalty_gold_2025"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the segment",
+            "example": "Loyalty Gold Members"
+          },
+          "description": {
+            "type": "string",
+            "description": "The description of the segment",
+            "example": "Customers with gold loyalty status"
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the segment was created (ISO 8601 format)",
+            "example": "2025-01-30T12:00:00Z"
+          },
+          "updated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the segment was last updated (ISO 8601 format)",
+            "example": "2025-01-30T12:00:00Z"
+          }
+        }
+      },
+      "ListSegmentsResponse": {
+        "type": "object",
+        "properties": {
+          "segments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SegmentResponse"
+            }
+          },
+          "cursor": {
+            "type": "string",
+            "description": "Cursor for pagination (null if no more results)",
+            "nullable": true,
+            "example": "eyJpZCI6MTIzNDU2fQ=="
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "Whether there are more results available",
+            "example": false
+          }
+        }
+      },
+      "PatchSegmentRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the segment. If provided, cannot be empty or whitespace only and must be at most 240 characters. Leading and trailing whitespace will be trimmed. At least one field (name or description) must be provided for PATCH.",
+            "example": "Loyalty Gold Members Updated",
+            "minLength": 1,
+            "maxLength": 240
+          },
+          "description": {
+            "type": "string",
+            "description": "The description of the segment. If provided, cannot be empty or whitespace only, must be at least 2 characters, and at most 500 characters. Leading and trailing whitespace will be trimmed. At least one field (name or description) must be provided for PATCH.",
+            "example": "Updated description",
+            "minLength": 2,
+            "maxLength": 500
+          }
+        }
+      },
+      "SegmentMemberRequest": {
+        "type": "object",
+        "required": [
+          "segmentId"
+        ],
+        "properties": {
+          "segmentId": {
+            "type": "string",
+            "description": "The internal UUID of the segment, as returned by segmentation-service. Callers must resolve external segment IDs to internal UUIDs before calling this endpoint.\n",
+            "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "The member's email address. At least one of email, phone, or clientUserId must be provided to identify the user.\n",
+            "example": "user@example.com"
+          },
+          "phone": {
+            "type": "string",
+            "description": "The member's phone number in E.164 format (e.g., +14155551234). At least one of email, phone, or clientUserId must be provided to identify the user.\n",
+            "example": "+14155551234"
+          },
+          "clientUserId": {
+            "type": "string",
+            "description": "The client's unique user identifier. At least one of email, phone, or clientUserId must be provided to identify the user.\n",
+            "example": "client-user-123"
+          }
+        }
+      },
+      "SegmentMemberResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACCEPTED",
+              "FAILED"
+            ],
+            "description": "The status of the request. `ACCEPTED` indicates the request was received and will be processed asynchronously. `FAILED` indicates the request could not be processed due to an internal error.\n",
+            "example": "ACCEPTED"
+          },
+          "message": {
+            "type": "string",
+            "description": "A human-readable message about the request status",
+            "example": "Member operation accepted for processing"
+          }
+        }
+      },
+      "Success": {
+        "type": "object",
+        "description": "A successful response.\n",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Indicates whether the request was successful.\n"
+          },
+          "message": {
+            "type": "string",
+            "description": "A message with the result of the request.\n"
+          }
+        }
+      }
+    },
+    "responses": {
+      "InvalidParameter": {
+        "description": "Invalid parameter in request query or body"
+      },
+      "Unauthorized": {
+        "description": "Unauthorized"
+      },
+      "AccessDenied": {
+        "description": "Access Denied"
+      },
+      "NotFound": {
+        "description": "The specified resource was not found"
+      },
+      "TooManyRequests": {
+        "description": "The user has sent too many requests in a given amount of time"
+      },
+      "InternalError": {
+        "description": "Internal Server Error"
+      }
+    }
+  },
+  "x-readme": {
+    "explorer-enabled": false
+  }
+}

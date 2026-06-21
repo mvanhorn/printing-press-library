@@ -1,0 +1,60 @@
+{
+  "api_name": "attentive",
+  "display_name": "Attentive",
+  "category": "marketing",
+  "spec_source": "official",
+  "spec_url": "https://docs.attentive.com/openapi/attentive-api-bundled-v2.yaml",
+  "notes": [
+    "Official Attentive V2 OpenAPI spec was used as the source.",
+    "The CLI normalizes the spec to bearer-token auth only because the public spec also advertises OAuthFlow alternatives with scopes that are not part of this read-first generated CLI.",
+    "Live vendor behavior was not verified because no Attentive credentials were available."
+  ],
+  "novel_features": [
+    {
+      "name": "Segment Directory",
+      "command": "segments list",
+      "description": "List and filter Attentive segments by name, external ID, update timestamp, cursor, and page size for agent-readable campaign audience discovery."
+    },
+    {
+      "name": "Segment External Lookup",
+      "command": "segments get-by-external-id",
+      "description": "Resolve a segment by its external ID so agents can inspect the current Attentive audience object before changing memberships."
+    },
+    {
+      "name": "Bulk Job Status",
+      "command": "bulk get-job-status",
+      "description": "Check asynchronous bulk ingestion jobs and surface completion metadata plus downloadable result URLs when Attentive provides them."
+    }
+  ],
+  "narrative": {
+    "quickstart": [
+      {
+        "command": "attentive-pp-cli segments list --name loyalty --limit 5 --json",
+        "comment": "Find Attentive segments matching a name fragment."
+      },
+      {
+        "command": "attentive-pp-cli segments get-by-external-id loyalty_gold_2025 --json",
+        "comment": "Inspect one segment by external ID."
+      },
+      {
+        "command": "attentive-pp-cli bulk get-job-status 550e8400-e29b-41d4-a716-446655440000 --json",
+        "comment": "Check an asynchronous bulk job status."
+      }
+    ],
+    "recipes": [
+      {
+        "name": "Audit segment setup",
+        "command": "attentive-pp-cli segments list --limit 10 --json",
+        "comment": "List recently available segment records before deciding which audience to use.",
+        "title": "Audit segment setup"
+      },
+      {
+        "name": "Check bulk import completion",
+        "command": "attentive-pp-cli bulk get-job-status 550e8400-e29b-41d4-a716-446655440000 --json",
+        "comment": "Inspect a bulk job and retrieve its completion metadata.",
+        "title": "Check bulk import completion"
+      }
+    ],
+    "value_prop": "Read and inspect Attentive segments and bulk ingestion job status from a local CLI/MCP surface."
+  }
+}

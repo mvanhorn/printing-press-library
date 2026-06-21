@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-21T19:40:30.137845Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "postscript",
+  "display_name": "Postscript Partner",
+  "cli_name": "postscript-pp-cli",
+  "creator": {
+    "handle": "debgotwired",
+    "name": "Deb Mukherjee"
+  },
+  "owner": "debgotwired",
+  "printer": "debgotwired",
+  "printer_name": "Deb Mukherjee",
+  "spec_url": "https://developers.postscript.io/llms.txt",
+  "spec_path": "postscript-read-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:e6cbdad231ca4a12727b8147babc480966ea3e89af3d665c5c682f314ca4fc52",
+  "run_id": "20260621-194030",
+  "category": "marketing",
+  "description": "Compact OpenAPI spec assembled from the official Postscript ReadMe endpoint pages listed in https://developers.",
+  "mcp_binary": "postscript-pp-mcp",
+  "mcp_tool_count": 6,
+  "mcp_ready": "full",
+  "api_version": "2.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "POSTSCRIPT_API_KEY"
+  ],
+  "auth_title": "Postscript API key",
+  "auth_description": "Postscript shop or partner API key.",
+  "novel_features": [
+    {
+      "name": "Subscriber Directory",
+      "command": "subscribers list",
+      "description": "List Postscript subscribers with documented email, phone, Shopify customer, ps_id, date, page, and sort filters."
+    },
+    {
+      "name": "Subscriber Lookup",
+      "command": "subscribers get",
+      "description": "Retrieve an individual Postscript subscriber by ID, including contact fields, tags, custom properties, and subscription sendability state."
+    },
+    {
+      "name": "Custom Event Intake",
+      "command": "events",
+      "description": "Send documented Postscript custom events with subscriber identifiers, occurrence timestamps, external IDs, and event properties for flows."
+    }
+  ]
+}

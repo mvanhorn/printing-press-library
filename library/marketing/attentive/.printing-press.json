@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-21T19:42:17.956439Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "attentive",
+  "display_name": "Attentive",
+  "cli_name": "attentive-pp-cli",
+  "creator": {
+    "handle": "debgotwired",
+    "name": "Deb Mukherjee"
+  },
+  "owner": "debgotwired",
+  "printer": "debgotwired",
+  "printer_name": "Deb Mukherjee",
+  "spec_url": "https://docs.attentive.com/openapi/attentive-api-bundled-v2.yaml",
+  "spec_path": "attentive-read-openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:8505a9f92035b2697fee21032e2e30e812fc5a88846f2abb071ef3ea5fc87969",
+  "run_id": "20260621-194217",
+  "category": "marketing",
+  "description": "For any questions, reach out to your Attentive point of contact (if applicable) or [api@attentivemobile.",
+  "mcp_binary": "attentive-pp-mcp",
+  "mcp_tool_count": 10,
+  "mcp_ready": "full",
+  "api_version": "2.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "ATTENTIVE_BEARER_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Segment Directory",
+      "command": "segments list",
+      "description": "List and filter Attentive segments by name, external ID, update timestamp, cursor, and page size for agent-readable campaign audience discovery."
+    },
+    {
+      "name": "Segment External Lookup",
+      "command": "segments get-by-external-id",
+      "description": "Resolve a segment by its external ID so agents can inspect the current Attentive audience object before changing memberships."
+    },
+    {
+      "name": "Bulk Job Status",
+      "command": "bulk get-job-status",
+      "description": "Check asynchronous bulk ingestion jobs and surface completion metadata plus downloadable result URLs when Attentive provides them."
+    }
+  ]
+}

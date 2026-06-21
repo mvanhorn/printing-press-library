@@ -1,0 +1,76 @@
+{
+  "api_name": "attentive",
+  "novelty_score": 0,
+  "alternatives": null,
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Segment Directory",
+      "command": "segments list",
+      "description": "List and filter Attentive segments by name, external ID, update timestamp, cursor, and page size for agent-readable campaign audience discovery.",
+      "rationale": ""
+    },
+    {
+      "name": "Segment External Lookup",
+      "command": "segments get-by-external-id",
+      "description": "Resolve a segment by its external ID so agents can inspect the current Attentive audience object before changing memberships.",
+      "rationale": ""
+    },
+    {
+      "name": "Bulk Job Status",
+      "command": "bulk get-job-status",
+      "description": "Check asynchronous bulk ingestion jobs and surface completion metadata plus downloadable result URLs when Attentive provides them.",
+      "rationale": ""
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Segment Directory",
+      "command": "segments list",
+      "description": "List and filter Attentive segments by name, external ID, update timestamp, cursor, and page size for agent-readable campaign audience discovery.",
+      "rationale": ""
+    },
+    {
+      "name": "Segment External Lookup",
+      "command": "segments get-by-external-id",
+      "description": "Resolve a segment by its external ID so agents can inspect the current Attentive audience object before changing memberships.",
+      "rationale": ""
+    },
+    {
+      "name": "Bulk Job Status",
+      "command": "bulk get-job-status",
+      "description": "Check asynchronous bulk ingestion jobs and surface completion metadata plus downloadable result URLs when Attentive provides them.",
+      "rationale": ""
+    }
+  ],
+  "narrative": {
+    "value_prop": "Read and inspect Attentive segments and bulk ingestion job status from a local CLI/MCP surface.",
+    "quickstart": [
+      {
+        "command": "attentive-pp-cli segments list --name loyalty --limit 5 --json",
+        "comment": "Find Attentive segments matching a name fragment."
+      },
+      {
+        "command": "attentive-pp-cli segments get-by-external-id loyalty_gold_2025 --json",
+        "comment": "Inspect one segment by external ID."
+      },
+      {
+        "command": "attentive-pp-cli bulk get-job-status 550e8400-e29b-41d4-a716-446655440000 --json",
+        "comment": "Check an asynchronous bulk job status."
+      }
+    ],
+    "recipes": [
+      {
+        "title": "",
+        "command": "attentive-pp-cli segments list --limit 10 --json"
+      },
+      {
+        "title": "",
+        "command": "attentive-pp-cli bulk get-job-status 550e8400-e29b-41d4-a716-446655440000 --json"
+      }
+    ]
+  }
+}

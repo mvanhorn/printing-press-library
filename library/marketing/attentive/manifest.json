@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "attentive-pp-mcp",
+  "display_name": "Attentive",
+  "version": "0.0.0",
+  "description": "For any questions, reach out to your Attentive point of contact (if applicable) or [api@attentivemobile.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/attentive-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/attentive-pp-mcp",
+      "args": [],
+      "env": {
+        "ATTENTIVE_BEARER_AUTH": "${user_config.attentive_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "attentive_bearer_auth": {
+      "type": "string",
+      "title": "ATTENTIVE_BEARER_AUTH",
+      "description": "Sets ATTENTIVE_BEARER_AUTH for the Attentive MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "workflows": [
+    {
+      "name": "subscriber-and-event-context",
+      "commands": ["subscribers list", "subscribers get", "events"],
+      "description": "Find Postscript subscribers, inspect an individual record, and send documented custom events when credentials are available."
+    }
+  ]
+}
