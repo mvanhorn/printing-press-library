@@ -107,9 +107,6 @@ func (c *Config) AuthHeader() string {
 	if token == "" {
 		return ""
 	}
-	if c.PostscriptApiKey == "" {
-		return ""
-	}
 	replacements := map[string]string{
 		"token":              token,
 		"api_key":            c.PostscriptApiKey,

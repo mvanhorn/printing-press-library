@@ -26,8 +26,6 @@ func newComplianceRedactCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  postscript-pp-cli compliance redact",
 		Annotations: map[string]string{"pp:endpoint": "compliance.redact", "pp:method": "PATCH", "pp:path": "/api/v2/compliance/redact"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !stdinBody {
-			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err

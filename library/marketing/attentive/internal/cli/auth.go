@@ -4,8 +4,8 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/marketing/attentive/internal/config"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/marketing/attentive/internal/config"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -113,13 +113,12 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 				return configErr(err)
 			}
 
-			// Clear any legacy auth_header so AuthHeader() falls through to
-			// the newly-saved credential. Without this, a pre-existing
-			// auth_header value (common after regenerate) shadows the saved
-			// token and set-token silently has no effect. Silent clear (no
-			// log line): a masked-tail variant could leak token bytes through
-			// scripted dogfood that captures stderr.
+			// Clear any legacy auth_header or bearer_auth so AuthHeader()
+			// falls through to the newly-saved credential. Without this, a
+			// pre-existing higher-priority credential shadows the saved token
+			// and set-token silently has no effect.
 			cfg.AuthHeaderVal = ""
+			cfg.AttentiveBearerAuth = ""
 			if err := cfg.SaveTokens("", "", args[0], "", cfg.TokenExpiry); err != nil {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}

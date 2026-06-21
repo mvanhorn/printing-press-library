@@ -138,16 +138,19 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 	c.AccessToken = accessToken
 	c.RefreshToken = refreshToken
 	c.TokenExpiry = expiry
+	c.AttentiveBearerAuth = ""
 	delete(c.envOverrides, "ClientID")
 	delete(c.envOverrides, "ClientSecret")
 	delete(c.envOverrides, "AccessToken")
 	delete(c.envOverrides, "RefreshToken")
 	delete(c.envOverrides, "TokenExpiry")
+	delete(c.envOverrides, "AttentiveBearerAuth")
 	c.updateFileConfigField("ClientID")
 	c.updateFileConfigField("ClientSecret")
 	c.updateFileConfigField("AccessToken")
 	c.updateFileConfigField("RefreshToken")
 	c.updateFileConfigField("TokenExpiry")
+	c.updateFileConfigField("AttentiveBearerAuth")
 	return c.save()
 }
 

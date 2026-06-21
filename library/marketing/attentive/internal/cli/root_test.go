@@ -4,10 +4,16 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/marketing/attentive/internal/config"
 )
 
 // TestIsCobraUsageError covers the six pre-RunE error shapes Cobra and
@@ -75,6 +81,78 @@ func TestExitCode_UsageError_WrappedAsCode2(t *testing.T) {
 	wrapped := usageErr(errors.New("unknown flag: --foob"))
 	if got := ExitCode(wrapped); got != 2 {
 		t.Errorf("ExitCode(usageErr(...)) = %d, want 2 (POSIX usage convention)", got)
+	}
+}
+
+func TestAuthSetTokenClearsStaleBearerAuth(t *testing.T) {
+	t.Setenv("ATTENTIVE_BEARER_AUTH", "")
+	t.Setenv("ATTENTIVE_CONFIG", "")
+
+	dir := t.TempDir()
+	cfgPath := filepath.Join(dir, "config.toml")
+	if err := os.WriteFile(cfgPath, []byte("base_url = \"https://api.attentivemobile.com\"\nbearer_auth = \"old-token\"\n"), 0o600); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var stdout bytes.Buffer
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"--config", cfgPath, "auth", "set-token", "new-token"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("auth set-token failed: %v", err)
+	}
+
+	cfg, err := config.Load(cfgPath)
+	if err != nil {
+		t.Fatalf("reload config: %v", err)
+	}
+	if got := cfg.AuthHeader(); got != "Bearer new-token" {
+		t.Fatalf("AuthHeader() = %q, want Bearer new-token", got)
+	}
+	data, err := os.ReadFile(cfgPath)
+	if err != nil {
+		t.Fatalf("read config: %v", err)
+	}
+	if strings.Contains(string(data), "old-token") {
+		t.Fatalf("stale bearer_auth value remained in config:\n%s", data)
+	}
+}
+
+func TestAuthSetTokenClearsFileBearerAuthWithEnvOverride(t *testing.T) {
+	t.Setenv("ATTENTIVE_BEARER_AUTH", "env-token")
+	t.Setenv("ATTENTIVE_CONFIG", "")
+
+	dir := t.TempDir()
+	cfgPath := filepath.Join(dir, "config.toml")
+	if err := os.WriteFile(cfgPath, []byte("base_url = \"https://api.attentivemobile.com\"\nbearer_auth = \"old-token\"\n"), 0o600); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	cmd.SetOut(&bytes.Buffer{})
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"--config", cfgPath, "auth", "set-token", "new-token"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("auth set-token failed: %v", err)
+	}
+
+	t.Setenv("ATTENTIVE_BEARER_AUTH", "")
+	cfg, err := config.Load(cfgPath)
+	if err != nil {
+		t.Fatalf("reload config: %v", err)
+	}
+	if got := cfg.AuthHeader(); got != "Bearer new-token" {
+		t.Fatalf("AuthHeader() = %q, want Bearer new-token", got)
+	}
+	data, err := os.ReadFile(cfgPath)
+	if err != nil {
+		t.Fatalf("read config: %v", err)
+	}
+	if strings.Contains(string(data), "old-token") {
+		t.Fatalf("stale bearer_auth value remained in config:\n%s", data)
 	}
 }
 

@@ -9,8 +9,8 @@ import (
 	"io"
 	"os"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/marketing/postscript/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
 func newSubscribersUpdateCmd(flags *rootFlags) *cobra.Command {
@@ -27,8 +27,6 @@ func newSubscribersUpdateCmd(flags *rootFlags) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
-			}
-			if !stdinBody {
 			}
 			c, err := flags.newClient()
 			if err != nil {
