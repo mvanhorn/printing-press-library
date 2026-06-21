@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-21T19:03:48.011026Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "amplitude",
+  "display_name": "Amplitude Read",
+  "cli_name": "amplitude-pp-cli",
+  "creator": {
+    "handle": "debgotwired",
+    "name": "Deb Mukherjee"
+  },
+  "owner": "debgotwired",
+  "printer": "debgotwired",
+  "printer_name": "Deb Mukherjee",
+  "spec_url": "https://amplitude.com/docs/apis",
+  "spec_path": "amplitude-read-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:468344ab11239fc38de66778b015519317b4ff3356b3fceffd4f763329490956",
+  "run_id": "20260621-190348",
+  "category": "marketing",
+  "description": "Read-first Amplitude Analytics API surface for exports, cohorts, events, users, and chart-style analytics queries.",
+  "mcp_binary": "amplitude-pp-mcp",
+  "mcp_tool_count": 11,
+  "mcp_ready": "full",
+  "api_version": "2.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "AMPLITUDE_USERNAME",
+    "AMPLITUDE_PASSWORD"
+  ],
+  "novel_features": [
+    {
+      "name": "Local SQLite mirror",
+      "command": "sync",
+      "description": "Sync read endpoints into a local SQLite store for offline search, joins, and repeatable agent analysis."
+    },
+    {
+      "name": "Full-text search across API data",
+      "command": "search",
+      "description": "Search live or locally synced Amplitude records from one agent-friendly command."
+    },
+    {
+      "name": "SQL analytics on synced records",
+      "command": "analytics",
+      "description": "Run read-only SQL against the local store for compound questions the upstream API does not expose directly."
+    }
+  ]
+}

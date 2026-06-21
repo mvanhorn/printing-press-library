@@ -1,0 +1,237 @@
+openapi: 3.0.3
+info:
+  title: Marketo Engage Read API
+  version: 1.0.0
+  description: Read-first Adobe Marketo Engage REST API surface for leads, activities, campaigns, and marketing assets.
+servers:
+  - url: https://example.mktorest.com/rest
+security:
+  - BearerAuth: []
+tags:
+  - name: Leads
+  - name: Lists
+  - name: Activities
+  - name: Campaigns
+  - name: Programs
+  - name: Assets
+  - name: Folders
+paths:
+  /v1/leads.json:
+    get:
+      operationId: listLeads
+      tags: [Leads]
+      summary: List or filter leads.
+      parameters:
+        - name: filterType
+          in: query
+          schema:
+            type: string
+        - name: filterValues
+          in: query
+          schema:
+            type: string
+        - $ref: "#/components/parameters/BatchSize"
+        - $ref: "#/components/parameters/NextPageToken"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /v1/lead/{id}.json:
+    get:
+      operationId: getLead
+      tags: [Leads]
+      summary: Get a lead by ID.
+      parameters:
+        - $ref: "#/components/parameters/NumericId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /v1/lists.json:
+    get:
+      operationId: listStaticLists
+      tags: [Lists]
+      summary: List static lists.
+      parameters:
+        - $ref: "#/components/parameters/BatchSize"
+        - $ref: "#/components/parameters/NextPageToken"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /v1/list/{id}/leads.json:
+    get:
+      operationId: listLeadsByList
+      tags: [Lists]
+      summary: List leads in a static list.
+      parameters:
+        - $ref: "#/components/parameters/NumericId"
+        - $ref: "#/components/parameters/BatchSize"
+        - $ref: "#/components/parameters/NextPageToken"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /v1/activities/types.json:
+    get:
+      operationId: listActivityTypes
+      tags: [Activities]
+      summary: List activity types.
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /v1/activities.json:
+    get:
+      operationId: listActivities
+      tags: [Activities]
+      summary: List lead activities.
+      parameters:
+        - name: activityTypeIds
+          in: query
+          schema:
+            type: string
+        - $ref: "#/components/parameters/NextPageToken"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /v1/campaigns.json:
+    get:
+      operationId: listCampaigns
+      tags: [Campaigns]
+      summary: List smart campaigns.
+      parameters:
+        - $ref: "#/components/parameters/BatchSize"
+        - $ref: "#/components/parameters/NextPageToken"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /v1/campaign/{id}.json:
+    get:
+      operationId: getCampaign
+      tags: [Campaigns]
+      summary: Get a smart campaign by ID.
+      parameters:
+        - $ref: "#/components/parameters/NumericId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /asset/v1/programs.json:
+    get:
+      operationId: listPrograms
+      tags: [Programs]
+      summary: List programs.
+      parameters:
+        - $ref: "#/components/parameters/MaxReturn"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /asset/v1/program/{id}.json:
+    get:
+      operationId: getProgram
+      tags: [Programs]
+      summary: Get a program by ID.
+      parameters:
+        - $ref: "#/components/parameters/NumericId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /asset/v1/emails.json:
+    get:
+      operationId: listEmails
+      tags: [Assets]
+      summary: List email assets.
+      parameters:
+        - $ref: "#/components/parameters/MaxReturn"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /asset/v1/forms.json:
+    get:
+      operationId: listForms
+      tags: [Assets]
+      summary: List form assets.
+      parameters:
+        - $ref: "#/components/parameters/MaxReturn"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /asset/v1/landingPages.json:
+    get:
+      operationId: listLandingPages
+      tags: [Assets]
+      summary: List landing page assets.
+      parameters:
+        - $ref: "#/components/parameters/MaxReturn"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /asset/v1/smartLists.json:
+    get:
+      operationId: listSmartLists
+      tags: [Assets]
+      summary: List smart lists.
+      parameters:
+        - $ref: "#/components/parameters/MaxReturn"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /asset/v1/folders.json:
+    get:
+      operationId: listFolders
+      tags: [Folders]
+      summary: List folders.
+      parameters:
+        - $ref: "#/components/parameters/MaxReturn"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+  parameters:
+    NumericId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    BatchSize:
+      name: batchSize
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 300
+    NextPageToken:
+      name: nextPageToken
+      in: query
+      schema:
+        type: string
+    MaxReturn:
+      name: maxReturn
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 200
+    Offset:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+  responses:
+    Success:
+      description: Successful Marketo Engage response.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AnyObject"
+  schemas:
+    AnyObject:
+      type: object
+      additionalProperties: true

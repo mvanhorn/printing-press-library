@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "outreach-pp-cli"
+display_name = "Outreach Read"
+description = "Read-first Outreach REST API surface for sales engagement, prospect, sequence, mailbox, and activity inspection."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/outreach-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+OUTREACH_BEARER_AUTH = true

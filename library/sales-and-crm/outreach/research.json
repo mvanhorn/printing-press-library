@@ -1,0 +1,82 @@
+{
+  "api_name": "outreach",
+  "novelty_score": 6,
+  "alternatives": [],
+  "gaps": [
+    "Existing Outreach API docs expose raw HTTP surfaces; this print packages command discovery, agent defaults, local sync/search, SQL analytics, and MCP access."
+  ],
+  "patterns": [
+    "Sales engagement workflows benefit from compact JSON, --agent defaults, local SQLite mirrors, deterministic command discovery, and read-first MCP tools."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-21T19:03:47Z",
+  "novel_features": [
+    {
+      "name": "Local SQLite mirror",
+      "command": "sync",
+      "description": "Sync read endpoints into a local SQLite store for offline search, joins, and repeatable agent analysis.",
+      "rationale": "Agent-native CLI affordance shipped in this print."
+    },
+    {
+      "name": "Full-text search across API data",
+      "command": "search",
+      "description": "Search live or locally synced Outreach records from one agent-friendly command.",
+      "rationale": "Agent-native CLI affordance shipped in this print."
+    },
+    {
+      "name": "SQL analytics on synced records",
+      "command": "analytics",
+      "description": "Run read-only SQL against the local store for compound questions the upstream API does not expose directly.",
+      "rationale": "Agent-native CLI affordance shipped in this print."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Local SQLite mirror",
+      "command": "sync",
+      "description": "Sync read endpoints into a local SQLite store for offline search, joins, and repeatable agent analysis.",
+      "rationale": "Verified present in the generated command tree and local validation."
+    },
+    {
+      "name": "Full-text search across API data",
+      "command": "search",
+      "description": "Search live or locally synced Outreach records from one agent-friendly command.",
+      "rationale": "Verified present in the generated command tree and local validation."
+    },
+    {
+      "name": "SQL analytics on synced records",
+      "command": "analytics",
+      "description": "Run read-only SQL against the local store for compound questions the upstream API does not expose directly.",
+      "rationale": "Verified present in the generated command tree and local validation."
+    }
+  ],
+  "narrative": {
+    "display_name": "Outreach",
+    "headline": "Outreach read workflows for agents that need sales engagement context.",
+    "value_prop": "Wraps Outreach read APIs with agent defaults, local SQLite sync, search, analytics, command discovery, and MCP tools so agents can inspect prospects, sequences, tasks, mailboxes, opportunities, and activity without hand-building HTTP calls.",
+    "quickstart": [
+      {
+        "command": "outreach-pp-cli doctor --help",
+        "comment": "Inspect the auth and connectivity diagnostic surface."
+      },
+      {
+        "command": "outreach-pp-cli sync --help",
+        "comment": "Review how to build the local SQLite mirror before offline analysis."
+      },
+      {
+        "command": "outreach-pp-cli which --help",
+        "comment": "Find the exact command path for a natural-language task."
+      }
+    ],
+    "recipes": [
+      {
+        "title": "Search sales engagement records",
+        "command": "outreach-pp-cli search account --help"
+      },
+      {
+        "title": "Analyze synced Outreach records",
+        "command": "outreach-pp-cli analytics --help"
+      }
+    ]
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "api_name": "outreach",
+  "base_url": "https://api.outreach.io/api/v2",
+  "description": "Read-first Outreach REST API surface for sales engagement, prospect, sequence, mailbox, and activity inspection.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "OUTREACH_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "OUTREACH_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "accounts_get",
+      "description": "Get an Outreach account. Required: id. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/accounts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_list",
+      "description": "List Outreach accounts. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/accounts",
+      "params": []
+    },
+    {
+      "name": "calls_list",
+      "description": "List Outreach calls. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/calls",
+      "params": []
+    },
+    {
+      "name": "mailboxes_list",
+      "description": "List Outreach mailboxes. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/mailboxes",
+      "params": []
+    },
+    {
+      "name": "mailings_list",
+      "description": "List Outreach mailing activity. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/mailings",
+      "params": []
+    },
+    {
+      "name": "opportunities_list",
+      "description": "List Outreach opportunities. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/opportunities",
+      "params": []
+    },
+    {
+      "name": "prospects_get",
+      "description": "Get an Outreach prospect. Required: id. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/prospects/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "prospects_list",
+      "description": "List Outreach prospects. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/prospects",
+      "params": []
+    },
+    {
+      "name": "sequence-states_list",
+      "description": "List prospect sequence states. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/sequenceStates",
+      "params": []
+    },
+    {
+      "name": "sequences_list",
+      "description": "List Outreach sequences. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/sequences",
+      "params": []
+    },
+    {
+      "name": "tasks_list",
+      "description": "List Outreach tasks. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/tasks",
+      "params": []
+    },
+    {
+      "name": "users_list",
+      "description": "List Outreach users. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/users",
+      "params": []
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "amplitude-agent-native-read-workflows",
+  "applied_at": "2026-06-21",
+  "base_run_id": "20260621-190348",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Ship Amplitude read workflows with local sync, search, analytics, command discovery, and MCP runtime parity.",
+  "reason": "Amplitude agents need repeatable inspection of events, users, annotations, exports, funnels, retention, revenue, and segmentation without hand-building HTTP calls.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/search.go",
+    "internal/cli/analytics.go",
+    "internal/cli/which.go",
+    "internal/mcp/tools.go",
+    "research.json",
+    ".manuscripts/20260621-190348/proofs/local-verification.md",
+    ".manuscripts/20260621-190348/proofs/phase5-skip.json"
+  ],
+  "validated_outcome": "go test ./...; go vet ./...; go build ./...; validate-narrative --strict --full-examples; shipcheck --no-live-check"
+}

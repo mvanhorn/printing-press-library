@@ -1,0 +1,82 @@
+{
+  "api_name": "amplitude",
+  "novelty_score": 6,
+  "alternatives": [],
+  "gaps": [
+    "Existing Amplitude APIs expose raw HTTP and analytics endpoints; this print packages command discovery, agent defaults, local sync/search, SQL analytics, and MCP access."
+  ],
+  "patterns": [
+    "Marketing analytics workflows benefit from compact JSON, --agent defaults, local SQLite mirrors, deterministic command discovery, and read-first MCP tools."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-21T19:03:48Z",
+  "novel_features": [
+    {
+      "name": "Local SQLite mirror",
+      "command": "sync",
+      "description": "Sync read endpoints into a local SQLite store for offline search, joins, and repeatable agent analysis.",
+      "rationale": "Agent-native CLI affordance shipped in this print."
+    },
+    {
+      "name": "Full-text search across API data",
+      "command": "search",
+      "description": "Search live or locally synced Amplitude records from one agent-friendly command.",
+      "rationale": "Agent-native CLI affordance shipped in this print."
+    },
+    {
+      "name": "SQL analytics on synced records",
+      "command": "analytics",
+      "description": "Run read-only SQL against the local store for compound questions the upstream API does not expose directly.",
+      "rationale": "Agent-native CLI affordance shipped in this print."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Local SQLite mirror",
+      "command": "sync",
+      "description": "Sync read endpoints into a local SQLite store for offline search, joins, and repeatable agent analysis.",
+      "rationale": "Agent-native CLI affordance shipped in this print."
+    },
+    {
+      "name": "Full-text search across API data",
+      "command": "search",
+      "description": "Search live or locally synced Amplitude records from one agent-friendly command.",
+      "rationale": "Agent-native CLI affordance shipped in this print."
+    },
+    {
+      "name": "SQL analytics on synced records",
+      "command": "analytics",
+      "description": "Run read-only SQL against the local store for compound questions the upstream API does not expose directly.",
+      "rationale": "Agent-native CLI affordance shipped in this print."
+    }
+  ],
+  "narrative": {
+    "display_name": "Amplitude",
+    "headline": "Amplitude read workflows for agents that need product analytics context.",
+    "value_prop": "Wraps Amplitude read APIs with agent defaults, local SQLite sync, search, analytics, command discovery, and MCP tools so agents can inspect events, users, annotations, exports, funnels, retention, revenue, and segmentation without hand-building HTTP calls.",
+    "quickstart": [
+      {
+        "command": "amplitude-pp-cli doctor --help",
+        "comment": "Inspect the auth and connectivity diagnostic surface."
+      },
+      {
+        "command": "amplitude-pp-cli sync --help",
+        "comment": "Review how to build the local SQLite mirror before offline analysis."
+      },
+      {
+        "command": "amplitude-pp-cli which --help",
+        "comment": "Find the exact command path for a natural-language task."
+      }
+    ],
+    "recipes": [
+      {
+        "title": "Search analytics records",
+        "command": "amplitude-pp-cli search event --help"
+      },
+      {
+        "title": "Analyze synced Amplitude records",
+        "command": "amplitude-pp-cli analytics --help"
+      }
+    ]
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-21T19:03:46.468482Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "marketo-engage",
+  "display_name": "Marketo Engage Read",
+  "cli_name": "marketo-engage-pp-cli",
+  "creator": {
+    "handle": "debgotwired",
+    "name": "Deb Mukherjee"
+  },
+  "owner": "debgotwired",
+  "printer": "debgotwired",
+  "printer_name": "Deb Mukherjee",
+  "spec_url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/rest/rest-api",
+  "spec_path": "marketo-engage-read-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:29f2d3f775345df83bed652790c49a6796efca63a5aef286bb05dd5e6352e83a",
+  "run_id": "20260621-190346",
+  "category": "marketing",
+  "description": "Read-first Adobe Marketo Engage REST API surface for leads, activities, campaigns, and marketing assets.",
+  "mcp_binary": "marketo-engage-pp-mcp",
+  "mcp_tool_count": 15,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "MARKETO_ENGAGE_BEARER_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Local SQLite mirror",
+      "command": "sync",
+      "description": "Sync read endpoints into a local SQLite store for offline search, joins, and repeatable agent analysis."
+    },
+    {
+      "name": "Full-text search across API data",
+      "command": "search",
+      "description": "Search live or locally synced Marketo Engage records from one agent-friendly command."
+    },
+    {
+      "name": "SQL analytics on synced records",
+      "command": "analytics",
+      "description": "Run read-only SQL against the local store for compound questions the upstream API does not expose directly."
+    }
+  ]
+}

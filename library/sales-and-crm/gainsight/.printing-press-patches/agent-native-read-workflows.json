@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "gainsight-agent-native-read-workflows",
+  "applied_at": "2026-06-21",
+  "base_run_id": "20260621-190349",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Ship Gainsight read workflows with local sync, search, analytics, command discovery, and MCP runtime parity.",
+  "reason": "Gainsight agents need repeatable inspection of customer success data, health scores, Cockpit CTAs, success plans, and timeline activity without hand-building HTTP calls.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/search.go",
+    "internal/cli/analytics.go",
+    "internal/cli/which.go",
+    "internal/mcp/tools.go",
+    "research.json",
+    ".manuscripts/20260621-190349/proofs/local-verification.md",
+    ".manuscripts/20260621-190349/proofs/phase5-skip.json"
+  ],
+  "validated_outcome": "go test ./...; go vet ./...; go build ./...; validate-narrative --strict --full-examples; shipcheck --no-live-check"
+}

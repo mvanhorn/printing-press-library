@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "marketo-engage-pp-mcp",
+  "display_name": "Marketo Engage Read",
+  "version": "0.0.0",
+  "description": "Read-first Adobe Marketo Engage REST API surface for leads, activities, campaigns, and marketing assets.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/marketo-engage-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/marketo-engage-pp-mcp",
+      "args": [],
+      "env": {
+        "MARKETO_ENGAGE_BEARER_AUTH": "${user_config.marketo_engage_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "marketo_engage_bearer_auth": {
+      "type": "string",
+      "title": "MARKETO_ENGAGE_BEARER_AUTH",
+      "description": "Sets MARKETO_ENGAGE_BEARER_AUTH for the Marketo Engage Read MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

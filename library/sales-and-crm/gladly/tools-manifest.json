@@ -1,0 +1,214 @@
+{
+  "api_name": "gladly",
+  "base_url": "https://api.gladly.com",
+  "description": "Read-first Gladly API surface for customer timelines, conversations, agents, topics, answers, and support operations.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "Basic {GLADLY_USERNAME}:{GLADLY_PASSWORD}",
+    "env_vars": [
+      "GLADLY_USERNAME",
+      "GLADLY_PASSWORD"
+    ],
+    "env_var_specs": [
+      {
+        "name": "GLADLY_USERNAME",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": false,
+        "inferred": true
+      },
+      {
+        "name": "GLADLY_PASSWORD",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "agents_list",
+      "description": "List agents. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/api/v1/agents",
+      "params": []
+    },
+    {
+      "name": "answers_list",
+      "description": "List knowledge answers. Optional: page, pageSize. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/api/v1/answers",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "conversation-items_list",
+      "description": "List conversation timeline items. Optional: conversationId, page, pageSize. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/api/v1/conversation-items",
+      "params": [
+        {
+          "name": "conversationId",
+          "type": "string",
+          "location": "query",
+          "description": "Conversation id"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "conversations_get",
+      "description": "Get a conversation. Required: id. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/api/v1/conversations/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_list",
+      "description": "List customer conversations. Optional: page, pageSize, status. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/api/v1/conversations",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "customers_get",
+      "description": "Get a Gladly customer profile. Required: id. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/api/v1/customers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_list",
+      "description": "List Gladly customers. Optional: page, pageSize, query. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/api/v1/customers",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query"
+        }
+      ]
+    },
+    {
+      "name": "inboxes_list",
+      "description": "List inboxes. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/api/v1/inboxes",
+      "params": []
+    },
+    {
+      "name": "reports_list",
+      "description": "List available reports. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/api/v1/reports",
+      "params": []
+    },
+    {
+      "name": "tasks_list",
+      "description": "List Gladly tasks. Optional: page, pageSize. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/api/v1/tasks",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "topics_list",
+      "description": "List conversation topics. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/api/v1/topics",
+      "params": []
+    }
+  ]
+}

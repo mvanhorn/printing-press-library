@@ -1,0 +1,51 @@
+version: 2
+project_name: marketo-engage-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: marketo-engage-pp-cli
+    main: ./cmd/marketo-engage-pp-cli
+    binary: marketo-engage-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X marketo-engage-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: marketo-engage-pp-mcp
+    main: ./cmd/marketo-engage-pp-mcp
+    binary: marketo-engage-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: marketo-engage-pp-cli
+    repository:
+      owner: debgotwired
+      name: homebrew-tap
+    homepage: "https://github.com/debgotwired/marketo-engage-pp-cli"
+    description: "Read-first Adobe Marketo Engage REST API surface for leads, activities, campaigns, and marketing assets."
+    install: |
+      bin.install "marketo-engage-pp-cli"
+      bin.install "marketo-engage-pp-mcp"
