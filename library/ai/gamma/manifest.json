@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "gamma-pp-mcp",
+  "display_name": "Gamma Public",
+  "version": "0.0.0",
+  "description": "Generate presentations, documents, websites, and social posts programmatically.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/gamma-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/gamma-pp-mcp",
+      "args": [],
+      "env": {
+        "GAMMA_API_KEY": "${user_config.gamma_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "gamma_api_key": {
+      "type": "string",
+      "title": "GAMMA_API_KEY",
+      "description": "Sets GAMMA_API_KEY for the Gamma Public MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

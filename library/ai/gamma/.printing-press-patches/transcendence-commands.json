@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "transcendence-commands",
+  "applied_at": "2026-06-19",
+  "base_run_id": "20260619-153208-b1328533",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Added 4 novel features across 3 files: --watch (async poll until completed), --download (save exportUrl to disk), --image-source (shorthand for --image-options-source), --sharing (preset shorthand for workspace/external access combos). New file generations_watch.go provides watchGenerationStatus(), downloadExportFile(), and applySharingPreset() helpers.",
+  "reason": "Phase 3 transcendence — the Gamma API is async-first (POST returns a generationId, poll until completed). Without --watch, users must manually poll get-status in a loop. --watch bridges this gap and --download makes the result immediately usable without a second curl command.",
+  "files": [
+    "internal/cli/generations_watch.go",
+    "internal/cli/generations_create.go",
+    "internal/cli/generations_create-from-template.go"
+  ],
+  "validated_outcome": "Novel flags verified: --watch polls until completed, --sharing preset sets workspaceAccess+externalAccess, --image-source maps to imageOptions.source. dogfood quick level: 17/17 PASS."
+}

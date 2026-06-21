@@ -1,0 +1,173 @@
+{
+  "api_name": "gamma",
+  "novelty_score": 4,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-19T15:32:08Z",
+  "novel_features": [
+    {
+      "name": "Async Generation Watcher",
+      "command": "generations create --watch",
+      "description": "Poll until generation completes, then print gammaUrl and credits. Bridges the async gap without manual polling.",
+      "rationale": "The Gamma API returns a generationId immediately; callers must poll GET /v1.0/generations/{id} manually. The --watch flag automates this.",
+      "example": "gamma-pp-cli generations create --input-text \"Q3 product roadmap\" --format presentation --watch --agent",
+      "why_it_matters": "Use whenever you start a generation and need the final gammaUrl in one command, without a separate polling loop.",
+      "group": "Generation workflow"
+    },
+    {
+      "name": "Export Auto-Downloader",
+      "command": "generations create --download",
+      "description": "After --watch completes, download the exportUrl to a local directory with the gammaId as filename.",
+      "rationale": "The export URL is only available after generation completes. --download chains --watch with a file download, eliminating the manual curl step.",
+      "example": "gamma-pp-cli generations create --input-text \"AI market overview\" --format document --watch --download /tmp/gamma-exports/ --agent",
+      "why_it_matters": "Use when you need the exported file locally for further processing without a separate download step.",
+      "group": "Generation workflow"
+    },
+    {
+      "name": "Sharing Preset Shorthand",
+      "command": "generations create --sharing",
+      "description": "Map a preset name (private, view-link, edit-link, workspace-view) to the workspaceAccess + externalAccess flag pair.",
+      "rationale": "Gamma's API uses separate workspaceAccess and externalAccess flags. --sharing collapses common combinations into a single mnemonic flag.",
+      "example": "gamma-pp-cli generations create --input-text \"Q4 investor update\" --format presentation --sharing view-link --watch --agent",
+      "why_it_matters": "Use instead of specifying two separate access flags when the sharing intent is a standard preset.",
+      "group": "Generation workflow"
+    },
+    {
+      "name": "Image Source Shorthand",
+      "command": "generations create --image-source",
+      "description": "Short alias for --image-options-source that sets the AI model for image generation without the nested flag path.",
+      "rationale": "--image-options-source is a deeply nested flag path. --image-source is a cleaner alias for the most common use case.",
+      "example": "gamma-pp-cli generations create --input-text \"Product launch slides\" --format presentation --image-source aiGenerated --watch --agent",
+      "why_it_matters": "Use to specify image generation method without remembering the nested flag path.",
+      "group": "Generation workflow"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Async Generation Watcher",
+      "command": "generations create --watch",
+      "description": "Poll until generation completes, then print gammaUrl and credits. Bridges the async gap without manual polling.",
+      "rationale": "The Gamma API returns a generationId immediately; callers must poll GET /v1.0/generations/{id} manually. The --watch flag automates this.",
+      "example": "gamma-pp-cli generations create --input-text \"Q3 product roadmap\" --format presentation --watch --agent",
+      "why_it_matters": "Use whenever you start a generation and need the final gammaUrl in one command, without a separate polling loop.",
+      "group": "Generation workflow"
+    },
+    {
+      "name": "Export Auto-Downloader",
+      "command": "generations create --download",
+      "description": "After --watch completes, download the exportUrl to a local directory with the gammaId as filename.",
+      "rationale": "The export URL is only available after generation completes. --download chains --watch with a file download, eliminating the manual curl step.",
+      "example": "gamma-pp-cli generations create --input-text \"AI market overview\" --format document --watch --download /tmp/gamma-exports/ --agent",
+      "why_it_matters": "Use when you need the exported file locally for further processing without a separate download step.",
+      "group": "Generation workflow"
+    },
+    {
+      "name": "Sharing Preset Shorthand",
+      "command": "generations create --sharing",
+      "description": "Map a preset name (private, view-link, edit-link, workspace-view) to the workspaceAccess + externalAccess flag pair.",
+      "rationale": "Gamma's API uses separate workspaceAccess and externalAccess flags. --sharing collapses common combinations into a single mnemonic flag.",
+      "example": "gamma-pp-cli generations create --input-text \"Q4 investor update\" --format presentation --sharing view-link --watch --agent",
+      "why_it_matters": "Use instead of specifying two separate access flags when the sharing intent is a standard preset.",
+      "group": "Generation workflow"
+    },
+    {
+      "name": "Image Source Shorthand",
+      "command": "generations create --image-source",
+      "description": "Short alias for --image-options-source that sets the AI model for image generation without the nested flag path.",
+      "rationale": "--image-options-source is a deeply nested flag path. --image-source is a cleaner alias for the most common use case.",
+      "example": "gamma-pp-cli generations create --input-text \"Product launch slides\" --format presentation --image-source aiGenerated --watch --agent",
+      "why_it_matters": "Use to specify image generation method without remembering the nested flag path.",
+      "group": "Generation workflow"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "GAMMA_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Gamma",
+    "headline": "Generate polished presentations, documents, and webpages from a text prompt — with one-command async polling and auto-download.",
+    "value_prop": "Gamma generates AI-powered presentations, documents, and webpages from a text prompt. The CLI adds async-wait-and-download as a single command, sharing preset shorthands, and image-source aliases — all using --watch --download --sharing --image-source.",
+    "auth_narrative": "Set GAMMA_API_KEY from gamma.app/settings. Run 'gamma-pp-cli auth set-token \u003ckey\u003e' to persist it.",
+    "quickstart": [
+      {
+        "command": "gamma-pp-cli doctor --dry-run",
+        "comment": "Verify the CLI is installed and auth key is configured"
+      },
+      {
+        "command": "gamma-pp-cli generations create --input-text \"Q3 2025 product roadmap: new features, timeline, owners\" --format presentation --watch --agent",
+        "comment": "Generate a presentation and wait for completion"
+      },
+      {
+        "command": "gamma-pp-cli generations create --input-text \"AI market overview for investors\" --format document --watch --download /tmp/gamma-exports/ --agent",
+        "comment": "Generate a document and download the export"
+      },
+      {
+        "command": "gamma-pp-cli themes --agent",
+        "comment": "List available themes to use in generations"
+      },
+      {
+        "command": "gamma-pp-cli generations create --input-text \"Startup pitch deck\" --format presentation --sharing view-link --image-source aiGenerated --watch --agent",
+        "comment": "Generate with sharing preset and AI images"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Error: GAMMA_API_KEY not set",
+        "fix": "export GAMMA_API_KEY=\u003cyour-key\u003e or run: gamma-pp-cli auth set-token \u003ckey\u003e"
+      },
+      {
+        "symptom": "--watch times out",
+        "fix": "Increase --wait-timeout (default 10m). Long documents can take several minutes."
+      },
+      {
+        "symptom": "--download fails with no file",
+        "fix": "Use --watch with --download — download requires a completed generation with an exportUrl."
+      }
+    ],
+    "when_to_use": "Use Gamma when you need to create a polished presentation, document, or webpage from a text prompt or outline. It is the right tool for pitch decks, reports, onboarding docs, and any visual output that needs professional formatting. Do not use it for raw data analysis (use Exa/Valyu), pure image generation (use Fal AI), or video (use Fal AI).",
+    "anti_triggers": [
+      "Raw data analysis or search — use Exa or Valyu instead",
+      "Image-only generation without a document structure — use Fal AI instead",
+      "Video generation — use Fal AI instead",
+      "Voice narration — use ElevenLabs instead"
+    ],
+    "recipes": [
+      {
+        "title": "Pitch deck with AI images",
+        "command": "gamma-pp-cli generations create --input-text \"Seed round pitch: problem, solution, market, team, ask\" --format presentation --image-source aiGenerated --sharing view-link --watch --agent",
+        "explanation": "Generate a presentation with AI images and a shareable view link in one command."
+      },
+      {
+        "title": "Document report",
+        "command": "gamma-pp-cli generations create --input-text \"Q4 2025 AI regulation summary: key developments, implications, action items\" --format document --watch --download /tmp/reports/ --agent",
+        "explanation": "Generate a document and download the export to a local directory."
+      },
+      {
+        "title": "Landing page",
+        "command": "gamma-pp-cli generations create --input-text \"Landing page for a B2B developer productivity SaaS\" --format webpage --watch --sharing view-link --agent",
+        "explanation": "Generate a webpage with a shareable link for review."
+      },
+      {
+        "title": "List themes first",
+        "command": "gamma-pp-cli themes --agent --select id,name",
+        "explanation": "List available themes before generating to pick the right visual style."
+      },
+      {
+        "title": "Template-based generation",
+        "command": "gamma-pp-cli generations create-from-template --gamma-id g_abc123 --prompt \"Update with Q4 numbers and new timeline\" --watch --agent",
+        "explanation": "Adapt an existing Gamma (by its g_... ID) to new content, preserving the original structure."
+      }
+    ],
+    "trigger_phrases": [
+      "create a presentation",
+      "make a slide deck",
+      "generate a document",
+      "build a landing page",
+      "use Gamma to",
+      "make a Gamma",
+      "generate slides"
+    ]
+  }
+}

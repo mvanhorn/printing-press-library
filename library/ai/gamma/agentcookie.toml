@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "gamma-pp-cli"
+display_name = "Gamma Public"
+description = "Generate presentations, documents, websites, and social posts programmatically."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/gamma-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+GAMMA_API_KEY = true

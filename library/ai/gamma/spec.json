@@ -1,0 +1,700 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Gamma Public API",
+    "version": "1.0",
+    "description": "Generate presentations, documents, websites, and social posts programmatically. Auth: X-API-KEY header (not Authorization Bearer). Env var: GAMMA_API_KEY. All generation is async: POST to create, then poll GET /generations/{id} until completed or failed."
+  },
+  "servers": [
+    {"url": "https://public-api.gamma.app", "description": "Production"}
+  ],
+  "security": [{"api-key": []}],
+  "tags": [
+    {"name": "generations", "description": "Create and poll AI generations"},
+    {"name": "workspace", "description": "List workspace themes and folders"},
+    {"name": "management", "description": "Archive and delete gammas"}
+  ],
+  "components": {
+    "securitySchemes": {
+      "api-key": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-KEY",
+        "description": "API key for authentication. Generate at gamma.app/settings/api-keys. Requires Pro, Ultra, Teams, or Business plan."
+      }
+    },
+    "schemas": {
+      "ImageModel": {
+        "type": "string",
+        "description": "AI model to use for image generation",
+        "enum": [
+          "dall-e-3","imagen-3-flash","imagen-3-pro","imagen-4-pro","imagen-4-ultra",
+          "ideogram-v3","ideogram-v3-turbo","ideogram-v3-quality",
+          "flux-1-pro","flux-1-quick","flux-1-ultra","flux-kontext-pro","flux-kontext-max","flux-kontext-fast",
+          "leonardo-phoenix",
+          "recraft-v3","recraft-v3-svg","recraft-v4","recraft-v4-svg","recraft-v4-pro",
+          "luma-photon-1","luma-photon-flash-1",
+          "gpt-image-1-medium","gpt-image-1-high","gpt-image-1-mini-low","gpt-image-1-mini-medium","gpt-image-1-mini-high",
+          "gpt-image-2-mini","gpt-image-2","gpt-image-2-hd",
+          "gemini-2.5-flash-image","veo-3.1-fast","veo-3.1",
+          "luma-ray-2-flash","luma-ray-2",
+          "leonardo-motion-2-fast","leonardo-motion-2",
+          "gemini-3-pro-image","gemini-3-pro-image-hd",
+          "gemini-3.1-flash-image-mini","gemini-3.1-flash-image","gemini-3.1-flash-image-hd",
+          "flux-2-pro","flux-2-flex","flux-2-max","flux-2-klein"
+        ]
+      },
+      "SharingOptions": {
+        "type": "object",
+        "properties": {
+          "workspaceAccess": {
+            "type": "string",
+            "description": "Default access level for workspace members",
+            "enum": ["edit","comment","view","noAccess","fullAccess"]
+          },
+          "externalAccess": {
+            "type": "string",
+            "description": "Access level for external users via shared link",
+            "enum": ["edit","comment","view","noAccess"]
+          },
+          "emailOptions": {"$ref": "#/components/schemas/EmailOptions"}
+        }
+      },
+      "EmailOptions": {
+        "type": "object",
+        "required": ["recipients"],
+        "properties": {
+          "access": {
+            "type": "string",
+            "description": "Permission level for email recipients",
+            "enum": ["edit","comment","view","fullAccess"]
+          },
+          "recipients": {
+            "type": "array",
+            "description": "Email addresses to share with",
+            "minItems": 1,
+            "items": {"type": "string", "format": "email"}
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["message","statusCode"],
+        "properties": {
+          "message": {"type": "string", "description": "Human-readable error message"},
+          "statusCode": {"type": "number", "description": "HTTP status code"}
+        }
+      },
+      "CreditsResponse": {
+        "type": "object",
+        "required": ["deducted","remaining"],
+        "properties": {
+          "deducted": {"type": "number", "description": "Credits deducted for this operation"},
+          "remaining": {"type": "number", "description": "Remaining credits in workspace"}
+        }
+      },
+      "TextOptions": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "string",
+            "description": "Controls the amount of text generated per card",
+            "enum": ["brief","medium","detailed","extensive"]
+          },
+          "language": {
+            "type": "string",
+            "description": "Language code for the generated content",
+            "enum": ["en","en-gb","en-in","es","es-es","es-mx","es-419","ca","fr","zh-cn","zh-tw","ko","ja","ja-da","pt-br","pt-pt","de","it","ru","pl","uk","ro","hu","cs","el","tr","ar","ar-sa","he","fa","nl","sv","da","nb","fi","id","vi","hi","gu","mr","te","bn","ta","ur","kn","ml","th","sr","hr","sq","bg","sl","bs","mk","sw","ha","yo","tl","ms","kk","uz","af","lv","lt","et","is","cy"]
+          },
+          "tone": {
+            "type": "string",
+            "description": "The tone or writing style for the generated text",
+            "minLength": 0,
+            "maxLength": 500
+          },
+          "audience": {
+            "type": "string",
+            "description": "The target audience for the content",
+            "minLength": 0,
+            "maxLength": 500
+          }
+        }
+      },
+      "ImageOptions": {
+        "type": "object",
+        "properties": {
+          "model": {"$ref": "#/components/schemas/ImageModel"},
+          "source": {
+            "type": "string",
+            "description": "Source for images",
+            "enum": ["webAllImages","webFreeToUse","webFreeToUseCommercially","aiGenerated","pictographic","giphy","pexels","placeholder","noImages","themeAccent"]
+          },
+          "style": {
+            "type": "string",
+            "description": "Style description for AI-generated images",
+            "minLength": 0,
+            "maxLength": 5000
+          }
+        }
+      },
+      "HeaderFooterElement": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Type of element to display",
+            "enum": ["text","image","cardNumber"]
+          },
+          "source": {
+            "type": "string",
+            "description": "Image source type (required when type is image)",
+            "enum": ["custom","themeLogo"]
+          },
+          "src": {
+            "type": "string",
+            "description": "Custom image URL (required when source is custom)",
+            "format": "uri",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "value": {
+            "type": "string",
+            "description": "Text content (required when type is text)",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "size": {
+            "type": "string",
+            "description": "Size of the image element",
+            "enum": ["sm","md","lg","xl"]
+          }
+        }
+      },
+      "HeaderFooter": {
+        "type": "object",
+        "properties": {
+          "topLeft": {"$ref": "#/components/schemas/HeaderFooterElement"},
+          "topCenter": {"$ref": "#/components/schemas/HeaderFooterElement"},
+          "topRight": {"$ref": "#/components/schemas/HeaderFooterElement"},
+          "bottomLeft": {"$ref": "#/components/schemas/HeaderFooterElement"},
+          "bottomCenter": {"$ref": "#/components/schemas/HeaderFooterElement"},
+          "bottomRight": {"$ref": "#/components/schemas/HeaderFooterElement"},
+          "hideFromFirstCard": {
+            "type": "boolean",
+            "description": "Hide header/footer from the first card (title card)"
+          },
+          "hideFromLastCard": {
+            "type": "boolean",
+            "description": "Hide header/footer from the last card"
+          }
+        }
+      },
+      "CardOptions": {
+        "type": "object",
+        "properties": {
+          "dimensions": {
+            "type": "string",
+            "description": "Card aspect ratio/dimensions",
+            "enum": ["fluid","16x9","4x3","pageless","letter","a4","1x1","4x5","9x16"]
+          },
+          "headerFooter": {"$ref": "#/components/schemas/HeaderFooter"}
+        }
+      },
+      "Generation": {
+        "type": "object",
+        "required": ["inputText"],
+        "properties": {
+          "inputText": {
+            "type": "string",
+            "description": "The text content to generate from (topic, outline, or full content)",
+            "minLength": 1,
+            "maxLength": 400000
+          },
+          "title": {
+            "type": "string",
+            "description": "Custom title. Auto-generated if not provided.",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "textMode": {
+            "type": "string",
+            "description": "How to interpret the input text",
+            "enum": ["generate","condense","preserve"]
+          },
+          "format": {
+            "type": "string",
+            "description": "Output format for the generated Gamma",
+            "enum": ["presentation","document","social","webpage"]
+          },
+          "cardSplit": {
+            "type": "string",
+            "description": "How to split content across cards",
+            "enum": ["inputTextBreaks","auto"]
+          },
+          "numCards": {
+            "type": "number",
+            "description": "Target number of cards/slides to generate (1-75 depending on plan)",
+            "minimum": 1
+          },
+          "themeId": {
+            "type": "string",
+            "description": "Theme ID to apply (from GET /themes)"
+          },
+          "folderIds": {
+            "type": "array",
+            "description": "Folder IDs to place the generated Gamma in (from GET /folders)",
+            "maxItems": 10,
+            "items": {"type": "string"}
+          },
+          "exportAs": {
+            "type": "string",
+            "description": "Export format for automatic export after generation. png = .zip with one PNG per card.",
+            "enum": ["pptx","pdf","png"]
+          },
+          "additionalInstructions": {
+            "type": "string",
+            "description": "Additional instructions for the AI",
+            "minLength": 0,
+            "maxLength": 5000
+          },
+          "textOptions": {"$ref": "#/components/schemas/TextOptions"},
+          "imageOptions": {"$ref": "#/components/schemas/ImageOptions"},
+          "cardOptions": {"$ref": "#/components/schemas/CardOptions"},
+          "sharingOptions": {"$ref": "#/components/schemas/SharingOptions"}
+        }
+      },
+      "CreateGenerationResponse": {
+        "type": "object",
+        "required": ["generationId"],
+        "properties": {
+          "generationId": {
+            "type": "string",
+            "description": "Unique identifier for the generation job. Use to poll GET /generations/{id}."
+          },
+          "warnings": {
+            "type": "string",
+            "description": "Non-fatal warnings about ignored or adjusted inputs"
+          }
+        }
+      },
+      "FromTemplateImageOptions": {
+        "type": "object",
+        "properties": {
+          "model": {"$ref": "#/components/schemas/ImageModel"},
+          "style": {
+            "type": "string",
+            "description": "Style description for images",
+            "minLength": 0,
+            "maxLength": 5000
+          }
+        }
+      },
+      "FromTemplateGeneration": {
+        "type": "object",
+        "required": ["prompt","gammaId"],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "description": "Instructions describing what to change in the template",
+            "minLength": 1,
+            "maxLength": 400000
+          },
+          "gammaId": {
+            "type": "string",
+            "description": "File ID of the Gamma to use as template (g_... prefix). NOT the URL slug."
+          },
+          "title": {
+            "type": "string",
+            "description": "Custom title for the generated Gamma",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "themeId": {
+            "type": "string",
+            "description": "Theme ID to apply (from GET /themes)"
+          },
+          "folderIds": {
+            "type": "array",
+            "description": "Folder IDs to place the generated Gamma in",
+            "maxItems": 10,
+            "items": {"type": "string"}
+          },
+          "exportAs": {
+            "type": "string",
+            "description": "Export format for automatic export after generation",
+            "enum": ["pptx","pdf","png"]
+          },
+          "imageOptions": {"$ref": "#/components/schemas/FromTemplateImageOptions"},
+          "sharingOptions": {"$ref": "#/components/schemas/SharingOptions"}
+        }
+      },
+      "FromTemplateGenerationResponse": {
+        "type": "object",
+        "required": ["generationId"],
+        "properties": {
+          "generationId": {
+            "type": "string",
+            "description": "Unique identifier for the generation job"
+          },
+          "warnings": {
+            "type": "string",
+            "description": "Warnings about the request"
+          }
+        }
+      },
+      "GenerationStatusResponse": {
+        "type": "object",
+        "required": ["generationId","status"],
+        "properties": {
+          "generationId": {"type": "string", "description": "Unique identifier for the generation job"},
+          "status": {
+            "type": "string",
+            "description": "Current status of the generation job",
+            "enum": ["pending","completed","failed"]
+          },
+          "gammaId": {
+            "type": "string",
+            "description": "File ID of the generated Gamma when completed (g_... prefix). Use for archive/delete."
+          },
+          "gammaUrl": {
+            "type": "string",
+            "description": "URL to view/share the generated Gamma (when completed)"
+          },
+          "exportUrl": {
+            "type": "string",
+            "description": "Download URL for the exported file when exportAs was specified. Signed, expires approximately one week. png = .zip with one PNG per card."
+          },
+          "credits": {"$ref": "#/components/schemas/CreditsResponse"},
+          "error": {"$ref": "#/components/schemas/ErrorResponse"}
+        }
+      },
+      "ThemeItem": {
+        "type": "object",
+        "required": ["id","name","type"],
+        "properties": {
+          "id": {"type": "string", "description": "Unique theme identifier. Use as themeId in generation requests."},
+          "name": {"type": "string", "description": "Display name of the theme"},
+          "colorKeywords": {
+            "type": "array",
+            "description": "Keywords describing the theme color palette",
+            "items": {"type": "string"}
+          },
+          "toneKeywords": {
+            "type": "array",
+            "description": "Keywords describing the theme tone/style",
+            "items": {"type": "string"}
+          },
+          "type": {
+            "type": "string",
+            "description": "Theme type",
+            "enum": ["standard","custom"]
+          }
+        }
+      },
+      "ListThemesResponse": {
+        "type": "object",
+        "required": ["data","hasMore","nextCursor"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "description": "Array of theme items",
+            "items": {"$ref": "#/components/schemas/ThemeItem"}
+          },
+          "hasMore": {"type": "boolean", "description": "Whether more results exist beyond this page"},
+          "nextCursor": {
+            "type": "string",
+            "nullable": true,
+            "description": "Cursor for fetching the next page (null if no more)"
+          }
+        }
+      },
+      "FolderItem": {
+        "type": "object",
+        "required": ["id","name"],
+        "properties": {
+          "id": {"type": "string", "description": "Unique folder identifier. Use in folderIds in generation requests."},
+          "name": {"type": "string", "description": "Display name of the folder"}
+        }
+      },
+      "ListFoldersResponse": {
+        "type": "object",
+        "required": ["data","hasMore","nextCursor"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "description": "Array of folder items",
+            "items": {"$ref": "#/components/schemas/FolderItem"}
+          },
+          "hasMore": {"type": "boolean", "description": "Whether more results exist beyond this page"},
+          "nextCursor": {
+            "type": "string",
+            "nullable": true,
+            "description": "Cursor for fetching the next page (null if no more)"
+          }
+        }
+      },
+      "ArchiveGammaResponse": {
+        "type": "object",
+        "required": ["gammaId","archived"],
+        "properties": {
+          "gammaId": {"type": "string", "description": "The ID of the archived Gamma"},
+          "archived": {"type": "boolean", "description": "Confirmation that the Gamma is archived. Always true on success."}
+        }
+      },
+      "DeleteGammaResponse": {
+        "type": "object",
+        "required": ["status","gammaId","message"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Always deleted on success",
+            "enum": ["deleted"]
+          },
+          "gammaId": {"type": "string", "description": "The ID of the deleted Gamma"},
+          "message": {"type": "string", "description": "Confirmation message"}
+        }
+      }
+    }
+  },
+  "paths": {
+    "/v1.0/generations": {
+      "post": {
+        "operationId": "createGeneration",
+        "summary": "Create async generation from text",
+        "description": "Start an asynchronous generation from text. Returns generationId immediately. Poll GET /v1.0/generations/{id} every 5 seconds until status is completed or failed. Generation typically takes 1-3 minutes. Credits charged on completion.",
+        "tags": ["generations"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/Generation"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Generation job created successfully",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/CreateGenerationResponse"}
+              }
+            }
+          },
+          "400": {"description": "Invalid request parameters"},
+          "401": {"description": "Invalid or missing X-API-KEY header"},
+          "402": {"description": "Insufficient credits remaining"},
+          "403": {"description": "Access denied or feature not available on plan"}
+        }
+      }
+    },
+    "/v1.0/generations/from-template": {
+      "post": {
+        "operationId": "createFromTemplateGeneration",
+        "summary": "Create async generation from template",
+        "description": "Adapt an existing Gamma by providing the template file ID and instructions. Template structure preserved by default. gammaId must be the API file ID (g_... prefix), not the URL slug.",
+        "tags": ["generations"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/FromTemplateGeneration"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Generation job created successfully",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/FromTemplateGenerationResponse"}
+              }
+            }
+          },
+          "400": {"description": "Invalid request or template not found"},
+          "401": {"description": "Invalid or missing API key"},
+          "402": {"description": "Insufficient credits"},
+          "403": {"description": "Feature not enabled for workspace"}
+        }
+      }
+    },
+    "/v1.0/generations/{id}": {
+      "get": {
+        "operationId": "getGenerationStatus",
+        "summary": "Get generation status",
+        "description": "Poll this endpoint until status is completed or failed. On completion returns gammaId (g_... prefix), gammaUrl, exportUrl (if exportAs was set, expires approx 1 week), and credits. PNG exports are a .zip with one PNG per card.",
+        "tags": ["generations"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The generationId returned from the create endpoint",
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Generation status retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/GenerationStatusResponse"}
+              }
+            }
+          },
+          "401": {"description": "Invalid or missing API key"},
+          "404": {"description": "Generation not found"}
+        }
+      }
+    },
+    "/v1.0/themes": {
+      "get": {
+        "operationId": "listThemes",
+        "summary": "List workspace themes",
+        "description": "List themes available in the authenticated workspace. Use returned id as themeId in generation requests. Cursor-paginated with hasMore and nextCursor fields.",
+        "tags": ["workspace"],
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": false,
+            "description": "Filter themes by name",
+            "schema": {"type": "string"}
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum results per page (1-50, default 20)",
+            "schema": {"type": "number", "minimum": 1, "maximum": 50}
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "description": "Cursor from previous response nextCursor for pagination",
+            "schema": {"type": "string"}
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "description": "Filter by theme type: standard for built-in, custom for workspace themes",
+            "schema": {"type": "string", "enum": ["standard","custom"]}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Themes retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ListThemesResponse"}
+              }
+            }
+          },
+          "401": {"description": "Invalid or missing API key"}
+        }
+      }
+    },
+    "/v1.0/folders": {
+      "get": {
+        "operationId": "listFolders",
+        "summary": "List workspace folders",
+        "description": "List folders the authenticated user can access. Use returned id values in folderIds in generation requests. Cursor-paginated with hasMore and nextCursor fields.",
+        "tags": ["workspace"],
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": false,
+            "description": "Filter folders by name",
+            "schema": {"type": "string"}
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum results per page (1-50, default 20)",
+            "schema": {"type": "number", "minimum": 1, "maximum": 50}
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "description": "Cursor from previous response nextCursor for pagination",
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Folders retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ListFoldersResponse"}
+              }
+            }
+          },
+          "401": {"description": "Invalid or missing API key"}
+        }
+      }
+    },
+    "/v1.0/gammas/{gammaId}/archive": {
+      "post": {
+        "operationId": "archiveGamma",
+        "summary": "Archive a Gamma",
+        "description": "Archive a Gamma to remove it from active workspace without deleting. Idempotent: archiving an already-archived Gamma returns 200. gammaId must be the API file ID (g_... prefix from generation poll response), NOT the URL slug. Passing a URL slug returns 403.",
+        "tags": ["management"],
+        "parameters": [
+          {
+            "name": "gammaId",
+            "in": "path",
+            "required": true,
+            "description": "The API file ID of the Gamma to archive (g_... prefix, from completed generation poll)",
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Gamma archived successfully",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ArchiveGammaResponse"}
+              }
+            }
+          },
+          "401": {"description": "Invalid or missing API key"},
+          "403": {"description": "Access denied: edit permission required, or gammaId is URL slug not file ID"}
+        }
+      }
+    },
+    "/v1.0/gammas/{gammaId}": {
+      "delete": {
+        "operationId": "deleteGamma",
+        "summary": "Delete a Gamma",
+        "description": "Delete a Gamma permanently. Requires workspace admin role. Auto-archives first if needed. Gamma becomes immediately inaccessible. gammaId must be the API file ID (g_... prefix), not the URL slug.",
+        "tags": ["management"],
+        "parameters": [
+          {
+            "name": "gammaId",
+            "in": "path",
+            "required": true,
+            "description": "The API file ID of the Gamma to delete (g_... prefix)",
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Gamma deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/DeleteGammaResponse"}
+              }
+            }
+          },
+          "401": {"description": "Invalid or missing API key"},
+          "403": {"description": "Access denied: workspace admin role required"}
+        }
+      }
+    }
+  }
+}

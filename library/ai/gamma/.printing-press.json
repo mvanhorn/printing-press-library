@@ -1,0 +1,50 @@
+{
+  "api_name": "gamma",
+  "api_version": "1.0",
+  "auth_env_vars": [
+    "GAMMA_API_KEY"
+  ],
+  "auth_type": "api_key",
+  "category": "ai",
+  "cli_name": "gamma-pp-cli",
+  "creator": {
+    "handle": "AnchalSharma19",
+    "name": "Anchal Sharma"
+  },
+  "description": "Generate presentations, documents, websites, and social posts programmatically.",
+  "display_name": "Gamma Public",
+  "generated_at": "2026-06-21T08:34:22.904245Z",
+  "mcp_binary": "gamma-pp-mcp",
+  "mcp_ready": "full",
+  "mcp_tool_count": 7,
+  "novel_features": [
+    {
+      "name": "Async Generation Watcher",
+      "command": "generations create --watch",
+      "description": "Poll until generation completes, then print gammaUrl and credits. Bridges the async gap without manual polling."
+    },
+    {
+      "name": "Export Auto-Downloader",
+      "command": "generations create --download",
+      "description": "After --watch completes, download the exportUrl to a local directory with the gammaId as filename."
+    },
+    {
+      "name": "Sharing Preset Shorthand",
+      "command": "generations create --sharing",
+      "description": "Map a preset name (private, view-link, edit-link, workspace-view) to the workspaceAccess + externalAccess flag pair."
+    },
+    {
+      "name": "Image Source Shorthand",
+      "command": "generations create --image-source",
+      "description": "Short alias for --image-options-source that sets the AI model for image generation without the nested flag path."
+    }
+  ],
+  "owner": "anchalsharma19",
+  "printer": "AnchalSharma19",
+  "printer_name": "Anchal Sharma",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260619-153208-b1328533",
+  "schema_version": 1,
+  "spec_checksum": "sha256:e48716a3ce12fa9a9576051ffb97f3cb59d52b1da9f71593d24f05d40e91f333",
+  "spec_format": "openapi3"
+}

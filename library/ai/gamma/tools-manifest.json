@@ -1,0 +1,387 @@
+{
+  "api_name": "gamma",
+  "base_url": "https://public-api.gamma.app",
+  "description": "Generate presentations, documents, websites, and social posts programmatically.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-API-KEY",
+    "in": "header",
+    "env_vars": [
+      "GAMMA_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "GAMMA_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "folders_list",
+      "description": "List folders the authenticated user can access. Use returned id values in folderIds in generation requests. Cursor-paginated with hasMore and nextCursor fields. Optional: query, limit, after. Returns array of FolderItem.",
+      "method": "GET",
+      "path": "/v1.0/folders",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Filter folders by name"
+        },
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum results per page (1-50, default 20)"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor from previous response nextCursor for pagination"
+        }
+      ]
+    },
+    {
+      "name": "gammas_delete",
+      "description": "Delete a Gamma permanently. Requires workspace admin role. Auto-archives first if needed. Gamma becomes immediately inaccessible. gammaId must be the API file ID (g_... prefix), not the URL slug. Required: gammaId. Returns the DeleteGammaResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1.0/gammas/{gammaId}",
+      "params": [
+        {
+          "name": "gammaId",
+          "type": "string",
+          "location": "path",
+          "description": "The API file ID of the Gamma to delete (g_... prefix)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "gammas_archive_gamma",
+      "description": "Archive a Gamma to remove it from active workspace without deleting. Idempotent: archiving an already-archived Gamma returns 200. gammaId must be the API file ID (g_... prefix from generation poll response), NOT the URL slug. Passing a URL slug returns 403. Required: gammaId.",
+      "method": "POST",
+      "path": "/v1.0/gammas/{gammaId}/archive",
+      "params": [
+        {
+          "name": "gammaId",
+          "type": "string",
+          "location": "path",
+          "description": "The API file ID of the Gamma to archive (g_... prefix, from completed generation poll)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "generations_create",
+      "description": "Start an asynchronous generation from text. Returns generationId immediately. Poll GET /v1.0/generations/{id} every 5 seconds until status is completed or failed. Generation typically takes 1-3 minutes. Credits charged on completion. Required: inputText. Optional: additionalInstructions, cardOptions, cardSplit (plus 10 more).",
+      "method": "POST",
+      "path": "/v1.0/generations",
+      "params": [
+        {
+          "name": "additionalInstructions",
+          "type": "string",
+          "location": "body",
+          "description": "Additional instructions for the AI"
+        },
+        {
+          "name": "card-options-dimensions",
+          "wire_name": "cardOptions.dimensions",
+          "type": "string",
+          "location": "body",
+          "description": "Card aspect ratio/dimensions"
+        },
+        {
+          "name": "card-options-header-footer-hide-from-first-card",
+          "wire_name": "cardOptions.headerFooter.hideFromFirstCard",
+          "type": "bool",
+          "location": "body",
+          "description": "Hide header/footer from the first card (title card)"
+        },
+        {
+          "name": "card-options-header-footer-hide-from-last-card",
+          "wire_name": "cardOptions.headerFooter.hideFromLastCard",
+          "type": "bool",
+          "location": "body",
+          "description": "Hide header/footer from the last card"
+        },
+        {
+          "name": "cardSplit",
+          "type": "string",
+          "location": "body",
+          "description": "How to split content across cards"
+        },
+        {
+          "name": "exportAs",
+          "type": "string",
+          "location": "body",
+          "description": "Export format for automatic export after generation. png = .zip with one PNG per card."
+        },
+        {
+          "name": "folderIds",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Folder IDs to place the generated Gamma in (from GET /folders)"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "body",
+          "description": "Output format for the generated Gamma"
+        },
+        {
+          "name": "image-options-model",
+          "wire_name": "imageOptions.model",
+          "type": "string",
+          "location": "body",
+          "description": "AI model to use for image generation"
+        },
+        {
+          "name": "image-options-source",
+          "wire_name": "imageOptions.source",
+          "type": "string",
+          "location": "body",
+          "description": "Source for images"
+        },
+        {
+          "name": "image-options-style",
+          "wire_name": "imageOptions.style",
+          "type": "string",
+          "location": "body",
+          "description": "Style description for AI-generated images"
+        },
+        {
+          "name": "inputText",
+          "type": "string",
+          "location": "body",
+          "description": "The text content to generate from (topic, outline, or full content)",
+          "required": true
+        },
+        {
+          "name": "numCards",
+          "type": "float",
+          "location": "body",
+          "description": "Target number of cards/slides to generate (1-75 depending on plan)"
+        },
+        {
+          "name": "sharing-options-email-options-access",
+          "wire_name": "sharingOptions.emailOptions.access",
+          "type": "string",
+          "location": "body",
+          "description": "Permission level for email recipients"
+        },
+        {
+          "name": "sharing-options-email-options-recipients",
+          "wire_name": "sharingOptions.emailOptions.recipients",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Email addresses to share with",
+          "required": true
+        },
+        {
+          "name": "sharing-options-external-access",
+          "wire_name": "sharingOptions.externalAccess",
+          "type": "string",
+          "location": "body",
+          "description": "Access level for external users via shared link"
+        },
+        {
+          "name": "sharing-options-workspace-access",
+          "wire_name": "sharingOptions.workspaceAccess",
+          "type": "string",
+          "location": "body",
+          "description": "Default access level for workspace members"
+        },
+        {
+          "name": "textMode",
+          "type": "string",
+          "location": "body",
+          "description": "How to interpret the input text"
+        },
+        {
+          "name": "text-options-amount",
+          "wire_name": "textOptions.amount",
+          "type": "string",
+          "location": "body",
+          "description": "Controls the amount of text generated per card"
+        },
+        {
+          "name": "text-options-audience",
+          "wire_name": "textOptions.audience",
+          "type": "string",
+          "location": "body",
+          "description": "The target audience for the content"
+        },
+        {
+          "name": "text-options-language",
+          "wire_name": "textOptions.language",
+          "type": "string",
+          "location": "body",
+          "description": "Language code for the generated content"
+        },
+        {
+          "name": "text-options-tone",
+          "wire_name": "textOptions.tone",
+          "type": "string",
+          "location": "body",
+          "description": "The tone or writing style for the generated text"
+        },
+        {
+          "name": "themeId",
+          "type": "string",
+          "location": "body",
+          "description": "Theme ID to apply (from GET /themes)"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Custom title. Auto-generated if not provided."
+        }
+      ]
+    },
+    {
+      "name": "generations_create-from-template",
+      "description": "Adapt an existing Gamma by providing the template file ID and instructions. Template structure preserved by default. gammaId must be the API file ID (g_... prefix), not the URL slug. Required: gammaId, prompt. Optional: exportAs, folderIds, imageOptions (plus 3 more). Returns the new FromTemplateGenerationResponse.",
+      "method": "POST",
+      "path": "/v1.0/generations/from-template",
+      "params": [
+        {
+          "name": "exportAs",
+          "type": "string",
+          "location": "body",
+          "description": "Export format for automatic export after generation"
+        },
+        {
+          "name": "folderIds",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Folder IDs to place the generated Gamma in"
+        },
+        {
+          "name": "gammaId",
+          "type": "string",
+          "location": "body",
+          "description": "File ID of the Gamma to use as template (g_... prefix). NOT the URL slug.",
+          "required": true
+        },
+        {
+          "name": "image-options-model",
+          "wire_name": "imageOptions.model",
+          "type": "string",
+          "location": "body",
+          "description": "AI model to use for image generation"
+        },
+        {
+          "name": "image-options-style",
+          "wire_name": "imageOptions.style",
+          "type": "string",
+          "location": "body",
+          "description": "Style description for images"
+        },
+        {
+          "name": "prompt",
+          "type": "string",
+          "location": "body",
+          "description": "Instructions describing what to change in the template",
+          "required": true
+        },
+        {
+          "name": "sharing-options-email-options-access",
+          "wire_name": "sharingOptions.emailOptions.access",
+          "type": "string",
+          "location": "body",
+          "description": "Permission level for email recipients"
+        },
+        {
+          "name": "sharing-options-email-options-recipients",
+          "wire_name": "sharingOptions.emailOptions.recipients",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Email addresses to share with",
+          "required": true
+        },
+        {
+          "name": "sharing-options-external-access",
+          "wire_name": "sharingOptions.externalAccess",
+          "type": "string",
+          "location": "body",
+          "description": "Access level for external users via shared link"
+        },
+        {
+          "name": "sharing-options-workspace-access",
+          "wire_name": "sharingOptions.workspaceAccess",
+          "type": "string",
+          "location": "body",
+          "description": "Default access level for workspace members"
+        },
+        {
+          "name": "themeId",
+          "type": "string",
+          "location": "body",
+          "description": "Theme ID to apply (from GET /themes)"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Custom title for the generated Gamma"
+        }
+      ]
+    },
+    {
+      "name": "generations_get-status",
+      "description": "Poll this endpoint until status is completed or failed. On completion returns gammaId (g_... prefix), gammaUrl, exportUrl (if exportAs was set, expires approx 1 week), and credits. PNG exports are a .zip with one PNG per card. Required: id.",
+      "method": "GET",
+      "path": "/v1.0/generations/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The generationId returned from the create endpoint",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "themes_list",
+      "description": "List themes available in the authenticated workspace. Use returned id as themeId in generation requests. Cursor-paginated with hasMore and nextCursor fields. Optional: query, limit, after (plus 1 more). Returns array of ThemeItem.",
+      "method": "GET",
+      "path": "/v1.0/themes",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Filter themes by name"
+        },
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum results per page (1-50, default 20)"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor from previous response nextCursor for pagination"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by theme type: standard for built-in, custom for workspace themes"
+        }
+      ]
+    }
+  ]
+}
