@@ -94,6 +94,24 @@ func TestExtractPoint(t *testing.T) {
 		}
 	})
 
+	t.Run("nanosecond-precision timestamps extract", func(t *testing.T) {
+		// Google Cloud APIs serialize timestamps with fractional seconds;
+		// these must parse via RFC3339Nano, not plain RFC3339.
+		rows := [][]byte{
+			[]byte(`{"name":"users/me/dataTypes/steps/dataPoints/a","steps":{"count":8421,"interval":{"startTime":"2026-06-01T00:00:00.000000000Z","endTime":"2026-06-01T23:59:59.999999999Z"}}}`),
+			[]byte(`{"name":"users/me/dataTypes/weight/dataPoints/b","weight":{"weightGrams":81600.5,"sampleTime":{"physicalTime":"2026-06-03T07:15:00.123456789Z"}}}`),
+		}
+		for _, row := range rows {
+			p, ok := ExtractPoint(row)
+			if !ok {
+				t.Fatalf("expected fractional-second row to extract: %s", row)
+			}
+			if p.Day == "" {
+				t.Errorf("expected non-empty Day for %s", row)
+			}
+		}
+	})
+
 	t.Run("non-point rows rejected", func(t *testing.T) {
 		for _, row := range [][]byte{
 			[]byte(`{"name":"users/me","healthUserId":"abc"}`),       // identity

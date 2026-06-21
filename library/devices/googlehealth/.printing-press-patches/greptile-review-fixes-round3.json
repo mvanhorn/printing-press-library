@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "patch_id": "greptile-review-fixes-round3",
+  "base_run_id": "20260619-180224",
+  "title": "Parse nanosecond-precision timestamps in parseRFC3339 (Greptile P1, re-review)",
+  "rationale": "On Greptile's re-review, a P1 remained: parseRFC3339 used time.RFC3339, which fails on timestamps with fractional seconds. Google Cloud APIs serialize google.protobuf.Timestamp with nanosecond precision (e.g. \"2026-06-01T00:00:00.000000000Z\"), so every interval/sampleTime data point (steps, distance, heart rate, exercise) would silently fail to parse and be dropped from the local store, leaving trends/streaks/correlate operating on a truncated dataset with no user-visible error.",
+  "files": [
+    "internal/health/health.go",
+    "internal/health/health_test.go"
+  ],
+  "changes": [
+    {
+      "file": "internal/health/health.go",
+      "summary": "parseRFC3339 now tries time.RFC3339Nano first (parses both fractional and whole-second timestamps), falling back to time.RFC3339. Fractional-second timestamps now extract instead of being silently dropped.",
+      "validated_outcome": "go build/vet pass; new TestExtractPoint/nanosecond-precision_timestamps_extract case passes (would fail before the fix)."
+    },
+    {
+      "file": "internal/health/health_test.go",
+      "summary": "Added a regression subtest asserting that steps (interval) and weight (sampleTime) rows with .000000000Z / .123456789Z fractional seconds extract successfully.",
+      "validated_outcome": "go test -count=1 ./internal/health/ -run TestExtractPoint passes all subtests."
+    }
+  ]
+}

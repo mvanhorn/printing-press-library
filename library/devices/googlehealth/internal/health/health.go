@@ -237,8 +237,15 @@ func parseRFC3339(v any) (time.Time, bool) {
 	if !ok || s == "" {
 		return time.Time{}, false
 	}
-	if t, err := time.Parse(time.RFC3339, s); err == nil {
-		return t, true
+	// Google Cloud APIs serialize google.protobuf.Timestamp with nanosecond
+	// precision (e.g. "2026-06-01T00:00:00.000000000Z"), so RFC3339Nano must
+	// be tried first; plain time.RFC3339 fails on any fractional-second value
+	// and would silently drop most interval/sampleTime data points. The
+	// RFC3339 fallback covers the rare whole-second timestamp.
+	for _, layout := range []string{time.RFC3339Nano, time.RFC3339} {
+		if t, err := time.Parse(layout, s); err == nil {
+			return t, true
+		}
 	}
 	return time.Time{}, false
 }
