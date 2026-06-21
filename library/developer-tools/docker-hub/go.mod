@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/developer-tools/docker-hub
 
-go 1.26.3
+go 1.26.4
 
 require (
 	github.com/dustin/go-humanize v1.0.1

@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/media-and-entertainment/medium-reader
 
-go 1.26
+go 1.26.4
 
 require (
 	github.com/browserutils/kooky v0.2.10

@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/developer-tools/azure-devops
 
-go 1.26
+go 1.26.4
 
 toolchain go1.26.4
 

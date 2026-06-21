@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/productivity/safari-history
 
-go 1.26.3
+go 1.26.4
 
 require (
 	github.com/mark3labs/mcp-go v0.54.0
