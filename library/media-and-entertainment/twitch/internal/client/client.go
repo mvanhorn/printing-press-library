@@ -142,6 +142,11 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			// Cookie) but not custom ones, so a custom API-key header would be
 			// forwarded verbatim to the redirect target. Delete it explicitly.
 			req.Header.Del("Authorization")
+			// Twitch's Client-Id is set on every request (see do()); it is a
+			// custom header Go does not strip, so delete it too to avoid
+			// leaking the application's Client ID to a cross-host redirect
+			// target (open redirect or partner handoff).
+			req.Header.Del("Client-Id")
 		}
 		return nil
 	}
@@ -826,7 +831,7 @@ func resolveClientCredentials(cfg *config.Config) (string, string) {
 	return id, secret
 }
 
-func resolveClientCredentialsScope() string {
+func ResolveClientCredentialsScope() string {
 	if scope := os.Getenv("TWITCH_OAUTH_SCOPE"); scope != "" {
 		return scope
 	}
@@ -841,15 +846,12 @@ func (c *Client) mintClientCredentials(ctx context.Context, clientID, clientSecr
 	if tokenURL == "" {
 		tokenURL = "https://id.twitch.tv/oauth2/token"
 	}
-	if tokenURL == "" {
-		return nil
-	}
 	form := url.Values{
 		"grant_type":    {"client_credentials"},
 		"client_id":     {clientID},
 		"client_secret": {clientSecret},
 	}
-	if scope := resolveClientCredentialsScope(); scope != "" {
+	if scope := ResolveClientCredentialsScope(); scope != "" {
 		form.Set("scope", scope)
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, tokenURL, strings.NewReader(form.Encode()))
@@ -1124,7 +1126,7 @@ func (c *Client) maskCredentialText(text string, extraCredentials ...string) str
 		addCredential(c.Config.AuthHeader())
 		addCredential(c.Config.AccessToken)
 		addCredential(c.Config.RefreshToken)
-		addCredential(c.Config.ClientSecret)
+		addCredential(c.Config.ClientID)
 		addCredential(c.Config.ClientSecret)
 	}
 	sort.SliceStable(masks, func(i, j int) bool {
