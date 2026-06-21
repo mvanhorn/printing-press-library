@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "exa-pp-mcp",
+  "display_name": "Exa Public",
+  "version": "0.0.0",
+  "description": "Printing Press CLI for Exa.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/exa-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/exa-pp-mcp",
+      "args": [],
+      "env": {
+        "EXA_TOKEN": "${user_config.exa_token}"
+      }
+    }
+  },
+  "user_config": {
+    "exa_token": {
+      "type": "string",
+      "title": "EXA_TOKEN",
+      "description": "Sets EXA_TOKEN for the Exa Public MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
