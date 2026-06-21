@@ -547,6 +547,37 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			return nil, 0, fmt.Errorf("reading response: %w", err)
 		}
 
+		// BGG queues large lookups (notably the collection endpoint): the first
+		// request can return HTTP 202 with a "request accepted, try again later"
+		// body instead of data. The generic success branch below treats any
+		// status < 400 as data and would surface that placeholder message as if
+		// it were a real result, so intercept 202 here and poll with backoff
+		// until the queued result is ready, matching BGG's documented pattern.
+		if resp.StatusCode == http.StatusAccepted {
+			if attempt < maxRetries {
+				wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
+				fmt.Fprintf(os.Stderr, "request queued (HTTP 202), retrying in %s (attempt %d/%d)\n", wait, attempt+1, maxRetries)
+				if err := sleepContext(ctx, wait); err != nil {
+					return nil, 0, err
+				}
+				lastErr = &APIError{
+					Method:     method,
+					Path:       c.displayURL(path, authHeader),
+					StatusCode: resp.StatusCode,
+					Body:       "request queued and not yet ready",
+				}
+				continue
+			}
+			// Retries exhausted — return a clear error rather than the
+			// placeholder body so callers don't mistake it for collection data.
+			return nil, resp.StatusCode, &APIError{
+				Method:     method,
+				Path:       c.displayURL(path, authHeader),
+				StatusCode: resp.StatusCode,
+				Body:       "request still being processed after retries; try again shortly",
+			}
+		}
+
 		// Success
 		if resp.StatusCode < 400 {
 			c.limiter.OnSuccess()
