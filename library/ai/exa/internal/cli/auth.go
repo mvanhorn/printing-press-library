@@ -62,6 +62,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return configErr(err)
 			}
+			config.ApplyAliases(cfg)
 
 			w := cmd.OutOrStdout()
 			header := cfg.AuthHeader()
@@ -147,6 +148,7 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return configErr(err)
 			}
+			config.ApplyAliases(cfg)
 
 			if err := cfg.ClearTokens(); err != nil {
 				return configErr(fmt.Errorf("clearing tokens: %w", err))
