@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "patch_id": "greptile-review-fixes-round2",
+  "base_run_id": "20260619-180224",
+  "title": "Address Greptile P2 re-review finding on PR #1301 (loadHealthPoints row scope)",
+  "rationale": "On Greptile's re-review after the first round of fixes, one new P2 remained: loadHealthPoints ran `SELECT data FROM resources`, scanning every row (profile, settings, identity, irn_profile) and relying on ExtractPoints to discard non-point rows. On a large store this loads non-health rows into memory unnecessarily.",
+  "files": [
+    "internal/cli/health_common.go"
+  ],
+  "changes": [
+    {
+      "file": "internal/cli/health_common.go",
+      "summary": "Scoped the query to the known data-point resource types via `WHERE resource_type IN (...)` built from googleHealthDataTypes() (the same set sync writes). The resources table has an index on resource_type, so the filter is cheap. Behavior-preserving: sync only ever writes data points under these types, and ExtractPoints would have discarded the excluded rows anyway.",
+      "validated_outcome": "go build/vet pass; cli + health tests pass (go test -count=1 ./internal/cli/ ok); analytics commands operate on the same point set as before."
+    }
+  ]
+}
