@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "amazon-ae-html-input-validation-and-headers",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260615-063914",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Amazon.ae HTML page-fetch commands must reject empty required user inputs and send browser-like HTML Accept headers by default.",
+  "reason": "Empty keyword and ASIN inputs silently turn endpoint-specific requests into bare storefront or product-root requests, while JSON Accept headers increase bot-challenge responses on Amazon.ae's HTML surface.",
+  "files": [
+    "internal/cli/products_get.go",
+    "internal/cli/products_get_test.go",
+    "internal/cli/products_search.go",
+    "internal/cli/products_search_test.go",
+    "internal/client/client.go"
+  ]
+}

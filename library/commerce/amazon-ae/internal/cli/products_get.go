@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -22,13 +23,17 @@ func newProductsGetCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
+			asin := strings.TrimSpace(args[0])
+			if asin == "" {
+				return fmt.Errorf("argument %q must not be empty", "asin")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
 			path := "/dp/{asin}"
-			path = replacePathParam(path, "asin", args[0])
+			path = replacePathParam(path, "asin", asin)
 			params := map[string]string{}
 			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "products", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
