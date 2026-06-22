@@ -1,10 +1,14 @@
 {
+  "schema_version": 2,
   "id": "remove-empty-stdin-body-blocks",
-  "summary": "Remove generated no-op stdinBody guard blocks from Postscript compliance commands.",
-  "rationale": "Greptile flagged the empty if !stdinBody branches as confusing dead code. The surrounding command behavior already branches on stdinBody when choosing stdin JSON vs. flag-built request bodies.",
+  "applied_at": "2026-06-23",
+  "base_run_id": "20260622-071434",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Postscript compliance commands must not preserve empty stdinBody guard blocks in generated mutate handlers.",
+  "reason": "The compliance redact and unsubscribe handlers already choose between stdin JSON and flag-built request bodies. Keeping empty no-op branches makes the published artifact look partially patched and causes reviewer-visible generated dead code.",
   "files": [
     "internal/cli/compliance_redact.go",
     "internal/cli/compliance_unsubscribe.go"
   ],
-  "upstream": "generator-template-cleanup-candidate"
+  "validated_outcome": "go test ./... passes after the no-op blocks are removed."
 }
