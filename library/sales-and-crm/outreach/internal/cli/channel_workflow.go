@@ -55,7 +55,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 			defer s.Close()
 
-			resources := []string{}
+			resources := workflowArchiveResources()
 			totalSynced := 0
 			syncEventWriter := cmd.OutOrStdout()
 			if flags.asJSON {
@@ -123,9 +123,18 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 			if dbPath == "" {
 				dbPath = defaultDBPath("outreach-pp-cli")
 			}
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := openStorePathForRead(dbPath)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
+			}
+			if s == nil {
+				if flags.asJSON {
+					enc := json.NewEncoder(cmd.OutOrStdout())
+					enc.SetIndent("", "  ")
+					return enc.Encode(map[string]int{})
+				}
+				fmt.Fprintln(cmd.OutOrStdout(), "No archived data. Run 'workflow archive' to sync.")
+				return nil
 			}
 			defer s.Close()
 
@@ -160,6 +169,10 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 
 	return cmd
+}
+
+func workflowArchiveResources() []string {
+	return knownSyncResourceNames()
 }
 
 // defaultDBPath is defined in helpers.go

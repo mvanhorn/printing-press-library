@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "workflow-archive-status-read-path",
+  "applied_at": "2026-06-22",
+  "base_run_id": "20260622-071511",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Workflow archive must use the CLI's known sync resources, and workflow status must inspect existing archives through the read-only store path.",
+  "reason": "An empty archive resource list silently reports a successful zero-item archive even though the CLI has syncable resources. Status is a read-only inspection command and must not create, migrate, or lock a SQLite store when the user only asks whether archived data exists.",
+  "files": [
+    "internal/cli/channel_workflow.go",
+    "internal/cli/channel_workflow_test.go"
+  ],
+  "validated_outcome": "Unit coverage verifies archive resource selection is non-empty and status does not create a missing database."
+}
