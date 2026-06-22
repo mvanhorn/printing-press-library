@@ -1,0 +1,250 @@
+{
+  "api_name": "postscript",
+  "base_url": "https://api.postscript.io",
+  "description": "Compact OpenAPI spec assembled from the official Postscript ReadMe endpoint pages listed in https://developers.postscript.io/llms.txt.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "Bearer {POSTSCRIPT_API_KEY}",
+    "in": "header",
+    "env_vars": [
+      "POSTSCRIPT_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "POSTSCRIPT_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "compliance_redact",
+      "description": "Redacts subscriber data. When passed an email, phone number, Shopify customer ID, or Postscript subscriber ID, this endpoint also unsubscribes an active subscriber. Optional: email, phone_number, postscript_subscriber_id (plus 1 more). Returns the updated MessageResponse.",
+      "method": "PATCH",
+      "path": "/api/v2/compliance/redact",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "phone_number",
+          "type": "string",
+          "location": "body",
+          "description": "Phone number"
+        },
+        {
+          "name": "postscript_subscriber_id",
+          "type": "string",
+          "location": "body",
+          "description": "Postscript subscriber id"
+        },
+        {
+          "name": "shopify_customer_id",
+          "type": "string",
+          "location": "body",
+          "description": "Shopify customer id"
+        }
+      ]
+    },
+    {
+      "name": "compliance_unsubscribe",
+      "description": "Opts subscribers out of Postscript messaging. Optional: phone_number, postscript_subscriber_id. Returns the updated MessageResponse.",
+      "method": "PATCH",
+      "path": "/api/v2/compliance/unsubscribe",
+      "params": [
+        {
+          "name": "phone_number",
+          "type": "string",
+          "location": "body",
+          "description": "Phone number"
+        },
+        {
+          "name": "postscript_subscriber_id",
+          "type": "string",
+          "location": "body",
+          "description": "Postscript subscriber id"
+        }
+      ]
+    },
+    {
+      "name": "events_create-custom",
+      "description": "Send a custom event to use in Postscript flows. Required: type. Optional: email, external_id, occurred_at (plus 3 more). Returns array of string.",
+      "method": "POST",
+      "path": "/api/v2/events",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "occurred_at",
+          "type": "string",
+          "location": "body",
+          "description": "UTC timestamp in Postscript's supported format: %Y-%m-%d %H:%M:%S.%f."
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "body",
+          "description": "Phone"
+        },
+        {
+          "name": "properties",
+          "type": "object",
+          "location": "body",
+          "description": "Properties"
+        },
+        {
+          "name": "subscriber_id",
+          "type": "string",
+          "location": "body",
+          "description": "Subscriber id"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Event type shown in Postscript flows.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscribers_get",
+      "description": "Get an individual subscriber for a shop. Required: id. Returns array of string.",
+      "method": "GET",
+      "path": "/api/v2/subscribers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID for the subscriber to get.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscribers_list",
+      "description": "Get a list of subscribers for a shop. Optional: page, sort, email__contains (plus 7 more). Returns array of Subscriber.",
+      "method": "GET",
+      "path": "/api/v2/subscribers",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number of results to start from."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sorting order in {field}__asc or {field}__desc format. Valid fields: created_at, updated_at, phone_number, shopify_customer_id."
+        },
+        {
+          "name": "email__contains",
+          "type": "string",
+          "location": "query",
+          "description": "Email contains."
+        },
+        {
+          "name": "email__eq",
+          "type": "string",
+          "location": "query",
+          "description": "Email is equal to."
+        },
+        {
+          "name": "phone_number__contains",
+          "type": "string",
+          "location": "query",
+          "description": "Phone number contains."
+        },
+        {
+          "name": "phone_number__eq",
+          "type": "string",
+          "location": "query",
+          "description": "Phone number is equal to."
+        },
+        {
+          "name": "shopify_customer_id__eq",
+          "type": "string",
+          "location": "query",
+          "description": "Shopify customer id is equal to."
+        },
+        {
+          "name": "ps_id__eq",
+          "type": "int",
+          "location": "query",
+          "description": "Filters subscribers by their ps_id tracking ID."
+        },
+        {
+          "name": "created_at__gte",
+          "type": "string",
+          "location": "query",
+          "description": "Created at is greater than or equal to."
+        },
+        {
+          "name": "updated_at__gte",
+          "type": "string",
+          "location": "query",
+          "description": "Updated at is greater than or equal to."
+        }
+      ]
+    },
+    {
+      "name": "subscribers_update",
+      "description": "Updates data for a given subscriber. Required: id. Optional: email, properties, tags. Returns array of string.",
+      "method": "PATCH",
+      "path": "/api/v2/subscribers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the subscriber to update.",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email address for the subscriber."
+        },
+        {
+          "name": "properties",
+          "type": "object",
+          "location": "body",
+          "description": "Custom properties as key/value pairs."
+        },
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Tags to add to the subscriber."
+        }
+      ]
+    }
+  ]
+}

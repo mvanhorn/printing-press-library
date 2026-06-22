@@ -1,0 +1,10 @@
+{
+  "id": "fix-truncated-description",
+  "summary": "Replace truncated Postscript description metadata with a complete neutral description.",
+  "rationale": "Greptile flagged the generated description because it ended mid-URL and would be copied into the MCP manifest and registry metadata. The replacement avoids exposing broken install text to users.",
+  "files": [
+    ".printing-press.json",
+    "manifest.json"
+  ],
+  "upstream": "generator-input-polish-candidate"
+}

@@ -1,0 +1,382 @@
+openapi: 3.0.3
+info:
+  title: Postscript Partner API
+  version: "2.0"
+  description: >
+    Compact OpenAPI spec assembled from the official Postscript ReadMe endpoint
+    pages listed in https://developers.postscript.io/llms.txt.
+servers:
+  - url: https://api.postscript.io
+security:
+  - PostscriptApiKey: []
+tags:
+  - name: Subscribers
+    description: Subscriber lookup and profile updates.
+    x-pp-resource: subscribers
+  - name: Events
+    description: Custom event ingestion for flows.
+    x-pp-resource: events
+  - name: Compliance
+    description: Unsubscribe and redact compliance actions.
+    x-pp-resource: compliance
+paths:
+  /api/v2/subscribers:
+    get:
+      tags: [Subscribers]
+      operationId: listSubscribers
+      summary: Get Subscribers
+      description: Get a list of subscribers for a shop.
+      parameters:
+        - $ref: "#/components/parameters/PostscriptShopToken"
+        - name: page
+          in: query
+          description: Page number of results to start from.
+          schema:
+            type: integer
+            format: int32
+        - name: sort
+          in: query
+          description: "Sorting order in {field}__asc or {field}__desc format. Valid fields: created_at, updated_at, phone_number, shopify_customer_id."
+          schema:
+            type: string
+        - name: email__contains
+          in: query
+          description: Email contains.
+          schema:
+            type: string
+        - name: email__eq
+          in: query
+          description: Email is equal to.
+          schema:
+            type: string
+        - name: phone_number__contains
+          in: query
+          description: Phone number contains.
+          schema:
+            type: string
+        - name: phone_number__eq
+          in: query
+          description: Phone number is equal to.
+          schema:
+            type: string
+        - name: shopify_customer_id__eq
+          in: query
+          description: Shopify customer id is equal to.
+          schema:
+            type: string
+        - name: ps_id__eq
+          in: query
+          description: Filters subscribers by their ps_id tracking ID.
+          schema:
+            type: integer
+            format: int32
+        - name: created_at__gte
+          in: query
+          description: Created at is greater than or equal to.
+          schema:
+            type: string
+            format: date
+        - name: updated_at__gte
+          in: query
+          description: Updated at is greater than or equal to.
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Subscriber list.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubscriberListResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/v2/subscribers/{id}:
+    get:
+      tags: [Subscribers]
+      operationId: getSubscriber
+      summary: Get Subscriber
+      description: Get an individual subscriber for a shop.
+      parameters:
+        - $ref: "#/components/parameters/PostscriptShopToken"
+        - name: id
+          in: path
+          required: true
+          description: The ID for the subscriber to get.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Subscriber.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscriber"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+    patch:
+      tags: [Subscribers]
+      operationId: updateSubscriber
+      summary: Update Subscriber
+      description: Updates data for a given subscriber.
+      parameters:
+        - $ref: "#/components/parameters/PostscriptShopToken"
+        - name: id
+          in: path
+          required: true
+          description: ID of the subscriber to update.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscriberUpdateRequest"
+      responses:
+        "200":
+          description: Updated subscriber.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscriber"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/v2/events:
+    post:
+      tags: [Events]
+      operationId: createCustomEvent
+      summary: Create Custom Event
+      description: Send a custom event to use in Postscript flows.
+      parameters:
+        - $ref: "#/components/parameters/PostscriptShopToken"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomEventRequest"
+      responses:
+        "202":
+          description: Accepted custom event.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomEventResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/v2/compliance/unsubscribe:
+    patch:
+      tags: [Compliance]
+      operationId: unsubscribe
+      summary: Unsubscribe
+      description: Opts subscribers out of Postscript messaging.
+      parameters:
+        - $ref: "#/components/parameters/PostscriptShopToken"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UnsubscribeRequest"
+      responses:
+        "202":
+          description: Accepted unsubscribe request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/v2/compliance/redact:
+    patch:
+      tags: [Compliance]
+      operationId: redact
+      summary: Redact
+      description: >
+        Redacts subscriber data. When passed an email, phone number, Shopify
+        customer ID, or Postscript subscriber ID, this endpoint also unsubscribes
+        an active subscriber.
+      parameters:
+        - $ref: "#/components/parameters/PostscriptShopToken"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RedactRequest"
+      responses:
+        "202":
+          description: Accepted redaction request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+components:
+  securitySchemes:
+    PostscriptApiKey:
+      type: apiKey
+      in: header
+      name: Authorization
+      x-prefix: Bearer
+      x-auth-env-vars:
+        - POSTSCRIPT_API_KEY
+      x-auth-title: Postscript API key
+      x-auth-description: Postscript shop or partner API key.
+  parameters:
+    PostscriptShopToken:
+      name: X-Postscript-Shop-Token
+      in: header
+      description: Shop API token. Required for partners; shops should use the Authorization header instead.
+      required: false
+      schema:
+        type: string
+      x-auth-env-vars:
+        - POSTSCRIPT_SHOP_TOKEN
+  responses:
+    BadRequest:
+      description: Bad request.
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: true
+    Forbidden:
+      description: Access denied.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    SubscriberListResponse:
+      type: object
+      properties:
+        page_info:
+          type: object
+          properties:
+            page:
+              type: integer
+            total_pages:
+              type: integer
+        subscribers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Subscriber"
+    Subscriber:
+      type: object
+      properties:
+        id:
+          type: string
+        ps_id:
+          type: integer
+        email:
+          type: string
+        phone_number:
+          type: string
+        shopify_customer_id:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        data:
+          type: object
+          additionalProperties: true
+        properties:
+          type: object
+          additionalProperties: true
+        subscriptions:
+          type: object
+          additionalProperties: true
+        tags:
+          type: array
+          items:
+            type: string
+    SubscriberUpdateRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          description: Email address for the subscriber.
+        tags:
+          type: array
+          description: Tags to add to the subscriber.
+          items:
+            type: string
+        properties:
+          type: object
+          description: Custom properties as key/value pairs.
+          additionalProperties: true
+    CustomEventRequest:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+          description: Event type shown in Postscript flows.
+        subscriber_id:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        occurred_at:
+          type: string
+          description: "UTC timestamp in Postscript's supported format: %Y-%m-%d %H:%M:%S.%f."
+        properties:
+          type: object
+          additionalProperties: true
+        external_id:
+          type: string
+    CustomEventResponse:
+      type: object
+      properties:
+        event_ids:
+          type: array
+          items:
+            type: string
+    UnsubscribeRequest:
+      type: object
+      properties:
+        postscript_subscriber_id:
+          type: string
+        phone_number:
+          type: string
+    RedactRequest:
+      type: object
+      properties:
+        postscript_subscriber_id:
+          type: string
+        shopify_customer_id:
+          type: string
+        email:
+          type: string
+        phone_number:
+          type: string
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: OK
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items: {}
+              msg:
+                type: string
+              type:
+                type: string
