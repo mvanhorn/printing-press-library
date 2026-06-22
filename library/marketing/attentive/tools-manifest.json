@@ -1,0 +1,412 @@
+{
+  "api_name": "attentive",
+  "base_url": "https://api.attentivemobile.com",
+  "description": "For any questions, reach out to your Attentive point of contact (if applicable) or [api@attentivemobile.com](mailto:api@attentivemobile.com).",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "ATTENTIVE_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ATTENTIVE_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "bulk_get-job-status",
+      "description": "Checks the status of a bulk ingestion job identified by bulkJobId. This endpoint returns the current state of the job (e.g. `PENDING`, `IN_PROGRESS`, `COMPLETED`, `FAILED`) along with metadata such as timestamps and error messages if applicable. If the job has completed successfully, the response includes a downloadable link to a `.jsonl` (JSON Lines) file containing a record of each request and its corresponding response. User's can audit results or process downstream outcomes of the bulk operation. You can fetch requests up to 2 weeks old. Scopes Required: No Additional scopes required. Default Rate Limit: 100 requests per second.",
+      "method": "GET",
+      "path": "/v2/bulk/job/{bulkJobId}",
+      "params": [
+        {
+          "name": "bulkJobId",
+          "type": "string",
+          "location": "path",
+          "description": "id of the bulk job",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bulk_post-segment-members",
+      "description": "Add members to a segment in bulk. This endpoint accepts 1 to 10,000 members per request. Members are identified by email, phone number, and/or client user ID. The request is validated, queued for asynchronous processing, and a unique batch job ID is returned for tracking the status. **Request Limits:** - Minimum: 1 member per request - Maximum: 10,000 members per request - At least one identifier (email, phone, or clientUserId) required per member **Processing:** - Jobs are processed asynchronously - Use the batch job ID to check status via `GET /v2/bulk/job/{bulkJobId}` - Results available as downloadable `.jsonl` file when completed Scopes Required: [segments:all] Default Rate Limit: 100 requests per second.",
+      "method": "POST",
+      "path": "/v2/bulk/segments/members",
+      "params": [
+        {
+          "name": "externalId",
+          "type": "string",
+          "location": "body",
+          "description": "The external ID of the segment. This is the client-provided unique identifier for the segment, as defined when creating the segment via the Segment API.",
+          "required": true
+        },
+        {
+          "name": "members",
+          "type": "array",
+          "location": "body",
+          "description": "Array of segment members to add or remove. Each member must have at least one identifier (email, phone, or clientUserId). Minimum 1 member, maximum 10,000 members per request.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bulk_post-user-attributes",
+      "description": "This endpoint allows clients to submit multiple user attribute updates in bulk, accepting up to 256 payloads per request. Each request is validated, and a unique batch ID is returned for tracking the status of the batch. Scopes Required: [attributes:all, subscriptions:all] Default Rate Limit: 100 requests per second.",
+      "method": "POST",
+      "path": "/v2/bulk/user/attributes",
+      "params": [
+        {
+          "name": "users",
+          "type": "array",
+          "location": "body",
+          "description": "Array of user attribute records to submit (up to 256 users)."
+        }
+      ]
+    },
+    {
+      "name": "me_get-v2",
+      "description": "Make a call to this endpoint to test your unique token that you generate in the Attentive product. Returns the GetMeResponseDtoV2.",
+      "method": "GET",
+      "path": "/v2/me",
+      "params": []
+    },
+    {
+      "name": "segments_create",
+      "description": "Creates a new empty segment with the specified name and optional description. Scopes Required: [segments:Write] Default Rate Limit: 100 requests per second.",
+      "method": "POST",
+      "path": "/v2/segments",
+      "params": [
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Optional description of the segment. If not provided, defaults to 'Manual Segment Upload Public API V2'. When provided, cannot be empty or whitespace only and must be at least 2 characters. Leading and trailing whitespace will be trimmed."
+        },
+        {
+          "name": "externalId",
+          "type": "string",
+          "location": "body",
+          "description": "Auto generated if not supplied. Optional externalId set on the segment. Cannot be empty or whitespace only. Leading and trailing whitespace will be trimmed."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the segment. Cannot be empty or whitespace only. Leading and trailing whitespace will be trimmed.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_delete-by-external-id",
+      "description": "Archives (soft deletes) a segment by external ID. The segment will no longer be visible in list operations but can be restored if needed. Scopes Required: [segments:Write] Default Rate Limit: 100 requests per second. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/segments/external/{externalId}",
+      "params": [
+        {
+          "name": "externalId",
+          "type": "string",
+          "location": "path",
+          "description": "External ID of the segment to archive",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_get-by-external-id",
+      "description": "Retrieves segment details by external ID. Scopes Required: [segments:Read OR segments:Write] Default Rate Limit: 100 requests per second.",
+      "method": "GET",
+      "path": "/v2/segments/external/{externalId}",
+      "params": [
+        {
+          "name": "externalId",
+          "type": "string",
+          "location": "path",
+          "description": "External ID of the segment",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_list",
+      "description": "Lists segments with optional filtering by name, external ID, or update timestamp. Scopes Required: [segments:Read OR segments:Write] Default Rate Limit: 100 requests per second.",
+      "method": "GET",
+      "path": "/v2/segments",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by segment name (partial match). Cannot be empty or whitespace only."
+        },
+        {
+          "name": "externalId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by external ID. Cannot be empty or whitespace only."
+        },
+        {
+          "name": "updatedSince",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by segments updated since this timestamp (ISO 8601 format)"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor from previous response. Cannot be empty or whitespace only."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return (default 20, max 1000)"
+        }
+      ]
+    },
+    {
+      "name": "segments_patch-by-external-id",
+      "description": "Partially updates an existing segment. Only provided fields will be updated. Scopes Required: [segments:Write] Default Rate Limit: 100 requests per second. Partial update.",
+      "method": "PATCH",
+      "path": "/v2/segments/external/{externalId}",
+      "params": [
+        {
+          "name": "externalId",
+          "type": "string",
+          "location": "path",
+          "description": "External ID of the segment",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "The description of the segment. If provided, cannot be empty or whitespace only, must be at least 2 characters, and at most 500 characters. Leading and trailing whitespace will be trimmed. At least one field (name or description) must be provided for PATCH."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the segment. If provided, cannot be empty or whitespace only and must be at most 240 characters. Leading and trailing whitespace will be trimmed. At least one field (name or description) must be provided for PATCH."
+        }
+      ]
+    },
+    {
+      "name": "user_post-attributes",
+      "description": "Creates or updates a single user record, including associated attributes, subscriptions, and identifiers. If a user with the provided identifiers already exists, their information will be updated; otherwise, a new user will be created. There is a limit of 100 of custom attributes that can be created. If intending to update an existing attribute, the name of the key must match the name of the existing attribute. If an existing attribute does not exist, a new attribute will be created with the given key as the name. Attributes with enumerated values must have a value that matches an existing enum value; new enum values will not be created. Attempting to pass custom attributes as an array or a map such as `['New York City]` or `{'favorite city': 'Boston'}` will result in a 400 error. Default Rate Limit: 150 requests per second. Optional: attributes, identifiers, subscriptions. Returns the new Success.",
+      "method": "POST",
+      "path": "/v2/user/attributes",
+      "params": [
+        {
+          "name": "attributes-custom",
+          "wire_name": "attributes.custom",
+          "type": "object",
+          "location": "body",
+          "description": "A key-value object for custom attributes. Please use the correct primitive type for the value. DateTime strings must adhere to ISO-8601 format for proper recognition. The key will be assigned a type corresponding to the type seen of the first value. For example, if 'Age' is passed with the first value of '24', 'Age' will be typed as a 'Number'. There is no need to pass strings in double quotes. Both object keys and object values are case sensitive. 'Favorite color' and 'Favorite Color' would be considered different custom attributes."
+        },
+        {
+          "name": "attributes-demographic-age",
+          "wire_name": "attributes.demographic.age",
+          "type": "int",
+          "location": "body",
+          "description": "The user's age."
+        },
+        {
+          "name": "attributes-demographic-date-of-birth",
+          "wire_name": "attributes.demographic.dateOfBirth",
+          "type": "string",
+          "location": "body",
+          "description": "The user's date of birth in YYYY-MM-DD (ISO-8601 format)."
+        },
+        {
+          "name": "attributes-demographic-language",
+          "wire_name": "attributes.demographic.language",
+          "type": "string",
+          "location": "body",
+          "description": "The user's preferred language."
+        },
+        {
+          "name": "attributes-demographic-organization",
+          "wire_name": "attributes.demographic.organization",
+          "type": "string",
+          "location": "body",
+          "description": "The organization the user is associated with."
+        },
+        {
+          "name": "attributes-demographic-title",
+          "wire_name": "attributes.demographic.title",
+          "type": "string",
+          "location": "body",
+          "description": "The user's title (e.g., Mr, Ms, Dr)."
+        },
+        {
+          "name": "attributes-demographic-website",
+          "wire_name": "attributes.demographic.website",
+          "type": "string",
+          "location": "body",
+          "description": "The user's website URL."
+        },
+        {
+          "name": "attributes-first-name",
+          "wire_name": "attributes.firstName",
+          "type": "string",
+          "location": "body",
+          "description": "The user's first name."
+        },
+        {
+          "name": "attributes-last-name",
+          "wire_name": "attributes.lastName",
+          "type": "string",
+          "location": "body",
+          "description": "The user's last name."
+        },
+        {
+          "name": "attributes-locale-country",
+          "wire_name": "attributes.locale.country",
+          "type": "string",
+          "location": "body",
+          "description": "The user's country in ISO 3166-1 alpha-2 format."
+        },
+        {
+          "name": "attributes-locale-language",
+          "wire_name": "attributes.locale.language",
+          "type": "string",
+          "location": "body",
+          "description": "The preferred language in ISO 639-1 format."
+        },
+        {
+          "name": "attributes-location-address1",
+          "wire_name": "attributes.location.address1",
+          "type": "string",
+          "location": "body",
+          "description": "The first line of the address (e.g., street name and number)."
+        },
+        {
+          "name": "attributes-location-address2",
+          "wire_name": "attributes.location.address2",
+          "type": "string",
+          "location": "body",
+          "description": "The second line of the address (e.g., apartment or suite)."
+        },
+        {
+          "name": "attributes-location-city",
+          "wire_name": "attributes.location.city",
+          "type": "string",
+          "location": "body",
+          "description": "The city where the user is located."
+        },
+        {
+          "name": "attributes-location-country",
+          "wire_name": "attributes.location.country",
+          "type": "string",
+          "location": "body",
+          "description": "The country of the user provided in ISO-3166-1 format"
+        },
+        {
+          "name": "attributes-location-latitude",
+          "wire_name": "attributes.location.latitude",
+          "type": "string",
+          "location": "body",
+          "description": "The geographical latitude."
+        },
+        {
+          "name": "attributes-location-longitude",
+          "wire_name": "attributes.location.longitude",
+          "type": "string",
+          "location": "body",
+          "description": "The geographical longitude."
+        },
+        {
+          "name": "attributes-location-region",
+          "wire_name": "attributes.location.region",
+          "type": "string",
+          "location": "body",
+          "description": "The region of the user in ISO-3166-2 format"
+        },
+        {
+          "name": "attributes-location-state",
+          "wire_name": "attributes.location.state",
+          "type": "string",
+          "location": "body",
+          "description": "The state where the user is located."
+        },
+        {
+          "name": "attributes-location-timezone",
+          "wire_name": "attributes.location.timezone",
+          "type": "string",
+          "location": "body",
+          "description": "The user's timezone (e.g., EST)."
+        },
+        {
+          "name": "attributes-location-zip",
+          "wire_name": "attributes.location.zip",
+          "type": "string",
+          "location": "body",
+          "description": "The postal or ZIP code."
+        },
+        {
+          "name": "identifiers-client-user-id",
+          "wire_name": "identifiers.clientUserId",
+          "type": "string",
+          "location": "body",
+          "description": "Your own unique identifier to be associated with a user to be associated with a user through a phone, email, shopify id, klaviyo id, or custom identifier. Please do NOT put Shopify IDs or Klaviyo IDs here, there are dedicated fields for those identifiers. There is a 100-character limit."
+        },
+        {
+          "name": "identifiers-custom-identifiers",
+          "wire_name": "identifiers.customIdentifiers",
+          "type": "array",
+          "location": "body",
+          "description": "Custom identifiers"
+        },
+        {
+          "name": "identifiers-email",
+          "wire_name": "identifiers.email",
+          "type": "string",
+          "location": "body",
+          "description": "The user's email address."
+        },
+        {
+          "name": "identifiers-klaviyo-id",
+          "wire_name": "identifiers.klaviyoId",
+          "type": "string",
+          "location": "body",
+          "description": "The user's Klaviyo ID, if applicable."
+        },
+        {
+          "name": "identifiers-phone",
+          "wire_name": "identifiers.phone",
+          "type": "string",
+          "location": "body",
+          "description": "The user's phone number."
+        },
+        {
+          "name": "identifiers-shopify-id",
+          "wire_name": "identifiers.shopifyId",
+          "type": "string",
+          "location": "body",
+          "description": "The user's Shopify ID, if applicable."
+        },
+        {
+          "name": "subscriptions",
+          "type": "array",
+          "location": "body",
+          "description": "An array of subscription details, defining how the user prefers to receive communications. Notes: - A legal disclosure is required when a user is opted-in programmatically. - For marketing messages, required [legal language](https://docs.attentivemobile.com/pages/legal-docs/legal-disclosure-language/) must be included. - For transactional messages, you must include a [transactional opt-in unit](https://docs.attentivemobile.com/pages/legal-docs/legal-transactional/). - By default, if a subscription already exists, it will try and record the attempt to create the subscription again. For TEXT subscriptions, this may result in a message being sent to the person indicating that they are already subscribed. - Requests to opt-in subscribers must contain a sign-up source id. - The unique identifier of a sign-up source can be found in the Sign-up Units tab of the Attentive platform in the ID column. If this value is provided in the request, then this sign-up unit will be used for opting in the user in the request. - Callers of this endpoint have the option to omit `signUpSourceId` and, instead, provide both a `locale` and a `subscriptionType` (see below for field details). Given the locale and subscription type, Attentive will resolve any matching API opt-in units. To opt-in a user to a subscription without a `signUpSourceId` and exclusively based on locale and subscription type, there must be exactly one API sign-up unit that matches the provided locale and subscription type. Conversely, requests that contain a locale and a subscription type that do not have a corresponding sign-up unit or that have multiple matching sign-up units will receive a `400` response and will not opt a user into a subscription. - Phone numbers must be submitted in [e164 format](https://en.wikipedia.org/wiki/E.164). - valid examples: `+19148440001`, `+442071838750`, `+551155256325` - invalid examples: `19148440001`, `+1---914---844---0001`, `1 () 914 844 0001`"
+        }
+      ]
+    }
+  ]
+}
