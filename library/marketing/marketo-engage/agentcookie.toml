@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "marketo-engage-pp-cli"
+display_name = "Marketo Engage Read"
+description = "Read-first Adobe Marketo Engage REST API surface for leads, activities, campaigns, and marketing assets."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/marketo-engage-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+MARKETO_ENGAGE_BEARER_AUTH = true

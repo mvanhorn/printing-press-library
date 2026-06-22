@@ -1,0 +1,320 @@
+{
+  "api_name": "marketo-engage",
+  "base_url": "https://example.mktorest.com/rest",
+  "description": "Read-first Adobe Marketo Engage REST API surface for leads, activities, campaigns, and marketing assets.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "MARKETO_ENGAGE_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "MARKETO_ENGAGE_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "activities_list-activity-types",
+      "description": "List activity types. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/v1/activities/types.json",
+      "params": []
+    },
+    {
+      "name": "activities-json_list-activities",
+      "description": "List lead activities. Optional: activityTypeIds, nextPageToken. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/v1/activities.json",
+      "params": [
+        {
+          "name": "activityTypeIds",
+          "type": "string",
+          "location": "query",
+          "description": "Activity type ids"
+        },
+        {
+          "name": "nextPageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Next page token"
+        }
+      ]
+    },
+    {
+      "name": "asset_get-program",
+      "description": "Get a program by ID. Required: id. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/asset/v1/program/{id}.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "asset_list-emails",
+      "description": "List email assets. Optional: maxReturn, offset. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/asset/v1/emails.json",
+      "params": [
+        {
+          "name": "maxReturn",
+          "type": "int",
+          "location": "query",
+          "description": "Max return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "asset_list-folders",
+      "description": "List folders. Optional: maxReturn, offset. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/asset/v1/folders.json",
+      "params": [
+        {
+          "name": "maxReturn",
+          "type": "int",
+          "location": "query",
+          "description": "Max return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "asset_list-forms",
+      "description": "List form assets. Optional: maxReturn, offset. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/asset/v1/forms.json",
+      "params": [
+        {
+          "name": "maxReturn",
+          "type": "int",
+          "location": "query",
+          "description": "Max return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "asset_list-landing-pages",
+      "description": "List landing page assets. Optional: maxReturn, offset. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/asset/v1/landingPages.json",
+      "params": [
+        {
+          "name": "maxReturn",
+          "type": "int",
+          "location": "query",
+          "description": "Max return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "asset_list-programs",
+      "description": "List programs. Optional: maxReturn, offset. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/asset/v1/programs.json",
+      "params": [
+        {
+          "name": "maxReturn",
+          "type": "int",
+          "location": "query",
+          "description": "Max return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "asset_list-smart-lists",
+      "description": "List smart lists. Optional: maxReturn, offset. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/asset/v1/smartLists.json",
+      "params": [
+        {
+          "name": "maxReturn",
+          "type": "int",
+          "location": "query",
+          "description": "Max return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "campaign_get",
+      "description": "Get a smart campaign by ID. Required: id. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/v1/campaign/{id}.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns-json_list-campaigns",
+      "description": "List smart campaigns. Optional: batchSize, nextPageToken. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/v1/campaigns.json",
+      "params": [
+        {
+          "name": "batchSize",
+          "type": "int",
+          "location": "query",
+          "description": "Batch size"
+        },
+        {
+          "name": "nextPageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Next page token"
+        }
+      ]
+    },
+    {
+      "name": "lead_get",
+      "description": "Get a lead by ID. Required: id. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/v1/lead/{id}.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "leads-json_list-leads",
+      "description": "List or filter leads. Optional: filterType, filterValues, batchSize (plus 1 more). Returns the AnyObject.",
+      "method": "GET",
+      "path": "/v1/leads.json",
+      "params": [
+        {
+          "name": "filterType",
+          "type": "string",
+          "location": "query",
+          "description": "Filter type"
+        },
+        {
+          "name": "filterValues",
+          "type": "string",
+          "location": "query",
+          "description": "Filter values"
+        },
+        {
+          "name": "batchSize",
+          "type": "int",
+          "location": "query",
+          "description": "Batch size"
+        },
+        {
+          "name": "nextPageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Next page token"
+        }
+      ]
+    },
+    {
+      "name": "list_leads-json_list-leads-by-list",
+      "description": "List leads in a static list. Required: id. Optional: batchSize, nextPageToken. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/v1/list/{id}/leads.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "batchSize",
+          "type": "int",
+          "location": "query",
+          "description": "Batch size"
+        },
+        {
+          "name": "nextPageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Next page token"
+        }
+      ]
+    },
+    {
+      "name": "lists-json_list-static-lists",
+      "description": "List static lists. Optional: batchSize, nextPageToken. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/v1/lists.json",
+      "params": [
+        {
+          "name": "batchSize",
+          "type": "int",
+          "location": "query",
+          "description": "Batch size"
+        },
+        {
+          "name": "nextPageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Next page token"
+        }
+      ]
+    }
+  ]
+}
