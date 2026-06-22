@@ -1,0 +1,51 @@
+version: 2
+project_name: outreach-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: outreach-pp-cli
+    main: ./cmd/outreach-pp-cli
+    binary: outreach-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X outreach-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: outreach-pp-mcp
+    main: ./cmd/outreach-pp-mcp
+    binary: outreach-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: outreach-pp-cli
+    repository:
+      owner: debgotwired
+      name: homebrew-tap
+    homepage: "https://github.com/debgotwired/outreach-pp-cli"
+    description: "Read-first Outreach REST API surface for sales engagement, prospect, sequence, mailbox, and activity inspection."
+    install: |
+      bin.install "outreach-pp-cli"
+      bin.install "outreach-pp-mcp"

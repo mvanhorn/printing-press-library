@@ -1,0 +1,188 @@
+openapi: 3.0.3
+info:
+  title: Outreach Read API
+  version: 2.0.0
+  description: Read-first Outreach REST API surface for sales engagement, prospect, sequence, mailbox, and activity inspection.
+servers:
+  - url: https://api.outreach.io/api/v2
+security:
+  - BearerAuth: []
+tags:
+  - name: Accounts
+  - name: Prospects
+  - name: Sequences
+  - name: Activities
+  - name: Tasks
+  - name: Users
+  - name: Opportunities
+  - name: Mailboxes
+paths:
+  /accounts:
+    get:
+      operationId: listAccounts
+      tags: [Accounts]
+      summary: List Outreach accounts.
+      parameters:
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/PageNumber"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /accounts/{id}:
+    get:
+      operationId: getAccount
+      tags: [Accounts]
+      summary: Get an Outreach account.
+      parameters:
+        - $ref: "#/components/parameters/StringId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /prospects:
+    get:
+      operationId: listProspects
+      tags: [Prospects]
+      summary: List Outreach prospects.
+      parameters:
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/PageNumber"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /prospects/{id}:
+    get:
+      operationId: getProspect
+      tags: [Prospects]
+      summary: Get an Outreach prospect.
+      parameters:
+        - $ref: "#/components/parameters/StringId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /sequences:
+    get:
+      operationId: listSequences
+      tags: [Sequences]
+      summary: List Outreach sequences.
+      parameters:
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/PageNumber"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /sequenceStates:
+    get:
+      operationId: listSequenceStates
+      tags: [Sequences]
+      summary: List prospect sequence states.
+      parameters:
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/PageNumber"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /mailings:
+    get:
+      operationId: listMailings
+      tags: [Activities]
+      summary: List Outreach mailing activity.
+      parameters:
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/PageNumber"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /calls:
+    get:
+      operationId: listCalls
+      tags: [Activities]
+      summary: List Outreach calls.
+      parameters:
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/PageNumber"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /tasks:
+    get:
+      operationId: listTasks
+      tags: [Tasks]
+      summary: List Outreach tasks.
+      parameters:
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/PageNumber"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /opportunities:
+    get:
+      operationId: listOpportunities
+      tags: [Opportunities]
+      summary: List Outreach opportunities.
+      parameters:
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/PageNumber"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /users:
+    get:
+      operationId: listUsers
+      tags: [Users]
+      summary: List Outreach users.
+      parameters:
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/PageNumber"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /mailboxes:
+    get:
+      operationId: listMailboxes
+      tags: [Mailboxes]
+      summary: List Outreach mailboxes.
+      parameters:
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/PageNumber"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+  parameters:
+    StringId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    PageSize:
+      name: page[size]
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+    PageNumber:
+      name: page[number]
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+  responses:
+    Success:
+      description: Successful Outreach response.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: "#/components/schemas/AnyObject"
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AnyObject"
+  schemas:
+    AnyObject:
+      type: object
+      additionalProperties: true

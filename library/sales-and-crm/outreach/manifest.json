@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "outreach-pp-mcp",
+  "display_name": "Outreach Read",
+  "version": "0.0.0",
+  "description": "Read-first Outreach REST API surface for sales engagement, prospect, sequence, mailbox, and activity inspection.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/outreach-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/outreach-pp-mcp",
+      "args": [],
+      "env": {
+        "OUTREACH_BEARER_AUTH": "${user_config.outreach_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "outreach_bearer_auth": {
+      "type": "string",
+      "title": "OUTREACH_BEARER_AUTH",
+      "description": "Sets OUTREACH_BEARER_AUTH for the Outreach Read MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
