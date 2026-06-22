@@ -427,6 +427,10 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 	if v, ok := args["limit"].(float64); ok && v > 0 {
 		limit = int(v)
 	}
+	requestedLimit := limit
+	if limit > mcpToolResultMaxItems {
+		limit = mcpToolResultMaxItems
+	}
 
 	db, err := store.OpenReadOnly(dbPath())
 	if err != nil {
@@ -439,7 +443,28 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 		return mcplib.NewToolResultError(fmt.Sprintf("search failed: %v", err)), nil
 	}
 
-	return toolResultJSON(results)
+	truncated := requestedLimit > limit && len(results) == limit
+	return mcpSearchResult(results, truncated), nil
+}
+
+func mcpSearchResult(results []json.RawMessage, truncated bool) *mcplib.CallToolResult {
+	build := func(subset []json.RawMessage) any {
+		out := map[string]any{
+			"results":        subset,
+			"returned_count": len(subset),
+		}
+		if truncated || len(subset) < len(results) {
+			out["truncated"] = true
+			out["matched_count"] = len(results)
+			out["max_items"] = mcpToolResultMaxItems
+			out["max_bytes"] = mcpToolResultMaxBytes
+			out["note"] = "Search result exceeded the MCP tool result budget. Lower limit, narrow the query, or search a specific resource."
+		} else {
+			out["count"] = len(subset)
+		}
+		return out
+	}
+	return mcplib.NewToolResultText(string(mcpFitJSONItems(results, build)))
 }
 
 // validateReadOnlyQuery gates the MCP sql tool. The agent contract advertised

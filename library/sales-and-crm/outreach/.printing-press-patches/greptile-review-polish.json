@@ -1,7 +1,7 @@
 {
   "id": "greptile-review-polish",
-  "summary": "Apply Greptile review polish for local reads, analytics memory use, and auth source handling.",
-  "rationale": "The generated Outreach package opened local read paths through the read-write migration opener, grouped analytics after materialising all records, let AuthHeader mutate AuthSource while acting as a getter, and let MCP SQL results bypass the advertised item/byte caps. These changes align local reads with the MCP read-only path, stream group-by rows, keep AuthHeader side-effect free, and bound MCP SQL output.",
+  "summary": "Apply Greptile review polish for local reads, analytics memory use, auth source handling, and bounded MCP output.",
+  "rationale": "The generated Outreach package opened local read paths through the read-write migration opener, grouped analytics after materialising all records, let AuthHeader mutate AuthSource while acting as a getter, and let MCP SQL/search results bypass the advertised item/byte caps. These changes align local reads with the MCP read-only path, stream group-by rows, keep AuthHeader side-effect free, and bound MCP SQL/search output.",
   "files": [
     "internal/cli/data_source.go",
     "internal/cli/analytics.go",

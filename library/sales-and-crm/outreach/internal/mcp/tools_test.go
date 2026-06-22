@@ -307,6 +307,62 @@ func TestMCPToolResultTextBoundsOversizedNonGETResponses(t *testing.T) {
 	}
 }
 
+func TestHandleSearchBoundsResults(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	db, err := store.OpenWithContext(context.Background(), dbPath())
+	if err != nil {
+		t.Fatalf("open test store: %v", err)
+	}
+	items := make([]json.RawMessage, 0, mcpToolResultMaxItems+10)
+	for i := 0; i < mcpToolResultMaxItems+10; i++ {
+		items = append(items, json.RawMessage(fmt.Sprintf(`{"id":"prospect-%03d","name":"needle %s"}`, i, strings.Repeat("x", 256))))
+	}
+	if _, _, err := db.UpsertBatch("prospects", items); err != nil {
+		t.Fatalf("upsert test rows: %v", err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("close write store: %v", err)
+	}
+
+	result, err := handleSearch(context.Background(), mcplib.CallToolRequest{
+		Params: mcplib.CallToolParams{
+			Arguments: map[string]any{
+				"query": "needle",
+				"limit": float64(mcpToolResultMaxItems + 500),
+			},
+		},
+	})
+	if err != nil {
+		t.Fatalf("handleSearch returned error: %v", err)
+	}
+	text := mcpTextContent(t, result)
+	if len(text) > mcpToolResultMaxBytes {
+		t.Fatalf("search result length = %d, want <= %d", len(text), mcpToolResultMaxBytes)
+	}
+
+	var envelope struct {
+		Results       []json.RawMessage `json:"results"`
+		Truncated     bool              `json:"truncated"`
+		ReturnedCount int               `json:"returned_count"`
+		MaxItems      int               `json:"max_items"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("search result must remain valid JSON: %v\n%s", err, text)
+	}
+	if !envelope.Truncated {
+		t.Fatalf("search result did not mark truncation: %s", text)
+	}
+	if len(envelope.Results) > mcpToolResultMaxItems {
+		t.Fatalf("search returned %d results, want <= %d", len(envelope.Results), mcpToolResultMaxItems)
+	}
+	if envelope.ReturnedCount != len(envelope.Results) {
+		t.Fatalf("returned_count = %d, want result count %d", envelope.ReturnedCount, len(envelope.Results))
+	}
+	if envelope.MaxItems != mcpToolResultMaxItems {
+		t.Fatalf("max_items = %d, want %d", envelope.MaxItems, mcpToolResultMaxItems)
+	}
+}
+
 func TestHandleSQLBoundsRows(t *testing.T) {
 	t.Setenv("HOME", t.TempDir())
 	db, err := store.OpenWithContext(context.Background(), dbPath())
