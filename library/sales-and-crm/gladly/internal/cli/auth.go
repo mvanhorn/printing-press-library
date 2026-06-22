@@ -39,9 +39,9 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 			fmt.Fprintln(w, "No setup URL is configured for this CLI; check the API's docs.")
 			fmt.Fprintln(w, "")
 			fmt.Fprintln(w, "Then set:")
-			fmt.Fprintln(w, "  export GLADLY_USERNAME=\"<your-token>\"")
-			fmt.Fprintln(w, "  export GLADLY_PASSWORD=\"<your-token>\"")
-			fmt.Fprintln(w, "  gladly-pp-cli auth set-token <token>")
+			fmt.Fprintln(w, "  export GLADLY_USERNAME=\"<username>\"")
+			fmt.Fprintln(w, "  export GLADLY_PASSWORD=\"<password>\"")
+			fmt.Fprintln(w, "  gladly-pp-cli auth set-token <username> <password>")
 			if !launch {
 				return nil
 			}
@@ -90,8 +90,8 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintln(w, "")
 				fmt.Fprintln(w, "Set your token:")
 				fmt.Fprintln(w, "  export GLADLY_USERNAME=\"your-username\"")
-				fmt.Fprintln(w, "  export GLADLY_PASSWORD=\"your-token-here\"")
-				fmt.Fprintf(w, "  gladly-pp-cli auth set-token <token>\n")
+				fmt.Fprintln(w, "  export GLADLY_PASSWORD=\"your-password\"")
+				fmt.Fprintf(w, "  gladly-pp-cli auth set-token <username> <password>\n")
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
 
@@ -105,10 +105,10 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:     "set-token <token>",
-		Short:   "Save an API token to the config file",
-		Example: "  gladly-pp-cli auth set-token YOUR_TOKEN_HERE",
-		Args:    cobra.ExactArgs(1),
+		Use:     "set-token <username> <password>",
+		Short:   "Save a username and password to the config file",
+		Example: "  gladly-pp-cli auth set-token YOUR_USERNAME YOUR_PASSWORD",
+		Args:    cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
@@ -126,7 +126,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 			// AccessToken. Writing the token to AccessToken via SaveTokens
 			// would persist the bytes but leave doctor reporting "not
 			// configured" — the slot the header builder consults stays empty.
-			if err := cfg.SaveCredential(args[0]); err != nil {
+			if err := cfg.SaveCredential(args[0], args[1]); err != nil {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 
@@ -137,7 +137,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 					"config_path": cfg.Path,
 				}, flags)
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Token saved to %s\n", cfg.Path)
+			fmt.Fprintf(cmd.OutOrStdout(), "Credentials saved to %s\n", cfg.Path)
 			return nil
 		},
 	}

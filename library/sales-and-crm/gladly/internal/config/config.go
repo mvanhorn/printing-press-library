@@ -152,15 +152,15 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 	return c.save()
 }
 
-// SaveCredential persists a single API credential to the field that
-// AuthHeader() consults for api_key auth. Writing to AccessToken (the
-// bearer slot) would silently no-op since AuthHeader() reads the env-var-
-// derived field, not AccessToken, when Auth.Type == "api_key".
+// SaveCredential persists the Basic auth credential pair that AuthHeader()
+// consults. Gladly requires both username and password; storing just one value
+// would make AuthHeader return an empty string and leave requests
+// unauthenticated.
 //
 // The clears precede the assignment so a canonical env-var whose placeholder
 // collides with a builtin tag (e.g. an env var named XXX_ACCESS_TOKEN
 // resolving to the AccessToken field) ends up holding the new token.
-func (c *Config) SaveCredential(token string) error {
+func (c *Config) SaveCredential(username, password string) error {
 	c.AuthHeaderVal = ""
 	c.AccessToken = ""
 	// Pair each builtin-field zeroing with an envOverrides delete, like
@@ -171,9 +171,12 @@ func (c *Config) SaveCredential(token string) error {
 	delete(c.envOverrides, "AccessToken")
 	c.updateFileConfigField("AuthHeaderVal")
 	c.updateFileConfigField("AccessToken")
-	c.GladlyUsername = token
+	c.GladlyUsername = username
+	c.GladlyPassword = password
 	delete(c.envOverrides, "GladlyUsername")
+	delete(c.envOverrides, "GladlyPassword")
 	c.updateFileConfigField("GladlyUsername")
+	c.updateFileConfigField("GladlyPassword")
 	return c.save()
 }
 
