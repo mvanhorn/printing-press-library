@@ -743,21 +743,40 @@ func paginationTotalFromEnvelope(obj map[string]json.RawMessage) int {
 	if n := totalFromAttributes(obj); n > 0 {
 		return n
 	}
-	if len(obj) == 1 {
-		for _, raw := range obj {
-			var nested map[string]json.RawMessage
-			if json.Unmarshal(raw, &nested) == nil {
-				if n := totalFromAttributes(nested); n > 0 {
-					return n
-				}
-			}
+	// BGG declares the collection size as an attribute on the wrapper element,
+	// which can be one or two levels deep: plays -> {"@total": N}, but guild ->
+	// members -> {"@count": N}. Descend through nested objects (bounded) to find
+	// it. Only consumed by page-type/no-limit pagination (plays, guild), so an
+	// incidental count attribute elsewhere is never used to stop other commands.
+	return totalFromNestedObjects(obj, 3)
+}
+
+// totalFromNestedObjects searches nested object children (depth-bounded) for a
+// collection-total attribute.
+func totalFromNestedObjects(obj map[string]json.RawMessage, depth int) int {
+	if depth <= 0 {
+		return 0
+	}
+	for key, raw := range obj {
+		if strings.HasPrefix(key, "@") || key == "#text" {
+			continue
+		}
+		var child map[string]json.RawMessage
+		if json.Unmarshal(raw, &child) != nil {
+			continue
+		}
+		if n := totalFromAttributes(child); n > 0 {
+			return n
+		}
+		if n := totalFromNestedObjects(child, depth-1); n > 0 {
+			return n
 		}
 	}
 	return 0
 }
 
 func totalFromAttributes(obj map[string]json.RawMessage) int {
-	for _, key := range []string{"@total", "total", "totalCount", "total_count", "totalItems"} {
+	for _, key := range []string{"@total", "@count", "total", "totalCount", "total_count", "totalItems"} {
 		raw, ok := obj[key]
 		if !ok {
 			continue
@@ -936,6 +955,17 @@ func extractArrayItems(obj map[string]json.RawMessage) ([]json.RawMessage, bool)
 			if json.Unmarshal(arr, &nested) == nil {
 				return nested, true
 			}
+			// BGG nests the repeated element one level deeper inside the
+			// named collection field: {"members": {"@count": "N", "member":
+			// [...]}}. Unwrap that wrapper object to its repeated element —
+			// an array, or (BadgerFish-lite single-item collapse) a lone
+			// object returned as a one-item page.
+			var wrapper map[string]json.RawMessage
+			if json.Unmarshal(arr, &wrapper) == nil {
+				if items, ok := repeatedElementFromWrapper(wrapper); ok {
+					return items, true
+				}
+			}
 		}
 	}
 
@@ -953,6 +983,32 @@ func extractArrayItems(obj map[string]json.RawMessage) ([]json.RawMessage, bool)
 	}
 	if arrayCount == 1 {
 		return onlyArray, true
+	}
+	return nil, false
+}
+
+// repeatedElementFromWrapper extracts the repeated child of an XML collection
+// wrapper object such as BGG's {"@count": "N", "member": [...]}. It returns the
+// lone non-attribute array child, or — when the BadgerFish-lite mapper collapsed
+// a single occurrence to an object — that lone object as a one-item page.
+func repeatedElementFromWrapper(wrapper map[string]json.RawMessage) ([]json.RawMessage, bool) {
+	var onlyArray []json.RawMessage
+	arrayCount := 0
+	for key, raw := range wrapper {
+		if strings.HasPrefix(key, "@") || key == "#text" {
+			continue
+		}
+		var candidate []json.RawMessage
+		if json.Unmarshal(raw, &candidate) == nil {
+			onlyArray = candidate
+			arrayCount++
+		}
+	}
+	if arrayCount == 1 {
+		return onlyArray, true
+	}
+	if item, ok := loneChildObject(wrapper); ok {
+		return []json.RawMessage{item}, true
 	}
 	return nil, false
 }

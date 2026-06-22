@@ -170,3 +170,106 @@ func TestPaginationTotalFromEnvelope(t *testing.T) {
 		})
 	}
 }
+
+// fakeGuildClient serves BGG guild member pages: a two-level XML-normalized
+// wrapper {"guild": {"members": {"@count": "N", "member": [...]}}}.
+type fakeGuildClient struct {
+	pageItems map[string]int
+	total     int
+	calls     []string
+}
+
+func (f *fakeGuildClient) GetWithHeaders(_ context.Context, _ string, params map[string]string, _ map[string]string) (json.RawMessage, error) {
+	p := params["page"]
+	if p == "" || p == "0" {
+		p = "1"
+	}
+	f.calls = append(f.calls, p)
+	n := f.pageItems[p] // 0 for pages past the end
+	members := make([]string, n)
+	for i := range members {
+		members[i] = fmt.Sprintf(`{"@name":"u%s_%d"}`, p, i)
+	}
+	body := fmt.Sprintf(
+		`{"guild":{"@id":"42","members":{"@count":"%d","@page":"%s","member":[%s]}}}`,
+		f.total, p, strings.Join(members, ","),
+	)
+	return json.RawMessage(body), nil
+}
+
+// TestPaginatedGetGuildMembersWalksAllPages is the regression test for the
+// guild --all --members 1 bug: the two-level {"guild":{"members":{"@count","member":[...]}}}
+// wrapper must extract individual member records (not the members wrapper as a
+// single item) and recognize @count as the total so the walk stops exactly
+// instead of running to the 100-page cap.
+func TestPaginatedGetGuildMembersWalksAllPages(t *testing.T) {
+	fake := &fakeGuildClient{
+		total:     55,
+		pageItems: map[string]int{"1": 25, "2": 25, "3": 5},
+	}
+
+	data, err := paginatedGet(
+		context.Background(), fake, "/guild",
+		map[string]string{"page": "1"}, nil,
+		true, "page", "page", "", "", "",
+	)
+	if err != nil {
+		t.Fatalf("paginatedGet returned error: %v", err)
+	}
+	var items []json.RawMessage
+	if err := json.Unmarshal(data, &items); err != nil {
+		t.Fatalf("result is not an array: %v", err)
+	}
+	if len(items) != 55 {
+		t.Errorf("collected %d members, want 55", len(items))
+	}
+	// Each item must be an individual member record (has @name), not the
+	// members wrapper (which would carry @count/member).
+	for _, it := range items {
+		var m map[string]json.RawMessage
+		if json.Unmarshal(it, &m) != nil {
+			t.Fatalf("member is not an object: %s", it)
+		}
+		if _, isWrapper := m["member"]; isWrapper {
+			t.Fatalf("extracted the members wrapper instead of a member record: %s", it)
+		}
+		if _, ok := m["@name"]; !ok {
+			t.Errorf("member record missing @name: %s", it)
+		}
+	}
+	wantCalls := []string{"1", "2", "3"}
+	if strings.Join(fake.calls, ",") != strings.Join(wantCalls, ",") {
+		t.Errorf("fetched pages %v, want %v (should stop at @count total, not 100-page cap)", fake.calls, wantCalls)
+	}
+}
+
+// TestExtractPaginatedItemsGuildWrapper checks the two-level wrapper unwrap in
+// isolation, including the single-member BadgerFish collapse.
+func TestExtractPaginatedItemsGuildWrapper(t *testing.T) {
+	t.Run("multiple members", func(t *testing.T) {
+		var obj map[string]json.RawMessage
+		_ = json.Unmarshal([]byte(`{"members":{"@count":"3","member":[{"@name":"a"},{"@name":"b"},{"@name":"c"}]}}`), &obj)
+		items, ok := extractPaginatedItems(obj)
+		if !ok || len(items) != 3 {
+			t.Fatalf("got ok=%v len=%d, want ok=true len=3", ok, len(items))
+		}
+	})
+	t.Run("single member collapsed to object", func(t *testing.T) {
+		var obj map[string]json.RawMessage
+		_ = json.Unmarshal([]byte(`{"members":{"@count":"1","member":{"@name":"solo"}}}`), &obj)
+		items, ok := extractPaginatedItems(obj)
+		if !ok || len(items) != 1 {
+			t.Fatalf("got ok=%v len=%d, want ok=true len=1", ok, len(items))
+		}
+	})
+}
+
+// TestPaginationTotalNestedCount verifies @count nested inside a collection
+// wrapper (guild -> members -> @count) is found.
+func TestPaginationTotalNestedCount(t *testing.T) {
+	var obj map[string]json.RawMessage
+	_ = json.Unmarshal([]byte(`{"guild":{"@id":"42","members":{"@count":"55","member":[]}}}`), &obj)
+	if got := paginationTotalFromEnvelope(obj); got != 55 {
+		t.Errorf("total=%d, want 55", got)
+	}
+}
