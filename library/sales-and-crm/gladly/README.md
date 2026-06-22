@@ -87,7 +87,7 @@ To install:
 
 1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/gladly-current).
 2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `GLADLY_USERNAME` when Claude Desktop prompts you.
+3. Fill in `GLADLY_USERNAME` and `GLADLY_PASSWORD` when Claude Desktop prompts you.
 
 Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
 
@@ -109,7 +109,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
     "gladly": {
       "command": "gladly-pp-mcp",
       "env": {
-        "GLADLY_USERNAME": "<your-key>"
+        "GLADLY_USERNAME": "<your-username>",
+        "GLADLY_PASSWORD": "<your-password>"
       }
     }
   }
@@ -126,13 +127,18 @@ See [Install](#install) above.
 
 ### 2. Set Up Credentials
 
-Get your API key from your API provider's developer portal. The key typically looks like a long alphanumeric string.
+Get your API username and password from your API provider's developer portal.
 
 ```bash
-export GLADLY_USERNAME="<paste-your-key>"
+export GLADLY_USERNAME="<paste-your-username>"
+export GLADLY_PASSWORD="<paste-your-password>"
 ```
 
-You can also persist this in your config file at `~/.config/gladly-read-pp-cli/config.toml`.
+You can also persist this in your config file at `~/.config/gladly-pp-cli/config.toml`:
+
+```bash
+gladly-pp-cli auth set-token "<username>" "<password>"
+```
 
 ### 3. Verify Setup
 
@@ -254,7 +260,7 @@ Verifies configuration, credentials, and connectivity to the API.
 
 ## Configuration
 
-Config file: `~/.config/gladly-read-pp-cli/config.toml`
+Config file: `~/.config/gladly-pp-cli/config.toml`
 
 Static request headers can be configured under `headers`; per-command header overrides take precedence.
 
@@ -262,8 +268,8 @@ Environment variables:
 
 | Name | Kind | Required | Description |
 | --- | --- | --- | --- |
-| `GLADLY_USERNAME` | per_call | Yes |  |
-| `GLADLY_PASSWORD` | per_call | Yes | Set to your API credential. |
+| `GLADLY_USERNAME` | per_call | Yes | Gladly API username. |
+| `GLADLY_PASSWORD` | per_call | Yes | Gladly API password. |
 
 ### agentcookie (optional)
 
@@ -272,7 +278,7 @@ If you use agentcookie to sync secrets across machines, this CLI auto-adopts age
 ## Troubleshooting
 **Authentication errors (exit code 4)**
 - Run `gladly-pp-cli doctor` to check credentials
-- Verify the environment variable is set: `echo $GLADLY_USERNAME`
+- Verify both environment variables are set: `echo $GLADLY_USERNAME` and `test -n "$GLADLY_PASSWORD"`
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items

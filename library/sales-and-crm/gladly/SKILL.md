@@ -98,10 +98,15 @@ gladly-pp-cli which "<capability in your own words>"
 Run `gladly-pp-cli auth setup` to print the URL and steps for getting a key (add `--launch` to open the URL). Then set:
 
 ```bash
-export GLADLY_USERNAME="<your-key>"
+export GLADLY_USERNAME="<your-username>"
+export GLADLY_PASSWORD="<your-password>"
 ```
 
-Or persist it in `~/.config/gladly-read-pp-cli/config.toml`.
+Or persist them in `~/.config/gladly-pp-cli/config.toml`:
+
+```bash
+gladly-pp-cli auth set-token "<username>" "<password>"
+```
 
 Run `gladly-pp-cli doctor` to verify setup.
 
