@@ -54,6 +54,9 @@ Thumbs.db
 # Conductor workspace state
 .conductor/
 
+# Local Git worktrees
+.worktrees/
+
 # Local AI agent instructions (not for sharing)
 CLAUDE.local.md
 AGENTS.override.md
