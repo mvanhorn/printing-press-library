@@ -156,7 +156,6 @@ func writeAttributionCSV(outPath string, rows []store.PexelsDownload) error {
 	}
 	defer f.Close()
 	w := csv.NewWriter(f)
-	defer w.Flush()
 	if err := w.Write([]string{"media_id", "media_type", "photographer", "page_url", "attribution"}); err != nil {
 		return err
 	}
@@ -172,5 +171,6 @@ func writeAttributionCSV(outPath string, rows []store.PexelsDownload) error {
 			return err
 		}
 	}
+	w.Flush()
 	return w.Error()
 }
