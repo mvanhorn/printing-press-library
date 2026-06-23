@@ -6,6 +6,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"os"
 	"strings"
 	"testing"
 )
@@ -58,9 +60,9 @@ func TestPaginatedGetPageTypeWalksAllPages(t *testing.T) {
 	data, err := paginatedGet(
 		context.Background(), fake, "/plays",
 		map[string]string{"page": "1"}, nil,
-		true,    // fetchAll
-		"page",  // cursorParam
-		"page",  // paginationType
+		true,       // fetchAll
+		"page",     // cursorParam
+		"page",     // paginationType
 		"", "", "", // limitParam, nextCursorPath, hasMoreField
 	)
 	if err != nil {
@@ -88,11 +90,15 @@ func TestPaginatedGetPageTypeSinglePage(t *testing.T) {
 		"1": bggPlaysPage(1, 40, 40),
 	}}
 
-	data, err := paginatedGet(
-		context.Background(), fake, "/plays",
-		map[string]string{"page": "1"}, nil,
-		true, "page", "page", "", "", "",
-	)
+	var data json.RawMessage
+	var err error
+	stderr := captureStderr(t, func() {
+		data, err = paginatedGet(
+			context.Background(), fake, "/plays",
+			map[string]string{"page": "1"}, nil,
+			true, "page", "page", "", "", "",
+		)
+	})
 	if err != nil {
 		t.Fatalf("paginatedGet returned error: %v", err)
 	}
@@ -106,21 +112,41 @@ func TestPaginatedGetPageTypeSinglePage(t *testing.T) {
 	if len(fake.calls) != 1 {
 		t.Errorf("made %d fetches (%v), want 1", len(fake.calls), fake.calls)
 	}
+	if strings.Contains(stderr, "pagination_signal_missing") {
+		t.Fatalf("stderr = %q, want no false missing-pagination warning", stderr)
+	}
+}
+
+func TestPaginatedGetPageTypeSinglePageWithoutTotalWarns(t *testing.T) {
+	fake := &fakePagingClient{pages: map[string]json.RawMessage{
+		"1": json.RawMessage(`{"plays":{"@page":"1"}}`),
+	}}
+
+	stderr := captureStderr(t, func() {
+		_, _ = paginatedGet(
+			context.Background(), fake, "/plays",
+			map[string]string{"page": "1"}, nil,
+			true, "page", "page", "", "", "",
+		)
+	})
+	if !strings.Contains(stderr, "pagination_signal_missing") {
+		t.Fatalf("stderr = %q, want missing-pagination warning when no total/cursor signal exists", stderr)
+	}
 }
 
 // TestNextFullPagePageCursorGuards verifies the helper only advances page-type
 // pagination with no limit param, and respects the declared total.
 func TestNextFullPagePageCursorGuards(t *testing.T) {
 	cases := []struct {
-		name          string
-		paginationT   string
-		limitParam    string
-		itemCount     int
-		pageSize      int
-		collected     int
-		total         int
-		wantOK        bool
-		wantNextPage  string
+		name         string
+		paginationT  string
+		limitParam   string
+		itemCount    int
+		pageSize     int
+		collected    int
+		total        int
+		wantOK       bool
+		wantNextPage string
 	}{
 		{"page under total advances", "page", "", 100, 100, 100, 250, true, "2"},
 		{"page at total stops", "page", "", 50, 100, 250, 250, false, ""},
@@ -272,4 +298,30 @@ func TestPaginationTotalNestedCount(t *testing.T) {
 	if got := paginationTotalFromEnvelope(obj); got != 55 {
 		t.Errorf("total=%d, want 55", got)
 	}
+}
+
+func captureStderr(t *testing.T, fn func()) string {
+	t.Helper()
+
+	old := os.Stderr
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("os.Pipe: %v", err)
+	}
+	os.Stderr = w
+	defer func() {
+		os.Stderr = old
+		_ = r.Close()
+	}()
+
+	fn()
+
+	if err := w.Close(); err != nil {
+		t.Fatalf("close stderr pipe: %v", err)
+	}
+	out, err := io.ReadAll(r)
+	if err != nil {
+		t.Fatalf("read stderr pipe: %v", err)
+	}
+	return string(out)
 }

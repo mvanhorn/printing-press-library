@@ -566,6 +566,7 @@ func paginatedGet(ctx context.Context, c interface {
 	// (e.g. BoardGameGeek's XMLAPI2). Set from the first non-empty page and used
 	// by nextFullPagePageCursor to decide whether a full page implies more.
 	pageSize := 0
+	paginationHandled := false
 	for {
 		page++
 		if humanFriendly {
@@ -615,6 +616,9 @@ func paginatedGet(ctx context.Context, c interface {
 					pageSize = itemCount
 				}
 				envelopeTotal := paginationTotalFromEnvelope(obj)
+				if envelopeTotal > 0 && len(allItems) >= envelopeTotal {
+					paginationHandled = true
+				}
 
 				// Check for next cursor
 				if nextCursorPath != "" {
@@ -680,7 +684,7 @@ func paginatedGet(ctx context.Context, c interface {
 		break
 	}
 
-	if fetchAll && page == 1 && nextCursorPath == "" && hasMoreField == "" {
+	if fetchAll && page == 1 && nextCursorPath == "" && hasMoreField == "" && !paginationHandled {
 		emitMissingPaginationSignalWarning()
 	}
 	if humanFriendly {
