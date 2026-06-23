@@ -252,6 +252,18 @@ Resource scoping:
 				concurrency = 1
 			}
 
+			var draftExtraParams map[string]string
+			for _, resource := range resources {
+				if resource == "drafts" {
+					var err error
+					draftExtraParams, err = syncResourceExtraParams(cmd.Context(), c, flags, resource)
+					if err != nil {
+						return err
+					}
+					break
+				}
+			}
+
 			started := time.Now()
 			work := make(chan string, len(resources))
 			results := make(chan syncResult, len(resources))
@@ -262,10 +274,9 @@ Resource scoping:
 				go func() {
 					defer wg.Done()
 					for resource := range work {
-						extraParams, err := syncResourceExtraParams(cmd.Context(), c, flags, resource)
-						if err != nil {
-							results <- syncResult{Resource: resource, Err: err}
-							continue
+						var extraParams map[string]string
+						if resource == "drafts" {
+							extraParams = draftExtraParams
 						}
 						res := syncResource(cmd.Context(), c, db, resource, sinceTS, full, maxPages, effectiveLatestOnly, userParams, syncEventWriter, extraParams)
 						results <- res
@@ -513,6 +524,7 @@ func syncResource(ctx context.Context, c interface {
 	var extractFailureTotal int
 	var consumedTotal int
 	anomalyEmitted := false
+	publicationParamWarningEmitted := false
 
 	for {
 		params := map[string]string{}
@@ -521,6 +533,7 @@ func syncResource(ctx context.Context, c interface {
 				params[k] = v
 			}
 		}
+		basePublicationID := params["publication_id"]
 
 		if resourceSupportsPagination(resource) {
 			params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
@@ -538,6 +551,16 @@ func syncResource(ctx context.Context, c interface {
 		// win over spec-derived defaults (e.g. forcing mine=true on a list
 		// endpoint whose OpenAPI spec marks the filter optional).
 		userParams.applyTo(resource, params, false)
+		if resource == "drafts" && basePublicationID != "" && params["publication_id"] != basePublicationID && !publicationParamWarningEmitted {
+			msg := fmt.Sprintf("user-supplied publication_id %q overrides auto-resolved drafts publication_id %q", params["publication_id"], basePublicationID)
+			if !humanFriendly {
+				fmt.Fprintf(syncEvents, `{"event":"sync_warning","resource":"%s","reason":"publication_id_override","message":"%s"}`+"\n",
+					resource, strings.ReplaceAll(msg, `"`, `\"`))
+			} else {
+				fmt.Fprintf(os.Stderr, "  %s: warning: %s\n", resource, msg)
+			}
+			publicationParamWarningEmitted = true
+		}
 
 		data, err := c.Get(ctx, path, params)
 		if err != nil {

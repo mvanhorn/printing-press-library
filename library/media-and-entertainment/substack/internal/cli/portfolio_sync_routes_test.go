@@ -12,17 +12,26 @@ import (
 )
 
 type captureTransport struct {
-	url string
+	urls []string
 }
 
 func (t *captureTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	t.url = req.URL.String()
+	t.urls = append(t.urls, req.URL.String())
 	return &http.Response{
 		StatusCode: http.StatusOK,
 		Header:     make(http.Header),
-		Body:       io.NopCloser(strings.NewReader(`{"posts":[]}`)),
+		Body:       io.NopCloser(strings.NewReader(`[]`)),
 		Request:    req,
 	}, nil
+}
+
+func (t *captureTransport) firstDraftURL() string {
+	for _, u := range t.urls {
+		if strings.Contains(u, "/api/v1/drafts") {
+			return u
+		}
+	}
+	return ""
 }
 
 func TestPortfolioFetchDraftsUsesGlobalPublicationIDRoute(t *testing.T) {
@@ -33,7 +42,7 @@ func TestPortfolioFetchDraftsUsesGlobalPublicationIDRoute(t *testing.T) {
 
 	fetchDrafts(context.Background(), c, "7019888", io.Discard)
 
-	if got, want := transport.url, "https://substack.com/api/v1/drafts?publication_id=7019888"; got != want {
+	if got, want := transport.firstDraftURL(), "https://substack.com/api/v1/drafts?publication_id=7019888"; got != want {
 		t.Fatalf("fetchDrafts URL = %q, want %q", got, want)
 	}
 }
