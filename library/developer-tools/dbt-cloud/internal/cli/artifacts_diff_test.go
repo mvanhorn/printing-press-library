@@ -4,6 +4,7 @@ package cli
 
 import (
 	"math"
+	"strings"
 	"testing"
 )
 
@@ -114,5 +115,38 @@ func TestArtifactsDiffCommandAnnotations(t *testing.T) {
 	}
 	if cmd.Annotations["mcp:read-only"] != "true" {
 		t.Errorf("artifacts diff should be mcp:read-only=true, got %q", cmd.Annotations["mcp:read-only"])
+	}
+}
+
+func TestArtifactsDiffRejectsNonRunResults(t *testing.T) {
+	flags := &rootFlags{}
+	cmd := newNovelArtifactsDiffCmd(flags)
+	// Set flagArtifact to an unsupported artifact type
+	if err := cmd.Flags().Set("artifact", "catalog.json"); err != nil {
+		t.Fatalf("could not set --artifact flag: %v", err)
+	}
+	// Set --account-id so we get past earlier guards
+	if err := cmd.Flags().Set("account-id", "12345"); err != nil {
+		t.Fatalf("could not set --account-id flag: %v", err)
+	}
+	cmd.SetArgs([]string{"111", "222"})
+	err := cmd.RunE(cmd, []string{"111", "222"})
+	if err == nil {
+		t.Fatal("expected error for non-run_results.json artifact, got nil")
+	}
+	if !strings.Contains(err.Error(), "artifacts diff only supports run_results.json") {
+		t.Errorf("unexpected error message: %v", err)
+	}
+}
+
+func TestArtifactsDiffDefaultArtifactIsRunResults(t *testing.T) {
+	flags := &rootFlags{}
+	cmd := newNovelArtifactsDiffCmd(flags)
+	f := cmd.Flags().Lookup("artifact")
+	if f == nil {
+		t.Fatal("--artifact flag not found")
+	}
+	if f.DefValue != "run_results.json" {
+		t.Errorf("expected default artifact=run_results.json, got %q", f.DefValue)
 	}
 }

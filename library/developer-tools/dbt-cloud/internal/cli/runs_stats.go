@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"database/sql"
 	"fmt"
 	"math"
 	"os"
@@ -151,21 +152,25 @@ Use --job to filter to a single job definition ID.`,
 			}
 			defer rows.Close()
 
-			// Group rows by job_definition_id
+			// Group rows by job_definition_id.
+			// is_success and duration are NULL for in-progress runs; use sql.Null* to
+			// avoid Scan errors that would silently drop those rows from TotalRuns.
 			byJob := map[int64][]runsStatRow{}
 			for rows.Next() {
 				var jobDefID int64
-				var isSuccess int
-				var duration, createdAt string
+				var isSuccess sql.NullInt64
+				var duration, createdAt sql.NullString
 				if err := rows.Scan(&jobDefID, &isSuccess, &duration, &createdAt); err != nil {
 					continue
 				}
-				t, _ := time.Parse(time.RFC3339, createdAt)
+				t, _ := time.Parse(time.RFC3339, createdAt.String)
 				byJob[jobDefID] = append(byJob[jobDefID], runsStatRow{
 					JobDefinitionID: jobDefID,
-					IsSuccess:       isSuccess == 1,
-					DurationSec:     parseDurationToSeconds(duration),
-					CreatedAt:       t,
+					// NULL is_success → not a success (in-progress / unknown)
+					IsSuccess: isSuccess.Valid && isSuccess.Int64 == 1,
+					// NULL duration → 0, which computeJobStats already excludes from timing
+					DurationSec: parseDurationToSeconds(duration.String),
+					CreatedAt:   t,
 				})
 			}
 			if err := rows.Err(); err != nil {

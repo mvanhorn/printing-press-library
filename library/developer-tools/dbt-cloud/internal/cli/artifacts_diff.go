@@ -191,6 +191,12 @@ This command is read-only — it fetches artifact data from the live API.`,
 			}
 			runA, runB := args[0], args[1]
 
+			// artifacts diff only supports run_results.json — other artifacts lack
+			// a diffable results array and would silently produce empty output.
+			if flagArtifact != "run_results.json" {
+				return fmt.Errorf("artifacts diff only supports run_results.json, got %q", flagArtifact)
+			}
+
 			accountID := config.AccountID(flagAccountID)
 			if accountID == "" {
 				return usageErr(fmt.Errorf("account_id is required: pass --account-id or set DBT_CLOUD_ACCOUNT_ID"))
@@ -231,7 +237,7 @@ This command is read-only — it fetches artifact data from the live API.`,
 					} `json:"results"`
 				}
 				if err := json.Unmarshal(raw, &runResults); err != nil {
-					return nil, fmt.Errorf("parsing run_results.json for run %s: %w", runID, err)
+					return nil, fmt.Errorf("parsing %s for run %s: %w", flagArtifact, runID, err)
 				}
 				m := make(map[string]ModelResult, len(runResults.Results))
 				for _, r := range runResults.Results {
@@ -240,6 +246,9 @@ This command is read-only — it fetches artifact data from the live API.`,
 						Status:        r.Status,
 						ExecutionTime: r.ExecutionTime,
 					}
+				}
+				if len(m) == 0 {
+					fmt.Fprintf(cmd.ErrOrStderr(), "note: run %s has no model results in %s\n", runID, flagArtifact)
 				}
 				return m, nil
 			}

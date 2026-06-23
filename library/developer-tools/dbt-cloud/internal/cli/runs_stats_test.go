@@ -69,6 +69,38 @@ func TestComputeJobStats_MixedSuccess(t *testing.T) {
 	}
 }
 
+// TestComputeJobStats_NullableRows verifies that in-progress runs (NULL is_success,
+// NULL duration) still count in TotalRuns but not in SuccessCount or timing.
+func TestComputeJobStats_NullableRows(t *testing.T) {
+	rows := []runsStatRow{
+		// confirmed success with duration
+		{JobDefinitionID: 3, IsSuccess: true, DurationSec: 120, CreatedAt: time.Now()},
+		// in-progress: IsSuccess=false (NULL mapped to false), DurationSec=0 (NULL mapped to 0)
+		{JobDefinitionID: 3, IsSuccess: false, DurationSec: 0, CreatedAt: time.Now()},
+		// confirmed failure with duration
+		{JobDefinitionID: 3, IsSuccess: false, DurationSec: 60, CreatedAt: time.Now()},
+	}
+	s := computeJobStats(3, rows)
+	// All 3 rows must count in TotalRuns
+	if s.TotalRuns != 3 {
+		t.Errorf("expected TotalRuns=3 (including in-progress), got %d", s.TotalRuns)
+	}
+	// Only the confirmed success counts
+	if s.SuccessCount != 1 {
+		t.Errorf("expected SuccessCount=1, got %d", s.SuccessCount)
+	}
+	// SuccessRatePct is over total (3 rows), not just rows with non-null status
+	wantRate := math.Round(1.0/3.0*10000) / 100
+	if math.Abs(s.SuccessRatePct-wantRate) > 0.01 {
+		t.Errorf("expected SuccessRatePct=%.2f, got %.2f", wantRate, s.SuccessRatePct)
+	}
+	// Timing avg/p95 computed only over the 2 rows with DurationSec > 0
+	wantAvg := (120.0 + 60.0) / 2.0
+	if math.Abs(s.AvgDurationSec-wantAvg) > 0.01 {
+		t.Errorf("expected AvgDurationSec=%.2f (excluding zero-duration row), got %.2f", wantAvg, s.AvgDurationSec)
+	}
+}
+
 func TestParseDurationToSeconds(t *testing.T) {
 	cases := []struct {
 		input string
