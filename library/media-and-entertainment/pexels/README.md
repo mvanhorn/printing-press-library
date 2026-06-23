@@ -2,6 +2,9 @@
 
 **Every Pexels photo, video, and collection endpoint — plus a local store that adds quota forecasting, dedup-aware bulk download, and one-shot attribution exports no other Pexels tool has.**
 
+Created by [@vcolombo](https://github.com/vcolombo) (Vincent Colombo).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 A single binary for the full Pexels API: search and curated photos, video search and popular feeds, and collections including your own. It mirrors results into a local SQLite store so you can re-search offline, dedup downloads across sessions, forecast your rate budget, pick the best-fit resolution for a target, and export license-compliant attribution in one command.
 
 ## Install

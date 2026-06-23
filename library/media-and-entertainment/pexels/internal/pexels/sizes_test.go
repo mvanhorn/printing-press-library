@@ -54,6 +54,36 @@ func TestPickPhotoSizeEmpty(t *testing.T) {
 	}
 }
 
+func TestPickPhotoSizePortraitLargeRenditionsPreserveAspectRatio(t *testing.T) {
+	src := map[string]string{
+		"original": "https://images.pexels.com/orig.jpg",
+		"large2x":  "https://images.pexels.com/large2x.jpg",
+		"large":    "https://images.pexels.com/large.jpg",
+		"medium":   "https://images.pexels.com/medium.jpg",
+		"small":    "https://images.pexels.com/small.jpg",
+	}
+
+	label, _, w, h := PickPhotoSize(src, 1000, 2000, 800, 0)
+	if label != "original" {
+		t.Fatalf("label = %q, want original because portrait large/large2x are narrower than target", label)
+	}
+	if w != 1000 || h != 2000 {
+		t.Fatalf("dimensions = %dx%d, want 1000x2000", w, h)
+	}
+
+	candidates := photoCandidates(src, 1000, 2000)
+	got := map[string]SizeCandidate{}
+	for _, c := range candidates {
+		got[c.Label] = c
+	}
+	if got["large"].W != 325 || got["large"].H != 650 {
+		t.Fatalf("large = %dx%d, want 325x650", got["large"].W, got["large"].H)
+	}
+	if got["large2x"].W != 650 || got["large2x"].H != 1300 {
+		t.Fatalf("large2x = %dx%d, want 650x1300", got["large2x"].W, got["large2x"].H)
+	}
+}
+
 func TestPickVideoFile(t *testing.T) {
 	files := []VideoFile{
 		{Quality: "hls", Width: 0, Height: 0, Link: "manifest.m3u8"},

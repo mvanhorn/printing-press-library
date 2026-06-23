@@ -34,9 +34,9 @@ func photoCandidates(src map[string]string, photoW, photoH int) []SizeCandidate 
 		case "original":
 			w, h = photoW, photoH
 		case "large2x":
-			w, h = 1880, 1300
+			w, h = scaledToFit(photoW, photoH, 1880, 1300)
 		case "large":
-			w, h = 940, 650
+			w, h = scaledToFit(photoW, photoH, 940, 650)
 		case "medium":
 			h = 350
 			w = int(aspect * 350)
@@ -47,6 +47,16 @@ func photoCandidates(src map[string]string, photoW, photoH int) []SizeCandidate 
 		out = append(out, SizeCandidate{Label: label, URL: u, W: w, H: h})
 	}
 	return out
+}
+
+func scaledToFit(photoW, photoH, maxW, maxH int) (int, int) {
+	if photoW <= 0 || photoH <= 0 {
+		return maxW, maxH
+	}
+	if photoW*maxH > photoH*maxW {
+		return maxW, maxW * photoH / photoW
+	}
+	return maxH * photoW / photoH, maxH
 }
 
 // PickPhotoSize chooses the smallest photo rendition whose width and height
