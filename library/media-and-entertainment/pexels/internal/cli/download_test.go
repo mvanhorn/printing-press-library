@@ -8,6 +8,8 @@ import (
 	"io"
 	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/pexels/internal/store"
 )
 
 // TestNovelDownloadHelpWires smoke-tests that the download command
@@ -76,5 +78,25 @@ func TestNovelDownloadBehavior(t *testing.T) {
 				t.Fatalf("output %q does not contain %q", out.String(), tc.want)
 			}
 		})
+	}
+}
+
+func TestAttributionHTMLEscapesAPIValues(t *testing.T) {
+	rec := store.PexelsDownload{
+		MediaType:       "photo",
+		Photographer:    `Alice <script>alert("x")</script>`,
+		PhotographerURL: `https://example.com/photog?name="alice"&next=<bad>`,
+		PageURL:         `https://www.pexels.com/photo/1?ref="quoted"&x=<tag>`,
+	}
+	got := attributionHTML(rec, "")
+	for _, raw := range []string{`<script>`, `href="https://example.com/photog?name="alice"`, `href="https://www.pexels.com/photo/1?ref="quoted"`} {
+		if strings.Contains(got, raw) {
+			t.Fatalf("attributionHTML did not escape %q in %s", raw, got)
+		}
+	}
+	for _, escaped := range []string{`Alice &lt;script&gt;alert(&#34;x&#34;)&lt;/script&gt;`, `name=&#34;alice&#34;&amp;next=&lt;bad&gt;`, `ref=&#34;quoted&#34;&amp;x=&lt;tag&gt;`} {
+		if !strings.Contains(got, escaped) {
+			t.Fatalf("attributionHTML missing escaped value %q in %s", escaped, got)
+		}
 	}
 }

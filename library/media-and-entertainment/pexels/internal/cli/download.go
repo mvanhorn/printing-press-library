@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html"
 	"io"
 	"net/http"
 	"os"
@@ -418,11 +419,13 @@ func attributionHTML(rec store.PexelsDownload, attribution string) string {
 	if rec.MediaType == "video" {
 		kind = "Video"
 	}
-	name := rec.Photographer
+	pageURL := html.EscapeString(rec.PageURL)
+	photographer := html.EscapeString(rec.Photographer)
+	name := photographer
 	if rec.PhotographerURL != "" {
-		name = fmt.Sprintf(`<a href="%s">%s</a>`, rec.PhotographerURL, rec.Photographer)
+		name = fmt.Sprintf(`<a href="%s">%s</a>`, html.EscapeString(rec.PhotographerURL), photographer)
 	}
-	return fmt.Sprintf(`<a href="%s">%s by %s on Pexels</a>`, rec.PageURL, kind, name)
+	return fmt.Sprintf(`<a href="%s">%s by %s on Pexels</a>`, pageURL, html.EscapeString(kind), name)
 }
 
 func renderNameTemplate(tpl string, id int64, photographer, mediaType string) string {
