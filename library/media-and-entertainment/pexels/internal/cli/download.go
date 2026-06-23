@@ -203,7 +203,7 @@ func newNovelDownloadCmd(flags *rootFlags) *cobra.Command {
 					}
 					break
 				}
-				if stop || result.Scanned >= limit || nextPage == "" {
+				if stop || len(result.Downloaded) >= limit || nextPage == "" {
 					break pageLoop
 				}
 			}
@@ -243,7 +243,10 @@ func processPage(ctx context.Context, client *pexels.Client, db *sql.DB, body js
 		}
 		*nextPage = env.NextPage
 		for _, v := range env.Videos {
-			if result.Scanned >= limit {
+			// --limit bounds DOWNLOADS, not scans: dedup skips don't consume the
+			// budget, so a populated ledger still yields up to `limit` new files
+			// (scanning is bounded separately by --max-pages).
+			if len(result.Downloaded) >= limit {
 				return processed, true, nil
 			}
 			result.Scanned++
@@ -286,7 +289,8 @@ func processPage(ctx context.Context, client *pexels.Client, db *sql.DB, body js
 	}
 	*nextPage = env.NextPage
 	for _, p := range env.Photos {
-		if result.Scanned >= limit {
+		// --limit bounds DOWNLOADS, not scans (see the video loop above).
+		if len(result.Downloaded) >= limit {
 			return processed, true, nil
 		}
 		result.Scanned++

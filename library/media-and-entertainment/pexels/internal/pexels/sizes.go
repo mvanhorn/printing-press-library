@@ -15,7 +15,7 @@ type SizeCandidate struct {
 // photoSrcOrder lists the Pexels src keys whose pixel dimensions are derivable.
 // The portrait/landscape/tiny crops are excluded from resolution picking
 // because they change the aspect ratio (they are crops, not scaled copies).
-var photoSrcOrder = []string{"tiny", "small", "medium", "large", "large2x", "original"}
+var photoSrcOrder = []string{"small", "medium", "large", "large2x", "original"}
 
 // photoCandidates builds the resolution-ordered candidate list from a src map.
 func photoCandidates(src map[string]string, photoW, photoH int) []SizeCandidate {
@@ -43,8 +43,6 @@ func photoCandidates(src map[string]string, photoW, photoH int) []SizeCandidate 
 		case "small":
 			h = 130
 			w = int(aspect * 130)
-		case "tiny":
-			w, h = 280, 200
 		}
 		out = append(out, SizeCandidate{Label: label, URL: u, W: w, H: h})
 	}
