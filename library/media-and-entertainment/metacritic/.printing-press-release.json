@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "metacritic",
   "cli_name": "metacritic-pp-cli",
-  "version": "2026.6.1",
-  "released_at": "2026-06-19T03:51:04Z",
-  "source_commit": "eebd9b5edeb840c41d3760db51e31b863f1b2ae2",
+  "version": "2026.6.2",
+  "released_at": "2026-06-21T08:16:26Z",
+  "source_commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7",
   "printing_press_version": "4.24.0",
   "run_id": "20260616-232033",
   "changes": [
     {
-      "title": "feat(metacritic): add metacritic-pp-cli",
-      "pr": 1281,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1281",
-      "commit": "eebd9b5edeb840c41d3760db51e31b863f1b2ae2"
+      "title": "fix(catalog): require Go 1.26.4 across published modules",
+      "pr": 1308,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1308",
+      "commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7"
     }
   ]
 }

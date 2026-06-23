@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "mob-104-issues-create-state-validates-like-edit",
+  "applied_at": "2026-06-13",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "issues create must handle --state the same way issues edit does: reject a non-UUID --state as a usage error, resolve --state-name/--state-type against the issue's team, and work from a fresh local store when --team is passed as a human key.",
+  "reason": "Linear's issueCreate/issueUpdate take a stateId UUID. When only issues edit validated --state, 'issues create --state \"In Progress\"' sent the literal name as stateId and failed with an opaque API error, an asymmetry agents would re-hit. The two write surfaces must stay symmetric so the helpful 'use --state-name' error stays truthful on both. Agents also commonly start from unsynced workspaces, so create must resolve team keys live instead of requiring a pre-populated local team UUID before state-name lookup.",
+  "files": ["internal/cli/issues_create.go", "internal/cli/workflow_states.go"],
+  "validated_outcome": "issues create --state with a non-UUID is a code-2 usage error before any network call; issues create --state-name resolves to the team's workflow-state UUID and sends it as stateId; issues create --team MOB --state-name works with an empty local store by resolving the team key live before issueCreate."
+}

@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.6.2"
+var version = "2026.6.3"
 var noColor bool
 
 type rootFlags struct {

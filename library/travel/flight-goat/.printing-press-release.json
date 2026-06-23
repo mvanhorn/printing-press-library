@@ -2,16 +2,16 @@
   "schema_version": 1,
   "slug": "flight-goat",
   "cli_name": "flight-goat-pp-cli",
-  "version": "2026.6.3",
-  "released_at": "2026-06-17T07:24:49Z",
-  "source_commit": "3eb79e729ee8ecb224a83ed8738aa242296dd642",
+  "version": "2026.6.4",
+  "released_at": "2026-06-21T08:16:26Z",
+  "source_commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7",
   "printing_press_version": "3.6.0",
   "changes": [
     {
-      "title": "fix(flight-goat): fall back to server-rendered HTML when Google gates the flights RPC",
-      "pr": 1148,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1148",
-      "commit": "3eb79e729ee8ecb224a83ed8738aa242296dd642"
+      "title": "fix(catalog): require Go 1.26.4 across published modules",
+      "pr": 1308,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1308",
+      "commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7"
     }
   ]
 }

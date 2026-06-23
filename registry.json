@@ -379,6 +379,10 @@
         {
           "handle": "tmchow",
           "name": "Trevin Chow"
+        },
+        {
+          "handle": "bobeglz",
+          "name": "bobe"
         }
       ],
       "mcp": {
@@ -4810,6 +4814,59 @@
       }
     },
     {
+      "name": "forgejo",
+      "category": "developer-tools",
+      "api": "Forgejo",
+      "description": "The `gh` for Forgejo — works with any instance, stores your data locally, and speaks Forgejo natively.",
+      "search_terms": [
+        "forgejo",
+        "forgejo-pp-cli",
+        "The `gh` for Forgejo — works with any instance, stores your data locally, and speaks Forgejo natively.",
+        "Multi-repo triage dashboard",
+        "issue dashboard",
+        "See all your open issues across every repo (and every Forgejo host) in one sorted table — no browser, no tab-switching.",
+        "Unified notification inbox (cross-host)",
+        "notification inbox",
+        "One inbox for all your Forgejo instances — Codeberg, company Forgejo, university instance — sorted by recency with a host column.",
+        "Runner health sweep (cross-org)",
+        "runner sweep",
+        "See the status of every Actions runner across all your orgs in one pass — flag offline runners, watch live with --watch.",
+        "Release changelog generation",
+        "release changelog",
+        "Auto-generate a grouped changelog between two tags from closed issues and merged PRs — label-grouped, markdown or JSON output.",
+        "Release upload with progress and retry",
+        "release upload",
+        "Upload release assets with a real progress bar, automatic retry on failure, and post-upload size verification — not silent curl.",
+        "Stale issue sweeper",
+        "issue sweep",
+        "Find issues with no activity past a threshold, label them, post a comment, and optionally close — with --dry-run and confirmation before acting.",
+        "PR review queue",
+        "pr queue",
+        "Your pending reviews across all repos in one view — PRs where you are a requested reviewer, with CI check status and approval counts.",
+        "CI check status summary",
+        "ci status",
+        "Pass/fail status of the latest CI run per repo (or per branch) across all watched repos, with --watch for live tailing."
+      ],
+      "path": "library/developer-tools/forgejo",
+      "printer": "jrimmer",
+      "printer_name": "jrimmer",
+      "mcp": {
+        "binary": "forgejo-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 491,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "FORGEJO_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "foxnews",
       "category": "media-and-entertainment",
       "api": "Fox News",
@@ -5053,6 +5110,80 @@
         "auth_type": "cookie",
         "env_vars": [],
         "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "gl-inet",
+      "category": "devices",
+      "api": "GL.iNet",
+      "description": "The first maintained CLI for GL.iNet travel routers — named config profiles, travel macros, and version-aware diagnostics no other GL.iNet tool ships.",
+      "search_terms": [
+        "gl-inet",
+        "GL.iNet",
+        "gl-inet-pp-cli",
+        "The first maintained CLI for GL.iNet travel routers — named config profiles, travel macros, and version-aware diagnostics no other GL.iNet tool ships.",
+        "Named config profile capture",
+        "snapshot save",
+        "Capture your whole router config as a named, reusable profile.",
+        "Version+model-gated restore",
+        "snapshot apply",
+        "Restore a saved profile, with a safety check that it matches this device.",
+        "Option-level config diff",
+        "snapshot diff",
+        "See exactly which settings a venue changed vs your standard config.",
+        "WiFi region diagnose + fix",
+        "wifi region diagnose",
+        "Find out why a foreign network is invisible and fix the regulatory domain in one command.",
+        "Venue onboarding macro",
+        "venue connect",
+        "One command to get online at a new venue: scan, region-check, join, and prep for captive portals.",
+        "VPN toggle + egress verify",
+        "vpn toggle",
+        "Start a VPN tunnel, arm the kill-switch, and confirm your public IP actually changed.",
+        "Connection fidelity / leak check",
+        "vpn verify",
+        "Verify the VPN is up and your connection isn't leaking: egress country, DNS leaks, and STUN/UDP (WebRTC-style) leaks.",
+        "Connectivity troubleshooter",
+        "troubleshoot",
+        "Diagnose why the router has no internet and get the exact fix command.",
+        "Source-uplink quality + improvements",
+        "uplink",
+        "Diagnose a weak/slow venue WiFi uplink and get ranked ways to improve it.",
+        "Doctor / capability probe",
+        "doctor",
+        "Report this router's model, firmware, OpenWrt/LuCI versions, reachable surfaces, and per-feature availability.",
+        "Current-config summary",
+        "config summary",
+        "A structured, per-subsystem report of the router's current configuration.",
+        "Config option search",
+        "config find",
+        "Find any config option anywhere across the whole router config tree.",
+        "Raw passthrough escape hatch",
+        "rpc call",
+        "Call any GL RPC module/function or any UCI option directly.",
+        "WAN source switch",
+        "wan mode",
+        "Switch the router's WAN source and verify it reconnected."
+      ],
+      "path": "library/devices/gl-inet",
+      "printer": "paulbockewitz",
+      "printer_name": "Paul Bockewitz",
+      "creator": {
+        "handle": "paulbockewitz",
+        "name": "Paul Bockewitz"
+      },
+      "mcp": {
+        "binary": "gl-inet-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 6,
+        "public_tool_count": 6,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
         "spec_format": "internal"
       }
     },
@@ -7355,6 +7486,50 @@
       }
     },
     {
+      "name": "medium-reader",
+      "category": "media-and-entertainment",
+      "api": "Medium Reader",
+      "description": "Read any Medium author, publication, or tag as a local, full-text-searchable corpus.",
+      "search_terms": [
+        "medium-reader",
+        "Medium Reader",
+        "medium-reader-pp-cli",
+        "Read any Medium author, publication, or tag as a local, full-text-searchable corpus.",
+        "Author archive",
+        "author-archive",
+        "Mirror a writer's entire body of work into local SQLite, full-text searchable offline.",
+        "Corpus search",
+        "corpus",
+        "Full-text and regex search across everything you have synced locally (authors, publications, tags).",
+        "Author compare",
+        "author-compare",
+        "Compare two writers on output cadence, topic mix, and engagement (claps and voters per article) from locally archived data.",
+        "New-since digest",
+        "digest",
+        "A deduped, ranked 'what is new since last sync' across the authors, publications, and tags you have archived."
+      ],
+      "path": "library/media-and-entertainment/medium-reader",
+      "printer": "maxswinguy",
+      "printer_name": "Maxime Delavergne",
+      "creator": {
+        "handle": "maxswinguy",
+        "name": "Maxime Delavergne"
+      },
+      "mcp": {
+        "binary": "medium-reader-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 10,
+        "public_tool_count": 0,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "mercury",
       "category": "payments",
       "api": "Mercury",
@@ -7606,6 +7781,43 @@
       "creator": {
         "handle": "count",
         "name": "Count"
+      }
+    },
+    {
+      "name": "morgen",
+      "category": "productivity",
+      "api": "Morgen",
+      "description": "Morgen calendar & tasks API CLI — unified access to calendars, events, tasks, and tags across connected providers",
+      "search_terms": [
+        "morgen",
+        "morgen-pp-cli",
+        "Morgen calendar & tasks API CLI — unified access to calendars, events, tasks, and tags across connected providers",
+        "Daily Agenda",
+        "agenda",
+        "Unified chronological day view merging calendar events and due tasks across all connected accounts."
+      ],
+      "path": "library/productivity/morgen",
+      "printer": "nickscarabosio",
+      "printer_name": "Nick Scarabosio",
+      "contributors": [
+        {
+          "handle": "nickscarabosio",
+          "name": "Nick Scarabosio"
+        }
+      ],
+      "mcp": {
+        "binary": "morgen-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 21,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "MORGEN_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
       }
     },
     {
@@ -9117,6 +9329,52 @@
       "path": "library/developer-tools/pangolin",
       "printer": "CarlF01",
       "printer_name": "CFinney"
+    },
+    {
+      "name": "paul-graham",
+      "category": "media-and-entertainment",
+      "api": "Paul Graham Essays",
+      "description": "Static public essay index for paulgraham.com.",
+      "search_terms": [
+        "paul-graham",
+        "Paul Graham Essays",
+        "paul-graham-pp-cli",
+        "Static public essay index for paulgraham.com.",
+        "Latest Essays",
+        "latest",
+        "Lists the newest essays from the canonical paulgraham.com/articles.html index without requiring an official API or feed.",
+        "Essay Search",
+        "search",
+        "Searches essay titles and slugs, with an optional full-text mode that fetches and scans linked essay pages.",
+        "Read Essay",
+        "read",
+        "Fetches a specific essay by slug, URL, title, or title substring and returns extracted readable text with word count and excerpt metadata.",
+        "Essay Link Extractor",
+        "links",
+        "Extracts links from an essay page so agents can inspect citations, footnotes, and outbound references.",
+        "Random Essay",
+        "random",
+        "Picks a random essay from the live index, with deterministic seeding for reproducible agent workflows."
+      ],
+      "path": "library/media-and-entertainment/paul-graham",
+      "printer": "debgotwired",
+      "printer_name": "Deb Mukherjee",
+      "creator": {
+        "handle": "debgotwired",
+        "name": "Deb Mukherjee"
+      },
+      "mcp": {
+        "binary": "paul-graham-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 1,
+        "public_tool_count": 1,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
     },
     {
       "name": "pcgs",
@@ -12636,6 +12894,48 @@
         ],
         "mcp_ready": "full",
         "spec_format": "internal"
+      }
+    },
+    {
+      "name": "supermemory-admin",
+      "category": "productivity",
+      "api": "Supermemory",
+      "description": "The Memory API for the AI era",
+      "search_terms": [
+        "supermemory-admin",
+        "Supermemory",
+        "supermemory-admin-pp-cli",
+        "The Memory API for the AI era",
+        "Project-scoped Memory Admin",
+        "SUPERMEMORY_ADMIN_PROJECT=<project-id> supermemory-admin-pp-cli supermemory-recall",
+        "Scope every CLI and MCP request to one Supermemory project with the x-sm-project header, without hand-editing raw headers.",
+        "Recall Search for Agents",
+        "supermemory-recall",
+        "Run low-latency memory recall from a compact, agent-friendly CLI surface with selectable JSON output.",
+        "Local Memory Operations Cache",
+        "sync + search",
+        "Sync compatible Supermemory resources into local SQLite for offline search and inspection."
+      ],
+      "path": "library/productivity/supermemory-admin",
+      "printer": "hnshah",
+      "printer_name": "Hiten Shah",
+      "creator": {
+        "handle": "hnshah",
+        "name": "Hiten Shah"
+      },
+      "mcp": {
+        "binary": "supermemory-admin-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 36,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "SUPERMEMORY_ADMIN_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {

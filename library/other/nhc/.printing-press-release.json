@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "nhc",
   "cli_name": "nhc-pp-cli",
-  "version": "2026.6.1",
-  "released_at": "2026-06-16T15:54:12Z",
-  "source_commit": "a4c4eacc955175dbb115153592c4e9fa05d07bb2",
+  "version": "2026.6.2",
+  "released_at": "2026-06-21T08:16:26Z",
+  "source_commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7",
   "printing_press_version": "4.24.0",
   "run_id": "20260616-061237",
   "changes": [
     {
-      "title": "feat(nhc): add nhc",
-      "pr": 1231,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1231",
-      "commit": "a4c4eacc955175dbb115153592c4e9fa05d07bb2"
+      "title": "fix(catalog): require Go 1.26.4 across published modules",
+      "pr": 1308,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1308",
+      "commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7"
     }
   ]
 }

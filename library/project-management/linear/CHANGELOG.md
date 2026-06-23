@@ -2,6 +2,14 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.6.5 - 2026-06-22
+
+- fix(linear): require Go 1.26.4 for vuln-clean builds (#1297).
+
+## 2026.6.4 - 2026-06-21
+
+- feat(linear): support issue parent linking (#1284).
+
 ## 2026.6.3 - 2026-06-20
 
 - fix(linear): refresh issues search before duplicate checks (#1293).

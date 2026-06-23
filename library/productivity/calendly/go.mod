@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/productivity/calendly
 
-go 1.26
+go 1.26.4
 
 toolchain go1.26.4
 

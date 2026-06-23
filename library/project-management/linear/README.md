@@ -255,6 +255,15 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   linear-pp-cli issues create --title "Test ticket" --team ENG --trust-mode strict
   ```
+- **Parent and sub-issue linking** — Create child issues and set, change, or clear parent links without leaving the CLI for raw GraphQL.
+
+  _Reach for this when an agent is creating issue trees, epics, or follow-up hierarchies and needs parentage wired safely._
+
+  ```bash
+  linear-pp-cli issues create --title "Child task" --team ENG --parent ENG-123 --description-file /tmp/body.md --agent
+  linear-pp-cli issues edit ENG-124 --parent ENG-123 --agent
+  linear-pp-cli issues edit ENG-124 --no-parent --agent
+  ```
 - **Team-safe issue labels** — Discover labels that are valid for the target Linear team, including global labels, before creating or editing issues.
 
   _Reach for this before passing label UUIDs to `issues create` or `issues edit`; Linear rejects labels owned by another team, and the CLI now preflights label ownership before mutating._

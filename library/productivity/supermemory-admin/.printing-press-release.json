@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "supermemory-admin",
+  "cli_name": "supermemory-admin-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-21T22:17:14Z",
+  "source_commit": "d0b12f680f63dc08485a00c041b5c8011833f811",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260616-210632",
+  "changes": [
+    {
+      "title": "feat(supermemory-admin): add supermemory-admin",
+      "pr": 1242,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1242",
+      "commit": "d0b12f680f63dc08485a00c041b5c8011833f811"
+    }
+  ]
+}

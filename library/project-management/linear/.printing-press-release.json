@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "linear",
   "cli_name": "linear-pp-cli",
-  "version": "2026.6.3",
-  "released_at": "2026-06-20T05:17:46Z",
-  "source_commit": "a3ec0bc27ec6d4b84a1c93ff639925f1e8afad1c",
+  "version": "2026.6.5",
+  "released_at": "2026-06-22T21:39:05Z",
+  "source_commit": "6b4115592e47e2fd883bb4d26a934732151e071b",
   "printing_press_version": "4.9.0",
   "run_id": "20260518-232543",
   "changes": [
     {
-      "title": "fix(linear): refresh issues search before duplicate checks",
-      "pr": 1293,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1293",
-      "commit": "a3ec0bc27ec6d4b84a1c93ff639925f1e8afad1c"
+      "title": "fix(linear): require Go 1.26.4 for vuln-clean builds",
+      "pr": 1297,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1297",
+      "commit": "6b4115592e47e2fd883bb4d26a934732151e071b"
     }
   ]
 }

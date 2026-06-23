@@ -80,9 +80,11 @@ type SunoCookie struct {
 }
 
 // ReadSunoCookies returns every cookie on suno.com / auth.suno.com / .suno.com
-// from the user's Chrome store. Used once per profile to seed a dedicated
-// solver profile; the session then persists in that profile and this is not
-// called again. Returns an empty slice (not an error) when none are found.
+// from the user's Chrome store — the full jar, including the Clerk __client and
+// __session cookies. The captcha solver re-seeds from this on every solve so the
+// dedicated profile's session can never go stale (this is what keeps us clear of
+// paperfoot/suno-cli#3's popup); SunoStudioCookieHeader also reads it. Returns
+// an empty slice (not an error) when none are found.
 func ReadSunoCookies(ctx context.Context) ([]SunoCookie, error) {
 	raw := kooky.TraverseCookies(ctx, kooky.DomainHasSuffix("suno.com")).Collect(ctx)
 	out := make([]SunoCookie, 0, len(raw))

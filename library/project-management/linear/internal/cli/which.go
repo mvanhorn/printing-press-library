@@ -41,6 +41,8 @@ var whichIndex = []whichEntry{
 	{Command: "milestones at-risk", Description: "List portfolio milestones whose projected landing date has slipped past their target, ranked by slip magnitude.", Group: "Cross-entity rollups", WhyItMatters: "Reach for this in weekly portfolio review when the question is which milestone is most at risk, not which initiative is healthy."},
 	{Command: "pp-test list", Description: "List Linear issues this CLI created in the current or named session, then archive them with pp-cleanup.", Group: "Agent-native plumbing", WhyItMatters: "Reach for this when an agent needs to clean up only the tickets it created in a session — the workspace's existing data must not be touched."},
 	{Command: "issues create --trust-mode strict", Description: "Refuse mutations on Linear issues not in the local pp_created ledger when --trust-mode strict is set; works on create and any future mutation surface.", Group: "Agent-native plumbing", WhyItMatters: "Reach for this when running an agent against a real workspace with real data — strict mode makes accidental mutation impossible."},
+	{Command: "issues create --parent", Description: "Create a child issue under an existing parent issue using an issue identifier or UUID.", Group: "Agent-native plumbing", WhyItMatters: "Reach for this when agents need to create issue hierarchies without raw GraphQL."},
+	{Command: "issues edit --parent", Description: "Set issue parent, change issue parent, or clear issue parent links for sub-issue workflows.", Group: "Agent-native plumbing", WhyItMatters: "Reach for this when agents need to wire or unwind parent/sub-issue links without raw GraphQL."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.

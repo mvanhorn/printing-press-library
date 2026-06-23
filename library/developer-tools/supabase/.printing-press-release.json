@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "supabase",
   "cli_name": "supabase-pp-cli",
-  "version": "2026.6.2",
-  "released_at": "2026-06-18T05:23:36Z",
-  "source_commit": "04fee2451ddd9818e0a854a1a2b6c3047fec2c09",
+  "version": "2026.6.3",
+  "released_at": "2026-06-21T08:16:26Z",
+  "source_commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7",
   "printing_press_version": "4.5.1",
   "run_id": "20260512-165514",
   "changes": [
     {
-      "title": "fix(supabase): preserve auth token source",
-      "pr": 1278,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1278",
-      "commit": "04fee2451ddd9818e0a854a1a2b6c3047fec2c09"
+      "title": "fix(catalog): require Go 1.26.4 across published modules",
+      "pr": 1308,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1308",
+      "commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7"
     }
   ]
 }

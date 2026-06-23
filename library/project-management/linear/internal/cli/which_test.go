@@ -111,3 +111,13 @@ func TestWhichIndex_RoutesIssueSearchQueriesToIssuesSearch(t *testing.T) {
 		t.Fatalf("follow-up duplicate query should route to issues search, got %+v", got)
 	}
 }
+
+func TestWhichIndex_RoutesParentLinkingQueries(t *testing.T) {
+	got := rankWhich(whichIndex, "set issue parent", 1)
+	if len(got) == 0 {
+		t.Fatalf("expected a match for parent linking query")
+	}
+	if got[0].Entry.Command != "issues edit --parent" {
+		t.Fatalf("top match = %s, want issues edit --parent; matches=%+v", got[0].Entry.Command, got)
+	}
+}

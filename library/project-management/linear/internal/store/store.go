@@ -659,6 +659,16 @@ func (s *Store) ListTeams() ([]json.RawMessage, error) {
 	return s.queryJSON(`SELECT data FROM teams ORDER BY name, key`)
 }
 
+// ListWorkflowStates returns synced workflow states, optionally filtered by
+// team UUID. Ordered by position so board order is stable for agents picking
+// a target state.
+func (s *Store) ListWorkflowStates(teamID string) ([]json.RawMessage, error) {
+	if teamID != "" {
+		return s.queryJSON(`SELECT data FROM workflow_states WHERE team_id = ? ORDER BY position`, teamID)
+	}
+	return s.queryJSON(`SELECT data FROM workflow_states ORDER BY team_id, position`)
+}
+
 func (s *Store) ListUsers() ([]json.RawMessage, error) {
 	return s.queryJSON(`SELECT data FROM users ORDER BY active DESC, display_name, name, email`)
 }
@@ -668,6 +678,31 @@ func (s *Store) ListIssueLabels(limit int) ([]json.RawMessage, error) {
 		limit = 200
 	}
 	return s.queryJSON(`SELECT data FROM issue_labels ORDER BY COALESCE(team_key, ''), name LIMIT ?`, limit)
+}
+
+func (s *Store) ListIssueLabelsForTeam(limit int, team string, includeGlobal bool) ([]json.RawMessage, error) {
+	if limit <= 0 {
+		limit = 200
+	}
+	includeGlobalValue := 0
+	if includeGlobal {
+		includeGlobalValue = 1
+	}
+	return s.queryJSON(`SELECT data FROM issue_labels
+		WHERE lower(COALESCE(team_id, '')) = lower(?)
+			OR lower(COALESCE(team_key, '')) = lower(?)
+			OR lower(COALESCE(team_name, '')) = lower(?)
+			OR (? = 1
+				AND COALESCE(team_id, '') = ''
+				AND COALESCE(team_key, '') = ''
+				AND COALESCE(team_name, '') = '')
+		ORDER BY CASE
+				WHEN lower(COALESCE(team_id, '')) = lower(?)
+					OR lower(COALESCE(team_key, '')) = lower(?)
+					OR lower(COALESCE(team_name, '')) = lower(?)
+				THEN 0 ELSE 1 END,
+			COALESCE(team_key, ''), name
+		LIMIT ?`, team, team, team, includeGlobalValue, team, team, team, limit)
 }
 
 func (s *Store) GetByID(table string, id string) (json.RawMessage, error) {

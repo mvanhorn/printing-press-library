@@ -22,15 +22,25 @@ func newCommentsCmd(flags *rootFlags) *cobra.Command {
 
 func newCommentsListCmd(flags *rootFlags) *cobra.Command {
 	var issue string
+	var after string
 	var limit int
 	cmd := &cobra.Command{
-		Use:   "list",
+		Use:   "list [issue]",
 		Short: "List comments on an issue",
-		Example: `  linear-pp-cli comments list --issue ENG-123 --agent
+		Long: `List comments on an issue. The issue accepts an identifier (ENG-123) or UUID,
+positionally or via --issue; the positional form is the preferred agent shape.`,
+		Example: `  linear-pp-cli comments list ENG-123 --agent
   linear-pp-cli comments list --issue ENG-123 --limit 100 --select comments.id,comments.body`,
+		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) == 1 {
+				if issue != "" && issue != args[0] {
+					return usageErr(fmt.Errorf("conflicting issue references: positional %q vs --issue %q; pass just one", args[0], issue))
+				}
+				issue = args[0]
+			}
 			if issue == "" {
-				return usageErr(fmt.Errorf("--issue is required"))
+				return usageErr(fmt.Errorf("issue is required; pass it positionally (comments list ENG-123) or via --issue"))
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -43,10 +53,10 @@ func newCommentsListCmd(flags *rootFlags) *cobra.Command {
 			if limit <= 0 {
 				limit = 50
 			}
-			const query = `query($issueId: String!, $first: Int!) {
+			const query = `query($issueId: String!, $first: Int!, $after: String) {
 				issue(id: $issueId) {
 					id identifier title
-					comments(first: $first) {
+					comments(first: $first, after: $after) {
 						nodes {
 							id body createdAt updatedAt url quotedText
 							user { id name displayName email }
@@ -70,7 +80,11 @@ func newCommentsListCmd(flags *rootFlags) *cobra.Command {
 					} `json:"comments"`
 				} `json:"issue"`
 			}
-			if err := c.QueryInto(query, map[string]any{"issueId": issueID, "first": limit}, &resp); err != nil {
+			vars := map[string]any{"issueId": issueID, "first": limit, "after": nil}
+			if after != "" {
+				vars["after"] = after
+			}
+			if err := c.QueryInto(query, vars, &resp); err != nil {
 				return classifyAPIError(err, flags)
 			}
 			out, err := json.Marshal(map[string]any{
@@ -91,6 +105,7 @@ func newCommentsListCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&issue, "issue", "", "Issue identifier or UUID")
+	cmd.Flags().StringVar(&after, "after", "", "Cursor from pageInfo.endCursor for the next page")
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum comments to return")
 	return cmd
 }
@@ -180,7 +195,7 @@ for Markdown so shell snippets, backticks, and GraphQL variables stay literal.`,
 			}
 			comment, err := extractMutationObject(resp, "commentCreate", "comment")
 			if err != nil {
-				return err
+				return mediaUploadFailure(err, uploaded)
 			}
 			return renderLiveObject(cmd, flags, comment, "comments")
 		},
@@ -290,7 +305,7 @@ func newCommentsEditCmd(flags *rootFlags) *cobra.Command {
 			}
 			comment, err := extractMutationObject(resp, "commentUpdate", "comment")
 			if err != nil {
-				return err
+				return mediaUploadFailure(err, uploaded)
 			}
 			return renderLiveObject(cmd, flags, comment, "comments")
 		},

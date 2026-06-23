@@ -1,0 +1,24 @@
+{
+  "api_name": "paul-graham",
+  "run_id": "20260621-202701",
+  "generated_at": "2026-06-21T21:04:47Z",
+  "status": "passed",
+  "base_url": "https://www.paulgraham.com",
+  "checks": [
+    {
+      "name": "articles.html reachable",
+      "status": "passed",
+      "details": "curl -I -L --max-time 20 https://www.paulgraham.com/articles.html returned HTTP/2 200 with content-type text/html."
+    },
+    {
+      "name": "rss.html reachable",
+      "status": "passed",
+      "details": "curl -L --max-time 20 https://www.paulgraham.com/rss.html downloaded 6097 bytes; RSS exists but the CLI intentionally uses articles.html as the canonical full index."
+    },
+    {
+      "name": "native parser smoke",
+      "status": "passed",
+      "details": "latest/search/read/links commands were run against the live site and returned structured JSON."
+    }
+  ]
+}

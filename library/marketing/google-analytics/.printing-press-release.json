@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "google-analytics",
   "cli_name": "google-analytics-pp-cli",
-  "version": "2026.6.2",
-  "released_at": "2026-06-16T00:53:31Z",
-  "source_commit": "0b2c5701d74528313ea28d7137ebaecca16611f7",
+  "version": "2026.6.3",
+  "released_at": "2026-06-21T08:16:26Z",
+  "source_commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7",
   "printing_press_version": "4.20.1",
   "run_id": "ga4-20260612",
   "changes": [
     {
-      "title": "Improve catalog descriptions",
-      "pr": 1222,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1222",
-      "commit": "0b2c5701d74528313ea28d7137ebaecca16611f7"
+      "title": "fix(catalog): require Go 1.26.4 across published modules",
+      "pr": 1308,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1308",
+      "commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7"
     }
   ]
 }

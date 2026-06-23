@@ -152,6 +152,15 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   linear-pp-cli issues create --title "Test ticket" --team ENG --trust-mode strict
   ```
+- **Parent and sub-issue linking** — Create child issues and set, change, or clear parent links without leaving the CLI for raw GraphQL.
+
+  _Reach for this when an agent is creating issue trees, epics, or follow-up hierarchies and needs parentage wired safely._
+
+  ```bash
+  linear-pp-cli issues create --title "Child task" --team ENG --parent ENG-123 --description-file /tmp/body.md --agent
+  linear-pp-cli issues edit ENG-124 --parent ENG-123 --agent
+  linear-pp-cli issues edit ENG-124 --no-parent --agent
+  ```
 - **Team-safe issue labels** — Discover labels that are valid for the target Linear team, including global labels, before creating or editing issues.
 
   _Reach for this before passing label UUIDs to `issues create` or `issues edit`; Linear rejects labels owned by another team, and the CLI preflights label ownership before mutating._
@@ -176,11 +185,43 @@ These capabilities aren't available in any other tool for this API.
   ```
 
   `documents create` requires exactly one parent (`--issue`, `--project`, `--team`, `--initiative`, `--cycle`, `--release`, or `--folder`); `--team` accepts a key such as `ENG` or a UUID. `issues edit --media`, `comments edit --media`, and `documents edit --media` with no body/content flag fetch the existing Markdown live and append uploaded media links. Images become Markdown image embeds; non-images become Markdown links. Add `--media-public` only when the uploaded asset must be reachable outside the Linear workspace.
-- **Current issue reads and comments** — Read full issue bodies and discussion without falling back to stale local state.
+- **Current issue reads and comments** — Read full issue bodies and discussion without falling back to stale local state. `comments list` takes the issue positionally (preferred) or via `--issue`.
 
   ```bash
-  linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.name,url
-  linear-pp-cli comments list --issue ENG-123 --agent
+  linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.id,state.name,url
+  linear-pp-cli comments list ENG-123 --agent
+  linear-pp-cli comments list --issue ENG-123 --agent --limit 100
+  ```
+- **State transitions** — Move an issue between workflow states without raw SQL, GraphQL, or `api` spelunking. The exact recipe:
+
+  1. List the states for the issue's team: `workflow-states list --team <key>` (alias: `states list`).
+  2. Pick the target by `name` or `type` and copy its `id` UUID.
+  3. Pass that UUID to `issues edit --state`.
+
+  ```bash
+  linear-pp-cli workflow-states list --team ENG --agent --select id,name,type
+  linear-pp-cli issues edit ENG-123 --state <state-uuid> --agent
+  ```
+
+  Or skip the lookup entirely with one-command transitions resolved against the issue's own team:
+
+  ```bash
+  linear-pp-cli issues edit ENG-123 --state-name "In Progress" --agent
+  linear-pp-cli issues edit ENG-123 --state-type started --agent   # usage error if the team has several 'started' states
+  ```
+
+  `issues create` takes the same trio, resolved against `--team`, so an issue can open directly in the right state. `--state` requires a UUID (a non-UUID value is a usage error pointing at `--state-name`):
+
+  ```bash
+  linear-pp-cli issues create --title "..." --team ENG --state-name "In Progress" --agent
+  ```
+
+  Do not use `linear-pp-cli api` or `linear-pp-cli sql` for workflow states — `api` only exposes generated REST-shaped interfaces (currently `integrations`), not Linear GraphQL objects.
+- **Linear document reads** — `documents <ref>` accepts every identifier form Linear surfaces: the document UUID, the bare `slugId` (`f7f48ab36080`), the full URL slug (`my-runbook-f7f48ab36080`), or the entire document URL. Copy whichever you have; no slug trimming or parsing shims needed.
+
+  ```bash
+  linear-pp-cli documents my-runbook-f7f48ab36080 --agent --select title,updatedAt,content
+  linear-pp-cli documents "https://linear.app/<org>/document/my-runbook-f7f48ab36080" --agent
   ```
 
 ## Command Reference
@@ -298,6 +339,10 @@ These capabilities aren't available in any other tool for this API.
 
 - `linear-pp-cli users` — Get a single user
 
+**workflow-states** — List Linear workflow states (alias: `states`)
+
+- `linear-pp-cli workflow-states list --team ENG --agent --select id,name,type` — List a team's states with the UUIDs `issues edit --state` needs
+
 
 ### Finding the right command
 
@@ -310,6 +355,7 @@ linear-pp-cli which "<capability in your own words>"
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
 For duplicate checks, `linear-pp-cli which "search issues by text" --agent` should point to `issues search`; use that instead of inventing `issues search --help` fallbacks or raw SQL. If the local issue cache is stale, `issues search` refreshes it or fails with a typed freshness error; agents should not jump to raw GraphQL just because the cache was stale.
+For parent/sub-issue linking, `linear-pp-cli which "set issue parent" --agent` should point to `issues edit --parent`.
 
 ## Recipes
 
@@ -429,7 +475,13 @@ Every `issues create` records the new ticket in a local `pp_created` table tagge
 
 Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color --yes`.
 
-- **Pipeable** — JSON on stdout, errors on stderr
+- **Pipeable** — JSON on stdout. Failures are JSON too: in `--agent`/`--json` mode every typed error (usage, not-found, auth, API, rate-limit, config) is a one-line envelope on stdout, so piping stdout straight into a JSON parser is always safe:
+
+  ```json
+  {"error":"document \"missing-doc\" not found","code":3,"type":"not_found"}
+  ```
+
+  The process still exits with the typed code from the Exit Codes table; `type` is the machine-readable name for it (`usage`, `not_found`, `auth`, `api`, `partial_failure`, `rate_limit`, `config`). No `2>&1 | python json` defensive wrappers needed on read paths.
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
 
   ```bash

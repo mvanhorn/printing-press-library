@@ -853,6 +853,7 @@ func TestDocumentsEditUUIDTitleDoesNotFetchExistingDocument(t *testing.T) {
 }
 
 func TestCommentsListKeepsBodiesInAgentMode(t *testing.T) {
+	var seenAfter string
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var req client.GraphQLRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -864,6 +865,7 @@ func TestCommentsListKeepsBodiesInAgentMode(t *testing.T) {
 		case strings.Contains(req.Query, "issues(filter"):
 			fmt.Fprint(w, `{"data":{"issues":{"nodes":[{"id":"issue-uuid"}]}}}`)
 		case strings.Contains(req.Query, "comments(first"):
+			seenAfter, _ = req.Variables["after"].(string)
 			fmt.Fprint(w, `{"data":{"issue":{"id":"issue-uuid","identifier":"MOB-99","title":"Issue","comments":{"nodes":[{"id":"comment-1","body":"full comment body","createdAt":"2026-06-09T00:00:00Z","updatedAt":"2026-06-09T00:00:00Z","user":{"id":"user-1","name":"eric"}}],"pageInfo":{"hasNextPage":false,"endCursor":""}}}}}`)
 		default:
 			t.Errorf("unexpected query: %s", req.Query)
@@ -874,12 +876,77 @@ func TestCommentsListKeepsBodiesInAgentMode(t *testing.T) {
 	t.Setenv("LINEAR_BASE_URL", srv.URL)
 	t.Setenv("LINEAR_API_KEY", "test-token")
 
-	out, err := executeRootForTest("comments", "list", "--issue", "MOB-99", "--agent", "--data-source", "live")
+	out, err := executeRootForTest("comments", "list", "--issue", "MOB-99", "--after", "cursor-1", "--agent", "--data-source", "live")
 	if err != nil {
 		t.Fatalf("comments list failed: %v\n%s", err, out)
 	}
 	if !strings.Contains(out, "full comment body") {
 		t.Fatalf("agent output stripped comment body: %s", out)
+	}
+	if seenAfter != "cursor-1" {
+		t.Fatalf("comments list after cursor = %q, want cursor-1", seenAfter)
+	}
+}
+
+func TestDocumentsListSendsAfterCursor(t *testing.T) {
+	var seenAfter string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var req client.GraphQLRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			t.Errorf("decode request: %v", err)
+			http.Error(w, "bad request", http.StatusBadRequest)
+			return
+		}
+		if !strings.Contains(req.Query, "documents(first") {
+			t.Errorf("unexpected query: %s", req.Query)
+			http.Error(w, "unexpected query", http.StatusBadRequest)
+			return
+		}
+		seenAfter, _ = req.Variables["after"].(string)
+		fmt.Fprint(w, `{"data":{"documents":{"nodes":[{"id":"doc-1","title":"Runbook","slugId":"runbook-f7f48ab36080","url":"https://linear.app/acme/document/runbook-f7f48ab36080"}],"pageInfo":{"hasNextPage":false,"endCursor":""}}}}`)
+	}))
+	t.Cleanup(srv.Close)
+	t.Setenv("LINEAR_BASE_URL", srv.URL)
+	t.Setenv("LINEAR_API_KEY", "test-token")
+
+	out, err := executeRootForTest("documents", "list", "--after", "cursor-1", "--agent", "--data-source", "live")
+	if err != nil {
+		t.Fatalf("documents list failed: %v\n%s", err, out)
+	}
+	if seenAfter != "cursor-1" {
+		t.Fatalf("documents list after cursor = %q, want cursor-1", seenAfter)
+	}
+}
+
+func TestDocumentsListTeamKeyFilter(t *testing.T) {
+	var seenFilter map[string]any
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var req client.GraphQLRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			t.Errorf("decode request: %v", err)
+			http.Error(w, "bad request", http.StatusBadRequest)
+			return
+		}
+		if !strings.Contains(req.Query, "documents(first") {
+			t.Errorf("unexpected query: %s", req.Query)
+			http.Error(w, "unexpected query", http.StatusBadRequest)
+			return
+		}
+		seenFilter, _ = req.Variables["filter"].(map[string]any)
+		fmt.Fprint(w, `{"data":{"documents":{"nodes":[{"id":"doc-1","title":"Runbook","slugId":"runbook-f7f48ab36080","url":"https://linear.app/acme/document/runbook-f7f48ab36080","team":{"id":"team-symph","key":"SYMPH","name":"Symphony"}}],"pageInfo":{"hasNextPage":false,"endCursor":""}}}}`)
+	}))
+	t.Cleanup(srv.Close)
+	t.Setenv("LINEAR_BASE_URL", srv.URL)
+	t.Setenv("LINEAR_API_KEY", "test-token")
+
+	out, err := executeRootForTest("documents", "list", "--team", "SYMPH", "--agent", "--data-source", "live")
+	if err != nil {
+		t.Fatalf("documents list failed: %v\n%s", err, out)
+	}
+	teamFilter, _ := seenFilter["team"].(map[string]any)
+	keyFilter, _ := teamFilter["key"].(map[string]any)
+	if keyFilter == nil || keyFilter["eqIgnoreCase"] != "SYMPH" {
+		t.Fatalf("documents list team filter = %#v, want key eqIgnoreCase SYMPH", teamFilter)
 	}
 }
 
@@ -1030,6 +1097,24 @@ func TestLabelsListUsesLocalIssueLabelTable(t *testing.T) {
 	if envelope.Meta.Source != "local" {
 		t.Fatalf("local labels source = %q, want local: %s", envelope.Meta.Source, out)
 	}
+
+	out, err = executeRootForTest("labels", "list", "--team", "SYMPH", "--agent", "--data-source", "local", "--db", dbPath, "--select", "name,team.key", "--limit", "2")
+	if err != nil {
+		t.Fatalf("labels list local with limit failed: %v\n%s", err, out)
+	}
+	if !strings.Contains(out, `"pipeline-halt"`) {
+		t.Fatalf("local labels applied limit before team filter: %s", out)
+	}
+
+	t.Setenv("LINEAR_BASE_URL", "http://127.0.0.1:1")
+	t.Setenv("LINEAR_API_KEY", "test-token")
+	out, err = executeRootForTest("labels", "list", "--team", "SYMPH", "--agent", "--data-source", "auto", "--db", dbPath, "--select", "name,team.key", "--limit", "2")
+	if err != nil {
+		t.Fatalf("labels list auto fallback failed: %v\n%s", err, out)
+	}
+	if !strings.Contains(out, `"pipeline-halt"`) || !strings.Contains(out, `"api_unreachable"`) {
+		t.Fatalf("labels list auto did not fall back to local labels: %s", out)
+	}
 }
 
 func TestIssueCreateRejectsCrossTeamLabelBeforeMutation(t *testing.T) {
@@ -1042,8 +1127,8 @@ func TestIssueCreateRejectsCrossTeamLabelBeforeMutation(t *testing.T) {
 			return
 		}
 		switch {
-		case strings.Contains(req.Query, "issueLabel(id:"):
-			fmt.Fprint(w, `{"data":{"issueLabel":{"id":"label-hsui","name":"area:protocols","color":"#333","team":{"id":"team-hsui","key":"HSUI","name":"HS UI"}}}}`)
+		case strings.Contains(req.Query, "issueLabels(filter"):
+			fmt.Fprint(w, `{"data":{"issueLabels":{"nodes":[{"id":"label-hsui","name":"area:protocols","color":"#333","team":{"id":"team-hsui","key":"HSUI","name":"HS UI"}}]}}}`)
 		case strings.Contains(req.Query, "issueCreate"):
 			createCalled = true
 			http.Error(w, "issueCreate should not be called", http.StatusInternalServerError)
@@ -1271,7 +1356,7 @@ func TestMutationFailureAfterMediaUploadReportsAssetURL(t *testing.T) {
 				t.Errorf("encode fileUpload response: %v", err)
 			}
 		case strings.Contains(req.Query, "commentCreate"):
-			fmt.Fprint(w, `{"errors":[{"message":"mutation rejected"}]}`)
+			fmt.Fprint(w, `{"data":{"commentCreate":{"success":false,"comment":null}}}`)
 		default:
 			t.Errorf("unexpected query: %s", req.Query)
 			http.Error(w, "unexpected query", http.StatusBadRequest)
@@ -1288,8 +1373,15 @@ func TestMutationFailureAfterMediaUploadReportsAssetURL(t *testing.T) {
 	if got := ExitCode(err); got != 5 {
 		t.Fatalf("ExitCode() = %d, want 5; err=%v\n%s", got, err, out)
 	}
-	if !strings.Contains(err.Error(), assetURL) || !strings.Contains(out, assetURL) {
+	if !strings.Contains(err.Error(), assetURL) {
 		t.Fatalf("uploaded asset URL was not surfaced; err=%v\n%s", err, out)
+	}
+	// SilenceErrors moved error printing from cobra to finalizeError; assert
+	// the agent-mode envelope still carries the asset URL to the user.
+	var envelope bytes.Buffer
+	finalizeError(&rootFlags{agent: true, asJSON: true}, nil, &envelope, io.Discard, err)
+	if !strings.Contains(envelope.String(), assetURL) {
+		t.Fatalf("agent error envelope dropped the asset URL: %s", envelope.String())
 	}
 }
 
@@ -1337,6 +1429,421 @@ func TestIssuesCreateDryRunWithMediaDoesNotCallAPI(t *testing.T) {
 	}
 }
 
+func TestIssuesCreateDryRunWithParentDoesNotCallAPI(t *testing.T) {
+	calls := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		http.Error(w, "dry-run should not call API", http.StatusInternalServerError)
+	}))
+	t.Cleanup(srv.Close)
+	t.Setenv("LINEAR_BASE_URL", srv.URL)
+	t.Setenv("LINEAR_API_KEY", "test-token")
+
+	out, err := executeRootForTestWithStdout("issues", "create",
+		"--title", "Child",
+		"--team", "MOB",
+		"--parent", "MOB-123",
+		"--db", filepath.Join(t.TempDir(), "linear.db"),
+		"--dry-run",
+		"--agent")
+	if err != nil {
+		t.Fatalf("issues create --parent dry-run failed: %v\n%s", err, out)
+	}
+	if calls != 0 {
+		t.Fatalf("dry-run made %d API calls; output:\n%s", calls, out)
+	}
+	var preview struct {
+		Event string `json:"event"`
+		Input struct {
+			ParentID string `json:"parentId"`
+		} `json:"input"`
+	}
+	if err := json.Unmarshal([]byte(out), &preview); err != nil {
+		t.Fatalf("dry-run output is not JSON: %v\n%s", err, out)
+	}
+	if preview.Event != "would_create_issue" || preview.Input.ParentID != "MOB-123" {
+		t.Fatalf("dry-run output missing parent preview: %+v\n%s", preview, out)
+	}
+}
+
+func TestIssuesCreateDryRunWithBadParentValidatesLocally(t *testing.T) {
+	calls := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		http.Error(w, "dry-run should not call API", http.StatusInternalServerError)
+	}))
+	t.Cleanup(srv.Close)
+	t.Setenv("LINEAR_BASE_URL", srv.URL)
+	t.Setenv("LINEAR_API_KEY", "test-token")
+
+	out, err := executeRootForTestWithRenderedError("issues", "create",
+		"--title", "Child",
+		"--team", "MOB",
+		"--parent", "bad-format",
+		"--db", filepath.Join(t.TempDir(), "linear.db"),
+		"--dry-run",
+		"--agent")
+	if err == nil {
+		t.Fatalf("issues create --parent bad-format --dry-run succeeded unexpectedly:\n%s", out)
+	}
+	if got := ExitCode(err); got != 2 {
+		t.Fatalf("ExitCode() = %d, want 2; err=%v\n%s", got, err, out)
+	}
+	if !strings.Contains(out, `"type":"usage"`) || !strings.Contains(out, "--parent expects an issue identifier") {
+		t.Fatalf("bad parent dry-run did not render usage envelope:\n%s", out)
+	}
+	if calls != 0 {
+		t.Fatalf("dry-run made %d API calls; output:\n%s", calls, out)
+	}
+}
+
+func TestIssuesCreateWithParentResolvesIdentifierBeforeMutation(t *testing.T) {
+	const teamID = "00000000-0000-0000-0000-000000000001"
+	var sawParentLookup bool
+	var seenParentID string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var req client.GraphQLRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			t.Errorf("decode request: %v", err)
+			http.Error(w, "bad request", http.StatusBadRequest)
+			return
+		}
+		switch {
+		case strings.Contains(req.Query, "issues(filter"):
+			sawParentLookup = true
+			fmt.Fprint(w, `{"data":{"issues":{"nodes":[{"id":"parent-uuid"}]}}}`)
+		case strings.Contains(req.Query, "issueCreate"):
+			input, _ := req.Variables["input"].(map[string]any)
+			seenParentID, _ = input["parentId"].(string)
+			fmt.Fprint(w, `{"data":{"issueCreate":{"success":true,"issue":{"id":"child-uuid","identifier":"MOB-124","title":"Child","description":"","url":"https://linear.app/issue/MOB-124","priority":0,"createdAt":"2026-06-18T00:00:00Z","updatedAt":"2026-06-18T00:00:00Z","team":{"id":"00000000-0000-0000-0000-000000000001","key":"MOB"},"state":{"id":"state-1","name":"Todo","type":"unstarted"},"parent":{"id":"parent-uuid","identifier":"MOB-123","title":"Parent"}}}}}`)
+		default:
+			t.Errorf("unexpected query: %s", req.Query)
+			http.Error(w, "unexpected query", http.StatusBadRequest)
+		}
+	}))
+	t.Cleanup(srv.Close)
+	t.Setenv("LINEAR_BASE_URL", srv.URL)
+	t.Setenv("LINEAR_API_KEY", "test-token")
+
+	out, err := executeRootForTestWithStdout("issues", "create",
+		"--title", "Child",
+		"--team", teamID,
+		"--parent", "MOB-123",
+		"--db", filepath.Join(t.TempDir(), "linear.db"),
+		"--agent",
+		"--data-source", "live")
+	if err != nil {
+		t.Fatalf("issues create --parent failed: %v\n%s", err, out)
+	}
+	if !sawParentLookup {
+		t.Fatalf("parent identifier lookup was not performed")
+	}
+	if seenParentID != "parent-uuid" {
+		t.Fatalf("issueCreate parentId = %q, want parent-uuid", seenParentID)
+	}
+	var created struct {
+		Event    string `json:"event"`
+		ParentID string `json:"parentId"`
+		Parent   *struct {
+			ID         string `json:"id"`
+			Identifier string `json:"identifier"`
+			Title      string `json:"title"`
+		} `json:"parent"`
+	}
+	if err := json.Unmarshal([]byte(out), &created); err != nil {
+		t.Fatalf("issue_created output is not JSON: %v\n%s", err, out)
+	}
+	if created.Event != "issue_created" || created.ParentID != "parent-uuid" || created.Parent == nil || created.Parent.Identifier != "MOB-123" {
+		t.Fatalf("issue_created output missing parent details: %+v\n%s", created, out)
+	}
+}
+
+func TestIssuesCreateWithParentUUIDSkipsIdentifierLookup(t *testing.T) {
+	const teamID = "00000000-0000-0000-0000-000000000001"
+	const parentID = "00000000-0000-0000-0000-000000000123"
+	var seenParentID string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var req client.GraphQLRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			t.Errorf("decode request: %v", err)
+			http.Error(w, "bad request", http.StatusBadRequest)
+			return
+		}
+		if strings.Contains(req.Query, "issues(filter") {
+			t.Errorf("uuid parent should not trigger identifier lookup")
+			http.Error(w, "unexpected parent lookup", http.StatusBadRequest)
+			return
+		}
+		if !strings.Contains(req.Query, "issueCreate") {
+			t.Errorf("unexpected query: %s", req.Query)
+			http.Error(w, "unexpected query", http.StatusBadRequest)
+			return
+		}
+		input, _ := req.Variables["input"].(map[string]any)
+		seenParentID, _ = input["parentId"].(string)
+		fmt.Fprint(w, `{"data":{"issueCreate":{"success":true,"issue":{"id":"child-uuid","identifier":"MOB-124","title":"Child","description":"","url":"https://linear.app/issue/MOB-124","priority":0,"createdAt":"2026-06-18T00:00:00Z","updatedAt":"2026-06-18T00:00:00Z","team":{"id":"00000000-0000-0000-0000-000000000001","key":"MOB"},"state":{"id":"state-1","name":"Todo","type":"unstarted"},"parent":{"id":"00000000-0000-0000-0000-000000000123","identifier":"MOB-123","title":"Parent"}}}}}`)
+	}))
+	t.Cleanup(srv.Close)
+	t.Setenv("LINEAR_BASE_URL", srv.URL)
+	t.Setenv("LINEAR_API_KEY", "test-token")
+
+	out, err := executeRootForTestWithStdout("issues", "create",
+		"--title", "Child",
+		"--team", teamID,
+		"--parent", parentID,
+		"--db", filepath.Join(t.TempDir(), "linear.db"),
+		"--agent",
+		"--data-source", "live")
+	if err != nil {
+		t.Fatalf("issues create --parent uuid failed: %v\n%s", err, out)
+	}
+	if seenParentID != parentID {
+		t.Fatalf("issueCreate parentId = %q, want %s", seenParentID, parentID)
+	}
+}
+
+func TestIssuesEditParentAndNoParent(t *testing.T) {
+	t.Run("set parent", func(t *testing.T) {
+		var seenIssueID string
+		var seenParentID string
+		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			var req client.GraphQLRequest
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				t.Errorf("decode request: %v", err)
+				http.Error(w, "bad request", http.StatusBadRequest)
+				return
+			}
+			switch {
+			case strings.Contains(req.Query, "issues(filter"):
+				number, _ := req.Variables["number"].(float64)
+				switch number {
+				case 124:
+					fmt.Fprint(w, `{"data":{"issues":{"nodes":[{"id":"child-uuid"}]}}}`)
+				case 123:
+					fmt.Fprint(w, `{"data":{"issues":{"nodes":[{"id":"parent-uuid"}]}}}`)
+				default:
+					t.Errorf("unexpected issue lookup number: %v", number)
+					http.Error(w, "unexpected issue lookup", http.StatusBadRequest)
+				}
+			case strings.Contains(req.Query, "issueUpdate"):
+				seenIssueID, _ = req.Variables["id"].(string)
+				input, _ := req.Variables["input"].(map[string]any)
+				seenParentID, _ = input["parentId"].(string)
+				fmt.Fprint(w, `{"data":{"issueUpdate":{"success":true,"issue":{"id":"child-uuid","identifier":"MOB-124","title":"Child","description":"","url":"https://linear.app/issue/MOB-124","priority":0,"estimate":0,"dueDate":null,"createdAt":"2026-06-18T00:00:00Z","updatedAt":"2026-06-18T00:00:00Z","state":{"id":"state-1","name":"Todo","type":"unstarted"},"team":{"id":"team-1","key":"MOB","name":"Mobilyze"},"project":null,"assignee":null,"parent":{"id":"parent-uuid","identifier":"MOB-123","title":"Parent"},"children":{"nodes":[]}}}}}`)
+			default:
+				t.Errorf("unexpected query: %s", req.Query)
+				http.Error(w, "unexpected query", http.StatusBadRequest)
+			}
+		}))
+		t.Cleanup(srv.Close)
+		t.Setenv("LINEAR_BASE_URL", srv.URL)
+		t.Setenv("LINEAR_API_KEY", "test-token")
+
+		out, err := executeRootForTest("issues", "edit", "MOB-124", "--parent", "MOB-123", "--agent", "--data-source", "live")
+		if err != nil {
+			t.Fatalf("issues edit --parent failed: %v\n%s", err, out)
+		}
+		if seenIssueID != "child-uuid" {
+			t.Fatalf("issueUpdate id = %q, want child-uuid", seenIssueID)
+		}
+		if seenParentID != "parent-uuid" {
+			t.Fatalf("issueUpdate parentId = %q, want parent-uuid", seenParentID)
+		}
+	})
+
+	t.Run("clear parent", func(t *testing.T) {
+		const childID = "00000000-0000-0000-0000-000000000124"
+		parentIDSeen := false
+		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			var req client.GraphQLRequest
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				t.Errorf("decode request: %v", err)
+				http.Error(w, "bad request", http.StatusBadRequest)
+				return
+			}
+			if !strings.Contains(req.Query, "issueUpdate") {
+				t.Errorf("unexpected query: %s", req.Query)
+				http.Error(w, "unexpected query", http.StatusBadRequest)
+				return
+			}
+			input, _ := req.Variables["input"].(map[string]any)
+			value, ok := input["parentId"]
+			parentIDSeen = ok && value == nil
+			fmt.Fprint(w, `{"data":{"issueUpdate":{"success":true,"issue":{"id":"00000000-0000-0000-0000-000000000124","identifier":"MOB-124","title":"Child","description":"","url":"https://linear.app/issue/MOB-124","priority":0,"estimate":0,"dueDate":null,"createdAt":"2026-06-18T00:00:00Z","updatedAt":"2026-06-18T00:00:00Z","state":{"id":"state-1","name":"Todo","type":"unstarted"},"team":{"id":"team-1","key":"MOB","name":"Mobilyze"},"project":null,"assignee":null,"parent":null,"children":{"nodes":[]}}}}}`)
+		}))
+		t.Cleanup(srv.Close)
+		t.Setenv("LINEAR_BASE_URL", srv.URL)
+		t.Setenv("LINEAR_API_KEY", "test-token")
+
+		out, err := executeRootForTest("issues", "edit", childID, "--no-parent", "--agent", "--data-source", "live")
+		if err != nil {
+			t.Fatalf("issues edit --no-parent failed: %v\n%s", err, out)
+		}
+		if !parentIDSeen {
+			t.Fatalf("issueUpdate did not send parentId:null")
+		}
+	})
+}
+
+func TestIssuesEditDryRunWithParentOptionsDoesNotCallAPI(t *testing.T) {
+	calls := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		http.Error(w, "dry-run should not call API", http.StatusInternalServerError)
+	}))
+	t.Cleanup(srv.Close)
+	t.Setenv("LINEAR_BASE_URL", srv.URL)
+	t.Setenv("LINEAR_API_KEY", "test-token")
+
+	out, err := executeRootForTestWithStdout("issues", "edit",
+		"MOB-124",
+		"--parent", "MOB-123",
+		"--db", filepath.Join(t.TempDir(), "linear.db"),
+		"--dry-run",
+		"--agent")
+	if err != nil {
+		t.Fatalf("issues edit --parent dry-run failed: %v\n%s", err, out)
+	}
+	var parentPreview struct {
+		Event string `json:"event"`
+		Input struct {
+			ParentID string `json:"parentId"`
+		} `json:"input"`
+	}
+	if err := json.Unmarshal([]byte(out), &parentPreview); err != nil {
+		t.Fatalf("parent dry-run output is not JSON: %v\n%s", err, out)
+	}
+	if parentPreview.Event != "would_update_issue" || parentPreview.Input.ParentID != "MOB-123" {
+		t.Fatalf("parent dry-run output missing parent preview: %+v\n%s", parentPreview, out)
+	}
+
+	out, err = executeRootForTestWithStdout("issues", "edit",
+		"MOB-124",
+		"--no-parent",
+		"--db", filepath.Join(t.TempDir(), "linear.db"),
+		"--dry-run",
+		"--agent")
+	if err != nil {
+		t.Fatalf("issues edit --no-parent dry-run failed: %v\n%s", err, out)
+	}
+	var clearPreview struct {
+		Event string         `json:"event"`
+		Input map[string]any `json:"input"`
+	}
+	if err := json.Unmarshal([]byte(out), &clearPreview); err != nil {
+		t.Fatalf("clear dry-run output is not JSON: %v\n%s", err, out)
+	}
+	value, ok := clearPreview.Input["parentId"]
+	if clearPreview.Event != "would_update_issue" || !ok || value != nil {
+		t.Fatalf("clear dry-run output missing parentId:null preview: %+v\n%s", clearPreview, out)
+	}
+	if calls != 0 {
+		t.Fatalf("dry-runs made %d API calls", calls)
+	}
+}
+
+func TestIssuesEditDryRunWithBadParentValidatesLocally(t *testing.T) {
+	calls := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		http.Error(w, "dry-run should not call API", http.StatusInternalServerError)
+	}))
+	t.Cleanup(srv.Close)
+	t.Setenv("LINEAR_BASE_URL", srv.URL)
+	t.Setenv("LINEAR_API_KEY", "test-token")
+
+	out, err := executeRootForTestWithRenderedError("issues", "edit",
+		"MOB-124",
+		"--parent", "bad-format",
+		"--db", filepath.Join(t.TempDir(), "linear.db"),
+		"--dry-run",
+		"--agent")
+	if err == nil {
+		t.Fatalf("issues edit --parent bad-format --dry-run succeeded unexpectedly:\n%s", out)
+	}
+	if got := ExitCode(err); got != 2 {
+		t.Fatalf("ExitCode() = %d, want 2; err=%v\n%s", got, err, out)
+	}
+	if !strings.Contains(out, `"type":"usage"`) || !strings.Contains(out, "--parent expects an issue identifier") {
+		t.Fatalf("bad parent dry-run did not render usage envelope:\n%s", out)
+	}
+	if calls != 0 {
+		t.Fatalf("dry-run made %d API calls; output:\n%s", calls, out)
+	}
+}
+
+func TestIssuesEditParentFlagsAreMutuallyExclusive(t *testing.T) {
+	out, err := executeRootForTestWithRenderedError("issues", "edit",
+		"MOB-124",
+		"--parent", "MOB-123",
+		"--no-parent",
+		"--agent",
+		"--data-source", "live")
+	if err == nil {
+		t.Fatalf("issues edit --parent --no-parent succeeded unexpectedly:\n%s", out)
+	}
+	if got := ExitCode(err); got != 2 {
+		t.Fatalf("ExitCode() = %d, want 2; err=%v\n%s", got, err, out)
+	}
+	if !strings.Contains(out, `"type":"usage"`) || !strings.Contains(out, "pass either --parent or --no-parent") {
+		t.Fatalf("mutual exclusion did not render usage envelope:\n%s", out)
+	}
+}
+
+func TestIssueParentResolutionErrorsAreTyped(t *testing.T) {
+	out, err := executeRootForTestWithRenderedError("issues", "create",
+		"--title", "Child",
+		"--team", "00000000-0000-0000-0000-000000000001",
+		"--parent", "not-an-issue-ref",
+		"--db", filepath.Join(t.TempDir(), "linear.db"),
+		"--agent",
+		"--data-source", "live")
+	if err == nil {
+		t.Fatalf("bad parent reference succeeded unexpectedly:\n%s", out)
+	}
+	if got := ExitCode(err); got != 2 {
+		t.Fatalf("ExitCode() = %d, want 2; err=%v\n%s", got, err, out)
+	}
+	if !strings.Contains(out, `"type":"usage"`) {
+		t.Fatalf("bad parent did not render usage envelope:\n%s", out)
+	}
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var req client.GraphQLRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			t.Errorf("decode request: %v", err)
+			http.Error(w, "bad request", http.StatusBadRequest)
+			return
+		}
+		if !strings.Contains(req.Query, "issues(filter") {
+			t.Errorf("unexpected query: %s", req.Query)
+			http.Error(w, "unexpected query", http.StatusBadRequest)
+			return
+		}
+		fmt.Fprint(w, `{"data":{"issues":{"nodes":[]}}}`)
+	}))
+	t.Cleanup(srv.Close)
+	t.Setenv("LINEAR_BASE_URL", srv.URL)
+	t.Setenv("LINEAR_API_KEY", "test-token")
+
+	out, err = executeRootForTestWithRenderedError("issues", "create",
+		"--title", "Child",
+		"--team", "00000000-0000-0000-0000-000000000001",
+		"--parent", "MOB-404",
+		"--db", filepath.Join(t.TempDir(), "linear.db"),
+		"--agent",
+		"--data-source", "live")
+	if err == nil {
+		t.Fatalf("missing parent succeeded unexpectedly:\n%s", out)
+	}
+	if got := ExitCode(err); got != 3 {
+		t.Fatalf("ExitCode() = %d, want 3; err=%v\n%s", got, err, out)
+	}
+	if !strings.Contains(out, `"type":"not_found"`) {
+		t.Fatalf("missing parent did not render not_found envelope:\n%s", out)
+	}
+}
+
 func TestIssuesCreateValidatesLabelsBeforeUploadingMedia(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var req client.GraphQLRequest
@@ -1345,12 +1852,12 @@ func TestIssuesCreateValidatesLabelsBeforeUploadingMedia(t *testing.T) {
 			http.Error(w, "bad request", http.StatusBadRequest)
 			return
 		}
-		if !strings.Contains(req.Query, "issueLabel") {
+		if !strings.Contains(req.Query, "issueLabels(filter") {
 			t.Errorf("unexpected query before media upload: %s", req.Query)
 			http.Error(w, "unexpected query", http.StatusBadRequest)
 			return
 		}
-		fmt.Fprint(w, `{"data":{"issueLabel":{"id":"label-1","name":"area:protocols","color":"#333","team":{"id":"team-hsui","key":"HSUI","name":"HS UI"}}}}`)
+		fmt.Fprint(w, `{"data":{"issueLabels":{"nodes":[{"id":"label-1","name":"area:protocols","color":"#333","team":{"id":"team-hsui","key":"HSUI","name":"HS UI"}}]}}}`)
 	}))
 	t.Cleanup(srv.Close)
 	t.Setenv("LINEAR_BASE_URL", srv.URL)
@@ -1479,6 +1986,32 @@ func executeRootForTestWithInput(input string, args ...string) (string, error) {
 	cmd.SetArgs(args)
 	err := cmd.Execute()
 	return out.String(), err
+}
+
+// These helpers temporarily replace process stdout; do not use them in tests
+// that call t.Parallel.
+func executeRootForTestWithStdout(args ...string) (string, error) {
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	cmd.SetArgs(args)
+	stdout := os.Stdout
+	r, w, err := os.Pipe()
+	if err != nil {
+		return "", err
+	}
+	os.Stdout = w
+	cmdErr := cmd.Execute()
+	_ = w.Close()
+	os.Stdout = stdout
+	rendered, readErr := io.ReadAll(r)
+	_ = r.Close()
+	if readErr != nil {
+		return out.String(), readErr
+	}
+	return out.String() + string(rendered), cmdErr
 }
 
 func executeRootForTestWithInputAndRenderedError(input string, args ...string) (string, error) {

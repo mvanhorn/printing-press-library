@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.6.3"
+var version = "2026.6.5"
 
 type rootFlags struct {
 	asJSON        bool
@@ -82,13 +82,9 @@ func Execute() error {
 		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
 			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
 			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				// Cobra already printed `Error: unknown flag: --foob` before
-				// returning; the wrap below attaches the hint to err.Error()
-				// for downstream consumers and exit-code classification, but
-				// would never reach stderr now that main.go no longer prints
-				// err. Emit the hint explicitly so the suggestion still
-				// shows up under Cobra's error line.
-				fmt.Fprintf(os.Stderr, "hint: did you mean --%s?\n", suggestion)
+				// SilenceErrors is set, so finalizeError below is the single
+				// printer; wrapping puts the hint on both the human stderr
+				// line and the JSON envelope's "error" field.
 				err = fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
 			}
 		}
@@ -108,13 +104,7 @@ func Execute() error {
 		// usage errors that the helpers.go contract already promises.
 		err = usageErr(err)
 	}
-	if err != nil {
-		if flags.asJSON && !flags.errorWritten {
-			writeCLIErrorEnvelope(&flags, err, ExitCode(err))
-		} else if !flags.asJSON {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		}
-	}
+	finalizeError(&flags, os.Args[1:], os.Stdout, os.Stderr, err)
 	return err
 }
 
@@ -180,6 +170,7 @@ Highlights (not in the official API docs):
   • milestones at-risk   List portfolio milestones whose projected landing date has slipped past their target, ranked by slip magnitude.
   • pp-test list   List Linear issues this CLI created in the current or named session, then archive them with pp-cleanup.
   • issues create --trust-mode strict   Refuse mutations on Linear issues not in the local pp_created ledger when --trust-mode strict is set; works on create and any future mutation surface.
+  • issues create/edit --parent   Create, set, change, or clear Linear parent/sub-issue links without raw GraphQL.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'linear-pp-cli doctor' to verify auth and connectivity.
@@ -316,6 +307,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 
 	// v3-ported top-level commands
 	rootCmd.AddCommand(newIssuesCmd(flags))
+	rootCmd.AddCommand(newWorkflowStatesCmd(flags))
 	rootCmd.AddCommand(newCommentsCmd(flags))
 	rootCmd.AddCommand(newDocumentsCmd(flags))
 	rootCmd.AddCommand(newLabelsCmd(flags))

@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "tella",
   "cli_name": "tella-pp-cli",
-  "version": "2026.6.2",
-  "released_at": "2026-06-17T02:30:52Z",
-  "source_commit": "d42711c9f56fb9caa6956e4cc1381348dd781883",
+  "version": "2026.6.3",
+  "released_at": "2026-06-21T08:16:26Z",
+  "source_commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7",
   "printing_press_version": "4.2.1",
   "run_id": "20260509-180956",
   "changes": [
     {
-      "title": "feat(tella): add total edit workflows",
-      "pr": 1248,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1248",
-      "commit": "d42711c9f56fb9caa6956e4cc1381348dd781883"
+      "title": "fix(catalog): require Go 1.26.4 across published modules",
+      "pr": 1308,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1308",
+      "commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7"
     }
   ]
 }

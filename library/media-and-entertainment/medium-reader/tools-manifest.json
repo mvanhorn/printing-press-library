@@ -1,0 +1,259 @@
+{
+  "api_name": "medium-reader",
+  "base_url": "https://medium.com",
+  "description": "Read any Medium author, publication, or tag as a local, full-text-searchable corpus — sourced directly from Medium's own public surfaces (RSS feeds, article pages, and Medium's internal GraphQL endpoint), with no API key and no third-party proxy.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none",
+    "env_vars": []
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "analytics",
+      "description": "Analyze locally synced data with count, group-by, and summary operations. Data must be synced first with the sync command.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "params": [
+        {
+          "name": "db",
+          "type": "string",
+          "required": false,
+          "description": "Database path"
+        },
+        {
+          "name": "group-by",
+          "type": "string",
+          "required": false,
+          "description": "Field to group by"
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "required": false,
+          "description": "Max groups to show (default: 25)"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "required": false,
+          "description": "Resource type to analyze"
+        }
+      ]
+    },
+    {
+      "name": "author_archive",
+      "description": "Mirror a Medium writer's articles into the local SQLite store for offline, full-text search. Sourced directly from Medium's internal GraphQL endpoint (the article id list) and the article-page surface (each body), with no API key and no cookies. The argument is the writer's Medium user id (the stable hex id, e.g. bcab753a4d4e) OR their @handle / username (e.g. @quincylarson or quincylarson). A handle is resolved to its user id keylessly, by reading the author's public profile page — no API key, no cookies. You can also find a user id from a feed result's author_id field.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "params": [
+        {
+          "name": "args",
+          "type": "string",
+          "required": false,
+          "description": "Additional positional arguments or raw CLI flags to append to the command."
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "required": false,
+          "description": "Path to the local SQLite store (default: standard data dir)"
+        },
+        {
+          "name": "max-articles",
+          "type": "number",
+          "required": false,
+          "description": "Maximum number of articles to archive (default: 25)"
+        }
+      ]
+    },
+    {
+      "name": "author_compare",
+      "description": "Compare two writers on output cadence, topic mix, and engagement (claps and voters per article).",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "params": [
+        {
+          "name": "args",
+          "type": "string",
+          "required": false,
+          "description": "Additional positional arguments or raw CLI flags to append to the command."
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "required": false,
+          "description": "Path to the local SQLite store (default: standard data dir)"
+        }
+      ]
+    },
+    {
+      "name": "context",
+      "description": "Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "params": []
+    },
+    {
+      "name": "corpus",
+      "description": "Full-text and regex search across everything you have synced locally (authors, publications, tags).",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "params": [
+        {
+          "name": "args",
+          "type": "string",
+          "required": false,
+          "description": "Additional positional arguments or raw CLI flags to append to the command."
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "required": false,
+          "description": "Path to the local SQLite store (default: standard data dir)"
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "required": false,
+          "description": "Maximum number of matches to return (default: 20)"
+        },
+        {
+          "name": "regex",
+          "type": "boolean",
+          "required": false,
+          "description": "Treat the query as a Go regular expression (default: false)"
+        }
+      ]
+    },
+    {
+      "name": "digest",
+      "description": "A deduped, ranked 'what is new since last sync' across the authors, publications, and tags you have archived.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "params": [
+        {
+          "name": "db",
+          "type": "string",
+          "required": false,
+          "description": "Path to the local SQLite store (default: standard data dir)"
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "required": false,
+          "description": "Maximum number of entries to return (default: 30)"
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "required": false,
+          "description": "Only include articles published within this window (e.g. 7d, 2w, 36h) (default: 7d)"
+        }
+      ]
+    },
+    {
+      "name": "feed",
+      "description": "Read a Medium RSS feed for an author, publication, or tag, sourced directly from medium.com with no API key and no cookies. Reference auto-detection: @<handle> an author -> medium.com/feed/@<handle> tag/<tag> a topic tag -> medium.com/feed/tag/<tag> <slug> a publication -> medium.com/feed/<slug> To read a tag, prefix it with \"tag/\" (a bare token is treated as a publication slug). To read an author, prefix the handle with \"@\".",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "params": [
+        {
+          "name": "args",
+          "type": "string",
+          "required": false,
+          "description": "Additional positional arguments or raw CLI flags to append to the command."
+        }
+      ]
+    },
+    {
+      "name": "read",
+      "description": "Fetch a single Medium article and render its body as Markdown, sourced directly from the article page with no API key and no cookies. Accepts either a full Medium URL or a bare article id: read 818e7841df9c read https://medium.com/p/818e7841df9c read https://author.medium.com/some-title-818e7841df9c Locked (member-only) posts return Medium's truncated preview when read anonymously; the output is flagged as a preview. Supplying your own Medium session cookie unlocks the full body (see 'auth' once Tier-1 auth is wired).",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "params": [
+        {
+          "name": "args",
+          "type": "string",
+          "required": false,
+          "description": "Additional positional arguments or raw CLI flags to append to the command."
+        }
+      ]
+    },
+    {
+      "name": "search",
+      "description": "Search Medium for posts matching a free-text query, sourced directly from Medium's own internal GraphQL endpoint with no API key and no cookies. Results are paginated up to --limit (default 10). Each result is a normalized post summary (id, title, author, url, published date). Because search uses Medium's unversioned internal API, a search-surface outage returns a clear \"surface unavailable\" message; the feed and read commands, which do not depend on it, keep working.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "params": [
+        {
+          "name": "args",
+          "type": "string",
+          "required": false,
+          "description": "Additional positional arguments or raw CLI flags to append to the command."
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "required": false,
+          "description": "Maximum number of results to return (default: 10)"
+        }
+      ]
+    },
+    {
+      "name": "sql",
+      "description": "Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "required": true,
+          "description": "SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='items'."
+        }
+      ]
+    }
+  ]
+}

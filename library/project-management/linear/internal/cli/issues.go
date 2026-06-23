@@ -62,13 +62,15 @@ Single-issue get resolution order (with --data-source auto, the default):
   3. on live failure with a fresh store, return the store miss as not found
 
 Use 'issues list' for filtered listing against the local sqlite store.
-Use 'issues search' for duplicate checks and free-text search across synced issues.`,
+Use 'issues create --parent' or 'issues edit --parent/--no-parent' to manage
+parent and sub-issue links.`,
 		Example: `  linear-pp-cli issues ESP-1155
   linear-pp-cli issues list
   linear-pp-cli issues list --assignee me
   linear-pp-cli issues list --assignee me --state started
   linear-pp-cli issues list --team ESP --state started --json
-  linear-pp-cli issues search "login redirect bug" --team ESP --agent`,
+  linear-pp-cli issues create --title "child" --team ESP --parent ESP-1155 --agent
+  linear-pp-cli issues edit ESP-1156 --no-parent --agent`,
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -204,7 +206,7 @@ func fetchIssueLive(c *client.Client, identifier string) (json.RawMessage, error
 		issues(filter: { team: { key: { eq: $teamKey } }, number: { eq: $number } }, first: 1) {
 			nodes {
 				id identifier title description priority estimate dueDate url updatedAt createdAt
-				state { name type }
+				state { id name type }
 				team { id key name }
 				project { id name }
 				assignee { id name displayName email }
@@ -274,6 +276,31 @@ func resolveIssueID(c graphqlQueryer, identifier string) (string, error) {
 		return "", notFoundErr(fmt.Errorf("issue %q not found", identifier))
 	}
 	return resp.Issues.Nodes[0].ID, nil
+}
+
+func resolveParentIssueID(c graphqlQueryer, parent string) (string, error) {
+	parent, err := validateParentIssueRef(parent)
+	if err != nil {
+		return "", err
+	}
+	if store.IsUUID(parent) {
+		return parent, nil
+	}
+	return resolveIssueID(c, parent)
+}
+
+func validateParentIssueRef(parent string) (string, error) {
+	parent = strings.TrimSpace(parent)
+	if parent == "" {
+		return "", usageErr(fmt.Errorf("--parent requires an issue identifier (TEAM-NUMBER) or issue UUID"))
+	}
+	if store.IsUUID(parent) {
+		return parent, nil
+	}
+	if _, _, ok := parseIssueIdentifier(parent); !ok {
+		return "", usageErr(fmt.Errorf("--parent expects an issue identifier (TEAM-NUMBER, e.g. MOB-123) or issue UUID; got %q", parent))
+	}
+	return parent, nil
 }
 
 func parseIssueIdentifier(identifier string) (string, float64, bool) {

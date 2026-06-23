@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "ordertogo",
   "cli_name": "ordertogo-pp-cli",
-  "version": "2026.6.2",
-  "released_at": "2026-06-17T07:22:46Z",
-  "source_commit": "ca0542948fea5ad55a05a11705aba8eff864725d",
+  "version": "2026.6.3",
+  "released_at": "2026-06-21T08:16:26Z",
+  "source_commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7",
   "printing_press_version": "4.2.2",
   "run_id": "20260510-083403",
   "changes": [
     {
-      "title": "fix(ordertogo): chrome cookie decrypt + browser auth headers + real checkout endpoint",
-      "pr": 471,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/471",
-      "commit": "ca0542948fea5ad55a05a11705aba8eff864725d"
+      "title": "fix(catalog): require Go 1.26.4 across published modules",
+      "pr": 1308,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1308",
+      "commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7"
     }
   ]
 }

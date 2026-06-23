@@ -1,0 +1,20 @@
+openapi: 3.0.3
+info:
+  title: Paul Graham Essays
+  version: 1.0.0
+  description: Static public essay index for paulgraham.com.
+servers:
+  - url: https://www.paulgraham.com
+paths:
+  /articles.html:
+    get:
+      operationId: essays_index_get
+      summary: Fetch the Paul Graham essay index
+      description: Returns the static HTML essay index from paulgraham.com. The site does not expose an official JSON API; native CLI helpers parse this page and linked essay pages.
+      responses:
+        "200":
+          description: Essay index HTML
+          content:
+            text/html:
+              schema:
+                type: string

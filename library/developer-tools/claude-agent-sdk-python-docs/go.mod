@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/developer-tools/claude-agent-sdk-python-docs
 
-go 1.26
+go 1.26.4
 
 toolchain go1.26.4
 
