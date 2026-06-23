@@ -611,3 +611,85 @@ func TestAppOnlyFallbackReturnsUnsupportedAuthOnUserContextEndpoint(t *testing.T
 		t.Fatalf("apiCalls = %d, want 2 (401 + app-only retry)", got)
 	}
 }
+
+func TestAppOnlyFallbackSkipsExplicitAuthorizationOverride(t *testing.T) {
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	var apiCalls atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		apiCalls.Add(1)
+		if got := r.Header.Get("Authorization"); got != "Bearer caller-supplied" {
+			t.Fatalf("request used %q, want caller-supplied override", got)
+		}
+		http.Error(w, `{"detail":"Invalid or expired token"}`, http.StatusUnauthorized)
+	}))
+	defer server.Close()
+
+	cfg := &config.Config{
+		BaseURL:          server.URL,
+		Path:             configPath,
+		XOauth2UserToken: "stale-oauth2",
+		XBearerToken:     "valid-app-only",
+	}
+	c := New(cfg, time.Second, 0)
+	c.NoCache = true
+	_, err := c.GetWithHeaders(context.Background(), "/2/users/by/username/testuser", nil, map[string]string{"Authorization": "Bearer caller-supplied"})
+	if err == nil {
+		t.Fatal("expected unauthorized response from caller-supplied credential")
+	}
+	if got := apiCalls.Load(); got != 1 {
+		t.Fatalf("apiCalls = %d, want no app-only retry when Authorization is overridden", got)
+	}
+}
+
+func TestAppOnlyFallbackSkipsCookieAuthHosts(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	cookieDir := filepath.Join(home, ".config", "x-twitter-pp-cli")
+	if err := os.MkdirAll(cookieDir, 0o755); err != nil {
+		t.Fatalf("mkdir cookie dir: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(cookieDir, "cookies.json"), []byte(`{"auth_token":"cookie-auth","ct0":"csrf-token","web_bearer":"web-bearer"}`), 0o600); err != nil {
+		t.Fatalf("write cookies: %v", err)
+	}
+
+	var apiCalls atomic.Int32
+	cfg := &config.Config{
+		BaseURL:          "https://api.x.com",
+		XOauth2UserToken: "stale-oauth2",
+		XBearerToken:     "valid-app-only",
+	}
+	c := New(cfg, time.Second, 0)
+	c.NoCache = true
+	c.HTTPClient.Transport = roundTripFunc(func(r *http.Request) (*http.Response, error) {
+		apiCalls.Add(1)
+		if r.URL.Host != "x.com" {
+			t.Fatalf("host = %q, want x.com", r.URL.Host)
+		}
+		if got := r.Header.Get("Authorization"); got != "Bearer web-bearer" {
+			t.Fatalf("cookie-auth request used %q, want web bearer", got)
+		}
+		if got := r.Header.Get("Cookie"); !strings.Contains(got, "auth_token=cookie-auth") || !strings.Contains(got, "ct0=csrf-token") {
+			t.Fatalf("Cookie header missing captured auth cookies: %q", got)
+		}
+		return &http.Response{
+			StatusCode: http.StatusUnauthorized,
+			Header:     make(http.Header),
+			Body:       io.NopCloser(strings.NewReader(`{"detail":"expired browser session"}`)),
+			Request:    r,
+		}, nil
+	})
+
+	_, err := c.Get(context.Background(), "https://x.com/i/api/graphql/test", nil)
+	if err == nil {
+		t.Fatal("expected unauthorized response from cookie-auth host")
+	}
+	if got := apiCalls.Load(); got != 1 {
+		t.Fatalf("apiCalls = %d, want no app-only retry for cookie-auth host", got)
+	}
+}
+
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripFunc) RoundTrip(r *http.Request) (*http.Response, error) {
+	return f(r)
+}

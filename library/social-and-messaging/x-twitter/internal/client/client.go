@@ -679,7 +679,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		// endpoints (e.g. /2/users/me) will return 403 Unsupported Authentication
 		// on retry — the existing classifyAPIError handler converts that to a
 		// better error hint than the original 401.
-		if resp.StatusCode == http.StatusUnauthorized && !retriedAsAppOnly && c.Config != nil && c.Config.XOauth2UserToken != "" && c.Config.XBearerToken != "" {
+		if resp.StatusCode == http.StatusUnauthorized && !retriedAsAppOnly && authorizationHeaderOverride(headerOverrides) == "" && !hostUsesCookieAuth(req.URL.Host) && c.Config != nil && c.Config.XOauth2UserToken != "" && c.Config.XBearerToken != "" {
 			authHeader = "Bearer " + c.Config.XBearerToken
 			retriedAsAppOnly = true
 			lastErr = apiErr
