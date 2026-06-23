@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "x-twitter-app-only-auth-fallback",
+  "applied_at": "2026-06-23",
+  "base_run_id": "20260603-230951",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Public v2 reads fall back to app-only bearer token when OAuth2 user-context token is expired/stale and refresh unavailable.",
+  "reason": "When X_OAUTH2_USER_TOKEN is expired and refresh_token is missing or stale, `users get-by-username` and other public v2 reads fail with 401 even though a valid X_BEARER_TOKEN exists. Config.AuthHeader() prefers OAuth2 user-context over app-only bearer, so every request uses the dead token. The fix adds a fallback in the do() retry loop: after the existing refresh-on-401 attempt, if both credentials exist and the 401 persists, retry with the app-only bearer token. User-context-only endpoints like /2/users/me get a clearer 403 Unsupported Authentication instead of a generic 401.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/client_test.go"
+  ],
+  "validated_outcome": "go test ./internal/client/... -count=1; go test ./internal/cli/... -count=1; go build ./..."
+}
