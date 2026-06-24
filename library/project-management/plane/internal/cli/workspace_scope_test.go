@@ -88,3 +88,59 @@ func TestDependentParentRows_ScopedToWorkspace(t *testing.T) {
 		t.Fatalf("unscoped parent rows = %d, want 3", len(all))
 	}
 }
+
+// TestLocalModules_ScopedToWorkspace covers the second cross-workspace surface:
+// the post-sync module-membership enrichment walked every local module, so it
+// 403'd on (and aborted at) other workspaces' modules. localModules must scope
+// to the active workspace's projects, still honor an explicit project filter,
+// and fall back to all modules when no scope is supplied.
+func TestLocalModules_ScopedToWorkspace(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	projects := []json.RawMessage{
+		json.RawMessage(`{"id": "p-bbm", "workspace": "ws-bbm"}`),
+		json.RawMessage(`{"id": "p-ds", "workspace": "ws-doctor-school"}`),
+	}
+	if _, _, err := s.UpsertBatch("projects", projects); err != nil {
+		t.Fatalf("UpsertBatch projects: %v", err)
+	}
+	modules := []json.RawMessage{
+		json.RawMessage(`{"id": "m-bbm", "projects_id": "p-bbm", "name": "BBM mod"}`),
+		json.RawMessage(`{"id": "m-ds", "projects_id": "p-ds", "name": "DS mod"}`),
+	}
+	if _, _, err := s.UpsertBatch("modules", modules); err != nil {
+		t.Fatalf("UpsertBatch modules: %v", err)
+	}
+
+	// Scoped to bbm: only bbm's module.
+	scoped, err := localModules(s, "", "ws-bbm")
+	if err != nil {
+		t.Fatalf("localModules scoped: %v", err)
+	}
+	if len(scoped) != 1 || scoped[0].id != "m-bbm" {
+		t.Fatalf("scoped modules = %+v, want only m-bbm", scoped)
+	}
+
+	// Unscoped fallback: both.
+	all, err := localModules(s, "", "")
+	if err != nil {
+		t.Fatalf("localModules unscoped: %v", err)
+	}
+	if len(all) != 2 {
+		t.Fatalf("unscoped modules = %d, want 2", len(all))
+	}
+
+	// Explicit project filter still wins.
+	one, err := localModules(s, "p-ds", "")
+	if err != nil {
+		t.Fatalf("localModules project filter: %v", err)
+	}
+	if len(one) != 1 || one[0].id != "m-ds" {
+		t.Fatalf("project-filtered modules = %+v, want only m-ds", one)
+	}
+}
