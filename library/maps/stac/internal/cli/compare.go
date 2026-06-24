@@ -54,15 +54,11 @@ func newNovelCompareCmd(flags *rootFlags) *cobra.Command {
 			}
 			results := make([]collectionComparison, 0, 2)
 			for _, col := range args[:2] {
-				// matched count via limit=1
-				countBody := buildSearchBody([]string{col}, bbox, flagDatetime, nil, nil, 1, false)
-				_, matched, _, cErr := stacSearch(ctx, c, countBody)
-				if cErr != nil {
-					return classifyAPIError(cErr, flags)
-				}
-				// mean cloud over a small sample
+				// One call per collection: numberMatched gives the total count,
+				// the returned page is the cloud-cover sample. A separate limit=1
+				// count call would be redundant since search returns both.
 				sampleBody := buildSearchBody([]string{col}, bbox, flagDatetime, nil, nil, 20, false)
-				rawSample, _, _, sErr := stacSearch(ctx, c, sampleBody)
+				rawSample, matched, _, sErr := stacSearch(ctx, c, sampleBody)
 				if sErr != nil {
 					return classifyAPIError(sErr, flags)
 				}
