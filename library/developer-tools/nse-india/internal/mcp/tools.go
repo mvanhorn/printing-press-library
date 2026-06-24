@@ -115,7 +115,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/api/equity-stockIndices", []mcpParamBinding{{PublicName: "index", WireName: "index", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/api/NextApi/apiClient/indexTrackerApi?functionName=getConstituents", []mcpParamBinding{{PublicName: "index", WireName: "index", Location: "query"}, }, []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("indices_list",
@@ -137,14 +137,13 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("movers_active",
-			mcplib.WithDescription("Most active intraday securities ranked by volume or traded value. Optional: index (default: INTRADAY), by (default: volume)."),
-			mcplib.WithString("index", mcplib.Description("")),
-			mcplib.WithString("by", mcplib.Description("Sort by 'volume' or 'value'")),
+			mcplib.WithDescription("Most active intraday securities ranked by volume or traded value. Optional: by ('volume' or 'value', default: volume)."),
+			mcplib.WithString("by", mcplib.Description("Rank by 'volume' (quantity traded) or 'value' (total traded value)")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/api/live-analysis-most-active-securities", []mcpParamBinding{{PublicName: "index", WireName: "index", Location: "query"},{PublicName: "by", WireName: "key", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/api/live-analysis-most-active-securities", []mcpParamBinding{{PublicName: "by", WireName: "index", Location: "query"}, }, []string{ }),
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
