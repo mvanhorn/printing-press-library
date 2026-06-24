@@ -198,6 +198,12 @@ func TestParseFSC(t *testing.T) {
 	if m.MemberNLC != "0375" {
 		t.Errorf("MemberNLC = %q, want %q", m.MemberNLC, "0375")
 	}
+	if m.StartDate != "20181018" {
+		t.Errorf("StartDate = %q, want %q", m.StartDate, "20181018")
+	}
+	if m.EndDate != "29991231" {
+		t.Errorf("EndDate = %q, want %q", m.EndDate, "29991231")
+	}
 }
 
 // RST restriction header tests.

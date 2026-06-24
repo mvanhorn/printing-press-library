@@ -165,6 +165,8 @@ func ParseFSC(r io.Reader) ([]ClusterMember, error) {
 		members = append(members, ClusterMember{
 			ClusterID: field(line, fscClusterID[0], fscClusterID[1]),
 			MemberNLC: field(line, fscClusterNLC[0], fscClusterNLC[1]),
+			StartDate: parseDate(field(line, fscStart[0], fscStart[1])),
+			EndDate:   parseDate(field(line, fscEnd[0], fscEnd[1])),
 		})
 	})
 	return members, err

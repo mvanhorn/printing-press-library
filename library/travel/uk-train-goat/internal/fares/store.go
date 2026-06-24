@@ -80,7 +80,9 @@ func EnsureSchema(db *sql.DB) error {
 
 		`CREATE TABLE IF NOT EXISTS rjf_clusters (
 			cluster_id TEXT,
-			member_nlc TEXT
+			member_nlc TEXT,
+			start_date TEXT,
+			end_date   TEXT
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_rjf_clusters_member ON rjf_clusters(member_nlc)`,
 
@@ -284,13 +286,13 @@ func insertClusters(tx *sql.Tx, rows []ClusterMember) error {
 	if len(rows) == 0 {
 		return nil
 	}
-	stmt, err := tx.Prepare(`INSERT INTO rjf_clusters(cluster_id,member_nlc) VALUES(?,?)`)
+	stmt, err := tx.Prepare(`INSERT INTO rjf_clusters(cluster_id,member_nlc,start_date,end_date) VALUES(?,?,?,?)`)
 	if err != nil {
 		return fmt.Errorf("fares: Load: prepare rjf_clusters: %w", err)
 	}
 	defer stmt.Close()
 	for _, r := range rows {
-		if _, err := stmt.Exec(r.ClusterID, r.MemberNLC); err != nil {
+		if _, err := stmt.Exec(r.ClusterID, r.MemberNLC, r.StartDate, r.EndDate); err != nil {
 			return fmt.Errorf("fares: Load: insert rjf_clusters: %w", err)
 		}
 	}

@@ -15,10 +15,10 @@ func seedResolveDB(t *testing.T) *sql.DB {
 	}
 	data := &FeedData{
 		Locations: []Location{
-			{NLC: "1072", CRS: "", Name: "LONDON TERMINALS", StartDate: "20250809", EndDate: "20250901"},
-			{NLC: "3087", CRS: "PAD", Name: "LONDON PADDINGTN", StartDate: "20250807", EndDate: "20250901"},
-			{NLC: "3115", CRS: "OXF", Name: "OXFORD", StartDate: "20250807", EndDate: "20250901"},
-			{NLC: "3149", CRS: "RDG", Name: "READING", StartDate: "20250807", EndDate: "20250901"},
+			{NLC: "1072", CRS: "", Name: "LONDON TERMINALS", StartDate: "20250809", EndDate: "29991231"},
+			{NLC: "3087", CRS: "PAD", Name: "LONDON PADDINGTN", StartDate: "20250807", EndDate: "29991231"},
+			{NLC: "3115", CRS: "OXF", Name: "OXFORD", StartDate: "20250807", EndDate: "29991231"},
+			{NLC: "3149", CRS: "RDG", Name: "READING", StartDate: "20250807", EndDate: "29991231"},
 		},
 		GroupMembers: []GroupMember{
 			{MemberNLC: "3087", GroupNLC: "1072", EndDate: "29991231"},
@@ -77,6 +77,24 @@ func TestResolvePADtoRDG(t *testing.T) {
 			g.RestrictionCode != "" || g.RestrictionDesc != "" {
 			t.Errorf("fares[%d]: want %+v, got %+v", i, w, g)
 		}
+	}
+}
+
+func TestResolveExpiredGroupMembershipExcluded(t *testing.T) {
+	// PAD reaches the 1072-filed flows only via its London Terminals group
+	// membership. Expiring that membership before the query date must drop those
+	// fares entirely rather than serving them through a lapsed group.
+	db := seedResolveDB(t)
+	if _, err := db.Exec(
+		`UPDATE rjf_group_members SET end_date = '20250101' WHERE member_nlc = '3087' AND group_nlc = '1072'`); err != nil {
+		t.Fatalf("expire membership: %v", err)
+	}
+	fares, err := Resolve(db, "PAD", "RDG", "20260621")
+	if err != nil {
+		t.Fatalf("Resolve: %v", err)
+	}
+	if len(fares) != 0 {
+		t.Errorf("expired group membership: want 0 fares, got %d: %+v", len(fares), fares)
 	}
 }
 

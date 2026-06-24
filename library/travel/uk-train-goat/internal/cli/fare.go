@@ -94,7 +94,13 @@ fares are not included.`,
 			user := os.Getenv("NR_OPENDATA_USERNAME")
 			pass := os.Getenv("NR_OPENDATA_PASSWORD")
 
-			result, err := fares.CheckFreshness(cmd.Context(), db, "", user, pass, offline, time.Now())
+			// Without credentials the remote freshness probe can only fail with an
+			// auth error, which would surface as a misleading "freshness could not
+			// be confirmed" warning on every lookup. Fall back to the age backstop
+			// instead, exactly as --offline does.
+			probeOffline := offline || user == "" || pass == ""
+
+			result, err := fares.CheckFreshness(cmd.Context(), db, "", user, pass, probeOffline, time.Now())
 			if err != nil {
 				return apiErr(fmt.Errorf("freshness check: %w", err))
 			}

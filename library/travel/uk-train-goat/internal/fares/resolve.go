@@ -24,8 +24,8 @@ type ResolvedFare struct {
 // no fare matches. Never returns a fare absent from the store or a
 // date-expired fare.
 func Resolve(db *sql.DB, fromCRS, toCRS, date string) ([]ResolvedFare, error) {
-	// Step 1: CRS -> NLC (not date-filtered).
-	fromNLC, ok, err := crsToNLC(db, fromCRS)
+	// Step 1: CRS -> NLC, date-filtered to the location's validity window.
+	fromNLC, ok, err := crsToNLC(db, fromCRS, date)
 	if err != nil {
 		return nil, fmt.Errorf("fares: Resolve: CRS lookup %q: %w", fromCRS, err)
 	}
@@ -33,7 +33,7 @@ func Resolve(db *sql.DB, fromCRS, toCRS, date string) ([]ResolvedFare, error) {
 		return []ResolvedFare{}, nil
 	}
 
-	toNLC, ok, err := crsToNLC(db, toCRS)
+	toNLC, ok, err := crsToNLC(db, toCRS, date)
 	if err != nil {
 		return nil, fmt.Errorf("fares: Resolve: CRS lookup %q: %w", toCRS, err)
 	}
@@ -41,12 +41,13 @@ func Resolve(db *sql.DB, fromCRS, toCRS, date string) ([]ResolvedFare, error) {
 		return []ResolvedFare{}, nil
 	}
 
-	// Step 2: Build fare-location sets for origin and destination.
-	oSet, err := fareLocationSet(db, fromNLC)
+	// Step 2: Build fare-location sets for origin and destination, restricted to
+	// cluster/group memberships valid on date.
+	oSet, err := fareLocationSet(db, fromNLC, date)
 	if err != nil {
 		return nil, fmt.Errorf("fares: Resolve: origin location set: %w", err)
 	}
-	dSet, err := fareLocationSet(db, toNLC)
+	dSet, err := fareLocationSet(db, toNLC, date)
 	if err != nil {
 		return nil, fmt.Errorf("fares: Resolve: dest location set: %w", err)
 	}
@@ -183,11 +184,16 @@ func Resolve(db *sql.DB, fromCRS, toCRS, date string) ([]ResolvedFare, error) {
 	return result, nil
 }
 
-// crsToNLC resolves a CRS code to an NLC. Not date-filtered.
-// Returns ("", false, nil) when the CRS is not in the store.
-func crsToNLC(db *sql.DB, crs string) (string, bool, error) {
+// crsToNLC resolves a CRS code to an NLC valid on date (YYYYMMDD). A blank
+// stored date is treated as open-ended. Returns ("", false, nil) when no
+// date-valid location matches the CRS.
+func crsToNLC(db *sql.DB, crs, date string) (string, bool, error) {
 	var nlc string
-	err := db.QueryRow(`SELECT nlc FROM rjf_locations WHERE crs = ? LIMIT 1`, crs).Scan(&nlc)
+	err := db.QueryRow(`SELECT nlc FROM rjf_locations
+		WHERE crs = ?
+		  AND (start_date = '' OR start_date <= ?)
+		  AND (end_date = '' OR end_date >= ?)
+		LIMIT 1`, crs, date, date).Scan(&nlc)
 	if err == sql.ErrNoRows {
 		return "", false, nil
 	}
@@ -197,12 +203,17 @@ func crsToNLC(db *sql.DB, crs string) (string, bool, error) {
 	return nlc, true, nil
 }
 
-// fareLocationSet builds the set {nlc} ∪ clusters ∪ group memberships for nlc.
-func fareLocationSet(db *sql.DB, nlc string) (map[string]struct{}, error) {
+// fareLocationSet builds the set {nlc} ∪ clusters ∪ group memberships for nlc,
+// restricted to memberships valid on date (YYYYMMDD). A blank stored date is
+// treated as open-ended.
+func fareLocationSet(db *sql.DB, nlc, date string) (map[string]struct{}, error) {
 	set := map[string]struct{}{nlc: {}}
 
-	// Clusters: any cluster_id that nlc is a member of.
-	rows, err := db.Query(`SELECT cluster_id FROM rjf_clusters WHERE member_nlc = ?`, nlc)
+	// Clusters: any cluster_id that nlc is a date-valid member of.
+	rows, err := db.Query(`SELECT cluster_id FROM rjf_clusters
+		WHERE member_nlc = ?
+		  AND (start_date = '' OR start_date <= ?)
+		  AND (end_date = '' OR end_date >= ?)`, nlc, date, date)
 	if err != nil {
 		return nil, fmt.Errorf("query clusters: %w", err)
 	}
@@ -218,8 +229,11 @@ func fareLocationSet(db *sql.DB, nlc string) (map[string]struct{}, error) {
 		return nil, fmt.Errorf("iterate clusters: %w", err)
 	}
 
-	// Group memberships: any group_nlc that nlc belongs to.
-	gRows, err := db.Query(`SELECT group_nlc FROM rjf_group_members WHERE member_nlc = ?`, nlc)
+	// Group memberships: any group_nlc that nlc belongs to, valid on date.
+	// rjf_group_members stores only end_date (no start_date column).
+	gRows, err := db.Query(`SELECT group_nlc FROM rjf_group_members
+		WHERE member_nlc = ?
+		  AND (end_date = '' OR end_date >= ?)`, nlc, date)
 	if err != nil {
 		return nil, fmt.Errorf("query group_members: %w", err)
 	}

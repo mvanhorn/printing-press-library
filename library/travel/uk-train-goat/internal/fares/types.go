@@ -26,7 +26,7 @@ type Railcard struct {
 	MinPence          int
 	DiscountPct       int // adult-fare discount, whole percent
 }
-type ClusterMember struct{ ClusterID, MemberNLC string }
+type ClusterMember struct{ ClusterID, MemberNLC, StartDate, EndDate string }
 type GroupMember struct {
 	MemberNLC string
 	GroupNLC  string
