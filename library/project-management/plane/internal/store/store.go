@@ -2528,6 +2528,44 @@ func ExtractResourceID(resourceType string, obj map[string]any) string {
 // rollback, so successful API fetches never strand in memory because one
 // downstream typed table is misconfigured. Failures are surfaced via a
 // trailing stderr warning rather than aborting the batch.
+// childScopeColumnSources maps a typed child table's NOT NULL path-placeholder
+// scope column (the FK the dependent sync injects into each item, e.g.
+// "projects_id") to the singular parent-reference field every Plane API body
+// carries natively (e.g. "project"). deriveScopeColumns consults this so the
+// write-through cache paths — live-read and mutation-response caching, which
+// pass RAW API items straight to UpsertBatch and so never carry the path-
+// injected "projects_id" — still satisfy the typed table's NOT NULL scope
+// column instead of stranding the row in the generic resources table with no
+// typed projection (the typed-table upsert warning below).
+var childScopeColumnSources = map[string]string{
+	"projects_id": "project",
+}
+
+// deriveScopeColumns backfills a typed child table's path-placeholder scope
+// column (e.g. "projects_id") from the item's own parent reference (e.g.
+// "project") when the path injection that normally supplies it is absent.
+// The dependent sync injects the scope column before upsert; the write-through
+// cache paths do not, so without this backfill the typed upsert violates the
+// NOT NULL scope constraint and the row strands in generic resources. A value
+// already present (valid injection) is never overwritten.
+func deriveScopeColumns(obj map[string]any) {
+	for scopeKey, sourceKey := range childScopeColumnSources {
+		if v := lookupFieldValue(obj, scopeKey); v != nil {
+			if s, ok := v.(string); !ok || s != "" {
+				continue // path injection already supplied a usable value
+			}
+		}
+		src := lookupFieldValue(obj, sourceKey)
+		if src == nil {
+			continue
+		}
+		if s, ok := src.(string); ok && s == "" {
+			continue
+		}
+		obj[scopeKey] = src
+	}
+}
+
 func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, int, error) {
 	s.writeMu.Lock()
 	defer s.writeMu.Unlock()
@@ -2562,6 +2600,12 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 			return stored, extractFailures, fmt.Errorf("upserting %s/%s: %w", resourceType, id, err)
 		}
 		stored++
+
+		// Backfill the typed child table's NOT NULL scope column from the
+		// item's own parent reference when the dependent-sync path injection
+		// is absent (write-through cache feeds RAW API items here). Without
+		// this the typed dispatch below violates NOT NULL and strands the row.
+		deriveScopeColumns(obj)
 
 		savepoint := fmt.Sprintf("pp_typed_%d", i)
 		if _, err := tx.Exec("SAVEPOINT " + savepoint); err != nil {

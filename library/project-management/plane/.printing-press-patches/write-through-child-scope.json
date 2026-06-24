@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "write-through-child-scope",
+  "applied_at": "2026-06-24",
+  "base_run_id": "20260602-073610",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Backfill a typed child table's NOT NULL path-placeholder scope column (projects_id) from the item's own parent reference (project) inside UpsertBatch, so the write-through cache paths (live-read + mutation-response caching) stop stranding project-scoped child rows in the generic resources table with no typed projection.",
+  "reason": "Bug #2 — the 'typed-table upsert failed; generic resources rows preserved' warning (store.go ~2638). Project-scoped child tables (modules/cycles/states/labels/projects_issues/intake_issues/archived_*) declare a NOT NULL scope column 'projects_id' that ONLY the dependent-resource sync injects per item (obj[parentTable+\"_id\"]=parentID). The two write-through cache paths in internal/cli/data_source.go — writeThroughCache (auto/live reads) and writeMutationResponseToStore (create/update responses) — call db.UpsertBatch(resourceType, rawItems) with the RAW Plane API body, which carries the parent UUID under the singular 'project' key but NEVER 'projects_id'. So the per-item typed dispatch hit `NOT NULL constraint failed: modules.projects_id (1299)`, the per-item SAVEPOINT rolled back, and the row stranded in generic resources (data present, no typed row / no index). Non-data-loss but the typed table + typed queries (e.g. module-of, module enrichment which reads localModules from the typed table) silently miss those rows; incremental sync never re-fetches them, so the strand is permanent. Live evidence on the prod data.db: modules = 86 generic rows vs 25 typed; the 61 missing were all one bbm project, 0 carried a 'projects_id' key in their data blob (vs 21/25 present ones that did), dated 06-10..06-23 — i.e. rows the user live-read/mutated, not synced. cycles/states/labels/projects_issues matched 1:1 (only modules were actively live-read/mutated).",
+  "files": [
+    "internal/store/store.go"
+  ],
+  "change": [
+    "store.go: add childScopeColumnSources{\"projects_id\":\"project\"} (the typed child scope column -> the singular parent-reference field the API body carries natively) and deriveScopeColumns(obj) which backfills the scope column from that field when path injection is absent, never overwriting an already-present value.",
+    "store.go: UpsertBatch calls deriveScopeColumns(obj) after the generic insert and before the per-item typed SAVEPOINT dispatch, so both the sync path (no-op — projects_id already injected) and the write-through path (backfilled from project) populate the typed scope column. projects_id always equals the project UUID for these tables (the dependent sync sets projects_id = the iterated project's id, which is the same UUID the body's 'project' field holds)."
+  ],
+  "tests": [
+    "internal/store/upsert_batch_test.go: TestUpsertBatch_DerivesChildScopeFromProjectField (raw write-through shape {id,project,name} with NO projects_id lands in the typed modules table with projects_id derived from project). Existing TestUpsertBatch_TypedFailureDoesNotStrand*Generic still pass: their fixtures carry neither projects_id NOR project, so stranding (typed=0, generic preserved) remains the correct no-parent-info behavior."
+  ],
+  "validated_outcome": "Reproduced the exact production warning + concrete typedErr via the new failing test before fixing: `warning: 2/2 modules items: typed-table upsert failed; generic resources rows preserved` and `insert into modules: constraint failed: NOT NULL constraint failed: modules.projects_id (1299)`. After fix: go build ./... + go vet ./internal/store ./internal/cli + go test ./internal/store ./internal/cli all green; new test passes, no regressions.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Generator-level: emit the child-scope backfill map from the spec so any printed CLI whose write-through caches project/parent-scoped sub-resources populates the typed scope column without a hand patch (drive scopeColumn->sourceField from the same parent-relationship metadata that produces parentFKKey in sync.go.tmpl).",
+      "reason": "Today only the dependent-sync template injects the path-placeholder scope column; the write-through cache (data_source.go) and the single-object Upsert<Child> methods have no equivalent, so the typed projection depends on the entry point. Modeling the parent reference once would make every entry point self-sufficient."
+    }
+  ]
+}
