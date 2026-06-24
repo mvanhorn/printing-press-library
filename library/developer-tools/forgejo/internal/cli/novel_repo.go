@@ -3,10 +3,12 @@
 package cli
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -399,8 +401,9 @@ func newNovelRepoDeleteCmd(flags *rootFlags) *cobra.Command {
 			// Confirm unless --yes
 			if !flags.yes && !flags.noInput && isTerminal(os.Stdin) {
 				fmt.Fprintf(os.Stderr, "Delete repository %s/%s? This cannot be undone. [y/N]: ", owner, repo)
-				var confirm string
-				fmt.Fscan(os.Stdin, &confirm)
+				reader := bufio.NewReader(os.Stdin)
+				line, _ := reader.ReadString('\n')
+				confirm := strings.TrimSpace(line)
 				if confirm != "y" && confirm != "Y" {
 					fmt.Fprintln(os.Stderr, "Aborted.")
 					return nil
