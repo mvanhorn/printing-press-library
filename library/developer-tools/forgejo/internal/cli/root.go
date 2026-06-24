@@ -274,6 +274,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newAPICmd(flags))
 	rootCmd.AddCommand(newIssueCmd(flags))
 	rootCmd.AddCommand(newPRCmd(flags))
+	rootCmd.AddCommand(newRepoCmd(flags))
 	rootCmd.AddCommand(newReleaseCmd(flags))
 	rootCmd.AddCommand(newRunnerCmd(flags))
 	rootCmd.AddCommand(newNotificationCmd(flags))
