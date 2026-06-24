@@ -146,16 +146,6 @@ func RegisterTools(s *server.MCPServer) {
 		),
 		makeAPIHandler("GET", "/api/live-analysis-most-active-securities", []mcpParamBinding{{PublicName: "index", WireName: "index", Location: "query"},{PublicName: "by", WireName: "key", Location: "query"}, }, []string{ }),
 	)
-	s.AddTool(
-		mcplib.NewTool("symbol_lookup_autocomplete",
-			mcplib.WithDescription("Search symbols by company name or ticker — returns equity, MF, index matches. Required: query."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Stock name or partial symbol to search (e.g. 'ADANI', 'Infosys')")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/api/search/autocomplete", []mcpParamBinding{{PublicName: "query", WireName: "q", Location: "query"}, }, []string{ }),
-	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",

@@ -54,7 +54,7 @@ Requires: index constituents populated via 'nse-india-pp-cli indices constituent
 				return nil
 			}
 			if indexName == "" {
-				return cmd.Help()
+				return fmt.Errorf("required flag \"index\" not set — specify an index name, e.g. --index \"NIFTY 50\"")
 			}
 
 			if dbPath == "" {

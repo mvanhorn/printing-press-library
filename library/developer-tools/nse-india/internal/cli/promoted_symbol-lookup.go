@@ -44,6 +44,10 @@ Examples:
 			if flagQ == "" {
 				return fmt.Errorf("--query must not be empty")
 			}
+			if flags.dryRun {
+				fmt.Fprintf(cmd.OutOrStdout(), "[dry-run] symbol-lookup: would fetch %s and filter for %q\n", equityMasterURL, flagQ)
+				return nil
+			}
 
 			rows, err := fetchEquityMaster()
 			if err != nil {
