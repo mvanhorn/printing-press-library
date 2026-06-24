@@ -69,7 +69,11 @@ func newNovelGapsCmd(flags *rootFlags) *cobra.Command {
 			if cmd.Flags().Changed("max-cloud") {
 				maxCloud = &flagMaxCloud
 			}
-			body := buildSearchBody([]string{flagCollection}, bbox, flagDatetime, maxCloud, nil, 100, true)
+			// Sort by datetime, not cloud cover: gap detection samples temporal
+			// coverage, so a cloud-cover sort would push a date's only (cloudy)
+			// scene off the pagination window and report a false gap.
+			body := buildSearchBody([]string{flagCollection}, bbox, flagDatetime, maxCloud, nil, 100, false)
+			body["sortby"] = []map[string]any{{"field": "properties.datetime", "direction": "desc"}}
 			rawFeatures, _, pages, err := stacSearchPaged(ctx, c, body, flagMaxScanPages)
 			if err != nil {
 				return classifyAPIError(err, flags)
