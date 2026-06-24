@@ -1,4 +1,5 @@
-// Copyright 2026 Mayank Lavania and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 mayank-lavania. Licensed under Apache-2.0. See LICENSE.
+// pp:data-source local
 
 package cli
 
@@ -9,8 +10,8 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/store"
 	"github.com/spf13/cobra"
+	"nse-india-pp-cli/internal/store"
 )
 
 // indexDriverResult holds one stock's point contribution to an index move.
@@ -52,8 +53,8 @@ Requires: index constituents populated via 'nse-india-pp-cli indices constituent
 				fmt.Fprintln(cmd.OutOrStdout(), `[dry-run] index-driver: would join index weights x pChange in local store`)
 				return nil
 			}
-			if indexName == "" && !flags.dryRun {
-				return usageErr(fmt.Errorf("--index is required (e.g. 'NIFTY 50', 'NIFTY BANK')"))
+			if indexName == "" {
+				return cmd.Help()
 			}
 
 			if dbPath == "" {
@@ -116,7 +117,11 @@ Requires: index constituents populated via 'nse-india-pp-cli indices constituent
 			}
 
 			if len(constituents) == 0 {
-				return fmt.Errorf("no constituent data found for %q\nhint: run 'nse-india-pp-cli indices constituents --index \"%s\"'", indexName, indexName)
+				if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+					return printOutput(cmd.OutOrStdout(), json.RawMessage(`[]`), true)
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "No constituent data for %q. Run: nse-india-pp-cli indices constituents --index %q\n", indexName, indexName)
+				return nil
 			}
 
 			// Compute point contributions (weight * pChange / 100 approximation)

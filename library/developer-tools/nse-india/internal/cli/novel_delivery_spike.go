@@ -1,4 +1,5 @@
-// Copyright 2026 Mayank Lavania and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 mayank-lavania. Licensed under Apache-2.0. See LICENSE.
+// pp:data-source local
 
 package cli
 
@@ -8,8 +9,8 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/store"
 	"github.com/spf13/cobra"
+	"nse-india-pp-cli/internal/store"
 )
 
 // deliverySpikeResult holds one stock's delivery spike signal.
@@ -99,6 +100,9 @@ populate the local store with equity quote data (deliveryToTradedQty).`,
 			}
 
 			if len(bySymbol) == 0 {
+				if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+					return printOutput(cmd.OutOrStdout(), json.RawMessage(`[]`), true)
+				}
 				fmt.Fprintln(cmd.OutOrStdout(), "No equity delivery data found. Run 'nse-india-pp-cli equity quote --symbol <SYMBOL>' for each symbol to populate the local store.")
 				return nil
 			}

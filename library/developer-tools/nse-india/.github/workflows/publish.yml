@@ -1,0 +1,202 @@
+name: Publish to printing-press-library
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    env:
+      API_SLUG: nse-india
+      CLI_NAME: nse-india-pp-cli
+      CATEGORY: developer-tools
+      LIBRARY_UPSTREAM: mvanhorn/printing-press-library
+      LIBRARY_FORK: ${{ github.repository_owner }}/printing-press-library
+      MODULE_PATH_BASE: github.com/mvanhorn/printing-press-library/library
+
+    steps:
+      - name: Checkout CLI source
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Install printing-press binary
+        run: go install github.com/mvanhorn/cli-printing-press/v4/cmd/printing-press@latest
+
+      - name: Build CLI binary (for --help / --version validation)
+        run: go build -o ./${{ env.CLI_NAME }} ./cmd/${{ env.CLI_NAME }}
+
+      - name: Run publish validate
+        run: |
+          printing-press publish validate \
+            --dir ${{ github.workspace }} \
+            --json 2>&1 | tee /tmp/validate-result.txt
+
+          # Fail if validation didn't pass
+          if grep -q '"passed":false' /tmp/validate-result.txt; then
+            echo "❌ Validation failed — fix before publishing"
+            cat /tmp/validate-result.txt
+            exit 1
+          fi
+          echo "✅ Validation passed"
+
+      - name: Package CLI
+        run: |
+          MODULE_PATH="${{ env.MODULE_PATH_BASE }}/${{ env.CATEGORY }}/${{ env.API_SLUG }}"
+
+          STAGING_DIR="/tmp/pp-staging-${{ github.sha }}"
+          mkdir -p "$STAGING_DIR"
+
+          printing-press publish package \
+            --dir ${{ github.workspace }} \
+            --category ${{ env.CATEGORY }} \
+            --target "$STAGING_DIR/package" \
+            --module-path "$MODULE_PATH"
+
+          echo "PP_STAGING=$STAGING_DIR/package" >> $GITHUB_ENV
+          echo "✅ Package staged at $STAGING_DIR/package"
+
+      - name: Checkout printing-press-library fork
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.LIBRARY_FORK }}
+          token: ${{ secrets.GH_PAT }}
+          path: printing-press-library
+          fetch-depth: 10
+
+      - name: Sync fork with upstream main
+        working-directory: printing-press-library
+        run: |
+          git remote add upstream https://github.com/${{ env.LIBRARY_UPSTREAM }}.git
+          git fetch upstream main
+          git checkout main
+          git reset --hard upstream/main
+          git push origin main --force-with-lease
+          echo "✅ Fork synced with upstream"
+
+      - name: Determine branch name
+        id: branch
+        run: |
+          TAG="${{ github.ref_name }}"  # e.g. v1.2.0
+          BRANCH="feat/${{ env.API_SLUG }}-${TAG}"
+          echo "name=$BRANCH" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Create/update publish branch
+        working-directory: printing-press-library
+        run: |
+          BRANCH="${{ steps.branch.outputs.name }}"
+
+          # Delete old branch for this tag if it exists (idempotent re-runs)
+          git branch -D "$BRANCH" 2>/dev/null || true
+          git push origin ":$BRANCH" 2>/dev/null || true
+          git checkout -b "$BRANCH"
+
+      - name: Copy packaged CLI into library
+        working-directory: printing-press-library
+        run: |
+          # Remove any previous version of this CLI (handles category changes)
+          rm -rf library/*/${{ env.API_SLUG }} 2>/dev/null || true
+
+          # Copy from staging into the library tree
+          mkdir -p library/${{ env.CATEGORY }}
+          cp -r "$PP_STAGING/library/${{ env.CATEGORY }}/${{ env.API_SLUG }}" \
+                library/${{ env.CATEGORY }}/${{ env.API_SLUG }}
+
+          # Remove built binaries — never commit those
+          rm -f library/${{ env.CATEGORY }}/${{ env.API_SLUG }}/${{ env.CLI_NAME }}
+          rm -f library/${{ env.CATEGORY }}/${{ env.API_SLUG }}/${{ env.API_SLUG }}
+
+          # Regenerate cli-skills mirror if the tool exists
+          if [ -f tools/generate-skills/main.go ]; then
+            go run ./tools/generate-skills/main.go
+            echo "✅ cli-skills mirror regenerated"
+          fi
+
+      - name: Build from publish repo (verify)
+        working-directory: printing-press-library/library/${{ env.CATEGORY }}/${{ env.API_SLUG }}
+        run: |
+          go build ./...
+          echo "✅ Build verified from publish repo"
+
+      - name: Commit and push
+        working-directory: printing-press-library
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add library/ cli-skills/
+          git commit -m "feat(${{ env.API_SLUG }}): update ${{ env.API_SLUG }} to ${{ steps.branch.outputs.tag }}"
+
+          git push -u origin "${{ steps.branch.outputs.name }}"
+          echo "✅ Pushed ${{ steps.branch.outputs.name }}"
+
+      - name: Create or update PR against upstream
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          TAG="${{ steps.branch.outputs.tag }}"
+          BRANCH="${{ steps.branch.outputs.name }}"
+          FORK_OWNER="${{ github.repository_owner }}"
+
+          # Read CLI description from .printing-press.json
+          DESCRIPTION=$(jq -r '.description // "NSE India equity data CLI"' \
+            printing-press-library/library/${{ env.CATEGORY }}/${{ env.API_SLUG }}/.printing-press.json)
+
+          # Build PR body
+          PR_BODY=$(cat <<PRBODY
+          ## ${{ env.API_SLUG }} — $TAG
+
+          $DESCRIPTION
+
+          **Category:** ${{ env.CATEGORY }} | **Version tag:** $TAG
+          **Source repo:** https://github.com/${{ github.repository }}
+
+          ### Changes in this release
+
+          See [CHANGELOG](https://github.com/${{ github.repository }}/releases/tag/$TAG) or the [commit history](https://github.com/${{ github.repository }}/commits/$TAG).
+
+          ### Validation
+
+          All checks passed by the publish workflow (validate → package → build).
+
+          ---
+          *Auto-published by [publish.yml](https://github.com/${{ github.repository }}/blob/main/.github/workflows/publish.yml)*
+          PRBODY
+          )
+
+          # Check for existing open PR for this API (any tag)
+          EXISTING_PR=$(gh api repos/${{ env.LIBRARY_UPSTREAM }}/pulls \
+            --jq ".[] | select(.head.label == \"${FORK_OWNER}:${BRANCH}\" and .state == \"open\") | .number" \
+            2>/dev/null | head -1)
+
+          if [ -n "$EXISTING_PR" ]; then
+            echo "Updating existing PR #$EXISTING_PR"
+            gh api repos/${{ env.LIBRARY_UPSTREAM }}/pulls/$EXISTING_PR \
+              -X PATCH \
+              --field body="$PR_BODY" \
+              --jq '.html_url'
+          else
+            echo "Creating new PR"
+            gh api repos/${{ env.LIBRARY_UPSTREAM }}/pulls \
+              --method POST \
+              --field title="feat(${{ env.API_SLUG }}): update ${{ env.API_SLUG }} to $TAG" \
+              --field head="${FORK_OWNER}:${BRANCH}" \
+              --field base="main" \
+              --field body="$PR_BODY" \
+              --jq '.html_url'
+          fi
+
+      - name: Clean up staging
+        if: always()
+        run: rm -rf /tmp/pp-staging-${{ github.sha }}

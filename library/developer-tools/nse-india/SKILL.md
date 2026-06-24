@@ -29,13 +29,15 @@ This skill drives the `nse-india-pp-cli` binary. **You must verify the CLI is in
 2. Verify: `nse-india-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/cmd/nse-india-pp-cli@latest
 ```
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
+
+nse-india-pp-cli fetches real-time NSE equity quotes, index constituents, corporate filings, and market status with just browser headers — no API key, no Python runtime, no setup friction. After sync, the local SQLite store powers cross-symbol analysis that is invisible in any single API call: delivery spikes, sector breadth, portfolio margin health, and index attribution.
 
 ## When to Use This CLI
 
@@ -137,9 +139,9 @@ These capabilities aren't available in any other tool for this API.
 
 - `nse-india-pp-cli movers` — Most active intraday securities ranked by volume or traded value
 
-**symbol_lookup** — Symbol search and autocomplete
+**symbol-lookup** — Symbol search and autocomplete
 
-- `nse-india-pp-cli symbol_lookup` — Search symbols by company name or ticker — returns equity, MF, index matches
+- `nse-india-pp-cli symbol-lookup` — Search NSE equity symbols by company name or ticker — returns symbol, company name, ISIN
 
 
 ### Finding the right command
@@ -154,14 +156,13 @@ nse-india-pp-cli which "<capability in your own words>"
 
 ## Recipes
 
-
-### Find stocks near 52-week extremes from a synced index
+### Find stocks approaching 52-week highs with strong delivery
 
 ```bash
-nse-india-pp-cli indices constituents --index "NIFTY 50" --json --agent | jq '.results.data[] | select(.nearWKH < 5)'
+nse-india-pp-cli delivery-spike --threshold 1.5 --agent | jq '.[] | select(.delivery_pct > 50)'
 ```
 
-Filters index constituents within 5% of their 52-week high using live NSE data — no extra command needed
+Filters for stocks with above-average delivery ratios — the setup most likely to sustain a breakout
 
 ### Daily index attribution report
 
@@ -197,7 +198,7 @@ Combines filing flood with delivery data — the pair predicts imminent corporat
 
 ## Auth Setup
 
-No authentication required.
+No authentication required. The CLI sends browser-compatible headers (User-Agent + Referer) that mirror what NSE's website uses. Options chain data may require a browser session cookie — use 'nse-india-pp-cli auth login --chrome' if those commands return empty data.
 
 Run `nse-india-pp-cli doctor` to verify setup.
 

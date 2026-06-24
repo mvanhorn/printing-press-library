@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "equity-hardcode-function-name",
+  "applied_at": "2026-06-24",
+  "base_run_id": "20260508-113209",
+  "base_printing_press_version": "4.0.4",
+  "summary": "Remove --function-name flag from equity quote and derivatives; hardcode the NSE API internal routing parameter.",
+  "reason": "functionName is an NSE internal routing parameter (getSymbolData / getSymbolDerivativesData) that users should never change. Exposing it as a flag caused live dogfood to inject 'example-resource', returning HTTP 400.",
+  "files": ["internal/cli/equity_quote.go", "internal/cli/equity_derivatives.go"],
+  "validated_outcome": "equity quote --symbol RELIANCE returns live price data. Dogfood no longer injects --function-name."
+}

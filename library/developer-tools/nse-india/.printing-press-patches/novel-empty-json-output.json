@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "novel-empty-json-output",
+  "applied_at": "2026-06-24",
+  "base_run_id": "20260508-113209",
+  "base_printing_press_version": "4.0.4",
+  "summary": "Return [] (valid JSON array) instead of human text when --json is set and local store has no data for novel analysis commands.",
+  "reason": "Live dogfood json_fidelity tests run commands with --json; output_mismatch failures occurred because empty-store paths printed human-readable messages instead of [].",
+  "files": ["internal/cli/novel_announcement_flood.go", "internal/cli/novel_delivery_divergence.go", "internal/cli/novel_delivery_spike.go", "internal/cli/novel_iep_drift.go", "internal/cli/novel_sector_breadth.go", "internal/cli/novel_index_driver.go", "internal/cli/novel_portfolio.go"],
+  "validated_outcome": "json_fidelity dogfood tests pass for novel commands when store is empty."
+}

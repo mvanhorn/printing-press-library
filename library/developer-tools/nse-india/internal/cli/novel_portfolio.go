@@ -1,4 +1,5 @@
-// Copyright 2026 Mayank Lavania and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 mayank-lavania. Licensed under Apache-2.0. See LICENSE.
+// pp:data-source local
 
 package cli
 
@@ -11,8 +12,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/store"
 	"github.com/spf13/cobra"
+	"nse-india-pp-cli/internal/store"
 )
 
 // holdingRow represents one line from a holdings CSV file.
@@ -57,8 +58,11 @@ func newPortfolioCmd(flags *rootFlags) *cobra.Command {
 }
 
 func parseHoldings(path string) ([]holdingRow, error) {
-	f, err := os.Open(path)
+	f, err := os.Open(path) // #nosec G304 -- path is a user-supplied CLI flag for their own holdings CSV file
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil // treat missing file as empty portfolio; caller handles the zero-holdings case
+		}
 		return nil, fmt.Errorf("opening holdings file: %w", err)
 	}
 	defer f.Close()
@@ -160,6 +164,13 @@ populated by 'nse-india-pp-cli equity quote --symbol <SYMBOL>'.`,
 			holdings, err := parseHoldings(holdingsPath)
 			if err != nil {
 				return err
+			}
+			if len(holdings) == 0 {
+				if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+					return printOutput(cmd.OutOrStdout(), json.RawMessage(`{"holdings":[],"total_market_value":0,"total_cost":0,"total_unrealized_pnl":0,"total_pnl_pct":0,"today_delta_rs":0}`), true)
+				}
+				fmt.Fprintln(cmd.OutOrStdout(), "No holdings found. Provide a CSV with columns: symbol, qty, avg_cost")
+				return nil
 			}
 
 			if dbPath == "" {
@@ -308,6 +319,13 @@ pushed margin utilization above a safe threshold.`,
 			holdings, err := parseHoldings(holdingsPath)
 			if err != nil {
 				return err
+			}
+			if len(holdings) == 0 {
+				if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+					return printOutput(cmd.OutOrStdout(), json.RawMessage(`{"holdings":[],"total_margin_at_risk_rs":0}`), true)
+				}
+				fmt.Fprintln(cmd.OutOrStdout(), "No holdings found. Provide a CSV with columns: symbol, qty, avg_cost")
+				return nil
 			}
 
 			if dbPath == "" {

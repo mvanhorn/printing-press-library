@@ -1,5 +1,5 @@
 {
-  "dir": "/Users/mayanklavania/printing-press/.runstate/cli-printing-press-00dee511/runs/20260508-113209/working/nse-india-pp-cli",
+  "dir": "\u003ccli-dir\u003e/nse-india",
   "workflows": null,
   "verdict": "workflow-pass",
   "issues": [

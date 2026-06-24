@@ -1,6 +1,6 @@
-module github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india
+module nse-india-pp-cli
 
-go 1.26.4
+go 1.25.11
 
 require github.com/spf13/cobra v1.9.1
 

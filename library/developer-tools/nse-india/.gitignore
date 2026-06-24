@@ -1,0 +1,6 @@
+nse-india-pp-cli
+nse-india-pp-mcp
+dist/
+*.db
+*.db-wal
+*.db-shm

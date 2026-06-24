@@ -1,5 +1,15 @@
 {
-  "timestamp": "2026-05-08T06:53:47.086167Z",
-  "cli_dir": "/Users/mayanklavania/printing-press/.runstate/cli-printing-press-00dee511/runs/20260508-113209/working/nse-india-pp-cli",
-  "findings": null
+  "timestamp": "2026-06-24T04:09:37.139716Z",
+  "cli_dir": "\u003ccli-dir\u003e/nse-india",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 261,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; 'Print version' is accurate and agents understand this without elaboration"
+    }
+  ]
 }

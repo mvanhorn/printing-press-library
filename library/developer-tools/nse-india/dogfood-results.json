@@ -1,24 +1,27 @@
 {
-  "dir": "/Users/mayanklavania/printing-press/.runstate/cli-printing-press-00dee511/runs/20260508-113209/working/nse-india-pp-cli",
-  "spec_path": "/Users/mayanklavania/printing-press/.runstate/cli-printing-press-00dee511/runs/20260508-113209/research/nse-india-spec.yaml",
+  "dir": "\u003ccli-dir\u003e/nse-india",
   "verdict": "PASS",
   "path_check": {
     "tested": 0,
     "valid": 0,
-    "valid_pct": 0,
-    "skipped": true,
-    "detail": "internal-yaml spec: paths validated at parse time"
+    "valid_pct": 0
   },
   "auth_check": {
     "spec_scheme": "",
-    "generated_format": "unknown",
+    "generated_format": "",
     "match": true,
-    "detail": "spec not provided or no bot/bearer scheme detected"
+    "detail": "spec not provided; auth protocol check skipped"
   },
   "browser_session_check": {
     "required": false,
     "pass": true,
-    "detail": "browser-session auth not required"
+    "detail": "spec not provided; browser-session auth check skipped"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "spec not provided; OAuth scope coverage check skipped"
   },
   "dead_flags": {
     "total": 18,
@@ -32,6 +35,8 @@
     "sync_calls_domain": true,
     "search_calls_domain": false,
     "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
     "detail": "sync uses domain-specific Upsert methods; search methods not found; 1 domain tables found"
   },
   "example_check": {
@@ -42,8 +47,8 @@
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 42,
-      "registered": 42
+      "defined": 48,
+      "registered": 48
     },
     "config_consistency": {
       "consistent": true
@@ -73,13 +78,17 @@
     "skipped": true
   },
   "print_json_filtered_check": {
-    "checked": 35
+    "checked": 38
   },
   "test_presence": {
     "checked": 0
   },
   "naming_check": {
-    "checked": 35
+    "checked": 38
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
   },
   "issues": null
 }

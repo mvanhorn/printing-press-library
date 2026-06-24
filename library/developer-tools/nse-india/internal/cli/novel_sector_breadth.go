@@ -1,4 +1,5 @@
-// Copyright 2026 Mayank Lavania and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 mayank-lavania. Licensed under Apache-2.0. See LICENSE.
+// pp:data-source local
 
 package cli
 
@@ -8,8 +9,8 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/store"
 	"github.com/spf13/cobra"
+	"nse-india-pp-cli/internal/store"
 )
 
 // sectorBreadthResult holds breadth metrics for a named index.
@@ -120,6 +121,9 @@ quote data via 'nse-india-pp-cli equity quote --symbol <SYMBOL>'.`,
 			}
 
 			if len(byIndex) == 0 {
+				if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+					return printOutput(cmd.OutOrStdout(), json.RawMessage(`[]`), true)
+				}
 				fmt.Fprintln(cmd.OutOrStdout(), "No index constituent data found. Run 'nse-india-pp-cli indices constituents --index \"NIFTY 50\"' to populate.")
 				return nil
 			}

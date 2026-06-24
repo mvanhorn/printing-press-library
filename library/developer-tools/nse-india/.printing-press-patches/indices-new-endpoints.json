@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "indices-new-endpoints",
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260508-113209",
+  "base_printing_press_version": "4.0.4",
+  "summary": "Migrate indices commands to NSE's new indexTrackerApi and allIndices endpoints; add auth login/status/logout; add indices data and indices all commands.",
+  "reason": "/api/equity-stockIndices now returns 404 — NSE migrated to /api/NextApi/apiClient/indexTrackerApi. New endpoints work with bm_sv cookie only. Added BrowserCookie to config and Cookie header injection in client.",
+  "files": ["internal/cli/indices_constituents.go", "internal/cli/indices_data.go", "internal/cli/indices_all.go", "internal/cli/auth_login.go", "internal/cli/indices.go", "internal/cli/root.go", "internal/config/config.go", "internal/client/client.go"],
+  "validated_outcome": "indices all --category sectoral returns 21 sectoral indices live. indices data --index 'NIFTY 50' returns peRatio=20.79, pbRatio=3.18, dividendYield=1.36."
+}
