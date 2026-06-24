@@ -3,16 +3,28 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"path/filepath"
 	"sort"
 	"testing"
 
+	"github.com/mvanhorn/printing-press-library/library/project-management/plane/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/project-management/plane/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/project-management/plane/internal/store"
 
 	_ "modernc.org/sqlite"
 )
+
+// fakeModuleGetter is a moduleGetter that returns a fixed response/error.
+type fakeModuleGetter struct {
+	resp json.RawMessage
+	err  error
+}
+
+func (f fakeModuleGetter) Get(_ context.Context, _ string, _ map[string]string) (json.RawMessage, error) {
+	return f.resp, f.err
+}
 
 func TestResolveActiveWorkspaceID(t *testing.T) {
 	registry := []config.WorkspaceEntry{
@@ -142,5 +154,58 @@ func TestLocalModules_ScopedToWorkspace(t *testing.T) {
 	}
 	if len(one) != 1 || one[0].id != "m-ds" {
 		t.Fatalf("project-filtered modules = %+v, want only m-ds", one)
+	}
+}
+
+// TestEnrichModuleMembership_AccessDenialPreservesCachedLinks guards the
+// enrichment fallback: when a module's module-issues fetch is denied (a foreign
+// module reached via the unscoped fallback), the pass must skip it WITHOUT
+// wiping that module's already-cached junction rows. The stale-link DELETE runs
+// only after the first successful page, so a 403 leaves the cache intact.
+func TestEnrichModuleMembership_AccessDenialPreservesCachedLinks(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	if _, _, err := s.UpsertBatch("projects", []json.RawMessage{
+		json.RawMessage(`{"id": "p1", "workspace": "ws-a"}`),
+	}); err != nil {
+		t.Fatalf("UpsertBatch projects: %v", err)
+	}
+	if _, _, err := s.UpsertBatch("modules", []json.RawMessage{
+		json.RawMessage(`{"id": "m1", "projects_id": "p1", "name": "M1"}`),
+	}); err != nil {
+		t.Fatalf("UpsertBatch modules: %v", err)
+	}
+	if err := ensureModuleIssuesTable(s); err != nil {
+		t.Fatalf("ensureModuleIssuesTable: %v", err)
+	}
+	// Pre-existing cached membership for m1.
+	if _, err := s.DB().Exec(
+		`INSERT INTO module_issues (module_id, issue_id, project_id) VALUES (?, ?, ?)`,
+		"m1", "issue-x", "p1",
+	); err != nil {
+		t.Fatalf("seed module_issues: %v", err)
+	}
+
+	// Getter denies every module-issues fetch with a 403.
+	getter := fakeModuleGetter{err: &client.APIError{StatusCode: 403, Body: "forbidden"}}
+
+	// Unscoped (workspaceID="") so m1 is included and the 403 path is hit.
+	if _, err := enrichModuleMembership(context.Background(), getter, s, "ws-a", "", ""); err != nil {
+		t.Fatalf("enrichModuleMembership: %v (a per-module 403 must be non-fatal)", err)
+	}
+
+	var cnt int
+	if err := s.DB().QueryRow(
+		`SELECT COUNT(*) FROM module_issues WHERE module_id = ?`, "m1",
+	).Scan(&cnt); err != nil {
+		t.Fatalf("count module_issues: %v", err)
+	}
+	if cnt != 1 {
+		t.Fatalf("cached link count = %d, want 1 (a 403 before the first page must not wipe cached membership)", cnt)
 	}
 }

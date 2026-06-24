@@ -213,9 +213,6 @@ func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Sto
 	}
 
 	for _, m := range modules {
-		if _, err := tx.Exec(`DELETE FROM module_issues WHERE module_id = ?`, m.id); err != nil {
-			return res, fmt.Errorf("clearing module_issues for %s: %w", m.id, err)
-		}
 		// PATCH(slug-env-align): workspace-relative path; BaseURL + TemplateVars[slug] supply
 		// /api/v1/workspaces/{slug}. The slug param is retained for caller intent/messages.
 		path := fmt.Sprintf(
@@ -223,6 +220,7 @@ func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Sto
 			m.projectID, m.id,
 		)
 		cursor := ""
+		cleared := false
 		for {
 			params := map[string]string{pg.limitParam: "100"}
 			if cursor != "" {
@@ -234,11 +232,22 @@ func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Sto
 				// module (e.g. a foreign-workspace module that slipped through
 				// when the active workspace UUID was unknown and scoping fell
 				// back to all modules) must not abort enrichment for every other
-				// module. Skip this module's pages and continue.
+				// module. Skip this module's pages and continue. Because the
+				// stale-link DELETE below runs only after the first SUCCESSFUL
+				// page, a 403 here leaves the module's cached membership intact
+				// instead of wiping it (we never reached the delete).
 				if _, ok := isSyncAccessWarning(gerr); ok {
 					break
 				}
 				return res, gerr
+			}
+			// Clear stale links once, only after a successful response, so an
+			// access denial before the first page can't wipe cached membership.
+			if !cleared {
+				if _, err := tx.Exec(`DELETE FROM module_issues WHERE module_id = ?`, m.id); err != nil {
+					return res, fmt.Errorf("clearing module_issues for %s: %w", m.id, err)
+				}
+				cleared = true
 			}
 			items, next, hasMore := extractPageItems(data, pg.cursorParam)
 			for _, raw := range items {

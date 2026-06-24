@@ -76,3 +76,34 @@ func TestListIDsScoped_EmptyScopeFallsBackToAll(t *testing.T) {
 		t.Fatalf("empty-scope ids = %v, want both rows (unscoped fallback)", got)
 	}
 }
+
+// TestListIDsScoped_DegradesWhenScopeColumnAbsent guards the "can't scope =>
+// don't filter, never filter to nothing" contract: when the typed table exists
+// but has no such column (e.g. modules carry no `workspace` column), the scoped
+// query must degrade to unscoped ListIDs (return all) rather than a json_extract
+// probe that could silently return zero rows.
+func TestListIDsScoped_DegradesWhenScopeColumnAbsent(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	// The modules typed table has no "workspace" column.
+	items := []json.RawMessage{
+		json.RawMessage(`{"id": "m1", "projects_id": "p1"}`),
+		json.RawMessage(`{"id": "m2", "projects_id": "p1"}`),
+	}
+	if _, _, err := s.UpsertBatch("modules", items); err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+
+	got, err := s.ListIDsScoped("modules", "workspace", "any-value")
+	if err != nil {
+		t.Fatalf("ListIDsScoped: %v", err)
+	}
+	if len(got) != 2 {
+		t.Fatalf("scope-column-absent ids = %v, want both rows (must degrade to unscoped, not filter to nothing)", got)
+	}
+}

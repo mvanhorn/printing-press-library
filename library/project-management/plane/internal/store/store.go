@@ -2777,43 +2777,45 @@ func (s *Store) ListIDsScoped(resourceType, scopeColumn, scopeValue string) ([]s
 		return nil, fmt.Errorf("ListIDsScoped: invalid scope column %q (must match %s)", scopeColumn, validIdentifierRE.String())
 	}
 	var table string
-	err := s.db.QueryRow(
+	terr := s.db.QueryRow(
 		`SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
 		resourceType,
 	).Scan(&table)
+
 	var rows *sql.Rows
-	if err == nil && table != "" {
-		// Confirm the scope column exists on the typed table before splicing
-		// it into the SELECT. If it does not, fall through to the generic
-		// resources json_extract path rather than erroring — a parent table
-		// without the scope column simply cannot be tenant-filtered on a typed
-		// column here.
+	var err error
+	if terr == nil && table != "" {
+		// Typed table exists: scope on the column when it is present. When the
+		// column is absent we DEGRADE to unscoped ListIDs (return every row)
+		// rather than probing the generic resources table via json_extract —
+		// that probe could silently return zero rows if the data blob lacks the
+		// field, dropping all parents. "Can't scope" must mean "don't filter",
+		// never "filter to nothing".
 		var colName string
 		colErr := s.db.QueryRow(
 			`SELECT name FROM pragma_table_info(?) WHERE name=?`,
 			table, scopeColumn,
 		).Scan(&colName)
-		if colErr == nil && colName != "" {
-			qTable := strings.ReplaceAll(table, `"`, `""`)
-			qCol := strings.ReplaceAll(colName, `"`, `""`)
-			rows, err = s.db.Query(fmt.Sprintf(
-				`SELECT id FROM "%s" WHERE "%s" = ?`, qTable, qCol,
-			), scopeValue)
-		} else {
-			err = colErr
+		if colErr != nil || colName == "" {
+			return s.ListIDs(resourceType)
 		}
-	}
-	if err != nil || rows == nil {
-		// Fall back to the generic resources table, filtering by json_extract
-		// on the scope column. scopeColumn is validIdentifierRE-checked above,
-		// matching ListField's fallback splice.
+		qTable := strings.ReplaceAll(table, `"`, `""`)
+		qCol := strings.ReplaceAll(colName, `"`, `""`)
+		rows, err = s.db.Query(fmt.Sprintf(
+			`SELECT id FROM "%s" WHERE "%s" = ?`, qTable, qCol,
+		), scopeValue)
+	} else {
+		// No typed table: the resource lives only in the generic resources
+		// store, where json_extract on the data blob is the only scopable
+		// column. scopeColumn is validIdentifierRE-checked above, matching
+		// ListField's fallback splice.
 		rows, err = s.db.Query(fmt.Sprintf(
 			`SELECT id FROM resources WHERE resource_type = ? AND json_extract(data, '$.%s') = ?`,
 			scopeColumn,
 		), resourceType, scopeValue)
-		if err != nil {
-			return nil, err
-		}
+	}
+	if err != nil {
+		return nil, err
 	}
 	defer rows.Close()
 
