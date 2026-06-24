@@ -65,10 +65,6 @@ func newNovelRepoCreateCmd(flags *rootFlags) *cobra.Command {
 			if !stdinBody && name == "" && !flags.dryRun {
 				return fmt.Errorf("--name is required\nUsage: fj repo create --name <name>")
 			}
-			c, err := flags.newClient()
-			if err != nil {
-				return err
-			}
 
 			path := "/user/repos"
 			var body map[string]any
@@ -118,6 +114,11 @@ func newNovelRepoCreateCmd(flags *rootFlags) *cobra.Command {
 				bodyJSON, _ := json.MarshalIndent(body, "", "  ")
 				fmt.Fprintf(cmd.OutOrStdout(), "dry-run: POST %s\n%s\n", path, string(bodyJSON))
 				return nil
+			}
+
+			c, err := flags.newClient()
+			if err != nil {
+				return err
 			}
 
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, map[string]string{}, body)
@@ -261,7 +262,7 @@ func newNovelRepoListCmd(flags *rootFlags) *cobra.Command {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
-					if len(items) >= limit {
+					if len(items) >= limit && !all {
 						fmt.Fprintf(os.Stderr, "\nShowing %d results. To see more: add --limit N or --all.\n", len(items))
 					}
 					return nil
