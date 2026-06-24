@@ -97,11 +97,16 @@ func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			features := parseFeatures(rawFeatures)
 			newScenes := []watchedScene{}
 			var newRaw []json.RawMessage
-			for i := range features {
-				f := &features[i]
+			// Iterate raw features directly: parseFeatures drops unparseable
+			// entries, so indexing rawFeatures by the parsed-slice index would
+			// misalign and record the wrong scene under --record.
+			for _, raw := range rawFeatures {
+				var f stacFeature
+				if json.Unmarshal(raw, &f) != nil {
+					continue
+				}
 				if f.ID == "" || seen[f.ID] {
 					continue
 				}
@@ -110,7 +115,7 @@ func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 					s.CloudCover = &cv
 				}
 				newScenes = append(newScenes, s)
-				newRaw = append(newRaw, rawFeatures[i])
+				newRaw = append(newRaw, raw)
 			}
 			recorded := 0
 			if flagRecord && len(newRaw) > 0 {
