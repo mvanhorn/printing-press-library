@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "stac-watch-collections-items-dedup",
+  "applied_at": "2026-06-24",
+  "base_run_id": "20260624-152026-b6ccb73c",
+  "base_printing_press_version": "4.25.0",
+  "summary": "watch dedup now strips the composite parent suffix from collections_items ids.",
+  "reason": "Items synced via 'sync --resources collections_items' are stored under a composite key (id + NUL + collections_id), so ListIDs returns composite keys while live search returns bare f.ID. seen[f.ID] never matched, so every collections_items-synced scene was reported as new on every run. Added store.BareResourceID to strip the NUL-delimited suffix and applied it when building watch's seen set.",
+  "files": ["internal/store/store.go", "internal/cli/watch.go"],
+  "validated_outcome": "go build ./... , go vet ./... , go test ./internal/... pass; verify-skill matches shipped CLI source.",
+  "upstream_issue": ""
+}

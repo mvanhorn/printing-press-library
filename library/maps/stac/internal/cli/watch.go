@@ -82,7 +82,9 @@ func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 					continue
 				}
 				for _, id := range ids {
-					seen[id] = true
+					// collections_items ids carry a NUL-delimited parent suffix;
+					// strip it so the bare id matches live search's f.ID.
+					seen[store.BareResourceID(id)] = true
 				}
 			}
 			_ = roStore.Close()

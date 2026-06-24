@@ -1262,6 +1262,17 @@ func resourceStorageID(resourceType, id string, obj map[string]any) string {
 	return id + string([]byte{0}) + parentValue
 }
 
+// BareResourceID strips the NUL-delimited parent suffix that resourceStorageID
+// appends to dependent resource types (e.g. collections_items), returning the
+// bare entity id. For non-composite ids it returns the input unchanged, so it
+// is safe to apply to every id returned by ListIDs.
+func BareResourceID(storageID string) string {
+	if i := strings.IndexByte(storageID, 0); i >= 0 {
+		return storageID[:i]
+	}
+	return storageID
+}
+
 // UpsertBatch inserts or replaces multiple records in a single transaction
 // and returns (stored, extractFailures, err). stored counts rows landed in
 // the generic resources table; extractFailures counts items that survived

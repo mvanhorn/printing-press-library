@@ -586,3 +586,24 @@ func TestUpsertBatch_CollectionsItemsSearchableViaGenericFTS(t *testing.T) {
 		t.Fatalf("dependent resource %q stored but not searchable via generic resources_fts (issue #2629)", "collections_items")
 	}
 }
+
+func TestBareResourceID(t *testing.T) {
+	composite := resourceStorageID("collections_items", "S2A_123", map[string]any{"collections_id": "sentinel-2-l2a"})
+	if composite == "S2A_123" {
+		t.Fatal("expected a composite storage id for collections_items")
+	}
+	tests := []struct {
+		name string
+		in   string
+		want string
+	}{
+		{"bare id unchanged", "S2A_123", "S2A_123"},
+		{"composite stripped to bare id", composite, "S2A_123"},
+		{"empty input", "", ""},
+	}
+	for _, tt := range tests {
+		if got := BareResourceID(tt.in); got != tt.want {
+			t.Errorf("%s: BareResourceID(%q) = %q, want %q", tt.name, tt.in, got, tt.want)
+		}
+	}
+}
