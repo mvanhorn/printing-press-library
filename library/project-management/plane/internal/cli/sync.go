@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/project-management/plane/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/project-management/plane/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/project-management/plane/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/project-management/plane/internal/store"
 	"github.com/spf13/cobra"
 	"io"
@@ -309,7 +310,14 @@ Resource scoping:
 				}
 			}
 			// Sync dependent (parent-child) resources sequentially after flat resources.
-			depResults := syncDependentResources(cmd.Context(), c, db, sinceTS, full, maxPages, effectiveLatestOnly, parentFilter, userParams, syncEventWriter)
+			// PATCH(workspace-scoped-fanout): resolve the active workspace UUID so the
+			// dependent phase only fans out over THIS workspace's parents (the local
+			// store may hold several workspaces). Empty => unscoped fallback.
+			activeWorkspaceID := ""
+			if c.Config != nil {
+				activeWorkspaceID = resolveActiveWorkspaceID(c.Config.TemplateVars["slug"], c.Config.Workspaces)
+			}
+			depResults := syncDependentResources(cmd.Context(), c, db, sinceTS, full, maxPages, effectiveLatestOnly, parentFilter, activeWorkspaceID, userParams, syncEventWriter)
 			for _, res := range depResults {
 				if res.Err != nil {
 					if humanFriendly {
@@ -1495,6 +1503,38 @@ type dependentPathParamDef struct {
 	Field string
 }
 
+// parentTenantScopeColumns maps a dependent-sync parent table to the column on
+// its typed table that stores the active-tenant identity.
+//
+// PATCH(workspace-scoped-fanout): the local store is multi-tenant (one DB, many
+// workspaces), so dependent fan-out must be scoped to the active workspace or it
+// enumerates cross-workspace project IDs and dials them under the active slug,
+// drawing a 403 per foreign project. For Plane the only parent table is
+// `projects`, whose `workspace` column holds the workspace UUID. See
+// .printing-press-patches/workspace-scoped-fanout.json.
+var parentTenantScopeColumns = map[string]string{
+	"projects": "workspace",
+}
+
+// resolveActiveWorkspaceID maps the active workspace slug to its UUID via the
+// locally-enrolled registry (config `[[workspaces]]`). Returns "" when the slug
+// is unset/sentinel or not enrolled with a cached ID; callers treat "" as "do
+// not scope" and fall back to the (pre-patch) unscoped parent enumeration, with
+// the 403-as-sync_warning safety net still covering any cross-tenant leakage.
+// PATCH(workspace-scoped-fanout).
+func resolveActiveWorkspaceID(slug string, workspaces []config.WorkspaceEntry) string {
+	slug = strings.TrimSpace(slug)
+	if slug == "" || slug == "my-workspace" {
+		return ""
+	}
+	for _, w := range workspaces {
+		if w.Slug == slug {
+			return w.ID
+		}
+	}
+	return ""
+}
+
 func dependentResourceDefs() []dependentResourceDef {
 	return []dependentResourceDef{
 		{Name: "archived_cycles", ParentTable: "projects", ParentIDParam: "project_id", PathTemplate: "/projects/{project_id}/archived-cycles/", KeyField: "", PathParams: []dependentPathParamDef{
@@ -1538,7 +1578,7 @@ func dependentResourceDefs() []dependentResourceDef {
 func syncDependentResources(ctx context.Context, c interface {
 	Get(context.Context, string, map[string]string) (json.RawMessage, error)
 	RateLimit() float64
-}, db *store.Store, sinceTS string, full bool, maxPages int, latestOnly bool, parentFilter []string, userParams *syncUserParams, syncEvents io.Writer) []syncResult {
+}, db *store.Store, sinceTS string, full bool, maxPages int, latestOnly bool, parentFilter []string, activeWorkspaceID string, userParams *syncUserParams, syncEvents io.Writer) []syncResult {
 	allow := make(map[string]bool, len(parentFilter))
 	for _, r := range parentFilter {
 		allow[r] = true
@@ -1548,7 +1588,7 @@ func syncDependentResources(ctx context.Context, c interface {
 		if len(allow) > 0 && !allow[dep.ParentTable] && !allow[dep.Name] {
 			continue
 		}
-		res := syncDependentResource(ctx, c, db, dep, sinceTS, full, maxPages, latestOnly, userParams, syncEvents)
+		res := syncDependentResource(ctx, c, db, dep, sinceTS, full, maxPages, latestOnly, activeWorkspaceID, userParams, syncEvents)
 		results = append(results, res)
 	}
 	return results
@@ -1558,7 +1598,7 @@ func syncDependentResources(ctx context.Context, c interface {
 func syncDependentResource(ctx context.Context, c interface {
 	Get(context.Context, string, map[string]string) (json.RawMessage, error)
 	RateLimit() float64
-}, db *store.Store, dep dependentResourceDef, sinceTS string, full bool, maxPages int, latestOnly bool, userParams *syncUserParams, syncEvents io.Writer) syncResult {
+}, db *store.Store, dep dependentResourceDef, sinceTS string, full bool, maxPages int, latestOnly bool, activeWorkspaceID string, userParams *syncUserParams, syncEvents io.Writer) syncResult {
 	started := time.Now()
 	if syncEvents == nil {
 		syncEvents = io.Discard
@@ -1572,7 +1612,15 @@ func syncDependentResource(ctx context.Context, c interface {
 		}
 		pathParams = []dependentPathParamDef{{Param: dep.ParentIDParam, Field: field}}
 	}
-	parentRows, err := dependentParentRows(db, dep.ParentTable, pathParams)
+	// PATCH(workspace-scoped-fanout): scope parent enumeration to the active
+	// workspace when the parent table carries a tenant column. scopeValue=""
+	// (workspace not enrolled / unknown UUID) falls back to unscoped.
+	scopeColumn := parentTenantScopeColumns[dep.ParentTable]
+	scopeValue := ""
+	if scopeColumn != "" {
+		scopeValue = activeWorkspaceID
+	}
+	parentRows, err := dependentParentRows(db, dep.ParentTable, pathParams, scopeColumn, scopeValue)
 	if err != nil || len(parentRows) == 0 {
 		if len(parentRows) == 0 {
 			if humanFriendly {
@@ -1839,10 +1887,14 @@ func dependentParentFields(pathParams []dependentPathParamDef) []string {
 	return fields
 }
 
-func dependentParentRows(db *store.Store, parentTable string, pathParams []dependentPathParamDef) ([]map[string]string, error) {
+func dependentParentRows(db *store.Store, parentTable string, pathParams []dependentPathParamDef, scopeColumn, scopeValue string) ([]map[string]string, error) {
 	fields := dependentParentFields(pathParams)
 	if len(fields) == 1 {
-		values, err := db.ListIDs(parentTable)
+		// PATCH(workspace-scoped-fanout): the single-id parent path (every Plane
+		// dependent) is scoped to the active tenant. The multi-field branches
+		// below are for multi-placeholder paths Plane does not use; they stay
+		// unscoped (no tenant column to filter on there today).
+		values, err := db.ListIDsScoped(parentTable, scopeColumn, scopeValue)
 		if err != nil {
 			return nil, err
 		}

@@ -2755,6 +2755,79 @@ func (s *Store) ListIDs(resourceType string) ([]string, error) {
 	return ids, rows.Err()
 }
 
+// ListIDsScoped returns ids from a resource's typed table, optionally filtered
+// to rows whose scopeColumn equals scopeValue. When scopeColumn or scopeValue
+// is empty it is identical to ListIDs.
+//
+// PATCH(workspace-scoped-fanout): dependent-resource sync fans out over parent
+// IDs read from the local store, but the store is multi-tenant — one DB can
+// hold projects from several workspaces (the slug is per-process; the DB is
+// shared). An unscoped parent enumeration makes the dependent phase dial
+// /workspaces/<active-slug>/projects/<other-workspace-project-id>/..., which the
+// API rejects with 403. Scoping the parent query to the active workspace's
+// projects (projects.workspace == <active workspace UUID>) keeps fan-out within
+// the tenant. Defense in depth mirrors ListField: scopeColumn is validated
+// against validIdentifierRE and confirmed to exist via pragma_table_info before
+// it is spliced into the SELECT; scopeValue is always a bound parameter.
+func (s *Store) ListIDsScoped(resourceType, scopeColumn, scopeValue string) ([]string, error) {
+	if scopeColumn == "" || scopeValue == "" {
+		return s.ListIDs(resourceType)
+	}
+	if !validIdentifierRE.MatchString(scopeColumn) {
+		return nil, fmt.Errorf("ListIDsScoped: invalid scope column %q (must match %s)", scopeColumn, validIdentifierRE.String())
+	}
+	var table string
+	err := s.db.QueryRow(
+		`SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+		resourceType,
+	).Scan(&table)
+	var rows *sql.Rows
+	if err == nil && table != "" {
+		// Confirm the scope column exists on the typed table before splicing
+		// it into the SELECT. If it does not, fall through to the generic
+		// resources json_extract path rather than erroring — a parent table
+		// without the scope column simply cannot be tenant-filtered on a typed
+		// column here.
+		var colName string
+		colErr := s.db.QueryRow(
+			`SELECT name FROM pragma_table_info(?) WHERE name=?`,
+			table, scopeColumn,
+		).Scan(&colName)
+		if colErr == nil && colName != "" {
+			qTable := strings.ReplaceAll(table, `"`, `""`)
+			qCol := strings.ReplaceAll(colName, `"`, `""`)
+			rows, err = s.db.Query(fmt.Sprintf(
+				`SELECT id FROM "%s" WHERE "%s" = ?`, qTable, qCol,
+			), scopeValue)
+		} else {
+			err = colErr
+		}
+	}
+	if err != nil || rows == nil {
+		// Fall back to the generic resources table, filtering by json_extract
+		// on the scope column. scopeColumn is validIdentifierRE-checked above,
+		// matching ListField's fallback splice.
+		rows, err = s.db.Query(fmt.Sprintf(
+			`SELECT id FROM resources WHERE resource_type = ? AND json_extract(data, '$.%s') = ?`,
+			scopeColumn,
+		), resourceType, scopeValue)
+		if err != nil {
+			return nil, err
+		}
+	}
+	defer rows.Close()
+
+	var ids []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			continue
+		}
+		ids = append(ids, id)
+	}
+	return ids, rows.Err()
+}
+
 // ListField returns values of a named field from a resource's domain table,
 // or from the generic resources table via json_extract when no typed column
 // exists. Used by dependent sync to iterate parents when a spec-declared

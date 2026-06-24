@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "id": "workspace-scoped-fanout",
+  "applied_at": "2026-06-24",
+  "base_run_id": "20260602-073610",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Scope dependent-resource sync fan-out to the active workspace so it no longer enumerates cross-workspace project IDs and dials them under the active slug (403 per foreign project).",
+  "reason": "The local store is multi-tenant (one data.db can hold projects from several enrolled workspaces). dependentParentRows() read EVERY project via store.ListIDs(\"projects\") with no workspace filter, so the dependent phase (states/cycles/modules/labels/issues) dialed /workspaces/<active-slug>/projects/<other-workspace-project-id>/... and drew a 403 for each foreign project. The 403s were downgraded to sync_warning (no data loss) but produced spurious warnings + wasted rate-limited requests on every sync against a shared DB.",
+  "files": [
+    "internal/store/store.go",
+    "internal/cli/sync.go"
+  ],
+  "change": [
+    "store.go: add Store.ListIDsScoped(resourceType, scopeColumn, scopeValue) — ListIDs plus an optional tenant filter (typed-column path validated via validIdentifierRE + pragma_table_info, bound scopeValue; json_extract fallback on the generic resources table). Empty scope == ListIDs.",
+    "sync.go: add parentTenantScopeColumns{\"projects\":\"workspace\"} and resolveActiveWorkspaceID(slug, []config.WorkspaceEntry) which maps the active slug to its UUID via the local [[workspaces]] registry. RunE resolves the active workspace UUID from c.Config and threads it through syncDependentResources -> syncDependentResource -> dependentParentRows, which now scopes the single-id parent enumeration via ListIDsScoped. Unknown UUID (slug not enrolled / no cached id) => scopeValue\"\" => unscoped fallback (old behavior, 403-as-warning safety net intact)."
+  ],
+  "tests": [
+    "internal/store/list_ids_scoped_test.go: TestListIDsScoped_FiltersByTenant, TestListIDsScoped_EmptyScopeFallsBackToAll",
+    "internal/cli/workspace_scope_test.go: TestResolveActiveWorkspaceID, TestDependentParentRows_ScopedToWorkspace"
+  ],
+  "validated_outcome": "go build ./... + go vet + go test ./internal/cli ./internal/store all green. Scoped enumeration returns only the active workspace's projects; empty scope preserves the pre-patch unscoped behavior.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Generator-level tenant-scoped dependent fan-out: drive the parent-table tenant-scope column from a spec annotation (e.g. x-pp-tenant-scope-column) plus a tenant-value resolver, so any multi-tenant printed CLI sharing one local store scopes dependent enumeration without a hand patch.",
+      "reason": "Today the generated dependent-sync reads ALL parent rows; multi-tenant scoping is API-specific (slug->UUID via a local registry here) and not yet modeled by the profiler/templates."
+    }
+  ]
+}
