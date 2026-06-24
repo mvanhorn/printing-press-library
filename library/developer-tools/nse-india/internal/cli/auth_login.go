@@ -9,8 +9,8 @@ import (
 	"os/exec"
 	"strings"
 
-	"nse-india-pp-cli/internal/cliutil"
-	"nse-india-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/config"
 	// config used via flags.configPath; cliutil for IsVerifyEnv
 
 	"github.com/spf13/cobra"

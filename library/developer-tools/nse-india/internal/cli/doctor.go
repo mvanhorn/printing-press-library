@@ -13,9 +13,9 @@ import (
 	"strings"
 	"time"
 
-	"nse-india-pp-cli/internal/client"
-	"nse-india-pp-cli/internal/config"
-	"nse-india-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/store"
 	"github.com/spf13/cobra"
 )
 

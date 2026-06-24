@@ -14,11 +14,11 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"nse-india-pp-cli/internal/cli"
-	"nse-india-pp-cli/internal/client"
-	"nse-india-pp-cli/internal/config"
-	"nse-india-pp-cli/internal/mcp/cobratree"
-	"nse-india-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/store"
 )
 
 // RegisterTools registers all API operations as MCP tools.

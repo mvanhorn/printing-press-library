@@ -11,7 +11,7 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
-	"nse-india-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/store"
 )
 
 // deliveryDivergenceResult holds the price-delivery correlation signal for one stock.

@@ -10,7 +10,7 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
-	"nse-india-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/store"
 )
 
 // sectorBreadthResult holds breadth metrics for a named index.

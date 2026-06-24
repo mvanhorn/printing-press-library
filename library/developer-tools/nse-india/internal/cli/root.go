@@ -13,8 +13,8 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"nse-india-pp-cli/internal/client"
-	"nse-india-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/config"
 	"github.com/spf13/cobra"
 )
 

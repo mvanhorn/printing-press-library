@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"nse-india-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/store"
 )
 
 // holdingRow represents one line from a holdings CSV file.

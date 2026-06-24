@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/mark3labs/mcp-go/server"
-	mcptools "nse-india-pp-cli/internal/mcp"
+	mcptools "github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/mcp"
 )
 
 func main() {

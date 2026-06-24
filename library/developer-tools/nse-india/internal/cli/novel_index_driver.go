@@ -11,7 +11,7 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
-	"nse-india-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/store"
 )
 
 // indexDriverResult holds one stock's point contribution to an index move.

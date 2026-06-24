@@ -1,4 +1,4 @@
-module nse-india-pp-cli
+module github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india
 
 go 1.25.11
 
