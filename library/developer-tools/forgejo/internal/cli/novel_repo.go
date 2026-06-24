@@ -259,7 +259,7 @@ func newNovelRepoListCmd(flags *rootFlags) *cobra.Command {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
-					if len(items) >= 25 {
+					if len(items) >= limit {
 						fmt.Fprintf(os.Stderr, "\nShowing %d results. To see more: add --limit N or --all.\n", len(items))
 					}
 					return nil
@@ -397,7 +397,7 @@ func newNovelRepoDeleteCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			// Confirm unless --yes
-			if !flags.yes && !flags.noInput && isTerminal(cmd.OutOrStdout()) {
+			if !flags.yes && !flags.noInput && isTerminal(os.Stdin) {
 				fmt.Fprintf(os.Stderr, "Delete repository %s/%s? This cannot be undone. [y/N]: ", owner, repo)
 				var confirm string
 				fmt.Fscan(os.Stdin, &confirm)
@@ -445,10 +445,17 @@ func newNovelRepoDeleteCmd(flags *rootFlags) *cobra.Command {
 }
 
 // splitOwnerRepo splits "owner/repo" into ["owner", "repo"].
+// Returns a single-element slice if the input has zero or more than one slash.
 func splitOwnerRepo(s string) []string {
 	for i, c := range s {
 		if c == '/' {
-			return []string{s[:i], s[i+1:]}
+			rest := s[i+1:]
+			for _, rc := range rest {
+				if rc == '/' {
+					return []string{s}
+				}
+			}
+			return []string{s[:i], rest}
 		}
 	}
 	return []string{s}
