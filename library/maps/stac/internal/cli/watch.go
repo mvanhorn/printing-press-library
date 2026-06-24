@@ -29,11 +29,12 @@ func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 	var flagMaxScanPages int
 
 	cmd := &cobra.Command{
-		Use:         "watch",
-		Short:       "Report scenes published over an area since the last check.",
-		Long:        "Use this command to monitor an AOI for fresh imagery across runs. It diffs a live search against the item IDs already in the local store; pass --record to add the new scenes to the store so the next run only reports newer ones.",
-		Example:     "  stac-pp-cli watch --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Use:     "watch",
+		Short:   "Report scenes published over an area since the last check.",
+		Long:    "Use this command to monitor an AOI for fresh imagery across runs. It diffs a live search against the item IDs already in the local store; pass --record to add the new scenes to the store so the next run only reports newer ones.",
+		Example: "  stac-pp-cli watch --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9",
+		// No mcp:read-only annotation: --record opens the store read-write and
+		// upserts new scenes (UpsertBatch below), so this command can mutate.
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
