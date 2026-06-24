@@ -418,9 +418,9 @@ __Authorization:__
 Requires one of the following:
 
 * A [user access token](https://dev.twitch.tv/docs/authentication#user-access-tokens) that includes the **moderator:manage:shoutouts** scope.
-* BETA An [app access token](https://dev.twitch.tv/docs/authentication#app-access-tokens) where the application, through prior authorizations, has:  
-    
-* The **channel:bot** scope for the user represented by the `broadcaster_id` query parameter, and  
+* BETA An [app access token](https://dev.twitch.tv/docs/authentication#app-access-tokens) where the application, through prior authorizations, has:
+
+* The **channel:bot** scope for the user represented by the `broadcaster_id` query parameter, and
 * The **moderator:manage:shoutouts** and **user:bot** scopes for the user represented by the `moderator_id` in the query parameter.
 - **`twitch-pp-cli chat send-announcement`** - Sends an announcement to the broadcaster's chat room.
 
@@ -1306,12 +1306,12 @@ To learn more about blocking users, see [Block Other Users on Twitch](https://he
 __Authorization:__
 
 Requires a [user access token](https://dev.twitch.tv/docs/authentication#user-access-tokens) that includes the **user:manage:blocked\_users** scope.
-- **`twitch-pp-cli users get`** - Gets information about one or more users.  
-  
-You may look up users using their user ID, login name, or both but the sum total of the number of users you may look up is 100\. For example, you may specify 50 IDs and 50 names or 100 IDs or names, but you cannot specify 100 IDs and 100 names.  
-  
-If you don't specify IDs or login names, the request returns information about the user in the access token if you specify a user access token.  
-  
+- **`twitch-pp-cli users get`** - Gets information about one or more users.
+
+You may look up users using their user ID, login name, or both but the sum total of the number of users you may look up is 100\. For example, you may specify 50 IDs and 50 names or 100 IDs or names, but you cannot specify 100 IDs and 100 names.
+
+If you don't specify IDs or login names, the request returns information about the user in the access token if you specify a user access token.
+
 To include the user's verified email address in the response, you must use a user access token that includes the **user:read:email** scope.
 
 __Authorization:__
