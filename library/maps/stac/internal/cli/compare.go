@@ -75,7 +75,9 @@ func newNovelCompareCmd(flags *rootFlags) *cobra.Command {
 						n++
 					}
 				}
-				cc := collectionComparison{Collection: col, Matched: matched, SampleSize: n}
+				// SampleSize is the total scenes sampled; n (scenes carrying
+				// eo:cloud_cover) is only the denominator for the mean below.
+				cc := collectionComparison{Collection: col, Matched: matched, SampleSize: len(sample)}
 				if n > 0 {
 					mean := sum / float64(n)
 					cc.MeanCloudCover = &mean

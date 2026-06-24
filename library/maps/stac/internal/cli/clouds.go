@@ -52,10 +52,16 @@ func newNovelCloudsCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(err, flags)
 			}
 			hist, ok := findAgg(aggs, "cloud_cover_frequency")
+			// Emit [] rather than null when there is no histogram, so the JSON
+			// shape stays stable for agents iterating buckets.
+			buckets := hist.Buckets
+			if buckets == nil {
+				buckets = []aggBucket{}
+			}
 			view := map[string]any{
 				"collection": flagCollection,
 				"datetime":   flagDatetime,
-				"buckets":    hist.Buckets,
+				"buckets":    buckets,
 			}
 			if flagBbox != "" {
 				view["bbox"] = flagBbox
