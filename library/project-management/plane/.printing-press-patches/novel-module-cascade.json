@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "novel-module-cascade",
+  "applied_at": "2026-06-24",
+  "summary": "Registers the module_issues junction table as a cascade target for the 'modules' resource type via store.RegisterCascadeJunction in a package-level init() in modules_novel.go. This ensures ReconcilePartition cleans module_issues rows when modules are swept from the local cache.",
+  "reason": "module_issues is created at runtime by the novel module command and is absent from the generated schema, so the generator cannot derive its cascade automatically. The init() registration seam (mirroring the command registration pattern in root.go) is regen-stable: a press regeneration overwrites the generated files but leaves modules_novel.go untouched, so the cascade registration survives.",
+  "files": [
+    "internal/cli/modules_novel.go"
+  ]
+}

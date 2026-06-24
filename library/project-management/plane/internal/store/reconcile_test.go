@@ -55,6 +55,14 @@ func TestReconcilePartition_EmptyScopeErrors(t *testing.T) {
 	}
 }
 
+func TestCascadeJunctionRegistry(t *testing.T) {
+	RegisterCascadeJunction("modules", CascadeJunction{Table: "module_issues", FKColumn: "module_id"})
+	got := CascadeJunctionsFor("modules")
+	if len(got) != 1 || got[0].Table != "module_issues" || got[0].FKColumn != "module_id" {
+		t.Fatalf("registry = %+v, want one module_issues/module_id", got)
+	}
+}
+
 // mustUpsert calls s.UpsertBatch with a single JSON item. Fatals on error.
 func mustUpsert(t *testing.T, s *Store, resourceType, body string) {
 	t.Helper()

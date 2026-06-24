@@ -39,6 +39,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func init() {
+	store.RegisterCascadeJunction("modules", store.CascadeJunction{Table: "module_issues", FKColumn: "module_id"})
+}
+
 // applyClientSlug honors an explicit --slug / positional slug by writing it into
 // the client's endpoint TemplateVars. PATCH(slug-env-align): the reprinted client
 // puts the workspace scope in BaseURL (/api/v1/workspaces/{slug}) and resolves
