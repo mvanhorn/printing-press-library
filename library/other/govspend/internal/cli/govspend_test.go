@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"testing"
@@ -122,6 +123,52 @@ func TestBuildGrantsPayloadUsesPublicSearchFields(t *testing.T) {
 	}
 }
 
+func TestBuildGrantsPayloadOmitsEmptyKeyword(t *testing.T) {
+	payload := buildGrantsPayload(grantsQuery{Status: "posted", Limit: 5})
+	if _, ok := payload["keyword"]; ok {
+		t.Fatalf("empty keyword should not be included: %#v", payload)
+	}
+}
+
+func TestDoctorLiveReportsGrantsApplicationError(t *testing.T) {
+	var out bytes.Buffer
+	app := &app{
+		out: &out,
+		err: &bytes.Buffer{},
+		httpClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			switch req.URL.String() {
+			case usaSpendingBaseURL + "/api/v2/references/toptier_agencies/":
+				return jsonResponse(`{"results":[]}`), nil
+			case grantsSearchURL:
+				return jsonResponse(`{"errorcode":429,"msg":"OVER_RATE_LIMIT"}`), nil
+			default:
+				t.Fatalf("unexpected request to %s", req.URL.String())
+				return nil, nil
+			}
+		})},
+		now: func() time.Time { return time.Date(2026, 6, 25, 12, 0, 0, 0, time.UTC) },
+		env: func(string) string { return "" },
+	}
+	cmd := newRootCmd(app)
+	cmd.SetArgs([]string{"doctor", "--live", "--agent"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute() error = %v", err)
+	}
+	var decoded doctorResult
+	if err := json.Unmarshal(out.Bytes(), &decoded); err != nil {
+		t.Fatalf("invalid json: %v\n%s", err, out.String())
+	}
+	for _, source := range decoded.Sources {
+		if source.Name == "Grants.gov" {
+			if !strings.Contains(source.Live, "OVER_RATE_LIMIT") {
+				t.Fatalf("expected Grants.gov application error in live status, got %q", source.Live)
+			}
+			return
+		}
+	}
+	t.Fatalf("Grants.gov source not found: %#v", decoded.Sources)
+}
+
 func TestOpportunitiesMissingSAMKeyReturnsSetupJSON(t *testing.T) {
 	var out bytes.Buffer
 	app := &app{
@@ -155,4 +202,13 @@ func (fn roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 		return nil, fmt.Errorf("roundTripFunc is nil")
 	}
 	return fn(req)
+}
+
+func jsonResponse(body string) *http.Response {
+	return &http.Response{
+		StatusCode: http.StatusOK,
+		Status:     "200 OK",
+		Header:     make(http.Header),
+		Body:       io.NopCloser(strings.NewReader(body)),
+	}
 }

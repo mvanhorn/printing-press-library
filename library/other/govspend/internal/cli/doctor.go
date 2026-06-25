@@ -60,6 +60,9 @@ func newDoctorCmd(app *app) *cobra.Command {
 					case "Grants.gov":
 						var target grantsResponse
 						err := doJSON(ctx, app.httpClient, http.MethodPost, grantsSearchURL, map[string]any{"keyword": "data", "rows": 1, "startRecordNum": 0, "oppStatuses": "forecasted|posted"}, nil, &target)
+						if err == nil && target.ErrorCode != 0 {
+							err = fmt.Errorf("grants.gov returned error %d: %s", target.ErrorCode, target.Message)
+						}
 						result.Sources[i].Live = liveStatus(err)
 					case "SAM.gov Opportunities API":
 						if result.Sources[i].Configured {

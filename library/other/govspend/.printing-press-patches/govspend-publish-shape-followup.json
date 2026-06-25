@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-06-26T00:00:00Z",
+  "base_run_id": "20260625-govspend",
+  "base_printing_press_version": "4.18.1",
+  "id": "govspend-publish-shape-followup",
+  "title": "Align govspend publish shape and review follow-up",
+  "reason": "Maintainer review asked whether the PR used the printing-press-publish process. This patch records the follow-up that added publish metadata, tightened Grants.gov edge cases, and prepared the PR body for the publish template.",
+  "files": [
+    ".printing-press-pii-polish.json",
+    "internal/cli/grants.go",
+    "internal/cli/doctor.go",
+    "internal/cli/govspend_test.go"
+  ],
+  "validated_outcome": "Publish-package verifier passes for library/other/govspend, publish validate passes, Grants.gov empty keywords are omitted from request payloads, and doctor --live now reports Grants.gov application-level errors returned inside HTTP 200 responses."
+}

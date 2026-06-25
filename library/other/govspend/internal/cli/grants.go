@@ -101,10 +101,12 @@ func newGrantsCmd(app *app) *cobra.Command {
 
 func buildGrantsPayload(query grantsQuery) map[string]any {
 	body := map[string]any{
-		"keyword":        query.Keyword,
 		"rows":           query.Limit,
 		"startRecordNum": 0,
 		"oppStatuses":    query.Status,
+	}
+	if strings.TrimSpace(query.Keyword) != "" {
+		body["keyword"] = query.Keyword
 	}
 	if strings.TrimSpace(query.Agency) != "" {
 		body["agencies"] = query.Agency
