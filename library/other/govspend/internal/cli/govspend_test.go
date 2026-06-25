@@ -26,8 +26,9 @@ func TestBuildAwardPayloadIncludesVendorAndDateWindow(t *testing.T) {
 	if recipients[0] != "Palantir" {
 		t.Fatalf("recipient search text = %q", recipients[0])
 	}
-	if filters["naics_codes"].([]string)[0] != "541511" {
-		t.Fatalf("naics code not preserved")
+	naics := filters["naics_codes"].(map[string][]string)
+	if naics["require"][0] != "541511" {
+		t.Fatalf("naics code not preserved: %#v", naics)
 	}
 	if payload["limit"].(int) != 3 {
 		t.Fatalf("limit = %v", payload["limit"])

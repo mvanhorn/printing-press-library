@@ -16,6 +16,7 @@
     "internal/cli/grants.go",
     "internal/cli/doctor.go",
     "internal/cli/helpers.go",
+    "internal/cli/usaspending.go",
     "internal/cli/vendor.go",
     "internal/cli/agency.go",
     "internal/cli/awards.go",
@@ -23,5 +24,5 @@
     "internal/cli/sources.go",
     "internal/cli/govspend_test.go"
   ],
-  "validated_outcome": "Publish-package verifier passes for library/other/govspend, publish validate passes, live dogfood passes 19/19 exercised checks, agent-context is available for the live dogfood harness, command help includes Examples sections, Grants.gov empty keywords are omitted from request payloads, doctor --live now reports Grants.gov application-level errors returned inside HTTP 200 responses, and vendor/agency invalid search terms return non-zero."
+  "validated_outcome": "Publish-package verifier passes for library/other/govspend, publish validate passes, live dogfood passes 19/19 exercised checks, agent-context is available for the live dogfood harness, command help includes Examples sections, USAspending NAICS filters use the documented require object shape, Grants.gov empty keywords are omitted from request payloads, doctor --live now reports Grants.gov application-level errors returned inside HTTP 200 responses, and vendor/agency invalid search terms return non-zero."
 }

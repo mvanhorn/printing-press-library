@@ -118,7 +118,9 @@ func buildAwardPayload(query awardQuery) map[string]any {
 		}}
 	}
 	if query.NAICS != "" {
-		filters["naics_codes"] = []string{query.NAICS}
+		filters["naics_codes"] = map[string][]string{
+			"require": []string{query.NAICS},
+		}
 	}
 	if query.PSC != "" {
 		filters["psc_codes"] = []string{query.PSC}
