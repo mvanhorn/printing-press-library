@@ -271,7 +271,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 						if vendor := looksLikeDoctorInterstitial([]byte(reachAPIErr.Body)); vendor != "" {
 							report["api"] = fmt.Sprintf("blocked by %s interstitial (HTTP %d) — the configured transport reached the wall.", vendor, status)
 						} else {
-							report["api"] = fmt.Sprintf("reachable (HTTP %d at /)", status)
+							report["api"] = fmt.Sprintf("reachable (HTTP %d at %s)", status, healthPath)
 						}
 					default:
 						// Network-level failure: DNS, connection refused, TLS,

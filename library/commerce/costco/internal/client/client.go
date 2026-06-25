@@ -555,9 +555,8 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		if err != nil {
 			return nil, 0, fmt.Errorf("creating request: %w", err)
 		}
-		if bodyBytes != nil {
-			req.Header.Set("Content-Type", "application/json")
-		}
+		// Content-Type is set below in the Costco-specific header block
+		// (application/json-patch+json, matching the HAR capture).
 
 		if params != nil {
 			q := req.URL.Query()

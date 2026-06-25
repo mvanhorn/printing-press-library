@@ -13,9 +13,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// receiptKey is the dedup key: membership number + transaction barcode.
+// receiptKey builds a dedup key for upserts. When TransactionBarcode is
+// present it is globally unique; when absent (gas/carwash receipts) we fall
+// back to date + warehouse to avoid silent overwrites.
 func receiptKey(r costcoReceipt) string {
-	return r.MembershipNumber.String() + "|" + r.TransactionBarcode
+	if r.TransactionBarcode != "" {
+		return r.MembershipNumber.String() + "|" + r.TransactionBarcode
+	}
+	return r.MembershipNumber.String() + "|" + r.TransactionDate + "|" + r.WarehouseNumber.String()
 }
 
 // toStoreRow flattens a CLI receipt into the store's storage shape.
