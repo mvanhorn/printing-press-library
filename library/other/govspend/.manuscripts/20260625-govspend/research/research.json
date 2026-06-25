@@ -1,0 +1,40 @@
+{
+  "api_name": "govspend",
+  "display_name": "Govspend",
+  "category": "other",
+  "issue": "https://github.com/mvanhorn/printing-press-library/issues/1193",
+  "sources": [
+    {
+      "name": "USAspending.gov API",
+      "url": "https://api.usaspending.gov/docs/endpoints",
+      "auth": "none",
+      "validated": true
+    },
+    {
+      "name": "SAM.gov Opportunities API",
+      "url": "https://open.gsa.gov/api/get-opportunities-public-api/",
+      "auth": "GOVSPEND_SAM_API_KEY",
+      "validated": "dry-run and missing-key behavior"
+    },
+    {
+      "name": "Grants.gov Search API",
+      "url": "https://api.grants.gov/v1/api/search2",
+      "auth": "none",
+      "validated": true
+    }
+  ],
+  "commands": [
+    "vendor",
+    "agency",
+    "awards",
+    "grants",
+    "opportunities",
+    "sources",
+    "doctor"
+  ],
+  "security_notes": [
+    "No API key values are stored in source, docs, manuscripts, tests, or proof files.",
+    "SAM.gov key is read only from GOVSPEND_SAM_API_KEY.",
+    "USAspending and Grants.gov smoke tests use public keyless endpoints."
+  ]
+}

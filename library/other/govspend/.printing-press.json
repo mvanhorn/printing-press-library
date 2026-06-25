@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-25T00:00:00Z",
+  "printing_press_version": "4.18.1",
+  "api_name": "govspend",
+  "display_name": "Govspend",
+  "cli_name": "govspend-pp-cli",
+  "creator": {
+    "handle": "sdhilip200",
+    "name": "Dhilip Subramanian"
+  },
+  "owner": "sdhilip200",
+  "printer": "sdhilip200",
+  "printer_name": "Dhilip Subramanian",
+  "spec_format": "plan",
+  "spec_source": ".manuscripts/20260625-govspend/research/govspend-plan.md",
+  "spec_checksum": "sha256:c192f1a5eff3ff77373362d351a483fa59526f90511616030155326d1ee86690",
+  "run_id": "20260625-govspend",
+  "category": "other",
+  "description": "Read-only public-sector spending and opportunity research CLI for USAspending awards, agency and vendor footprints, Grants.gov opportunities, and SAM.gov opportunity setup.",
+  "api_version": "0.1.0",
+  "auth_type": "optional_api_key",
+  "auth_env_vars": [
+    "GOVSPEND_SAM_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Vendor footprint",
+      "command": "vendor",
+      "description": "Searches USAspending awards for a recipient/vendor and rolls the returned page into agencies, categories, recent awards, source URL, and freshness caveats."
+    },
+    {
+      "name": "Agency spend profile",
+      "command": "agency",
+      "description": "Matches a federal agency from USAspending references, then produces a compact recent-awards view for the matched agency name."
+    },
+    {
+      "name": "Award search",
+      "command": "awards",
+      "description": "Searches USAspending awards by keyword, vendor, awarding agency, NAICS, PSC, and date window with dry-run request visibility."
+    },
+    {
+      "name": "Grant opportunity search",
+      "command": "grants",
+      "description": "Searches the public Grants.gov search endpoint without credentials and reports opportunity number, title, agency, status, and open/close dates."
+    },
+    {
+      "name": "SAM.gov opportunity setup",
+      "command": "opportunities",
+      "description": "Builds SAM.gov Opportunities API searches when GOVSPEND_SAM_API_KEY is configured and returns structured setup guidance when it is not."
+    }
+  ]
+}

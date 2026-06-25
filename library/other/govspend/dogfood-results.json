@@ -1,0 +1,50 @@
+{
+  "cli": "govspend-pp-cli",
+  "run_id": "20260625-govspend",
+  "results": [
+    {
+      "command": "sources --agent",
+      "status": "pass",
+      "note": "Returned USAspending, SAM.gov, and Grants.gov source coverage."
+    },
+    {
+      "command": "doctor --live --agent",
+      "status": "pass",
+      "note": "USAspending and Grants.gov live checks passed; SAM.gov reported missing local key."
+    },
+    {
+      "command": "vendor Palantir --from 2025-01-01 --to 2025-12-31 --limit 2 --agent",
+      "status": "pass",
+      "note": "Returned USAspending contract-award rows and rollups for the selected vendor."
+    },
+    {
+      "command": "agency NASA --from 2025-01-01 --to 2025-12-31 --limit 2 --agent",
+      "status": "pass",
+      "note": "Matched NASA reference data and returned awards scoped with the awarding-agency filter."
+    },
+    {
+      "command": "awards --query cloud migration --from 2025-01-01 --to 2025-12-31 --limit 2 --agent",
+      "status": "pass",
+      "note": "Returned awards scoped with USAspending's supported keywords filter."
+    },
+    {
+      "command": "grants --query climate --limit 2 --agent",
+      "status": "pass",
+      "note": "Returned public Grants.gov opportunity summaries."
+    },
+    {
+      "command": "opportunities --query cybersecurity --dry-run --agent",
+      "status": "pass",
+      "note": "Returned SAM.gov request shape without exposing an API key value."
+    },
+    {
+      "command": "opportunities --query cybersecurity --agent",
+      "status": "pass",
+      "note": "Returned structured setup guidance because GOVSPEND_SAM_API_KEY was not configured."
+    }
+  ],
+  "secrets": {
+    "api_key_values_committed": false,
+    "sam_live_key_used": false
+  }
+}

@@ -1,0 +1,15 @@
+version: 2
+project_name: govspend
+
+builds:
+  - id: govspend-pp-cli
+    main: ./cmd/govspend-pp-cli
+    binary: govspend-pp-cli
+    env:
+      - CGO_ENABLED=0
+
+archives:
+  - id: cli
+    ids:
+      - govspend-pp-cli
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
