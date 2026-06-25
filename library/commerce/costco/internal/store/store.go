@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strings"
 
 	_ "modernc.org/sqlite"
@@ -38,7 +39,8 @@ func Open(ctx context.Context, path string) (*Archive, error) {
 // read-only sql/search commands; it does not run migrations (the file must
 // already exist).
 func OpenReadOnly(_ context.Context, path string) (*Archive, error) {
-	db, err := sql.Open("sqlite", "file:"+path+"?_pragma=query_only(true)")
+	dsn := (&url.URL{Scheme: "file", Path: path, RawQuery: "_pragma=query_only(true)"}).String()
+	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("opening archive %s read-only: %w", path, err)
 	}
