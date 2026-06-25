@@ -1,0 +1,169 @@
+{
+  "_comment": "Redacted golden capture of a WORKING postmicmeshorder request (order #29, 2026-06-24, HTTP 200). Source of truth for the CLI request shape. PII/token scrubbed.",
+  "method": "POST",
+  "headers": {
+    "Content-Type": "application/json",
+    "Accept": "*/*",
+    "Authorization": "<FIREBASE_ID_TOKEN>",
+    "__requestid": "1782343972960_7398",
+    "X-Requested-With": "XMLHttpRequest"
+  },
+  "body": {
+    "param": {
+      "customerphone": "<PHONE>",
+      "customername": "Matt",
+      "addtionalIns": "",
+      "restname": "mixsushibarlin",
+      "orderdetails": {
+        "items": [
+          {
+            "item_id": 19108,
+            "optionsstr": "No Bag",
+            "optionsstr_2nd": "",
+            "optionitemids": [],
+            "optionItemIdsAndPrices": [],
+            "price": 0,
+            "taxrate": null,
+            "togo": "1"
+          },
+          {
+            "item_id": 19019,
+            "optionsstr": null,
+            "optionsstr_2nd": "",
+            "optionitemids": [],
+            "optionItemIdsAndPrices": [],
+            "price": 2.99,
+            "taxrate": null,
+            "togo": "1"
+          }
+        ],
+        "subtotal": 2.99
+      },
+      "restid": 72,
+      "paymentCard": {
+        "cardType": "StripeElement",
+        "st_cus_id": "<REDACTED>",
+        "tip": 0.15,
+        "defaultCardMap": {
+          "key": "<CARD_KEY>"
+        },
+        "lastname": "Van Horn",
+        "firstname": "Matt",
+        "phonenum": "<REDACTED>",
+        "billingAddress1": "<REDACTED>",
+        "billingAddress2": "<REDACTED>",
+        "billingCity": "<REDACTED>",
+        "billingState": "<REDACTED>"
+      },
+      "groupname": "mixsushibarlin",
+      "enableGroupRewardpoints": false,
+      "enableRewardpoints": true,
+      "tax": 0.31,
+      "context": {
+        "rewards": {
+          "availablePoints": 58,
+          "originalPoints": 58,
+          "currentRestPoint": 58,
+          "eligible4Redeem": true,
+          "earnPts": {
+            "earnPtsVal": 1,
+            "earnPtsUnit": "dollar",
+            "earnCountVal": 1,
+            "earnItemIds": []
+          },
+          "redeemPts": {
+            "redeemPtsVal": 50,
+            "redeemPtsUnit": "dollar",
+            "redeemCountVal": 5
+          },
+          "rwdptsList": [],
+          "totalPtsRedeemed": 0
+        },
+        "meshuser": {
+          "id": 961227,
+          "phonenum": "<REDACTED>",
+          "email": "<REDACTED>",
+          "displayName": "Matt",
+          "firstname": "Matt",
+          "lastname": "Van Horn",
+          "points": "<REDACTED>",
+          "fromType": null,
+          "fromRestName": null,
+          "uid": "<REDACTED>",
+          "uidfrom": "mesh",
+          "uidfrom_rest": "mixsushibarlin",
+          "photoURL": null,
+          "address": null,
+          "cardInfo": "<REDACTED>",
+          "st_cus_id": "cus_T7CWmLOtr5RBLw",
+          "points_5_31_2020": null,
+          "createdTime": 1685232816564,
+          "properties": "{\"navigatorUserAgent\":[\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36\",\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_0_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/140.0.7339.122 Mobile/15E148 Safari/604.1\",\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_1_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/141.0.7390.41 Mobile/15E148 Safari/604.1\",\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\",\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36\",\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36\",\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36\",\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\",\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_3_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/144.0.7559.85 Mobile/15E148 Safari/604.1\",\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_3_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/144.0.7559.95 Mobile/15E148 Safari/604.1\",\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36\",\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36\",\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36\",\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36\",\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36\"],\"mobileId\":[\"1759172608409525357-v2\",\"1758741181479570476-v2\",\"1761935657789807812-v2\",\"1769459806167007480-v2\",\"1770152203646883032-v2\",\"1770233517514806361-v2\",\"1778534851236212644-v2\"],\"onlineRejectedTimes\":0}",
+          "groupRestlist": "mixsushibarlin",
+          "default_address": {
+            "street": "No Default Address",
+            "street2": "",
+            "city": "",
+            "state": "",
+            "zip": ""
+          },
+          "default_card": "MASTERCARD ending in 4623 (11/31)"
+        },
+        "sortedItems": [
+          {
+            "id": 19019,
+            "item_id": "Drinks01",
+            "name": "Bottled Water",
+            "price": 2.99,
+            "optionsstr": "",
+            "optionitemids": [],
+            "optionitemobjects": [],
+            "specialIns": "",
+            "taxrate": null,
+            "itemIndex": "68",
+            "optionPriceList": {},
+            "togo": "0",
+            "qty": 1,
+            "index": 0,
+            "cartIndex": [
+              0
+            ]
+          },
+          {
+            "id": 19108,
+            "item_id": "hide",
+            "name": "Reuseable Plastic Bag Option",
+            "price": 0,
+            "optionsstr": "No Bag",
+            "optionitemids": [],
+            "optionitemobjects": [],
+            "specialIns": "",
+            "taxrate": null,
+            "itemIndex": "9",
+            "optionPriceList": {
+              "reuseable plastic bag option:": {
+                "name": "radio0",
+                "price": "0",
+                "value": "No Bag"
+              }
+            },
+            "togo": "0",
+            "qty": 1,
+            "index": 1,
+            "cartIndex": [
+              1
+            ]
+          }
+        ],
+        "restfullname": "Mix Sushi Bar Lincoln Square",
+        "dishnamestr": "Bottled Water, Reuseable P... 2 items",
+        "imageURL": "https://s3.us-west-2.amazonaws.com/dishimg.ordertogo.com/mixsushibarlin/1740437861451_square.jpg",
+        "nth2doWithPts": false
+      },
+      "isSelfcheckoutOnly": false,
+      "deviceId": "rrh58jm0l8atu9i7jr3od",
+      "mobileId": "1778534851236212644-v2",
+      "orderType": "1"
+    }
+  }
+}

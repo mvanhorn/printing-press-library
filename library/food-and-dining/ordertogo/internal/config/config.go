@@ -36,6 +36,14 @@ type Config struct {
 	CustomerLastName    string            `toml:"customer_lastname"`
 	CustomerPhone       string            `toml:"customer_phone"`
 	MeshUserID          int               `toml:"mesh_user_id"`
+	FirebaseAPIKey       string           `toml:"firebase_api_key"`
+	FirebaseRefreshToken string           `toml:"firebase_refresh_token"`
+	DeviceID             string           `toml:"device_id"`
+	MobileID             string           `toml:"mobile_id"`
+	OrderContextJSON     string           `toml:"order_context_json"`
+	BillingAddress1      string           `toml:"billing_address1"`
+	BillingCity          string           `toml:"billing_city"`
+	BillingState         string           `toml:"billing_state"`
 	Path                string            `toml:"-"`
 }
 
@@ -231,6 +239,22 @@ func (c *Config) SetKey(key, value string) error {
 		c.CustomerLastName = value
 	case "customer_phone":
 		c.CustomerPhone = value
+	case "firebase_api_key":
+		c.FirebaseAPIKey = value
+	case "firebase_refresh_token":
+		c.FirebaseRefreshToken = value
+	case "device_id":
+		c.DeviceID = value
+	case "mobile_id":
+		c.MobileID = value
+	case "order_context_json":
+		c.OrderContextJSON = value
+	case "billing_address1":
+		c.BillingAddress1 = value
+	case "billing_city":
+		c.BillingCity = value
+	case "billing_state":
+		c.BillingState = value
 	default:
 		return fmt.Errorf("unsupported config key %q", key)
 	}
