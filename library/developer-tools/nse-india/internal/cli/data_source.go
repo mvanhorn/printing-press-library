@@ -381,5 +381,30 @@ func resolveLocal(ctx context.Context, resourceType string, isList bool, path st
 	return item, prov, nil
 }
 
+// writeConstituentCache persists normalised index constituent rows to the local
+// store under resource_type "index_constituents". Rows are keyed by
+// symbol+"_"+indexName so constituents from different indexes accumulate
+// without colliding. Called by indices_constituents.go after normalisation so
+// that index-driver can query the store without re-fetching the live API.
+func writeConstituentCache(ctx context.Context, indexName string, items []map[string]any) {
+	db, err := store.OpenWithContext(ctx, defaultDBPath("nse-india-pp-cli"))
+	if err != nil {
+		return
+	}
+	defer db.Close()
+
+	for _, item := range items {
+		sym, _ := item["symbol"].(string)
+		if sym == "" {
+			continue
+		}
+		itemJSON, err := json.Marshal(item)
+		if err != nil {
+			continue
+		}
+		_ = db.Upsert("index_constituents", sym+"_"+indexName, json.RawMessage(itemJSON))
+	}
+}
+
 // Ensure time import is used (compilation guard).
 var _ = time.Now

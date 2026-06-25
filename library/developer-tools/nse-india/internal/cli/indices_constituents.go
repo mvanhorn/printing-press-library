@@ -66,6 +66,7 @@ func newIndicesConstituentsCmd(flags *rootFlags) *cobra.Command {
 			for _, item := range items {
 				n := map[string]any{
 					"symbol":           item["cmSymbol"],
+					"indexName":        flagIndex,
 					"lastTradedPrice":  item["lasttradedPrice"],
 					"change":           item["change"],
 					"pChange":          item["pchange"],
@@ -74,6 +75,13 @@ func newIndicesConstituentsCmd(flags *rootFlags) *cobra.Command {
 					"weightage":        item["weightage"],
 				}
 				normalised = append(normalised, n)
+			}
+
+			// Persist normalised rows so index-driver can query the store without
+			// re-fetching the live API. Writes under resource_type="index_constituents"
+			// keyed by symbol_indexName.
+			if flagIndex != "" && len(normalised) > 0 {
+				writeConstituentCache(cmd.Context(), flagIndex, normalised)
 			}
 
 			switch flagSortBy {

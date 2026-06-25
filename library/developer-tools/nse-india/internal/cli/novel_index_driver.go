@@ -67,23 +67,23 @@ Requires: index constituents populated via 'nse-india-pp-cli indices constituent
 			defer s.Close()
 
 			// Fetch all constituents from the index, with their weightage and pChange.
-			// The equity-stockIndices endpoint returns weightage and pChange per constituent.
+			// Rows are written by indices_constituents.go via writeConstituentCache;
+			// each row has camelCase fields (symbol, pChange, weightage, indexName).
 			rows, err := s.DB().Query(`
 				SELECT json_extract(data, '$.symbol') as symbol,
-				       COALESCE(json_extract(data, '$.meta.companyName'), json_extract(data, '$.symbol')) as company,
+				       COALESCE(json_extract(data, '$.stockName'), json_extract(data, '$.symbol')) as company,
 				       json_extract(data, '$.weightage') as weightage,
 				       json_extract(data, '$.pChange') as p_change
 				FROM resources
-				WHERE resource_type IN ('indices', 'index_constituents', 'equity-stockIndices')
+				WHERE resource_type = 'index_constituents'
 				  AND json_extract(data, '$.symbol') IS NOT NULL
 				  AND json_extract(data, '$.pChange') IS NOT NULL
 				  AND (
-				        UPPER(json_extract(data, '$.meta.indexName')) LIKE UPPER('%' || ? || '%')
-				     OR UPPER(json_extract(data, '$.index')) LIKE UPPER('%' || ? || '%')
+				        UPPER(json_extract(data, '$.indexName')) LIKE UPPER('%' || ? || '%')
 				     OR ? = ''
 				  )
 				ORDER BY CAST(COALESCE(json_extract(data, '$.weightage'), '0') AS REAL) DESC
-			`, indexName, indexName, indexName)
+			`, indexName, indexName)
 			if err != nil {
 				return fmt.Errorf("querying store: %w\nhint: run 'nse-india-pp-cli indices constituents --index \"%s\"' first", err, indexName)
 			}

@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260508-113209",
+  "base_printing_press_version": "4.0.4",
+  "patches": [
+    {
+      "id": "sort-cache-key-params",
+      "summary": "Sort map keys before hashing in cacheKey to produce a deterministic cache key.",
+      "reason": "Go map iteration is randomized; multi-param requests produced different keys on every call, making the 5-minute response cache always miss.",
+      "files": ["internal/client/client.go"]
+    },
+    {
+      "id": "listids-sql-injection",
+      "summary": "Guard ListIDs against SQL injection by validating resourceType via sqlite_master before interpolating into a table-name position.",
+      "reason": "resourceType was passed directly into fmt.Sprintf as a table name with no sanitization; a crafted value could escape the SELECT context.",
+      "files": ["internal/store/store.go"]
+    },
+    {
+      "id": "resolvebyname-field-injection",
+      "summary": "Guard ResolveByName against SQL injection by validating matchFields entries against ^[a-zA-Z0-9_]+$ before interpolating into the json_extract path.",
+      "reason": "field was interpolated directly into the json_extract path expression; a crafted value like name')) OR 1=1-- could break out of the json_extract context.",
+      "files": ["internal/store/store.go"]
+    },
+    {
+      "id": "equity-write-through",
+      "summary": "Project equityResponse items to the flat shape novel analysis commands query before storing in writeThroughCache.",
+      "reason": "NSE India equity quote responses wrap data under 'equityResponse' with nested fields; writeThroughCache only handled 'results'/'data'/'items'/'id' envelopes so equity data was never persisted, causing all eight novel commands to always return empty results.",
+      "files": ["internal/cli/data_source.go"],
+      "validated_outcome": "After running equity quote, SELECT from resources WHERE resource_type='equity' returns rows keyed symbol_YYYYMMDD with correct symbol, lastPrice, deliveryToTradedQty, varMargin, extremeLossMargin, and metadata.preOpenMarket.IEP fields. delivery-spike returns spike signals after 2+ sessions."
+    },
+    {
+      "id": "equity-offline-fallback",
+      "summary": "Fix resolveLocal to look up equity snapshots by symbol param rather than URL path segment.",
+      "reason": "The generic fallback extracted the last URL path segment (GetQuoteApi) as the store ID, but equity rows are keyed symbol_YYYYMMDD — offline fallback always returned not-found even when cached data existed.",
+      "files": ["internal/cli/data_source.go"],
+      "validated_outcome": "equity quote --symbol RELIANCE --data-source local returns cached snapshot with source=local."
+    },
+    {
+      "id": "ratelimit-concurrent-burst",
+      "summary": "Pre-reserve the next request slot under the lock in AdaptiveLimiter.Wait so concurrent workers see monotonically advancing lastRequest.",
+      "reason": "Wait released the mutex before sleeping, letting concurrent sync workers all read the same lastRequest, sleep the same duration, and fire simultaneously — defeating the per-second rate limit.",
+      "files": ["internal/cliutil/ratelimit.go"]
+    },
+    {
+      "id": "local-module-import-paths",
+      "summary": "Replace public-library import paths with local module path nse-india-pp-cli/internal/... in data_source.go, client.go, and novel command files.",
+      "reason": "Local copy had imports referencing github.com/mvanhorn/printing-press-library/.../nse-india/internal/... but go.mod declares module nse-india-pp-cli — module mismatch prevented local builds entirely.",
+      "files": ["internal/cli/data_source.go", "internal/client/client.go", "internal/cli/novel_delivery_spike.go", "internal/cli/novel_delivery_divergence.go", "internal/cli/novel_announcement_flood.go", "internal/cli/novel_iep_drift.go", "internal/cli/novel_sector_breadth.go"]
+    },
+    {
+      "id": "indices-new-endpoints",
+      "summary": "Migrate indices commands to NSE's new indexTrackerApi and allIndices endpoints; add auth login/status/logout; add indices data and indices all commands.",
+      "reason": "/api/equity-stockIndices now returns 404 — NSE migrated to /api/NextApi/apiClient/indexTrackerApi. New endpoints work with bm_sv cookie only (no full session required for allIndices). Added BrowserCookie to config and Cookie header injection in client.",
+      "files": [
+        "internal/cli/indices_constituents.go",
+        "internal/cli/indices_data.go",
+        "internal/cli/indices_all.go",
+        "internal/cli/auth_login.go",
+        "internal/cli/indices.go",
+        "internal/cli/root.go",
+        "internal/config/config.go",
+        "internal/client/client.go"
+      ],
+      "validated_outcome": "indices all --category sectoral returns 21 sectoral indices live. indices data --index 'NIFTY 50' returns peRatio=20.79, pbRatio=3.18, dividendYield=1.36. indices constituents --index 'NIFTY 50' returns 50 stocks sorted by weightage with HDFCBANK=10.9% at top."
+    },
+    {
+      "id": "movers-index-param-fix",
+      "summary": "Fix movers command to use 'volume'/'value' as the index param instead of the dead 'INTRADAY' default; manually unwrap the {data:[...],timestamp} envelope.",
+      "reason": "NSE's live-analysis-most-active-securities endpoint uses index=volume or index=value — not INTRADAY. The old default returned HTTP 200 with empty data. Response also has no 'status' field so extractResponseData didn't unwrap it.",
+      "files": ["internal/cli/promoted_movers.go"],
+      "validated_outcome": "movers returns 20 items sorted by volume (IDEA first); movers --by value returns 20 items sorted by traded value (VEDL first)."
+    },
+    {
+      "id": "symbol-lookup-csv-search",
+      "summary": "Replace dead /api/search/autocomplete endpoint with NSE archives EQUITY_L.csv fetch + client-side substring search.",
+      "reason": "/api/search/autocomplete is completely removed from NSE India. The NSE archives publish EQUITY_L.csv with all 2372 listed equity symbols + company names + ISIN — sufficient for symbol discovery.",
+      "files": ["internal/cli/promoted_symbol-lookup.go"],
+      "validated_outcome": "symbol-lookup --query RELIANCE returns 8+ matches including RELIANCE with ISIN INE002A01018; symbol-lookup --query INFOSYS returns INFY (Infosys Limited)."
+    },
+    {
+      "id": "equity-hardcode-function-name",
+      "summary": "Remove --function-name flag from equity quote and derivatives; hardcode the NSE API internal routing parameter.",
+      "reason": "functionName is an NSE internal routing parameter (getSymbolData / getSymbolDerivativesData) that users should never change. Exposing it as a flag caused live dogfood to inject 'example-resource', returning HTTP 400 from NSE.",
+      "files": ["internal/cli/equity_quote.go", "internal/cli/equity_derivatives.go"],
+      "validated_outcome": "equity quote --symbol RELIANCE returns live price data. Dogfood no longer injects --function-name."
+    },
+    {
+      "id": "novel-empty-json-output",
+      "summary": "Return [] (valid JSON array) instead of human text when --json is set and local store has no data for novel analysis commands.",
+      "reason": "Live dogfood json_fidelity tests run commands with --json; output_mismatch failures occurred because empty-store paths printed human-readable 'No data found' messages instead of [].",
+      "files": ["internal/cli/novel_announcement_flood.go", "internal/cli/novel_delivery_divergence.go", "internal/cli/novel_delivery_spike.go", "internal/cli/novel_iep_drift.go", "internal/cli/novel_sector_breadth.go"],
+      "validated_outcome": "json_fidelity dogfood tests pass for novel commands when store is empty."
+    },
+    {
+      "id": "index-driver-constituent-cache",
+      "summary": "Write normalised constituent rows to resource_type='index_constituents' after indices constituents fetches, and update index-driver SQL to query that resource_type with camelCase field names.",
+      "reason": "writeThroughCache only persists items with an 'id' field; indexTrackerApi constituent items have no 'id', so nothing was stored. Additionally the old SQL used field names from the dead equity-stockIndices shape ($.meta.indexName, $.index) which don't match the normalised fields from the new endpoint ($.indexName, $.pChange). Result: index-driver silently returned empty results after running indices constituents.",
+      "files": ["internal/cli/data_source.go", "internal/cli/indices_constituents.go", "internal/cli/novel_index_driver.go"],
+      "validated_outcome": "After running 'indices constituents --index NIFTY 50', resource_type='index_constituents' rows are populated keyed by symbol_indexName with camelCase fields. index-driver --index 'NIFTY 50' returns weighted contributions for 50 stocks."
+    }
+  ]
+}
