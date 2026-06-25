@@ -2507,6 +2507,38 @@ func ExtractResourceID(resourceType string, obj map[string]any) string {
 	return ""
 }
 
+// childScopeColumnSources maps a typed child table's path-placeholder scope
+// column (the FK the dependent sync injects per item, e.g. "projects_id") to
+// the singular parent-reference field the API body carries natively (e.g.
+// "project"). deriveScopeColumns consults this so write-through cache paths —
+// which pass RAW API items to UpsertBatch and never carry the path-injected
+// scope column — still satisfy the typed table's NOT NULL scope column instead
+// of stranding the row in generic resources.
+var childScopeColumnSources = map[string]string{
+	"projects_id": "project",
+}
+
+// deriveScopeColumns backfills a typed child table's scope column from the
+// item's own parent reference when path injection is absent. A value already
+// present (valid injection) is never overwritten.
+func deriveScopeColumns(obj map[string]any) {
+	for scopeKey, sourceKey := range childScopeColumnSources {
+		if v := lookupFieldValue(obj, scopeKey); v != nil {
+			if s, ok := v.(string); !ok || s != "" {
+				continue // path injection already supplied a usable value
+			}
+		}
+		src := lookupFieldValue(obj, sourceKey)
+		if src == nil {
+			continue
+		}
+		if s, ok := src.(string); ok && s == "" {
+			continue
+		}
+		obj[scopeKey] = src
+	}
+}
+
 // UpsertBatch inserts or replaces multiple records in a single transaction
 // and returns (stored, extractFailures, err). stored counts rows landed in
 // the generic resources table; extractFailures counts items that survived
@@ -2562,6 +2594,11 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 			return stored, extractFailures, fmt.Errorf("upserting %s/%s: %w", resourceType, id, err)
 		}
 		stored++
+
+		// Backfill the typed child table's NOT NULL scope column from the item's
+		// own parent reference when the dependent-sync path injection is absent
+		// (write-through cache feeds RAW API items here).
+		deriveScopeColumns(obj)
 
 		savepoint := fmt.Sprintf("pp_typed_%d", i)
 		if _, err := tx.Exec("SAVEPOINT " + savepoint); err != nil {
@@ -2759,16 +2796,13 @@ func (s *Store) ListIDs(resourceType string) ([]string, error) {
 // to rows whose scopeColumn equals scopeValue. When scopeColumn or scopeValue
 // is empty it is identical to ListIDs.
 //
-// PATCH(workspace-scoped-fanout): dependent-resource sync fans out over parent
-// IDs read from the local store, but the store is multi-tenant — one DB can
-// hold projects from several workspaces (the slug is per-process; the DB is
-// shared). An unscoped parent enumeration makes the dependent phase dial
-// /workspaces/<active-slug>/projects/<other-workspace-project-id>/..., which the
-// API rejects with 403. Scoping the parent query to the active workspace's
-// projects (projects.workspace == <active workspace UUID>) keeps fan-out within
-// the tenant. Defense in depth mirrors ListField: scopeColumn is validated
-// against validIdentifierRE and confirmed to exist via pragma_table_info before
-// it is spliced into the SELECT; scopeValue is always a bound parameter.
+// ListIDsScoped is ListIDs with an optional tenant filter. scopeValue=="" =>
+// unscoped (identical to ListIDs). When the typed table exists AND has
+// scopeColumn (validated via validIdentifierRE + pragma_table_info), the IDs are
+// filtered by that bound column. When the typed table exists but LACKS the
+// column, it degrades to unscoped ListIDs (never silently returns zero parents).
+// When no typed table exists, it filters the generic resources table via
+// json_extract. scopeColumn is validated; scopeValue is always bound.
 func (s *Store) ListIDsScoped(resourceType, scopeColumn, scopeValue string) ([]string, error) {
 	if scopeColumn == "" || scopeValue == "" {
 		return s.ListIDs(resourceType)
@@ -2810,7 +2844,7 @@ func (s *Store) ListIDsScoped(resourceType, scopeColumn, scopeValue string) ([]s
 		// column. scopeColumn is validIdentifierRE-checked above, matching
 		// ListField's fallback splice.
 		rows, err = s.db.Query(fmt.Sprintf(
-			`SELECT id FROM resources WHERE resource_type = ? AND json_extract(data, '$.%s') = ?`,
+			`SELECT id FROM resources WHERE resource_type = ? AND (CASE WHEN json_valid(data) THEN json_extract(data, '$.%s') END) = ?`,
 			scopeColumn,
 		), resourceType, scopeValue)
 	}
@@ -3113,10 +3147,12 @@ func (s *Store) ReconcilePartition(resourceType, genericScopeJSONPath, scopeValu
 	}
 	ins.Close()
 
+	// CASE guards against a malformed-JSON row aborting the victim scan:
+	// a row we cannot parse is never a victim — it is skipped (never deleted).
 	rows, err := tx.Query(
 		`SELECT id FROM resources
 		 WHERE resource_type = ?
-		   AND json_extract(data, ?) = ?
+		   AND (CASE WHEN json_valid(data) THEN json_extract(data, ?) END) = ?
 		   AND id NOT IN (SELECT id FROM reconcile_seen)`,
 		resourceType, genericScopeJSONPath, scopeValue,
 	)

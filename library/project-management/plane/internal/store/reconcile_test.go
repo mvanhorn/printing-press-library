@@ -47,6 +47,37 @@ func TestReconcilePartition_SweepsDeletedKeepsSeenAndOtherPartitions(t *testing.
 	assertCount(t, s, `SELECT COUNT(*) FROM resources_fts WHERE rowid=?`, 0, ftsRowID("modules", "m2"))
 }
 
+func TestReconcilePartition_SkipsMalformedJSONRow(t *testing.T) {
+	s, err := Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	// keep (seen) + stale (project A, unseen => victim) + a junk row whose data
+	// is NOT JSON (a cached HTML/SPA error page — the prod failure class). Without
+	// the json_valid CASE guard on the victim SELECT, json_extract over the junk
+	// row aborts the WHOLE scan with "malformed JSON" and nothing is swept; with
+	// it, the unparseable row is never a victim and the stale row still deletes.
+	mustUpsert(t, s, "modules", `{"id":"m1","project":"A","projects_id":"A"}`)
+	mustUpsert(t, s, "modules", `{"id":"m2","project":"A","projects_id":"A"}`)
+	mustGenericOnly(t, s, "modules", "mjunk", `<!DOCTYPE html><html><body>error</body></html>`)
+
+	deleted, err := s.ReconcilePartition(
+		"modules", "$.project", "A",
+		[]string{"m1"}, // only m1 still exists remotely
+		"modules", nil,
+	)
+	if err != nil {
+		t.Fatalf("reconcile (json_valid guard must swallow the junk row): %v", err)
+	}
+	if deleted != 1 { // m2 only; m1 seen, mjunk unparseable => never a victim
+		t.Fatalf("deleted = %d, want 1 (m2 only)", deleted)
+	}
+	assertCount(t, s, `SELECT COUNT(*) FROM resources WHERE id='mjunk'`, 1) // junk untouched
+	assertCount(t, s, `SELECT COUNT(*) FROM resources WHERE id='m1'`, 1)    // seen survives
+}
+
 func TestReconcilePartition_EmptyScopeErrors(t *testing.T) {
 	s, _ := Open(filepath.Join(t.TempDir(), "data.db"))
 	defer s.Close()

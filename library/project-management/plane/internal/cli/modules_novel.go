@@ -140,7 +140,7 @@ func localModules(db *store.Store, projectFilter, workspaceID string) ([]moduleR
 		q += ` WHERE projects_id = ?`
 		args = append(args, projectFilter)
 	} else if workspaceID != "" {
-		// PATCH(workspace-scoped-fanout): modules carry no workspace column, so
+		// PATCH(tenant-resolver-seam): modules carry no workspace column, so
 		// scope via the parent project's workspace to avoid enumerating (and
 		// 403-ing on) other workspaces' modules during the post-sync enrichment.
 		// The local store is multi-tenant; an unscoped walk dials
@@ -215,7 +215,7 @@ func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Sto
 		resetSQL += ` WHERE projects_id = ?`
 		resetArgs = append(resetArgs, projectFilter)
 	} else if workspaceID != "" {
-		// PATCH(workspace-scoped-fanout): keep the reset within the active
+		// PATCH(tenant-resolver-seam): keep the reset within the active
 		// workspace so a bbm enrichment never wipes another workspace's
 		// issues' module_ids.
 		resetSQL += ` WHERE projects_id IN (SELECT id FROM projects WHERE workspace = ?)`
@@ -241,7 +241,7 @@ func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Sto
 			}
 			data, gerr := get.Get(ctx, path, params)
 			if gerr != nil {
-				// PATCH(workspace-scoped-fanout): an access denial on a single
+				// PATCH(tenant-resolver-seam): an access denial on a single
 				// module (e.g. a foreign-workspace module that slipped through
 				// when the active workspace UUID was unknown and scoping fell
 				// back to all modules) must not abort enrichment for every other
@@ -346,7 +346,7 @@ func withModuleEnrichment(syncCmd *cobra.Command, flags *rootFlags) *cobra.Comma
 			return nil
 		}
 		defer db.Close()
-		// PATCH(workspace-scoped-fanout): scope enrichment to the active
+		// PATCH(tenant-resolver-seam): scope enrichment to the active
 		// workspace's projects so the post-sync pass doesn't 403 (and abort) on
 		// other workspaces' modules in the shared store. Empty => unscoped.
 		workspaceID := ""
@@ -404,7 +404,7 @@ re-run it on its own or scope it to a single project.`,
 			}
 			defer db.Close()
 
-			// PATCH(workspace-scoped-fanout): scope to the active workspace's
+			// PATCH(tenant-resolver-seam): scope to the active workspace's
 			// projects (unless a single --project is given) so a standalone
 			// `module sync` doesn't 403 on other workspaces' modules.
 			workspaceID := ""
