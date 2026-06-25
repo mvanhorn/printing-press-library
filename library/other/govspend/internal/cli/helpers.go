@@ -11,6 +11,7 @@ import (
 	"io"
 	"math"
 	"net/http"
+	"net/url"
 	"os"
 	"sort"
 	"strconv"
@@ -225,9 +226,30 @@ func doJSON(ctx context.Context, client *http.Client, method string, url string,
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		data, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
-		return fmt.Errorf("%s returned %s: %s", url, resp.Status, strings.TrimSpace(string(data)))
+		return fmt.Errorf("%s returned %s: %s", redactURLForError(url), resp.Status, strings.TrimSpace(string(data)))
 	}
 	return json.NewDecoder(resp.Body).Decode(out)
+}
+
+func redactURLForError(raw string) string {
+	parsed, err := url.Parse(raw)
+	if err != nil {
+		return raw
+	}
+	query := parsed.Query()
+	changed := false
+	for key := range query {
+		switch strings.ToLower(key) {
+		case "api_key", "apikey", "access_token", "token":
+			query.Set(key, "REDACTED")
+			changed = true
+		}
+	}
+	if !changed {
+		return raw
+	}
+	parsed.RawQuery = query.Encode()
+	return parsed.String()
 }
 
 func formatUSD(amount float64) string {

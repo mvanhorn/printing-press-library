@@ -243,6 +243,44 @@ func TestOpportunitiesMissingSAMKeyReturnsSetupJSON(t *testing.T) {
 	}
 }
 
+func TestOpportunitiesErrorRedactsSAMKey(t *testing.T) {
+	const apiKey = "secret-sam-key"
+	app := &app{
+		out: &bytes.Buffer{},
+		err: &bytes.Buffer{},
+		httpClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			if got := req.URL.Query().Get("api_key"); got != apiKey {
+				t.Fatalf("api_key not sent to SAM.gov request: %q", got)
+			}
+			return &http.Response{
+				StatusCode: http.StatusForbidden,
+				Status:     "403 Forbidden",
+				Header:     make(http.Header),
+				Body:       io.NopCloser(strings.NewReader("forbidden")),
+			}, nil
+		})},
+		now: func() time.Time { return time.Date(2026, 6, 25, 12, 0, 0, 0, time.UTC) },
+		env: func(key string) string {
+			if key == "GOVSPEND_SAM_API_KEY" {
+				return apiKey
+			}
+			return ""
+		},
+	}
+	cmd := newRootCmd(app)
+	cmd.SetArgs([]string{"opportunities", "--query", "cybersecurity", "--posted-from", "05/01/2026", "--posted-to", "05/31/2026"})
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatalf("expected SAM.gov error")
+	}
+	if strings.Contains(err.Error(), apiKey) {
+		t.Fatalf("error leaked SAM.gov api key: %v", err)
+	}
+	if !strings.Contains(err.Error(), "api_key=REDACTED") {
+		t.Fatalf("error did not include redacted api key marker: %v", err)
+	}
+}
+
 type roundTripFunc func(*http.Request) (*http.Response, error)
 
 func (fn roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
