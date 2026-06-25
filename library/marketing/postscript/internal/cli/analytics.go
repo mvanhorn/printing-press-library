@@ -40,9 +40,12 @@ Data must be synced first with the sync command.`,
 				dbPath = defaultDBPath("postscript-pp-cli")
 			}
 
-			db, err := store.OpenWithContext(cmd.Context(), dbPath)
+			db, err := openStorePathForRead(dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'postscript-pp-cli sync' first.", err)
+			}
+			if db == nil {
+				return fmt.Errorf("opening local database: local database not found\nRun 'postscript-pp-cli sync' first.")
 			}
 			defer db.Close()
 
@@ -97,20 +100,15 @@ Data must be synced first with the sync command.`,
 }
 
 func runGroupBy(out io.Writer, db *store.Store, resourceType, field string, limit int, flags *rootFlags) error {
-	items, err := db.List(resourceType, 0)
-	if err != nil {
-		return err
-	}
-
 	counts := make(map[string]int)
 	validFields := make(map[string]struct{})
 	matchedAny := false
 	missingFieldCount := 0
 	decodedRows := 0
-	for _, item := range items {
+	if err := db.ForEach(resourceType, func(item json.RawMessage) error {
 		var obj map[string]any
 		if err := json.Unmarshal(item, &obj); err != nil {
-			continue
+			return nil
 		}
 		decodedRows++
 		for key := range obj {
@@ -124,6 +122,9 @@ func runGroupBy(out io.Writer, db *store.Store, resourceType, field string, limi
 		} else {
 			missingFieldCount++
 		}
+		return nil
+	}); err != nil {
+		return err
 	}
 	if decodedRows > 0 && !matchedAny {
 		return fmt.Errorf("group-by field %q was not found in any %s record; valid group-by fields: %s", field, resourceType, formatGroupByFields(validFields))

@@ -152,6 +152,20 @@ postscript-pp-cli subscribers list
 
 Run `postscript-pp-cli --help` for the full command reference and flag list.
 
+## Agent Discovery
+
+Inspect the agent command-discovery surface:
+
+```bash
+postscript-pp-cli which --help
+```
+
+Inspect the structured agent metadata command:
+
+```bash
+postscript-pp-cli agent-context --help
+```
+
 ## Commands
 
 ### compliance
@@ -175,6 +189,19 @@ Subscriber lookup and profile updates.
 - **`postscript-pp-cli subscribers list`** - Get a list of subscribers for a shop.
 - **`postscript-pp-cli subscribers update`** - Updates data for a given subscriber.
 
+## Local Analysis
+
+Inspect the local SQLite sync framework:
+
+```bash
+postscript-pp-cli sync --help
+```
+
+Inspect the read-only SQL analytics surface:
+
+```bash
+postscript-pp-cli analytics --help
+```
 
 ## Output Formats
 

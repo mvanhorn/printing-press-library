@@ -5,6 +5,7 @@ package store
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"path/filepath"
 	"reflect"
@@ -85,6 +86,45 @@ func TestStoreWrite_NoSQLITE_BUSY_HighConcurrency(t *testing.T) {
 	}
 	if total != goroutines*itemsPerBatch {
 		t.Fatalf("resources total = %d, want %d", total, goroutines*itemsPerBatch)
+	}
+}
+
+func TestForEachStreamsResourcesAndPropagatesCallbackError(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"id":"sub_1","email":"one@example.com"}`),
+		json.RawMessage(`{"id":"sub_2","email":"two@example.com"}`),
+	}
+	if _, _, err := s.UpsertBatch("subscribers", items); err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+
+	var seen int
+	if err := s.ForEach("subscribers", func(item json.RawMessage) error {
+		seen++
+		if len(item) == 0 {
+			t.Fatal("ForEach yielded empty item")
+		}
+		return nil
+	}); err != nil {
+		t.Fatalf("ForEach: %v", err)
+	}
+	if seen != len(items) {
+		t.Fatalf("ForEach saw %d items, want %d", seen, len(items))
+	}
+
+	sentinel := errors.New("stop")
+	err = s.ForEach("subscribers", func(json.RawMessage) error {
+		return sentinel
+	})
+	if !errors.Is(err, sentinel) {
+		t.Fatalf("ForEach callback error = %v, want %v", err, sentinel)
 	}
 }
 

@@ -304,6 +304,48 @@ func TestMCPToolResultTextBoundsOversizedNonGETResponses(t *testing.T) {
 	}
 }
 
+func TestMCPSQLRowsResultBoundsRows(t *testing.T) {
+	rows := make([]json.RawMessage, 0, mcpToolResultMaxItems+25)
+	for i := 0; i < mcpToolResultMaxItems+25; i++ {
+		raw, err := json.Marshal(map[string]string{
+			"id":   strings.Repeat("r", 16),
+			"blob": strings.Repeat("payload ", 300),
+		})
+		if err != nil {
+			t.Fatalf("marshal fixture row: %v", err)
+		}
+		rows = append(rows, raw)
+	}
+
+	text := mcpTextContent(t, mcpSQLRowsResult(rows, true))
+	if len(text) > mcpToolResultMaxBytes {
+		t.Fatalf("SQL result length = %d, want <= %d", len(text), mcpToolResultMaxBytes)
+	}
+
+	var envelope struct {
+		Rows          []json.RawMessage `json:"rows"`
+		ReturnedCount int               `json:"returned_count"`
+		ScannedCount  int               `json:"scanned_count"`
+		Truncated     bool              `json:"truncated"`
+		MaxItems      int               `json:"max_items"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("SQL result must remain valid JSON: %v\n%s", err, text)
+	}
+	if !envelope.Truncated {
+		t.Fatalf("SQL result did not mark truncation: %s", text)
+	}
+	if envelope.ReturnedCount != len(envelope.Rows) {
+		t.Fatalf("returned_count = %d, want row count %d", envelope.ReturnedCount, len(envelope.Rows))
+	}
+	if envelope.ScannedCount != len(rows) {
+		t.Fatalf("scanned_count = %d, want %d", envelope.ScannedCount, len(rows))
+	}
+	if envelope.MaxItems != mcpToolResultMaxItems {
+		t.Fatalf("max_items = %d, want %d", envelope.MaxItems, mcpToolResultMaxItems)
+	}
+}
+
 func mcpTextContent(t *testing.T, result *mcplib.CallToolResult) string {
 	t.Helper()
 	if result == nil {

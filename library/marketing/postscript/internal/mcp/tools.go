@@ -582,7 +582,8 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("reading columns: %v", err)), nil
 	}
-	var results []map[string]any
+	var rowsJSON []json.RawMessage
+	truncated := false
 	for rows.Next() {
 		values := make([]any, len(cols))
 		ptrs := make([]any, len(cols))
@@ -596,7 +597,15 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		for i, col := range cols {
 			row[col] = values[i]
 		}
-		results = append(results, row)
+		raw, err := json.Marshal(row)
+		if err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("encoding row: %v", err)), nil
+		}
+		rowsJSON = append(rowsJSON, raw)
+		if len(rowsJSON) > mcpToolResultMaxItems {
+			truncated = true
+			break
+		}
 	}
 	// rows.Next() stops on a mid-iteration error without failing the loop, so
 	// skipping rows.Err() would return a truncated result set as success.
@@ -604,7 +613,27 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		return mcplib.NewToolResultError(fmt.Sprintf("reading rows: %v", err)), nil
 	}
 
-	return toolResultJSON(results)
+	return mcpSQLRowsResult(rowsJSON, truncated), nil
+}
+
+func mcpSQLRowsResult(rows []json.RawMessage, truncated bool) *mcplib.CallToolResult {
+	build := func(subset []json.RawMessage) any {
+		out := map[string]any{
+			"rows":           subset,
+			"returned_count": len(subset),
+		}
+		if truncated || len(subset) < len(rows) {
+			out["truncated"] = true
+			out["scanned_count"] = len(rows)
+			out["max_items"] = mcpToolResultMaxItems
+			out["max_bytes"] = mcpToolResultMaxBytes
+			out["note"] = "SQL result exceeded the MCP tool result budget. Add LIMIT, select fewer columns, or filter the query."
+		} else {
+			out["count"] = len(subset)
+		}
+		return out
+	}
+	return mcplib.NewToolResultText(string(mcpFitJSONItems(rows, build)))
 }
 
 // toolResultJSON renders v as the indented JSON body of an MCP text result,

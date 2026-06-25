@@ -42,7 +42,10 @@ but do not stop the import.`,
 			c.DryRun = dryRun
 
 			resource := args[0]
-			path := "/" + resource
+			path, err := importResourcePath(resource)
+			if err != nil {
+				return err
+			}
 
 			var reader io.Reader
 			if inputFile == "-" || inputFile == "" {
@@ -106,4 +109,14 @@ but do not stop the import.`,
 	cmd.Flags().IntVar(&batchSize, "batch-size", 1, "Records per batch (future: batch API support)")
 
 	return cmd
+}
+
+func importResourcePath(resource string) (string, error) {
+	paths := map[string]string{
+		"events": "/api/v2/events",
+	}
+	if p, ok := paths[resource]; ok {
+		return p, nil
+	}
+	return "", fmt.Errorf("unknown import resource %q; supported import resources: events", resource)
 }

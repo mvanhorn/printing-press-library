@@ -66,7 +66,10 @@ native streaming instead of polling.`,
 				follow = false
 			}
 
-			path := "/" + resource
+			path, err := tailResourcePath(resource)
+			if err != nil {
+				return usageErr(err)
+			}
 
 			sig := make(chan os.Signal, 1)
 			signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
@@ -113,11 +116,15 @@ native streaming instead of polling.`,
 // no-arg JSON help envelope can list them without depending on sync's
 // defaultSyncResources (which only exists when sync is generated).
 func tailKnownResources() []string {
-	return []string{
-		"compliance",
-		"events",
-		"subscribers",
+	return knownSyncResourceNames()
+}
+
+func tailResourcePath(resource string) (string, error) {
+	path, err := syncResourcePath(resource)
+	if err != nil {
+		return "", fmt.Errorf("unknown tail resource %q", resource)
 	}
+	return path, nil
 }
 
 func fetchAndEmit(ctx context.Context, c interface {

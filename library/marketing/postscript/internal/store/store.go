@@ -790,6 +790,25 @@ func (s *Store) List(resourceType string, limit int) ([]json.RawMessage, error) 
 	return results, rows.Err()
 }
 
+func (s *Store) ForEach(resourceType string, fn func(json.RawMessage) error) error {
+	rows, err := s.db.Query(`SELECT data FROM resources WHERE resource_type = ? ORDER BY updated_at DESC`, resourceType)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var data string
+		if err := rows.Scan(&data); err != nil {
+			return err
+		}
+		if err := fn(json.RawMessage(data)); err != nil {
+			return err
+		}
+	}
+	return rows.Err()
+}
+
 func (s *Store) Search(query string, limit int, resourceTypes ...string) ([]json.RawMessage, error) {
 	if limit <= 0 {
 		limit = 50

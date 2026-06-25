@@ -1,0 +1,14 @@
+{
+    "schema_version": 2,
+    "id": "fix-tail-resource-paths",
+    "applied_at": "2026-06-26",
+    "base_run_id": "20260622-071434",
+    "base_printing_press_version": "4.24.0",
+    "summary": "Use generated sync resource paths for tail polling instead of assuming /<resource> root paths.",
+    "reason": "Postscript resources live under /api/v2. Dogfooding tail subscribers showed the generated helper would poll /subscribers, and tail also advertised non-pollable mutation resources.",
+    "files": [
+        "internal/cli/tail.go",
+        "internal/cli/tail_test.go"
+    ],
+    "validated_outcome": "go test ./internal/cli and tail subscribers --follow=false --dry-run --agent emit /api/v2/subscribers."
+}
