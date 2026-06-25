@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.6.4 - 2026-06-25
+
+- fix(plane): scope cross-workspace sync fan-out to the active workspace (#1350).
+
 ## 2026.6.3 - 2026-06-25
 
 - feat(plane): sync deletion reconciliation (dependent per-parent mark-and-sweep) (#1355).

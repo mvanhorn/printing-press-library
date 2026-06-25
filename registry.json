@@ -6043,6 +6043,12 @@
         "Compare repository adoption, activity, issue load, and latest release signals."
       ],
       "path": "library/developer-tools/github-intel",
+      "release": {
+        "cli_name": "github-intel-pp-cli",
+        "version": "2026.6.1",
+        "released_at": "2026-06-25T07:33:37Z",
+        "source_commit": "437b90c47d09c1fe0b7533cbd7f049de9be8e0de"
+      },
       "printer": "hnshah",
       "printer_name": "Hiten Shah",
       "creator": {
@@ -6141,6 +6147,52 @@
         "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "internal"
+      }
+    },
+    {
+      "name": "gladly",
+      "category": "sales-and-crm",
+      "api": "Gladly Read",
+      "description": "Read-first Gladly API surface for customer timelines, conversations, agents, topics, answers, and support operations.",
+      "search_terms": [
+        "gladly",
+        "Gladly Read",
+        "gladly-pp-cli",
+        "Read-first Gladly API surface for customer timelines, conversations, agents, topics, answers, and support operations.",
+        "Agent command discovery",
+        "which",
+        "Map a natural-language capability request to the exact generated CLI command before executing it.",
+        "Structured agent context",
+        "agent-context",
+        "Emit machine-readable command, auth, and profile metadata so agents can plan calls without scraping help text.",
+        "Local SQLite sync framework",
+        "sync",
+        "Sync selected API resources into a local SQLite store for repeatable offline inspection and analysis.",
+        "SQL analytics on synced records",
+        "analytics",
+        "Run read-only SQL against synced API records for compound questions the upstream API does not expose directly."
+      ],
+      "path": "library/sales-and-crm/gladly",
+      "printer": "debgotwired",
+      "printer_name": "Deb Mukherjee",
+      "creator": {
+        "handle": "debgotwired",
+        "name": "Deb Mukherjee"
+      },
+      "mcp": {
+        "binary": "gladly-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 11,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "GLADLY_USERNAME",
+          "GLADLY_PASSWORD"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {
@@ -7362,6 +7414,61 @@
         ],
         "tool_count": 4,
         "public_tool_count": 4,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "hotelist",
+      "category": "travel",
+      "api": "Hotelist",
+      "description": "Every Hotelist feature, plus a local SQLite mirror that ranks rating-per-dollar across whole countries, compares chains head-to-head, and tracks how a city's hotels change over time.",
+      "search_terms": [
+        "hotelist",
+        "hotelist-pp-cli",
+        "Every Hotelist feature, plus a local SQLite mirror that ranks rating-per-dollar across whole countries, compares chains head-to-head, and tracks how a city's hotels change over time.",
+        "Country value leaderboard",
+        "rank-country",
+        "Rank the best hotels across an entire country by Hotelist rating-per-dollar, with compound amenity and price filters.",
+        "Chain vs chain value showdown",
+        "chain-compare",
+        "Compare hotel chains head-to-head on mean rating, median price, and rating-per-dollar in a country.",
+        "Nomad corridor scout",
+        "corridor",
+        "Find the best hotel in each stop of a multi-city route in one pass, with shared filters.",
+        "Watch & drift tracker",
+        "watch",
+        "Snapshot a saved location over time and diff which hotels improved, declined, or changed price since you last checked.",
+        "Chain consistency score",
+        "chain-consistency",
+        "Compute mean, median, and spread of a single chain's ratings across a country to see if the brand is reliably good or full of outliers.",
+        "Price cliff finder",
+        "price-cliff",
+        "Find the price point in a city where rating-per-extra-dollar collapses — the cheapest hotel that's still legitimately good."
+      ],
+      "path": "library/travel/hotelist",
+      "release": {
+        "cli_name": "hotelist-pp-cli",
+        "version": "2026.6.1",
+        "released_at": "2026-06-25T07:34:56Z",
+        "source_commit": "4e34253334cd9042b0d9ce42d401cf96dacd0114"
+      },
+      "printer": "dbryson",
+      "printer_name": "David Bryson",
+      "creator": {
+        "handle": "dbryson",
+        "name": "David Bryson"
+      },
+      "mcp": {
+        "binary": "hotelist-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 1,
+        "public_tool_count": 1,
         "auth_type": "none",
         "env_vars": [],
         "mcp_ready": "full",

@@ -132,13 +132,21 @@ type moduleRow struct {
 }
 
 // localModules reads modules from the synced store, optionally scoped to one
-// project. Name comes out of the data JSON.
-func localModules(db *store.Store, projectFilter string) ([]moduleRow, error) {
+// project or to the active workspace. Name comes out of the data JSON.
+func localModules(db *store.Store, projectFilter, workspaceID string) ([]moduleRow, error) {
 	q := `SELECT id, projects_id, COALESCE(json_extract(data, '$.name'), '') FROM modules`
 	var args []any
 	if projectFilter != "" {
 		q += ` WHERE projects_id = ?`
 		args = append(args, projectFilter)
+	} else if workspaceID != "" {
+		// PATCH(workspace-scoped-fanout): modules carry no workspace column, so
+		// scope via the parent project's workspace to avoid enumerating (and
+		// 403-ing on) other workspaces' modules during the post-sync enrichment.
+		// The local store is multi-tenant; an unscoped walk dials
+		// /workspaces/<active-slug>/projects/<foreign-project>/modules/... → 403.
+		q += ` WHERE projects_id IN (SELECT id FROM projects WHERE workspace = ?)`
+		args = append(args, workspaceID)
 	}
 	rows, err := db.Query(q, args...)
 	if err != nil {
@@ -167,12 +175,12 @@ type moduleEnrichResult struct {
 // `module sync` command and the post-sync hook. It rebuilds the module_issues
 // junction table and patches issues.data.module_ids for the given scope.
 // Returns errNoLocalModules when the modules table is empty.
-func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Store, slug, projectFilter string) (moduleEnrichResult, error) {
+func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Store, slug, projectFilter, workspaceID string) (moduleEnrichResult, error) {
 	var res moduleEnrichResult
 	if err := ensureModuleIssuesTable(db); err != nil {
 		return res, fmt.Errorf("creating module_issues table: %w", err)
 	}
-	modules, err := localModules(db, projectFilter)
+	modules, err := localModules(db, projectFilter, workspaceID)
 	if err != nil {
 		return res, fmt.Errorf("reading local modules: %w", err)
 	}
@@ -206,15 +214,18 @@ func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Sto
 	if projectFilter != "" {
 		resetSQL += ` WHERE projects_id = ?`
 		resetArgs = append(resetArgs, projectFilter)
+	} else if workspaceID != "" {
+		// PATCH(workspace-scoped-fanout): keep the reset within the active
+		// workspace so a bbm enrichment never wipes another workspace's
+		// issues' module_ids.
+		resetSQL += ` WHERE projects_id IN (SELECT id FROM projects WHERE workspace = ?)`
+		resetArgs = append(resetArgs, workspaceID)
 	}
 	if _, err := tx.Exec(resetSQL, resetArgs...); err != nil {
 		return res, fmt.Errorf("resetting module_ids: %w", err)
 	}
 
 	for _, m := range modules {
-		if _, err := tx.Exec(`DELETE FROM module_issues WHERE module_id = ?`, m.id); err != nil {
-			return res, fmt.Errorf("clearing module_issues for %s: %w", m.id, err)
-		}
 		// PATCH(slug-env-align): workspace-relative path; BaseURL + TemplateVars[slug] supply
 		// /api/v1/workspaces/{slug}. The slug param is retained for caller intent/messages.
 		path := fmt.Sprintf(
@@ -222,6 +233,7 @@ func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Sto
 			m.projectID, m.id,
 		)
 		cursor := ""
+		cleared := false
 		for {
 			params := map[string]string{pg.limitParam: "100"}
 			if cursor != "" {
@@ -229,7 +241,26 @@ func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Sto
 			}
 			data, gerr := get.Get(ctx, path, params)
 			if gerr != nil {
+				// PATCH(workspace-scoped-fanout): an access denial on a single
+				// module (e.g. a foreign-workspace module that slipped through
+				// when the active workspace UUID was unknown and scoping fell
+				// back to all modules) must not abort enrichment for every other
+				// module. Skip this module's pages and continue. Because the
+				// stale-link DELETE below runs only after the first SUCCESSFUL
+				// page, a 403 here leaves the module's cached membership intact
+				// instead of wiping it (we never reached the delete).
+				if _, ok := isSyncAccessWarning(gerr); ok {
+					break
+				}
 				return res, gerr
+			}
+			// Clear stale links once, only after a successful response, so an
+			// access denial before the first page can't wipe cached membership.
+			if !cleared {
+				if _, err := tx.Exec(`DELETE FROM module_issues WHERE module_id = ?`, m.id); err != nil {
+					return res, fmt.Errorf("clearing module_issues for %s: %w", m.id, err)
+				}
+				cleared = true
 			}
 			items, next, hasMore := extractPageItems(data, pg.cursorParam)
 			for _, raw := range items {
@@ -315,7 +346,14 @@ func withModuleEnrichment(syncCmd *cobra.Command, flags *rootFlags) *cobra.Comma
 			return nil
 		}
 		defer db.Close()
-		res, err := enrichModuleMembership(cmd.Context(), c, db, slug, "")
+		// PATCH(workspace-scoped-fanout): scope enrichment to the active
+		// workspace's projects so the post-sync pass doesn't 403 (and abort) on
+		// other workspaces' modules in the shared store. Empty => unscoped.
+		workspaceID := ""
+		if c.Config != nil {
+			workspaceID = resolveActiveWorkspaceID(slug, c.Config.Workspaces)
+		}
+		res, err := enrichModuleMembership(cmd.Context(), c, db, slug, "", workspaceID)
 		if err != nil {
 			if errors.Is(err, errNoLocalModules) {
 				return nil
@@ -366,7 +404,14 @@ re-run it on its own or scope it to a single project.`,
 			}
 			defer db.Close()
 
-			res, err := enrichModuleMembership(cmd.Context(), c, db, slug, projectFilter)
+			// PATCH(workspace-scoped-fanout): scope to the active workspace's
+			// projects (unless a single --project is given) so a standalone
+			// `module sync` doesn't 403 on other workspaces' modules.
+			workspaceID := ""
+			if c.Config != nil {
+				workspaceID = resolveActiveWorkspaceID(slug, c.Config.Workspaces)
+			}
+			res, err := enrichModuleMembership(cmd.Context(), c, db, slug, projectFilter, workspaceID)
 			if err != nil {
 				if errors.Is(err, errNoLocalModules) {
 					// No modules cached yet (sync not run, or none in scope): a
