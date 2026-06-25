@@ -16,10 +16,14 @@ func newAgencyCmd(app *app) *cobra.Command {
 	var dates dateFlags
 	var limit int
 	cmd := &cobra.Command{
-		Use:   "agency <name-or-abbreviation>",
-		Short: "Search USAspending by awarding agency and return recent spend, award count, top vendors, top categories, and a date-window summary.",
-		Args:  cobra.ExactArgs(1),
+		Use:     "agency <name-or-abbreviation>",
+		Short:   "Search USAspending by awarding agency and return recent spend, award count, top vendors, top categories, and a date-window summary.",
+		Example: "  govspend-pp-cli agency NASA --since 30d --limit 2 --agent",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := validateSearchTerm("agency", args[0]); err != nil {
+				return err
+			}
 			from, to, err := resolveDateWindow(app.now(), dates)
 			if err != nil {
 				return err

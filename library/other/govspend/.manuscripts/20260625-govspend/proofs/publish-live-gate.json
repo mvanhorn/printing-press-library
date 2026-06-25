@@ -1,0 +1,318 @@
+{
+  "dir": "library/other/govspend",
+  "binary": "/Users/dhilipsubramanian/Documents/PrintingPress 2/printing-press-library-airbyte-admin/library/other/govspend/govspend-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 19,
+  "passed": 19,
+  "failed": 0,
+  "skipped": 9,
+  "commands": [
+    "agency",
+    "awards",
+    "doctor",
+    "grants",
+    "opportunities",
+    "sources",
+    "vendor"
+  ],
+  "tests": [
+    {
+      "command": "agency",
+      "kind": "help",
+      "args": [
+        "agency",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search USAspending by awarding agency and return recent spend, award count, top vendors, top categories, and a date-window summary.\n\nUsage:\n  govspend-pp-cli agency \u003cname-or-abbreviation\u003e [flags]\n\nExamples:\n  govspend-pp-cli agency NASA --since 30d --limit 2 --agent\n\nFlags:\n      --agent           Emit compact agent-friendly JSON output\n      --dry-run         Print the read-only request without calling the source API\n      --from string     Start date in YYYY-MM-DD\n  -h, --help            help for agency\n      --json            Emit JSON output\n      --limit int       Maximum awards to return (default 10)\n      --select string   Select comma-separated top-level JSON fields\n      --since string    Relative lookback window such as 30d, 12m, or 1y (default \"365d\")\n      --to string       End date in YYYY-MM-DD\n"
+    },
+    {
+      "command": "agency",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [agency] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "agency",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [agency] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "agency",
+      "kind": "error_path",
+      "args": [
+        "agency",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: agency is not a valid search term\n"
+    },
+    {
+      "command": "awards",
+      "kind": "help",
+      "args": [
+        "awards",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search USAspending awards by keyword, vendor, agency, NAICS, PSC, and date window.\n\nUsage:\n  govspend-pp-cli awards [flags]\n\nExamples:\n  govspend-pp-cli awards --query \"cloud migration\" --since 30d --limit 2 --agent\n\nFlags:\n      --agency string   Agency keyword search text\n      --agent           Emit compact agent-friendly JSON output\n      --dry-run         Print the read-only request without calling the source API\n      --from string     Start date in YYYY-MM-DD\n  -h, --help            help for awards\n      --json            Emit JSON output\n      --limit int       Maximum awards to return (default 10)\n      --naics string    NAICS code\n      --psc string      Product or service code\n      --query string    Keyword search text\n      --select string   Select comma-separated top-level JSON fields\n      --since string    Relative lookback window such as 30d, 12m, or 1y (default \"365d\")\n      --to string       End date in YYYY-MM-DD\n      --vendor string   Recipient/vendor search text\n"
+    },
+    {
+      "command": "awards",
+      "kind": "happy_path",
+      "args": [
+        "awards",
+        "--query",
+        "cloud migration",
+        "--since",
+        "30d",
+        "--limit",
+        "2",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"awards\":[{\"amount\":121868141.2,\"award_id\":\"47QFDA20F0076\",\"awarding_agency\":\"General Services Administration\",\"description\":\"GINNE MAE IT INTEGRATED CLOUD DEDICATED CLOUD MIGRATION\",\"end_date\":\"2026-09-13\",\"naics\":\"541512\",\"naics_name\":\"COMPUTER SYSTEMS DESIGN SERVICES\",\"psc\":\"D310\",\"psc_name\":\"IT AND TELECOM- CYBER SECURITY AND DATA BACKUP\",\"recipient_name\":\"DELOITTE CONSULTING LLP\",\"start_date\":\"2020-09-14\"},{\"amount\":12000000,\"award_id\":\"75R60226C00001\",\"awarding_agency\":\"Department of Health and Human Services\",\"description\":\"HSB115 C 7520 OPTN CLOUD MIGRATION AND HARDWARE: THE PURPOSE OF THIS CONTRACT IS TO PROVIDE ALL PERSONNEL, MANAGEMENT, MATERIALS, EQUIPMENT, AND SERVICES NECESSARY TO MIGRATE THE ORGAN PROCUREMENT AND TRANSPLANTATION NETWORK (OPTN) INFORMATION TECHNO\",\"end_date\":\"2027-07-25\",\"naics\":\"541511\",\"naics_name\":\"CUSTOM COMPUTER PROGRAMMING SERVICES\",\"psc\":\"DC01\",\"psc_name\":\"IT AND TELECOM - DATA CENTER SUPPORT SERVICES (LABOR)\",\"recipient_name\":\"UNITED NETWORK FOR ORGAN SHARING\",\"start_date\":\"2025-11-12\"}],\"caveat\":\"Totals summarize the returned page of USAspending contract-award records, not the full federal universe. Increase --limit or refine filters for a narrower slice.\",\"has_next\":true,\"messages\":[\"For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. \"],\"returned_awards\":2,\"search\":{\"from\":\"2026-05-26\",\"limit\":2,\"query\":\"cloud migration\",\"to\":\"2026-06-25\"},\"source\":\"USAspending.gov\",\"source_url\":\"https://api.usaspending.gov/api/v2/search/spending_by_award/\",\"top_agencies\":[{\"amount\":121868141.2,\"name\":\"\u003credacted\u003e\"},{\"amount\":12000000,\"name\":\"\u003credacted\u003e\"}],\"top_naics\":[{\"amount\":121868141.2,\"name\":\"\u003credacted\u003e\"},{\"amount\":12000000,\"name\":\"\u003credacted\u003e\"}],\"top_psc\":[{\"amount\":121868141.2,\"name\":\"\u003credacted\u003e\"},{\"amount\":12000000,\"name\":\"\u003credacted\u003e\"}],\"top_recipients\":[{\"amount\":121868141.2,\"name\":\"\u003credacted\u003e\"},{\"amount\":12000000,\"name\":\"\u003credacted\u003e\"}],\"total_amount\":133868141.2}"
+    },
+    {
+      "command": "awards",
+      "kind": "json_fidelity",
+      "args": [
+        "awards",
+        "--query",
+        "cloud migration",
+        "--since",
+        "30d",
+        "--limit",
+        "2",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"awards\":[{\"amount\":121868141.2,\"award_id\":\"47QFDA20F0076\",\"awarding_agency\":\"General Services Administration\",\"description\":\"GINNE MAE IT INTEGRATED CLOUD DEDICATED CLOUD MIGRATION\",\"end_date\":\"2026-09-13\",\"naics\":\"541512\",\"naics_name\":\"COMPUTER SYSTEMS DESIGN SERVICES\",\"psc\":\"D310\",\"psc_name\":\"IT AND TELECOM- CYBER SECURITY AND DATA BACKUP\",\"recipient_name\":\"DELOITTE CONSULTING LLP\",\"start_date\":\"2020-09-14\"},{\"amount\":12000000,\"award_id\":\"75R60226C00001\",\"awarding_agency\":\"Department of Health and Human Services\",\"description\":\"HSB115 C 7520 OPTN CLOUD MIGRATION AND HARDWARE: THE PURPOSE OF THIS CONTRACT IS TO PROVIDE ALL PERSONNEL, MANAGEMENT, MATERIALS, EQUIPMENT, AND SERVICES NECESSARY TO MIGRATE THE ORGAN PROCUREMENT AND TRANSPLANTATION NETWORK (OPTN) INFORMATION TECHNO\",\"end_date\":\"2027-07-25\",\"naics\":\"541511\",\"naics_name\":\"CUSTOM COMPUTER PROGRAMMING SERVICES\",\"psc\":\"DC01\",\"psc_name\":\"IT AND TELECOM - DATA CENTER SUPPORT SERVICES (LABOR)\",\"recipient_name\":\"UNITED NETWORK FOR ORGAN SHARING\",\"start_date\":\"2025-11-12\"}],\"caveat\":\"Totals summarize the returned page of USAspending contract-award records, not the full federal universe. Increase --limit or refine filters for a narrower slice.\",\"has_next\":true,\"messages\":[\"For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. \"],\"returned_awards\":2,\"search\":{\"from\":\"2026-05-26\",\"limit\":2,\"query\":\"cloud migration\",\"to\":\"2026-06-25\"},\"source\":\"USAspending.gov\",\"source_url\":\"https://api.usaspending.gov/api/v2/search/spending_by_award/\",\"top_agencies\":[{\"amount\":121868141.2,\"name\":\"\u003credacted\u003e\"},{\"amount\":12000000,\"name\":\"\u003credacted\u003e\"}],\"top_naics\":[{\"amount\":121868141.2,\"name\":\"\u003credacted\u003e\"},{\"amount\":12000000,\"name\":\"\u003credacted\u003e\"}],\"top_psc\":[{\"amount\":121868141.2,\"name\":\"\u003credacted\u003e\"},{\"amount\":12000000,\"name\":\"\u003credacted\u003e\"}],\"top_recipients\":[{\"amount\":121868141.2,\"name\":\"\u003credacted\u003e\"},{\"amount\":12000000,\"name\":\"\u003credacted\u003e\"}],\"total_amount\":133868141.2}"
+    },
+    {
+      "command": "awards",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Report configured environment variables and which command families can run.\n\nUsage:\n  govspend-pp-cli doctor [flags]\n\nExamples:\n  govspend-pp-cli doctor --live --agent\n\nFlags:\n      --agent           Emit compact agent-friendly JSON output\n  -h, --help            help for doctor\n      --json            Emit JSON output\n      --live            Check keyless source reachability\n      --select string   Select comma-separated top-level JSON fields\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor",
+        "--live",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"cli\":\"govspend-pp-cli\",\"notes\":[\"No command writes to an upstream system.\",\"Do not commit API key values or live customer procurement research output.\"],\"read_only\":true,\"sources\":[{\"configured\":true,\"detail\":\"Keyless source for vendor, agency, and award commands.\",\"live\":\"ok\",\"name\":\"\u003credacted\u003e\"},{\"configured\":false,\"detail\":\"Set GOVSPEND_SAM_API_KEY for procurement opportunity search.\",\"live\":\"not_configured\",\"name\":\"\u003credacted\u003e\"},{\"configured\":true,\"detail\":\"Keyless public search endpoint for grants command.\",\"live\":\"ok\",\"name\":\"\u003credacted\u003e\"}],\"version\":\"1.0.0\"}"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--live",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"cli\":\"govspend-pp-cli\",\"notes\":[\"No command writes to an upstream system.\",\"Do not commit API key values or live customer procurement research output.\"],\"read_only\":true,\"sources\":[{\"configured\":true,\"detail\":\"Keyless source for vendor, agency, and award commands.\",\"live\":\"ok\",\"name\":\"\u003credacted\u003e\"},{\"configured\":false,\"detail\":\"Set GOVSPEND_SAM_API_KEY for procurement opportunity search.\",\"live\":\"not_configured\",\"name\":\"\u003credacted\u003e\"},{\"configured\":true,\"detail\":\"Keyless public search endpoint for grants command.\",\"live\":\"ok\",\"name\":\"\u003credacted\u003e\"}],\"version\":\"1.0.0\"}"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "grants",
+      "kind": "help",
+      "args": [
+        "grants",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search public grant opportunities by query, agency, category, status, and date window when the Grants.gov source is available.\n\nUsage:\n  govspend-pp-cli grants [flags]\n\nExamples:\n  govspend-pp-cli grants --query climate --limit 2 --agent\n\nFlags:\n      --agency string     Grants.gov agency code or name\n      --agent             Emit compact agent-friendly JSON output\n      --category string   Funding category code\n      --dry-run           Print the read-only request without calling the source API\n  -h, --help              help for grants\n      --json              Emit JSON output\n      --limit int         Maximum opportunities to return (default 10)\n      --query string      Keyword search text\n      --select string     Select comma-separated top-level JSON fields\n      --status string     Opportunity status list, such as posted or forecasted|posted (default \"forecasted|posted\")\n"
+    },
+    {
+      "command": "grants",
+      "kind": "happy_path",
+      "args": [
+        "grants",
+        "--query",
+        "climate",
+        "--limit",
+        "2",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"source\": \"Grants.gov\",\n  \"source_url\": \"https://api.grants.gov/v1/api/search2\",\n  \"query\": {\n    \"keyword\": \"climate\",\n    \"status\": \"forecasted|posted\",\n    \"limit\": 2\n  },\n  \"hit_count\": 75,\n  \"returned\": 2,\n  \"opportunities\": [\n    {\n      \"id\": \"103313\",\n      \"number\": \"NOAA-OAR-CPO-2012-2003041\",\n      \"title\": \"Climate Program Office for FY 2012\",\n      \"agency\": \"Department of Commerce\",\n      \"agencyCode\": \"DOC\",\n      \"openDate\": \"07/06/2011\",\n      \"closeDate\": \"\",\n      \"oppStatus\": \"posted\",\n      \"cfdaList\": [\n        \"11.431\"\n      ]\n    },\n    {\n      \"id\": \"351231\",\n      \"number\": \"PDSITALYFY24\",\n      \"title\": \"U.S. Mission Italy PDS Annual Program Statement\",\n      \"agency\": \"U.S. Mission to Italy\",\n      \"agencyCode\": \"DOS-ITA\",\n      \"openDate\": \"11/30/2023\",\n      \"closeDate\": \"\",\n      \"oppStatus\": \"forecasted\",\n      \"cfdaList\": [\n        \"19.040\"\n      ]\n    }\n  ],\n  \"caveat\": \"Grants.gov search returns public opportunity summaries. Follow the opportunity number in Grants.gov for full package details.\"\n}\n"
+    },
+    {
+      "command": "grants",
+      "kind": "json_fidelity",
+      "args": [
+        "grants",
+        "--query",
+        "climate",
+        "--limit",
+        "2",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"source\": \"Grants.gov\",\n  \"source_url\": \"https://api.grants.gov/v1/api/search2\",\n  \"query\": {\n    \"keyword\": \"climate\",\n    \"status\": \"forecasted|posted\",\n    \"limit\": 2\n  },\n  \"hit_count\": 75,\n  \"returned\": 2,\n  \"opportunities\": [\n    {\n      \"id\": \"103313\",\n      \"number\": \"NOAA-OAR-CPO-2012-2003041\",\n      \"title\": \"Climate Program Office for FY 2012\",\n      \"agency\": \"Department of Commerce\",\n      \"agencyCode\": \"DOC\",\n      \"openDate\": \"07/06/2011\",\n      \"closeDate\": \"\",\n      \"oppStatus\": \"posted\",\n      \"cfdaList\": [\n        \"11.431\"\n      ]\n    },\n    {\n      \"id\": \"351231\",\n      \"number\": \"PDSITALYFY24\",\n      \"title\": \"U.S. Mission Italy PDS Annual Program Statement\",\n      \"agency\": \"U.S. Mission to Italy\",\n      \"agencyCode\": \"DOS-ITA\",\n      \"openDate\": \"11/30/2023\",\n      \"closeDate\": \"\",\n      \"oppStatus\": \"forecasted\",\n      \"cfdaList\": [\n        \"19.040\"\n      ]\n    }\n  ],\n  \"caveat\": \"Grants.gov search returns public opportunity summaries. Follow the opportunity number in Grants.gov for full package details.\"\n}\n"
+    },
+    {
+      "command": "grants",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "opportunities",
+      "kind": "help",
+      "args": [
+        "opportunities",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search SAM.gov active or recent opportunities by query, NAICS, organization, state, and posted date window when GOVSPEND_SAM_API_KEY is configured.\n\nUsage:\n  govspend-pp-cli opportunities [flags]\n\nExamples:\n  govspend-pp-cli opportunities --query cybersecurity --posted-from 05/01/2026 --posted-to 05/31/2026 --dry-run --agent\n\nFlags:\n      --agent                 Emit compact agent-friendly JSON output\n      --dry-run               Print the read-only request without calling the source API\n  -h, --help                  help for opportunities\n      --json                  Emit JSON output\n      --limit int             Maximum opportunities to return (default 10)\n      --naics string          NAICS code\n      --organization string   Organization name\n      --posted-from string    Posted from date in MM/DD/YYYY\n      --posted-to string      Posted to date in MM/DD/YYYY\n      --query string          Search text for opportunity title\n      --select string         Select comma-separated top-level JSON fields\n      --state string          Place of performance state\n      --type string           SAM.gov procurement type code such as o, k, p, r, or a\n"
+    },
+    {
+      "command": "opportunities",
+      "kind": "happy_path",
+      "args": [
+        "opportunities",
+        "--query",
+        "cybersecurity",
+        "--posted-from",
+        "05/01/2026",
+        "--posted-to",
+        "05/31/2026",
+        "--dry-run",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"method\": \"GET\",\n  \"url\": \"https://api.sam.gov/opportunities/v2/search\",\n  \"query\": {\n    \"limit\": \"10\",\n    \"offset\": \"0\",\n    \"postedFrom\": \"05/01/2026\",\n    \"postedTo\": \"05/31/2026\",\n    \"title\": \"cybersecurity\"\n  },\n  \"source\": \"SAM.gov Opportunities API\"\n}\n"
+    },
+    {
+      "command": "opportunities",
+      "kind": "json_fidelity",
+      "args": [
+        "opportunities",
+        "--query",
+        "cybersecurity",
+        "--posted-from",
+        "05/01/2026",
+        "--posted-to",
+        "05/31/2026",
+        "--dry-run",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"method\": \"GET\",\n  \"url\": \"https://api.sam.gov/opportunities/v2/search\",\n  \"query\": {\n    \"limit\": \"10\",\n    \"offset\": \"0\",\n    \"postedFrom\": \"05/01/2026\",\n    \"postedTo\": \"05/31/2026\",\n    \"title\": \"cybersecurity\"\n  },\n  \"source\": \"SAM.gov Opportunities API\"\n}\n"
+    },
+    {
+      "command": "opportunities",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sources",
+      "kind": "help",
+      "args": [
+        "sources",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Report each source, auth mode, freshness behavior, and caveats.\n\nUsage:\n  govspend-pp-cli sources [flags]\n\nExamples:\n  govspend-pp-cli sources --agent\n\nFlags:\n      --agent           Emit compact agent-friendly JSON output\n  -h, --help            help for sources\n      --json            Emit JSON output\n      --select string   Select comma-separated top-level JSON fields\n"
+    },
+    {
+      "command": "sources",
+      "kind": "happy_path",
+      "args": [
+        "sources",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"sources\":[{\"auth\":\"none\",\"base_url\":\"https://api.usaspending.gov\",\"caveat\":\"Award data follows USAspending publication timing and source-system quality.\",\"name\":\"\u003credacted\u003e\",\"use\":\"Federal award search, vendor footprint, agency profile, NAICS and PSC award research.\"},{\"auth\":\"api_key\",\"base_url\":\"https://api.sam.gov/opportunities/v2/search\",\"caveat\":\"SAM.gov requires postedFrom and postedTo date parameters and a public API key.\",\"environment\":\"GOVSPEND_SAM_API_KEY\",\"name\":\"\u003credacted\u003e\",\"use\":\"Active and recent procurement opportunity search.\"},{\"auth\":\"none\",\"base_url\":\"https://api.grants.gov/v1/api/search2\",\"caveat\":\"The public search endpoint returns opportunity summaries; details may require following Grants.gov links.\",\"name\":\"\u003credacted\u003e\",\"use\":\"Public grant opportunity search.\"}]}"
+    },
+    {
+      "command": "sources",
+      "kind": "json_fidelity",
+      "args": [
+        "sources",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"sources\":[{\"auth\":\"none\",\"base_url\":\"https://api.usaspending.gov\",\"caveat\":\"Award data follows USAspending publication timing and source-system quality.\",\"name\":\"\u003credacted\u003e\",\"use\":\"Federal award search, vendor footprint, agency profile, NAICS and PSC award research.\"},{\"auth\":\"api_key\",\"base_url\":\"https://api.sam.gov/opportunities/v2/search\",\"caveat\":\"SAM.gov requires postedFrom and postedTo date parameters and a public API key.\",\"environment\":\"GOVSPEND_SAM_API_KEY\",\"name\":\"\u003credacted\u003e\",\"use\":\"Active and recent procurement opportunity search.\"},{\"auth\":\"none\",\"base_url\":\"https://api.grants.gov/v1/api/search2\",\"caveat\":\"The public search endpoint returns opportunity summaries; details may require following Grants.gov links.\",\"name\":\"\u003credacted\u003e\",\"use\":\"Public grant opportunity search.\"}]}"
+    },
+    {
+      "command": "sources",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "vendor",
+      "kind": "help",
+      "args": [
+        "vendor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search USAspending award data for a recipient/vendor and return a compact profile: total obligations, award count, top agencies, top NAICS/PSC categories, recent awards, source URL, and freshness notes.\n\nUsage:\n  govspend-pp-cli vendor \u003cname\u003e [flags]\n\nExamples:\n  govspend-pp-cli vendor \"Palantir\" --since 30d --limit 2 --agent\n\nFlags:\n      --agent           Emit compact agent-friendly JSON output\n      --dry-run         Print the read-only request without calling the source API\n      --from string     Start date in YYYY-MM-DD\n  -h, --help            help for vendor\n      --json            Emit JSON output\n      --limit int       Maximum awards to return (default 10)\n      --select string   Select comma-separated top-level JSON fields\n      --since string    Relative lookback window such as 30d, 12m, or 1y (default \"365d\")\n      --to string       End date in YYYY-MM-DD\n"
+    },
+    {
+      "command": "vendor",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [vendor] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "vendor",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [vendor] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "vendor",
+      "kind": "error_path",
+      "args": [
+        "vendor",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: vendor is not a valid search term\n"
+    }
+  ],
+  "ran_at": "2026-06-25T21:57:39.45432Z"
+}

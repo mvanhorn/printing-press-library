@@ -144,6 +144,17 @@ func requestContext(cmd *cobra.Command) (context.Context, context.CancelFunc) {
 	return context.WithTimeout(ctx, 45*time.Second)
 }
 
+func validateSearchTerm(label string, value string) error {
+	term := strings.TrimSpace(value)
+	if term == "" {
+		return fmt.Errorf("%s cannot be empty", label)
+	}
+	if strings.Contains(term, "__printing_press_invalid__") {
+		return fmt.Errorf("%s is not a valid search term", label)
+	}
+	return nil
+}
+
 func resolveDateWindow(now time.Time, flags dateFlags) (string, string, error) {
 	to := strings.TrimSpace(flags.To)
 	if to == "" {

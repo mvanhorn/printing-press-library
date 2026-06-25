@@ -55,8 +55,9 @@ func newGrantsCmd(app *app) *cobra.Command {
 	var flags outputFlags
 	var query grantsQuery
 	cmd := &cobra.Command{
-		Use:   "grants",
-		Short: "Search public grant opportunities by query, agency, category, status, and date window when the Grants.gov source is available.",
+		Use:     "grants",
+		Short:   "Search public grant opportunities by query, agency, category, status, and date window when the Grants.gov source is available.",
+		Example: "  govspend-pp-cli grants --query climate --limit 2 --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if query.Limit <= 0 {
 				query.Limit = 10

@@ -17,8 +17,9 @@ type sourcesResult struct {
 func newSourcesCmd(app *app) *cobra.Command {
 	var flags outputFlags
 	cmd := &cobra.Command{
-		Use:   "sources",
-		Short: "Report each source, auth mode, freshness behavior, and caveats.",
+		Use:     "sources",
+		Short:   "Report each source, auth mode, freshness behavior, and caveats.",
+		Example: "  govspend-pp-cli sources --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			result := sourcesResult{Sources: sourceCatalog()}
 			return writeOutput(app.out, flags, result, func(out io.Writer) error {

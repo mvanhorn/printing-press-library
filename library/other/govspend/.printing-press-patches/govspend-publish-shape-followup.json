@@ -5,12 +5,23 @@
   "base_printing_press_version": "4.18.1",
   "id": "govspend-publish-shape-followup",
   "title": "Align govspend publish shape and review follow-up",
-  "reason": "Maintainer review asked whether the PR used the printing-press-publish process. This patch records the follow-up that added publish metadata, tightened Grants.gov edge cases, and prepared the PR body for the publish template.",
+  "reason": "Maintainer review asked whether the PR used the printing-press-publish process. This patch records the follow-up that added publish metadata, tightened live dogfood edge cases, refreshed module tidy state, and prepared the PR body for the publish template.",
   "files": [
     ".printing-press-pii-polish.json",
+    ".manuscripts/20260625-govspend/proofs/phase5-acceptance.json",
+    ".manuscripts/20260625-govspend/proofs/publish-live-gate.json",
+    "go.mod",
+    "internal/cli/agent_context.go",
+    "internal/cli/root.go",
     "internal/cli/grants.go",
     "internal/cli/doctor.go",
+    "internal/cli/helpers.go",
+    "internal/cli/vendor.go",
+    "internal/cli/agency.go",
+    "internal/cli/awards.go",
+    "internal/cli/opportunities.go",
+    "internal/cli/sources.go",
     "internal/cli/govspend_test.go"
   ],
-  "validated_outcome": "Publish-package verifier passes for library/other/govspend, publish validate passes, Grants.gov empty keywords are omitted from request payloads, and doctor --live now reports Grants.gov application-level errors returned inside HTTP 200 responses."
+  "validated_outcome": "Publish-package verifier passes for library/other/govspend, publish validate passes, live dogfood passes 19/19 exercised checks, agent-context is available for the live dogfood harness, command help includes Examples sections, Grants.gov empty keywords are omitted from request payloads, doctor --live now reports Grants.gov application-level errors returned inside HTTP 200 responses, and vendor/agency invalid search terms return non-zero."
 }

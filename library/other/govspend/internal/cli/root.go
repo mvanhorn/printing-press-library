@@ -38,6 +38,7 @@ func newRootCmd(app *app) *cobra.Command {
 	rootCmd.AddCommand(newSourcesCmd(app))
 	rootCmd.AddCommand(newDoctorCmd(app))
 	rootCmd.AddCommand(newVersionCliCmd(app))
+	rootCmd.AddCommand(newAgentContextCmd(app, rootCmd))
 
 	return rootCmd
 }

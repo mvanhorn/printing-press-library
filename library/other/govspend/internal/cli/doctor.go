@@ -31,8 +31,9 @@ func newDoctorCmd(app *app) *cobra.Command {
 	var flags outputFlags
 	var live bool
 	cmd := &cobra.Command{
-		Use:   "doctor",
-		Short: "Report configured environment variables and which command families can run.",
+		Use:     "doctor",
+		Short:   "Report configured environment variables and which command families can run.",
+		Example: "  govspend-pp-cli doctor --live --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			result := doctorResult{
 				CLI:      "govspend-pp-cli",

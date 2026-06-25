@@ -15,8 +15,9 @@ func newAwardsCmd(app *app) *cobra.Command {
 	var dates dateFlags
 	var query awardQuery
 	cmd := &cobra.Command{
-		Use:   "awards",
-		Short: "Search USAspending awards by keyword, vendor, agency, NAICS, PSC, and date window.",
+		Use:     "awards",
+		Short:   "Search USAspending awards by keyword, vendor, agency, NAICS, PSC, and date window.",
+		Example: "  govspend-pp-cli awards --query \"cloud migration\" --since 30d --limit 2 --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			from, to, err := resolveDateWindow(app.now(), dates)
 			if err != nil {

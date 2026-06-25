@@ -113,6 +113,24 @@ func TestAgencyDryRunDoesNotCallNetwork(t *testing.T) {
 	}
 }
 
+func TestAgencyRejectsPublishInvalidSentinel(t *testing.T) {
+	app := newNoNetworkTestApp(t)
+	cmd := newRootCmd(app)
+	cmd.SetArgs([]string{"agency", "__printing_press_invalid__"})
+	if err := cmd.Execute(); err == nil {
+		t.Fatalf("expected invalid agency term to fail")
+	}
+}
+
+func TestVendorRejectsPublishInvalidSentinel(t *testing.T) {
+	app := newNoNetworkTestApp(t)
+	cmd := newRootCmd(app)
+	cmd.SetArgs([]string{"vendor", "__printing_press_invalid__"})
+	if err := cmd.Execute(); err == nil {
+		t.Fatalf("expected invalid vendor term to fail")
+	}
+}
+
 func TestBuildGrantsPayloadUsesPublicSearchFields(t *testing.T) {
 	payload := buildGrantsPayload(grantsQuery{Keyword: "climate", Agency: "DOC", Category: "ST", Status: "posted", Limit: 5})
 	if payload["keyword"] != "climate" || payload["rows"] != 5 {
@@ -127,6 +145,35 @@ func TestBuildGrantsPayloadOmitsEmptyKeyword(t *testing.T) {
 	payload := buildGrantsPayload(grantsQuery{Status: "posted", Limit: 5})
 	if _, ok := payload["keyword"]; ok {
 		t.Fatalf("empty keyword should not be included: %#v", payload)
+	}
+}
+
+func TestAgentContextDescribesOptionalSAMKey(t *testing.T) {
+	var out bytes.Buffer
+	app := &app{
+		out:        &out,
+		err:        &bytes.Buffer{},
+		httpClient: http.DefaultClient,
+		now:        func() time.Time { return time.Date(2026, 6, 25, 12, 0, 0, 0, time.UTC) },
+		env:        func(string) string { return "" },
+	}
+	cmd := newRootCmd(app)
+	cmd.SetArgs([]string{"agent-context"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute() error = %v", err)
+	}
+	var decoded agentContext
+	if err := json.Unmarshal(out.Bytes(), &decoded); err != nil {
+		t.Fatalf("invalid json: %v\n%s", err, out.String())
+	}
+	if decoded.SchemaVersion != agentContextSchemaVersion {
+		t.Fatalf("schema version = %q", decoded.SchemaVersion)
+	}
+	if decoded.Auth.Mode != "optional_api_key" {
+		t.Fatalf("auth mode = %q", decoded.Auth.Mode)
+	}
+	if len(decoded.Auth.EnvVars) != 1 || decoded.Auth.EnvVars[0].Name != "GOVSPEND_SAM_API_KEY" {
+		t.Fatalf("unexpected auth env vars: %#v", decoded.Auth.EnvVars)
 	}
 }
 
@@ -210,5 +257,19 @@ func jsonResponse(body string) *http.Response {
 		Status:     "200 OK",
 		Header:     make(http.Header),
 		Body:       io.NopCloser(strings.NewReader(body)),
+	}
+}
+
+func newNoNetworkTestApp(t *testing.T) *app {
+	t.Helper()
+	return &app{
+		out: &bytes.Buffer{},
+		err: &bytes.Buffer{},
+		httpClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			t.Fatalf("unexpected network request to %s", req.URL.String())
+			return nil, nil
+		})},
+		now: func() time.Time { return time.Date(2026, 6, 25, 12, 0, 0, 0, time.UTC) },
+		env: func(string) string { return "" },
 	}
 }

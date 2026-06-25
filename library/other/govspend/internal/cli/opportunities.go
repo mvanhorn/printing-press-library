@@ -47,8 +47,9 @@ func newOpportunitiesCmd(app *app) *cobra.Command {
 	var flags outputFlags
 	var query opportunitiesQuery
 	cmd := &cobra.Command{
-		Use:   "opportunities",
-		Short: "Search SAM.gov active or recent opportunities by query, NAICS, organization, state, and posted date window when GOVSPEND_SAM_API_KEY is configured.",
+		Use:     "opportunities",
+		Short:   "Search SAM.gov active or recent opportunities by query, NAICS, organization, state, and posted date window when GOVSPEND_SAM_API_KEY is configured.",
+		Example: "  govspend-pp-cli opportunities --query cybersecurity --posted-from 05/01/2026 --posted-to 05/31/2026 --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if query.Limit <= 0 {
 				query.Limit = 10

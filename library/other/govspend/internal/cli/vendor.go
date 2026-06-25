@@ -10,10 +10,14 @@ func newVendorCmd(app *app) *cobra.Command {
 	var dates dateFlags
 	var limit int
 	cmd := &cobra.Command{
-		Use:   "vendor <name>",
-		Short: "Search USAspending award data for a recipient/vendor and return a compact profile: total obligations, award count, top agencies, top NAICS/PSC categories, recent awards, source URL, and freshness notes.",
-		Args:  cobra.ExactArgs(1),
+		Use:     "vendor <name>",
+		Short:   "Search USAspending award data for a recipient/vendor and return a compact profile: total obligations, award count, top agencies, top NAICS/PSC categories, recent awards, source URL, and freshness notes.",
+		Example: "  govspend-pp-cli vendor \"Palantir\" --since 30d --limit 2 --agent",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := validateSearchTerm("vendor", args[0]); err != nil {
+				return err
+			}
 			from, to, err := resolveDateWindow(app.now(), dates)
 			if err != nil {
 				return err
