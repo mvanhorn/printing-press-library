@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-06-25T11:45:00Z",
+  "base_run_id": "20260625-govspend",
+  "base_printing_press_version": "4.18.1",
+  "id": "govspend-review-greptile",
+  "title": "Address govspend Greptile review feedback",
+  "reason": "Greptile review identified that agency dry-run resolved agencies with a live USAspending call, SAM.gov query-key placement needed documented rationale, and root.go retained an unused strings placeholder.",
+  "files": [
+    "internal/cli/agency.go",
+    "internal/cli/opportunities.go",
+    "internal/cli/root.go",
+    "internal/cli/govspend_test.go"
+  ],
+  "validated_outcome": "Agency dry-run now returns the USAspending request payload without fetching agency references, SAM.gov api_key query placement is documented as matching the public Opportunities API v2 contract, and the unused strings placeholder was removed. A focused regression test verifies agency dry-run does not call the network."
+}

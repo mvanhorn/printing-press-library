@@ -24,6 +24,15 @@ func newAgencyCmd(app *app) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			query := awardQuery{Agency: args[0], From: from, To: to, Limit: limit}
+			if flags.DryRun {
+				return writeJSON(app.out, dryRunResult{
+					Method: "POST",
+					URL:    usaSpendingBaseURL + "/api/v2/search/spending_by_award/",
+					Body:   buildAwardPayload(query),
+					Source: "USAspending.gov",
+				})
+			}
 			ctx, cancel := requestContext(cmd)
 			defer cancel()
 			agencies, err := app.fetchAgencies(ctx)
@@ -35,15 +44,7 @@ func newAgencyCmd(app *app) *cobra.Command {
 			if match.AgencyName != "" {
 				queryText = match.AgencyName
 			}
-			query := awardQuery{Agency: queryText, From: from, To: to, Limit: limit}
-			if flags.DryRun {
-				return writeJSON(app.out, dryRunResult{
-					Method: "POST",
-					URL:    usaSpendingBaseURL + "/api/v2/search/spending_by_award/",
-					Body:   buildAwardPayload(query),
-					Source: "USAspending.gov",
-				})
-			}
+			query.Agency = queryText
 			awards, err := app.searchAwards(ctx, query)
 			if err != nil {
 				return err

@@ -118,6 +118,8 @@ func buildSAMURL(query opportunitiesQuery, apiKey string) string {
 	values.Set("postedFrom", query.PostedFrom)
 	values.Set("postedTo", query.PostedTo)
 	if apiKey != "" {
+		// SAM.gov Opportunities API v2 documents api_key as a query parameter;
+		// no Authorization header alternative is documented for this endpoint.
 		values.Set("api_key", apiKey)
 	}
 	if query.Query != "" {

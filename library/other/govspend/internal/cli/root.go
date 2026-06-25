@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -75,6 +74,3 @@ func defaultApp() *app {
 		env:        os.Getenv,
 	}
 }
-
-// suggestFlag is a placeholder for flag suggestion support.
-var _ = strings.Contains

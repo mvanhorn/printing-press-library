@@ -5,6 +5,7 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"testing"
@@ -85,6 +86,32 @@ func TestMatchAgencyPrefersExactAbbreviation(t *testing.T) {
 	}
 }
 
+func TestAgencyDryRunDoesNotCallNetwork(t *testing.T) {
+	var out bytes.Buffer
+	app := &app{
+		out: &out,
+		err: &bytes.Buffer{},
+		httpClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			t.Fatalf("dry-run made network request to %s", req.URL.String())
+			return nil, nil
+		})},
+		now: func() time.Time { return time.Date(2026, 6, 25, 12, 0, 0, 0, time.UTC) },
+		env: func(string) string { return "" },
+	}
+	cmd := newRootCmd(app)
+	cmd.SetArgs([]string{"agency", "NASA", "--dry-run"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute() error = %v", err)
+	}
+	var decoded dryRunResult
+	if err := json.Unmarshal(out.Bytes(), &decoded); err != nil {
+		t.Fatalf("invalid json: %v\n%s", err, out.String())
+	}
+	if decoded.Method != "POST" || decoded.Source != "USAspending.gov" {
+		t.Fatalf("unexpected dry-run result: %#v", decoded)
+	}
+}
+
 func TestBuildGrantsPayloadUsesPublicSearchFields(t *testing.T) {
 	payload := buildGrantsPayload(grantsQuery{Keyword: "climate", Agency: "DOC", Category: "ST", Status: "posted", Limit: 5})
 	if payload["keyword"] != "climate" || payload["rows"] != 5 {
@@ -119,4 +146,13 @@ func TestOpportunitiesMissingSAMKeyReturnsSetupJSON(t *testing.T) {
 	if !strings.Contains(decoded.Setup, "GOVSPEND_SAM_API_KEY") {
 		t.Fatalf("setup did not mention env var: %q", decoded.Setup)
 	}
+}
+
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (fn roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	if fn == nil {
+		return nil, fmt.Errorf("roundTripFunc is nil")
+	}
+	return fn(req)
 }
