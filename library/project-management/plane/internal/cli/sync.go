@@ -689,14 +689,15 @@ func syncResource(ctx context.Context, c interface {
 
 		totalCount += stored
 		atomic.AddInt64(&progressCount, int64(stored))
-		// Collect seen IDs for flat tenant-scoped reconcile. extractID resolves
-		// the primary key the same way UpsertBatch does, so seenIDs match stored
-		// row IDs. Only non-empty IDs are tracked; reconcile never deletes a row
-		// whose ID was seen this run.
+		// Collect seen IDs for flat tenant-scoped reconcile. Use the SAME
+		// store.ExtractResourceID that UpsertBatch keys rows on (not the cli-local
+		// extractID, whose resourceIDFieldOverrides map can diverge from the store
+		// map), so seenIDs match stored row IDs by construction — a row stored this
+		// run can never be misclassified as a victim. Only non-empty IDs are tracked.
 		if flatReconcilable {
 			for _, it := range items {
 				if o, derr := store.DecodeJSONObject(it); derr == nil {
-					if id := extractID(resource, o); id != "" {
+					if id := store.ExtractResourceID(resource, o); id != "" {
 						seenIDs = append(seenIDs, id)
 					}
 				}
