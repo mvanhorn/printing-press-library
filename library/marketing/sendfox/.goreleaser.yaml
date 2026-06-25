@@ -1,0 +1,51 @@
+version: 2
+project_name: sendfox-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: sendfox-pp-cli
+    main: ./cmd/sendfox-pp-cli
+    binary: sendfox-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X sendfox-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: sendfox-pp-mcp
+    main: ./cmd/sendfox-pp-mcp
+    binary: sendfox-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: sendfox-pp-cli
+    repository:
+      owner: cathrynlavery
+      name: homebrew-tap
+    homepage: "https://github.com/cathrynlavery/sendfox-pp-cli"
+    description: "SendFox email marketing API for authenticated user details, contact lists, contacts, unsubscribe operations"
+    install: |
+      bin.install "sendfox-pp-cli"
+      bin.install "sendfox-pp-mcp"

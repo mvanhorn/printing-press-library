@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "id": "merged-substack-creator-authoring",
+  "applied_at": "2026-05-31",
+  "base_run_id": "20260531-014452",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Merged the authoring + multi-publication surface from the sibling substack-creator CLI: rich drafts create/update (30+ fields), the markdown→ProseMirror draft-body converter (prosemirror.go), posts list --type, and the transcendence commands portfolio, posts twin/best/pair/pairs, subs churn, subs cross-sell, grep (FTS5), schedule board, plus the SQLite store schema they read.",
+  "reason": "substack-creator (creator JPresting) and substack (creator chirantan) were two CLIs for the same API split by emphasis (authoring/portfolio vs growth/discovery). Consolidated into one substack CLI: substack-creator's hand-authored surface was ported verbatim onto the machine-lifted substack base, with import-path rewrite, chirantan copyright headers (JPresting recorded in contributors[]), the subscribers→subs naming unified, and 4.3.0→4.19.0 client API-drift (context.Context HTTP methods) adapted at the call sites. The substack-creator catalog entry is retired in the same change.",
+  "files": [
+    "internal/cli/drafts_create.go",
+    "internal/cli/drafts_update.go",
+    "internal/cli/drafts_helpers.go",
+    "internal/cli/drafts_schedule.go",
+    "internal/cli/prosemirror.go",
+    "internal/cli/posts_twin.go",
+    "internal/cli/posts_best.go",
+    "internal/cli/posts_pair.go",
+    "internal/cli/subs_churn.go",
+    "internal/cli/subs_cross_sell.go",
+    "internal/cli/portfolio.go",
+    "internal/cli/grep.go",
+    "internal/cli/schedule.go",
+    "internal/cli/posts_list-published.go",
+    "internal/cli/posts.go",
+    "internal/cli/subs.go",
+    "internal/cli/root.go",
+    "internal/store/substack_creator_migrations.go"
+  ],
+  "validated_outcome": "go build/vet/test (281 pass) + govulncheck clean; all new commands resolve; drafts create exposes 30+ fields; store-backed commands create their tables on open. Original surface authored by JPresting in substack-creator (validated there against three real publications)."
+}

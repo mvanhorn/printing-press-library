@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "novel-order-plan",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-034611",
+  "base_printing_press_version": "4.2.2",
+  "files": [
+    "internal/cli/order_plan.go",
+    "internal/cli/order_plan_test.go"
+  ],
+  "summary": "Add `order plan --people N` — sized cart suggestion with dietary filters for office/group orders.",
+  "reason": "Transcendence command. JJ's API doesn't expose any group-sizing endpoint; planning lives entirely client-side."
+}

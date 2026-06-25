@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "greptile-coordinate-validation",
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260520-150244",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Fixed 3 P1 and 4 P2 findings from Greptile code review: partial-coordinate bug (|| vs &&) in nearest and gemeente of-point; removed dead --db flag and false offline-first claim in gemeente of-point; batch geocode no longer populates coord columns on low-score rows; batch geocode checks csv.Writer error after flush; bbox validation now parses each token as float.",
+  "reason": "Greptile P1: haveLL/haveRD used || so passing only --lat or only --rd-x silently used 0.0 for the missing coordinate, firing reverse calls against a point in the Atlantic. P1: --db flag in gemeente of-point was declared and bound but never read, and the offline-first path described in the Long doc was never implemented. P2: low-score rows in batch geocode fell through to populate coordinate columns despite the error column being set. P2: csv.Writer.Flush() error was silently dropped. P2: bbox only checked for 4 tokens, not valid floats.",
+  "files": [
+    "internal/cli/novel_nearest.go",
+    "internal/cli/novel_gemeente.go",
+    "internal/cli/novel_batch.go",
+    "internal/cli/novel_features_bbox.go"
+  ],
+  "validated_outcome": "go build ./... passes; partial-pair inputs now return a clear error; gemeente of-point --db flag removed; low-score batch rows no longer emit coordinates; bbox 'a,b,c,d' returns a clear parse error."
+}

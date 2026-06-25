@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "wavespeed-novel-plan",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260527-214905",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Added plan brief-to-shotlist (hybrid deterministic/LLM planner), model-pick, and cost-estimate.",
+  "reason": "Agents need to shape briefs into structured shotlists and price them before producing.",
+  "files": [
+    "internal/cli/novel_plan.go"
+  ]
+}

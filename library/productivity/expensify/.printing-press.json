@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-23T02:17:08.094137Z",
+  "printing_press_version": "4.25.0",
+  "api_name": "expensify",
+  "display_name": "Expensify",
+  "cli_name": "expensify-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
+  "owner": "mvanhorn",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "spec_path": "expensify-spec.reprint-ready.yaml",
+  "spec_format": "internal",
+  "spec_kind": "synthetic",
+  "spec_checksum": "sha256:8fa3cd078ea52a0521564c6df454c1321403d979db82ddc981eb154e60992a2e",
+  "run_id": "20260622-180206",
+  "category": "productivity",
+  "description": "File expenses and submit reports to Expensify from the command line",
+  "mcp_binary": "expensify-pp-mcp",
+  "mcp_tool_count": 39,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "EXPENSIFY_AUTH_TOKEN",
+    "EXPENSIFY_PARTNER_USER_ID",
+    "EXPENSIFY_PARTNER_USER_SECRET"
+  ],
+  "auth_key_url": "https://www.expensify.com/tools/integrations/",
+  "novel_features": [
+    {
+      "name": "Quick expense from natural language",
+      "command": "expense quick",
+      "description": "File an expense with one line: amount, merchant, and category parsed from a short prompt — no forms, no web UI."
+    },
+    {
+      "name": "Draft report from date range",
+      "command": "report draft",
+      "description": "Create a report and auto-attach every un-reported expense from a date range in a single command."
+    },
+    {
+      "name": "What's the damage",
+      "command": "damage",
+      "description": "Single-glance summary: total expensed, pending, approved, paid for the current month (or a custom range)."
+    },
+    {
+      "name": "Expense from bank line",
+      "command": "expense from-line",
+      "description": "Paste a raw bank or card CSV row and the CLI extracts date/merchant/amount/currency and files the expense."
+    },
+    {
+      "name": "Offline expense search",
+      "command": "expense search",
+      "description": "FTS5 search over all your expenses by merchant, comment, category, or tag. Regex-friendly."
+    },
+    {
+      "name": "Missing receipts",
+      "command": "expense missing-receipts",
+      "description": "Lists expenses without attached receipts so you can catch them before submitting a report."
+    },
+    {
+      "name": "Monthly rollup",
+      "command": "expense rollup",
+      "description": "Pivot-table expenses by category, tag, or merchant for any time range."
+    },
+    {
+      "name": "Duplicate detection",
+      "command": "expense dupes",
+      "description": "Finds expenses that look like duplicates by (merchant, amount, date±window)."
+    },
+    {
+      "name": "Bulk expense create",
+      "command": "expense bulk",
+      "description": "File a whole list of expenses in a single Expense_Create request."
+    },
+    {
+      "name": "Submit and wait",
+      "command": "report submit",
+      "description": "Submit a report and optionally poll until it leaves SUBMITTED."
+    }
+  ]
+}

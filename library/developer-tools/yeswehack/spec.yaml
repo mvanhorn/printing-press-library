@@ -1,0 +1,306 @@
+name: yeswehack
+display_name: YesWeHack
+description: Researcher-side CLI for the YesWeHack bug bounty platform. Discover programs, read scope, draft and submit reports, browse hacktivity, track payouts.
+version: "0.1.0"
+base_url: "https://api.yeswehack.com"
+spec_source: browser-sniffed
+cli_description: "Every YesWeHack researcher feature, plus an offline SQLite-backed cockpit for scope cartography, drift detection, draft reports, and hacktivity learning."
+
+auth:
+  type: bearer_token
+  header: Authorization
+  env_vars:
+    - YESWEHACK_JWT
+
+config:
+  format: toml
+  path: "~/.config/yeswehack-pp-cli/config.toml"
+
+resources:
+  user:
+    description: "Authenticated user account, reports, invitations, email aliases"
+    endpoints:
+      get_self:
+        method: GET
+        path: "/user"
+        description: "Get the authenticated user"
+        response:
+          type: object
+          item: User
+
+      list_reports:
+        method: GET
+        path: "/user/reports"
+        description: "List reports the authenticated user has submitted"
+        params:
+          - name: page
+            type: int
+            description: "Page number (1-indexed)"
+          - name: itemsPerPage
+            type: int
+            description: "Page size"
+        response:
+          type: object
+          item: ReportListPage
+        pagination:
+          style: page
+          page_param: page
+          size_param: itemsPerPage
+
+      list_invitations:
+        method: GET
+        path: "/user/invitations"
+        description: "List the authenticated user's program invitations"
+        response:
+          type: object
+          item: Invitations
+
+      list_email_aliases:
+        method: GET
+        path: "/user/email-aliases"
+        description: "List the authenticated user's email aliases (per-program forwarding addresses)"
+        response:
+          type: object
+          item: EmailAliases
+
+  programs:
+    description: "Bug bounty programs (public and private the user is invited to)"
+    endpoints:
+      list:
+        method: GET
+        path: "/programs"
+        description: "List bug bounty programs the user can see"
+        no_auth: true
+        params:
+          - name: page
+            type: int
+            description: "Page number"
+          - name: itemsPerPage
+            type: int
+            description: "Page size"
+          - name: disabled
+            type: int
+            description: "Set to 0 to exclude disabled programs"
+          - name: search
+            type: string
+            description: "Free-text search across program titles"
+          - name: business_unit
+            type: string
+            description: "Filter by business unit slug"
+          - name: bounty
+            type: int
+            description: "1 = bounty programs only"
+          - name: vdp
+            type: int
+            description: "1 = vulnerability-disclosure programs only"
+        response:
+          type: object
+          item: ProgramListPage
+        pagination:
+          style: page
+          page_param: page
+          size_param: itemsPerPage
+
+      get:
+        method: GET
+        path: "/programs/{slug}"
+        description: "Get a program's full detail (rules, reward grid, scope counts, BU, etc.)"
+        no_auth: true
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Program slug (e.g. yes-we-hack, gojek)"
+        response:
+          type: object
+          item: Program
+
+      list_scopes:
+        method: GET
+        path: "/programs/{slug}/scopes"
+        description: "List the in-scope and out-of-scope assets for a program"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Program slug"
+        response:
+          type: object
+          item: ScopeList
+
+  hacktivity:
+    description: "Public disclosed reports feed (the platform's learning surface)"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/hacktivity"
+        description: "List recently disclosed reports across all public programs"
+        no_auth: true
+        params:
+          - name: page
+            type: int
+            description: "Page number"
+          - name: resultsPerPage
+            type: int
+            description: "Page size"
+          - name: programs
+            type: string
+            description: "Filter by program slug (CSV)"
+          - name: vulnerable_part
+            type: string
+            description: "Filter by CWE / vulnerability-part id"
+        response:
+          type: object
+          item: HacktivityListPage
+        pagination:
+          style: page
+          page_param: page
+          size_param: resultsPerPage
+
+      by_hunter:
+        method: GET
+        path: "/v2/hacktivity/{username}"
+        description: "List a hunter's disclosed reports"
+        no_auth: true
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Hunter username"
+          - name: page
+            type: int
+            description: "Page number"
+          - name: resultsPerPage
+            type: int
+            description: "Page size"
+        response:
+          type: object
+          item: HacktivityListPage
+        pagination:
+          style: page
+          page_param: page
+          size_param: resultsPerPage
+
+  hunters:
+    description: "Researcher profiles (other hunters on the platform)"
+    endpoints:
+      get:
+        method: GET
+        path: "/hunters/{username}"
+        description: "Get a hunter's public profile (points, rank, impact, achievements)"
+        no_auth: true
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Hunter username"
+        response:
+          type: object
+          item: Hunter
+
+      list_achievements:
+        method: GET
+        path: "/hunters/{username}/achievements"
+        description: "List a hunter's earned achievement badges"
+        no_auth: true
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Hunter username"
+        response:
+          type: object
+          item: AchievementList
+
+  business_units:
+    description: "Customer organizations that run programs"
+    endpoints:
+      list:
+        method: GET
+        path: "/business-units"
+        description: "List business units visible to the user"
+        response:
+          type: object
+          item: BusinessUnitList
+
+  ranking:
+    description: "Global researcher leaderboard"
+    endpoints:
+      list:
+        method: GET
+        path: "/ranking"
+        description: "Top hunters by points"
+        no_auth: true
+        params:
+          - name: page
+            type: int
+            description: "Page number"
+          - name: itemsPerPage
+            type: int
+            description: "Page size"
+        response:
+          type: object
+          item: RankingPage
+        pagination:
+          style: page
+          page_param: page
+          size_param: itemsPerPage
+
+  events:
+    description: "Platform events (CTFs, dojos, live sessions)"
+    endpoints:
+      list:
+        method: GET
+        path: "/events"
+        description: "List YesWeHack events"
+        no_auth: true
+        params:
+          - name: page
+            type: int
+            description: "Page number"
+          - name: itemsPerPage
+            type: int
+            description: "Page size"
+        response:
+          type: object
+          item: EventListPage
+        pagination:
+          style: page
+          page_param: page
+          size_param: itemsPerPage
+
+  taxonomies:
+    description: "Reference data used by the platform (vulnerability parts, countries, profile URL types)"
+    endpoints:
+      list_vulnerable_parts:
+        method: GET
+        path: "/types/vulnerable-part"
+        description: "List vulnerability parts (CWE-like taxonomy used when filing reports)"
+        response:
+          type: object
+          item: VulnerablePartList
+
+      list_countries:
+        method: GET
+        path: "/utils/countries"
+        description: "Country reference list (codes, names)"
+        no_auth: true
+        response:
+          type: object
+          item: CountryList
+
+      list_profile_url_types:
+        method: GET
+        path: "/utils/profile/urls"
+        description: "Allowed profile URL types (twitter, github, linkedin, etc.)"
+        no_auth: true
+        response:
+          type: object
+          item: ProfileUrlTypeList
+
+types: {}

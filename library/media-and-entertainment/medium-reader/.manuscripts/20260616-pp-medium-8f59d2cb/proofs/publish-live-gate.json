@@ -1,0 +1,627 @@
+{
+  "dir": "/Users/maxime/printing-press/library/medium-v2",
+  "binary": "/Users/maxime/printing-press/library/medium-v2/medium-v2",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 38,
+  "passed": 38,
+  "failed": 0,
+  "skipped": 27,
+  "commands": [
+    "analytics",
+    "author-archive",
+    "author-compare",
+    "corpus",
+    "digest",
+    "doctor",
+    "feed",
+    "feedback list",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "read",
+    "search",
+    "which"
+  ],
+  "tests": [
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  medium-reader-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  medium-reader-pp-cli analytics --type messages\n\n  # Group by a field\n  medium-reader-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  medium-reader-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         Database path\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --cookie-file string   Path to a flat-JSON Medium session cookie file {\"sid\":\"..\",\"uid\":\"..\"} (Tier 1; optional, unlocks member full bodies). Also reads MEDIUM_SESSION / MEDIUM_COOKIE_FILE.\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'medium-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\nhint: local store has not been synced yet. Run 'medium-reader-pp-cli author-archive \u003cauthor\u003e' to populate the local store.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\nhint: local store has not been synced yet. Run 'medium-reader-pp-cli author-archive \u003cauthor\u003e' to populate the local store.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "author-archive",
+      "kind": "help",
+      "args": [
+        "author-archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Mirror a Medium writer's articles into the local SQLite store for offline,\nfull-text search. Sourced directly from Medium's internal GraphQL endpoint (the\narticle id list) and the article-page surface (each body), with no API key and\nno cookies.\n\nThe argument is the writer's Medium user id (the stable hex id, e.g.\nbcab753a4d4e) OR their @handle / username (e.g. @quincylarson or quincylarson). A\nhandle is resolved to its user id keylessly, by reading the author's public\nprofile page — no API key, no cookies. You can also find a user id from a feed\nresult's author_id field.\n\nUsage:\n  medium-reader-pp-cli author-archive \u003cuser-id\u003e [flags]\n\nExamples:\n  medium-reader-pp-cli author-archive bcab753a4d4e --max-articles 25 --agent\n  medium-reader-pp-cli author-archive @quincylarson --max-articles 25 --agent\n  medium-reader-pp-cli author-archive bcab753a4d4e --dry-run\n\nFlags:\n      --db string          Path to the local SQLite store (default: standard data dir)\n  -h, --help               help for author-archive\n      --max-articles int   Maximum number of articles to archive (default 25)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --cookie-file string   Path to a flat-JSON Medium session cookie file {\"sid\":\"..\",\"uid\":\"..\"} (Tier 1; optional, unlocks member full bodies). Also reads MEDIUM_SESSION / MEDIUM_COOKIE_FILE.\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'medium-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "author-archive",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [author-archive] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "author-archive",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [author-archive] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "author-archive",
+      "kind": "error_path",
+      "args": [
+        "author-archive",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: author-archive \"__printing_press_invalid__\": could not resolve handle to a user id (pass the 12-hex user id, e.g. bcab753a4d4e, or check the @handle): page: could not resolve a user id for handle \"__printing_press_invalid__\" from its profile page\n"
+    },
+    {
+      "command": "author-compare",
+      "kind": "help",
+      "args": [
+        "author-compare",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compare two writers on output cadence, topic mix, and engagement (claps and voters per article).\n\nUsage:\n  medium-reader-pp-cli author-compare \u003ca\u003e \u003cb\u003e [flags]\n\nExamples:\n  medium-reader-pp-cli author-compare nickwignall the-medium-blog --agent\n\nFlags:\n      --db string   Path to the local SQLite store (default: standard data dir)\n  -h, --help        help for author-compare\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --cookie-file string   Path to a flat-JSON Medium session cookie file {\"sid\":\"..\",\"uid\":\"..\"} (Tier 1; optional, unlocks member full bodies). Also reads MEDIUM_SESSION / MEDIUM_COOKIE_FILE.\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'medium-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "author-compare",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [author-compare] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "author-compare",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [author-compare] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "author-compare",
+      "kind": "error_path",
+      "args": [
+        "author-compare",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Usage:\n  medium-reader-pp-cli author-compare \u003ca\u003e \u003cb\u003e [flags]\n\nExamples:\n  medium-reader-pp-cli author-compare nickwignall the-medium-blog --agent\n\nFlags:\n      --db string   Path to the local SQLite store (default: standard data dir)\n  -h, --help        help for author-compare\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --cookie-file string   Path to a flat-JSON Medium session cookie file {\"sid\":\"..\",\"uid\":\"..\"} (Tier 1; optional, unlocks member full bodies). Also reads MEDIUM_SESSION / MEDIUM_COOKIE_FILE.\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'medium-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\nError: two usernames are required: \u003ca\u003e \u003cb\u003e\n"
+    },
+    {
+      "command": "corpus",
+      "kind": "help",
+      "args": [
+        "corpus",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Full-text and regex search across everything you have synced locally (authors, publications, tags).\n\nUsage:\n  medium-reader-pp-cli corpus \u003cquery\u003e [flags]\n\nExamples:\n  medium-reader-pp-cli corpus design --limit 20 --agent\n  medium-reader-pp-cli corpus \"claude\\s+code\" --regex\n\nFlags:\n      --db string   Path to the local SQLite store (default: standard data dir)\n  -h, --help        help for corpus\n      --limit int   Maximum number of matches to return (default 20)\n      --regex       Treat the query as a Go regular expression\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --cookie-file string   Path to a flat-JSON Medium session cookie file {\"sid\":\"..\",\"uid\":\"..\"} (Tier 1; optional, unlocks member full bodies). Also reads MEDIUM_SESSION / MEDIUM_COOKIE_FILE.\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'medium-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "corpus",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [corpus] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "corpus",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [corpus] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "corpus",
+      "kind": "error_path",
+      "args": [
+        "corpus",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "digest",
+      "kind": "help",
+      "args": [
+        "digest",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "A deduped, ranked 'what is new since last sync' across the authors, publications, and tags you have archived.\n\nUsage:\n  medium-reader-pp-cli digest [flags]\n\nExamples:\n  medium-reader-pp-cli digest --since 7d --agent\n  medium-reader-pp-cli digest --since 2w --limit 50\n\nFlags:\n      --db string      Path to the local SQLite store (default: standard data dir)\n  -h, --help           help for digest\n      --limit int      Maximum number of entries to return (default 30)\n      --since string   Only include articles published within this window (e.g. 7d, 2w, 36h) (default \"7d\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --cookie-file string   Path to a flat-JSON Medium session cookie file {\"sid\":\"..\",\"uid\":\"..\"} (Tier 1; optional, unlocks member full bodies). Also reads MEDIUM_SESSION / MEDIUM_COOKIE_FILE.\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'medium-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "digest",
+      "kind": "happy_path",
+      "args": [
+        "digest",
+        "--since",
+        "7d",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "digest",
+      "kind": "json_fidelity",
+      "args": [
+        "digest",
+        "--since",
+        "7d",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "digest",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  medium-reader-pp-cli doctor [flags]\n\nExamples:\n  medium-reader-pp-cli doctor\n  medium-reader-pp-cli doctor --json\n  medium-reader-pp-cli doctor --fail-on error\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --cookie-file string   Path to a flat-JSON Medium session cookie file {\"sid\":\"..\",\"uid\":\"..\"} (Tier 1; optional, unlocks member full bodies). Also reads MEDIUM_SESSION / MEDIUM_COOKIE_FILE.\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'medium-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Medium: reachable (HTTP 200)\n  OK Session: Tier 0 (anonymous) — no cookie configured; member-locked articles return previews\n  OK Verify Mode: normal operation\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-\u003credacted\u003e/.local/share/medium-reader-pp-cli/data.db\n    schema_version: 4\n    db_bytes: 393216\n    stale_after: 720h0m0s\n    hint: Archive state is empty; run 'medium-reader-pp-cli author-archive \u003cauthor\u003e' to populate it.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"cache\":{\"db_bytes\":393216,\"db_path\":\"/var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-\u003credacted\u003e/.local/share/medium-reader-pp-cli/data.db\",\"hint\":\"Archive state is empty; run 'medium-reader-pp-cli author-archive \u003cauthor\u003e' to populate it.\",\"resources\":null,\"schema_version\":4,\"stale_after\":\"720h0m0s\",\"status\":\"unknown\"},\"medium\":\"reachable (HTTP 200)\",\"session\":\"Tier 0 (anonymous) — no cookie configured; member-locked articles return previews\",\"verify_mode\":\"normal operation\",\"version\":\"1.0.0\"}"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feed",
+      "kind": "help",
+      "args": [
+        "feed",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Read a Medium RSS feed for an author, publication, or tag, sourced directly from\nmedium.com with no API key and no cookies.\n\nReference auto-detection:\n  @\u003chandle\u003e     an author        -\u003e medium.com/feed/@\u003chandle\u003e\n  tag/\u003ctag\u003e     a topic tag      -\u003e medium.com/feed/tag/\u003ctag\u003e\n  \u003cslug\u003e        a publication    -\u003e medium.com/feed/\u003cslug\u003e\n\nTo read a tag, prefix it with \"tag/\" (a bare token is treated as a publication\nslug). To read an author, prefix the handle with \"@\".\n\nUsage:\n  medium-reader-pp-cli feed \u003c@user|publication|tag\u003e [flags]\n\nExamples:\n  medium-reader-pp-cli feed @quincylarson\n  medium-reader-pp-cli feed tag/ux --agent\n  medium-reader-pp-cli feed uxdesign-cc --json\n\nFlags:\n  -h, --help   help for feed\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --cookie-file string   Path to a flat-JSON Medium session cookie file {\"sid\":\"..\",\"uid\":\"..\"} (Tier 1; optional, unlocks member full bodies). Also reads MEDIUM_SESSION / MEDIUM_COOKIE_FILE.\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'medium-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feed",
+      "kind": "happy_path",
+      "args": [
+        "feed",
+        "@quincylarson"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"id\": \"cb5876d1ef23\",\n    \"title\": \"The freeCodeCamp Medium Publication Editor Handbook\",\n    \"author\": \"Quincy Larson\",\n    \"author_id\": \"\",\n    \"username\": \"\",\n    \"url\": \"https://medium.com/free-code-camp/the-freecodecamp-medium-publication-editor-handbook-cb5876d1ef23?source=rss-17756313f41a------2\",\n    \"published_at\": \"2017-09-04T17:09:27Z\",\n    \"subtitle\": \"\",\n    \"tags\": [\n      \"tech\",\n      \"writing\",\n      \"design\",\n      \"technology\",\n      \"startup\"\n    ]\n  },\n  {\n    \"id\": \"e44dba492748\",\n    \"title\": \"1,000 days of freeCodeCamp\",\n    \"author\": \"Quincy Larson\",\n    \"author_id\": \"\",\n    \"username\": \"\",\n    \"url\": \"https://medium.com/free-code-camp/1-000-days-of-freecodecamp-e44dba492748?source=rss-17756313f41a------2\",\n    \"published_at\": \"2017-07-11T20:44:09Z\",\n    \"subtitle\": \"\",\n    \"tags\": [\n      \"technology\",\n      \"tech\",\n      \"design\",\n      \"startup\",\n      \"life\"\n    ]\n  },\n  {\n    \"id\": \"4dd98482651b\",\n    \"title\": \"A stock market game where you invest $50,000 of someone else’s real-life money\",\n    \"author\": \"Quincy Larson\",\n    \"author_id\": \"\",\n    \"username\": \"\",\n    \"url\": \"https://medium.com/free-code-camp/a-stock-market-game-where-you-invest-50-000-of-someone-elses-real-life-money-4dd98482651b?source=rss-17756313f41a------2\",\n    \"published_at\": \"2017-07-07T15:50:12Z\",\n    \"subtitle\": \"\",\n    \"tags\": [\n      \"business\",\n      \"gaming\",\n      \"tech\",\n      \"technology\",\n      \"startup\"\n    ]\n  },\n  {\n    \"id\": \"26fe3670ea09\",\n    \"title\": \"Seeking a volunteer editor to help lead Medium’s largest technology publication\",\n    \"author\": \"Quincy Larson\",\n    \"author_id\": \"\",\n    \"username\": \"\",\n    \"url\": \"https://medium.com/free-code-camp/seeking-a-volunteer-editor-to-help-lead-mediums-largest-technology-publication-26fe3670ea09?source=rss-17756313f41a------2\",\n    \"published_at\": \"2017-07-04T13:39:47Z\",\n    \"subtitle\": \"\",\n    \"tags\": [\n      \"startup\",\n      \"medium\",\n      \"blogger\",\n      \"writing\",\n      \"tech\"\n    ]\n  },\n  {\n    \"id\": \"48af7e0ffe49\",\n    \"title\": \"One Ethereum trader just made $1,142,400 in seconds, thanks to an epic glitch\",\n    \"author\": \"Quincy Larson\",\n    \"author_id\": \"\",\n    \"username\": \"\",\n    \"url\": \"https://medium.com/free-code-camp/one-ethereum-trader-just-made-1-140-000-in-seconds-thanks-to-an-epic-glitch-48af7e0ffe49?source=rss-17756313f41a------2\",\n    \"published_at\": \"2017-06-23T14:47:26Z\",\n    \"subtitle\": \"\",\n    \"tags\": [\n      \"technology\",\n      \"startup\",\n      \"tech\",\n      \"finance\",\n      \"business\"\n    ]\n  },\n  {\n    \"id\": \"7af99cfe422\",\n    \"title\": \"The NSA has open-sourced dozens of security tools\",\n    \"author\": \"Quincy Larson\",\n    \"author_id\": \"\",\n    \"username\": \"\",\n    \"url\": \"https://medium.com/free-code-camp/the-nsa-has-open-sourced-dozens-of-security-tools-7af99cfe422?source=rss-17756313f41a------2\",\n    \"published_at\": \"2017-06-19T17:00:42Z\",\n    \"subtitle\": \"\",\n    \"tags\": [\n      \"security\",\n      \"tech\",\n      \"open-source\",\n      \"startup\",\n      \"technology\"\n    ]\n  },\n  {\n    \"id\": \"30abd36a3d22\",\n    \"title\": \"The CSS genius of Bali Balo\",\n    \"author\": \"Quincy Larson\",\n    \"author_id\": \"\",\n    \"username\": \"\",\n    \"url\": \"https://medium.com/free-code-camp/the-css-genius-of-bali-balo-30abd36a3d22?source=rss-17756313f41a------2\",\n    \"published_at\": \"2017-06-14T20:06:03Z\",\n    \"subtitle\": \"\",\n    \"tags\": [\n      \"web-development\",\n      \"design\",\n      \"art\",\n      \"technology\",\n      \"startup\"\n    ]\n  },\n  {\n    \"id\": \"3c206c688457\",\n    \"title\": \"An open source search engine that will help you learn pretty much anything\",\n    \"author\": \"Quincy Larson\",\n    \"author_id\": \"\",\n    \"username\": \"\",\n    \"url\": \"https://medium.com/free-code-camp/an-open-source-search-engine-that-will-help-you-learn-pretty-much-anything-3c206c688457?source=rss-17756313f41a------2\",\n    \"published_at\": \"2017-06-12T20:48:54Z\",\n    \"subtitle\": \"\",\n    \"tags\": [\n      \"startup\",\n      \"design\",\n      \"web-development\",\n      \"self-improvement\",\n      \"technology\"\n    ]\n  },\n  {\n    \"id\": \"c7eaf09c9983\",\n    \"title\": \"What the web looks like witho…[truncated]"
+    },
+    {
+      "command": "feed",
+      "kind": "json_fidelity",
+      "args": [
+        "feed",
+        "@quincylarson",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"id\": \"cb5876d1ef23\",\n    \"title\": \"The freeCodeCamp Medium Publication Editor Handbook\",\n    \"author\": \"Quincy Larson\",\n    \"author_id\": \"\",\n    \"username\": \"\",\n    \"url\": \"https://medium.com/free-code-camp/the-freecodecamp-medium-publication-editor-handbook-cb5876d1ef23?source=rss-17756313f41a------2\",\n    \"published_at\": \"2017-09-04T17:09:27Z\",\n    \"subtitle\": \"\",\n    \"tags\": [\n      \"tech\",\n      \"writing\",\n      \"design\",\n      \"technology\",\n      \"startup\"\n    ]\n  },\n  {\n    \"id\": \"e44dba492748\",\n    \"title\": \"1,000 days of freeCodeCamp\",\n    \"author\": \"Quincy Larson\",\n    \"author_id\": \"\",\n    \"username\": \"\",\n    \"url\": \"https://medium.com/free-code-camp/1-000-days-of-freecodecamp-e44dba492748?source=rss-17756313f41a------2\",\n    \"published_at\": \"2017-07-11T20:44:09Z\",\n    \"subtitle\": \"\",\n    \"tags\": [\n      \"technology\",\n      \"tech\",\n      \"design\",\n      \"startup\",\n      \"life\"\n    ]\n  },\n  {\n    \"id\": \"4dd98482651b\",\n    \"title\": \"A stock market game where you invest $50,000 of someone else’s real-life money\",\n    \"author\": \"Quincy Larson\",\n    \"author_id\": \"\",\n    \"username\": \"\",\n    \"url\": \"https://medium.com/free-code-camp/a-stock-market-game-where-you-invest-50-000-of-someone-elses-real-life-money-4dd98482651b?source=rss-17756313f41a------2\",\n    \"published_at\": \"2017-07-07T15:50:12Z\",\n    \"subtitle\": \"\",\n    \"tags\": [\n      \"business\",\n      \"gaming\",\n      \"tech\",\n      \"technology\",\n      \"startup\"\n    ]\n  },\n  {\n    \"id\": \"26fe3670ea09\",\n    \"title\": \"Seeking a volunteer editor to help lead Medium’s largest technology publication\",\n    \"author\": \"Quincy Larson\",\n    \"author_id\": \"\",\n    \"username\": \"\",\n    \"url\": \"https://medium.com/free-code-camp/seeking-a-volunteer-editor-to-help-lead-mediums-largest-technology-publication-26fe3670ea09?source=rss-17756313f41a------2\",\n    \"published_at\": \"2017-07-04T13:39:47Z\",\n    \"subtitle\": \"\",\n    \"tags\": [\n      \"startup\",\n      \"medium\",\n      \"blogger\",\n      \"writing\",\n      \"tech\"\n    ]\n  },\n  {\n    \"id\": \"48af7e0ffe49\",\n    \"title\": \"One Ethereum trader just made $1,142,400 in seconds, thanks to an epic glitch\",\n    \"author\": \"Quincy Larson\",\n    \"author_id\": \"\",\n    \"username\": \"\",\n    \"url\": \"https://medium.com/free-code-camp/one-ethereum-trader-just-made-1-140-000-in-seconds-thanks-to-an-epic-glitch-48af7e0ffe49?source=rss-17756313f41a------2\",\n    \"published_at\": \"2017-06-23T14:47:26Z\",\n    \"subtitle\": \"\",\n    \"tags\": [\n      \"technology\",\n      \"startup\",\n      \"tech\",\n      \"finance\",\n      \"business\"\n    ]\n  },\n  {\n    \"id\": \"7af99cfe422\",\n    \"title\": \"The NSA has open-sourced dozens of security tools\",\n    \"author\": \"Quincy Larson\",\n    \"author_id\": \"\",\n    \"username\": \"\",\n    \"url\": \"https://medium.com/free-code-camp/the-nsa-has-open-sourced-dozens-of-security-tools-7af99cfe422?source=rss-17756313f41a------2\",\n    \"published_at\": \"2017-06-19T17:00:42Z\",\n    \"subtitle\": \"\",\n    \"tags\": [\n      \"security\",\n      \"tech\",\n      \"open-source\",\n      \"startup\",\n      \"technology\"\n    ]\n  },\n  {\n    \"id\": \"30abd36a3d22\",\n    \"title\": \"The CSS genius of Bali Balo\",\n    \"author\": \"Quincy Larson\",\n    \"author_id\": \"\",\n    \"username\": \"\",\n    \"url\": \"https://medium.com/free-code-camp/the-css-genius-of-bali-balo-30abd36a3d22?source=rss-17756313f41a------2\",\n    \"published_at\": \"2017-06-14T20:06:03Z\",\n    \"subtitle\": \"\",\n    \"tags\": [\n      \"web-development\",\n      \"design\",\n      \"art\",\n      \"technology\",\n      \"startup\"\n    ]\n  },\n  {\n    \"id\": \"3c206c688457\",\n    \"title\": \"An open source search engine that will help you learn pretty much anything\",\n    \"author\": \"Quincy Larson\",\n    \"author_id\": \"\",\n    \"username\": \"\",\n    \"url\": \"https://medium.com/free-code-camp/an-open-source-search-engine-that-will-help-you-learn-pretty-much-anything-3c206c688457?source=rss-17756313f41a------2\",\n    \"published_at\": \"2017-06-12T20:48:54Z\",\n    \"subtitle\": \"\",\n    \"tags\": [\n      \"startup\",\n      \"design\",\n      \"web-development\",\n      \"self-improvement\",\n      \"technology\"\n    ]\n  },\n  {\n    \"id\": \"c7eaf09c9983\",\n    \"title\": \"What the web looks like witho…[truncated]"
+    },
+    {
+      "command": "feed",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  medium-reader-pp-cli feedback list [flags]\n\nExamples:\n  medium-reader-pp-cli feedback list\n  medium-reader-pp-cli feedback list --limit 5\n  medium-reader-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --cookie-file string   Path to a flat-JSON Medium session cookie file {\"sid\":\"..\",\"uid\":\"..\"} (Tier 1; optional, unlocks member full bodies). Also reads MEDIUM_SESSION / MEDIUM_COOKIE_FILE.\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'medium-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  medium-reader-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  medium-reader-pp-cli profile delete my-defaults --yes\n  medium-reader-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --cookie-file string   Path to a flat-JSON Medium session cookie file {\"sid\":\"..\",\"uid\":\"..\"} (Tier 1; optional, unlocks member full bodies). Also reads MEDIUM_SESSION / MEDIUM_COOKIE_FILE.\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'medium-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  medium-reader-pp-cli profile list [flags]\n\nExamples:\n  medium-reader-pp-cli profile list\n  medium-reader-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --cookie-file string   Path to a flat-JSON Medium session cookie file {\"sid\":\"..\",\"uid\":\"..\"} (Tier 1; optional, unlocks member full bodies). Also reads MEDIUM_SESSION / MEDIUM_COOKIE_FILE.\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'medium-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  medium-reader-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  medium-reader-pp-cli profile save my-defaults --json --compact\n  medium-reader-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --cookie-file string   Path to a flat-JSON Medium session cookie file {\"sid\":\"..\",\"uid\":\"..\"} (Tier 1; optional, unlocks member full bodies). Also reads MEDIUM_SESSION / MEDIUM_COOKIE_FILE.\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'medium-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  medium-reader-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  medium-reader-pp-cli profile show my-defaults\n  medium-reader-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --cookie-file string   Path to a flat-JSON Medium session cookie file {\"sid\":\"..\",\"uid\":\"..\"} (Tier 1; optional, unlocks member full bodies). Also reads MEDIUM_SESSION / MEDIUM_COOKIE_FILE.\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'medium-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  medium-reader-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  medium-reader-pp-cli profile use my-defaults\n  medium-reader-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --cookie-file string   Path to a flat-JSON Medium session cookie file {\"sid\":\"..\",\"uid\":\"..\"} (Tier 1; optional, unlocks member full bodies). Also reads MEDIUM_SESSION / MEDIUM_COOKIE_FILE.\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'medium-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "read",
+      "kind": "help",
+      "args": [
+        "read",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch a single Medium article and render its body as Markdown, sourced directly\nfrom the article page with no API key and no cookies.\n\nAccepts either a full Medium URL or a bare article id:\n  read 818e7841df9c\n  read https://medium.com/p/818e7841df9c\n  read https://author.medium.com/some-title-818e7841df9c\n\nLocked (member-only) posts return Medium's truncated preview when read\nanonymously; the output is flagged as a preview. Supplying your own Medium\nsession cookie unlocks the full body (see 'auth' once Tier-1 auth is wired).\n\nUsage:\n  medium-reader-pp-cli read \u003curl|id\u003e [flags]\n\nExamples:\n  medium-reader-pp-cli read 818e7841df9c\n  medium-reader-pp-cli read https://medium.com/p/818e7841df9c --json\n  medium-reader-pp-cli read 818e7841df9c --agent\n\nFlags:\n  -h, --help   help for read\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --cookie-file string   Path to a flat-JSON Medium session cookie file {\"sid\":\"..\",\"uid\":\"..\"} (Tier 1; optional, unlocks member full bodies). Also reads MEDIUM_SESSION / MEDIUM_COOKIE_FILE.\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'medium-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "read",
+      "kind": "happy_path",
+      "args": [
+        "read",
+        "818e7841df9c"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"id\": \"818e7841df9c\",\n  \"title\": \"Designers will OWN 2026–2030\",\n  \"subtitle\": \"\",\n  \"author\": \"Michal Malewicz\",\n  \"author_id\": \"fde1eb3eb589\",\n  \"url\": \"https://michalmalewicz.medium.com/designers-will-own-2026-2030-818e7841df9c\",\n  \"markdown\": \"# Designers will OWN 2026–2030\\n\\n#### Why design is the most essential, future proof job right now!\\n\\n![](https://miro.medium.com/1*MRso-URPxMkm5osjn498aw.jpeg)\\n\\nAI is replacing a lot of industries, one by one. It seems that UI design is an exception. According to the **U.S. Bureau of Labor Statistics[1]** the growth of design related hiring has been 7%. Way above industry average of 2–3%. It’s growing strongly despite AI taking over other areas like junior dev roles.\\n\\n\\u003e So let me say it out loud: UI Design has a future!\\n\\n![](https://miro.medium.com/1*QxIDU8OEXyZTYt8sdCyMzQ.png)\\n\\nBut it may not be _the UI design_ you think.\\n\\nI talked about some paths design is taking recently. Many people agreed. Some reacted with extreme aggression. That means the subject is sticky. I’m often provocative because I want to gauge reactions and see points of view. Then I combine it with local knowledge.\\n\\nThe more I talk to senior designers, juniors who are learning and examine my own experiences, the more I feel like the future is bright.\\n\\nBlinding even. As designers we’re in an extremely unique spot right now. One that puts as ahead of most “tech” jobs out there. It may even be THE job to pursue now.\",\n  \"is_locked\": true,\n  \"is_preview_only\": true,\n  \"published_at\": \"2026-02-16T14:25:08.556Z\",\n  \"word_count\": 197\n}\n"
+    },
+    {
+      "command": "read",
+      "kind": "json_fidelity",
+      "args": [
+        "read",
+        "818e7841df9c",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"id\": \"818e7841df9c\",\n  \"title\": \"Designers will OWN 2026–2030\",\n  \"subtitle\": \"\",\n  \"author\": \"Michal Malewicz\",\n  \"author_id\": \"fde1eb3eb589\",\n  \"url\": \"https://michalmalewicz.medium.com/designers-will-own-2026-2030-818e7841df9c\",\n  \"markdown\": \"# Designers will OWN 2026–2030\\n\\n#### Why design is the most essential, future proof job right now!\\n\\n![](https://miro.medium.com/1*MRso-URPxMkm5osjn498aw.jpeg)\\n\\nAI is replacing a lot of industries, one by one. It seems that UI design is an exception. According to the **U.S. Bureau of Labor Statistics[1]** the growth of design related hiring has been 7%. Way above industry average of 2–3%. It’s growing strongly despite AI taking over other areas like junior dev roles.\\n\\n\\u003e So let me say it out loud: UI Design has a future!\\n\\n![](https://miro.medium.com/1*QxIDU8OEXyZTYt8sdCyMzQ.png)\\n\\nBut it may not be _the UI design_ you think.\\n\\nI talked about some paths design is taking recently. Many people agreed. Some reacted with extreme aggression. That means the subject is sticky. I’m often provocative because I want to gauge reactions and see points of view. Then I combine it with local knowledge.\\n\\nThe more I talk to senior designers, juniors who are learning and examine my own experiences, the more I feel like the future is bright.\\n\\nBlinding even. As designers we’re in an extremely unique spot right now. One that puts as ahead of most “tech” jobs out there. It may even be THE job to pursue now.\",\n  \"is_locked\": true,\n  \"is_preview_only\": true,\n  \"published_at\": \"2026-02-16T14:25:08.556Z\",\n  \"word_count\": 197\n}\n"
+    },
+    {
+      "command": "read",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search Medium for posts matching a free-text query, sourced directly from\nMedium's own internal GraphQL endpoint with no API key and no cookies.\n\nResults are paginated up to --limit (default 10). Each result is a normalized\npost summary (id, title, author, url, published date).\n\nBecause search uses Medium's unversioned internal API, a search-surface outage\nreturns a clear \"surface unavailable\" message; the feed and read commands, which\ndo not depend on it, keep working.\n\nUsage:\n  medium-reader-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  medium-reader-pp-cli search \"product builder\"\n  medium-reader-pp-cli search \"design systems\" --limit 25\n  medium-reader-pp-cli search ux --agent\n\nFlags:\n  -h, --help        help for search\n      --limit int   Maximum number of results to return (default 10)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --cookie-file string   Path to a flat-JSON Medium session cookie file {\"sid\":\"..\",\"uid\":\"..\"} (Tier 1; optional, unlocks member full bodies). Also reads MEDIUM_SESSION / MEDIUM_COOKIE_FILE.\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'medium-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"id\": \"63722d8a73c7\",\n    \"title\": \"Printing Press Machines: Speed, Clarity \\u0026 Consistency\",\n    \"author\": \"Saidrishti\",\n    \"author_id\": \"d3d4c248ae10\",\n    \"username\": \"saidrishti349\",\n    \"url\": \"https://medium.com/p/63722d8a73c7\",\n    \"published_at\": \"2026-06-03T05:53:17.727Z\",\n    \"subtitle\": \"\",\n    \"tags\": null\n  },\n  {\n    \"id\": \"60c3fb40f911\",\n    \"title\": \"Why Choosing a Digital Printing Press in Dubai\",\n    \"author\": \"Blue Ridge\",\n    \"author_id\": \"0a15475c9bd4\",\n    \"username\": \"ridgeblueuae\",\n    \"url\": \"https://medium.com/p/60c3fb40f911\",\n    \"published_at\": \"2026-06-03T10:40:31.489Z\",\n    \"subtitle\": \"\",\n    \"tags\": null\n  },\n  {\n    \"id\": \"5d26308cc508\",\n    \"title\": \"Can AI Give Printing Presses “Eyes”? Meet the Sleepless Color Calibrator in Our Workshop\",\n    \"author\": \"Boyue printing\",\n    \"author_id\": \"644898afc35c\",\n    \"username\": \"huangshijie972\",\n    \"url\": \"https://medium.com/p/5d26308cc508\",\n    \"published_at\": \"2026-06-08T07:18:10.592Z\",\n    \"subtitle\": \"\",\n    \"tags\": null\n  },\n  {\n    \"id\": \"540f6f7e4dae\",\n    \"title\": \"Digital Printing Press in Ras Al Khaimah: Fast, High-Quality Printing Solutions for Modern…\",\n    \"author\": \"emirates printing press\",\n    \"author_id\": \"9900fb27598e\",\n    \"username\": \"emiratesprintingpress88\",\n    \"url\": \"https://medium.com/p/540f6f7e4dae\",\n    \"published_at\": \"2026-06-15T12:30:42.267Z\",\n    \"subtitle\": \"\",\n    \"tags\": null\n  },\n  {\n    \"id\": \"372ede3bc94f\",\n    \"title\": \"Printing Press Machines: Speed, Clarity \\u0026 Consistency\",\n    \"author\": \"Saidrishti\",\n    \"author_id\": \"d3d4c248ae10\",\n    \"username\": \"saidrishti349\",\n    \"url\": \"https://medium.com/p/372ede3bc94f\",\n    \"published_at\": \"2026-06-09T06:13:09.017Z\",\n    \"subtitle\": \"\",\n    \"tags\": null\n  },\n  {\n    \"id\": \"ff223d05c6fe\",\n    \"title\": \"Parvez Ahamed Chairman Of Nurul Islam Printing Press\",\n    \"author\": \"Ritazprince\",\n    \"author_id\": \"a3ee159504b0\",\n    \"username\": \"ritazprince111\",\n    \"url\": \"https://medium.com/p/ff223d05c6fe\",\n    \"published_at\": \"2026-05-13T18:52:17.767Z\",\n    \"subtitle\": \"\",\n    \"tags\": null\n  },\n  {\n    \"id\": \"fa6b20efbcbb\",\n    \"title\": \"Printing Press Machines: Speed, Clarity \\u0026 Consistency\",\n    \"author\": \"Saidrishti\",\n    \"author_id\": \"d3d4c248ae10\",\n    \"username\": \"saidrishti349\",\n    \"url\": \"https://medium.com/p/fa6b20efbcbb\",\n    \"published_at\": \"2026-05-20T07:23:01.184Z\",\n    \"subtitle\": \"\",\n    \"tags\": null\n  },\n  {\n    \"id\": \"eaf7508a0e1e\",\n    \"title\": \"The Original Search Engine: Gutenberg’s Printing Press\",\n    \"author\": \"Lulu Reads\",\n    \"author_id\": \"9522a3e6204b\",\n    \"username\": \"lulu.reads\",\n    \"url\": \"https://medium.com/p/eaf7508a0e1e\",\n    \"published_at\": \"2026-05-22T14:22:14.99Z\",\n    \"subtitle\": \"\",\n    \"tags\": null\n  },\n  {\n    \"id\": \"d990796f523c\",\n    \"title\": \"Best Printing Press Surat for High Quality Printing Services\",\n    \"author\": \"Krishna Printing press\",\n    \"author_id\": \"4ca0520fcb11\",\n    \"username\": \"vobefe5623\",\n    \"url\": \"https://medium.com/p/d990796f523c\",\n    \"published_at\": \"2026-05-07T17:14:29.351Z\",\n    \"subtitle\": \"\",\n    \"tags\": null\n  },\n  {\n    \"id\": \"ce7d5500a3d4\",\n    \"title\": \"Best Printing Press Dubai\",\n    \"author\": \"UAE Success\",\n    \"author_id\": \"140871b878a0\",\n    \"username\": \"uaesuccess\",\n    \"url\": \"https://medium.com/p/ce7d5500a3d4\",\n    \"published_at\": \"2026-05-14T05:59:31.678Z\",\n    \"subtitle\": \"\",\n    \"tags\": null\n  }\n]\n"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  medium-reader-pp-cli which [query] [flags]\n\nExamples:\n  medium-reader-pp-cli which \"stale tickets\"\n  medium-reader-pp-cli which \"bottleneck\"\n  medium-reader-pp-cli which --limit 1 \"send message\"\n  medium-reader-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --cookie-file string   Path to a flat-JSON Medium session cookie file {\"sid\":\"..\",\"uid\":\"..\"} (Tier 1; optional, unlocks member full bodies). Also reads MEDIUM_SESSION / MEDIUM_COOKIE_FILE.\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'medium-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    }
+  ],
+  "ran_at": "2026-06-17T19:52:09.111702Z"
+}

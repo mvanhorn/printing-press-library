@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "generate-web-schema-placeholders",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Add missing Suno v2-web generate request null placeholders.",
+  "reason": "The browser and paperfoot/suno-cli send a fuller captured v2-web body; omitting these placeholders can make Suno return HTTP 500 instead of a normal captcha/schema response.",
+  "files": [
+    "internal/cli/suno_generate_types.go",
+    "internal/cli/suno_generate_types_test.go"
+  ],
+  "validated_outcome": "go test ./...",
+  "findings_addressed": [
+    "generate-web-schema-placeholders"
+  ]
+}

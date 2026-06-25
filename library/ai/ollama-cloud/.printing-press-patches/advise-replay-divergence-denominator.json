@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "advise-replay-divergence-denominator",
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260524-003533",
+  "base_printing_press_version": "4.19.0",
+  "summary": "divergence_pct is tallied over all rows in the window, independent of --diverge-only / --limit.",
+  "reason": "PR #805 review: with --diverge-only the displayed set contained only diverged rows, so the rate was trivially 100%. The denominator is now the total rows in the window.",
+  "files": [
+    "internal/cli/advise_replay.go"
+  ],
+  "validated_outcome": "go test ./internal/cli/"
+}

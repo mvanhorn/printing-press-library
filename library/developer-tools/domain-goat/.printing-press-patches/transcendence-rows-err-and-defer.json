@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "transcendence-rows-err-and-defer",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-093229",
+  "base_printing_press_version": "4.4.0",
+  "summary": "tld-affinity inner SELECT...LIMIT 100 wrapped in IIFE with defer rows.Close() and rows.Err() zeroes partial counts.",
+  "reason": "Missing rows.Err() let a mid-scan cursor error produce a misleadingly low historical-availability estimate. Missing defer meant a hypothetical panic from rows.Scan would leak the SQL connection from the pool.",
+  "files": [
+    "internal/cli/transcendence.go"
+  ],
+  "validated_outcome": "go test ./internal/cli passes; per-iteration close path is now deterministic on any exit."
+}

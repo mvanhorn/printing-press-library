@@ -25,7 +25,7 @@ func newCustomersGenerateKeywordHistoricalMetricsCmd(flags *rootFlags) *cobra.Co
 	cmd := &cobra.Command{
 		Use:         "generate-keyword-historical-metrics <customerId>",
 		Short:       "Returns a list of keyword historical metrics.",
-		Example:     "  google-ads-pp-cli customers generate_keyword_historical_metrics 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  google-ads-pp-cli customers generate-keyword-historical-metrics 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "customers.generate_keyword_historical_metrics", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:generateKeywordHistoricalMetrics"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

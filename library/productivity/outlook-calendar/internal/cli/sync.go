@@ -825,7 +825,12 @@ func defaultSyncResources() []string {
 	return []string{
 		"calendars",
 		"categories",
-		"delta",
+		// PATCH(outlook-calendar-events-delta-prefer-pagesize): dropped "delta"
+		// (/me/events/delta). The generic sync loop sends $top, which Graph
+		// rejects on the SyncEvents resource (ErrorInvalidUrlQuery). The
+		// "events" resource below already populates the event store via
+		// /me/events; incremental delta is available via the dedicated
+		// `delta events` command, which sends Prefer: odata.maxpagesize instead.
 		"events",
 	}
 }

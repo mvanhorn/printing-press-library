@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260615-025831",
+  "base_printing_press_version": "4.18.1",
+  "patches": [
+    {
+      "id": "airbyte-admin-auth-and-publication-polish",
+      "summary": "Document and support optional Airbyte Authorization headers while polishing Airbyte Admin publication metadata.",
+      "reason": "The official Airbyte Public API OpenAPI spec does not declare a security scheme, but real Airbyte Cloud and protected self-managed deployments require Authorization for most operational endpoints. The local patch keeps credentials out of source control by supporting AIRBYTE_ADMIN_TOKEN and AIRBYTE_ADMIN_AUTH_HEADER, and it gives the published CLI clear Airbyte Admin positioning.",
+      "files": [
+        ".printing-press.json",
+        ".goreleaser.yaml",
+        "README.md",
+        "SKILL.md",
+        "manifest.json",
+        "tools-manifest.json",
+        "internal/cli/doctor.go",
+        "internal/cli/public.go",
+        "internal/cli/root.go",
+        "internal/config/config.go",
+        "internal/config/config_test.go"
+      ],
+      "validated_outcome": "Focused config tests cover auth header env, bearer token env, duplicate Bearer handling, config-file auth, and env override behavior."
+    },
+    {
+      "id": "airbyte-admin-review-dogfood-cleanup",
+      "summary": "Add canonical dogfood results and remove dead auth-format scaffolding found during review.",
+      "reason": "Greptile flagged the missing dogfood-results.json canonical artifact and identified an unused applyAuthFormat helper plus a redundant strings.ReplaceAll import guard. Running Printing Press dogfood produced the structural validation artifact and synced the generated novel-feature highlights.",
+      "files": [
+        "dogfood-results.json",
+        ".manuscripts/20260615-025831/research/research.json",
+        "README.md",
+        "SKILL.md",
+        "internal/cli/root.go",
+        "internal/config/config.go"
+      ],
+      "validated_outcome": "Printing Press dogfood reports PASS with zero dead flags, zero dead functions, command wiring 39/39 registered, MCP surface parity passing, and novel features 5/5 found."
+    },
+    {
+      "id": "airbyte-admin-greptile-sync-cache-fixes",
+      "summary": "Fix Airbyte local-sync primary keys and make HTTP cache files private.",
+      "reason": "Greptile found that generated local sync keyed Airbyte sources, destinations, workspaces, organizations, and tags by display name instead of resource UUID fields, which could silently overwrite duplicate names. It also found that cached API payloads were written with world-readable permissions.",
+      "files": [
+        "internal/store/store.go",
+        "internal/store/upsert_batch_test.go",
+        "internal/client/client.go",
+        "internal/client/client_test.go"
+      ],
+      "validated_outcome": "Focused tests cover Airbyte UUID field selection for local sync and 0700/0600 HTTP cache permissions."
+    }
+  ]
+}

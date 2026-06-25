@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "chmod-existing-sensitive-files",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260522-095940",
+  "base_printing_press_version": "4.11.0",
+  "summary": "After every sensitive cache/store/config/profile/feedback/export/deliver write, added an explicit os.Chmod (0o600 files / 0o700 dirs) so files/dirs left by an older 0o644/0o755 build get re-secured on next write.",
+  "reason": "os.WriteFile(path, data, 0o600) and os.OpenFile(..., O_CREATE, 0o600) do not change mode bits on an existing file (O_CREATE is a no-op then), and os.MkdirAll(dir, 0o700) does not change an existing dir's mode. Sensitive files created by an older world-readable build stayed 0o644 forever.",
+  "files": [
+    "internal/cache/cache.go",
+    "internal/config/config.go",
+    "internal/client/client.go",
+    "internal/store/store.go",
+    "internal/cli/profile.go",
+    "internal/cli/feedback.go",
+    "internal/cli/export.go",
+    "internal/cli/deliver.go"
+  ],
+  "validated_outcome": "go build/vet/test and verify_skill all pass. profile.go and deliver.go files were already safe via a tmp+rename (0o600 tmp) pattern; only their parent dirs needed re-securing. store.go already chmod'd the SQLite file/WAL/SHM sidecars; only its db dir needed re-securing."
+}

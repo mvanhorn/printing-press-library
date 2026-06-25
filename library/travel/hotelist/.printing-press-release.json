@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "hotelist",
+  "cli_name": "hotelist-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-25T07:34:56Z",
+  "source_commit": "4e34253334cd9042b0d9ce42d401cf96dacd0114",
+  "printing_press_version": "4.22.1",
+  "run_id": "20260606-172109",
+  "changes": [
+    {
+      "title": "feat(hotelist): add hotelist",
+      "pr": 1083,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1083",
+      "commit": "4e34253334cd9042b0d9ce42d401cf96dacd0114"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "sutra-fitness-sync-partner-scope-pagination",
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260615-020029-7f8843b9",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Populate the partner-scoped sync registry, fix cursor double-encoding, and add dependent reservations/rooms sync.",
+  "reason": "Every Sutra path is scoped under /{partnerId}/, so the generator emitted empty sync registry functions (syncResourcePath/defaultSyncResources/knownSyncResourceNames/resourceSupportsPagination), defaulted the wrong cursor param, and produced no dependent-resource iteration; the URL-encoded pagination.nextStartAfterId cursor was also double-encoded by the client query builder, capping sync at one page.",
+  "files": ["internal/cli/sync.go", "internal/cli/sutra_sync_deps.go"],
+  "validated_outcome": "Live sync pulled 34,523 records across 7 resources (incl. 22,143 per-class reservations) with 0 errors."
+}

@@ -1,0 +1,104 @@
+{
+  "api_name": "daraz",
+  "base_url": "https://www.daraz.pk",
+  "description": "Every Daraz product search, plus a local price database, real-deal ranking, and drop alerts no Daraz scraper has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "products_search",
+      "description": "Search products by keyword with sort and price filtering. Required: query. Optional: ajax (default: true), page (default: 1), sort (plus 1 more). Returns array of Product.",
+      "method": "GET",
+      "path": "/catalog/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "ajax",
+          "type": "bool",
+          "location": "query",
+          "description": "Return JSON (always true)"
+        },
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search keyword, e.g. 'gaming laptop'",
+          "required": true,
+          "aliases": [
+            "q"
+          ]
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Result page (40 items per page)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order: popularity (default), priceasc, pricedesc"
+        },
+        {
+          "name": "price",
+          "type": "string",
+          "location": "query",
+          "description": "Price range in PKR as min-max, e.g. 10000-50000"
+        }
+      ]
+    },
+    {
+      "name": "reviews_list",
+      "description": "List reviews for a product by its numeric item ID. Required: item-id. Optional: page-size (default: 10), page (default: 1), filter (default: 0) (plus 1 more). Returns array of Review.",
+      "method": "GET",
+      "path": "/pdp/review/getReviewList",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "item-id",
+          "wire_name": "itemId",
+          "type": "string",
+          "location": "query",
+          "description": "Numeric Daraz item ID (from a product URL or search result)",
+          "required": true
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Reviews per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Review page number"
+        },
+        {
+          "name": "filter",
+          "type": "int",
+          "location": "query",
+          "description": "Rating filter: 0=all, 1..5=that star rating"
+        },
+        {
+          "name": "sort",
+          "type": "int",
+          "location": "query",
+          "description": "Sort: 0=relevance/recent"
+        }
+      ]
+    }
+  ]
+}

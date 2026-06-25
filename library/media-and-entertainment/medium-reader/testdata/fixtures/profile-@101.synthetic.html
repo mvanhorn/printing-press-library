@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head><title>Nick Babich – Medium</title></head>
+<body>
+<div id="root"></div>
+<script>
+// Synthetic, minimal Medium profile page used by the hermetic ResolveUserID
+// test. It reproduces the real disambiguation scenario: the profile page embeds
+// the owner's User entity plus several referenced authors' User entities, so the
+// resolver must match by username (the requested handle) rather than picking the
+// first User: key it sees. Only the fields the parser reads are present.
+window.__APOLLO_STATE__ = {
+  "ROOT_QUERY": {
+    "userResult({\"username\":\"101\"})": { "__ref": "User:bcab753a4d4e" }
+  },
+  "User:e2778f3aa29c": { "__typename": "User", "id": "e2778f3aa29c", "name": "A Decoy Author", "username": "decoyone" },
+  "User:bcab753a4d4e": { "__typename": "User", "id": "bcab753a4d4e", "name": "Nick Babich", "username": "101" },
+  "User:4230008a10b5": { "__typename": "User", "id": "4230008a10b5", "name": "Another Decoy", "username": "decoytwo" }
+};
+</script>
+</body>
+</html>

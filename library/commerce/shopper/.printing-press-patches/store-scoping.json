@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "store-scoping",
+  "applied_at": "2026-06-04",
+  "base_run_id": "20260604-074112",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Add a --store global flag (programada/fresh/unica/pet) that sets x-store-id/x-cluster-id per request, and make the response cache key store-aware.",
+  "reason": "The API selects the storefront from the x-store-id/x-cluster-id request headers, not from POST /features/stores/select (a no-op for reads). The generator hardcoded x-store-id:1, so every read (cart, delivery, orders) was locked to Programada and Fresh was unreachable. The cache key omitted the store headers, so two stores collided and returned each other's bodies.",
+  "files": [
+    "internal/client/shopper_headers.go",
+    "internal/client/client.go",
+    "internal/cli/root.go",
+    "internal/client/shopper_headers_test.go"
+  ],
+  "validated_outcome": "`cart summary --store programada` => R$2.163,79/124 items; `--store fresh` => R$660,23/44 items (was identical before). TestCacheKeyStoreAware guards the cache collision.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Multi-store sniffed APIs should expose a first-class store/tenant selector flag instead of requiring a hand-edited required-headers file with a hardcoded default.",
+      "reason": "The store is a per-request header dimension the generator currently flattens to a single constant; it also belongs in the response cache key."
+    }
+  ]
+}

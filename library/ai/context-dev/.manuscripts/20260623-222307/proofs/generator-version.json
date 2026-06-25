@@ -1,0 +1,7 @@
+{
+  "command": "cli-printing-press version --json",
+  "output": {
+    "go": "go1.26.4",
+    "version": "4.25.0"
+  }
+}

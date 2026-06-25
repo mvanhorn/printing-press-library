@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "archive-freshness-warning",
+  "applied_at": "2026-05-31",
+  "base_run_id": "20260531-142147",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Preserved cache freshness behavior through spec-owned cache configuration.",
+  "reason": "The prior CLI added stale-cache warnings for local eRank data. The reprint now declares cache freshness in the spec so generated auto-refresh and cache metadata are emitted consistently.",
+  "files": [
+    "spec.yaml",
+    "internal/cli/auto_refresh.go",
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "shipcheck passes; scorecard cache_freshness scores 10/10."
+}

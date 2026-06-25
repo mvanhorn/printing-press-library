@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "revenuecat-auth-env-vars-align",
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260530-071644",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Set auth_env_vars to [REVENUECAT_API_KEY, DEVELOPER_BEARER_AUTH] to match config.go env reads and the MCPB manifest env block.",
+  "reason": "Generator derived a phantom REVENUECAT_BEARER_AUTH (slug+scheme) in auth_env_vars that no generated file reads; config.go reads REVENUECAT_API_KEY (canonical) + DEVELOPER_BEARER_AUTH (title-derived), and the MCPB manifest user_config/env declare those two. The mismatch failed the library MCPB manifest contract check.",
+  "files": [
+    ".printing-press.json"
+  ],
+  "validated_outcome": "verify-manifest/verify_manifest.py passes for library/payments/revenuecat"
+}

@@ -45,7 +45,7 @@ brews:
       owner: user
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Client-side instrumentation helpers for Microsoft Clarity."
+    description: "Generate Microsoft Clarity tracking snippets and audit local HTML for tag install, masking attributes, and client API calls."
     install: |
       bin.install "clarity-pp-cli"
       bin.install "clarity-pp-mcp"

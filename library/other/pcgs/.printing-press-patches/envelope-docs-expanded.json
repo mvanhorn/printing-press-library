@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "envelope-docs-expanded",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260516-193948",
+  "base_printing_press_version": "4.8.0",
+  "summary": "internal/cli/pcgs_envelope.go top-of-file docstring expanded with the 3 classifier paths, known-limitation provenance, and a reference to retro issue #1551.",
+  "reason": "The narrow 4-condition images heuristic isn't obvious from the function body alone. Expanded comment block documents when each path fires, why path 3 has a known false-positive on freshly-graded certs (PCGS API itself doesn't distinguish), and points readers to the broader retro filing.",
+  "files": [
+    "internal/cli/pcgs_envelope.go"
+  ],
+  "validated_outcome": "go vet ./... clean"
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "multi-publication-columnar-sync",
+  "applied_at": "2026-05-31",
+  "base_run_id": "20260531-014452",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Added the columnar data layer + a multi-publication sync so the eight transcendence commands return real data. Ported substack-creator's typed column extractors (upsert<Resource>Tx for posts/publications/subscribers/drafts/notes/comments) into internal/store/substack_creator_columnar.go, and added a `portfolio sync` command that discovers every publication the user owns and populates the columnar posts/publications/subscribers/drafts tables keyed by publication_id.",
+  "reason": "The columnar tables created by substack_creator_migrations.go were empty — the lift's generic `sync` writes only the `resources` table, single-publication, so portfolio/posts best/grep/schedule board/subs churn/subs cross-sell/posts twin/posts pair[s] all returned empty or 'no such table'. Owned publications are discovered from /subscriptions/page_v2's publicationUsers[] (role=admin publication_ids) anchored on the configured SUBSTACK_PUBLICATION's /publication object; per-pub data comes from /post_management/published (posts+engagement, paginated by offset at the endpoint's 12-row page cap), /drafts, and /publication_launch_checklist (subscriber rows — Substack exposes user.handle, not email, so handle is the cross-pub identity projected into the columnar email column). 4.3.0→4.19.0 drift adapted: context.Context-bearing client.Get and store.OpenWithContext, flags.newClient()/cmd.Context()/defaultDBPath helpers, and a batched upsertColumnarBatch (one tx per per-pub fetch) instead of the source's one-tx-per-row Upsert<Resource> wrappers.",
+  "files": [
+    "internal/store/substack_creator_columnar.go",
+    "internal/cli/portfolio_sync.go",
+    "internal/cli/portfolio.go",
+    "internal/cli/subs_cross_sell.go"
+  ],
+  "validated_outcome": "Live against trevinsays (single owned publication): `portfolio sync` populates publications=1, posts=13, drafts=10, subscribers=11 (exit 0, no warnings). portfolio lists trevinsays with 11 subs; posts best --by likes ranks real posts; grep 'agent' returns FTS bm25 matches with canonical URLs; schedule board renders 'Nothing scheduled' cleanly; subs churn --snapshot writes 11 rows then diff runs; posts twin/pair/pairs resolve real slugs. subs cross-sell softened to exit 0 with an empty result for a single-publication account (trevin owns only one pub, so cross-sell is legitimately empty) instead of erroring. Generic `sync` resources path and drafts list --data-source live (200) unchanged."
+}

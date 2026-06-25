@@ -116,7 +116,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name:        "blu-ray-pp-cli",
-			Description: "The disc-collector's CLI for Blu-ray.com — offline catalog, live deals, and a price-drop watchlist with zero...",
+			Description: "The disc-collector's CLI for Blu-ray.com — offline catalog, live deals, and a price-drop watchlist with zero account required.",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{

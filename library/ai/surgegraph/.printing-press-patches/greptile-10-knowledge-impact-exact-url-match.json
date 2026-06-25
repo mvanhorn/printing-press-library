@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-10-knowledge-impact-exact-url-match",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-171718",
+  "base_printing_press_version": "4.5.0",
+  "summary": "knowledge impact moves the citation-join out of SQL (instr(cs.raw_json, kld.url)) into Go using parsed-JSON URL extraction and exact match.",
+  "reason": "The original SQL used the same raw-blob substring search that PATCH(greptile-9) replaced in visibility traffic-citations. A doc URL like https://example.com/blog would prefix-match unrelated citation URLs (.../blog/post-extended) and also match its own string appearing inside an image src / canonical href / author link embedded in the snapshot blob — both paths inflated cited_doc_count and total_cites, making the 'is this library worth maintaining?' answer unreliable. Fix: pull libraries, library documents, and citation snapshots in three cheap queries; parse each snapshot once into a normalized URL set; exact-match per-library doc URLs against the snapshot's URL set in Go. Same public method signature; identical KnowledgeImpactRow shape.",
+  "files": [
+    "internal/store/store.go"
+  ]
+}

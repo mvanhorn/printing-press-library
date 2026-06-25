@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "google-flights-direct-port",
+  "applied_at": "2026-05-12",
+  "base_run_id": "2026-05-02T22:09:06.820184Z",
+  "base_printing_press_version": "3.6.0",
+  "upstream_issue": "",
+  "files": [
+    "internal/gflights/flights_native.go",
+    "internal/gflights/gflights.go",
+    "internal/gflights/utls_client.go",
+    "internal/cli/primary.go",
+    "go.mod",
+    "go.sum"
+  ],
+  "summary": "Replace krisukox/google-flights-api with a native f.req protobuf-shaped client matching fli's Python implementation; remove the upstream dependency.",
+  "reason": "krisukox/google-flights-api only exposed Stops, Class, TripType in its Options struct and silently dropped airlines, bags, emissions, layover, carry-on, exclude-basic-economy, show-all-results, and the expanded sort options (top_flights, best, emissions). Users passing --airlines BA,KL got results that ignored the filter. Ports fli/models/google_flights/flights.py format() to Go in internal/gflights/flights_native.go, reaches feature parity with fli, and drops github.com/krisukox/google-flights-api from go.mod entirely.",
+  "validated_outcome": "go build ./...; go test ./internal/gflights/...; go test ./...; go vet ./...; flights --help renders new --emissions, --bags, --carry-on, --layover, --max-layover, --limited flags; --sort accepts all 7 of fli's values. Search() now has the same 90s defensive ctx-timeout fallback as Dates(). Airport.Name and Airline.Name now populated from response slots leg[4]/leg[5]/leg[22][3]; verified live (SEA → 'Seattle-Tacoma International Airport', VS → 'Virgin Atlantic')."
+}

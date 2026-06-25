@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "dice-fm-normalization-audit-fixes",
+  "date": "2026-06-08",
+  "amend_run_id": "amend-2026-06-08-normalization-audit",
+  "summary": "fix(dice-fm): harden entity-normalization subsystem from the 2026-06-08 audit — validate rule regexes at load, transactional ClearNormalization, immutable entity_type on conflict, compile-once rule cache, --fuzzy-threshold, and wire `normalize promote-rules` (the LLM-tail learn step)",
+  "reason": "An architectural audit of the hand-authored entity-normalization subsystem surfaced three Medium correctness/UX defects, several Low debt items, and one capability gap (the rule-promotion half of the LLM-tail loop was built but unwired). These fixes are CLI-specific hardening of the API-specific normalization value-add, not generator gaps.",
+  "files": [
+    "internal/normalizecfg/config.go",
+    "internal/cli/normalize_rules.go",
+    "internal/cli/normalize_engine.go",
+    "internal/cli/normalize_classify.go",
+    "internal/cli/normalize_pipeline.go",
+    "internal/cli/normalize_cmd.go",
+    "internal/cli/normalize_recommend.go",
+    "internal/cli/normalize_axes.go",
+    "internal/cli/normalize_import.go",
+    "internal/cli/normalize_promote.go",
+    "internal/store/normalization.go"
+  ],
+  "findings_addressed": ["F1", "F2", "F3", "F4", "F5", "F6", "F8", "F9", "F10"],
+  "validated_outcome": "go build ./... && go vet ./... clean; full go test ./... green (all packages); -race clean on store + normalize tests; new tests cover rule-match load validation, compile-once warn-on-skip, fuzzy-threshold clamping, transactional clear, immutable entity_type on conflict, and the promote-rules learn step. Live-verified: `normalize promote-rules` emits validated rules and merges with --write; an invalid operator rule now fails load with exit 1 instead of silently disabling itself. `publish validate` in-scope checks pass (phase5, go mod tidy, go vet, go build, --help, --version, manuscripts); two failing checks (govulncheck stdlib go1.26.3 net/textproto+crypto/x509 advisories, fixed in go1.26.4; SKILL.md generator-owned install-section drift) are PRE-EXISTING on pristine origin/main and unrelated to this diff (no touched file is implicated) — repo-level toolchain-bump + SKILL regen, out of scope for this PR.",
+  "notes": "F1: normalizecfg.validate now compiles every Rule.Match at load (rejecting empty/uncompilable patterns) and compileRules warns-and-skips as defense-in-depth. F2: candidateSources now mirrors the full starter (adds price_tier + ticket_pool) so `normalize recommend` profiles every wireable entity. F3: ClearNormalization wraps its multi-table deletes in one transaction. F4: UpsertEntityAttribute no longer rewrites entity_type on conflict (the canonical_id is type-prefixed and owns one type for life). F5: importMapping uses the methodManual const. F6: new --fuzzy-threshold flag (default 0.92, clamped to (0,1]). F8: new `normalize promote-rules` command graduates the method=manual corpus into validated regex rules (read-only print by default; --write merges into the operator config) — wiring the previously-unused promoteRules/validateRule primitives. F9: attribute rules are compiled once per run instead of per source value. F10: methodRule stored value kept as \"regex\" for back-compat (changing it is a data migration); the const doc now states the migration path explicitly. All findings from docs/audits/2026-06-08-dice-fm-normalization-subsystem-audit.md; F7 (recommend writes by default — deliberate) and F11 (axis values unenforced at DB layer — info) intentionally excluded."
+}

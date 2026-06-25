@@ -1,6 +1,8 @@
 package cli
 
 // PATCH: Hand-built local price-history command with inline spark plot.
+// pp:data-source local -- history reads recorded observations from the local
+// price_history table; it makes no live API calls.
 
 import (
 	"fmt"
@@ -18,7 +20,7 @@ type historyRow struct {
 	Price      float64 `json:"price"`
 }
 
-func newHistoryCmd(flags *rootFlags) *cobra.Command {
+func newNovelHistoryCmd(flags *rootFlags) *cobra.Command {
 	var retailer string
 	var plot bool
 	cmd := &cobra.Command{

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "cookies-host-allowlist",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260511-095555",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Restrict readCookieRows host arg to the CIDHost constant to remove the SQL-injection surface on the sqlite3 CLI invocation.",
+  "reason": "sqlite3 CLI doesn't expose ? parameter binding via -separator, so the previous fmt.Sprintf interpolation was a real SQLi surface for any future caller passing user input. Limiting the host argument to the single constant the package uses removes the risk while keeping the code shape (greptile P1).",
+  "files": [
+    "internal/auth0silent/cookies_darwin.go"
+  ]
+}

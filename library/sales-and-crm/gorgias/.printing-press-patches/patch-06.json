@@ -1,0 +1,9 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-06-02",
+  "base_run_id": "20260512-201610",
+  "base_printing_press_version": "4.5.1",
+  "file": "internal/mcp/tools.go",
+  "rationale": "PR review fix: MCP `sql` handler now surfaces rows.Scan and rows.Err errors and propagates the request context via db.DB().QueryContext, matching the CLI `sql` read path so the two surfaces no longer diverge on error handling or cancellation.",
+  "evidence": "Greptile P2: scan error silently swallowed; query did not honor request context. Likely generator-template shape shared across MCP-enabled CLIs."
+}

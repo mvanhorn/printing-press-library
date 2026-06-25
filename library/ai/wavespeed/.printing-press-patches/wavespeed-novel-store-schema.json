@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "wavespeed-novel-store-schema",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260527-214905",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Split the store into archive (sync-cache) and library (D2C content) DBs with independent version domains; added OpenLibrary, migrateLibrary, and library tables/indexes/FTS5.",
+  "reason": "The novel content-production layer needs its own persistent tables versioned independently of the generated sync-cache schema.",
+  "files": [
+    "internal/store/store.go",
+    "internal/store/extras.go",
+    "internal/store/library.go"
+  ],
+  "validated_outcome": "Schema migration test creates archive.db and library.db with independent user_version domains; FTS5 prompt search returns expected results."
+}

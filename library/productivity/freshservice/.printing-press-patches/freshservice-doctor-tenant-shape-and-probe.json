@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "freshservice-doctor-tenant-shape-and-probe",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-170855",
+  "base_printing_press_version": "4.5.0",
+  "summary": "Doctor now (a) flags a .myfreshworks.com BaseURL as the Freshworks unified-org dashboard, not the Freshservice API tenant, and (b) issues an authenticated GET /agents/me probe with explicit branches for 401/403/404 and for the dashboard's HTML-200 response.",
+  "reason": "Users routinely paste their org dashboard subdomain (e.g. `<org>.myfreshworks.com`) when prompted for FRESHSERVICE_DOMAIN. That host returns the dashboard SPA's HTML with HTTP 200 for every API path, which the generator's reachability-only doctor treated as a successful API call — every downstream command then failed with confusing JSON-parse errors instead of an obvious 'wrong host' verdict.",
+  "files": [
+    "internal/cli/doctor.go"
+  ],
+  "validated_outcome": "doctor now prints `domain_hint: FAIL: ... looks like the Freshworks unified-org dashboard` and `credentials: FAIL: /agents/me returned HTML, not JSON` when the wrong subdomain is configured; previously printed `api: reachable` and `credentials: OK`."
+}

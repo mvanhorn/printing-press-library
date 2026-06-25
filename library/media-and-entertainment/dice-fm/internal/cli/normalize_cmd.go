@@ -35,6 +35,9 @@ type normalizeOpts struct {
 	// Fuzzy enables a second-pass Jaro-Winkler clustering of near-duplicate
 	// canonical names.
 	Fuzzy bool
+	// FuzzyThreshold is the Jaro-Winkler similarity bar for the fuzzy pass.
+	// Zero (unset) resolves to the default (0.92) in classifyOpts.fuzzyThreshold.
+	FuzzyThreshold float64
 	// ClassifierVersion is stamped on every written row.
 	ClassifierVersion int
 	// ExportUnmatched, when non-empty, is the file path to write unmatched
@@ -104,6 +107,7 @@ func runNormalize(ctx context.Context, s *store.Store, opts normalizeOpts, w io.
 	classOpts := classifyOpts{
 		ClassifierVersion: opts.ClassifierVersion,
 		Fuzzy:             opts.Fuzzy,
+		FuzzyThreshold:    opts.FuzzyThreshold,
 	}
 
 	// Load the active normalize config once so both target resolution and the
@@ -387,6 +391,7 @@ func newNormalizeCmd(flags *rootFlags) *cobra.Command {
 		doAll             bool
 		entities          []string
 		fuzzy             bool
+		fuzzyThreshold    float64
 		classifierVersion int
 		exportUnmatched   string
 		exportFormat      string
@@ -448,6 +453,7 @@ func newNormalizeCmd(flags *rootFlags) *cobra.Command {
 				All:               doAll,
 				Entities:          entities,
 				Fuzzy:             fuzzy,
+				FuzzyThreshold:    fuzzyThreshold,
 				ClassifierVersion: classifierVersion,
 				ExportUnmatched:   exportUnmatched,
 				ExportFormat:      exportFormat,
@@ -464,6 +470,7 @@ func newNormalizeCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&doAll, "all", false, "Classify every entity declared in the normalize config (ticket_type, venue, artist, genre, ticket_pool, …)")
 	cmd.Flags().StringSliceVar(&entities, "entity", nil, "Classify only these declared entities by name (e.g. --entity artist,genre). Repeatable/comma-separated.")
 	cmd.Flags().BoolVar(&fuzzy, "fuzzy", false, "Enable Jaro-Winkler clustering of near-duplicate canonical names (default false; deterministic without it)")
+	cmd.Flags().Float64Var(&fuzzyThreshold, "fuzzy-threshold", defaultFuzzyThreshold, "Jaro-Winkler similarity bar for --fuzzy clustering, in (0,1]; higher is stricter (default 0.92). Ignored unless --fuzzy is set")
 	cmd.Flags().IntVar(&classifierVersion, "classifier-version", 1, "Classifier version stamped on written rows (default 1)")
 	cmd.Flags().StringVar(&exportUnmatched, "export-unmatched", "", "Write unmatched source values to this CSV file path for external classification")
 	cmd.Flags().StringVar(&exportFormat, "export-format", "prompt", `Format for --export-unmatched: "prompt" (default) writes a self-describing classification request with tier-axis rubric; "names" writes only the source_value CSV`)
@@ -472,6 +479,7 @@ func newNormalizeCmd(flags *rootFlags) *cobra.Command {
 
 	cmd.AddCommand(newNormalizeStatsCmd(flags))
 	cmd.AddCommand(newNormalizeRecommendCmd(flags))
+	cmd.AddCommand(newNormalizePromoteRulesCmd(flags))
 	return cmd
 }
 

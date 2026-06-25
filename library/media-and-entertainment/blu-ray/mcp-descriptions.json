@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "calendar_theatrical": "Theatrical release calendar for a given year. Returns Blu-ray.com's listing of films opening in theaters, with titles and release dates parsed from the page HTML (the UI is JS-driven, but the raw HTML still carries the listing data). Optional 'year' selects the calendar year; defaults to the current year when omitted."
+  }
+}

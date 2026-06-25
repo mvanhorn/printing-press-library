@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "store-sticky-kill-and-receiver-shadow",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-093229",
+  "base_printing_press_version": "4.4.0",
+  "summary": "AddCandidate ON CONFLICT preserves killed=1 (sticky-kill); UpsertBatch renamed local 's' shadows to 'idStr'.",
+  "reason": "Shortlist promote always passes killed=0, so the unconditional ON CONFLICT killed=excluded.killed silently resurrected candidates the user had killed via `lists kill`. UpsertBatch's `s := fmt.Sprintf(...)` shadowed the *Store receiver, creating a confusing compile error trap for future edits.",
+  "files": [
+    "internal/store/domain_schema.go",
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "go test ./internal/store passes; shortlist promote no longer revives killed candidates."
+}

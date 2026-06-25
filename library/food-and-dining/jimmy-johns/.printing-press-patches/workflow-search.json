@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "workflow-search",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-034611",
+  "base_printing_press_version": "4.2.2",
+  "files": [
+    "internal/cli/search_menu.go"
+  ],
+  "summary": "Add `search` — local substring search over synced menu items and stores.",
+  "reason": "Workflows scorer wants a search command that consumes the local SQLite store rather than the live API."
+}

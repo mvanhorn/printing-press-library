@@ -1,0 +1,1181 @@
+{
+  "dir": "C:/Users/richa/printing-press/library/luma",
+  "binary": "C:\\Users\\richa\\printing-press\\library\\luma\\build\\stage\\bin\\luma-pp-cli.exe",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 73,
+  "passed": 73,
+  "failed": 0,
+  "skipped": 40,
+  "commands": [
+    "agenda",
+    "analytics",
+    "api",
+    "calendars compare",
+    "discover categories",
+    "discover home",
+    "doctor",
+    "events get",
+    "events list",
+    "feedback list",
+    "ics",
+    "import",
+    "near",
+    "places calendars",
+    "places get",
+    "places map",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "search",
+    "sync",
+    "tail",
+    "watch",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "agenda",
+      "kind": "help",
+      "args": [
+        "agenda",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fan out to several cities and/or categories, merge and dedupe by event id, and return one\nflat list sorted by start time. The public API only lists one place OR one category per\ncall, so this is the multi-source view it cannot return.\n\nPass any mix of --city, --place-id, and --category (each repeatable).\n\nUsage:\n  luma-pp-cli agenda [flags]\n\nExamples:\n  luma-pp-cli agenda --city sf --city nyc --category cat-ai --window 7d --agent\n\nFlags:\n      --category strings     Category api_id to include (repeatable), e.g. cat-ai\n      --city strings         City slug to include (repeatable), e.g. sf, nyc, miami\n  -h, --help                 help for agenda\n      --limit int            Max events to return after merge (default 50)\n      --max-scan-pages int   Max pages to fetch per source before stopping (default 3)\n      --place-id strings     Place api_id to include (repeatable), e.g. discplace-...\n      --window string        Only events within this window from now (e.g. 7d, 24h); empty = all upcoming\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "agenda",
+      "kind": "happy_path",
+      "args": [
+        "agenda",
+        "--city",
+        "sf",
+        "--city",
+        "nyc",
+        "--category",
+        "cat-ai",
+        "--window",
+        "7d",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":50,\"events\":[{\"api_id\":\"evt-BIf12vpD4BpKdnu\",\"city\":\"New York, NY\",\"guest_count\":42,\"lat\":40.74405416123256,\"lng\":-73.986410171234,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-16T14:30:00.000Z\",\"ticket_count\":42,\"timezone\":\"America/New_York\",\"url\":\"https://luma.com/7dpi2p8h\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-XfRyNOjgpscX2jG\",\"city\":\"San Francisco, CA\",\"guest_count\":1088,\"lat\":37.786002599999996,\"lng\":-122.40367200000001,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-16T15:00:00.000Z\",\"ticket_count\":1088,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/clickh-vrjd\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-fSgyvCjgCDN4rDO\",\"city\":\"San Francisco, CA\",\"guest_count\":183,\"lat\":37.7859319,\"lng\":-122.40439309999998,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-16T16:00:00.000Z\",\"ticket_count\":183,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/xca0p3un\"},{\"api_id\":\"evt-gJXPYJ6Hq3Fz1la\",\"city\":\"South San Francisco, California\",\"guest_count\":0,\"lat\":37.66339867231462,\"lng\":-122.38571816440057,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-16T16:30:00.000Z\",\"ticket_count\":0,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/cli3p75t\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-9GCyym3fdXFgkzK\",\"city\":\"New York, NY\",\"guest_count\":150,\"lat\":40.7290328,\"lng\":-73.98391509999999,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-16T22:00:00.000Z\",\"ticket_count\":150,\"timezone\":\"America/New_York\",\"url\":\"https://luma.com/vokt5mpl\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-frPdKsCfONd0p8Y\",\"city\":\"New York, NY\",\"guest_count\":0,\"lat\":40.752097899999995,\"lng\":-73.9838551,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-16T22:00:00.000Z\",\"ticket_count\":0,\"timezone\":\"America/New_York\",\"url\":\"https://luma.com/pltoftee\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-ecmXzLkkjWfFkQG\",\"city\":\"New York, NY\",\"guest_count\":149,\"lat\":40.7387844,\"lng\":-73.9883559,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-16T22:00:00.000Z\",\"ticket_count\":149,\"timezone\":\"America/New_York\",\"url\":\"https://luma.com/l9de0em8\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-LL8C0iq1ArMMMvm\",\"city\":\"San Francisco, CA\",\"guest_count\":522,\"lat\":37.7816889,\"lng\":-122.3908867,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T00:00:00.000Z\",\"ticket_count\":522,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/codex-jun16-2026\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-dzkSrGsYrekb7R6\",\"city\":\"San Francisco, CA\",\"guest_count\":951,\"lat\":37.7822664,\"lng\":-122.39116439999998,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T00:00:00.000Z\",\"ticket_count\":951,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/56wimzrk\"},{\"api_id\":\"evt-4cvZGlESIFhabfu\",\"city\":\"San Francisco, California\",\"guest_count\":161,\"lat\":37.76381639081661,\"lng\":-122.38647634968508,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T00:00:00.000Z\",\"ticket_count\":161,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/i04pq9o1\"},{\"api_id\":\"evt-0cVkUFNdaQVbHqI\",\"city\":\"San Francisco, CA\",\"guest_count\":0,\"lat\":37.785758926079446,\"lng\":-122.39932120755539,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T01:00:00.000Z\",\"ticket_count\":0,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/r0sjpnhd\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-OFQlIvCzUPawcXk\",\"city\":\"New York, NY\",\"guest_count\":58,\"lat\":40.7218082,\"lng\":-74.00074760000001,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T12:00:00.000Z\",\"ticket_count\":58,\"timezone\":\"America/New_York\",\"url\":\"https://luma.com/e5xzedtl\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-WgDGjBqTA0Tw2Gx\",\"city\":\"Sarasota, FL\",\"guest_count\":39,\"lat\":27.3226853,\"lng\":-82.50144739999999,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T13:00:00.000Z\",\"ticket_count\":39,\"timezone\":\"America/New_York\",\"url\":\"https://luma.com/02dm5s41\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-pfYC4qjHhrno59m\",\"city\":\"New York, NY\",\"guest_count\":313,\"lat\":40.775167599999996,\"lng\":-73.9819053,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T16:00:00.000Z\",\"ticket_count\":393,\"timezone\":\"America/New_York\",\"url\":\"https://luma.com/nyazjuq5\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-EPMnKA9x2mKBtNy\",\"city\":\"St. Petersburg, FL\",\"guest_count\":0,\"lat\":27.7590668,\"lng\":-82.6387381,\"name\":\"\u003credacted\u003e\",\"st…[truncated]"
+    },
+    {
+      "command": "agenda",
+      "kind": "json_fidelity",
+      "args": [
+        "agenda",
+        "--city",
+        "sf",
+        "--city",
+        "nyc",
+        "--category",
+        "cat-ai",
+        "--window",
+        "7d",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":50,\"events\":[{\"api_id\":\"evt-BIf12vpD4BpKdnu\",\"city\":\"New York, NY\",\"guest_count\":42,\"lat\":40.74405416123256,\"lng\":-73.986410171234,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-16T14:30:00.000Z\",\"ticket_count\":42,\"timezone\":\"America/New_York\",\"url\":\"https://luma.com/7dpi2p8h\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-XfRyNOjgpscX2jG\",\"city\":\"San Francisco, CA\",\"guest_count\":1088,\"lat\":37.786002599999996,\"lng\":-122.40367200000001,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-16T15:00:00.000Z\",\"ticket_count\":1088,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/clickh-vrjd\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-fSgyvCjgCDN4rDO\",\"city\":\"San Francisco, CA\",\"guest_count\":183,\"lat\":37.7859319,\"lng\":-122.40439309999998,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-16T16:00:00.000Z\",\"ticket_count\":183,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/xca0p3un\"},{\"api_id\":\"evt-gJXPYJ6Hq3Fz1la\",\"city\":\"South San Francisco, California\",\"guest_count\":0,\"lat\":37.66339867231462,\"lng\":-122.38571816440057,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-16T16:30:00.000Z\",\"ticket_count\":0,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/cli3p75t\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-9GCyym3fdXFgkzK\",\"city\":\"New York, NY\",\"guest_count\":150,\"lat\":40.7290328,\"lng\":-73.98391509999999,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-16T22:00:00.000Z\",\"ticket_count\":150,\"timezone\":\"America/New_York\",\"url\":\"https://luma.com/vokt5mpl\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-frPdKsCfONd0p8Y\",\"city\":\"New York, NY\",\"guest_count\":0,\"lat\":40.752097899999995,\"lng\":-73.9838551,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-16T22:00:00.000Z\",\"ticket_count\":0,\"timezone\":\"America/New_York\",\"url\":\"https://luma.com/pltoftee\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-ecmXzLkkjWfFkQG\",\"city\":\"New York, NY\",\"guest_count\":149,\"lat\":40.7387844,\"lng\":-73.9883559,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-16T22:00:00.000Z\",\"ticket_count\":149,\"timezone\":\"America/New_York\",\"url\":\"https://luma.com/l9de0em8\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-LL8C0iq1ArMMMvm\",\"city\":\"San Francisco, CA\",\"guest_count\":522,\"lat\":37.7816889,\"lng\":-122.3908867,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T00:00:00.000Z\",\"ticket_count\":522,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/codex-jun16-2026\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-dzkSrGsYrekb7R6\",\"city\":\"San Francisco, CA\",\"guest_count\":951,\"lat\":37.7822664,\"lng\":-122.39116439999998,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T00:00:00.000Z\",\"ticket_count\":951,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/56wimzrk\"},{\"api_id\":\"evt-4cvZGlESIFhabfu\",\"city\":\"San Francisco, California\",\"guest_count\":161,\"lat\":37.76381639081661,\"lng\":-122.38647634968508,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T00:00:00.000Z\",\"ticket_count\":161,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/i04pq9o1\"},{\"api_id\":\"evt-0cVkUFNdaQVbHqI\",\"city\":\"San Francisco, CA\",\"guest_count\":0,\"lat\":37.785758926079446,\"lng\":-122.39932120755539,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T01:00:00.000Z\",\"ticket_count\":0,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/r0sjpnhd\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-OFQlIvCzUPawcXk\",\"city\":\"New York, NY\",\"guest_count\":58,\"lat\":40.7218082,\"lng\":-74.00074760000001,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T12:00:00.000Z\",\"ticket_count\":58,\"timezone\":\"America/New_York\",\"url\":\"https://luma.com/e5xzedtl\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-WgDGjBqTA0Tw2Gx\",\"city\":\"Sarasota, FL\",\"guest_count\":39,\"lat\":27.3226853,\"lng\":-82.50144739999999,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T13:00:00.000Z\",\"ticket_count\":39,\"timezone\":\"America/New_York\",\"url\":\"https://luma.com/02dm5s41\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-pfYC4qjHhrno59m\",\"city\":\"New York, NY\",\"guest_count\":313,\"lat\":40.775167599999996,\"lng\":-73.9819053,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T16:00:00.000Z\",\"ticket_count\":393,\"timezone\":\"America/New_York\",\"url\":\"https://luma.com/nyazjuq5\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-EPMnKA9x2mKBtNy\",\"city\":\"St. Petersburg, FL\",\"guest_count\":0,\"lat\":27.7590668,\"lng\":-82.6387381,\"name\":\"\u003credacted\u003e\",\"st…[truncated]"
+    },
+    {
+      "command": "agenda",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  luma-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  luma-pp-cli analytics --type messages\n\n  # Group by a field\n  luma-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  luma-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         Database path\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\nhint: local store has not been synced yet. Run 'luma-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\nhint: local store has not been synced yet. Run 'luma-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  luma-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  luma-pp-cli api\n\n  # Show methods for a specific interface\n  luma-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'luma-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "calendars compare",
+      "kind": "help",
+      "args": [
+        "calendars",
+        "compare",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch each calendar and compare upcoming-event counts side by side. The public API only\nreturns one calendar per call, so this aggregates them into a single ranked view.\n\nPass two or more calendar api_ids (cal-...). For one calendar's full detail use 'calendars get'.\n\nUsage:\n  luma-pp-cli calendars compare [calendar-id...] [flags]\n\nExamples:\n  luma-pp-cli calendars compare cal-AAA cal-BBB cal-CCC --window 14d --agent\n\nFlags:\n  -h, --help            help for compare\n      --window string   Also count events within this window from now (e.g. 14d)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "calendars compare",
+      "kind": "happy_path",
+      "args": [
+        "calendars",
+        "compare",
+        "cal-AAA",
+        "cal-BBB",
+        "cal-CCC",
+        "--window",
+        "14d",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"calendars\":[{\"api_id\":\"cal-AAA\",\"error\":\"GET /calendar/get returned HTTP 404: {\\\"message\\\":\\\"Sorry, we could not find what you were looking for.\\\",\\\"code\\\":null}\",\"name\":\"\u003credacted\u003e\",\"upcoming_events\":0},{\"api_id\":\"cal-BBB\",\"error\":\"GET /calendar/get returned HTTP 404: {\\\"message\\\":\\\"Sorry, we could not find what you were looking for.\\\",\\\"code\\\":null}\",\"name\":\"\u003credacted\u003e\",\"upcoming_events\":0},{\"api_id\":\"cal-CCC\",\"error\":\"GET /calendar/get returned HTTP 404: {\\\"message\\\":\\\"Sorry, we could not find what you were looking for.\\\",\\\"code\\\":null}\",\"name\":\"\u003credacted\u003e\",\"upcoming_events\":0}],\"fetch_failures\":3,\"window\":\"14d\"}warning: 3 of 3 calendars failed to fetch\n"
+    },
+    {
+      "command": "calendars compare",
+      "kind": "json_fidelity",
+      "args": [
+        "calendars",
+        "compare",
+        "cal-AAA",
+        "cal-BBB",
+        "cal-CCC",
+        "--window",
+        "14d",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"calendars\":[{\"api_id\":\"cal-AAA\",\"error\":\"GET /calendar/get returned HTTP 404: {\\\"message\\\":\\\"Sorry, we could not find what you were looking for.\\\",\\\"code\\\":null}\",\"name\":\"\u003credacted\u003e\",\"upcoming_events\":0},{\"api_id\":\"cal-BBB\",\"error\":\"GET /calendar/get returned HTTP 404: {\\\"message\\\":\\\"Sorry, we could not find what you were looking for.\\\",\\\"code\\\":null}\",\"name\":\"\u003credacted\u003e\",\"upcoming_events\":0},{\"api_id\":\"cal-CCC\",\"error\":\"GET /calendar/get returned HTTP 404: {\\\"message\\\":\\\"Sorry, we could not find what you were looking for.\\\",\\\"code\\\":null}\",\"name\":\"\u003credacted\u003e\",\"upcoming_events\":0}],\"fetch_failures\":3,\"window\":\"14d\"}warning: 3 of 3 calendars failed to fetch\n"
+    },
+    {
+      "command": "calendars compare",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "discover categories",
+      "kind": "help",
+      "args": [
+        "discover",
+        "categories",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List event categories (AI, Crypto, Tech, Arts, ...) with upcoming-event counts\n\nUsage:\n  luma-pp-cli discover categories [flags]\n\nExamples:\n  luma-pp-cli discover categories\n\nFlags:\n      --all             Fetch all pages\n      --cursor string   Pagination cursor returned by a previous page (next_cursor)\n  -h, --help            help for categories\n      --limit int       Max categories to return (default 50)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "discover categories",
+      "kind": "happy_path",
+      "args": [
+        "discover",
+        "categories"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"entries\":[{\"api_id\":\"cat-tech\",\"category\":{\"api_id\":\"cat-tech\",\"created_at\":\"2025-08-20T17:35:03.408Z\",\"description\":\"Join a hackathon, jam on product design, and meet fellow tinkerers in the industry of tomorrow.\",\"event_count\":3741,\"hero_image_desktop_url\":\"https://images.lumacdn.com/discovery/tech-square.png\",\"icon_url\":\"https://images.lumacdn.com/discovery/tech-icon.png\",\"name\":\"\u003credacted\u003e\",\"page_title\":\"Tech Events\",\"simple_icon_url\":\"https://images.lumacdn.com/discovery/tech-icon-simple.png\",\"slug\":\"tech\",\"social_image_url\":\"https://images.lumacdn.com/discovery/tech-social.png\",\"subscriber_count\":48394,\"tint_color\":\"#ebb102\"},\"event_count\":3741,\"is_subscriber\":false,\"num_upcoming_events\":3741,\"subscriber_count\":48394},{\"api_id\":\"cat-fooddrink\",\"category\":{\"api_id\":\"cat-fooddrink\",\"created_at\":\"2025-07-13T20:14:47.930Z\",\"description\":\"From morning coffee to late night pizza, enjoy great food and drinks with old and new friends.\",\"event_count\":464,\"hero_image_desktop_url\":\"https://images.lumacdn.com/discovery/food-square.png\",\"icon_url\":\"https://images.lumacdn.com/discovery/food-icon.png\",\"name\":\"\u003credacted\u003e\",\"page_title\":\"Food \u0026 Drink Events\",\"simple_icon_url\":\"https://images.lumacdn.com/discovery/food-icon-simple.png\",\"slug\":\"food\",\"social_image_url\":\"https://images.lumacdn.com/discovery/food-social.png\",\"subscriber_count\":9887,\"tint_color\":\"#c28a41\"},\"event_count\":464,\"is_subscriber\":false,\"num_upcoming_events\":464,\"subscriber_count\":9887},{\"api_id\":\"cat-ai\",\"category\":{\"api_id\":\"cat-ai\",\"created_at\":\"2025-01-15T15:10:39.492Z\",\"description\":\"Join a hackathon, learn about LLMs and prompt engineering, or connect with other AI practitioners.\",\"event_count\":3045,\"hero_image_desktop_url\":\"https://images.lumacdn.com/discovery/ai-square.png\",\"icon_url\":\"https://images.lumacdn.com/discovery/ai-icon.png\",\"name\":\"\u003credacted\u003e\",\"page_title\":\"AI Events\",\"simple_icon_url\":\"https://images.lumacdn.com/discovery/ai-icon-simple.png\",\"slug\":\"ai\",\"social_image_url\":\"https://images.lumacdn.com/discovery/ai-social.png\",\"subscriber_count\":77411,\"tint_color\":\"#dd7aa4\"},\"event_count\":3045,\"is_subscriber\":false,\"num_upcoming_events\":3045,\"subscriber_count\":77411},{\"api_id\":\"cat-AzVAf6VmE9JEre4\",\"category\":{\"api_id\":\"cat-AzVAf6VmE9JEre4\",\"created_at\":\"2024-10-29T05:00:29.931Z\",\"description\":\"Whether it’s painting workshops or pottery classes, join an event to unleash your creativity, learn new techniques, and connect with fellow makers.\",\"event_count\":2063,\"hero_image_desktop_url\":\"https://images.lumacdn.com/discovery/arts-square.png\",\"icon_url\":\"https://images.lumacdn.com/discovery/arts-icon.png\",\"name\":\"\u003credacted\u003e\",\"page_title\":\"Arts \u0026 Culture Events\",\"simple_icon_url\":\"https://images.lumacdn.com/discovery/arts-icon-simple.png\",\"slug\":\"arts\",\"social_image_url\":\"https://images.lumacdn.com/discovery/arts-social.png\",\"subscriber_count\":19305,\"tint_color\":\"#868f50\"},\"event_count\":2063,\"is_subscriber\":false,\"num_upcoming_events\":2063,\"subscriber_count\":19305},{\"api_id\":\"cat-climate\",\"category\":{\"api_id\":\"cat-climate\",\"created_at\":\"2024-09-27T00:34:51.508Z\",\"description\":\"Find climate events from major conferences to local gatherings. Learn about deep tech, discuss climate policies, and join an hour of action.\",\"event_count\":829,\"hero_image_desktop_url\":\"https://images.lumacdn.com/discovery/climate-square.png\",\"icon_url\":\"https://images.lumacdn.com/discovery/climate-icon.png\",\"name\":\"\u003credacted\u003e\",\"page_title\":\"Climate Events\",\"simple_icon_url\":\"https://images.lumacdn.com/discovery/climate-icon-simple.png\",\"slug\":\"climate\",\"social_image_url\":\"https://images.lumacdn.com/discovery/climate-social.png\",\"subscriber_count\":8868,\"tint_color\":\"#628e2b\"},\"event_count\":829,\"is_subscriber\":false,\"num_upcoming_events\":829,\"subscriber_count\":8868},{\"api_id\":\"cat-0Km9ZnuBjFAjwFl\",\"category\":{\"api_id\":\"cat-0Km9ZnuBjFAjwFl\",\"created_at\":\"2024-07-29T20:33:09.775Z\",\"description\":\"From running clubs to pickleball tournaments, take part in a fitness event to challenge yourself and connect with old and new friends.\",\"event_count\"…[truncated]"
+    },
+    {
+      "command": "discover categories",
+      "kind": "json_fidelity",
+      "args": [
+        "discover",
+        "categories",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"entries\":[{\"api_id\":\"cat-tech\",\"category\":{\"api_id\":\"cat-tech\",\"created_at\":\"2025-08-20T17:35:03.408Z\",\"description\":\"Join a hackathon, jam on product design, and meet fellow tinkerers in the industry of tomorrow.\",\"event_count\":3741,\"hero_image_desktop_url\":\"https://images.lumacdn.com/discovery/tech-square.png\",\"icon_url\":\"https://images.lumacdn.com/discovery/tech-icon.png\",\"name\":\"\u003credacted\u003e\",\"page_title\":\"Tech Events\",\"simple_icon_url\":\"https://images.lumacdn.com/discovery/tech-icon-simple.png\",\"slug\":\"tech\",\"social_image_url\":\"https://images.lumacdn.com/discovery/tech-social.png\",\"subscriber_count\":48394,\"tint_color\":\"#ebb102\"},\"event_count\":3741,\"is_subscriber\":false,\"num_upcoming_events\":3741,\"subscriber_count\":48394},{\"api_id\":\"cat-fooddrink\",\"category\":{\"api_id\":\"cat-fooddrink\",\"created_at\":\"2025-07-13T20:14:47.930Z\",\"description\":\"From morning coffee to late night pizza, enjoy great food and drinks with old and new friends.\",\"event_count\":464,\"hero_image_desktop_url\":\"https://images.lumacdn.com/discovery/food-square.png\",\"icon_url\":\"https://images.lumacdn.com/discovery/food-icon.png\",\"name\":\"\u003credacted\u003e\",\"page_title\":\"Food \u0026 Drink Events\",\"simple_icon_url\":\"https://images.lumacdn.com/discovery/food-icon-simple.png\",\"slug\":\"food\",\"social_image_url\":\"https://images.lumacdn.com/discovery/food-social.png\",\"subscriber_count\":9887,\"tint_color\":\"#c28a41\"},\"event_count\":464,\"is_subscriber\":false,\"num_upcoming_events\":464,\"subscriber_count\":9887},{\"api_id\":\"cat-ai\",\"category\":{\"api_id\":\"cat-ai\",\"created_at\":\"2025-01-15T15:10:39.492Z\",\"description\":\"Join a hackathon, learn about LLMs and prompt engineering, or connect with other AI practitioners.\",\"event_count\":3045,\"hero_image_desktop_url\":\"https://images.lumacdn.com/discovery/ai-square.png\",\"icon_url\":\"https://images.lumacdn.com/discovery/ai-icon.png\",\"name\":\"\u003credacted\u003e\",\"page_title\":\"AI Events\",\"simple_icon_url\":\"https://images.lumacdn.com/discovery/ai-icon-simple.png\",\"slug\":\"ai\",\"social_image_url\":\"https://images.lumacdn.com/discovery/ai-social.png\",\"subscriber_count\":77411,\"tint_color\":\"#dd7aa4\"},\"event_count\":3045,\"is_subscriber\":false,\"num_upcoming_events\":3045,\"subscriber_count\":77411},{\"api_id\":\"cat-AzVAf6VmE9JEre4\",\"category\":{\"api_id\":\"cat-AzVAf6VmE9JEre4\",\"created_at\":\"2024-10-29T05:00:29.931Z\",\"description\":\"Whether it’s painting workshops or pottery classes, join an event to unleash your creativity, learn new techniques, and connect with fellow makers.\",\"event_count\":2063,\"hero_image_desktop_url\":\"https://images.lumacdn.com/discovery/arts-square.png\",\"icon_url\":\"https://images.lumacdn.com/discovery/arts-icon.png\",\"name\":\"\u003credacted\u003e\",\"page_title\":\"Arts \u0026 Culture Events\",\"simple_icon_url\":\"https://images.lumacdn.com/discovery/arts-icon-simple.png\",\"slug\":\"arts\",\"social_image_url\":\"https://images.lumacdn.com/discovery/arts-social.png\",\"subscriber_count\":19305,\"tint_color\":\"#868f50\"},\"event_count\":2063,\"is_subscriber\":false,\"num_upcoming_events\":2063,\"subscriber_count\":19305},{\"api_id\":\"cat-climate\",\"category\":{\"api_id\":\"cat-climate\",\"created_at\":\"2024-09-27T00:34:51.508Z\",\"description\":\"Find climate events from major conferences to local gatherings. Learn about deep tech, discuss climate policies, and join an hour of action.\",\"event_count\":829,\"hero_image_desktop_url\":\"https://images.lumacdn.com/discovery/climate-square.png\",\"icon_url\":\"https://images.lumacdn.com/discovery/climate-icon.png\",\"name\":\"\u003credacted\u003e\",\"page_title\":\"Climate Events\",\"simple_icon_url\":\"https://images.lumacdn.com/discovery/climate-icon-simple.png\",\"slug\":\"climate\",\"social_image_url\":\"https://images.lumacdn.com/discovery/climate-social.png\",\"subscriber_count\":8868,\"tint_color\":\"#628e2b\"},\"event_count\":829,\"is_subscriber\":false,\"num_upcoming_events\":829,\"subscriber_count\":8868},{\"api_id\":\"cat-0Km9ZnuBjFAjwFl\",\"category\":{\"api_id\":\"cat-0Km9ZnuBjFAjwFl\",\"created_at\":\"2024-07-29T20:33:09.775Z\",\"description\":\"From running clubs to pickleball tournaments, take part in a fitness event to challenge yourself and connect with old and new friends.\",\"event_count\"…[truncated]"
+    },
+    {
+      "command": "discover categories",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "discover home",
+      "kind": "help",
+      "args": [
+        "discover",
+        "home",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Featured place, popular places, categories, and calendars on the Luma discover home\n\nUsage:\n  luma-pp-cli discover home [flags]\n\nExamples:\n  luma-pp-cli discover home\n\nFlags:\n  -h, --help   help for home\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "discover home",
+      "kind": "happy_path",
+      "args": [
+        "discover",
+        "home"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"calendars\":[{\"calendar\":{\"access_level\":\"public\",\"api_id\":\"cal-iOipAs7mv59Hbuz\",\"avatar_url\":\"https://images.lumacdn.com/calendars/9k/5501eea1-5914-4a19-9658-305602cf7147.png\",\"city\":null,\"coordinate\":null,\"cover_image_url\":\"https://images.lumacdn.com/calendar-cover-images/tr/e3e88858-4da4-475e-a60b-ef385fffdfda.png\",\"description_short\":\"Discover community meetups for OpenClaw around the world.\",\"event_submission_restriction\":\"open\",\"geo_city\":null,\"geo_country\":null,\"geo_region\":null,\"google_measurement_id\":null,\"instagram_handle\":null,\"is_blocked\":false,\"is_personal\":false,\"launch_status\":\"launched\",\"linkedin_handle\":null,\"location\":null,\"luma_featured_position\":\"04926114912938817\",\"luma_plan\":\"free\",\"luma_plus_active\":false,\"meta_pixel_id\":null,\"name\":\"\u003credacted\u003e\",\"personal_user\":null,\"personal_user_api_id\":null,\"refund_policy\":null,\"slug\":\"claw\",\"social_image_url\":\"https://images.lumacdn.com/calendar-cover-images/bb/1d12a4f3-8e63-4420-b2fb-f9a1f53b5267.png\",\"stripe_account_id\":null,\"tax_config\":null,\"tiktok_handle\":null,\"timezone\":null,\"tint_color\":\"#6bb2c1\",\"track_meta_ads_from_luma\":false,\"twitter_handle\":\"openclaw\",\"verified_at\":\"2026-02-09T18:10:45.762Z\",\"website\":\"https://openclaw.ai/\",\"youtube_handle\":null},\"is_admin\":false,\"is_subscriber\":false,\"membership_info\":null},{\"calendar\":{\"access_level\":\"public\",\"api_id\":\"cal-GlXZ8JUF76ytfom\",\"avatar_url\":\"https://images.lumacdn.com/uploads/gt/8a33a1e7-41cc-4ac1-a7c4-dc307cff8697.jpg\",\"city\":{\"city\":\"Cannes\",\"country\":\"France\",\"country_code\":\"FR\",\"localized\":{\"fr\":{\"city\":\"Cannes\",\"country\":\"France\",\"region\":\"Provence-Alpes-Côte d'Azur\"}},\"place_id\":\"ChIJ__8MU4CBzhIRIJ6X_aUZCAQ\",\"region\":\"Provence-Alpes-Côte d'Azur\",\"timezone\":\"Europe/Paris\"},\"coordinate\":{\"latitude\":43.5539499,\"longitude\":7.0170217},\"cover_image_url\":\"https://images.lumacdn.com/calendar-defaults/patterns/waves-100.png\",\"description_short\":\"Explore side events at Cannes Lions, where the creative marketing communications industry gathers for global networking, thought leadership, brand activations, and benchmark-setting awards celebrating world-class creativity. June 22-26, Cannes, France.\",\"event_submission_restriction\":\"open\",\"geo_city\":\"Cannes\",\"geo_country\":\"France\",\"geo_region\":\"Provence-Alpes-Côte d'Azur\",\"google_measurement_id\":null,\"instagram_handle\":null,\"is_blocked\":false,\"is_personal\":false,\"launch_status\":\"launched\",\"linkedin_handle\":null,\"location\":{\"city\":\"Cannes\",\"country\":\"France\",\"country_code\":\"FR\",\"localized\":{\"fr\":{\"city\":\"Cannes\",\"country\":\"France\",\"region\":\"Provence-Alpes-Côte d'Azur\"}},\"place_id\":\"ChIJ__8MU4CBzhIRIJ6X_aUZCAQ\",\"region\":\"Provence-Alpes-Côte d'Azur\",\"timezone\":\"Europe/Paris\"},\"luma_featured_position\":\"16989267520412898\",\"luma_plan\":\"free\",\"luma_plus_active\":false,\"meta_pixel_id\":null,\"name\":\"\u003credacted\u003e\",\"personal_user\":null,\"personal_user_api_id\":null,\"refund_policy\":null,\"slug\":\"canneslions\",\"social_image_url\":null,\"stripe_account_id\":null,\"tax_config\":null,\"tiktok_handle\":null,\"timezone\":\"Europe/Paris\",\"tint_color\":\"#ffffff\",\"track_meta_ads_from_luma\":false,\"twitter_handle\":null,\"verified_at\":null,\"website\":null,\"youtube_handle\":null},\"is_admin\":false,\"is_subscriber\":false,\"membership_info\":null},{\"calendar\":{\"access_level\":\"public\",\"api_id\":\"cal-CDoX2WaI5IHD5xs\",\"avatar_url\":\"https://images.lumacdn.com/calendars/ni/4f930fb4-2ff5-4e98-8f46-7107a8c6b7cb\",\"city\":null,\"coordinate\":null,\"cover_image_url\":\"https://images.lumacdn.com/calendar-cover-images/ek/ee1229b4-c323-46d9-8778-ad1260a05d03\",\"description_short\":\"Not a book club. A reading party.\\nRead with friends to live music \u0026 curated playlists!\",\"event_submission_restriction\":\"open\",\"geo_city\":null,\"geo_country\":null,\"geo_region\":null,\"google_measurement_id\":\"G-3KKYP39RRD\",\"instagram_handle\":\"reading_rhythms\",\"is_blocked\":false,\"is_personal\":false,\"launch_status\":\"launched\",\"linkedin_handle\":\"/company/readingrhythms\",\"location\":null,\"luma_featured_position\":\"17\",\"luma_plan\":\"plus\",\"luma_plus_active\":true,\"meta_pixel_id\":\"1730305604522466\",\"name\":\"\u003credacted\u003e\",\"personal_u…[truncated]"
+    },
+    {
+      "command": "discover home",
+      "kind": "json_fidelity",
+      "args": [
+        "discover",
+        "home",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"calendars\":[{\"calendar\":{\"access_level\":\"public\",\"api_id\":\"cal-iOipAs7mv59Hbuz\",\"avatar_url\":\"https://images.lumacdn.com/calendars/9k/5501eea1-5914-4a19-9658-305602cf7147.png\",\"city\":null,\"coordinate\":null,\"cover_image_url\":\"https://images.lumacdn.com/calendar-cover-images/tr/e3e88858-4da4-475e-a60b-ef385fffdfda.png\",\"description_short\":\"Discover community meetups for OpenClaw around the world.\",\"event_submission_restriction\":\"open\",\"geo_city\":null,\"geo_country\":null,\"geo_region\":null,\"google_measurement_id\":null,\"instagram_handle\":null,\"is_blocked\":false,\"is_personal\":false,\"launch_status\":\"launched\",\"linkedin_handle\":null,\"location\":null,\"luma_featured_position\":\"04926114912938817\",\"luma_plan\":\"free\",\"luma_plus_active\":false,\"meta_pixel_id\":null,\"name\":\"\u003credacted\u003e\",\"personal_user\":null,\"personal_user_api_id\":null,\"refund_policy\":null,\"slug\":\"claw\",\"social_image_url\":\"https://images.lumacdn.com/calendar-cover-images/bb/1d12a4f3-8e63-4420-b2fb-f9a1f53b5267.png\",\"stripe_account_id\":null,\"tax_config\":null,\"tiktok_handle\":null,\"timezone\":null,\"tint_color\":\"#6bb2c1\",\"track_meta_ads_from_luma\":false,\"twitter_handle\":\"openclaw\",\"verified_at\":\"2026-02-09T18:10:45.762Z\",\"website\":\"https://openclaw.ai/\",\"youtube_handle\":null},\"is_admin\":false,\"is_subscriber\":false,\"membership_info\":null},{\"calendar\":{\"access_level\":\"public\",\"api_id\":\"cal-GlXZ8JUF76ytfom\",\"avatar_url\":\"https://images.lumacdn.com/uploads/gt/8a33a1e7-41cc-4ac1-a7c4-dc307cff8697.jpg\",\"city\":{\"city\":\"Cannes\",\"country\":\"France\",\"country_code\":\"FR\",\"localized\":{\"fr\":{\"city\":\"Cannes\",\"country\":\"France\",\"region\":\"Provence-Alpes-Côte d'Azur\"}},\"place_id\":\"ChIJ__8MU4CBzhIRIJ6X_aUZCAQ\",\"region\":\"Provence-Alpes-Côte d'Azur\",\"timezone\":\"Europe/Paris\"},\"coordinate\":{\"latitude\":43.5539499,\"longitude\":7.0170217},\"cover_image_url\":\"https://images.lumacdn.com/calendar-defaults/patterns/waves-100.png\",\"description_short\":\"Explore side events at Cannes Lions, where the creative marketing communications industry gathers for global networking, thought leadership, brand activations, and benchmark-setting awards celebrating world-class creativity. June 22-26, Cannes, France.\",\"event_submission_restriction\":\"open\",\"geo_city\":\"Cannes\",\"geo_country\":\"France\",\"geo_region\":\"Provence-Alpes-Côte d'Azur\",\"google_measurement_id\":null,\"instagram_handle\":null,\"is_blocked\":false,\"is_personal\":false,\"launch_status\":\"launched\",\"linkedin_handle\":null,\"location\":{\"city\":\"Cannes\",\"country\":\"France\",\"country_code\":\"FR\",\"localized\":{\"fr\":{\"city\":\"Cannes\",\"country\":\"France\",\"region\":\"Provence-Alpes-Côte d'Azur\"}},\"place_id\":\"ChIJ__8MU4CBzhIRIJ6X_aUZCAQ\",\"region\":\"Provence-Alpes-Côte d'Azur\",\"timezone\":\"Europe/Paris\"},\"luma_featured_position\":\"16989267520412898\",\"luma_plan\":\"free\",\"luma_plus_active\":false,\"meta_pixel_id\":null,\"name\":\"\u003credacted\u003e\",\"personal_user\":null,\"personal_user_api_id\":null,\"refund_policy\":null,\"slug\":\"canneslions\",\"social_image_url\":null,\"stripe_account_id\":null,\"tax_config\":null,\"tiktok_handle\":null,\"timezone\":\"Europe/Paris\",\"tint_color\":\"#ffffff\",\"track_meta_ads_from_luma\":false,\"twitter_handle\":null,\"verified_at\":null,\"website\":null,\"youtube_handle\":null},\"is_admin\":false,\"is_subscriber\":false,\"membership_info\":null},{\"calendar\":{\"access_level\":\"public\",\"api_id\":\"cal-CDoX2WaI5IHD5xs\",\"avatar_url\":\"https://images.lumacdn.com/calendars/ni/4f930fb4-2ff5-4e98-8f46-7107a8c6b7cb\",\"city\":null,\"coordinate\":null,\"cover_image_url\":\"https://images.lumacdn.com/calendar-cover-images/ek/ee1229b4-c323-46d9-8778-ad1260a05d03\",\"description_short\":\"Not a book club. A reading party.\\nRead with friends to live music \u0026 curated playlists!\",\"event_submission_restriction\":\"open\",\"geo_city\":null,\"geo_country\":null,\"geo_region\":null,\"google_measurement_id\":\"G-3KKYP39RRD\",\"instagram_handle\":\"reading_rhythms\",\"is_blocked\":false,\"is_personal\":false,\"launch_status\":\"launched\",\"linkedin_handle\":\"/company/readingrhythms\",\"location\":null,\"luma_featured_position\":\"17\",\"luma_plan\":\"plus\",\"luma_plus_active\":true,\"meta_pixel_id\":\"1730305604522466\",\"name\":\"\u003credacted\u003e\",\"personal_u…[truncated]"
+    },
+    {
+      "command": "discover home",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  luma-pp-cli doctor [flags]\n\nExamples:\n  luma-pp-cli doctor\n  luma-pp-cli doctor --json\n  luma-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: C:\\Users\\richa\\AppData\\Local\\Temp\\printing-press-subprocess-2920543083\\.config\\luma-pp-cli\\config.toml\n  base_url: https://api.luma.com\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: C:\\Users\\richa\\AppData\\Local\\Temp\\printing-press-subprocess-2920543083\\.local\\share\\luma-pp-cli\\data.db\n    schema_version: 4\n    db_bytes: 131072\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'luma-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://api.luma.com\",\n  \"cache\": {\n    \"db_bytes\": 131072,\n    \"db_path\": \"C:\\\\Users\\\\richa\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-2920543083\\\\.local\\\\share\\\\luma-pp-cli\\\\data.db\",\n    \"hint\": \"sync_state is empty; run 'luma-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 4,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"C:\\\\Users\\\\richa\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-2920543083\\\\.config\\\\luma-pp-cli\\\\config.toml\",\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "events get",
+      "kind": "help",
+      "args": [
+        "events",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get full details for an event by its api_id (evt-...)\n\nUsage:\n  luma-pp-cli events get [flags]\n\nExamples:\n  luma-pp-cli events get --event-id evt-XXXX --agent --select api_id,event.name,event.start_at,event.timezone,guest_count,ticket_count\n\nFlags:\n      --event-id events list   Event api_id (evt-...), from events list\n  -h, --help                   help for get\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "events get",
+      "kind": "happy_path",
+      "args": [
+        "events",
+        "get",
+        "--event-id",
+        "evt-XfRyNOjgpscX2jG"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"accepts_usdc_for_usd\":false,\"api_id\":\"evt-XfRyNOjgpscX2jG\",\"calendar\":{\"access_level\":\"public\",\"api_id\":\"cal-gmMOid1Rsqc3Hih\",\"avatar_url\":\"https://images.lumacdn.com/calendars/51/49fd2c74-e80c-47eb-b708-80a17c8c5bd0.png\",\"charges_enabled\":null,\"city\":null,\"coordinate\":null,\"cover_image_url\":\"https://images.lumacdn.com/calendar-cover-images/m0/a95e8c8f-2199-4a42-b0a7-561190c324ec.jpg\",\"description_short\":\"This is the main calendar for ClickHouse events held across the world!\",\"event_submission_restriction\":\"open\",\"geo_city\":null,\"geo_country\":null,\"geo_region\":null,\"google_measurement_id\":null,\"instagram_handle\":null,\"is_blocked\":false,\"is_personal\":false,\"launch_status\":\"launched\",\"linkedin_handle\":\"/company/clickhouseinc\",\"location\":null,\"luma_plan\":\"plus\",\"luma_plus_active\":true,\"meta_pixel_id\":null,\"name\":\"\u003credacted\u003e\",\"payment_methods\":[],\"personal_user\":null,\"personal_user_api_id\":null,\"refund_policy\":null,\"slug\":\"clickhouse-events\",\"social_image_url\":\"https://images.lumacdn.com/calendar-cover-images/l5/3cc12efb-e3e0-43de-9fdb-0e32392e4ab0.jpg\",\"solana_treasury_address\":null,\"solana_usdc_address\":null,\"stripe_account_id\":null,\"tax_config\":null,\"tiktok_handle\":null,\"timezone\":null,\"tint_color\":\"#146AEB\",\"track_meta_ads_from_luma\":false,\"twitter_handle\":\"clickhousedb\",\"verified_at\":\"2025-06-19T04:24:13.310Z\",\"website\":\"https://clickhouse.com/company/events\",\"youtube_handle\":\"clickhousedb\"},\"can_register_for_multiple_tickets\":false,\"categories\":[{\"api_id\":\"cat-tech\",\"description\":\"Join a hackathon, jam on product design, and meet fellow tinkerers in the industry of tomorrow.\",\"event_count\":3741,\"hero_image_desktop_url\":\"https://images.lumacdn.com/discovery/tech-square.png\",\"icon_url\":\"https://images.lumacdn.com/discovery/tech-icon.png\",\"name\":\"\u003credacted\u003e\",\"page_title\":\"Tech Events\",\"simple_icon_url\":\"https://images.lumacdn.com/discovery/tech-icon-simple.png\",\"slug\":\"tech\",\"social_image_url\":\"https://images.lumacdn.com/discovery/tech-social.png\",\"subscriber_count\":48394,\"tint_color\":\"#ebb102\"}],\"coupon\":null,\"cover_image\":{\"colors\":[\"#82ccd3\",\"#c4cacf\",\"#1a180c\",\"#634c33\"],\"palette\":{\"neutral\":[{\"color\":\"#1a180c\",\"percentage\":2.99},{\"color\":\"#c4cacf\",\"percentage\":10.97}],\"vibrant\":[{\"color\":\"#82ccd3\",\"percentage\":40.01},{\"color\":\"#3395b5\",\"percentage\":0.95},{\"color\":\"#634c33\",\"percentage\":1.22}]}},\"cover_video\":null,\"description_mirror\":{\"content\":[{\"content\":[{\"text\":\"Taking a break from the Databricks Data + AI Summit? Come recharge at the ClickHouse Café, your home base for the day, just steps from Moscone Center.\",\"type\":\"text\"}],\"type\":\"paragraph\"},{\"content\":[{\"text\":\"Whether you need a quiet spot to work, a great coffee, a bite to eat, or a real conversation with someone who knows data infrastructure inside and out, we've got you covered.\",\"type\":\"text\"}],\"type\":\"paragraph\"},{\"content\":[{\"marks\":[{\"type\":\"bold\"}],\"text\":\"What's inside:\",\"type\":\"text\"}],\"type\":\"paragraph\"},{\"content\":[{\"content\":[{\"content\":[{\"text\":\"☕ Grab-and-go drinks and food throughout the day\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"list_item\"},{\"content\":[{\"content\":[{\"text\":\"💻 Comfortable seating and charging stations to work and decompress\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"list_item\"},{\"content\":[{\"content\":[{\"text\":\"🔧 The ClickHouse Renovators Bar: talk to a ClickHouse engineer about your use case and get your House in order.\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"list_item\"},{\"content\":[{\"content\":[{\"text\":\"🍽️ Food truck lunch service outside from ~11:30 AM – 1:00 PM, with an outdoor picnic area\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"list_item\"},{\"content\":[{\"content\":[{\"text\":\"🔵 The Langfuse Lounge — drop in to chat with the Langfuse team about LLM observability and see what they're building\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"list_item\"}],\"type\":\"bullet_list\"},{\"content\":[{\"marks\":[{\"type\":\"bold\"}],\"text\":\"And when the conference wraps for the day...\",\"type\":\"text\"},{\"text\":\" Stick around (or come back) as the Café flips to Happy Hour …[truncated]"
+    },
+    {
+      "command": "events get",
+      "kind": "json_fidelity",
+      "args": [
+        "events",
+        "get",
+        "--event-id",
+        "evt-XfRyNOjgpscX2jG",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"accepts_usdc_for_usd\":false,\"api_id\":\"evt-XfRyNOjgpscX2jG\",\"calendar\":{\"access_level\":\"public\",\"api_id\":\"cal-gmMOid1Rsqc3Hih\",\"avatar_url\":\"https://images.lumacdn.com/calendars/51/49fd2c74-e80c-47eb-b708-80a17c8c5bd0.png\",\"charges_enabled\":null,\"city\":null,\"coordinate\":null,\"cover_image_url\":\"https://images.lumacdn.com/calendar-cover-images/m0/a95e8c8f-2199-4a42-b0a7-561190c324ec.jpg\",\"description_short\":\"This is the main calendar for ClickHouse events held across the world!\",\"event_submission_restriction\":\"open\",\"geo_city\":null,\"geo_country\":null,\"geo_region\":null,\"google_measurement_id\":null,\"instagram_handle\":null,\"is_blocked\":false,\"is_personal\":false,\"launch_status\":\"launched\",\"linkedin_handle\":\"/company/clickhouseinc\",\"location\":null,\"luma_plan\":\"plus\",\"luma_plus_active\":true,\"meta_pixel_id\":null,\"name\":\"\u003credacted\u003e\",\"payment_methods\":[],\"personal_user\":null,\"personal_user_api_id\":null,\"refund_policy\":null,\"slug\":\"clickhouse-events\",\"social_image_url\":\"https://images.lumacdn.com/calendar-cover-images/l5/3cc12efb-e3e0-43de-9fdb-0e32392e4ab0.jpg\",\"solana_treasury_address\":null,\"solana_usdc_address\":null,\"stripe_account_id\":null,\"tax_config\":null,\"tiktok_handle\":null,\"timezone\":null,\"tint_color\":\"#146AEB\",\"track_meta_ads_from_luma\":false,\"twitter_handle\":\"clickhousedb\",\"verified_at\":\"2025-06-19T04:24:13.310Z\",\"website\":\"https://clickhouse.com/company/events\",\"youtube_handle\":\"clickhousedb\"},\"can_register_for_multiple_tickets\":false,\"categories\":[{\"api_id\":\"cat-tech\",\"description\":\"Join a hackathon, jam on product design, and meet fellow tinkerers in the industry of tomorrow.\",\"event_count\":3741,\"hero_image_desktop_url\":\"https://images.lumacdn.com/discovery/tech-square.png\",\"icon_url\":\"https://images.lumacdn.com/discovery/tech-icon.png\",\"name\":\"\u003credacted\u003e\",\"page_title\":\"Tech Events\",\"simple_icon_url\":\"https://images.lumacdn.com/discovery/tech-icon-simple.png\",\"slug\":\"tech\",\"social_image_url\":\"https://images.lumacdn.com/discovery/tech-social.png\",\"subscriber_count\":48394,\"tint_color\":\"#ebb102\"}],\"coupon\":null,\"cover_image\":{\"colors\":[\"#82ccd3\",\"#c4cacf\",\"#1a180c\",\"#634c33\"],\"palette\":{\"neutral\":[{\"color\":\"#1a180c\",\"percentage\":2.99},{\"color\":\"#c4cacf\",\"percentage\":10.97}],\"vibrant\":[{\"color\":\"#82ccd3\",\"percentage\":40.01},{\"color\":\"#3395b5\",\"percentage\":0.95},{\"color\":\"#634c33\",\"percentage\":1.22}]}},\"cover_video\":null,\"description_mirror\":{\"content\":[{\"content\":[{\"text\":\"Taking a break from the Databricks Data + AI Summit? Come recharge at the ClickHouse Café, your home base for the day, just steps from Moscone Center.\",\"type\":\"text\"}],\"type\":\"paragraph\"},{\"content\":[{\"text\":\"Whether you need a quiet spot to work, a great coffee, a bite to eat, or a real conversation with someone who knows data infrastructure inside and out, we've got you covered.\",\"type\":\"text\"}],\"type\":\"paragraph\"},{\"content\":[{\"marks\":[{\"type\":\"bold\"}],\"text\":\"What's inside:\",\"type\":\"text\"}],\"type\":\"paragraph\"},{\"content\":[{\"content\":[{\"content\":[{\"text\":\"☕ Grab-and-go drinks and food throughout the day\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"list_item\"},{\"content\":[{\"content\":[{\"text\":\"💻 Comfortable seating and charging stations to work and decompress\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"list_item\"},{\"content\":[{\"content\":[{\"text\":\"🔧 The ClickHouse Renovators Bar: talk to a ClickHouse engineer about your use case and get your House in order.\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"list_item\"},{\"content\":[{\"content\":[{\"text\":\"🍽️ Food truck lunch service outside from ~11:30 AM – 1:00 PM, with an outdoor picnic area\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"list_item\"},{\"content\":[{\"content\":[{\"text\":\"🔵 The Langfuse Lounge — drop in to chat with the Langfuse team about LLM observability and see what they're building\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"list_item\"}],\"type\":\"bullet_list\"},{\"content\":[{\"marks\":[{\"type\":\"bold\"}],\"text\":\"And when the conference wraps for the day...\",\"type\":\"text\"},{\"text\":\" Stick around (or come back) as the Café flips to Happy Hour …[truncated]"
+    },
+    {
+      "command": "events get",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "events list",
+      "kind": "help",
+      "args": [
+        "events",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List upcoming events filtered by city (--city/--place-id) or category (--category)\n\nUsage:\n  luma-pp-cli events list [flags]\n\nExamples:\n  luma-pp-cli events list --city sf --limit 10\n\nFlags:\n      --all                            Fetch all pages\n      --category discover categories   Category api_id (cat-tech, cat-ai, ...) from discover categories\n      --city string                    City slug, e.g. sf, nyc, miami (filter by place)\n      --cursor string                  Pagination cursor returned by a previous page (next_cursor)\n  -h, --help                           help for list\n      --limit int                      Max events per page (default 25)\n      --place-id string                Place api_id (discplace-...), alternative to --city\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "events list",
+      "kind": "happy_path",
+      "args": [
+        "events",
+        "list",
+        "--city",
+        "sf",
+        "--limit",
+        "10"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"entries\":[{\"api_id\":\"evt-XfRyNOjgpscX2jG\",\"calendar\":{\"access_level\":\"public\",\"api_id\":\"cal-gmMOid1Rsqc3Hih\",\"avatar_url\":\"https://images.lumacdn.com/calendars/51/49fd2c74-e80c-47eb-b708-80a17c8c5bd0.png\",\"city\":null,\"coordinate\":null,\"cover_image_url\":\"https://images.lumacdn.com/calendar-cover-images/m0/a95e8c8f-2199-4a42-b0a7-561190c324ec.jpg\",\"description_short\":\"This is the main calendar for ClickHouse events held across the world!\",\"event_submission_restriction\":\"open\",\"geo_city\":null,\"geo_country\":null,\"geo_region\":null,\"google_measurement_id\":null,\"instagram_handle\":null,\"is_blocked\":false,\"is_personal\":false,\"launch_status\":\"launched\",\"linkedin_handle\":\"/company/clickhouseinc\",\"location\":null,\"luma_plan\":\"plus\",\"luma_plus_active\":true,\"meta_pixel_id\":null,\"name\":\"\u003credacted\u003e\",\"personal_user\":null,\"personal_user_api_id\":null,\"refund_policy\":null,\"slug\":\"clickhouse-events\",\"social_image_url\":\"https://images.lumacdn.com/calendar-cover-images/l5/3cc12efb-e3e0-43de-9fdb-0e32392e4ab0.jpg\",\"stripe_account_id\":null,\"tax_config\":null,\"tiktok_handle\":null,\"timezone\":null,\"tint_color\":\"#146AEB\",\"track_meta_ads_from_luma\":false,\"twitter_handle\":\"clickhousedb\",\"verified_at\":\"2025-06-19T04:24:13.310Z\",\"website\":\"https://clickhouse.com/company/events\",\"youtube_handle\":\"clickhousedb\"},\"cover_image\":{\"colors\":[\"#82ccd3\",\"#c4cacf\",\"#1a180c\",\"#634c33\"],\"palette\":{\"neutral\":[{\"color\":\"#1a180c\",\"percentage\":2.99},{\"color\":\"#c4cacf\",\"percentage\":10.97}],\"vibrant\":[{\"color\":\"#82ccd3\",\"percentage\":40.01},{\"color\":\"#3395b5\",\"percentage\":0.95},{\"color\":\"#634c33\",\"percentage\":1.22}]}},\"event\":{\"api_id\":\"evt-XfRyNOjgpscX2jG\",\"calendar_api_id\":\"cal-gmMOid1Rsqc3Hih\",\"coordinate\":{\"latitude\":37.786002599999996,\"longitude\":-122.40367200000001},\"cover_url\":\"https://images.unsplash.com/photo-1623593721974-f39b78528626?crop=entropy\u0026cs=tinysrgb\u0026fit=max\u0026fm=jpg\u0026ixid=M3wxMjQyMjF8MHwxfHNlYXJjaHw4Mnx8Y2FmZXxlbnwwfHx8fDE3Nzg4NzQwOTh8Mg\u0026ixlib=rb-4.1.0\u0026q=80\u0026w=1080\",\"end_at\":\"2026-06-17T03:00:00.000Z\",\"event_type\":\"independent\",\"geo_address_info\":{\"address\":\"\u003credacted\u003e\",\"apple_maps_place_id\":\"I1CE52D864228E6B\",\"city\":\"San Francisco\",\"city_state\":\"San Francisco, CA\",\"country\":\"United States\",\"country_code\":\"US\",\"description\":\"\",\"full_address\":\"The Contemporary Jewish Museum, \u003credacted\u003e, San Francisco, CA 94103, USA\",\"localized\":null,\"mode\":\"shown\",\"place_id\":\"ChIJQ4ofxYeAhYARnLQjgdsj76k\",\"region\":\"California\",\"region_short\":\"CA\",\"short_address\":\"\u003credacted\u003e, San Francisco\",\"sublocality\":\"Yerba Buena\",\"type\":\"google\"},\"geo_address_visibility\":\"public\",\"hide_rsvp\":false,\"location_type\":\"offline\",\"name\":\"\u003credacted\u003e\",\"one_to_one\":true,\"recurrence_id\":null,\"show_guest_list\":true,\"social_image_url\":\"https://images.lumacdn.com/event-social/96/13b8ce48-7250-4856-bc1e-97b3fd2c8090.png\",\"start_at\":\"2026-06-16T15:00:00.000Z\",\"timezone\":\"America/Los_Angeles\",\"url\":\"clickh-vrjd\",\"user_api_id\":\"usr-EPwlJNccYzXE3Et\",\"virtual_info\":{\"has_access\":false},\"visibility\":\"public\",\"waitlist_enabled\":false,\"waitlist_status\":\"disabled\"},\"featured_city\":{\"api_id\":\"discplace-BDj7GNbGlsF7Cka\",\"name\":\"\u003credacted\u003e\",\"slug\":\"sf\"},\"featured_guests\":[{\"api_id\":\"usr-pJnQytSqiTtWFtR\",\"avatar_url\":\"https://images.lumacdn.com/avatars/9z/9ffa1d64-9c7c-4765-aa52-d301adceeddb\",\"bio_short\":null,\"first_name\":\"\u003credacted\u003e\",\"instagram_handle\":\"jessie.hanvana\",\"is_verified\":false,\"last_name\":\"\u003credacted\u003e\",\"last_online_at\":\"2026-05-28T02:19:50.636Z\",\"linkedin_handle\":\"/in/jiahuihan\",\"name\":\"\u003credacted\u003e\",\"tiktok_handle\":null,\"timezone\":\"America/Los_Angeles\",\"twitter_handle\":\"JesseHann3\",\"username\":null,\"website\":null,\"youtube_handle\":\"\"},{\"api_id\":\"usr-l7Z6K9w4vEggsOw\",\"avatar_url\":\"https://images.lumacdn.com/avatars/05/4e09589f-9bbf-40ac-9a0e-9baabf2cf329.png\",\"bio_short\":\"AI Adoption Lead @ Microsoft\\nFounder of Enterprise AI Enabled Network\",\"first_name\":\"\u003credacted\u003e\",\"instagram_handle\":null,\"is_verified\":false,\"last_name\":\"\u003credacted\u003e\",\"last_online_at\":\"2026-06-16T13:44:43.395Z\",\"linkedin_handle\":\"/in/angelaelle\",\"name\":\"\u003credacted\u003e\",\"tiktok_handle\":null,\"timezone\":\"Americ…[truncated]"
+    },
+    {
+      "command": "events list",
+      "kind": "json_fidelity",
+      "args": [
+        "events",
+        "list",
+        "--city",
+        "sf",
+        "--limit",
+        "10",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"entries\":[{\"api_id\":\"evt-XfRyNOjgpscX2jG\",\"calendar\":{\"access_level\":\"public\",\"api_id\":\"cal-gmMOid1Rsqc3Hih\",\"avatar_url\":\"https://images.lumacdn.com/calendars/51/49fd2c74-e80c-47eb-b708-80a17c8c5bd0.png\",\"city\":null,\"coordinate\":null,\"cover_image_url\":\"https://images.lumacdn.com/calendar-cover-images/m0/a95e8c8f-2199-4a42-b0a7-561190c324ec.jpg\",\"description_short\":\"This is the main calendar for ClickHouse events held across the world!\",\"event_submission_restriction\":\"open\",\"geo_city\":null,\"geo_country\":null,\"geo_region\":null,\"google_measurement_id\":null,\"instagram_handle\":null,\"is_blocked\":false,\"is_personal\":false,\"launch_status\":\"launched\",\"linkedin_handle\":\"/company/clickhouseinc\",\"location\":null,\"luma_plan\":\"plus\",\"luma_plus_active\":true,\"meta_pixel_id\":null,\"name\":\"\u003credacted\u003e\",\"personal_user\":null,\"personal_user_api_id\":null,\"refund_policy\":null,\"slug\":\"clickhouse-events\",\"social_image_url\":\"https://images.lumacdn.com/calendar-cover-images/l5/3cc12efb-e3e0-43de-9fdb-0e32392e4ab0.jpg\",\"stripe_account_id\":null,\"tax_config\":null,\"tiktok_handle\":null,\"timezone\":null,\"tint_color\":\"#146AEB\",\"track_meta_ads_from_luma\":false,\"twitter_handle\":\"clickhousedb\",\"verified_at\":\"2025-06-19T04:24:13.310Z\",\"website\":\"https://clickhouse.com/company/events\",\"youtube_handle\":\"clickhousedb\"},\"cover_image\":{\"colors\":[\"#82ccd3\",\"#c4cacf\",\"#1a180c\",\"#634c33\"],\"palette\":{\"neutral\":[{\"color\":\"#1a180c\",\"percentage\":2.99},{\"color\":\"#c4cacf\",\"percentage\":10.97}],\"vibrant\":[{\"color\":\"#82ccd3\",\"percentage\":40.01},{\"color\":\"#3395b5\",\"percentage\":0.95},{\"color\":\"#634c33\",\"percentage\":1.22}]}},\"event\":{\"api_id\":\"evt-XfRyNOjgpscX2jG\",\"calendar_api_id\":\"cal-gmMOid1Rsqc3Hih\",\"coordinate\":{\"latitude\":37.786002599999996,\"longitude\":-122.40367200000001},\"cover_url\":\"https://images.unsplash.com/photo-1623593721974-f39b78528626?crop=entropy\u0026cs=tinysrgb\u0026fit=max\u0026fm=jpg\u0026ixid=M3wxMjQyMjF8MHwxfHNlYXJjaHw4Mnx8Y2FmZXxlbnwwfHx8fDE3Nzg4NzQwOTh8Mg\u0026ixlib=rb-4.1.0\u0026q=80\u0026w=1080\",\"end_at\":\"2026-06-17T03:00:00.000Z\",\"event_type\":\"independent\",\"geo_address_info\":{\"address\":\"\u003credacted\u003e\",\"apple_maps_place_id\":\"I1CE52D864228E6B\",\"city\":\"San Francisco\",\"city_state\":\"San Francisco, CA\",\"country\":\"United States\",\"country_code\":\"US\",\"description\":\"\",\"full_address\":\"The Contemporary Jewish Museum, \u003credacted\u003e, San Francisco, CA 94103, USA\",\"localized\":null,\"mode\":\"shown\",\"place_id\":\"ChIJQ4ofxYeAhYARnLQjgdsj76k\",\"region\":\"California\",\"region_short\":\"CA\",\"short_address\":\"\u003credacted\u003e, San Francisco\",\"sublocality\":\"Yerba Buena\",\"type\":\"google\"},\"geo_address_visibility\":\"public\",\"hide_rsvp\":false,\"location_type\":\"offline\",\"name\":\"\u003credacted\u003e\",\"one_to_one\":true,\"recurrence_id\":null,\"show_guest_list\":true,\"social_image_url\":\"https://images.lumacdn.com/event-social/96/13b8ce48-7250-4856-bc1e-97b3fd2c8090.png\",\"start_at\":\"2026-06-16T15:00:00.000Z\",\"timezone\":\"America/Los_Angeles\",\"url\":\"clickh-vrjd\",\"user_api_id\":\"usr-EPwlJNccYzXE3Et\",\"virtual_info\":{\"has_access\":false},\"visibility\":\"public\",\"waitlist_enabled\":false,\"waitlist_status\":\"disabled\"},\"featured_city\":{\"api_id\":\"discplace-BDj7GNbGlsF7Cka\",\"name\":\"\u003credacted\u003e\",\"slug\":\"sf\"},\"featured_guests\":[{\"api_id\":\"usr-pJnQytSqiTtWFtR\",\"avatar_url\":\"https://images.lumacdn.com/avatars/9z/9ffa1d64-9c7c-4765-aa52-d301adceeddb\",\"bio_short\":null,\"first_name\":\"\u003credacted\u003e\",\"instagram_handle\":\"jessie.hanvana\",\"is_verified\":false,\"last_name\":\"\u003credacted\u003e\",\"last_online_at\":\"2026-05-28T02:19:50.636Z\",\"linkedin_handle\":\"/in/jiahuihan\",\"name\":\"\u003credacted\u003e\",\"tiktok_handle\":null,\"timezone\":\"America/Los_Angeles\",\"twitter_handle\":\"JesseHann3\",\"username\":null,\"website\":null,\"youtube_handle\":\"\"},{\"api_id\":\"usr-l7Z6K9w4vEggsOw\",\"avatar_url\":\"https://images.lumacdn.com/avatars/05/4e09589f-9bbf-40ac-9a0e-9baabf2cf329.png\",\"bio_short\":\"AI Adoption Lead @ Microsoft\\nFounder of Enterprise AI Enabled Network\",\"first_name\":\"\u003credacted\u003e\",\"instagram_handle\":null,\"is_verified\":false,\"last_name\":\"\u003credacted\u003e\",\"last_online_at\":\"2026-06-16T13:44:43.395Z\",\"linkedin_handle\":\"/in/angelaelle\",\"name\":\"\u003credacted\u003e\",\"tiktok_handle\":null,\"timezone\":\"Americ…[truncated]"
+    },
+    {
+      "command": "events list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  luma-pp-cli feedback list [flags]\n\nExamples:\n  luma-pp-cli feedback list\n  luma-pp-cli feedback list --limit 5\n  luma-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "ics",
+      "kind": "help",
+      "args": [
+        "ics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch events for a city, place, or category and serialize them to an RFC 5545 calendar.\nWrites to --out when given, otherwise prints the .ics to stdout. The public API returns\nJSON only, so this is the calendar export it does not offer.\n\nUsage:\n  luma-pp-cli ics [flags]\n\nExamples:\n  luma-pp-cli ics --city sf --window 30d --out sf.ics\n\nFlags:\n      --category string      Category api_id to export, e.g. cat-ai\n      --city string          City slug to export, e.g. sf\n  -h, --help                 help for ics\n      --limit int            Max events to include (default 100)\n      --max-scan-pages int   Max pages to fetch before stopping (default 5)\n      --out string           Output .ics file path; empty writes to stdout\n      --place-id string      Place api_id to export (alternative to --city)\n      --window string        Only events within this window from now (e.g. 30d); empty = all upcoming\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "ics",
+      "kind": "happy_path",
+      "args": [
+        "ics",
+        "--city",
+        "sf",
+        "--window",
+        "30d",
+        "--out",
+        "sf.ics"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"file\": \"sf.ics\",\n  \"events_written\": 50,\n  \"filter\": \"city:sf\"\n}\n"
+    },
+    {
+      "command": "ics",
+      "kind": "json_fidelity",
+      "args": [
+        "ics",
+        "--city",
+        "sf",
+        "--window",
+        "30d",
+        "--out",
+        "sf.ics",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"file\": \"sf.ics\",\n  \"events_written\": 50,\n  \"filter\": \"city:sf\"\n}\n"
+    },
+    {
+      "command": "ics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  luma-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  luma-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  luma-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | luma-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "near",
+      "kind": "help",
+      "args": [
+        "near",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Haversine radius search over your locally synced events. The public API exposes each\nevent's coordinate but has no radius filter, so this reads the local store.\n\nRun `sync --resources events --resource-param events:slug=\u003ccity\u003e` first to populate it.\n\nUsage:\n  luma-pp-cli near [flags]\n\nExamples:\n  luma-pp-cli near --lat 37.77 --lng -122.42 --radius-km 5 --window 14d --agent\n\nFlags:\n      --db string         Database path (default: ~/.local/share/luma-pp-cli/data.db)\n  -h, --help              help for near\n      --lat float         Center latitude (required)\n      --limit int         Max events to return (default 25)\n      --lng float         Center longitude (required)\n      --radius-km float   Search radius in kilometers (default 10)\n      --window string     Only events within this window from now (e.g. 14d); empty = all upcoming\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "near",
+      "kind": "happy_path",
+      "args": [
+        "near",
+        "--lat",
+        "37.77",
+        "--lng",
+        "-122.42",
+        "--radius-km",
+        "5",
+        "--window",
+        "14d",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"center\":[37.77,-122.42],\"count\":9,\"events\":[{\"api_id\":\"evt-9uUFaxMibRkjtG7\",\"city\":\"San Francisco, CA\",\"distance_km\":0.7,\"guest_count\":150,\"lat\":37.77570568858116,\"lng\":-122.4226578393117,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-18T00:30:00.000Z\",\"ticket_count\":150,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/Punk1\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-fSgyvCjgCDN4rDO\",\"city\":\"San Francisco, CA\",\"distance_km\":2.2,\"guest_count\":183,\"lat\":37.7859319,\"lng\":-122.40439309999998,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-16T16:00:00.000Z\",\"ticket_count\":183,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/xca0p3un\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-XfRyNOjgpscX2jG\",\"city\":\"San Francisco, CA\",\"distance_km\":2.3,\"guest_count\":1088,\"lat\":37.786002599999996,\"lng\":-122.40367200000001,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-16T15:00:00.000Z\",\"ticket_count\":1088,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/clickh-vrjd\"},{\"api_id\":\"evt-0cVkUFNdaQVbHqI\",\"city\":\"San Francisco, CA\",\"distance_km\":2.5,\"guest_count\":0,\"lat\":37.785758926079446,\"lng\":-122.39932120755539,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T01:00:00.000Z\",\"ticket_count\":0,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/r0sjpnhd\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-GCQdpnsiwsfxCSu\",\"city\":\"San Francisco, CA\",\"distance_km\":2.7,\"guest_count\":0,\"lat\":37.7880669,\"lng\":-122.3992066,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T22:00:00.000Z\",\"ticket_count\":0,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/qwsxqfa2\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-LL8C0iq1ArMMMvm\",\"city\":\"San Francisco, CA\",\"distance_km\":2.9,\"guest_count\":522,\"lat\":37.7816889,\"lng\":-122.3908867,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T00:00:00.000Z\",\"ticket_count\":522,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/codex-jun16-2026\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-dzkSrGsYrekb7R6\",\"city\":\"San Francisco, CA\",\"distance_km\":2.9,\"guest_count\":951,\"lat\":37.7822664,\"lng\":-122.39116439999998,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T00:00:00.000Z\",\"ticket_count\":951,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/56wimzrk\"},{\"api_id\":\"evt-4cvZGlESIFhabfu\",\"city\":\"San Francisco, California\",\"distance_km\":3,\"guest_count\":161,\"lat\":37.76381639081661,\"lng\":-122.38647634968508,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T00:00:00.000Z\",\"ticket_count\":161,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/i04pq9o1\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-koPEDtuCKRoPEZO\",\"city\":\"San Francisco, CA\",\"distance_km\":4.5,\"guest_count\":0,\"lat\":37.8102035,\"lng\":-122.41093199999999,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-18T00:30:00.000Z\",\"ticket_count\":0,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/bpjek2ac\"}],\"radius_km\":5,\"scanned_events\":10}hint: local store has not been synced yet. Run 'luma-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "near",
+      "kind": "json_fidelity",
+      "args": [
+        "near",
+        "--lat",
+        "37.77",
+        "--lng",
+        "-122.42",
+        "--radius-km",
+        "5",
+        "--window",
+        "14d",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"center\":[37.77,-122.42],\"count\":9,\"events\":[{\"api_id\":\"evt-9uUFaxMibRkjtG7\",\"city\":\"San Francisco, CA\",\"distance_km\":0.7,\"guest_count\":150,\"lat\":37.77570568858116,\"lng\":-122.4226578393117,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-18T00:30:00.000Z\",\"ticket_count\":150,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/Punk1\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-fSgyvCjgCDN4rDO\",\"city\":\"San Francisco, CA\",\"distance_km\":2.2,\"guest_count\":183,\"lat\":37.7859319,\"lng\":-122.40439309999998,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-16T16:00:00.000Z\",\"ticket_count\":183,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/xca0p3un\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-XfRyNOjgpscX2jG\",\"city\":\"San Francisco, CA\",\"distance_km\":2.3,\"guest_count\":1088,\"lat\":37.786002599999996,\"lng\":-122.40367200000001,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-16T15:00:00.000Z\",\"ticket_count\":1088,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/clickh-vrjd\"},{\"api_id\":\"evt-0cVkUFNdaQVbHqI\",\"city\":\"San Francisco, CA\",\"distance_km\":2.5,\"guest_count\":0,\"lat\":37.785758926079446,\"lng\":-122.39932120755539,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T01:00:00.000Z\",\"ticket_count\":0,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/r0sjpnhd\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-GCQdpnsiwsfxCSu\",\"city\":\"San Francisco, CA\",\"distance_km\":2.7,\"guest_count\":0,\"lat\":37.7880669,\"lng\":-122.3992066,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T22:00:00.000Z\",\"ticket_count\":0,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/qwsxqfa2\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-LL8C0iq1ArMMMvm\",\"city\":\"San Francisco, CA\",\"distance_km\":2.9,\"guest_count\":522,\"lat\":37.7816889,\"lng\":-122.3908867,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T00:00:00.000Z\",\"ticket_count\":522,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/codex-jun16-2026\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-dzkSrGsYrekb7R6\",\"city\":\"San Francisco, CA\",\"distance_km\":2.9,\"guest_count\":951,\"lat\":37.7822664,\"lng\":-122.39116439999998,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T00:00:00.000Z\",\"ticket_count\":951,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/56wimzrk\"},{\"api_id\":\"evt-4cvZGlESIFhabfu\",\"city\":\"San Francisco, California\",\"distance_km\":3,\"guest_count\":161,\"lat\":37.76381639081661,\"lng\":-122.38647634968508,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-17T00:00:00.000Z\",\"ticket_count\":161,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/i04pq9o1\"},{\"address\":\"\u003credacted\u003e\",\"api_id\":\"evt-koPEDtuCKRoPEZO\",\"city\":\"San Francisco, CA\",\"distance_km\":4.5,\"guest_count\":0,\"lat\":37.8102035,\"lng\":-122.41093199999999,\"name\":\"\u003credacted\u003e\",\"start_at\":\"2026-06-18T00:30:00.000Z\",\"ticket_count\":0,\"timezone\":\"America/Los_Angeles\",\"url\":\"https://luma.com/bpjek2ac\"}],\"radius_km\":5,\"scanned_events\":10}hint: local store has not been synced yet. Run 'luma-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "near",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "places calendars",
+      "kind": "help",
+      "args": [
+        "places",
+        "calendars",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List calendars (communities) active in a place\n\nUsage:\n  luma-pp-cli places calendars [flags]\n\nExamples:\n  luma-pp-cli places calendars --place-id discplace-BDj7GNbGlsF7Cka\n\nFlags:\n  -h, --help                  help for calendars\n      --place-id places get   Place api_id (discplace-...), from places get\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "places calendars",
+      "kind": "happy_path",
+      "args": [
+        "places",
+        "calendars",
+        "--place-id",
+        "discplace-BDj7GNbGlsF7Cka"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"calendars\":[{\"access_level\":\"public\",\"api_id\":\"cal-twiOosdGMMY66DI\",\"avatar_url\":\"https://images.lumacdn.com/calendars/95/077bf97f-9669-4fc2-803e-efc5313b23e5.png\",\"city\":{\"city\":\"San Francisco\",\"country\":\"United States\",\"country_code\":\"US\",\"place_id\":\"ChIJIQBpAG2ahYAR_6128GcTUEo\",\"region\":\"California\",\"timezone\":\"America/Los_Angeles\"},\"coordinate\":{\"latitude\":37.77493,\"longitude\":-122.419416},\"cover_image_url\":\"https://images.lumacdn.com/calendar-cover-images/8u/afcb863b-8d9a-4f1e-8c58-ee46eaadd1f4.jpg\",\"description_short\":\"creative technology in sf\",\"event_submission_restriction\":\"open\",\"geo_city\":\"San Francisco\",\"geo_country\":\"United States\",\"geo_region\":\"California\",\"google_measurement_id\":null,\"instagram_handle\":\"tiat.place\",\"is_blocked\":false,\"is_personal\":false,\"launch_status\":\"launched\",\"linkedin_handle\":null,\"location\":{\"city\":\"San Francisco\",\"country\":\"United States\",\"country_code\":\"US\",\"place_id\":\"ChIJIQBpAG2ahYAR_6128GcTUEo\",\"region\":\"California\",\"timezone\":\"America/Los_Angeles\"},\"luma_plan\":\"plus\",\"luma_plus_active\":true,\"meta_pixel_id\":null,\"name\":\"\u003credacted\u003e\",\"personal_user\":null,\"personal_user_api_id\":null,\"refund_policy\":null,\"slug\":\"tiat\",\"social_image_url\":\"https://images.lumacdn.com/calendar-cover-images/3w/ba872cb3-fc4f-4f25-8eae-a9a03a77ee54.jpg\",\"stripe_account_id\":\"acct_1SAJU4Ikz8eNXoEn\",\"tax_config\":null,\"tiktok_handle\":\"tiat.place\",\"timezone\":\"America/Los_Angeles\",\"tint_color\":\"#1e481f\",\"track_meta_ads_from_luma\":false,\"twitter_handle\":\"tiatplace\",\"verified_at\":\"2024-05-11T22:31:32.511Z\",\"website\":\"https://tiat.place/\",\"youtube_handle\":\"tiatplace\"},{\"access_level\":\"public\",\"api_id\":\"cal-OVj4xAzue5AVfqW\",\"avatar_url\":\"https://images.lumacdn.com/uploads/1e/688e2ae4-889a-43cd-a06e-22eb801b8032.png\",\"city\":{\"city\":\"San Francisco\",\"country\":\"United States\",\"country_code\":\"US\",\"place_id\":\"ChIJIQBpAG2ahYAR_6128GcTUEo\",\"region\":\"California\",\"timezone\":\"America/Los_Angeles\"},\"coordinate\":{\"latitude\":37.7749295,\"longitude\":-122.41941550000001},\"cover_image_url\":\"https://images.lumacdn.com/calendar-defaults/patterns/squares-100.png\",\"description_short\":\"Explore side events at Data + AI Summit, the Databricks conference where data engineers, scientists, AI practitioners, business leaders, and open source contributors gather for sessions, keynotes, training, and networking on analytics, governance, and AI. June 15-18, San Francisco.\",\"event_submission_restriction\":\"open\",\"geo_city\":\"San Francisco\",\"geo_country\":\"United States\",\"geo_region\":\"California\",\"google_measurement_id\":null,\"instagram_handle\":null,\"is_blocked\":false,\"is_personal\":false,\"launch_status\":\"launched\",\"linkedin_handle\":null,\"location\":{\"city\":\"San Francisco\",\"country\":\"United States\",\"country_code\":\"US\",\"place_id\":\"ChIJIQBpAG2ahYAR_6128GcTUEo\",\"region\":\"California\",\"timezone\":\"America/Los_Angeles\"},\"luma_plan\":\"plus\",\"luma_plus_active\":true,\"meta_pixel_id\":null,\"name\":\"\u003credacted\u003e\",\"personal_user\":null,\"personal_user_api_id\":null,\"refund_policy\":null,\"slug\":\"dataai\",\"social_image_url\":null,\"stripe_account_id\":null,\"tax_config\":null,\"tiktok_handle\":null,\"timezone\":\"America/Los_Angeles\",\"tint_color\":\"#ff3622\",\"track_meta_ads_from_luma\":false,\"twitter_handle\":null,\"verified_at\":null,\"website\":\"https://www.databricks.com/dataaisummit\",\"youtube_handle\":null},{\"access_level\":\"public\",\"api_id\":\"cal-JTdFQadEz0AOxyV\",\"avatar_url\":\"https://images.lumacdn.com/calendars/st/0a132c55-f6bd-44b6-b8fe-d452a223d78e.png\",\"city\":{\"city\":\"San Francisco\",\"country\":\"United States\",\"country_code\":\"US\",\"place_id\":\"ChIJIQBpAG2ahYAR_6128GcTUEo\",\"region\":\"California\",\"timezone\":\"America/Los_Angeles\"},\"coordinate\":{\"latitude\":37.77493,\"longitude\":-122.419416},\"cover_image_url\":\"https://images.lumacdn.com/calendar-cover-images/eb/9d06e6c1-e9cf-442d-85b6-35cef18bca6a.png\",\"description_short\":\"Bond AI - the largest in-person AI events community (120k+)\\n\\n📢 Add your event submit.bondcommunity.ai\\n📤 Subscribe to the weekly events email\\n🌎 Explore other cities bondcommunity.ai/#join\",\"event_submission_restriction\":\"open\",\"geo_ci…[truncated]"
+    },
+    {
+      "command": "places calendars",
+      "kind": "json_fidelity",
+      "args": [
+        "places",
+        "calendars",
+        "--place-id",
+        "discplace-BDj7GNbGlsF7Cka",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"calendars\":[{\"access_level\":\"public\",\"api_id\":\"cal-twiOosdGMMY66DI\",\"avatar_url\":\"https://images.lumacdn.com/calendars/95/077bf97f-9669-4fc2-803e-efc5313b23e5.png\",\"city\":{\"city\":\"San Francisco\",\"country\":\"United States\",\"country_code\":\"US\",\"place_id\":\"ChIJIQBpAG2ahYAR_6128GcTUEo\",\"region\":\"California\",\"timezone\":\"America/Los_Angeles\"},\"coordinate\":{\"latitude\":37.77493,\"longitude\":-122.419416},\"cover_image_url\":\"https://images.lumacdn.com/calendar-cover-images/8u/afcb863b-8d9a-4f1e-8c58-ee46eaadd1f4.jpg\",\"description_short\":\"creative technology in sf\",\"event_submission_restriction\":\"open\",\"geo_city\":\"San Francisco\",\"geo_country\":\"United States\",\"geo_region\":\"California\",\"google_measurement_id\":null,\"instagram_handle\":\"tiat.place\",\"is_blocked\":false,\"is_personal\":false,\"launch_status\":\"launched\",\"linkedin_handle\":null,\"location\":{\"city\":\"San Francisco\",\"country\":\"United States\",\"country_code\":\"US\",\"place_id\":\"ChIJIQBpAG2ahYAR_6128GcTUEo\",\"region\":\"California\",\"timezone\":\"America/Los_Angeles\"},\"luma_plan\":\"plus\",\"luma_plus_active\":true,\"meta_pixel_id\":null,\"name\":\"\u003credacted\u003e\",\"personal_user\":null,\"personal_user_api_id\":null,\"refund_policy\":null,\"slug\":\"tiat\",\"social_image_url\":\"https://images.lumacdn.com/calendar-cover-images/3w/ba872cb3-fc4f-4f25-8eae-a9a03a77ee54.jpg\",\"stripe_account_id\":\"acct_1SAJU4Ikz8eNXoEn\",\"tax_config\":null,\"tiktok_handle\":\"tiat.place\",\"timezone\":\"America/Los_Angeles\",\"tint_color\":\"#1e481f\",\"track_meta_ads_from_luma\":false,\"twitter_handle\":\"tiatplace\",\"verified_at\":\"2024-05-11T22:31:32.511Z\",\"website\":\"https://tiat.place/\",\"youtube_handle\":\"tiatplace\"},{\"access_level\":\"public\",\"api_id\":\"cal-OVj4xAzue5AVfqW\",\"avatar_url\":\"https://images.lumacdn.com/uploads/1e/688e2ae4-889a-43cd-a06e-22eb801b8032.png\",\"city\":{\"city\":\"San Francisco\",\"country\":\"United States\",\"country_code\":\"US\",\"place_id\":\"ChIJIQBpAG2ahYAR_6128GcTUEo\",\"region\":\"California\",\"timezone\":\"America/Los_Angeles\"},\"coordinate\":{\"latitude\":37.7749295,\"longitude\":-122.41941550000001},\"cover_image_url\":\"https://images.lumacdn.com/calendar-defaults/patterns/squares-100.png\",\"description_short\":\"Explore side events at Data + AI Summit, the Databricks conference where data engineers, scientists, AI practitioners, business leaders, and open source contributors gather for sessions, keynotes, training, and networking on analytics, governance, and AI. June 15-18, San Francisco.\",\"event_submission_restriction\":\"open\",\"geo_city\":\"San Francisco\",\"geo_country\":\"United States\",\"geo_region\":\"California\",\"google_measurement_id\":null,\"instagram_handle\":null,\"is_blocked\":false,\"is_personal\":false,\"launch_status\":\"launched\",\"linkedin_handle\":null,\"location\":{\"city\":\"San Francisco\",\"country\":\"United States\",\"country_code\":\"US\",\"place_id\":\"ChIJIQBpAG2ahYAR_6128GcTUEo\",\"region\":\"California\",\"timezone\":\"America/Los_Angeles\"},\"luma_plan\":\"plus\",\"luma_plus_active\":true,\"meta_pixel_id\":null,\"name\":\"\u003credacted\u003e\",\"personal_user\":null,\"personal_user_api_id\":null,\"refund_policy\":null,\"slug\":\"dataai\",\"social_image_url\":null,\"stripe_account_id\":null,\"tax_config\":null,\"tiktok_handle\":null,\"timezone\":\"America/Los_Angeles\",\"tint_color\":\"#ff3622\",\"track_meta_ads_from_luma\":false,\"twitter_handle\":null,\"verified_at\":null,\"website\":\"https://www.databricks.com/dataaisummit\",\"youtube_handle\":null},{\"access_level\":\"public\",\"api_id\":\"cal-JTdFQadEz0AOxyV\",\"avatar_url\":\"https://images.lumacdn.com/calendars/st/0a132c55-f6bd-44b6-b8fe-d452a223d78e.png\",\"city\":{\"city\":\"San Francisco\",\"country\":\"United States\",\"country_code\":\"US\",\"place_id\":\"ChIJIQBpAG2ahYAR_6128GcTUEo\",\"region\":\"California\",\"timezone\":\"America/Los_Angeles\"},\"coordinate\":{\"latitude\":37.77493,\"longitude\":-122.419416},\"cover_image_url\":\"https://images.lumacdn.com/calendar-cover-images/eb/9d06e6c1-e9cf-442d-85b6-35cef18bca6a.png\",\"description_short\":\"Bond AI - the largest in-person AI events community (120k+)\\n\\n📢 Add your event submit.bondcommunity.ai\\n📤 Subscribe to the weekly events email\\n🌎 Explore other cities bondcommunity.ai/#join\",\"event_submission_restriction\":\"open\",\"geo_ci…[truncated]"
+    },
+    {
+      "command": "places calendars",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "places get",
+      "kind": "help",
+      "args": [
+        "places",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a place (city) by slug (sf, nyc, miami, ...) or place api_id\n\nUsage:\n  luma-pp-cli places get [flags]\n\nExamples:\n  luma-pp-cli places get --city sf\n\nFlags:\n      --city string       City slug, e.g. sf, nyc, miami, london (one of --city or --place-id)\n  -h, --help              help for get\n      --place-id string   Place api_id (discplace-...), alternative to --city\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "places get",
+      "kind": "happy_path",
+      "args": [
+        "places",
+        "get",
+        "--city",
+        "sf"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"is_subscriber\":false,\"place\":{\"api_id\":\"discplace-BDj7GNbGlsF7Cka\",\"coordinate\":{\"latitude\":37.7749,\"longitude\":-122.4194},\"description\":\"In San Francisco, innovation pulses through tech talks, creative meetups, and more. A haven for tech, design, and creativity, the city fosters collaboration and learning, cementing its status as a vibrant hub for forward-thinkers and creators.\",\"event_count\":73,\"featured_event_api_ids\":[\"evt-XfRyNOjgpscX2jG\",\"evt-dzkSrGsYrekb7R6\",\"evt-LL8C0iq1ArMMMvm\",\"evt-wbdVju5LrxslsmE\",\"evt-vIrxq0fLHJAb5LV\",\"evt-9O6UcGOAj9cIjSQ\",\"evt-WBZz9mrIVLMXzR4\",\"evt-IQpCxf7BBsyK7mk\",\"evt-wD6vKvNnBhmBADJ\"],\"geo_continent\":\"na\",\"geo_continent_name\":\"North America\",\"hero_image_desktop_url\":\"https://images.lumacdn.com/discovery/sf-desktop.jpg\",\"hero_image_mobile_url\":\"https://images.lumacdn.com/discovery/sf-mobile.jpg\",\"hero_image_square_url\":\"https://images.lumacdn.com/discovery/sf-square.jpg\",\"icon_url\":\"https://images.lumacdn.com/discovery/sf-icon.png\",\"is_launched\":true,\"locales\":[\"en\"],\"name\":\"\u003credacted\u003e\",\"publication_name\":\"What’s happening in San Francisco\",\"slug\":\"sf\",\"social_image_url\":\"https://images.lumacdn.com/discovery/sf-social.png\",\"timezone\":\"America/Los_Angeles\",\"tint_color\":\"#ff6519\"}}}warning: 1/1 places items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "places get",
+      "kind": "json_fidelity",
+      "args": [
+        "places",
+        "get",
+        "--city",
+        "sf",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"is_subscriber\":false,\"place\":{\"api_id\":\"discplace-BDj7GNbGlsF7Cka\",\"coordinate\":{\"latitude\":37.7749,\"longitude\":-122.4194},\"description\":\"In San Francisco, innovation pulses through tech talks, creative meetups, and more. A haven for tech, design, and creativity, the city fosters collaboration and learning, cementing its status as a vibrant hub for forward-thinkers and creators.\",\"event_count\":73,\"featured_event_api_ids\":[\"evt-XfRyNOjgpscX2jG\",\"evt-dzkSrGsYrekb7R6\",\"evt-LL8C0iq1ArMMMvm\",\"evt-wbdVju5LrxslsmE\",\"evt-vIrxq0fLHJAb5LV\",\"evt-9O6UcGOAj9cIjSQ\",\"evt-WBZz9mrIVLMXzR4\",\"evt-IQpCxf7BBsyK7mk\",\"evt-wD6vKvNnBhmBADJ\"],\"geo_continent\":\"na\",\"geo_continent_name\":\"North America\",\"hero_image_desktop_url\":\"https://images.lumacdn.com/discovery/sf-desktop.jpg\",\"hero_image_mobile_url\":\"https://images.lumacdn.com/discovery/sf-mobile.jpg\",\"hero_image_square_url\":\"https://images.lumacdn.com/discovery/sf-square.jpg\",\"icon_url\":\"https://images.lumacdn.com/discovery/sf-icon.png\",\"is_launched\":true,\"locales\":[\"en\"],\"name\":\"\u003credacted\u003e\",\"publication_name\":\"What’s happening in San Francisco\",\"slug\":\"sf\",\"social_image_url\":\"https://images.lumacdn.com/discovery/sf-social.png\",\"timezone\":\"America/Los_Angeles\",\"tint_color\":\"#ff6519\"}}}warning: 1/1 places items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "places get",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "places map",
+      "kind": "help",
+      "args": [
+        "places",
+        "map",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Geographic points for events in a place, for mapping\n\nUsage:\n  luma-pp-cli places map [flags]\n\nExamples:\n  luma-pp-cli places map --place-id 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help              help for map\n      --place-id string   Place api_id (discplace-...)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "places map",
+      "kind": "happy_path",
+      "args": [
+        "places",
+        "map",
+        "--place-id",
+        "550e8400-e29b-41d4-a716-446655440000"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"points\": []\n  }\n}\nwarning: 1/1 places items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "places map",
+      "kind": "json_fidelity",
+      "args": [
+        "places",
+        "map",
+        "--place-id",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"points\": []\n  }\n}\nwarning: 1/1 places items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "places map",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  luma-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  luma-pp-cli profile delete my-defaults --yes\n  luma-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  luma-pp-cli profile list [flags]\n\nExamples:\n  luma-pp-cli profile list\n  luma-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  luma-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  luma-pp-cli profile save my-defaults --json --compact\n  luma-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  luma-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  luma-pp-cli profile show my-defaults\n  luma-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  luma-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  luma-pp-cli profile use my-defaults\n  luma-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  luma-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  luma-pp-cli search \"error timeout\"\n\n  # Force local search only\n  luma-pp-cli search \"payment failed\" --data-source local\n\n  # Search a specific resource type locally\n  luma-pp-cli search \"critical\" --type transactions --data-source local\n\n  # JSON output for piping\n  luma-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     Database path (default: ~/.local/share/luma-pp-cli/data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"reason\": \"no_search_endpoint\",\n    \"resource_type\": \"search\",\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\nThis API has no search endpoint. Searching local data.\nhint: local store has not been synced yet. Run 'luma-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  luma-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  luma-pp-cli sync\n\n  # Sync specific resources only\n  luma-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  luma-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  luma-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  luma-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  luma-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/luma-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv          …[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_warning\",\"reason\":\"no_bulk_list_endpoints\",\"detail\":\"no default sync resources in spec; use --resources for explicit sync targets or populate the store via single-fetch commands\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_warning\",\"reason\":\"no_bulk_list_endpoints\",\"detail\":\"no default sync resources in spec; use --resources for explicit sync targets or populate the store via single-fetch commands\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "tail",
+      "kind": "help",
+      "args": [
+        "tail",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Tail streams live data changes by polling the API at configurable intervals.\nEvents are emitted as NDJSON to stdout for piping to other tools.\nGracefully shuts down on SIGTERM/SIGINT.\n\nNote: For APIs with WebSocket or SSE support, a future version will use\nnative streaming instead of polling.\n\nUsage:\n  luma-pp-cli tail [resource] [flags]\n\nExamples:\n  # Tail all changes every 10 seconds\n  luma-pp-cli tail --interval 10s\n\n  # Tail a specific resource\n  luma-pp-cli tail messages --interval 5s\n\n  # Pipe to jq for filtering\n  luma-pp-cli tail events --interval 30s | jq 'select(.type == \"error\")'\n\nFlags:\n      --follow              Keep running (set --follow=false for single poll) (default true)\n  -h, --help                help for tail\n      --interval duration   Poll interval (default 10s)\n      --resource string     Resource type to tail\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "tail",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "watch",
+      "kind": "help",
+      "args": [
+        "watch",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch the current events for a city, place, or category and diff them against the last\nwatch run for that same filter: new events, removed events, and guest/ticket count changes.\nThe public API is stateless, so this keeps a local snapshot to compute change over time.\n\nThe first run for a filter captures a baseline; subsequent runs report the deltas.\n\nUsage:\n  luma-pp-cli watch [flags]\n\nExamples:\n  luma-pp-cli watch --city sf --category cat-ai --agent\n\nFlags:\n      --category string      Category api_id to watch, e.g. cat-ai\n      --city string          City slug to watch, e.g. sf\n      --db string            Database path (default: ~/.local/share/luma-pp-cli/data.db)\n  -h, --help                 help for watch\n      --limit int            Max events to track per run (default 100)\n      --max-scan-pages int   Max pages to fetch before stopping (default 4)\n      --place-id string      Place api_id to watch (alternative to --city)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch",
+      "kind": "happy_path",
+      "args": [
+        "watch",
+        "--city",
+        "sf",
+        "--category",
+        "cat-ai",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"added\": [],\n  \"baseline\": true,\n  \"changed\": [],\n  \"current_count\": 50,\n  \"filter\": \"city:sf|category:cat-ai\",\n  \"note\": \"baseline captured for 50 events; run watch again later to see changes\",\n  \"removed\": []\n}\n"
+    },
+    {
+      "command": "watch",
+      "kind": "json_fidelity",
+      "args": [
+        "watch",
+        "--city",
+        "sf",
+        "--category",
+        "cat-ai",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"added\": [],\n  \"baseline\": false,\n  \"changed\": [],\n  \"current_count\": 50,\n  \"filter\": \"city:sf|category:cat-ai\",\n  \"note\": \"no changes since last run\",\n  \"removed\": []\n}\n"
+    },
+    {
+      "command": "watch",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  luma-pp-cli which [query] [flags]\n\nExamples:\n  luma-pp-cli which \"stale tickets\"\n  luma-pp-cli which \"bottleneck\"\n  luma-pp-cli which --limit 1 \"send message\"\n  luma-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  luma-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  luma-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  luma-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/luma-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "Archived 0 items across 0 resources to C:\\Users\\richa\\AppData\\Local\\Temp\\printing-press-subprocess-2920543083\\.local\\share\\luma-pp-cli\\data.db\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 0,\n  \"store_path\": \"C:\\\\Users\\\\richa\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-2920543083\\\\.local\\\\share\\\\luma-pp-cli\\\\data.db\",\n  \"timestamp\": \"2026-06-16T14:57:24Z\",\n  \"total_items\": 0\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  luma-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  luma-pp-cli workflow status\n\n  # Show status as JSON\n  luma-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'luma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  discover                       8 items\n  events                         10 items\n  places                         7 items\n\n  Total: 25 items\n  Store: C:\\Users\\richa\\AppData\\Local\\Temp\\printing-press-subprocess-2920543083\\.local\\share\\luma-pp-cli\\data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"discover\": 8,\n  \"events\": 10,\n  \"places\": 7\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-16T14:57:14.6876603Z"
+}

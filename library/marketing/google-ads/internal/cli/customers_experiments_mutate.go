@@ -21,7 +21,7 @@ func newCustomersExperimentsMutateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "mutate <customerId>",
 		Short:       "Creates, updates, or removes experiments. Operation statuses are returned.",
-		Example:     "  google-ads-pp-cli customers_experiments mutate 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  google-ads-pp-cli customers-experiments mutate 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "customers_experiments.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/experiments:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

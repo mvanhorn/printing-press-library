@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "close-auto-submit-blocks-processing",
+  "applied_at": "2026-05-23",
+  "base_run_id": "20260523-163843",
+  "base_printing_press_version": "4.12.0",
+  "summary": "close --auto-submit blocks only when an expense being newly bundled is still processing (intersection of processing AND unreported), not just any processing expense in the month.",
+  "reason": "Two-iteration patch (Greptile flagged twice): original guard refused --auto-submit whenever any month-expense was still in Processing, even when that expense was already on a prior report. A stale autoscan from last week should not block this month's new batch. Now the guard intersects processing AND reportID == \"\" so only to-be-bundled expenses count.",
+  "files": [
+    "internal/cli/zoho_close.go"
+  ]
+}

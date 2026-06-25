@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "wavespeed-novel-brand",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260527-214905",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Added brand init/show/list/apply/edit with a non-interactive primary path and a narrow TTY-only interactive gate; brand profiles auto-merge into produce/refine and run.",
+  "reason": "Brand profiles centralize style anchors, palette, negative prompts, models, and platforms for consistent D2C output.",
+  "files": [
+    "internal/cli/novel_brand.go",
+    "internal/cli/run.go"
+  ]
+}

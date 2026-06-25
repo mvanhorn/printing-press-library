@@ -1,7 +1,7 @@
 {
   "api_name": "blu-ray",
   "base_url": "https://www.blu-ray.com",
-  "description": "Blu-ray.com — the canonical disc database for Blu-ray, 4K UHD, DVD, and digital releases since 2002. No public API; sourced from the published XML sitemap and HTML pages.",
+  "description": "The disc-collector's CLI for Blu-ray.com — offline catalog, live deals, and a price-drop watchlist with zero account required.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {
@@ -53,7 +53,7 @@
     },
     {
       "name": "calendar_theatrical",
-      "description": "Theatrical release calendar. Optional: year.",
+      "description": "Theatrical release calendar for a given year. Returns Blu-ray.com's listing of films opening in theaters, with titles and release dates parsed from the page HTML (the UI is JS-driven, but the raw HTML still carries the listing data). Optional 'year' selects the calendar year; defaults to the current year when omitted. Optional: year.",
       "method": "GET",
       "path": "/theatrical/releasedates.php",
       "no_auth": true,

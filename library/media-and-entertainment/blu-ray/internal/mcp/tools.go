@@ -8,8 +8,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -22,6 +24,15 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/blu-ray/internal/store"
 )
 
+const (
+	mcpToolResultMaxBytes = 60000
+	mcpToolResultMaxItems = 50
+	// MCP hosts can fan out tool calls faster than a human CLI session.
+	// Keep them on the same polite-client limiter path instead of disabling
+	// pacing with rate=0; users can still tune human CLI calls with --rate-limit.
+	defaultMCPRateLimit = 2
+)
+
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
@@ -32,7 +43,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/digital/releasedates.php", false, []mcpParamBinding{{PublicName: "year", WireName: "year", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/digital/releasedates.php", true, false, nil, []mcpParamBinding{{PublicName: "year", WireName: "year", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("calendar_releases",
@@ -44,17 +55,17 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/movies/releasedates.php", false, []mcpParamBinding{{PublicName: "year", WireName: "year", Location: "query"}, {PublicName: "country", WireName: "country", Location: "query"}, {PublicName: "format", WireName: "format", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/movies/releasedates.php", true, false, nil, []mcpParamBinding{{PublicName: "year", WireName: "year", Location: "query"}, {PublicName: "country", WireName: "country", Location: "query"}, {PublicName: "format", WireName: "format", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("calendar_theatrical",
-			mcplib.WithDescription("Theatrical release calendar. Optional: year."),
+			mcplib.WithDescription("Theatrical release calendar for a given year. Returns Blu-ray.com's listing of films opening in theaters, with titles and release dates parsed from the page HTML (the UI is JS-driven, but the raw HTML still carries the listing data). Optional 'year' selects the calendar year; defaults to the current year when omitted. Optional: year."),
 			mcplib.WithNumber("year", mcplib.Description("Calendar year.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/theatrical/releasedates.php", false, []mcpParamBinding{{PublicName: "year", WireName: "year", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/theatrical/releasedates.php", true, false, nil, []mcpParamBinding{{PublicName: "year", WireName: "year", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("deals_list",
@@ -65,7 +76,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/deals/", false, []mcpParamBinding{{PublicName: "country", WireName: "country", Location: "query"}, {PublicName: "format", WireName: "format", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/deals/", true, false, nil, []mcpParamBinding{{PublicName: "country", WireName: "country", Location: "query", Default: "USA"}, {PublicName: "format", WireName: "format", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("news_get",
@@ -75,7 +86,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/news/", false, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
+		makeAPIHandler("GET", "/news/", true, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("news_index",
@@ -84,7 +95,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/news/", false, []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/news/", true, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("releases_get",
@@ -95,7 +106,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/movies/{slug}/{id}/", false, []mcpParamBinding{{PublicName: "slug", WireName: "slug", Location: "path"}, {PublicName: "id", WireName: "id", Location: "path"}}, []string{"slug", "id"}),
+		makeAPIHandler("GET", "/movies/{slug}/{id}/", true, false, nil, []mcpParamBinding{{PublicName: "slug", WireName: "slug", Location: "path"}, {PublicName: "id", WireName: "id", Location: "path"}}, []string{"slug", "id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("releases_new",
@@ -108,7 +119,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/movies/movies.php", false, []mcpParamBinding{{PublicName: "show", WireName: "show", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "country", WireName: "country", Location: "query"}, {PublicName: "format", WireName: "format", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/movies/movies.php", true, false, nil, []mcpParamBinding{{PublicName: "show", WireName: "show", Location: "query", Default: "newreleases"}, {PublicName: "page", WireName: "page", Location: "query", Default: "1"}, {PublicName: "country", WireName: "country", Location: "query"}, {PublicName: "format", WireName: "format", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("sitemap_bluraymovies",
@@ -118,7 +129,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/sitemap/sitemap_bluraymovies_{shard}.xml.gz", false, []mcpParamBinding{{PublicName: "shard", WireName: "shard", Location: "path"}}, []string{"shard"}),
+		makeAPIHandler("GET", "/sitemap/sitemap_bluraymovies_{shard}.xml.gz", true, false, nil, []mcpParamBinding{{PublicName: "shard", WireName: "shard", Location: "path"}}, []string{"shard"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("sitemap_index",
@@ -127,7 +138,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/sitemap.xml", false, []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/sitemap.xml", true, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("sitemap_news",
@@ -136,13 +147,24 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/sitemap/sitemap_news.xml.gz", false, []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/sitemap/sitemap_news.xml.gz", true, false, nil, []mcpParamBinding{}, []string{}),
+	)
+	// Search tool — faster than iterating list endpoints for finding specific items
+	s.AddTool(
+		mcplib.NewTool("search",
+			mcplib.WithDescription("Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)")),
+			mcplib.WithNumber("limit", mcplib.Description("Max results (default 25)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+		),
+		handleSearch,
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
-			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Tables match resource names.")),
+			mcplib.WithDescription("Run read-only SQL against the local catalog database. Use for ad-hoc analysis, aggregations, and joins over the synced disc catalog. Requires sync first."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). The bulk synced disc catalog lives in releases_catalog (populated by `sync`), NOT in the generic `resources` response-cache table. releases_catalog(id, kind, slug, title_normalized, country, year_hint, lastmod) — one row per release, where kind is the format ('bluray','4k','dvd','digital', etc.). Full-text search via releases_fts(title_normalized, slug). Watchlist in watchlist(release_id, target_price, low_seen, alerted_at). e.g. SELECT kind, COUNT(*) FROM releases_catalog GROUP BY kind.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
@@ -169,10 +191,39 @@ type mcpParamBinding struct {
 	PublicName string
 	WireName   string
 	Location   string
+	Default    string
+}
+
+func formatMCPParamValue(v any) string {
+	switch tv := v.(type) {
+	case string:
+		return tv
+	case bool:
+		return strconv.FormatBool(tv)
+	case float64:
+		if math.IsNaN(tv) || math.IsInf(tv, 0) {
+			return strconv.FormatFloat(tv, 'f', -1, 64)
+		}
+		if math.Trunc(tv) == tv && math.Abs(tv) < 1e15 {
+			return strconv.FormatInt(int64(tv), 10)
+		}
+		return strconv.FormatFloat(tv, 'f', -1, 64)
+	case float32:
+		f := float64(tv)
+		if math.IsNaN(f) || math.IsInf(f, 0) {
+			return strconv.FormatFloat(f, 'f', -1, 32)
+		}
+		if math.Trunc(f) == f && math.Abs(f) < 1e15 {
+			return strconv.FormatInt(int64(f), 10)
+		}
+		return strconv.FormatFloat(f, 'f', -1, 32)
+	default:
+		return fmt.Sprintf("%v", v)
+	}
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, binaryResponse bool, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
+func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		c, err := newMCPClient()
 		if err != nil {
@@ -193,24 +244,37 @@ func makeAPIHandler(method, pathTemplate string, binaryResponse bool, bindings [
 		params := make(map[string]string)
 		bodyArgs := make(map[string]any)
 		var headers map[string]string
+		if len(headerOverrides) > 0 {
+			headers = make(map[string]string, len(headerOverrides)+1)
+			for k, v := range headerOverrides {
+				headers[k] = v
+			}
+		}
 		if binaryResponse {
-			headers = map[string]string{client.BinaryResponseHeader: "true"}
+			if headers == nil {
+				headers = map[string]string{}
+			}
+			headers[client.BinaryResponseHeader] = "true"
 		}
 		for _, binding := range bindings {
 			knownArgs[binding.PublicName] = true
 			v, ok := args[binding.PublicName]
 			if !ok {
-				continue
+				if binding.Default != "" {
+					v = binding.Default
+				} else {
+					continue
+				}
 			}
 			switch binding.Location {
 			case "path":
 				placeholder := "{" + binding.WireName + "}"
 				pathParams[binding.PublicName] = true
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
+				path = strings.Replace(path, placeholder, formatMCPParamValue(v), 1)
 			case "body":
 				bodyArgs[binding.WireName] = v
 			default:
-				params[binding.WireName] = fmt.Sprintf("%v", v)
+				params[binding.WireName] = formatMCPParamValue(v)
 			}
 		}
 		for _, p := range positionalParams {
@@ -220,7 +284,7 @@ func makeAPIHandler(method, pathTemplate string, binaryResponse bool, bindings [
 			}
 			pathParams[p] = true
 			if v, ok := args[p]; ok {
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
+				path = strings.Replace(path, placeholder, formatMCPParamValue(v), 1)
 			}
 		}
 
@@ -232,42 +296,50 @@ func makeAPIHandler(method, pathTemplate string, binaryResponse bool, bindings [
 			case "POST", "PUT", "PATCH":
 				bodyArgs[k] = v
 			default:
-				params[k] = fmt.Sprintf("%v", v)
+				params[k] = formatMCPParamValue(v)
 			}
 		}
 
 		var data json.RawMessage
 		switch method {
 		case "GET":
-			if binaryResponse {
-				data, err = c.GetWithHeaders(path, params, headers)
+			if len(headers) > 0 {
+				data, err = c.GetWithHeaders(ctx, path, params, headers)
 				break
 			}
-			data, err = c.Get(path, params)
+			data, err = c.Get(ctx, path, params)
 		case "POST":
-			if binaryResponse {
-				data, _, err = c.PostWithParamsAndHeaders(path, params, bodyArgs, headers)
+			if len(headers) > 0 {
+				if readOnly {
+					data, _, err = c.PostQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PostWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
 				break
 			}
-			data, _, err = c.PostWithParams(path, params, bodyArgs)
+			if readOnly {
+				data, _, err = c.PostQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PostWithParams(ctx, path, params, bodyArgs)
+			}
 		case "PUT":
-			if binaryResponse {
-				data, _, err = c.PutWithParamsAndHeaders(path, params, bodyArgs, headers)
+			if len(headers) > 0 {
+				data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
 				break
 			}
-			data, _, err = c.PutWithParams(path, params, bodyArgs)
+			data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
 		case "PATCH":
-			if binaryResponse {
-				data, _, err = c.PatchWithParamsAndHeaders(path, params, bodyArgs, headers)
+			if len(headers) > 0 {
+				data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
 				break
 			}
-			data, _, err = c.PatchWithParams(path, params, bodyArgs)
+			data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
 		case "DELETE":
-			if binaryResponse {
-				data, _, err = c.DeleteWithParamsAndHeaders(path, params, headers)
+			if len(headers) > 0 {
+				data, _, err = c.DeleteWithParamsAndHeaders(ctx, path, params, headers)
 				break
 			}
-			data, _, err = c.DeleteWithParams(path, params)
+			data, _, err = c.DeleteWithParams(ctx, path, params)
 		default:
 			return mcplib.NewToolResultError("unsupported method: " + method), nil
 		}
@@ -299,21 +371,6 @@ func makeAPIHandler(method, pathTemplate string, binaryResponse bool, bindings [
 			}
 		}
 
-		// For GET responses, wrap bare arrays with count metadata
-		if method == "GET" {
-			trimmed := strings.TrimSpace(string(data))
-			if len(trimmed) > 0 && trimmed[0] == '[' {
-				var items []json.RawMessage
-				if json.Unmarshal(data, &items) == nil {
-					wrapped := map[string]any{
-						"count": len(items),
-						"items": items,
-					}
-					out, _ := json.Marshal(wrapped)
-					return mcplib.NewToolResultText(string(out)), nil
-				}
-			}
-		}
 		if binaryResponse {
 			out, _ := json.Marshal(map[string]any{
 				"content_encoding": "base64",
@@ -322,8 +379,129 @@ func makeAPIHandler(method, pathTemplate string, binaryResponse bool, bindings [
 			})
 			return mcplib.NewToolResultText(string(out)), nil
 		}
-		return mcplib.NewToolResultText(string(data)), nil
+		return mcpToolResultText(method, data), nil
 	}
+}
+
+func mcpToolResultText(method string, data json.RawMessage) *mcplib.CallToolResult {
+	trimmed := strings.TrimSpace(string(data))
+	if strings.EqualFold(method, "GET") && len(trimmed) > 0 && trimmed[0] == '[' {
+		var items []json.RawMessage
+		if json.Unmarshal(data, &items) == nil {
+			return mcplib.NewToolResultText(string(mcpBoundedListEnvelope("items", items, len(data))))
+		}
+	}
+	if len(data) <= mcpToolResultMaxBytes {
+		return mcplib.NewToolResultText(string(data))
+	}
+	if strings.EqualFold(method, "GET") {
+		if out, ok := mcpBoundedSingleArrayObject(data); ok {
+			return mcplib.NewToolResultText(string(out))
+		}
+	}
+	return mcplib.NewToolResultText(string(mcpOversizedPreviewEnvelope(data)))
+}
+
+func mcpBoundedSingleArrayObject(data json.RawMessage) ([]byte, bool) {
+	var obj map[string]json.RawMessage
+	if json.Unmarshal(data, &obj) != nil {
+		return nil, false
+	}
+	arrayField := ""
+	var items []json.RawMessage
+	for key, raw := range obj {
+		trimmed := strings.TrimSpace(string(raw))
+		if len(trimmed) == 0 || trimmed[0] != '[' {
+			continue
+		}
+		var candidate []json.RawMessage
+		if json.Unmarshal(raw, &candidate) != nil {
+			continue
+		}
+		if arrayField != "" {
+			return nil, false
+		}
+		arrayField = key
+		items = candidate
+	}
+	if arrayField == "" {
+		return nil, false
+	}
+	build := func(subset []json.RawMessage) any {
+		out := make(map[string]any, len(obj)+6)
+		for key, raw := range obj {
+			if key == arrayField {
+				out[key] = subset
+				continue
+			}
+			out[key] = raw
+		}
+		if len(subset) < len(items) {
+			out["_pp_truncated"] = true
+			out["_pp_total_count"] = len(items)
+			out["_pp_returned_count"] = len(subset)
+			out["_pp_original_bytes"] = len(data)
+			out["_pp_max_bytes"] = mcpToolResultMaxBytes
+			out["_pp_note"] = "Typed MCP endpoint response exceeded the tool result budget. Narrow the request with limit, offset, filters, search/sql, or a command-mirror tool with --agent/--compact/--select."
+		}
+		return out
+	}
+	out := mcpFitJSONItems(items, build)
+	if len(out) > mcpToolResultMaxBytes {
+		return nil, false
+	}
+	return out, true
+}
+
+func mcpBoundedListEnvelope(field string, items []json.RawMessage, originalBytes int) []byte {
+	build := func(subset []json.RawMessage) any {
+		out := map[string]any{
+			"count": len(items),
+			field:   subset,
+		}
+		if len(subset) < len(items) {
+			out["truncated"] = true
+			out["returned_count"] = len(subset)
+			out["original_bytes"] = originalBytes
+			out["max_bytes"] = mcpToolResultMaxBytes
+			out["note"] = "Typed MCP endpoint response exceeded the tool result budget. Narrow the request with limit, offset, filters, search/sql, or a command-mirror tool with --agent/--compact/--select."
+		}
+		return out
+	}
+	return mcpFitJSONItems(items, build)
+}
+
+func mcpFitJSONItems(items []json.RawMessage, build func([]json.RawMessage) any) []byte {
+	limit := len(items)
+	if limit > mcpToolResultMaxItems {
+		limit = mcpToolResultMaxItems
+	}
+	for n := limit; n >= 0; n-- {
+		out, err := json.Marshal(build(items[:n]))
+		if err != nil {
+			continue
+		}
+		if len(out) <= mcpToolResultMaxBytes || n == 0 {
+			return out
+		}
+	}
+	out, _ := json.Marshal(build(items[:0]))
+	return out
+}
+
+func mcpOversizedPreviewEnvelope(data json.RawMessage) []byte {
+	previewBytes := data
+	if len(previewBytes) > 4000 {
+		previewBytes = previewBytes[:4000]
+	}
+	out, _ := json.Marshal(map[string]any{
+		"truncated":      true,
+		"original_bytes": len(data),
+		"max_bytes":      mcpToolResultMaxBytes,
+		"preview":        string(previewBytes),
+		"note":           "Typed MCP endpoint response exceeded the tool result budget and was not a recognized list envelope. Narrow the request with filters, search/sql, or a command-mirror tool with --agent/--compact/--select.",
+	})
+	return out
 }
 
 func newMCPClient() (*client.Client, error) {
@@ -333,7 +511,7 @@ func newMCPClient() (*client.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
-	c := client.New(cfg, 30*time.Second, 0)
+	c := client.New(cfg, 60*time.Second, defaultMCPRateLimit)
 	// Agents calling through MCP need fresh data every call. The on-disk
 	// response cache survives across MCP server invocations, so a
 	// DELETE/PATCH followed by a GET would otherwise return the
@@ -351,27 +529,76 @@ func dbPath() string {
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
+func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	args := req.GetArguments()
+	query, ok := args["query"].(string)
+	if !ok || query == "" {
+		return mcplib.NewToolResultError("query is required"), nil
+	}
+
+	limit := 25
+	if v, ok := args["limit"].(float64); ok && v > 0 {
+		limit = int(v)
+	}
+
+	db, err := store.OpenReadOnly(dbPath())
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+	}
+	defer db.Close()
+
+	// PATCH: Query the disc catalog (releases_fts JOIN releases_catalog) via
+	// SearchCatalog, NOT the generic resources_fts response-cache index that
+	// db.Search() reads — for this sitemap-sourced CLI all synced releases live
+	// in releases_catalog, so db.Search() returns empty after `sync`. Reuse the
+	// CLI search command's FtsQuery transform so MCP and CLI search match.
+	// (Generator-level: the generic search tool targets the wrong index for
+	// domain-table CLIs — tracked at mvanhorn/cli-printing-press#2965.)
+	rows, err := db.SearchCatalog(ctx, store.CatalogSearchOpts{Query: cli.FtsQuery(query), Limit: limit})
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("search failed: %v", err)), nil
+	}
+	results := make([]map[string]any, 0, len(rows))
+	for _, r := range rows {
+		results = append(results, map[string]any{
+			"id":      r.ID,
+			"kind":    r.Kind,
+			"title":   r.TitleNormalized,
+			"slug":    r.Slug,
+			"year":    r.YearHint,
+			"country": r.Country,
+		})
+	}
+
+	return toolResultJSON(results)
+}
+
 // validateReadOnlyQuery gates the MCP sql tool. The agent contract advertised
 // to the host is ReadOnlyHintAnnotation(true); a false annotation on a
 // mutating tool lets MCP hosts auto-approve writes and is treated as a real
 // bug per the project's agent-native security model.
 //
-// The gate is an allowlist (SELECT or WITH only) applied AFTER stripping the
-// leading whitespace, line comments, block comments, and semicolons that
-// SQLite itself ignores before parsing. A naive HasPrefix check on a
-// keyword blocklist is bypassable by prefixing the dangerous statement with
-// "/* x */" or "-- x\n" — TrimSpace strips outer whitespace but does not
-// understand SQL comment syntax. Combined with the empirical fact that
-// modernc.org/sqlite's mode=ro does NOT block VACUUM INTO (writes a snapshot
-// to a new file) or ATTACH DATABASE (opens a separate writable handle),
-// such a bypass produces silent exfiltration to an attacker-chosen path.
+// The gate rejects multi-statement input, then applies an allowlist (SELECT or
+// WITH only) AFTER stripping the leading whitespace, line comments, block
+// comments, and semicolons that SQLite itself ignores before parsing. A naive
+// HasPrefix check on a keyword blocklist is bypassable by prefixing the
+// dangerous statement with "/* x */" or "-- x\n"; a naive leading-keyword
+// allowlist is bypassable by appending "; ATTACH DATABASE ...". Combined with
+// the empirical fact that modernc.org/sqlite's mode=ro does NOT block VACUUM
+// INTO (writes a snapshot to a new file) or ATTACH DATABASE (opens a separate
+// writable handle), either bypass produces silent exfiltration to an
+// attacker-chosen path.
 //
 // SELECT and WITH are the only allowed leading keywords. WITH supports
 // SELECT-form CTEs; CTE-wrapped writes ("WITH x AS (...) INSERT ...") are
 // caught by OpenReadOnly's mode=ro one layer down. PRAGMA, ATTACH, VACUUM,
 // and every other DDL/DML keyword fail at this gate before reaching SQLite.
 func validateReadOnlyQuery(query string) error {
-	upper := strings.ToUpper(stripLeadingSQLNoise(query))
+	stripped := stripLeadingSQLNoise(query)
+	if hasTrailingSQLStatement(stripped) {
+		return fmt.Errorf("only a single SELECT or WITH statement is allowed")
+	}
+	upper := strings.ToUpper(stripped)
 	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") {
 		return fmt.Errorf("only SELECT queries are allowed")
 	}
@@ -405,6 +632,97 @@ func stripLeadingSQLNoise(query string) string {
 	}
 }
 
+// hasTrailingSQLStatement reports whether query contains a statement
+// terminator followed by more executable SQL. A trailing semicolon is allowed;
+// a second statement is not. Semicolons inside string literals, quoted
+// identifiers, bracket identifiers, and comments are ignored to match SQLite's
+// parser shape closely enough for this security gate.
+func hasTrailingSQLStatement(query string) bool {
+	inSingle := false
+	inDouble := false
+	inBacktick := false
+	inBracket := false
+	inLineComment := false
+	inBlockComment := false
+
+	for i := 0; i < len(query); i++ {
+		ch := query[i]
+		next := byte(0)
+		if i+1 < len(query) {
+			next = query[i+1]
+		}
+
+		switch {
+		case inLineComment:
+			if ch == '\n' {
+				inLineComment = false
+			}
+			continue
+		case inBlockComment:
+			if ch == '*' && next == '/' {
+				inBlockComment = false
+				i++
+			}
+			continue
+		case inSingle:
+			if ch == '\'' {
+				if next == '\'' {
+					i++
+					continue
+				}
+				inSingle = false
+			}
+			continue
+		case inDouble:
+			if ch == '"' {
+				if next == '"' {
+					i++
+					continue
+				}
+				inDouble = false
+			}
+			continue
+		case inBacktick:
+			if ch == '`' {
+				if next == '`' {
+					i++
+					continue
+				}
+				inBacktick = false
+			}
+			continue
+		case inBracket:
+			if ch == ']' {
+				inBracket = false
+			}
+			continue
+		}
+
+		switch {
+		case ch == '-' && next == '-':
+			inLineComment = true
+			i++
+		case ch == '/' && next == '*':
+			inBlockComment = true
+			i++
+		case ch == '\'':
+			inSingle = true
+		case ch == '"':
+			inDouble = true
+		case ch == '`':
+			inBacktick = true
+		case ch == '[':
+			inBracket = true
+		case ch == ';':
+			if stripLeadingSQLNoise(query[i+1:]) != "" {
+				return true
+			}
+			return false
+		}
+	}
+	return false
+}
+
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
 	query, ok := args["query"].(string)
@@ -428,7 +746,10 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 	}
 	defer rows.Close()
 
-	cols, _ := rows.Columns()
+	cols, err := rows.Columns()
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading columns: %v", err)), nil
+	}
 	var results []map[string]any
 	for rows.Next() {
 		values := make([]any, len(cols))
@@ -436,26 +757,79 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		for i := range values {
 			ptrs[i] = &values[i]
 		}
-		rows.Scan(ptrs...)
+		if err := rows.Scan(ptrs...); err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("scanning row: %v", err)), nil
+		}
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
 		results = append(results, row)
 	}
+	// rows.Next() stops on a mid-iteration error without failing the loop, so
+	// skipping rows.Err() would return a truncated result set as success.
+	if err := rows.Err(); err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading rows: %v", err)), nil
+	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
+	return toolResultJSON(results)
+}
+
+// toolResultJSON renders v as the indented JSON body of an MCP text result,
+// surfacing a marshal failure as a tool error instead of empty content.
+func toolResultJSON(v any) (*mcplib.CallToolResult, error) {
+	data, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("encoding result: %v", err)), nil
+	}
 	return mcplib.NewToolResultText(string(data)), nil
 }
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
 		"api":         "blu-ray",
-		"description": "The disc-collector's CLI for Blu-ray.com — offline catalog, live deals, and a price-drop watchlist with zero...",
+		"description": "Blu-ray.com disc database CLI — local catalog, listings, deals, news, and price-drop watchlist for every Blu-ray, 4K, DVD, and digital release.",
 		"archetype":   "crm",
 		"tool_count":  11,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion blu-ray-pp-cli binary.",
+		// local_tables names the canonical local SQLite schema so agents query
+		// releases_catalog directly via the sql tool instead of probing the empty
+		// generic resources scaffold and sqlite_master-spelunking to find the data.
+		"local_tables": []map[string]any{
+			{
+				"name":        "releases_catalog",
+				"description": "THE disc catalog — one row per release. Query this for counts, format/year/country breakdowns, and lookups. Synced disc data lives here, NOT in a generic resources table.",
+				"columns":     []string{"id", "kind", "slug", "title_normalized", "country", "year_hint", "lastmod"},
+				"notes":       "kind is the format ('bluray','4k','dvd','digital', etc.).",
+			},
+			{
+				"name":        "releases_fts",
+				"description": "FTS5 full-text index over releases_catalog (use the search tool, or MATCH in sql).",
+				"columns":     []string{"title_normalized", "slug", "country", "kind"},
+				"notes":       "title_normalized/slug are full-text indexed; country/kind are UNINDEXED (filterable, not MATCH-able).",
+			},
+			{
+				"name":        "watchlist",
+				"description": "Local price-drop watchlist (the watch commands).",
+				"columns":     []string{"release_id", "target_price", "low_seen", "alerted_at", "added_at"},
+			},
+			{
+				"name":        "news_catalog",
+				"description": "Synced Blu-ray.com news stories.",
+				"columns":     []string{"id", "url", "title", "publication_date"},
+			},
+			{
+				"name":        "price_history",
+				"description": "Observed prices per release per retailer over time.",
+				"columns":     []string{"release_id", "retailer_id", "observed_at", "price"},
+			},
+			{
+				"name":        "upc_index",
+				"description": "UPC → release_id resolution (the upc command).",
+				"columns":     []string{"upc", "release_id"},
+			},
+		},
 		"resources": []map[string]any{
 			{
 				"name":        "calendar",
@@ -490,35 +864,33 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			},
 		},
 		"query_tips": []string{
+			"The bulk synced disc catalog lives in releases_catalog (id, kind, slug, title_normalized, country, year_hint, lastmod) — one row per release, populated by sync. Query it directly with the sql tool. (The generic resources table only caches individual endpoint responses, not the catalog.) See local_tables for the full schema.",
 			"Pagination uses cursor-based paging. Pass page parameter for subsequent pages.",
 			"Control page size with the limit parameter (default 100).",
-			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
-			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
+			"Use the sql tool for ad-hoc analysis on synced data (e.g. SELECT kind, COUNT(*) FROM releases_catalog GROUP BY kind). Run sync first to populate the local database.",
+			"Use the search tool for full-text search over the disc catalog (releases_fts). Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
 		},
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Offline FTS5 Search", "command": "search", "description": "Instant offline search across every Blu-ray release in Blu-ray.com's published sitemap (~400k+ entries). Faster than...", "rationale": "Requires a local SQLite + FTS5 index hydrated from blu-ray.com's public sitemap; the site's own /movies/search.php...", "via": "mcp-command-mirror"},
-			{"name": "Price-Drop Watchlist", "command": "watch check", "description": "Local watchlist of release ids; re-scans Blu-ray.com deals on demand and alerts when any watched disc hits its...", "rationale": "Blu-ray.com has no native price-drop alerting. Cross-joining a local watchlist with the daily deals scan is only...", "via": "mcp-command-mirror"},
-			{"name": "Editions Side-By-Side", "command": "editions", "description": "Given a movie umbrella id, lists every disc edition (4K UHD, Blu-ray, Steelbook, Director's Cut, country variant)...", "rationale": "Requires correlating the /main/<id>/ umbrella page with each per-format release detail page — a join no single...", "via": "mcp-command-mirror"},
-			{"name": "UPC Import + Resolve", "command": "upc", "description": "Resolves a CSV of UPC codes (e.g. the comma-separated export Blu-ray.com itself produces) back to local release...", "rationale": "Blu-ray.com's own export is UPC-only; nothing on the site round-trips UPCs back to structured release data. We close...", "via": "mcp-command-mirror"},
-			{"name": "Catalog Drift", "command": "drift", "description": "Diffs today's sitemap against the last sync and surfaces 'new in catalog this week', 'removed', and 'metadata...", "rationale": "Requires snapshotting the sitemap locally and diffing it longitudinally; no API call gives you 'what changed' directly.", "via": "mcp-command-mirror"},
-			{"name": "Price History + Spark Plot", "command": "history", "description": "Shows per-retailer price history for a release id, captured automatically by watch check + deals --record. Optional...", "rationale": "Longitudinal price data persisted locally across runs — only possible with a local SQLite store.", "via": "mcp-command-mirror"},
+			{"name": "Price-Drop Watchlist", "command": "watch check", "description": "Local watchlist of release ids; re-scans Blu-ray.com deals on demand and alerts when any watched disc hits its target price or a new historical low.", "rationale": "Blu-ray.com has no native price-drop alerting. Cross-joining a local watchlist with the daily deals scan is only possible with a persistent local store.", "via": "mcp-command-mirror"},
+			{"name": "Editions Side-By-Side", "command": "editions", "description": "Given a movie umbrella id, lists every disc edition (4K UHD, Blu-ray, Steelbook, Director's Cut, country variant) with release date, list price, current price, and Blu-ray.com community rating in a single view.", "rationale": "Requires correlating the /main/<id>/ umbrella page with each per-format release detail page — a join no single Blu-ray.com page offers.", "via": "mcp-command-mirror"},
+			{"name": "UPC Import + Resolve", "command": "upc", "description": "Resolves a CSV of UPC codes (e.g. the comma-separated export Blu-ray.com itself produces) back to local release records, hydrating titles, formats, ratings, and current prices.", "rationale": "Blu-ray.com's own export is UPC-only; nothing on the site round-trips UPCs back to structured release data. We close the gap with a one-shot local resolve.", "via": "mcp-command-mirror"},
+			{"name": "Catalog Drift", "command": "drift", "description": "Diffs today's sitemap against the last sync and surfaces 'new in catalog this week', 'removed', and 'metadata changed' so collectors don't miss announcements.", "rationale": "Requires snapshotting the sitemap locally and diffing it longitudinally; no API call gives you 'what changed' directly.", "via": "mcp-command-mirror"},
+			{"name": "Price History + Spark Plot", "command": "history", "description": "Shows per-retailer price history for a release id, captured automatically by watch check + deals --record. Optional inline ASCII spark plot.", "rationale": "Longitudinal price data persisted locally across runs — only possible with a local SQLite store.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Offline FTS5 Search", "insight": "Requires a local SQLite + FTS5 index hydrated from blu-ray.com's public sitemap; the site's own /movies/search.php is JS-rendered and robots-disallowed."},
-			{"topic": "Price-Drop Watchlist", "insight": "Blu-ray.com has no native price-drop alerting. Cross-joining a local watchlist with the daily deals scan is only possible with a persistent local store."},
-			{"topic": "Editions Side-By-Side", "insight": "Requires correlating the /main/<id>/ umbrella page with each per-format release detail page — a join no single Blu-ray.com page offers."},
-			{"topic": "UPC Import + Resolve", "insight": "Blu-ray.com's own export is UPC-only; nothing on the site round-trips UPCs back to structured release data. We close the gap with a one-shot local resolve."},
-			{"topic": "Catalog Drift", "insight": "Requires snapshotting the sitemap locally and diffing it longitudinally; no API call gives you 'what changed' directly."},
-			{"topic": "Price History + Spark Plot", "insight": "Longitudinal price data persisted locally across runs — only possible with a local SQLite store."},
+			{"topic": "Price-Drop Watchlist", "insight": ""},
+			{"topic": "Editions Side-By-Side", "insight": ""},
+			{"topic": "UPC Import + Resolve", "insight": ""},
+			{"topic": "Catalog Drift", "insight": ""},
+			{"topic": "Price History + Spark Plot", "insight": ""},
 			{"topic": "Contact lookup", "insight": "Use search for finding contacts by name/email. List endpoints return unsorted results and require pagination for large datasets."},
 			{"topic": "Activity tracking", "insight": "When checking deal activity, sync first and query locally. CRM APIs often throttle activity-log endpoints heavily."},
 		},
 	}
-	data, _ := json.MarshalIndent(ctx, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(ctx)
 }
 
 // RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP

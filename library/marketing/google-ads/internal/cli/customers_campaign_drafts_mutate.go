@@ -22,7 +22,7 @@ func newCustomersCampaignDraftsMutateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "mutate <customerId>",
 		Short:       "Creates, updates, or removes campaign drafts. Operation statuses are returned.",
-		Example:     "  google-ads-pp-cli customers_campaign_drafts mutate 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  google-ads-pp-cli customers-campaign-drafts mutate 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "customers_campaign_drafts.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/campaignDrafts:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

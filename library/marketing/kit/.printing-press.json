@@ -16,7 +16,7 @@
   "run_id": "20260519-111411",
   "catalog_entry": "kit",
   "category": "marketing",
-  "description": "Manage Kit subscribers, tags, forms, sequences, broadcasts, purchases, and email marketing automation data from the terminal.",
+  "description": "Operate Kit email marketing from the terminal: subscribers, tags, forms, sequences, broadcasts, purchases, snapshots, and audience health.",
   "mcp_binary": "kit-pp-mcp",
   "mcp_tool_count": 72,
   "mcp_ready": "full",
@@ -55,5 +55,6 @@
       "command": "workflow subscriber-lookup",
       "description": "Read-only subscriber dossier by email or id with profile, custom fields, tags, attribution, and email stats."
     }
-  ]
+  ],
+  "catalog_description": "Operate Kit email marketing from the terminal: subscribers, tags, forms, sequences, broadcasts, purchases, snapshots, and audience health."
 }

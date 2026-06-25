@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "dice-fm-returns-transfers-mcp-pseudonymization",
+  "applied_at": "2026-06-09",
+  "base_run_id": "20260511-193451",
+  "base_printing_press_version": "4.12.0",
+  "summary": "returns_list and transfers_list must use the same MCP-boundary pseudonymization defaults and include_pii opt-in as the other PII-bearing typed tools.",
+  "reason": "DICE return and transfer payloads can carry linked ticket holder and order fan identifiers; without wrapping these tools, holder and buyer PII can enter MCP host/model context by default.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/scrub_handler_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "returns_list and transfers_list GraphQL-shaped fixtures are scrubbed by default through pseudonymizeHandler, retain fan_ref tokens, and return raw identifiers only with include_pii:true."
+}

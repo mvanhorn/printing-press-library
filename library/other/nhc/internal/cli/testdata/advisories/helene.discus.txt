@@ -1,0 +1,94 @@
+
+ZCZC MIATCDAT4 ALL
+TTAA00 KNHC DDHHMM
+ 
+Hurricane Helene Discussion Number  14
+NWS National Hurricane Center Miami FL       AL092024
+500 PM EDT Thu Sep 26 2024
+ 
+Helene has rapidly intensified today while nearing landfall in the
+Florida Big Bend.  Doppler radar and aircraft data indicate that the
+eyewall is now completely closed and the eye has become more
+circular and is clearing out.  The aircraft data also indicated 
+that the inner core has contracted significantly today while the
+tropical-storm-force winds have expanded.  Based on all of the data,
+the initial intensity is set at 110 kt.  The latest minimum pressure
+based on the aircraft data is around 951 mb. Tropical-storm-force
+winds are occurring across portions of west-central and southwestern
+Florida, and conditions are expected to deteriorate rapidly in the
+hurricane warning area during the next several hours.  It should be
+emphasized that Helene is at the upper bound of hurricanes in
+terms of storm size and impacts are and will occur well away 
+from the center.
+ 
+The large hurricane is now accelerating north-northeastward, with
+the latest initial motion estimated to be 025/20 kt.  This general
+motion is expected to continue, taking the core of the major
+hurricane to the Florida Big Bend later this evening.  After
+landfall, a turn to the north over Georgia is expected late tonight
+and early Friday, followed by a slowdown or a complete stall over
+the Tennessee Valley late Friday and Saturday when Helene merges
+with a mid- to upper-level low.
+ 
+The hurricane has intensified by 30 kt since sunrise and given the
+conducive environmental conditions and contracting inner core, it
+seems likely that Helene will be at or very near category 4 strength
+when it makes landfall in the Florida Big Bend this evening.
+The fast forward speed when Helene moves inland will result in a
+far inland penetration of strong winds over parts of the
+southeastern United States, including strong gusts over the higher
+terrain of the southern Appalachians.  Accordingly, a
+higher-than-normal gust factor is indicated in the official forecast
+while Helene is inland.
+ 
+KEY MESSAGES:
+ 
+1. A catastrophic and deadly storm surge will occur along portions 
+of the Florida Big Bend coast, where inundation could reach as high 
+as 20 feet above ground level, along with destructive waves.  If 
+you live in this area and were told to evacuate by local officials, 
+your opportunity to do so is almost over.  There is also a danger 
+of life-threatening storm surge along the remainder of the west 
+coast of the Florida Peninsula.  
+
+2. Potentially catastrophic hurricane-force winds are expected 
+within the eyewall of Helene and will spread inland over portions 
+of northern Florida and southern Georgia when Helene makes landfall 
+in the Florida Big Bend region this evening.  Persons in these 
+areas should be prepared to take shelter in the interior portion of 
+a well-built structure and remain sheltered until after hazardous 
+conditions pass. You may need to remain sheltered after the storm 
+due to downed trees and power lines, as well as flooding, in the 
+area.
+
+3. Damaging wind gusts will penetrate well inland over portions of 
+Georgia and the Carolinas  tonight, particularly over the higher 
+terrain of the southern Appalachians. Residents in these areas 
+should be prepared for the possibility of long-duration power 
+outages.  If you use a generator after the storm, be sure it is 
+placed outside at least 20 feet away from doors, windows, and 
+garages to avoid deadly carbon monoxide poisoning.
+
+4. Catastrophic and life-threatening flash and urban flooding, 
+including numerous significant landslides, is expected across 
+portions of the southern Appalachians through Friday. Considerable 
+to locally catastrophic flash and urban flooding is likely for 
+northwestern and northern Florida and the Southeast through Friday. 
+Widespread significant river flooding and isolated major river 
+flooding are likely.
+
+
+FORECAST POSITIONS AND MAX WINDS
+ 
+INIT  26/2100Z 27.9N  84.6W  110 KT 125 MPH
+ 12H  27/0600Z 31.5N  83.7W   90 KT 105 MPH...INLAND
+ 24H  27/1800Z 35.8N  85.0W   40 KT  45 MPH...POST-TROP/EXTRATROP
+ 36H  28/0600Z 37.0N  86.5W   30 KT  35 MPH...POST-TROP/EXTRATROP
+ 48H  28/1800Z 37.1N  87.0W   25 KT  30 MPH...POST-TROP/EXTRATROP
+ 60H  29/0600Z 37.1N  87.3W   20 KT  25 MPH...POST-TROP/EXTRATROP
+ 72H  29/1800Z...DISSIPATED
+ 
+$$
+Forecaster Cangialosi
+ 
+NNNN

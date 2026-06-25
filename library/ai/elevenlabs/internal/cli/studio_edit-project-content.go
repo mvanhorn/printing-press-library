@@ -43,7 +43,8 @@ func newStudioEditProjectContentCmd(flags *rootFlags) *cobra.Command {
 				fields["from_content_json"] = bodyFromContentJson
 			}
 			if bodyFromDocument != "" {
-				fields["from_document"] = bodyFromDocument
+				// PATCH: from_document is a file upload (.epub/.pdf/.txt), not a text field.
+				fileFields["from_document"] = bodyFromDocument
 			}
 			if bodyFromUrl != "" {
 				fields["from_url"] = bodyFromUrl

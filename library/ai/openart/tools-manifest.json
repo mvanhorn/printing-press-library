@@ -1,0 +1,22 @@
+{
+  "api_name": "openart",
+  "base_url": "https://openart.ai/suite/api",
+  "description": "Spend your OpenArt credits programmatically. Generate videos with Seedance, Kling, Veo and more from the terminal.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "cookie",
+    "in": "cookie"
+  },
+  "required_headers": [
+    {
+      "name": "Accept",
+      "value": "application/json"
+    },
+    {
+      "name": "Content-Type",
+      "value": "application/json"
+    }
+  ],
+  "tools": []
+}

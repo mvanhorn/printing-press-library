@@ -1,0 +1,205 @@
+{
+  "api_name": "grubhub",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "jlumbroso/grubhub",
+      "url": "https://github.com/jlumbroso/grubhub",
+      "language": "Python",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "patilanup246/grubhubScraper",
+      "url": "https://github.com/patilanup246/grubhubScraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "n0shake/dash",
+      "url": "https://github.com/n0shake/dash",
+      "language": "Python",
+      "install_method": "",
+      "stars": 30,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-17T18:40:00Z",
+  "novel_features": [
+    {
+      "name": "Delivery comparison board",
+      "command": "compare",
+      "description": "See delivery fee, minimum, ETA, rating, and distance for every nearby restaurant side by side, sorted however you want.",
+      "rationale": "Requires a local join across cached restaurant cards and multi-key client-side sorting that the app buries one tap deep per restaurant.",
+      "example": "grubhub-pp-cli compare \"350 5th Ave, New York, NY\" --sort eta --agent",
+      "why_it_matters": "Reach for this when a user wants the cheapest or fastest option across the whole neighborhood, not one restaurant at a time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Offline dish search",
+      "command": "dish",
+      "description": "Find which nearby restaurants carry a specific dish, with price, by full-text searching cached menus across the neighborhood.",
+      "rationale": "Requires SQLite FTS over cached menu items across all nearby restaurants; no single Grubhub API call searches menu item names neighborhood-wide.",
+      "example": "grubhub-pp-cli dish \"350 5th Ave, New York, NY\" \"poke bowl\" --max-price 15 --agent",
+      "why_it_matters": "Reach for this when the user names a dish, not a restaurant: 'who near me has a poke bowl under $15'.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Deal radar",
+      "command": "deals",
+      "description": "Rank every nearby restaurant currently running an offer, coupon, or promo code in one sweep.",
+      "rationale": "Requires cross-restaurant aggregation and value ranking of offers/coupons that the app only shows per-restaurant.",
+      "example": "grubhub-pp-cli deals \"350 5th Ave, New York, NY\" --agent",
+      "why_it_matters": "Reach for this when the deal should pick the restaurant, not the other way around.",
+      "group": "Deal hunting"
+    },
+    {
+      "name": "Best-value picker",
+      "command": "pick",
+      "description": "Get one recommended restaurant from a transparent score over fee, rating, active deals, and ETA.",
+      "rationale": "Requires a deterministic normalized score across cached fee/rating/offer/ETA — no LLM judgment, fully reproducible.",
+      "example": "grubhub-pp-cli pick \"350 5th Ave, New York, NY\" --weight-deal 2 --agent",
+      "why_it_matters": "Reach for this when the user wants a single 'just pick one' answer with a visible score breakdown.",
+      "group": "Deal hunting"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Delivery comparison board",
+      "command": "compare",
+      "description": "See delivery fee, minimum, ETA, rating, and distance for every nearby restaurant side by side, sorted however you want.",
+      "rationale": "Requires a local join across cached restaurant cards and multi-key client-side sorting that the app buries one tap deep per restaurant.",
+      "example": "grubhub-pp-cli compare \"350 5th Ave, New York, NY\" --sort eta --agent",
+      "why_it_matters": "Reach for this when a user wants the cheapest or fastest option across the whole neighborhood, not one restaurant at a time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Offline dish search",
+      "command": "dish",
+      "description": "Find which nearby restaurants carry a specific dish, with price, by full-text searching cached menus across the neighborhood.",
+      "rationale": "Requires SQLite FTS over cached menu items across all nearby restaurants; no single Grubhub API call searches menu item names neighborhood-wide.",
+      "example": "grubhub-pp-cli dish \"350 5th Ave, New York, NY\" \"poke bowl\" --max-price 15 --agent",
+      "why_it_matters": "Reach for this when the user names a dish, not a restaurant: 'who near me has a poke bowl under $15'.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Deal radar",
+      "command": "deals",
+      "description": "Rank every nearby restaurant currently running an offer, coupon, or promo code in one sweep.",
+      "rationale": "Requires cross-restaurant aggregation and value ranking of offers/coupons that the app only shows per-restaurant.",
+      "example": "grubhub-pp-cli deals \"350 5th Ave, New York, NY\" --agent",
+      "why_it_matters": "Reach for this when the deal should pick the restaurant, not the other way around.",
+      "group": "Deal hunting"
+    },
+    {
+      "name": "Best-value picker",
+      "command": "pick",
+      "description": "Get one recommended restaurant from a transparent score over fee, rating, active deals, and ETA.",
+      "rationale": "Requires a deterministic normalized score across cached fee/rating/offer/ETA — no LLM judgment, fully reproducible.",
+      "example": "grubhub-pp-cli pick \"350 5th Ave, New York, NY\" --weight-deal 2 --agent",
+      "why_it_matters": "Reach for this when the user wants a single 'just pick one' answer with a visible score breakdown.",
+      "group": "Deal hunting"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "GRUBHUB_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Grubhub",
+    "headline": "Every Grubhub restaurant search, plus a sortable delivery-fee comparison board, a cross-restaurant deal radar, and offline menu-item search no Grubhub tool has.",
+    "value_prop": "grubhub-pp-cli browses Grubhub's marketplace from the command line: search restaurants by street address, browse full menus, and compare delivery fees, minimums, and ETAs across the whole neighborhood at once with `compare`. It caches restaurants and menus in a local SQLite store so `dish` can full-text-search menu items across nearby restaurants and `deals` can rank every active offer in one sweep. No API key required — it mints an anonymous Grubhub token for you.",
+    "auth_narrative": "Grubhub has no public API key. grubhub-pp-cli authenticates exactly like the website: it scrapes a fresh anonymous client id from grubhub.com and mints a short-lived bearer token automatically on first use, caching it locally. You don't set anything. For the raw `restaurants` endpoint commands you can optionally run `grubhub-pp-cli auth login` (still credential-free) or set GRUBHUB_TOKEN. Logged-in features like order history are not supported in this version.",
+    "quickstart": [
+      {
+        "command": "grubhub-pp-cli doctor",
+        "comment": "Confirm Grubhub is reachable before searching."
+      },
+      {
+        "command": "grubhub-pp-cli near \"350 5th Ave, New York, NY\" --sort fee --limit 10",
+        "comment": "Search restaurants near an address, cheapest delivery first."
+      },
+      {
+        "command": "grubhub-pp-cli compare \"350 5th Ave, New York, NY\" --sort eta",
+        "comment": "Side-by-side fee/minimum/ETA board for the whole neighborhood."
+      },
+      {
+        "command": "grubhub-pp-cli dish \"350 5th Ave, New York, NY\" \"poke bowl\" --max-price 15",
+        "comment": "Find which nearby restaurants carry a dish under a price."
+      },
+      {
+        "command": "grubhub-pp-cli deals \"350 5th Ave, New York, NY\"",
+        "comment": "Rank nearby restaurants by active offers and coupons."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 403 or 'access denied' on search",
+        "fix": "Grubhub uses PerimeterX bot protection; retry, slow your request rate, or run from a residential network. The CLI already sends a realistic browser User-Agent."
+      },
+      {
+        "symptom": "Empty results for a valid address",
+        "fix": "Confirm the address geocodes: run `grubhub-pp-cli geocode \"\u003caddress\u003e\"`. If it returns no coordinates, add city/state/zip."
+      },
+      {
+        "symptom": "'no local mirror' from compare/dish/deals",
+        "fix": "Run `grubhub-pp-cli sync \"\u003caddress\u003e\"` first to cache restaurants and menus for that location."
+      },
+      {
+        "symptom": "Token expired after a while",
+        "fix": "Tokens are minted automatically; just re-run the command. For the raw `restaurants` surface, re-run `grubhub-pp-cli auth login`."
+      }
+    ],
+    "when_to_use": "Use grubhub-pp-cli when a user wants to find, compare, or order-research food delivery near an address: cheapest or fastest restaurant, a specific dish across the neighborhood, or the best current deal. It is ideal for agents that need deterministic JSON about restaurants, fees, menus, and offers without scraping the Grubhub web app. The local cache makes repeated comparisons over the same location fast and offline.",
+    "anti_triggers": [
+      "Do not use this CLI to place an order or manage a cart — it is read-only marketplace browsing.",
+      "Do not use this CLI for order history or account/rewards data — logged-in features require a real Grubhub account login that this version does not support.",
+      "Do not use this CLI for DoorDash, Uber Eats, or other delivery services — it only covers Grubhub/Seamless."
+    ],
+    "recipes": [
+      {
+        "title": "Cheapest fast delivery near an address",
+        "command": "grubhub-pp-cli compare \"350 5th Ave, New York, NY\" --sort fee --eta-under 30 --agent",
+        "explanation": "Comparison board filtered to sub-30-minute ETAs, cheapest delivery first, as agent JSON."
+      },
+      {
+        "title": "Find a dish across the neighborhood",
+        "command": "grubhub-pp-cli dish \"1 Infinite Loop, Cupertino, CA\" \"burrito\" --max-price 12",
+        "explanation": "Full-text search of cached menus for burritos under $12 at any nearby restaurant."
+      },
+      {
+        "title": "Pull a full menu as compact JSON for an agent",
+        "command": "grubhub-pp-cli menu 1414955 --agent --select menu_category_list.menu_item_list.name,menu_category_list.menu_item_list.price",
+        "explanation": "Restaurant menus are deeply nested; --select narrows the payload to item names and prices so agents don't burn context on the full blob."
+      },
+      {
+        "title": "Let the deal pick the restaurant",
+        "command": "grubhub-pp-cli deals \"350 5th Ave, New York, NY\" --sort value",
+        "explanation": "Ranks every nearby restaurant running an offer by value in one sweep."
+      }
+    ],
+    "trigger_phrases": [
+      "find restaurants near me on grubhub",
+      "compare grubhub delivery fees",
+      "who near me has a poke bowl",
+      "grubhub deals near",
+      "what should I order on grubhub",
+      "use grubhub",
+      "run grubhub"
+    ]
+  }
+}

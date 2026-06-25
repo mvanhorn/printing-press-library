@@ -1,0 +1,64 @@
+{
+  "passed": false,
+  "exit_code": 1,
+  "started_at": "2026-06-11T06:45:51Z",
+  "elapsed_ms": 8240,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 1,
+      "passed": false,
+      "started_at": "2026-06-11T06:45:51Z",
+      "elapsed_ms": 4713,
+      "command": "/Users/vinnypasceri/go/bin/cli-printing-press verify --dir /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260611-022446/working/blu-ray-pp-cli --spec /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260611-022446/research/blu-ray-spec.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 1,
+      "passed": false,
+      "started_at": "2026-06-11T06:45:56Z",
+      "elapsed_ms": 266,
+      "command": "/Users/vinnypasceri/go/bin/cli-printing-press validate-narrative --strict --full-examples --research /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260611-022446/research.json --binary /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260611-022446/working/blu-ray-pp-cli/blu-ray-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-11T06:45:56Z",
+      "elapsed_ms": 1459,
+      "command": "/Users/vinnypasceri/go/bin/cli-printing-press dogfood --dir /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260611-022446/working/blu-ray-pp-cli --spec /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260611-022446/research/blu-ray-spec.yaml --research-dir /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260611-022446"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-11T06:45:58Z",
+      "elapsed_ms": 17,
+      "command": "/Users/vinnypasceri/go/bin/cli-printing-press workflow-verify --dir /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260611-022446/working/blu-ray-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-11T06:45:58Z",
+      "elapsed_ms": 29,
+      "command": "/Users/vinnypasceri/go/bin/cli-printing-press apify-audit --dir /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260611-022446/working/blu-ray-pp-cli --research-dir /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260611-022446"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 1,
+      "passed": false,
+      "started_at": "2026-06-11T06:45:58Z",
+      "elapsed_ms": 1510,
+      "command": "/Users/vinnypasceri/go/bin/cli-printing-press verify-skill --dir /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260611-022446/working/blu-ray-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-11T06:45:59Z",
+      "elapsed_ms": 242,
+      "command": "/Users/vinnypasceri/go/bin/cli-printing-press scorecard --dir /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260611-022446/working/blu-ray-pp-cli --research-dir /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260611-022446 --spec /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260611-022446/research/blu-ray-spec.yaml --live-check"
+    }
+  ]
+}

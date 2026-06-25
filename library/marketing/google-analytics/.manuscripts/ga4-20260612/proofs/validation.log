@@ -1,0 +1,20 @@
+# Validation log commands
+
+Executed from `library/marketing/google-analytics` and repo root on 2026-06-12.
+
+```bash
+gofmt -w internal/ga4/*.go internal/cli/*.go
+go test ./...
+go build ./...
+go build -o bin/google-analytics-pp-cli ./cmd/google-analytics-pp-cli
+go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.8 run
+cd /path/to/printing-press-library
+python3 .github/scripts/verify-skill/verify_skill.py --dir library/marketing/google-analytics
+python3 .github/scripts/verify-manifest/verify_manifest.py
+python3 .github/scripts/verify-press-version/verify_press_version.py --base-ref origin/main
+python3 .github/scripts/verify-supply-chain/scan.py --base-ref origin/main
+python3 .github/scripts/normalize-patches/normalize.py --check library/marketing/google-analytics
+git diff --check
+```
+
+All commands above exited 0 in the final validation run. Live smoke command matrix is captured under `live-smoke/` as JSON plus stderr sidecars.

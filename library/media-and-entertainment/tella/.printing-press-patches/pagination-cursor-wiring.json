@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "pagination-cursor-wiring",
+  "applied_at": "2026-05-16",
+  "base_run_id": "20260509-180956",
+  "base_printing_press_version": "4.2.1",
+  "summary": "Wire pagination.nextCursor and pagination.hasMore paths into list commands.",
+  "reason": "The OpenAPI parser (parser.go:4295) only walks top-level response properties when scanning for next_cursor / has_more. Tella's REST envelope nests them under {pagination:{...}}, so Pagination.NextCursorPath and HasMoreField were emitted as empty strings and the --all loop exited after page 1.",
+  "files": [
+    "internal/cli/videos_list.go",
+    "internal/cli/playlists_list.go"
+  ],
+  "validated_outcome": "videos list --all returns all 232 videos across 16 cursor-followed pages (was 15)."
+}

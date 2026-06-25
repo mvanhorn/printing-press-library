@@ -1,0 +1,51 @@
+version: 2
+project_name: sutra-fitness-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: sutra-fitness-pp-cli
+    main: ./cmd/sutra-fitness-pp-cli
+    binary: sutra-fitness-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/sutra-fitness/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: sutra-fitness-pp-mcp
+    main: ./cmd/sutra-fitness-pp-mcp
+    binary: sutra-fitness-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: sutra-fitness-pp-cli
+    repository:
+      owner: adam-birddog
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Sutra (Arketa) Partner API resource"
+    install: |
+      bin.install "sutra-fitness-pp-cli"
+      bin.install "sutra-fitness-pp-mcp"

@@ -1,0 +1,6 @@
+{
+  "schema_version": 2,
+  "upstream_tracking": [
+    "https://github.com/mvanhorn/cli-printing-press/issues/986"
+  ]
+}

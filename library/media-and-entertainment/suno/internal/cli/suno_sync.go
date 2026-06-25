@@ -15,6 +15,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/internal/cliutil"
@@ -46,7 +47,13 @@ type sunoFeedResponse struct {
 // resource_type 'clips'. maxPages caps the walk (0 -> default cap). When --full
 // is false it resumes from the stored sync cursor. Returns the number of clips
 // upserted. The caller is responsible for verifying auth before calling.
-func syncSunoClips(ctx context.Context, c sunoClipsClient, db *store.Store, deviceID string, full bool, maxPages int, events io.Writer) (int, error) {
+//
+// The feed is reverse-chronological and declares no server temporal filter, so
+// incremental sync is client-side via early-stop: with a boundary (an explicit
+// sinceTS, or the stored last_synced_at on the automatic path) the walk starts
+// at the head and stops once a page's oldest clip predates the boundary, rather
+// than draining the whole library every run.
+func syncSunoClips(ctx context.Context, c sunoClipsClient, db *store.Store, deviceID string, full bool, maxPages int, sinceTS string, events io.Writer) (int, error) {
 	if events == nil {
 		events = io.Discard
 	}
@@ -59,11 +66,22 @@ func syncSunoClips(ctx context.Context, c sunoClipsClient, db *store.Store, devi
 		maxPages = 1
 	}
 
+	existingCursor, lastSynced, _, _ := db.GetSyncState(sunoClipsResource)
 	cursor := ""
 	if !full {
-		if existing, _, _, _ := db.GetSyncState(sunoClipsResource); existing != "" {
-			cursor = existing
-		}
+		cursor = existingCursor
+	}
+
+	// Resolve the early-stop boundary. An explicit --since (sinceTS) wins;
+	// otherwise the automatic path uses the stored last_synced_at minus a
+	// clock-skew margin. A parse failure leaves earlyStop false so the walk
+	// degrades to a full drain (fail-open, never silently skipping records).
+	tsField := syncResourceTimestampField(sunoClipsResource)
+	earlyStopSince, earlyStop := clipsEarlyStopBoundary(sinceTS, lastSynced, full, tsField)
+	if earlyStop {
+		// Incremental walks start at the head; a stale resume cursor would
+		// point mid-feed and skip the newest records.
+		cursor = ""
 	}
 
 	headers := client.SunoDynamicHeaders(deviceID)
@@ -111,6 +129,14 @@ func syncSunoClips(ctx context.Context, c sunoClipsClient, db *store.Store, devi
 		// Persist resume cursor after each page.
 		_ = db.SaveSyncState(sunoClipsResource, next, total)
 
+		// Client-side incremental: the feed is descending, so once this page's
+		// oldest clip predates the boundary every later clip is older too. The
+		// page is already upserted above, so boundary-straddling clips are kept.
+		if earlyStop && pageOldestBefore(feed.Clips, tsField, earlyStopSince) {
+			completed = true
+			break
+		}
+
 		if !feed.HasMore || next == "" {
 			completed = true
 			break
@@ -127,10 +153,39 @@ func syncSunoClips(ctx context.Context, c sunoClipsClient, db *store.Store, devi
 	return total, nil
 }
 
+// clipsEarlyStopBoundary resolves the incremental early-stop boundary for the
+// clips feed. An explicit --since (sinceTS) takes precedence; otherwise the
+// automatic path derives the boundary from the stored last_synced_at minus a
+// 5-minute clock-skew margin (a fast local clock must not skip boundary records;
+// over-fetch is idempotent via upsert). Returns earlyStop=false when there is no
+// usable boundary (no since, no stored cursor, --full, no timestamp field, or an
+// unparseable timestamp) so the caller falls back to a full drain.
+func clipsEarlyStopBoundary(sinceTS string, lastSynced time.Time, full bool, tsField string) (time.Time, bool) {
+	if tsField == "" {
+		return time.Time{}, false
+	}
+	boundary := sinceTS
+	if boundary == "" && !lastSynced.IsZero() && !full {
+		boundary = lastSynced.Format(time.RFC3339)
+	}
+	if boundary == "" {
+		return time.Time{}, false
+	}
+	ts, err := time.Parse(time.RFC3339Nano, boundary)
+	if err != nil {
+		return time.Time{}, false
+	}
+	if sinceTS == "" {
+		ts = ts.Add(-5 * time.Minute)
+	}
+	return ts, true
+}
+
 // runSunoClipsSync runs the dedicated clip sync if "clips" is among the
 // requested resources, prints a progress summary, and returns the remaining
-// resources (clips removed) for the generic sync pool to handle.
-func runSunoClipsSync(ctx context.Context, c sunoClipsClient, db *store.Store, configPath string, resources []string, full bool, maxPages int, events io.Writer) ([]string, error) {
+// resources (clips removed) for the generic sync pool to handle. sinceTS, when
+// set, bounds the clip walk via client-side early-stop (see syncSunoClips).
+func runSunoClipsSync(ctx context.Context, c sunoClipsClient, db *store.Store, configPath string, resources []string, full bool, maxPages int, sinceTS string, events io.Writer) ([]string, error) {
 	remaining := make([]string, 0, len(resources))
 	wantClips := false
 	for _, r := range resources {
@@ -145,7 +200,7 @@ func runSunoClipsSync(ctx context.Context, c sunoClipsClient, db *store.Store, c
 	}
 
 	deviceID := config.DeviceIDFor(configPath)
-	count, err := syncSunoClips(ctx, c, db, deviceID, full, maxPages, events)
+	count, err := syncSunoClips(ctx, c, db, deviceID, full, maxPages, sinceTS, events)
 	if err != nil {
 		return remaining, fmt.Errorf("syncing clips: %w", err)
 	}

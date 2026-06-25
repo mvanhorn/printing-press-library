@@ -88,7 +88,9 @@ func newSpeechToTextSpeechToTextCmd(flags *rootFlags) *cobra.Command {
 				fields["entity_redaction_mode"] = bodyEntityRedactionMode
 			}
 			if bodyFile != "" {
-				fields["file"] = bodyFile
+				// PATCH: file is an upload, not a text field — route to fileFields
+				// so the bytes are sent, not the literal path string.
+				fileFields["file"] = bodyFile
 			}
 			if bodyFileFormat != "" {
 				fields["file_format"] = bodyFileFormat

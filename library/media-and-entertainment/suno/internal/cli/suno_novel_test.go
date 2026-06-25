@@ -75,16 +75,23 @@ func TestAnalyticsGroupExpr(t *testing.T) {
 
 func TestParseCredits(t *testing.T) {
 	cases := []struct {
-		name     string
-		body     string
-		wantCred int64
-		wantPlan string
+		name       string
+		body       string
+		wantCred   int64
+		wantPlan   string
+		wantPeriod string
 	}{
-		{"total_credits_left wins", `{"total_credits_left":150,"credits":999,"plan":"pro"}`, 150, "pro"},
-		{"falls back to credits", `{"credits":42}`, 42, ""},
-		{"absent fields default zero", `{"foo":"bar"}`, 0, ""},
-		{"subscription_type plan", `{"credits":5,"subscription_type":"premier"}`, 5, "premier"},
-		{"empty body", `{}`, 0, ""},
+		{"total_credits_left wins", `{"total_credits_left":150,"credits":999,"plan":"pro"}`, 150, "pro", ""},
+		{"falls back to credits", `{"credits":42}`, 42, "", ""},
+		{"absent fields default zero", `{"foo":"bar"}`, 0, "", ""},
+		{"subscription_type plan", `{"credits":5,"subscription_type":"premier"}`, 5, "premier", ""},
+		{"empty body", `{}`, 0, "", ""},
+		// Suno's live shape: plan is a nested object (plan.name / plan.plan_key),
+		// subscription_type is a bool, and period holds the billing interval.
+		{"nested plan object", `{"credits":0,"period":"year","subscription_type":true,"plan":{"plan_key":"premier","name":"Premier Plan","level":30}}`, 0, "Premier Plan", "year"},
+		{"nested plan key only", `{"plan":{"plan_key":"basic"}}`, 0, "basic", ""},
+		// period is the billing interval, never the plan name.
+		{"period is not a plan", `{"period":"year"}`, 0, "", "year"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -94,6 +101,9 @@ func TestParseCredits(t *testing.T) {
 			}
 			if got.Plan != tc.wantPlan {
 				t.Fatalf("plan=%q want %q", got.Plan, tc.wantPlan)
+			}
+			if got.Period != tc.wantPeriod {
+				t.Fatalf("period=%q want %q", got.Period, tc.wantPeriod)
 			}
 		})
 	}

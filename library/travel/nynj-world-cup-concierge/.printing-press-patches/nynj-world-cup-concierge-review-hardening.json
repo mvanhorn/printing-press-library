@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "nynj-world-cup-concierge-review-hardening",
+  "applied_at": "2026-05-31",
+  "base_run_id": "nynj-world-cup-concierge-20260531",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Hardened HTTP reads, checked date parsing conversions, help text, slug normalization, and test fixture cleanup.",
+  "reason": "Greptile review surfaced small quality risks after the publish PR was opened.",
+  "files": [
+    "internal/cli/extractor.go",
+    "internal/cli/extractor_test.go",
+    "internal/cli/flags.go"
+  ],
+  "validated_outcome": "go test ./..., go build ./..., and scoped govulncheck passed."
+}

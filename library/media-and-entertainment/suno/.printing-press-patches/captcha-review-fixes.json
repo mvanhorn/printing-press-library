@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "captcha-review-fixes",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Honor --no-captcha on every generate command (was silently ignored); fully revoke the cached studio cookie header on logout; stop tracking a committed build binary; correct the chrome.go persistence comment.",
+  "reason": "A pre-publish security + correctness review of the piloted-Chrome captcha subsystem found: (1) CRITICAL — every generate command (generate/describe/extend/cover/remaster) parsed --no-captcha then discarded it with '_ = noCaptcha', so the documented 'suppress the auto-solver' contract was inverted: the flag launched the browser solver anyway. The gate decision is now a pure, tested helper (captchaGateAction -> proceed/solve/suppressed) threaded through runGenerationFlow; --no-captcha returns the gate failure without launching Chrome. (2) Config.ClearTokens (auth logout) zeroed the JWT/OAuth/Clerk fields but left StudioCookieHeaderVal + SunoJwtExpiry on disk — durable suno.com session cookies the WAF cross-checks against the JWT; logout now revokes them too (SaveSunoJWTOnly already did). (3) A 20MB Mach-O binary 'suno-cli' was tracked and not gitignored; removed from the index and added to .gitignore so it can't ship in the public PR. (4) chrome.go's header claimed the solver Chrome persists between invocations, but a cold-start Solve tears its ExecAllocator-launched instance down on return; corrected to state persistence is established only by 'auth captcha login' (reconnect path), and a standalone Solve is ephemeral. Verified: go test ./... (416) + -race across cli/client/config/captcha pass. Deferred minors (noted, not blocking): tighten isCaptchaRequired to anchor on 422 status; narrow the solver's seeded cookie capture.",
+  "files": [
+    "internal/cli/suno_generate_run.go",
+    "internal/cli/suno_generate_run_test.go",
+    "internal/cli/suno_generate.go",
+    "internal/cli/suno_describe.go",
+    "internal/cli/suno_extend.go",
+    "internal/cli/suno_cover.go",
+    "internal/cli/suno_remaster.go",
+    "internal/config/config.go",
+    "internal/config/config_test.go",
+    "internal/captcha/chrome.go",
+    ".gitignore"
+  ],
+  "validated_outcome": "go test ./... && go test ./internal/cli/ ./internal/client/ ./internal/config/ ./internal/captcha/ -race",
+  "findings_addressed": [
+    "captcha-review-fixes"
+  ]
+}

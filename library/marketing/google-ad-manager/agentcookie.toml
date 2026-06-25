@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "google-ad-manager-pp-cli"
+display_name = "Google Ad Manager"
+description = "The only REST-native Google Ad Manager CLI: report, search, and manage publisher inventory from the terminal, backed by a local mirror the web console can't match."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/google-ad-manager-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+GOOGLE_AD_MANAGER_ACCESS_TOKEN = true

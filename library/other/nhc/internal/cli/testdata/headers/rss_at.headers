@@ -1,0 +1,16 @@
+HTTP/2 200 
+content-type: text/xml
+content-length: 3251
+server: Apache/2.4.37 (Red Hat Enterprise Linux)
+last-modified: Tue, 16 Jun 2026 06:01:27 GMT
+accept-ranges: bytes
+strict-transport-security: max-age=31536000
+date: Tue, 16 Jun 2026 06:05:02 GMT
+expires: Tue, 16 Jun 2026 06:10:02 GMT
+cache-control: max-age=300
+etag: "cb3-65458ac798aa3"
+x-cache: Hit from cloudfront
+via: 1.1 6c1149c24729f98b60d81a165eb520c8.cloudfront.net (CloudFront)
+x-amz-cf-pop: SEA900-P4
+x-amz-cf-id: BpFCkVVKKhjsyG8T97NcPrxYenXxWPGXweZZ0zMGMgaHzXy6bAqo7Q==
+

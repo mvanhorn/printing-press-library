@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "google-ad-manager-rest-v1-targeting-scope",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260616-124304-8944dbb7",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Drop the two targeting novel commands (targeting where/unused), collapse the order-graph targeting fan-out to order -> line-items only, and de-scope the 'inventory orphans' description to placement coverage only.",
+  "reason": "Ad Manager REST v1 LineItem exposes no targeting field (confirmed via live list + detail), so the generated targeting-where/targeting-unused commands, the order -> targeting -> ad-units fan-out, and the 'stale or empty branches' orphan claim all produced empty or misleading output. Removed them rather than ship features that cannot work on REST v1.",
+  "files": ["internal/cli/order_graph.go", "internal/cli/root.go", "internal/cli/which.go", "internal/mcp/tools.go", ".printing-press.json", "README.md", "SKILL.md"],
+  "validated_outcome": "order graph returns order -> line-items (goal, type, flight dates) against the live network; help, README, and manifest no longer advertise targeting commands or unimplemented orphan-branch detection."
+}

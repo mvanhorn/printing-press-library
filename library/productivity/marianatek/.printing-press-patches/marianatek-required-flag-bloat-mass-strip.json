@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "id": "marianatek-required-flag-bloat-mass-strip",
+  "applied_at": "2026-05-12T04:30:00Z",
+  "reason": "Same root cause as marianatek-required-flag-bloat, but extended across the remaining 18 create commands the generator produced. After the production booking test surfaced the over-required pattern on `me reservations-create`, an audit of the other POST endpoints found the same spec-derived require-storm — totalling ~2300 lines of false-positive required-flag checks. Verified with a sample call: `me credit-cards-create` with no args now returns the API's actual 422 (\"number is required, usage_location is required\") instead of the spec's invented requirements.",
+  "files": [
+    "internal/cli/locations_cart_locations-add-product-listing-create.go",
+    "internal/cli/locations_cart_locations-adjust-quantity-create.go",
+    "internal/cli/locations_cart_locations-checkout-create.go",
+    "internal/cli/locations_cart_locations-clear-create.go",
+    "internal/cli/locations_cart_locations-clear-discount-codes-create.go",
+    "internal/cli/me_account-create.go",
+    "internal/cli/me_account-redeem-giftcard-create.go",
+    "internal/cli/me_account-update-communications-preferences-create.go",
+    "internal/cli/me_appointments-bookings-create.go",
+    "internal/cli/me_credit-cards-create.go",
+    "internal/cli/me_reservations-assign-to-spot-create.go",
+    "internal/cli/me_reservations-cancel-create.go",
+    "internal/cli/me_reservations-cart-add-product-listing-create.go",
+    "internal/cli/me_reservations-cart-adjust-quantity-create.go",
+    "internal/cli/me_reservations-cart-checkout-create.go",
+    "internal/cli/me_reservations-cart-clear-create.go",
+    "internal/cli/me_reservations-cart-clear-discount-codes-create.go",
+    "internal/cli/me_reservations-check-in-create.go"
+  ],
+  "change": "Replaced each `if !stdinBody { ... 100s of required-flag checks ... }` block with an empty PATCH-commented block that lets the API surface real-required fields via 422 errors. ~2300 lines removed. `me reservations-create` keeps its bespoke 3-rule validator (different patch above)."
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "cvss-validate-cia",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260510-215840",
+  "base_printing_press_version": "4.2.2",
+  "summary": "checkCvss validates C/I/A metrics with a bool map before reading impactMetric so invalid values (e.g. C:GARBAGE) error out instead of silently scoring as C:N.",
+  "reason": "Go map zero-value returns 0 for unknown keys, which is also the legitimate value for C:N / I:N / A:N. The pre-existing av/ac/ui/pr zero-check could not validate CIA without false-rejecting C:N. A separate validity check is the minimal fix. Greptile P1 on PR #459.",
+  "files": [
+    "internal/cli/report_cvss_check.go"
+  ]
+}

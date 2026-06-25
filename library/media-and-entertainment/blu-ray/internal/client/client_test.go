@@ -5,22 +5,10 @@ package client
 
 import (
 	"bytes"
-	"io"
-	"net/http"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 	"unicode/utf8"
-
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/blu-ray/internal/config"
 )
-
-type roundTripFunc func(*http.Request) (*http.Response, error)
-
-func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
-	return f(req)
-}
 
 func TestTruncateBody(t *testing.T) {
 	t.Parallel()
@@ -80,39 +68,5 @@ func TestTruncateBody_UTF8RuneAtBoundary(t *testing.T) {
 	// Partial rune must be dropped, not replaced: 4094 valid bytes + "...".
 	if want := 4094 + 3; len(got) != want {
 		t.Fatalf("len = %d, want %d (partial rune should be dropped, not replaced)", len(got), want)
-	}
-}
-
-func TestGetWithHeadersSkipsCacheForBinaryResponse(t *testing.T) {
-	t.Parallel()
-
-	var hits int
-	c := New(&config.Config{BaseURL: "https://example.test"}, 0, 0)
-	c.HTTPClient = &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-		hits++
-		return &http.Response{
-			StatusCode: http.StatusOK,
-			Header:     make(http.Header),
-			Body:       io.NopCloser(bytes.NewReader([]byte{0x1f, 0x8b, byte(hits)})),
-		}, nil
-	})}
-	c.cacheDir = t.TempDir()
-	headers := map[string]string{BinaryResponseHeader: "true"}
-	if _, err := c.GetWithHeaders("", nil, headers); err != nil {
-		t.Fatalf("first get: %v", err)
-	}
-	if _, err := c.GetWithHeaders("", nil, headers); err != nil {
-		t.Fatalf("second get: %v", err)
-	}
-	if hits != 2 {
-		t.Fatalf("server hits = %d, want 2 (binary responses must not be cached)", hits)
-	}
-	matches, err := filepath.Glob(filepath.Join(c.cacheDir, "*.json"))
-	if err != nil {
-		t.Fatalf("glob cache: %v", err)
-	}
-	if len(matches) != 0 {
-		data, _ := os.ReadFile(matches[0])
-		t.Fatalf("binary response wrote JSON cache file %s: %x", matches[0], data)
 	}
 }

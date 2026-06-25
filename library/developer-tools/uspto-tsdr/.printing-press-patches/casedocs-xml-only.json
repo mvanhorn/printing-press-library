@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "casedocs-xml-only",
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-135942",
+  "base_printing_press_version": "4.2.0",
+  "summary": "Handle /casedocs/{caseid}/info endpoint returning XML only.",
+  "reason": "The casedocs info endpoint returns XML regardless of Accept header; CLI needs special handling.",
+  "files": [
+    "internal/cli/trademark_docs.go"
+  ],
+  "validated_outcome": "Document listing handles XML response from casedocs endpoint."
+}

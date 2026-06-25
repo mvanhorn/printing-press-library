@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "x-twitter",
+  "cli_name": "x-twitter-pp-cli",
+  "version": "2026.6.11",
+  "released_at": "2026-06-24T00:02:25Z",
+  "source_commit": "8649d944b0e138dd3e0133ee58ae036dcb941335",
+  "printing_press_version": "4.20.1",
+  "run_id": "20260603-230951",
+  "changes": [
+    {
+      "title": "fix(x-twitter): fall back to app-only bearer when OAuth2 user-context token is expired",
+      "pr": 1340,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1340",
+      "commit": "8649d944b0e138dd3e0133ee58ae036dcb941335"
+    }
+  ]
+}

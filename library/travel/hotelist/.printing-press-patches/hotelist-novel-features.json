@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "hotelist-novel-features",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260606-172109",
+  "base_printing_press_version": "4.22.1",
+  "summary": "Implemented the 6 generated novel-feature stub commands: rank-country, chain-compare, corridor, watch, chain-consistency, price-cliff.",
+  "reason": "The generator scaffolds novel commands as TODO stubs; each was filled with its real local-SQLite-aggregation logic (cross-location value ranking, chain stats, snapshot drift, price-cliff binning).",
+  "files": ["internal/cli/rank_country.go", "internal/cli/chain_compare.go", "internal/cli/corridor.go", "internal/cli/watch.go", "internal/cli/chain_consistency.go", "internal/cli/price_cliff.go"],
+  "validated_outcome": "dogfood novel_features_check planned 6 / found 6; each verified live."
+}

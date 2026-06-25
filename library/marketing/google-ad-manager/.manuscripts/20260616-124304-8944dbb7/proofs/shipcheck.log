@@ -1,0 +1,267 @@
+
+=== verify ===
+warning: skipping DELETE "/v1/{name}": could not derive resource name
+warning: skipping GET "/v1/{name}": could not derive resource name
+warning: skipping PATCH "/v1/{name}": could not derive resource name
+warning: filtered global query param "access_token" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "callback" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "fields" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "key" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "oauth_token" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "quotaUser" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "upload_protocol" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "uploadType" from generated commands: dropped from 111/111 endpoints where present (111 total)
+Runtime Verification: /Users/pbl-dev/printing-press/.runstate/pbl-415c512c/runs/20260616-124304-8944dbb7/working/google-ad-manager-pp-cli/google-ad-manager-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+ad-review-center-ads-batch-... read         PASS   PASS     PASS     3/3
+ad-review-center-ads-batch-... read         PASS   PASS     PASS     3/3
+ad-review-center-ads-search    read         PASS   PASS     PASS     3/3
+ad-spots-batch-create          read         PASS   PASS     PASS     3/3
+ad-spots-batch-update          read         PASS   PASS     PASS     3/3
+ad-unit-sizes                  read         PASS   PASS     PASS     3/3
+ad-units-batch-activate        read         PASS   PASS     PASS     3/3
+ad-units-batch-archive         read         PASS   PASS     PASS     3/3
+ad-units-batch-create          read         PASS   PASS     PASS     3/3
+ad-units-batch-deactivate      read         PASS   PASS     PASS     3/3
+ad-units-batch-update          read         PASS   PASS     PASS     3/3
+adunits                        read         PASS   PASS     FAIL     2/3
+agent-context                  read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+applications-batch-archive     read         PASS   PASS     PASS     3/3
+applications-batch-create      read         PASS   PASS     PASS     3/3
+applications-batch-unarchive   read         PASS   PASS     PASS     3/3
+applications-batch-update      read         PASS   PASS     PASS     3/3
+audience-segments              read         PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+bandwidth-groups               read         PASS   PASS     PASS     3/3
+browser-languages              read         PASS   PASS     PASS     3/3
+browsers                       read         PASS   PASS     PASS     3/3
+cms-metadata-keys              read         PASS   PASS     PASS     3/3
+cms-metadata-keys-batch-act... read         PASS   PASS     PASS     3/3
+cms-metadata-keys-batch-dea... read         PASS   PASS     PASS     3/3
+cms-metadata-values            read         PASS   PASS     PASS     3/3
+cms-metadata-values-batch-a... read         PASS   PASS     PASS     3/3
+cms-metadata-values-batch-d... read         PASS   PASS     PASS     3/3
+companies                      read         PASS   PASS     PASS     3/3
+contacts-batch-create          read         PASS   PASS     PASS     3/3
+contacts-batch-update          read         PASS   PASS     PASS     3/3
+content                        read         PASS   PASS     PASS     3/3
+content-bundles                read         PASS   PASS     PASS     3/3
+content-labels                 read         PASS   PASS     PASS     3/3
+creative-templates             read         PASS   PASS     PASS     3/3
+custom-fields-batch-activate   read         PASS   PASS     PASS     3/3
+custom-fields-batch-create     read         PASS   PASS     PASS     3/3
+custom-fields-batch-deactivate read         PASS   PASS     PASS     3/3
+custom-fields-batch-update     read         PASS   PASS     PASS     3/3
+custom-targeting-keys-batch... read         PASS   PASS     PASS     3/3
+custom-targeting-keys-batch... read         PASS   PASS     PASS     3/3
+custom-targeting-keys-batch... read         PASS   PASS     PASS     3/3
+custom-targeting-keys-batch... read         PASS   PASS     PASS     3/3
+custom-targeting-values        read         PASS   PASS     PASS     3/3
+device-capabilities            read         PASS   PASS     PASS     3/3
+device-categories              read         PASS   PASS     PASS     3/3
+device-manufacturers           read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+entity-signals-mappings-bat... read         PASS   PASS     PASS     3/3
+entity-signals-mappings-bat... read         PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+geo-targets                    read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+inventory                      read         PASS   PASS     FAIL     2/3
+labels-batch-activate          read         PASS   PASS     PASS     3/3
+labels-batch-create            read         PASS   PASS     PASS     3/3
+labels-batch-deactivate        read         PASS   PASS     PASS     3/3
+labels-batch-update            read         PASS   PASS     PASS     3/3
+line-items                     read         PASS   PASS     PASS     3/3
+lineitem                       read         PASS   PASS     FAIL     2/3
+linked-devices                 read         PASS   PASS     PASS     3/3
+mcm-earnings-fetch             read         PASS   PASS     PASS     3/3
+mobile-carriers                read         PASS   PASS     PASS     3/3
+mobile-device-submodels        read         PASS   PASS     PASS     3/3
+mobile-devices                 read         PASS   PASS     PASS     3/3
+name-cancel                    read         PASS   PASS     PASS     3/3
+name-fetch-rows                read         PASS   PASS     PASS     3/3
+name-run                       read         PASS   PASS     PASS     3/3
+networks                       read         PASS   PASS     PASS     3/3
+operating-system-versions      read         PASS   PASS     PASS     3/3
+operating-systems              read         PASS   PASS     PASS     3/3
+order                          read         PASS   PASS     FAIL     2/3
+orders                         read         PASS   PASS     PASS     3/3
+placements-batch-activate      read         PASS   PASS     PASS     3/3
+placements-batch-archive       read         PASS   PASS     PASS     3/3
+placements-batch-create        read         PASS   PASS     PASS     3/3
+placements-batch-deactivate    read         PASS   PASS     PASS     3/3
+placements-batch-update        read         PASS   PASS     PASS     3/3
+profile                        read         PASS   PASS     FAIL     2/3
+programmatic-buyers            read         PASS   PASS     PASS     3/3
+report                         read         PASS   PASS     FAIL     2/3
+rich-media-ads-companies       read         PASS   PASS     PASS     3/3
+roles                          read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+since                          read         PASS   PASS     PASS     3/3
+sites-batch-create             read         PASS   PASS     PASS     3/3
+sites-batch-deactivate         read         PASS   PASS     PASS     3/3
+sites-batch-submit-for-appr... read         PASS   PASS     PASS     3/3
+sites-batch-update             read         PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+targeting                      read         PASS   PASS     FAIL     2/3
+taxonomy-categories            read         PASS   PASS     PASS     3/3
+teams-batch-activate           read         PASS   PASS     PASS     3/3
+teams-batch-create             read         PASS   PASS     PASS     3/3
+teams-batch-deactivate         read         PASS   PASS     PASS     3/3
+teams-batch-update             read         PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     FAIL     2/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS auth set-token
+  PASS order graph
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+  PASS report rerun
+  PASS report watch
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped)
+Pass Rate: 100% (108/108 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+FAILED [quickstart]: google-ad-manager-pp-cli sync --resources adUnits,placements → full example failed: /Users/pbl-dev/printing-press/.runstate/pbl-415c512c/runs/20260616-124304-8944dbb7/working/google-ad-manager-pp-cli/google-ad-manager-pp-cli sync --resources adUnits,placements --dry-run: exit status 1: {"event":"sync_start","resource":"adUnits"}
+{"event":"sync_start","resource":"placements"}
+{"event":"sync_summary","total_records":0,"resources":2,"success":0,"warned":0,"errored":2,"duration_ms":0}
+Error: 2 resource(s) failed to sync
+DONE: 8 ok, 0 missing, 0 empty-words, 1 failed-examples, 0 unsupported
+narrative validation failed
+
+=== dogfood ===
+dogfood: using spec /Users/pbl-dev/printing-press/.runstate/pbl-415c512c/runs/20260616-124304-8944dbb7/working/google-ad-manager-pp-cli/spec.json (bundled)
+dogfood: caller --spec=/Users/pbl-dev/printing-press/.runstate/pbl-415c512c/runs/20260616-124304-8944dbb7/research/google-ad-manager-spec.json overridden by bundled /Users/pbl-dev/printing-press/.runstate/pbl-415c512c/runs/20260616-124304-8944dbb7/working/google-ad-manager-pp-cli/spec.json
+warning: skipping DELETE "/v1/{name}": could not derive resource name
+warning: skipping GET "/v1/{name}": could not derive resource name
+warning: skipping PATCH "/v1/{name}": could not derive resource name
+warning: filtered global query param "access_token" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "callback" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "fields" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "key" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "oauth_token" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "quotaUser" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "upload_protocol" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "uploadType" from generated commands: dropped from 111/111 endpoints where present (111 total)
+Dogfood Report: google-ad-manager-pp-cli
+================================
+
+Path Validity:     6/6 valid (PASS)
+
+Auth Protocol:     MATCH
+  Spec: bearer token format (expects "Bearer " prefix)
+  Generated: Uses "Bearer" prefix
+  Detail: spec and generated client both use "Bearer"
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     PARTIAL
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 1
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    10/10 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: FAIL
+  - 10/10 novel features missing data-source strategy: report run (report_run.go) — missing // pp:data-source <auto|local|live> annotation; report rerun (report_rerun.go) — missing // pp:data-source <auto|local|live> annotation; report watch (report_watch.go) — missing // pp:data-source <auto|local|live> annotation; order graph (order_graph.go) — missing // pp:data-source <auto|local|live> annotation; targeting where (targeting_where.go) — missing // pp:data-source <auto|local|live> annotation; adunits tree (adunits_tree.go) — missing // pp:data-source <auto|local|live> annotation; inventory orphans (inventory_orphans.go) — missing // pp:data-source <auto|local|live> annotation; targeting unused (targeting_unused.go) — missing // pp:data-source <auto|local|live> annotation; since (since.go) — missing // pp:data-source <auto|local|live> annotation; lineitem pace (lineitem_pace.go) — missing // pp:data-source <auto|local|live> annotation
+
+=== workflow-verify ===
+Workflow Verification: google-ad-manager-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+=== google-ad-manager-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: google-ad-manager
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          8/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency N/A
+  MCP Remote Transport 10/10
+  MCP Tool Design      10/10
+  MCP Surface Strategy 10/10
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              10/10
+  Vision               9/10
+  Workflows            10/10
+  Insight              4/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           9/10
+  Auth Protocol           10/10
+  Data Pipeline Integrity 7/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           5/5
+  Dead Code               5/5
+
+  Total: 91/100 - Grade A
+  Note: omitted from denominator: mcp_description_quality, mcp_token_efficiency, live_api_verification
+
+Sample Output Probe (live command sample)
+  Binary refresh: fresh_fallback (same-name runnable binary is newer than Go sources)
+  Passed: 4/10  (40% pass rate, 0 skipped)
+  Failures:
+    - One-Shot Async Report: exit 5: Error: creating report: POST /v1/networks/123456/reports returned HTTP 401: {
+  "error": {
+    "code": 401,
+    "message": "Request is missing required authentication credential. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/i...
+    - Saved Report Rerun: exit 2: Error: --date-range cannot be applied to a saved report (no update verb in the API); use "report run" to report a different window
+    - Daily Report Diff: exit 2: Error: --metric must be a 0-based metric column index (got "REVENUE")
+    - Order Expansion Graph: exit 4: Error: GET /v1/networks/123456/orders/554433 returned HTTP 401: {
+  "error": {
+    "code": 401,
+    "message": "Request is missing required authentication credential. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign...
+    - Ad-Unit Tree View: empty output
+    - Line-Item Pacing Join: exit 5: Error: listing line items for order "554433": GET /v1/networks/123456/lineItems returned HTTP 401: {
+  "error": {
+    "code": 401,
+    "message": "Request is missing required authentication credential. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://...
+
+Gaps:
+  - insight scored 4/10 - needs improvement
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         8.029s
+  validate-narrative  FAIL    1         147ms
+  dogfood           PASS    0         1.859s
+  workflow-verify   PASS    0         13ms
+  verify-skill      PASS    0         3.957s
+  scorecard         PASS    0         822ms
+
+Verdict: FAIL (1/6 legs failed)

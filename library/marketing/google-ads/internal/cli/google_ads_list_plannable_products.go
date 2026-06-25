@@ -20,7 +20,7 @@ func newGoogleAdsListPlannableProductsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "list-plannable-products",
 		Short:       "Returns the list of per-location plannable YouTube ad formats with allowed targeting.",
-		Example:     "  google-ads-pp-cli google_ads list_plannable_products",
+		Example:     "  google-ads-pp-cli google-ads list-plannable-products",
 		Annotations: map[string]string{"pp:endpoint": "google_ads.list_plannable_products", "pp:method": "POST", "pp:path": "/v22:listPlannableProducts"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

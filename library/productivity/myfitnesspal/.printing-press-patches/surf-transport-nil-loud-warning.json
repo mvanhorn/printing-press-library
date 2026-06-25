@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "surf-transport-nil-loud-warning",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260508-133559",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Emit a loud stderr warning when Surf's underlying *http.Transport is nil instead of silently falling back to http.DefaultTransport.",
+  "reason": "If a future enetx/surf release changes Std()'s shape and returns a client with no Transport, the silent fallback in surf-transport-shared-client would lose the Chrome TLS fingerprint and every MFP request would hit anti-bot with no visible cause. The warning makes the failure mode debuggable.",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/787"
+}

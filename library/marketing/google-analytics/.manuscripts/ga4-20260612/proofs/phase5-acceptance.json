@@ -1,0 +1,24 @@
+{
+  "status": "pass",
+  "run_id": "ga4-20260612",
+  "validated_at": "2026-06-12T00:00:00Z",
+  "tests": {
+    "go_test": "pass",
+    "packages": [
+      "cmd/google-analytics-pp-cli",
+      "internal/cli",
+      "internal/ga4"
+    ]
+  },
+  "build": "pass",
+  "live_smoke": {
+    "properties": [
+      "$GA4_PROPERTY_ID",
+      "$GA4_PROPERTY_ID_2"
+    ],
+    "commands": 40,
+    "failures": [],
+    "evidence_dir": ".manuscripts/ga4-20260612/proofs/live-smoke"
+  },
+  "notes": "Replaced draft claims with executed go test/build and live GA4 smoke evidence."
+}

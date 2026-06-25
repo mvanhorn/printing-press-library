@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-7-research-drift-fetch-optimized-docs",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-171718",
+  "base_printing_press_version": "4.5.0",
+  "summary": "research drift also fetches /v1/get_optimized_documents and unions the titles with the writer-doc titles before classifying gaps.",
+  "reason": "The command's short/long descriptions promise coverage against both writer and optimized documents, but the implementation only called get_writer_documents. Any topic covered exclusively by a Content Optimizer article was misclassified as a gap, inflating the gap list for any user who relies on the optimizer for content. The optimizer fetch is lenient: a project without the optimizer add-on still produces a valid result via writer docs alone.",
+  "files": [
+    "internal/cli/research_novel.go"
+  ]
+}

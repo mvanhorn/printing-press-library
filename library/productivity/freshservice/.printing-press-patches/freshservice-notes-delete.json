@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "freshservice-notes-delete",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-170855",
+  "base_printing_press_version": "4.5.0",
+  "summary": "New `tickets notes delete <conversation-id>` command wired into the notes subcommand tree. Hand-authored DELETE /conversations/{id} request with --dry-run / --yes consent gating and a JSON success envelope.",
+  "reason": "Freshservice documents DELETE /conversations/{id} but does not declare it in the OpenAPI spec we generated from, so the generator never emitted a delete-note command. Notes are stored as conversations and the conversation id alone identifies the note (no /tickets/{ticket_id}/ segment).",
+  "files": [
+    "internal/cli/tickets_notes_delete.go",
+    "internal/cli/tickets_notes.go"
+  ],
+  "validated_outcome": "`tickets notes delete <id> --yes` returns HTTP 204 and the note disappears from `tickets conversations list-ticket <ticket-id>`; previously there was no CLI surface for note deletion."
+}

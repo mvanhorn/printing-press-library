@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "remove-debug-sign-dump",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260511-095555",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Delete the GREATCLIPS_DEBUG_SIGN=1 stderr dump of request body and outgoing HMAC signature.",
+  "reason": "The block was already annotated with 'Removed before publish; left in for v0.2 development only.' Shipping it would let shell history or CI log collectors capture signing inputs whenever the env var is set (greptile P2).",
+  "files": [
+    "internal/cli/icssign_hook.go"
+  ]
+}

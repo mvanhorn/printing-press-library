@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "toodledo-pp-mcp",
+  "display_name": "Toodledo",
+  "version": "0.0.0",
+  "description": "Every Toodledo feature from the terminal, plus an offline SQLite mirror, GTD reviews, and rate-budget-aware sync that no other Toodledo tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/toodledo-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/toodledo-pp-mcp",
+      "args": [],
+      "env": {
+        "TOODLEDO_CLIENT_ID": "${user_config.toodledo_client_id}",
+        "TOODLEDO_CLIENT_SECRET": "${user_config.toodledo_client_secret}"
+      }
+    }
+  },
+  "user_config": {
+    "toodledo_client_id": {
+      "type": "string",
+      "title": "TOODLEDO_CLIENT_ID",
+      "description": "Sets TOODLEDO_CLIENT_ID for the Toodledo MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "toodledo_client_secret": {
+      "type": "string",
+      "title": "TOODLEDO_CLIENT_SECRET",
+      "description": "Sets TOODLEDO_CLIENT_SECRET for the Toodledo MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

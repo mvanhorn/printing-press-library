@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "shopper-charge-calendar-realshape",
+  "applied_at": "2026-06-04",
+  "base_run_id": "20260604-074112",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Rewrote charge-calendar to read the real /delivery/summary (scheduled deliveryDate) and /delivery/v2/calendar (allowed reschedule window) shapes.",
+  "reason": "The generated stub assumed /delivery/v2/calendar returns a delivery array; the live API returns a date-picker config (allowed range + disabled days) and the scheduled delivery lives in /delivery/summary. Live dogfood confirmed charge=-7d and lock=-5d reconcile with the API's own message.",
+  "files": ["internal/cli/charge_calendar.go", "internal/cli/charge_calendar_test.go"],
+  "validated_outcome": "Live: next_delivery 2026-06-23, charge 2026-06-16, lock 2026-06-18 matches API message; unit tests pass."
+}

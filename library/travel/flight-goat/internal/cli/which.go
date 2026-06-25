@@ -28,6 +28,7 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
+	{Command: "assess", Description: "Join AeroAPI airport delays, disruption counts, weather, FAA NAS status, delayed-flight/inbound aircraft status, route alternatives, and optional Google Flights prices to classify systemic vs flight-specific delay risk.", Group: "transcendence", WhyItMatters: "Turns scattered operational primitives into one rebooking decision report."},
 	{Command: "aircraft get-flight-type", Description: "Returns information about an aircraft type, given an ICAO aircraft type designator string.\nData returned includes the description, type, manufacturer, engine type, and engine\ncount.", Group: "aircraft"},
 	{Command: "aircraft blocked get-aircraft", Description: "Given an aircraft identification, returns true if the aircraft is blocked from\npublic tracking per request from the owner/operator, false if it is not blocked.\nAny IATA-like idents will be translated to ICAO before lookup.\nWhen marked as blocked, no associated flight information will be visible in\nAeroAPI. FlightAware can provide aircraft owner/operators with secure access to\ntheir blocked flight data by [contacting FlightAware for help](https://www.flightaware.com/about/contact).", Group: "aircraft"},
 	{Command: "aircraft owner get-aircraft", Description: "Returns information about the owner of an aircraft, given a flight number\nor aircraft registration. Data returned includes owner's name, location (typically\ncity and state), and website, if any. Codeshares and alternate idents are\nautomatically searched. Specific owner name information is limited to ownership\nwithin the US (sourced by the FAA), Australia, and New Zealand. Note that while\nthis information is updated weekly, there may be a lag in upstream data sources\nreflecting a change in ownership.", Group: "aircraft"},
@@ -152,6 +153,7 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	cmd := strings.ToLower(e.Command)
 	cmdTokens := strings.Fields(cmd)
 	desc := strings.ToLower(e.Description)
+	why := strings.ToLower(e.WhyItMatters)
 	group := strings.ToLower(e.Group)
 
 	// Exact token match on the command path (any token).
@@ -170,6 +172,17 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	// Substring match on the description.
 	if strings.Contains(desc, query) {
 		score += 2
+	}
+	for _, qt := range qTokens {
+		if len(qt) < 3 {
+			continue
+		}
+		if strings.Contains(desc, qt) {
+			score += 1
+		}
+		if strings.Contains(why, qt) {
+			score += 1
+		}
 	}
 	// Group tag match.
 	if group != "" {

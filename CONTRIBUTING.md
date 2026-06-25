@@ -20,7 +20,7 @@ The skill handles everything: validation, packaging, and PR creation. You don't 
 
 ### Prerequisites
 
-- [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press) installed (`go install github.com/mvanhorn/cli-printing-press/cmd/printing-press@latest`)
+- [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press) installed (`go install github.com/mvanhorn/cli-printing-press/v4/cmd/cli-printing-press@latest`)
 - `gh` CLI installed and authenticated (`gh auth login`)
 - A generated CLI in your local library (`~/printing-press/library/`)
 
@@ -30,12 +30,14 @@ If you prefer to submit manually:
 
 1. Generate your CLI with `/printing-press <API>`
 2. Verify it passes quality gates: `go build ./...`, `go vet ./...`
-3. Fork this repo and create a branch: `feat/<cli-name>`
-4. Add your CLI under `library/<category>/<cli-name>/` with:
+3. Fork this repo and create a branch: `feat/<slug>`
+4. Add your CLI under `library/<category>/<slug>/` with:
    - The full CLI source code
    - `.printing-press.json` manifest
+   - `SKILL.md` and `.goreleaser.yaml`
+   - `manifest.json` (only if the CLI ships an MCP server)
    - `.manuscripts/` directory with research and proof artifacts
-5. Update `registry.json` with your CLI's entry
+5. **Do not edit `registry.json` or `cli-skills/pp-*/SKILL.md` in the PR.** They are generated artifacts, regenerated after merge by `generate-registry.yml` and `generate-skills.yml`, and the generated-artifact guard in CI fails any PR that modifies them. Instead, make sure the source files under `library/<category>/<slug>/` are present: `registry.json` is generated from `.printing-press.json` + `.goreleaser.yaml` (plus `manifest.json` if the CLI ships an MCP server), and `cli-skills/pp-<slug>/SKILL.md` is mirrored from `library/<category>/<slug>/SKILL.md`.
 6. Open a PR
 
 ### Quality Expectations

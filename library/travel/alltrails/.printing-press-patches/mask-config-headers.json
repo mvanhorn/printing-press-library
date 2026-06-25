@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "mask-config-headers",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260526-193757",
+  "base_printing_press_version": "4.18.0",
+  "summary": "maskCredentialText now masks Cookie/CSRF values from Config.Headers, not just the Bearer token.",
+  "reason": "Greptile P1/security: cookie-based Cookie and x-csrftoken values were emitted verbatim in APIError.Body, dry-run output, and displayed URLs.",
+  "files": [
+    "internal/client/client.go"
+  ]
+}

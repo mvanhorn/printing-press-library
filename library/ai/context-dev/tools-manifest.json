@@ -1,0 +1,1351 @@
+{
+  "api_name": "context-dev",
+  "base_url": "https://api.context.dev/v1",
+  "description": "Agent-friendly Context.dev CLI for website intelligence, brand enrichment, scraping, crawling, structured extraction, screenshots, styleguides, competitor maps, source packs, and change digests.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "CONTEXT_DEV_API_KEY",
+      "CONTEXT_API_KEY",
+      "CONTEXT_DEV_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "CONTEXT_DEV_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": false
+      },
+      {
+        "name": "CONTEXT_API_KEY",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true,
+        "inferred": false
+      },
+      {
+        "name": "CONTEXT_DEV_BEARER_AUTH",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "brand_create",
+      "description": "Signal that you may fetch brand data for a particular domain soon to improve latency. Required: domain. Optional: timeoutMS. Returns the new BrandCreateResponse.",
+      "method": "POST",
+      "path": "/brand/prefetch",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "Domain name to prefetch brand data for",
+          "required": true
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "body",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "brand_create-ai",
+      "description": "Given a single URL, determines if it is a product page and extracts the product information. Required: url. Optional: maxAgeMs (default: 6.048e+08), timeoutMS. Returns the new BrandCreateAiResponse.",
+      "method": "POST",
+      "path": "/brand/ai/product",
+      "params": [
+        {
+          "name": "maxAgeMs",
+          "type": "int",
+          "location": "body",
+          "description": "Return a cached result if a prior scrape for the same parameters exists and is younger than this many milliseconds. Defaults to 7 days (604800000 ms) when omitted. Max is 30 days (2592000000 ms). Set to 0 to always scrape fresh."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "body",
+          "description": "Optional timeout in milliseconds for the request."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The product page URL to extract product data from.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "brand_create-ai-2",
+      "description": "Extract product information from a brand's website. We will analyze the website and return a list of products with details such as name, description, image, pricing, features, and more. Returns array of BrandCreateAi2Item.",
+      "method": "POST",
+      "path": "/brand/ai/products",
+      "params": []
+    },
+    {
+      "name": "brand_create-ai-3",
+      "description": "Use AI to extract specific data points from a brand's website. The AI will crawl the website and extract the requested information based on the provided data points. Required: data_to_extract, domain. Optional: specific_pages, timeoutMS. Returns the new BrandCreateAi3Response.",
+      "method": "POST",
+      "path": "/brand/ai/query",
+      "params": [
+        {
+          "name": "data_to_extract",
+          "type": "array",
+          "location": "body",
+          "description": "Array of data points to extract from the website",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "The domain name to analyze",
+          "required": true
+        },
+        {
+          "name": "specific-pages-about-us",
+          "wire_name": "specific_pages.about_us",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to analyze the about us page"
+        },
+        {
+          "name": "specific-pages-blog",
+          "wire_name": "specific_pages.blog",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to analyze the blog"
+        },
+        {
+          "name": "specific-pages-careers",
+          "wire_name": "specific_pages.careers",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to analyze the careers page"
+        },
+        {
+          "name": "specific-pages-contact-us",
+          "wire_name": "specific_pages.contact_us",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to analyze the contact us page"
+        },
+        {
+          "name": "specific-pages-faq",
+          "wire_name": "specific_pages.faq",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to analyze the FAQ page"
+        },
+        {
+          "name": "specific-pages-home-page",
+          "wire_name": "specific_pages.home_page",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to analyze the home page"
+        },
+        {
+          "name": "specific-pages-pricing",
+          "wire_name": "specific_pages.pricing",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to analyze the pricing page"
+        },
+        {
+          "name": "specific-pages-privacy-policy",
+          "wire_name": "specific_pages.privacy_policy",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to analyze the privacy policy page"
+        },
+        {
+          "name": "specific-pages-terms-and-conditions",
+          "wire_name": "specific_pages.terms_and_conditions",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to analyze the terms and conditions page"
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "body",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "brand_create-prefetchbyemail",
+      "description": "Signal that you may fetch brand data for a particular domain soon to improve latency. This endpoint accepts an email address, extracts the domain from it, validates that it's not a disposable or free email provider, and queues the domain for prefetching. Required: email. Optional: timeoutMS. Returns the new BrandCreatePrefetchbyemailResponse.",
+      "method": "POST",
+      "path": "/brand/prefetch-by-email",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email address to prefetch brand data for. The domain will be extracted from the email. Free email providers (gmail.com, yahoo.com, etc.) and disposable email addresses are not allowed.",
+          "required": true
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "body",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "brand_list",
+      "description": "Retrieve logos, backdrops, colors, industry, description, and more from any domain. Required: domain. Optional: force_language, maxSpeed, maxAgeMs (default: 7.776e+09) (plus 1 more). Returns the BrandResponse.",
+      "method": "GET",
+      "path": "/brand/retrieve",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain name to retrieve brand data for (e.g., 'example.com', 'google.com'). Cannot be used with name or ticker parameters.",
+          "required": true
+        },
+        {
+          "name": "force_language",
+          "type": "string",
+          "location": "query",
+          "description": "Optional parameter to force the language of the retrieved brand data."
+        },
+        {
+          "name": "maxSpeed",
+          "type": "bool",
+          "location": "query",
+          "description": "Optional parameter to optimize the API call for maximum speed. When set to true, the API will skip time-consuming operations for faster response at the cost of less comprehensive data. Works with all three lookup methods."
+        },
+        {
+          "name": "maxAgeMs",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum age in milliseconds for cached brand data before the API performs a hard refresh."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "query",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "brand_list-retrievebyemail",
+      "description": "Retrieve brand information using an email address while detecting disposable and free email addresses. Disposable and free email addresses (like gmail.com, yahoo.com) will throw a 422 error. Required: email. Optional: force_language, maxSpeed, maxAgeMs (default: 7.776e+09) (plus 1 more). Returns the BrandResponse.",
+      "method": "GET",
+      "path": "/brand/retrieve-by-email",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "Email address to retrieve brand data for (e.g., 'contact@example.com'). The domain will be extracted from the email. Free email providers (gmail.com, yahoo.com, etc.) and disposable email addresses are not allowed.",
+          "required": true
+        },
+        {
+          "name": "force_language",
+          "type": "string",
+          "location": "query",
+          "description": "Optional parameter to force the language of the retrieved brand data."
+        },
+        {
+          "name": "maxSpeed",
+          "type": "bool",
+          "location": "query",
+          "description": "Optional parameter to optimize the API call for maximum speed."
+        },
+        {
+          "name": "maxAgeMs",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum age in milliseconds for cached brand data before the API performs a hard refresh."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "query",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "brand_list-retrievebyisin",
+      "description": "Retrieve brand information using an ISIN (International Securities Identification Number). Required: isin. Optional: force_language, maxSpeed, maxAgeMs (default: 7.776e+09) (plus 1 more). Returns the BrandResponse.",
+      "method": "GET",
+      "path": "/brand/retrieve-by-isin",
+      "params": [
+        {
+          "name": "isin",
+          "type": "string",
+          "location": "query",
+          "description": "ISIN (International Securities Identification Number) to retrieve brand data for (e.g., 'AU000000IMD5', 'US0378331005'). Must be exactly 12 characters: 2 letters followed by 9 alphanumeric characters and ending with a digit.",
+          "required": true
+        },
+        {
+          "name": "force_language",
+          "type": "string",
+          "location": "query",
+          "description": "Optional parameter to force the language of the retrieved brand data."
+        },
+        {
+          "name": "maxSpeed",
+          "type": "bool",
+          "location": "query",
+          "description": "Optional parameter to optimize the API call for maximum speed."
+        },
+        {
+          "name": "maxAgeMs",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum age in milliseconds for cached brand data before the API performs a hard refresh."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "query",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "brand_list-retrievebyname",
+      "description": "Retrieve brand information using a company name. Required: name. Optional: country_gl, force_language, maxSpeed (plus 2 more). Returns the BrandResponse.",
+      "method": "GET",
+      "path": "/brand/retrieve-by-name",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Company name to retrieve brand data for (e.g., 'Apple Inc', 'Microsoft Corporation'). Must be 3-30 characters.",
+          "required": true
+        },
+        {
+          "name": "country_gl",
+          "type": "string",
+          "location": "query",
+          "description": "Optional country code hint (GL parameter) to specify the country for the company name."
+        },
+        {
+          "name": "force_language",
+          "type": "string",
+          "location": "query",
+          "description": "Optional parameter to force the language of the retrieved brand data."
+        },
+        {
+          "name": "maxSpeed",
+          "type": "bool",
+          "location": "query",
+          "description": "Optional parameter to optimize the API call for maximum speed."
+        },
+        {
+          "name": "maxAgeMs",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum age in milliseconds for cached brand data before the API performs a hard refresh."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "query",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "brand_list-retrievebyticker",
+      "description": "Retrieve brand information using a stock ticker symbol. Required: ticker. Optional: ticker_exchange, force_language, maxSpeed (plus 2 more). Returns the BrandResponse.",
+      "method": "GET",
+      "path": "/brand/retrieve-by-ticker",
+      "params": [
+        {
+          "name": "ticker",
+          "type": "string",
+          "location": "query",
+          "description": "Stock ticker symbol to retrieve brand data for (e.g., 'AAPL', 'GOOGL', 'BRK.A'). Must be 1-15 characters, letters/numbers/dots only.",
+          "required": true
+        },
+        {
+          "name": "ticker_exchange",
+          "type": "string",
+          "location": "query",
+          "description": "Optional stock exchange for the ticker. Defaults to NASDAQ if not specified."
+        },
+        {
+          "name": "force_language",
+          "type": "string",
+          "location": "query",
+          "description": "Optional parameter to force the language of the retrieved brand data."
+        },
+        {
+          "name": "maxSpeed",
+          "type": "bool",
+          "location": "query",
+          "description": "Optional parameter to optimize the API call for maximum speed."
+        },
+        {
+          "name": "maxAgeMs",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum age in milliseconds for cached brand data before the API performs a hard refresh."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "query",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "brand_list-retrievesimplified",
+      "description": "Returns a simplified version of brand data containing only essential information: domain, title, colors, logos, and backdrops. Optimized for faster responses and reduced data transfer. Required: domain. Optional: maxAgeMs (default: 7.776e+09), timeoutMS.",
+      "method": "GET",
+      "path": "/brand/retrieve-simplified",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain name to retrieve simplified brand data for",
+          "required": true
+        },
+        {
+          "name": "maxAgeMs",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum age in milliseconds for cached brand data before the API performs a hard refresh."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "query",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "brand_list-transactionidentifier",
+      "description": "Endpoint specially designed for platforms that want to identify transaction data by the transaction title. Required: transaction_info. Optional: country_gl, city, mcc (plus 5 more). Returns the BrandResponse.",
+      "method": "GET",
+      "path": "/brand/transaction_identifier",
+      "params": [
+        {
+          "name": "transaction_info",
+          "type": "string",
+          "location": "query",
+          "description": "Transaction information to identify the brand",
+          "required": true
+        },
+        {
+          "name": "country_gl",
+          "type": "string",
+          "location": "query",
+          "description": "Optional country code (GL parameter) to specify the country. This affects the geographic location used for search queries."
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "location": "query",
+          "description": "Optional city name to prioritize when searching for the brand."
+        },
+        {
+          "name": "mcc",
+          "type": "string",
+          "location": "query",
+          "description": "Optional Merchant Category Code (MCC) to help identify the business category/industry."
+        },
+        {
+          "name": "phone",
+          "type": "float",
+          "location": "query",
+          "description": "Optional phone number from the transaction to help verify brand match."
+        },
+        {
+          "name": "high_confidence_only",
+          "type": "bool",
+          "location": "query",
+          "description": "When set to true, the API will perform an additional verification steps to ensure the identified brand matches the transaction with high confidence."
+        },
+        {
+          "name": "force_language",
+          "type": "string",
+          "location": "query",
+          "description": "Optional parameter to force the language of the retrieved brand data."
+        },
+        {
+          "name": "maxSpeed",
+          "type": "bool",
+          "location": "query",
+          "description": "Optional parameter to optimize the API call for maximum speed."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "query",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "people_create",
+      "description": "Retrieve and normalize a person profile from identifiers. Required: identifiers. Optional: timeoutMS. Returns the new PersonRetrieveResponse.",
+      "method": "POST",
+      "path": "/people/retrieve",
+      "params": [
+        {
+          "name": "identifiers-linkedin-url",
+          "wire_name": "identifiers.linkedinUrl",
+          "type": "string",
+          "location": "body",
+          "description": "LinkedIn profile URL, e.g. https://www.linkedin.com/in/yahia-bakour/.",
+          "required": true
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "body",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "web_create",
+      "description": "Performs a crawl starting from a given URL, extracts page content as Markdown, and returns results for all crawled pages. Required: url. Optional: excludeSelectors, followSubdomains (default: false), includeFrames (default: false) (plus 13 more).",
+      "method": "POST",
+      "path": "/web/crawl",
+      "params": [
+        {
+          "name": "excludeSelectors",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "CSS selectors to remove before each crawled page is converted to Markdown. Applied after includeSelectors. Exclusion takes precedence: an element matching both is removed. Examples: 'nav', 'footer', '.ad-banner', '[aria-hidden=true]'."
+        },
+        {
+          "name": "followSubdomains",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, follow links on subdomains of the starting URL's domain (e.g. docs.example.com when starting from example.com). www and apex are always treated as equivalent."
+        },
+        {
+          "name": "includeFrames",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, the contents of iframes are rendered to Markdown for each crawled page."
+        },
+        {
+          "name": "includeImages",
+          "type": "bool",
+          "location": "body",
+          "description": "Include image references in the Markdown output"
+        },
+        {
+          "name": "includeLinks",
+          "type": "bool",
+          "location": "body",
+          "description": "Preserve hyperlinks in the Markdown output"
+        },
+        {
+          "name": "includeSelectors",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "CSS selectors. When provided, only matching HTML subtrees (and their descendants) are kept before each crawled page is converted to Markdown. When omitted, the entire document is kept. Examples: 'article.main', '#content', '[role=main]'."
+        },
+        {
+          "name": "maxAgeMs",
+          "type": "int",
+          "location": "body",
+          "description": "Return a cached result if a prior scrape for the same parameters exists and is younger than..."
+        },
+        {
+          "name": "maxDepth",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum link depth from the starting URL (0 = only the starting page)"
+        },
+        {
+          "name": "maxPages",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of pages to crawl. Hard cap: 500."
+        },
+        {
+          "name": "pdf-end",
+          "wire_name": "pdf.end",
+          "type": "int",
+          "location": "body",
+          "description": "Last 1-based PDF page to parse. When omitted, parsing ends at the last page. Must be greater than or equal to start when both are provided."
+        },
+        {
+          "name": "pdf-should-parse",
+          "wire_name": "pdf.shouldParse",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, PDF pages are fetched and parsed. When false, PDF pages are skipped entirely (not included in results and not counted as failures)."
+        },
+        {
+          "name": "pdf-start",
+          "wire_name": "pdf.start",
+          "type": "int",
+          "location": "body",
+          "description": "First 1-based PDF page to parse. When omitted, parsing starts at the first page."
+        },
+        {
+          "name": "shortenBase64Images",
+          "type": "bool",
+          "location": "body",
+          "description": "Truncate base64-encoded image data in the Markdown output"
+        },
+        {
+          "name": "stopAfterMs",
+          "type": "int",
+          "location": "body",
+          "description": "Soft time budget for the crawl in milliseconds. After each scrape, the crawler checks the elapsed time and, if exceeded, returns the pages collected so far instead of continuing. Min: 10000 (10s). Max: 110000 (110s). Default: 80000 (80s)."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "body",
+          "description": "Optional timeout in milliseconds for the request."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The starting URL for the crawl (must include http:// or https:// protocol)",
+          "required": true
+        },
+        {
+          "name": "urlRegex",
+          "type": "string",
+          "location": "body",
+          "description": "Regex pattern. Only URLs matching this pattern will be followed and scraped."
+        },
+        {
+          "name": "useMainContentOnly",
+          "type": "bool",
+          "location": "body",
+          "description": "Extract only the main content, stripping headers, footers, sidebars, and navigation"
+        },
+        {
+          "name": "waitForMs",
+          "type": "int",
+          "location": "body",
+          "description": "Optional browser wait time in milliseconds after initial page load for each crawled page. Min: 0. Max: 30000 (30 seconds)."
+        }
+      ]
+    },
+    {
+      "name": "web_create-extract",
+      "description": "Crawl a website, use the provided JSON Schema and instructions to prioritize relevant internal links, and extract structured data from the selected pages. Required: schema, url. Optional: factCheck (default: false), followSubdomains (default: false), includeFrames (default: false) (plus 8 more). Returns array of string.",
+      "method": "POST",
+      "path": "/web/extract",
+      "params": [
+        {
+          "name": "factCheck",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, every returned value must be grounded in facts stated on the page; fields that cannot be supported by the page are returned as null/empty. When false (default), the model may make reasonable inferences and derivations from the page content (e.g. ideal customer, competitor analysis, recommendations) while keeping verifiable specifics (names, quotes, URLs, dates, metrics) faithful to the source."
+        },
+        {
+          "name": "followSubdomains",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, follow links on subdomains of the starting URL's domain."
+        },
+        {
+          "name": "includeFrames",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, iframe contents are included in Markdown before extraction."
+        },
+        {
+          "name": "instructions",
+          "type": "string",
+          "location": "body",
+          "description": "Optional extraction guidance, such as which facts to prioritize or how to interpret fields in the schema."
+        },
+        {
+          "name": "maxAgeMs",
+          "type": "int",
+          "location": "body",
+          "description": "Return cached scrape results if a prior scrape for the same parameters is younger than this many milliseconds. Defaults to 7 days (604800000 ms)."
+        },
+        {
+          "name": "maxDepth",
+          "type": "int",
+          "location": "body",
+          "description": "Optional maximum link depth from the starting URL (0 = only the starting page). If omitted, there is no crawl depth limit."
+        },
+        {
+          "name": "maxPages",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of pages to analyze for extraction. Hard cap: 50. Defaults to 5."
+        },
+        {
+          "name": "pdf-end",
+          "wire_name": "pdf.end",
+          "type": "int",
+          "location": "body",
+          "description": "Last 1-based PDF page to parse. Must be greater than or equal to start when both are provided."
+        },
+        {
+          "name": "pdf-should-parse",
+          "wire_name": "pdf.shouldParse",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, PDF pages are fetched and parsed. When false, PDF pages are skipped."
+        },
+        {
+          "name": "pdf-start",
+          "wire_name": "pdf.start",
+          "type": "int",
+          "location": "body",
+          "description": "First 1-based PDF page to parse."
+        },
+        {
+          "name": "schema",
+          "type": "object",
+          "location": "body",
+          "description": "JSON Schema for the returned data object. TypeScript Zod users can pass a JSON Schema generated from a Zod object; Python users can pass the equivalent JSON Schema object.",
+          "required": true
+        },
+        {
+          "name": "stopAfterMs",
+          "type": "int",
+          "location": "body",
+          "description": "Soft time budget for the crawl in milliseconds. Min: 10000 (10s). Max: 110000 (110s). Default: 80000 (80s)."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "body",
+          "description": "Optional timeout in milliseconds for the request."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The starting website URL to crawl and extract from. Must include http:// or https://.",
+          "required": true
+        },
+        {
+          "name": "waitForMs",
+          "type": "int",
+          "location": "body",
+          "description": "Optional browser wait time in milliseconds after initial page load for each crawled page."
+        }
+      ]
+    },
+    {
+      "name": "web_create-search",
+      "description": "Search the web and optionally scrape each result to Markdown in one round-trip. Required: query. Optional: excludeDomains, freshness, includeDomains (plus 3 more). Returns array of WebCreateSearchItem.",
+      "method": "POST",
+      "path": "/web/search",
+      "params": [
+        {
+          "name": "excludeDomains",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Blocklist \u2014 drop results from these domains. Example: ['pinterest.com', 'reddit.com']."
+        },
+        {
+          "name": "freshness",
+          "type": "string",
+          "location": "body",
+          "description": "Restrict results to content published within this window."
+        },
+        {
+          "name": "includeDomains",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Allowlist \u2014 only return results from these domains. Example: ['arxiv.org', 'github.com']."
+        },
+        {
+          "name": "markdown-options-enabled",
+          "wire_name": "markdownOptions.enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Scrape each result to Markdown. Off by default to keep search cheap and fast."
+        },
+        {
+          "name": "markdown-options-include-frames",
+          "wire_name": "markdownOptions.includeFrames",
+          "type": "bool",
+          "location": "body",
+          "description": "Render iframe contents into the Markdown."
+        },
+        {
+          "name": "markdown-options-include-images",
+          "wire_name": "markdownOptions.includeImages",
+          "type": "bool",
+          "location": "body",
+          "description": "Emit image references in the Markdown."
+        },
+        {
+          "name": "markdown-options-include-links",
+          "wire_name": "markdownOptions.includeLinks",
+          "type": "bool",
+          "location": "body",
+          "description": "Keep hyperlinks in the Markdown."
+        },
+        {
+          "name": "markdown-options-max-age-ms",
+          "wire_name": "markdownOptions.maxAgeMs",
+          "type": "int",
+          "location": "body",
+          "description": "Cache TTL in ms for scraped Markdown keyed by URL + options. Default 1 day, max 30 days. Set to 0 to force a fresh scrape."
+        },
+        {
+          "name": "markdown-options-pdf-end",
+          "wire_name": "markdownOptions.pdf.end",
+          "type": "int",
+          "location": "body",
+          "description": "Last PDF page to parse (1-based, inclusive). Defaults to the final page. Must be >= start."
+        },
+        {
+          "name": "markdown-options-pdf-should-parse",
+          "wire_name": "markdownOptions.pdf.shouldParse",
+          "type": "bool",
+          "location": "body",
+          "description": "Parse PDF URLs. When false, PDF results are skipped with WEBSITE_ACCESS_ERROR."
+        },
+        {
+          "name": "markdown-options-pdf-start",
+          "wire_name": "markdownOptions.pdf.start",
+          "type": "int",
+          "location": "body",
+          "description": "First PDF page to parse (1-based, inclusive). Defaults to page 1."
+        },
+        {
+          "name": "markdown-options-shorten-base64-images",
+          "wire_name": "markdownOptions.shortenBase64Images",
+          "type": "bool",
+          "location": "body",
+          "description": "Truncate inline base64 image payloads to keep responses small."
+        },
+        {
+          "name": "markdown-options-timeout-ms",
+          "wire_name": "markdownOptions.timeoutMS",
+          "type": "int",
+          "location": "body",
+          "description": "Optional timeout in milliseconds for the request."
+        },
+        {
+          "name": "markdown-options-use-main-content-only",
+          "wire_name": "markdownOptions.useMainContentOnly",
+          "type": "bool",
+          "location": "body",
+          "description": "Strip nav, header, footer, and sidebar \u2014 keep only the primary article content."
+        },
+        {
+          "name": "markdown-options-wait-for-ms",
+          "wire_name": "markdownOptions.waitForMs",
+          "type": "int",
+          "location": "body",
+          "description": "Extra wait after page load before rendering, in ms (0\u201330000). Useful for JS-heavy pages."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Natural-language search query.",
+          "required": true
+        },
+        {
+          "name": "queryFanout",
+          "type": "bool",
+          "location": "body",
+          "description": "Expand the query into multiple parallel variants for broader recall."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "body",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "web_list",
+      "description": "Analyze a company's landing page and web search evidence to return direct competitors for the same product or market. Required: domain. Optional: numCompetitors (default: 5), timeoutMS. Returns array of WebListItem.",
+      "method": "GET",
+      "path": "/web/competitors",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Company domain to analyze, such as `stripe.com`. Full http(s) URLs are accepted and normalized to their domain.",
+          "required": true
+        },
+        {
+          "name": "numCompetitors",
+          "type": "int",
+          "location": "query",
+          "description": "Exact number of direct competitors to return. Defaults to 5."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "query",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "web_list-fonts",
+      "description": "Scrape font information from a website including font families, usage statistics, fallbacks, and element/word counts. Optional: domain, directUrl, maxAgeMs (default: 7.776e+09) (plus 1 more). Returns array of WebListFontsItem.",
+      "method": "GET",
+      "path": "/web/fonts",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain name to extract fonts from (e.g., 'example.com', 'google.com'). The domain will be automatically normalized and validated. You must provide either 'domain' or 'directUrl', but not both."
+        },
+        {
+          "name": "directUrl",
+          "type": "string",
+          "location": "query",
+          "description": "A specific URL to fetch fonts from directly, bypassing domain resolution (e.g., 'https://example.com/design-system'). When provided, fonts are extracted from this exact URL. You must provide either 'domain' or 'directUrl', but not both."
+        },
+        {
+          "name": "maxAgeMs",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum age in milliseconds for cached data before the API performs a hard refresh. Defaults to 3 months (7776000000 ms). Values below 1 day (86400000 ms) are clamped to 1 day; values above 1 year (31536000000 ms) are clamped to 1 year."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "query",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "web_list-naics",
+      "description": "Classify any brand into 2022 NAICS industry codes from its domain or name. Required: input. Optional: minResults (default: 1), maxResults (default: 5), timeoutMS. Returns array of WebListNaicsItem.",
+      "method": "GET",
+      "path": "/web/naics",
+      "params": [
+        {
+          "name": "input",
+          "type": "string",
+          "location": "query",
+          "description": "Brand domain or title to retrieve NAICS code for. If a valid domain is provided, it will be used for classification, otherwise, we will search for the brand using the provided title.",
+          "required": true
+        },
+        {
+          "name": "minResults",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum number of NAICS codes to return. Must be at least 1. Defaults to 1."
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of NAICS codes to return. Must be between 1 and 10. Defaults to 5."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "query",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "web_list-scrape",
+      "description": "Scrapes the given URL and returns the raw HTML content of the page. Required: url. Optional: pdf (default: map[shouldParse:true]), includeFrames (default: false), useMainContentOnly (default: false) (plus 6 more).",
+      "method": "GET",
+      "path": "/web/scrape/html",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Full URL to scrape (must include http:// or https:// protocol)",
+          "required": true
+        },
+        {
+          "name": "pdf",
+          "type": "object",
+          "location": "query",
+          "description": "PDF parsing controls. Use start/end to limit text extraction and OCR to an inclusive 1-based..."
+        },
+        {
+          "name": "includeFrames",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, iframes are rendered inline into the returned HTML."
+        },
+        {
+          "name": "useMainContentOnly",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, return only the page's main content in the HTML response, excluding headers, footers, sidebars, and navigation when detectable."
+        },
+        {
+          "name": "includeSelectors",
+          "type": "array",
+          "location": "query",
+          "description": "CSS selectors. When provided, only matching subtrees (and their descendants) are kept and everything else is dropped. When omitted, the entire document is kept. Examples: 'article.main', '#content', '[role=main]'."
+        },
+        {
+          "name": "excludeSelectors",
+          "type": "array",
+          "location": "query",
+          "description": "CSS selectors to remove from the result. Applied after includeSelectors. Exclusion takes precedence: an element matching both is removed. Examples: 'nav', 'footer', '.ad-banner', '[aria-hidden=true]'."
+        },
+        {
+          "name": "maxAgeMs",
+          "type": "int",
+          "location": "query",
+          "description": "Return a cached result if a prior scrape for the same parameters exists and is younger than..."
+        },
+        {
+          "name": "waitForMs",
+          "type": "int",
+          "location": "query",
+          "description": "Optional browser wait time in milliseconds after initial page load. Min: 0. Max: 30000 (30 seconds)."
+        },
+        {
+          "name": "headers",
+          "type": "object",
+          "location": "query",
+          "description": "Optional outbound HTTP headers forwarded only to the target URL, sent as deep-object query..."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "query",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "web_list-scrape-2",
+      "description": "Extract image assets from a web page, including standard URLs, inline SVGs, data URIs, responsive image sources, metadata, CSS backgrounds, video posters, and embeds. The base request costs 1 credit. When enrichment is enabled, the entire call costs 5 credits. Required: url. Optional: maxAgeMs (default: 8.64e+07), enrichment, waitForMs (plus 2 more). Returns array of WebListScrape2Item.",
+      "method": "GET",
+      "path": "/web/scrape/images",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Page URL to inspect. Must include http:// or https://.",
+          "required": true
+        },
+        {
+          "name": "maxAgeMs",
+          "type": "int",
+          "location": "query",
+          "description": "Reuse a cached result this many milliseconds old or newer. Default: 86400000 (1 day). Set to 0 to bypass cache. Maximum: 2592000000 (30 days)."
+        },
+        {
+          "name": "enrichment",
+          "type": "object",
+          "location": "query",
+          "description": "Optional per-image processing, sent as deep-object query params such as enrichment[resolution]=true."
+        },
+        {
+          "name": "waitForMs",
+          "type": "int",
+          "location": "query",
+          "description": "Optional browser wait time in milliseconds after initial page load before collecting images. Min: 0. Max: 30000 (30 seconds)."
+        },
+        {
+          "name": "headers",
+          "type": "object",
+          "location": "query",
+          "description": "Optional outbound HTTP headers forwarded only to the target URL, sent as deep-object query..."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "query",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "web_list-scrape-3",
+      "description": "Scrapes the given URL into LLM usable Markdown. Required: url. Optional: includeLinks (default: true), includeImages (default: false), shortenBase64Images (default: true) (plus 9 more). Returns the WebListScrape3Response.",
+      "method": "GET",
+      "path": "/web/scrape/markdown",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Full URL to scrape into LLM usable Markdown (must include http:// or https:// protocol)",
+          "required": true
+        },
+        {
+          "name": "includeLinks",
+          "type": "bool",
+          "location": "query",
+          "description": "Preserve hyperlinks in Markdown output"
+        },
+        {
+          "name": "includeImages",
+          "type": "bool",
+          "location": "query",
+          "description": "Include image references in Markdown output"
+        },
+        {
+          "name": "shortenBase64Images",
+          "type": "bool",
+          "location": "query",
+          "description": "Shorten base64-encoded image data in the Markdown output"
+        },
+        {
+          "name": "useMainContentOnly",
+          "type": "bool",
+          "location": "query",
+          "description": "Extract only the main content of the page, excluding headers, footers, sidebars, and navigation"
+        },
+        {
+          "name": "pdf",
+          "type": "object",
+          "location": "query",
+          "description": "PDF parsing controls. Use start/end to limit text extraction and OCR to an inclusive 1-based..."
+        },
+        {
+          "name": "includeFrames",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, the contents of iframes are rendered to Markdown."
+        },
+        {
+          "name": "includeSelectors",
+          "type": "array",
+          "location": "query",
+          "description": "CSS selectors. When provided, only matching HTML subtrees (and their descendants) are kept before conversion to Markdown. When omitted, the entire document is kept. Examples: 'article.main', '#content', '[role=main]'."
+        },
+        {
+          "name": "excludeSelectors",
+          "type": "array",
+          "location": "query",
+          "description": "CSS selectors to remove before conversion to Markdown. Applied after includeSelectors. Exclusion takes precedence: an element matching both is removed. Examples: 'nav', 'footer', '.ad-banner', '[aria-hidden=true]'."
+        },
+        {
+          "name": "maxAgeMs",
+          "type": "int",
+          "location": "query",
+          "description": "Return a cached result if a prior scrape for the same parameters exists and is younger than..."
+        },
+        {
+          "name": "waitForMs",
+          "type": "int",
+          "location": "query",
+          "description": "Optional browser wait time in milliseconds after initial page load before converting the page to Markdown. Min: 0. Max: 30000 (30 seconds)."
+        },
+        {
+          "name": "headers",
+          "type": "object",
+          "location": "query",
+          "description": "Optional outbound HTTP headers forwarded only to the target URL, sent as deep-object query..."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "query",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "web_list-scrape-4",
+      "description": "Crawl an entire website's sitemap and return all discovered page URLs. Required: domain. Optional: maxLinks (default: 10000), urlRegex, headers (plus 1 more). Returns array of string.",
+      "method": "GET",
+      "path": "/web/scrape/sitemap",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain to build a sitemap for",
+          "required": true
+        },
+        {
+          "name": "maxLinks",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of links to return from the sitemap crawl. Defaults to 10,000. Minimum is 1, maximum is 100,000."
+        },
+        {
+          "name": "urlRegex",
+          "type": "string",
+          "location": "query",
+          "description": "Optional RE2-compatible regex pattern. Only URLs matching this pattern are returned and counted against maxLinks."
+        },
+        {
+          "name": "headers",
+          "type": "object",
+          "location": "query",
+          "description": "Optional outbound HTTP headers forwarded only to the target URL, sent as deep-object query..."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "query",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "web_list-screenshot",
+      "description": "Capture a screenshot of a website. Optional: domain, directUrl, fullScreenshot (plus 6 more). Returns the WebListScreenshotResponse.",
+      "method": "GET",
+      "path": "/web/screenshot",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain name to take screenshot of (e.g., 'example.com', 'google.com'). The domain will be automatically normalized and validated. You must provide either 'domain' or 'directUrl', but not both."
+        },
+        {
+          "name": "directUrl",
+          "type": "string",
+          "location": "query",
+          "description": "A specific URL to screenshot directly, bypassing domain resolution (e.g., 'https://example.com/pricing'). When provided, the screenshot is taken of this exact URL. You must provide either 'domain' or 'directUrl', but not both."
+        },
+        {
+          "name": "fullScreenshot",
+          "type": "string",
+          "location": "query",
+          "description": "Optional parameter to determine screenshot type. If 'true', takes a full page screenshot capturing all content. If 'false' or not provided, takes a viewport screenshot (standard browser view)."
+        },
+        {
+          "name": "handleCookiePopup",
+          "type": "string",
+          "location": "query",
+          "description": "Optional parameter to control cookie/consent popup handling. If 'true', we dismiss cookie banner before capture. If 'false' or not provided, captures the page without that step."
+        },
+        {
+          "name": "viewport",
+          "type": "object",
+          "location": "query",
+          "description": "Optional browser viewport dimensions for the screenshot. Defaults to 1920x1080."
+        },
+        {
+          "name": "maxAgeMs",
+          "type": "int",
+          "location": "query",
+          "description": "Return a cached screenshot if a prior screenshot for the same parameters exists and is younger than this many milliseconds. Defaults to 1 day (86400000 ms) when omitted. Max is 30 days (2592000000 ms). Set to 0 to always capture fresh."
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Optional parameter to specify which page type to screenshot. If provided, the system will scrape the domain's links and use heuristics to find the most appropriate URL for the specified page type (30 supported languages). If not provided, screenshots the main domain landing page. Only applicable when using 'domain', not 'directUrl'."
+        },
+        {
+          "name": "waitForMs",
+          "type": "int",
+          "location": "query",
+          "description": "Optional browser wait time in milliseconds after initial page load before taking the screenshot. Min: 0. Max: 30000 (30 seconds). Defaults to 3000 ms when omitted."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "query",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "web_list-sic",
+      "description": "Classify any brand into Standard Industrial Classification (SIC) codes from its domain or name. Choose between the original SIC system (`original_sic`) or the latest SIC list maintained by the SEC (`latest_sec`). Required: input. Optional: type (default: original_sic), minResults (default: 1), maxResults (default: 5) (plus 1 more). Returns array of WebListSicItem.",
+      "method": "GET",
+      "path": "/web/sic",
+      "params": [
+        {
+          "name": "input",
+          "type": "string",
+          "location": "query",
+          "description": "Brand domain or title to retrieve SIC code for. If a valid domain is provided, it will be used for classification, otherwise, we will search for the brand using the provided title.",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Which SIC dataset to classify against. `original_sic` uses the 1987 Standard Industrial Classification system; `latest_sec` uses the current SIC list as published by the SEC. Defaults to `original_sic`."
+        },
+        {
+          "name": "minResults",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum number of SIC codes to return. Must be at least 1. Defaults to 1."
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of SIC codes to return. Must be between 1 and 10. Defaults to 5."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "query",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    },
+    {
+      "name": "web_list-styleguide",
+      "description": "Extract a comprehensive design system from a website including colors, typography, spacing, shadows, and UI components. Optional: domain, directUrl, maxAgeMs (default: 7.776e+09) (plus 1 more). Returns the WebListStyleguideResponse.",
+      "method": "GET",
+      "path": "/web/styleguide",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain name to extract styleguide from (e.g., 'example.com', 'google.com'). The domain will be automatically normalized and validated. You must provide either 'domain' or 'directUrl', but not both."
+        },
+        {
+          "name": "directUrl",
+          "type": "string",
+          "location": "query",
+          "description": "A specific URL to fetch the styleguide from directly, bypassing domain resolution (e.g., 'https://example.com/design-system'). When provided, the styleguide is extracted from this exact URL. You must provide either 'domain' or 'directUrl', but not both."
+        },
+        {
+          "name": "maxAgeMs",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum age in milliseconds for cached data before the API performs a hard refresh. Defaults to 3 months (7776000000 ms). Values below 1 day (86400000 ms) are clamped to 1 day; values above 1 year (31536000000 ms) are clamped to 1 year."
+        },
+        {
+          "name": "timeoutMS",
+          "type": "int",
+          "location": "query",
+          "description": "Optional timeout in milliseconds for the request."
+        }
+      ]
+    }
+  ]
+}

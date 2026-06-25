@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "grubhub-pp-mcp",
+  "display_name": "Grubhub",
+  "version": "0.0.0",
+  "description": "Every Grubhub restaurant search, plus a sortable delivery-fee comparison board, a cross-restaurant deal radar, and offline menu-item search no Grubhub tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/grubhub-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/grubhub-pp-mcp",
+      "args": [],
+      "env": {
+        "GRUBHUB_TOKEN": "${user_config.grubhub_token}"
+      }
+    }
+  },
+  "user_config": {
+    "grubhub_token": {
+      "type": "string",
+      "title": "GRUBHUB_TOKEN",
+      "description": "Optional. Grubhub needs no user token: the CLI mints an anonymous bearer automatically. Set this only to pin a specific token.",
+      "sensitive": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

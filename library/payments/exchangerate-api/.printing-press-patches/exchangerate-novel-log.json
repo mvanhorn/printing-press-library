@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "exchangerate-novel-log",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-025552",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Add log parent command with show subcommand that queries conversions_log with --since, --base, --target, --limit filters. --limit binds via ? not Sprintf.",
+  "reason": "Persistent conversion log enables agents to recall recent FX work without re-querying the API.",
+  "files": [
+    "internal/cli/log.go"
+  ],
+  "validated_outcome": "log show returns convert/convert-batch entries in DESC order; --base USD --target EUR filters correctly."
+}

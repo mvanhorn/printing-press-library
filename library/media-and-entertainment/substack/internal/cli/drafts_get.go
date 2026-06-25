@@ -17,7 +17,7 @@ func newDraftsGetCmd(flags *rootFlags) *cobra.Command {
 		Use:         "get <draft_id>",
 		Short:       "Get a draft by ID",
 		Example:     "  substack-pp-cli drafts get 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "drafts.get", "pp:method": "GET", "pp:path": "https://{publication}.substack.com/api/v1/drafts/{draft_id}", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "drafts.get", "pp:method": "GET", "pp:path": "https://substack.com/api/v1/drafts/{draft_id}?publication_id={publication_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -27,9 +27,13 @@ func newDraftsGetCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "https://{publication}.substack.com/api/v1/drafts/{draft_id}"
+			path := globalAPIPath("/drafts/{draft_id}")
 			path = replacePathParam(path, "draft_id", args[0])
-			params := map[string]string{}
+			publicationID, err := writerPublicationID(cmd.Context(), c, flags)
+			if err != nil {
+				return err
+			}
+			params := map[string]string{"publication_id": publicationID}
 			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "drafts", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)

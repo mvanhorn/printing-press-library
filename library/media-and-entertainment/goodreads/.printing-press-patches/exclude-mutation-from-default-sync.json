@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "exclude-mutation-from-default-sync",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260522-095940",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Removed message-mark-all-as-read from the default sync resource list.",
+  "reason": "Greptile P1: it maps to a GET mutation; default sync would error on the write gate or mark the inbox read as a side effect.",
+  "files": [
+    "internal/cli/sync.go"
+  ]
+}

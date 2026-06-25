@@ -1,0 +1,51 @@
+version: 2
+project_name: luma-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: luma-pp-cli
+    main: ./cmd/luma-pp-cli
+    binary: luma-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/social-and-messaging/luma/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: luma-pp-mcp
+    main: ./cmd/luma-pp-mcp
+    binary: luma-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: luma-pp-cli
+    repository:
+      owner: richardadonnell
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Browse, search, and export public Luma events from one Go binary — no account, no API key"
+    install: |
+      bin.install "luma-pp-cli"
+      bin.install "luma-pp-mcp"

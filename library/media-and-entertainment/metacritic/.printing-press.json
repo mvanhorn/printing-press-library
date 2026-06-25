@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-16T23:20:33.4270699Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "metacritic",
+  "display_name": "Metacritic",
+  "cli_name": "metacritic-pp-cli",
+  "creator": {
+    "handle": "coopdogGGs",
+    "name": "Ryan Cooper"
+  },
+  "owner": "coopdogggs",
+  "printer": "coopdogGGs",
+  "printer_name": "Ryan Cooper",
+  "spec_path": "metacritic-spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:bee758a5228f0aaf03626c649d1a63e9631d98d2f721c53ec869394b3575a4a6",
+  "run_id": "20260616-232033",
+  "catalog_entry": "metacritic",
+  "category": "media-and-entertainment",
+  "description": "Browse, search, and compare Metascores and user scores for games, movies, and TV shows, plus critic and user reviews, without a Metacritic account.",
+  "mcp_binary": "metacritic-pp-mcp",
+  "mcp_tool_count": 6,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "METACRITIC_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Full-Text Title Search",
+      "command": "search",
+      "description": "FTS5 full-text search across locally synced games, movies, and TV titles."
+    },
+    {
+      "name": "Local Analytics",
+      "command": "analytics",
+      "description": "Aggregate group-by and count queries over locally synced Metacritic data."
+    },
+    {
+      "name": "Compound Workflows",
+      "command": "workflow",
+      "description": "Chain multiple API operations (browse, detail, reviews) into one agent-friendly command."
+    }
+  ]
+}

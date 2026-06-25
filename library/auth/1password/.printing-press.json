@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-08T22:02:13.390383Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "1password",
+  "display_name": "1Password Agent Secrets",
+  "cli_name": "1password-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "owner": "cathrynlavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "spec_path": "1password-op-spec.yaml",
+  "spec_format": "local-sqlite",
+  "spec_checksum": "sha256:d0f69e6c7fd57736689353c1929e5400749309371beb42445dc13e94deb9f731",
+  "run_id": "20260608-220213",
+  "category": "auth",
+  "description": "Agent-safe command layer over the official 1Password CLI and SDK service-account workflows.",
+  "mcp_binary": "1password-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "2026.06",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Fuzzy-to-exact secret resolver",
+      "command": "secrets resolve",
+      "description": "Resolve fuzzy agent requests to exact op:// vault/item/field references without printing values."
+    },
+    {
+      "name": "Exact-reference secret read",
+      "command": "secrets read",
+      "description": "Read only an exact op:// reference, with policy checks and an explicit --reveal gate before values are printed."
+    },
+    {
+      "name": "Secret selection explanation",
+      "command": "secrets explain",
+      "description": "Explain why a particular item and field was selected for a task without revealing the field value."
+    },
+    {
+      "name": "Secret access preflight",
+      "command": "secrets preflight",
+      "description": "Check whether a planned task or command appears to require secret values, documents, cards, or write permissions."
+    },
+    {
+      "name": "Environment reference planner",
+      "command": "env plan",
+      "description": "Parse .env, config, or shell files for missing variables and map them to safe op:// references."
+    },
+    {
+      "name": "Explicit environment injector",
+      "command": "env inject",
+      "description": "Wrap op inject with a redacted plan first and require --write before producing an output file."
+    },
+    {
+      "name": "Item category classifier",
+      "command": "items classify",
+      "description": "Find secure notes that look like API credentials, logins, SSH keys, cards, or documents."
+    },
+    {
+      "name": "Duplicate item detector",
+      "command": "items duplicates",
+      "description": "Detect duplicate titles, URLs, usernames, and likely copied credentials across vaults without printing secret values."
+    },
+    {
+      "name": "Item ownership audit",
+      "command": "items ownership",
+      "description": "Flag shared or service credentials missing owner, purpose, rotation, or environment tags."
+    },
+    {
+      "name": "Credit-card metadata audit",
+      "command": "cards audit",
+      "description": "Find cards stored as notes or logins, missing owner/purpose tags, or CVV-like fields without printing card values."
+    },
+    {
+      "name": "Card field resolver",
+      "command": "cards resolve",
+      "description": "Return card item and field references without printing card numbers, expiry values, or CVVs."
+    },
+    {
+      "name": "Document metadata inventory",
+      "command": "documents inventory",
+      "description": "List document metadata and exact references without downloading document contents."
+    },
+    {
+      "name": "Document metadata audit",
+      "command": "documents audit",
+      "description": "Flag sensitive filenames, oversized docs, private-key/cert-like documents, and documents in shared vaults."
+    },
+    {
+      "name": "Share safety preflight",
+      "command": "share preflight",
+      "description": "Before sharing an item, show recipient, item category, included fields, expiry, and risk."
+    },
+    {
+      "name": "Share support audit",
+      "command": "share audit",
+      "description": "Report whether existing/shareable item link inspection is supported by op or the SDK and document unsupported status clearly."
+    },
+    {
+      "name": "Agent policy checker",
+      "command": "policy check",
+      "description": "Enforce rules such as never reading credit-card values, exact refs for production, and required owner tags."
+    },
+    {
+      "name": "Service-account access scope",
+      "command": "access scope",
+      "description": "Summarize what the current service account or op session can access by vault, category, and count without values."
+    },
+    {
+      "name": "Service-account rate-limit status",
+      "command": "rate-limit status",
+      "description": "Wrap op service-account ratelimit so agents can avoid burning quota."
+    },
+    {
+      "name": "Minimum grant planner",
+      "command": "agent grant-plan",
+      "description": "Suggest the minimum service-account vault permissions needed for a task."
+    },
+    {
+      "name": "op run reference planner",
+      "command": "run plan",
+      "description": "Inspect an op run command or env files and show which secret references will resolve before executing."
+    },
+    {
+      "name": "Stale metadata audit",
+      "command": "audit stale",
+      "description": "Flag items that appear old, untagged, duplicated, or probably unused from metadata."
+    },
+    {
+      "name": "Misplaced item audit",
+      "command": "audit misplaced",
+      "description": "Find API keys, cards, documents, or SSH material saved in the wrong 1Password category."
+    }
+  ]
+}

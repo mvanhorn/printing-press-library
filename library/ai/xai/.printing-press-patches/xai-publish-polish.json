@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "id": "xai-publish-polish",
+  "applied_at": "2026-06-08",
+  "base_run_id": "20260608-201652",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Preserve xAI display casing, mark account-specific live dogfood probes, add model-planning novel commands, and fix reviewed command semantics.",
+  "reason": "The generated CLI needed xAI-specific publication adjustments: root help should preserve the vendor's official xAI casing; the full-live dogfood matrix should skip read endpoints that require existing deferred completions, files, stored responses, skills, video-generation jobs, or account-tier-specific model-family access; the published CLI benefits from model-picker, cost-preview, model-capabilities, and smoke-chat commands that compose xAI's live model metadata into agent-ready workflows; and review found that latest-model ranking must use full creation timestamps while explicit zero values for legacy temperature/top-p flags must be preserved. These commands remain grounded in live API data; the annotations only prevent placeholder fixture probes from failing publication validation.",
+  "files": [
+    "internal/cli/chat_handle-get-deferred-completion-request.go",
+    "internal/cli/embedding-models_handle-get-request.go",
+    "internal/cli/files_content_handle-download-file-request.go",
+    "internal/cli/files_handle-retrieve-request.go",
+    "internal/cli/model_intelligence.go",
+    "internal/cli/model_intelligence_test.go",
+    "internal/cli/promoted_complete.go",
+    "internal/cli/promoted_completions.go",
+    "internal/cli/responses_handle-get-stored-completion-request.go",
+    "internal/cli/responses_input-items_handle-list.go",
+    "internal/cli/root.go",
+    "internal/cli/skills_content_handle-download-skill-request.go",
+    "internal/cli/skills_handle-list-request.go",
+    "internal/cli/skills_handle-retrieve-request.go",
+    "internal/cli/tail.go",
+    "internal/cli/video-generation-models_handle-get-request.go",
+    "internal/cli/videos_handle-get-deferred-request.go",
+    "internal/cli/which.go"
+  ],
+  "validated_outcome": "go test ./..., verify-skill, publish validate, and full live publish dogfood all pass. Full live publish dogfood passed 139/139 matrix entries with 109 account-tier or fixture-dependent commands skipped."
+}

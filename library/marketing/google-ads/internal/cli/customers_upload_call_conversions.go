@@ -21,7 +21,7 @@ func newCustomersUploadCallConversionsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "upload-call-conversions <customerId>",
 		Short:       "Processes the given call conversions.",
-		Example:     "  google-ads-pp-cli customers upload_call_conversions 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  google-ads-pp-cli customers upload-call-conversions 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "customers.upload_call_conversions", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:uploadCallConversions"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

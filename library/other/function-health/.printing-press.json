@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-28T15:01:10.44717Z",
+  "printing_press_version": "4.19.0",
+  "api_name": "function-health",
+  "display_name": "Function Health",
+  "cli_name": "function-health-pp-cli",
+  "creator": {
+    "handle": "DamienStevens",
+    "name": "Damien Stevens"
+  },
+  "owner": "DamienStevens",
+  "printer": "DamienStevens",
+  "printer_name": "Damien Stevens",
+  "spec_path": "function-health-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:1c83d13ab42456e8eabcb2c9f11f70ee1449440219cf541b43bb63283203bd35",
+  "run_id": "20260528-084148",
+  "description": "Every Function Health feature, plus a local SQLite store with biomarker trends across every round you've ever drawn, plus a branded shareable PDF your doctor will actually read.",
+  "mcp_binary": "function-health-pp-mcp",
+  "mcp_tool_count": 16,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "FUNCTION_HEALTH_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Branded doctor PDF",
+      "command": "export pdf-for-doctor",
+      "description": "Render a Function-branded multi-round lab report PDF with your name and date of birth, suitable for emailing to your personal physician."
+    },
+    {
+      "name": "Biomarker trend across all rounds",
+      "command": "biomarker trend",
+      "description": "Every value of a biomarker across every round you've ever drawn, with the delta from Function's optimal range, an ASCII sparkline in the terminal, and structured JSON for agents."
+    },
+    {
+      "name": "Drift-toward-optimal goat",
+      "command": "goat",
+      "description": "Ranks every biomarker by distance-from-optimal multiplied by its slope-away-from-optimal across the last 3 rounds; returns the single most worrying biomarker right now with reasoning fields."
+    },
+    {
+      "name": "Trending-worse cohort",
+      "command": "biomarkers trending",
+      "description": "Lists every biomarker whose slope across the last N rounds points away from Function's optimal range, sorted by magnitude."
+    },
+    {
+      "name": "Category-level health-score timeline",
+      "command": "category trend",
+      "description": "For one of the ~13 categories, returns a per-round aggregate score (percent of biomarkers inside Function's optimal range) over time."
+    },
+    {
+      "name": "Oscillation detector",
+      "command": "biomarkers oscillating",
+      "description": "Biomarkers that crossed the optimal-range boundary at least twice in the last N rounds — flags instability separate from trend."
+    },
+    {
+      "name": "LLM-ready bundle composer",
+      "command": "bundle",
+      "description": "Composes a single Markdown file with a biomarker's full history, every clinician note mentioning it (FTS5), Function's optimal range, and relevant recommendations — ready to paste into Claude or ChatGPT."
+    },
+    {
+      "name": "Recommendation resolution tracker",
+      "command": "recommendations stale",
+      "description": "Recommendations (supplements / foods) whose target biomarker is STILL outside Function's optimal range, joined by Quest code. The /recommendations endpoint has no issued-date, so staleness is by outcome not age; --min-rounds tightens to persistence and --group (supplements, foods_to_eat, foods_to_avoid) focuses a large set."
+    }
+  ]
+}

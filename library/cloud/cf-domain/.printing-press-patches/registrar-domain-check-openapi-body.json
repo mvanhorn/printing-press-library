@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "registrar-domain-check-openapi-body",
+  "applied_at": "2026-05-11",
+  "base_run_id": "local-generate",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Expose domain-check's real domains[] request body in the OpenAPI spec.",
+  "reason": "Tools that read spec.yaml directly should send the same Cloudflare wire shape as the CLI.",
+  "files": [
+    "spec.yaml",
+    "internal/cli/registrar_domain-check.go"
+  ],
+  "validated_outcome": "go test ./... passes."
+}

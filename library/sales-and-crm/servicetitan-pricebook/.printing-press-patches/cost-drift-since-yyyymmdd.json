@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "cost-drift-since-yyyymmdd",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-073613",
+  "base_printing_press_version": "4.6.1",
+  "summary": "CostDrift promotes a bare YYYY-MM-DD --since to end-of-day before comparing against RFC3339 snapshot timestamps so same-day snapshots are included in the baseline window.",
+  "reason": "Greptile review (PR #576): s.at is stored as RFC3339 (\"2026-04-01T08:00:00Z\") but --since is documented as YYYY-MM-DD. Lexicographically \"2026-04-01T08:00:00Z\" sorts after \"2026-04-01\", so s.at <= since was false for every same-day snapshot — the baseline silently slipped to the previous day.",
+  "files": [
+    "internal/pricebook/costhistory.go"
+  ],
+  "validated_outcome": "go build, go vet, go test ./internal/pricebook/ all clean"
+}

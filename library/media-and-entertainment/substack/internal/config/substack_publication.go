@@ -3,6 +3,28 @@
 
 package config
 
+import (
+	"fmt"
+	"strings"
+)
+
+// SetPublication validates and stores the publication subdomain used to fill
+// {publication} in publication-scoped Substack endpoints.
+func (c *Config) SetPublication(subdomain string) error {
+	subdomain = strings.TrimSpace(subdomain)
+	if subdomain == "" {
+		return nil
+	}
+	if !validPublicationLabel(subdomain) {
+		return fmt.Errorf("invalid publication subdomain %q: use a single DNS label such as mypub", subdomain)
+	}
+	if c.TemplateVars == nil {
+		c.TemplateVars = map[string]string{}
+	}
+	c.TemplateVars["publication"] = subdomain
+	return nil
+}
+
 // validPublicationLabel reports whether s is a single DNS label safe to
 // substitute into the {publication}.substack.com Creator host. The publication
 // is always one subdomain label; rejecting punctuation (/, @, :, ., %, …) stops

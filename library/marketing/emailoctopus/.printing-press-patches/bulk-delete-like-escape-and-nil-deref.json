@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "bulk-delete-like-escape-and-nil-deref",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-015019",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Escape `%`/`_`/`\\` in `email-domain=` LIKE pattern with `ESCAPE '\\'`; surface `loadProgress` errors instead of dereferencing nil progress pointer.",
+  "reason": "Greptile P1 findings: (1) the unescaped LIKE pattern from a user-supplied domain like `exa%le.com` widens the deletion set to every contact whose email contains `exa…le.com`; (2) when the progress file exists but is unreadable (e.g., permission denied), `loadProgress` returns `(nil, nil, err)` and the previous caller discarded the error then dereferenced the nil `*bulkDeleteProgress` — guaranteed panic on resumed runs.",
+  "files": [
+    "internal/cli/contacts_bulk_delete.go"
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-14T20:57:45.628688Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "braze",
+  "display_name": "Braze Read",
+  "cli_name": "braze-pp-cli",
+  "creator": {
+    "handle": "debgotwired",
+    "name": "Deb Mukherjee"
+  },
+  "owner": "debgotwired",
+  "printer": "debgotwired",
+  "printer_name": "Deb Mukherjee",
+  "spec_url": "https://www.braze.com/docs/api/home",
+  "spec_path": "braze-read-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:40a20f0fd4958684a10be2184bf584fcfa14294d4319e13e4705715aa2cba1b0",
+  "run_id": "20260614-205745",
+  "category": "marketing",
+  "description": "Read-first Braze REST API surface for marketing analytics, campaign inspection, content assets, and catalog lookup.",
+  "mcp_binary": "braze-pp-mcp",
+  "mcp_tool_count": 27,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "BRAZE_BEARER_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Local SQLite mirror",
+      "command": "sync",
+      "description": "Sync read endpoints into a local SQLite store for offline search, joins, and repeatable agent analysis."
+    },
+    {
+      "name": "Full-text search across API data",
+      "command": "search",
+      "description": "Search live or locally synced API records from one agent-friendly command."
+    },
+    {
+      "name": "SQL analytics on synced records",
+      "command": "analytics",
+      "description": "Run read-only SQL against the local store for compound questions the upstream API does not expose directly."
+    },
+    {
+      "name": "Agent command discovery",
+      "command": "which",
+      "description": "Map natural-language capabilities to the exact CLI command path before spending tokens on trial and error."
+    }
+  ]
+}

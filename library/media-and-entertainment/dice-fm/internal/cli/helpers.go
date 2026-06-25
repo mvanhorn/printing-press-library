@@ -6,11 +6,11 @@ package cli
 import (
 	"bytes"
 	"context"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/cliutil"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/cliutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"
@@ -19,6 +19,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync/atomic"
 	"text/tabwriter"
 	"time"
 	"unicode"
@@ -26,17 +27,39 @@ import (
 
 var As = errors.As
 
-// noColor is set by the --no-color flag
-var noColor bool
+// noColorState / humanFriendlyState hold the resolved output-style toggles.
+//
+// These were previously plain package-global bools bound directly to pflag via
+// BoolVar(&noColor, ...) and written again in the --agent branch of
+// PersistentPreRunE. That made them mutable package state written during
+// Execute(): a `go test -race` with two parallel root.Execute() calls (or any
+// future in-process concurrent invocation) races the pflag/agent writer against
+// the many color/warning readers below. The flags now live on rootFlags (pflag
+// binds to the per-invocation struct fields — see root.go) and are *published*
+// here exactly once in PersistentPreRunE via setOutputStyle. Storing/loading
+// through atomic.Bool makes every remaining read/write race-free regardless of
+// invocation topology. Readers call colorEnabled()/humanFriendlyEnabled().
+var (
+	noColorState       atomic.Bool
+	humanFriendlyState atomic.Bool
+)
 
-// humanFriendly is set by the --human-friendly flag; colors are off by default (agent-safe)
-var humanFriendly bool
+// setOutputStyle publishes the resolved per-invocation output toggles to the
+// process-wide atomics that the leaf color/warning helpers read. Called once
+// from rootCmd.PersistentPreRunE after --agent expansion.
+func setOutputStyle(noColor, humanFriendly bool) {
+	noColorState.Store(noColor)
+	humanFriendlyState.Store(humanFriendly)
+}
+
+// humanFriendlyEnabled reports whether rich/human-friendly output is on.
+func humanFriendlyEnabled() bool { return humanFriendlyState.Load() }
 
 func colorEnabled() bool {
-	if noColor {
+	if noColorState.Load() {
 		return false
 	}
-	if !humanFriendly {
+	if !humanFriendlyState.Load() {
 		return false
 	}
 	if os.Getenv("NO_COLOR") != "" {
@@ -346,7 +369,7 @@ func paginatedGet(ctx context.Context, c interface {
 	page := 0
 	for {
 		page++
-		if humanFriendly {
+		if humanFriendlyEnabled() {
 			fmt.Fprintf(os.Stderr, "fetching page %d...\n", page)
 		} else {
 			fmt.Fprintf(os.Stderr, `{"event":"page_fetch","page":%d}`+"\n", page)
@@ -402,7 +425,7 @@ func paginatedGet(ctx context.Context, c interface {
 	if fetchAll && page == 1 && nextCursorPath == "" && hasMoreField == "" {
 		emitMissingPaginationSignalWarning()
 	}
-	if humanFriendly {
+	if humanFriendlyEnabled() {
 		fmt.Fprintf(os.Stderr, "fetched %d items across %d pages\n", len(allItems), page)
 	} else {
 		fmt.Fprintf(os.Stderr, `{"event":"complete","total":%d,"pages":%d}`+"\n", len(allItems), page)
@@ -442,14 +465,14 @@ func emitTruncationWarning(data json.RawMessage, nextCursorPath, hasMoreField st
 	// re-fetches the same response forever. Don't advertise an escape
 	// hatch that doesn't work for this topology.
 	if nextCursor != "" {
-		if humanFriendly {
+		if humanFriendlyEnabled() {
 			fmt.Fprintf(os.Stderr, "warning: results truncated; more pages available. Re-run with --all to fetch every page.\n")
 		} else {
 			fmt.Fprintf(os.Stderr, `{"event":"truncated","hint":"pass --all to fetch every page"}`+"\n")
 		}
 		return
 	}
-	if humanFriendly {
+	if humanFriendlyEnabled() {
 		fmt.Fprintf(os.Stderr, "warning: results truncated; more pages available.\n")
 	} else {
 		fmt.Fprintf(os.Stderr, `{"event":"truncated"}`+"\n")
@@ -457,7 +480,7 @@ func emitTruncationWarning(data json.RawMessage, nextCursorPath, hasMoreField st
 }
 
 func emitMissingPaginationSignalWarning() {
-	if humanFriendly {
+	if humanFriendlyEnabled() {
 		fmt.Fprintf(os.Stderr, "warning: --all requested, but this endpoint does not declare a next cursor or has-more field; returning page 1 only.\n")
 	} else {
 		fmt.Fprintf(os.Stderr, `{"event":"truncated","reason":"pagination_signal_missing","message":"--all requested but this endpoint does not declare a next cursor or has-more field; returning page 1 only"}`+"\n")
@@ -465,7 +488,7 @@ func emitMissingPaginationSignalWarning() {
 }
 
 func emitMissingPaginationCursorWarning(nextCursorPath string) {
-	if humanFriendly {
+	if humanFriendlyEnabled() {
 		fmt.Fprintf(os.Stderr, "warning: --all requested, but the response indicated more pages without a usable next cursor; returning fetched pages only.\n")
 	} else if nextCursorPath != "" {
 		fmt.Fprintf(os.Stderr, `{"event":"truncated","reason":"pagination_cursor_missing","next_cursor_path":%q,"message":"--all requested but the response indicated more pages without a usable next cursor; returning fetched pages only"}`+"\n", nextCursorPath)
@@ -692,8 +715,9 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 	if flags.quiet {
 		return nil
 	}
-	// --csv: render as CSV
-	if flags.csv {
+	// --csv: render as CSV. JSON still wins when both --csv and --json are
+	// set (--json is the more explicit machine format).
+	if flags.csv && !flags.asJSON {
 		return printCSV(w, data)
 	}
 	// --plain: tab-separated rows, forced regardless of TTY so output stays

@@ -40,7 +40,8 @@ func newPronunciationDictionariesAddFromFileCmd(flags *rootFlags) *cobra.Command
 				fields["description"] = bodyDescription
 			}
 			if bodyFile != "" {
-				fields["file"] = bodyFile
+				// PATCH: the .pls lexicon is an upload, not a text field.
+				fileFields["file"] = bodyFile
 			}
 			if bodyName != "" {
 				fields["name"] = bodyName

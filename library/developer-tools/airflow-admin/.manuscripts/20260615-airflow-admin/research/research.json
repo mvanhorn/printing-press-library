@@ -1,0 +1,177 @@
+{
+  "api_name": "airflow-admin",
+  "novelty_score": 6,
+  "alternatives": [
+    {
+      "name": "Apache Airflow UI",
+      "summary": "The browser UI is the primary place for operators to inspect DAGs, DAG runs, task instances, pools, and scheduler health."
+    },
+    {
+      "name": "Airflow REST API",
+      "summary": "The stable REST API exposes the operational data directly, but callers still need to manage auth, pagination, envelopes, filtering, and repeatable command output."
+    },
+    {
+      "name": "Airflow CLI",
+      "summary": "The native Airflow CLI is useful on Airflow hosts, but data engineers and agents often need a remote read-only operations surface from their own terminal."
+    }
+  ],
+  "gaps": [
+    "Data engineers need fast readouts for failed DAG runs and task instances without opening the Airflow UI for every incident.",
+    "The Airflow API returns resource-named list envelopes such as dags, dag_runs, task_instances, and pools; generic API clients usually do not turn those into searchable local records.",
+    "Agents need compact, non-interactive commands that can answer pipeline health questions without mutating Airflow state.",
+    "Local validation should prove the normal triage path: authenticate, check health, list DAG runs, inspect task instances, sync metadata, and search locally."
+  ],
+  "patterns": [
+    "Start with Airflow health and version before investigating pipeline failures.",
+    "Use DAG run filters by state and date window to narrow incident scope.",
+    "Inspect task instances after locating a failed DAG run so the failing task is explicit.",
+    "Sync metadata locally when an engineer or agent needs repeated search without repeatedly paging the Airflow API.",
+    "Keep credentials in environment variables, local config, or MCP secret prompts; never commit tokens or Airflow passwords."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-15T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Airflow health readout",
+      "command": "monitor",
+      "description": "Checks Airflow health so an engineer can confirm the webserver, scheduler, triggerer, DAG processor, and metadatabase before drilling into pipeline failures.",
+      "rationale": "Data pipeline incidents often start with the question of whether Airflow itself is healthy or whether a specific DAG failed.",
+      "example": "airflow-admin-pp-cli monitor --agent",
+      "why_it_matters": "This gives agents and engineers a small first command for operational triage.",
+      "group": "Operations"
+    },
+    {
+      "name": "DAG inventory",
+      "command": "dags list",
+      "description": "Lists DAG metadata such as active and paused state so teams can see what Airflow is managing.",
+      "rationale": "A pipeline may be missing, paused, stale, or inactive before any deeper task-level debugging is needed.",
+      "example": "airflow-admin-pp-cli dags list --agent --select dag_id,is_active,is_paused,last_parsed_time",
+      "why_it_matters": "This keeps DAG discovery scriptable and readable outside the Airflow UI.",
+      "group": "DAG discovery"
+    },
+    {
+      "name": "DAG run triage",
+      "command": "dags dag-runs list",
+      "description": "Filters DAG run history by state and time window to identify failed, queued, or delayed pipeline runs.",
+      "rationale": "Data engineers usually debug pipelines by finding the failed or late run first, then inspecting tasks.",
+      "example": "airflow-admin-pp-cli dags dag-runs list daily_warehouse_refresh --state failed --agent",
+      "why_it_matters": "This matches the common daily-refresh and overnight-load triage path.",
+      "group": "Run history"
+    },
+    {
+      "name": "Task instance inspection",
+      "command": "dags dag-runs list-task-instances",
+      "description": "Shows task-level state, try count, and timing inside a DAG run.",
+      "rationale": "A failed DAG run is only the starting point; the useful answer is usually the exact failing task and retry state.",
+      "example": "airflow-admin-pp-cli dags dag-runs list-task-instances daily_warehouse_refresh scheduled__2026-06-14T00:00:00+00:00 --state failed --agent",
+      "why_it_matters": "This lets agents report the failing step instead of only saying that a pipeline failed.",
+      "group": "Task triage"
+    },
+    {
+      "name": "Local Airflow metadata search",
+      "command": "sync",
+      "description": "Syncs Airflow metadata into a local SQLite store for offline search and lightweight analysis.",
+      "rationale": "Airflow metadata is useful for repeated incident analysis, but constantly paging the API is slow and noisy.",
+      "example": "airflow-admin-pp-cli sync --resources dags,pools --agent && airflow-admin-pp-cli search failed --data-source local --agent",
+      "why_it_matters": "This turns Airflow operations data into a small local evidence set for engineers and agents.",
+      "group": "Local analysis"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Airflow health readout",
+      "command": "monitor",
+      "description": "Checks Airflow health so an engineer can confirm the webserver, scheduler, triggerer, DAG processor, and metadatabase before drilling into pipeline failures.",
+      "rationale": "Validated against Apache Airflow 3.0.0 in a disposable local Docker container.",
+      "example": "airflow-admin-pp-cli monitor --agent",
+      "why_it_matters": "This gives agents and engineers a small first command for operational triage.",
+      "group": "Operations"
+    },
+    {
+      "name": "DAG inventory",
+      "command": "dags list",
+      "description": "Lists DAG metadata such as active and paused state so teams can see what Airflow is managing.",
+      "rationale": "Validated with live DAG metadata from the local Airflow container.",
+      "example": "airflow-admin-pp-cli dags list --agent --select dag_id,is_active,is_paused,last_parsed_time",
+      "why_it_matters": "This keeps DAG discovery scriptable and readable outside the Airflow UI.",
+      "group": "DAG discovery"
+    },
+    {
+      "name": "DAG run triage",
+      "command": "dags dag-runs list",
+      "description": "Filters DAG run history by state and time window to identify failed, queued, or delayed pipeline runs.",
+      "rationale": "Validated with a disposable test DAG containing an intentionally failed run.",
+      "example": "airflow-admin-pp-cli dags dag-runs list pp_validation_daily_refresh --state failed --agent",
+      "why_it_matters": "This matches the common daily-refresh and overnight-load triage path.",
+      "group": "Run history"
+    },
+    {
+      "name": "Task instance inspection",
+      "command": "dags dag-runs list-task-instances",
+      "description": "Shows task-level state, try count, and timing inside a DAG run.",
+      "rationale": "Validated by listing successful and failed task instances in the disposable validation DAG run.",
+      "example": "airflow-admin-pp-cli dags dag-runs list-task-instances pp_validation_daily_refresh <dag_run_id> --state failed --agent",
+      "why_it_matters": "This lets agents report the failing step instead of only saying that a pipeline failed.",
+      "group": "Task triage"
+    },
+    {
+      "name": "Local Airflow metadata search",
+      "command": "sync",
+      "description": "Syncs Airflow metadata into a local SQLite store for offline search and lightweight analysis.",
+      "rationale": "Validated after adding explicit support for Airflow list envelopes and Airflow identifier fields.",
+      "example": "airflow-admin-pp-cli sync --resources dags,pools --agent && airflow-admin-pp-cli search validation --data-source local --agent",
+      "why_it_matters": "This turns Airflow operations data into a small local evidence set for engineers and agents.",
+      "group": "Local analysis"
+    }
+  ],
+  "narrative": {
+    "display_name": "Apache Airflow Admin",
+    "headline": "A read-first Airflow operations CLI for data pipeline triage.",
+    "value_prop": "Airflow schedules and monitors data pipelines, but engineers still need a fast command-line way to inspect DAG health, failed runs, task instances, pools, and searchable metadata from outside the browser UI.",
+    "auth_narrative": "Set AIRFLOW_ADMIN_BASE_URL when Airflow is not running at http://localhost:8080. Store a JWT access token with auth set-token or set AIRFLOW_ADMIN_BEARER_AUTH in the shell or MCP client's secret prompt.",
+    "quickstart": [
+      {
+        "command": "airflow-admin-pp-cli apache-airflow-admin-auth --username airflow --password airflow --json",
+        "comment": "Get a JWT token from a local Airflow environment that allows username/password auth."
+      },
+      {
+        "command": "airflow-admin-pp-cli monitor --agent",
+        "comment": "Check whether Airflow services are healthy."
+      },
+      {
+        "command": "airflow-admin-pp-cli dags dag-runs list <dag_id> --state failed --agent",
+        "comment": "Find failed pipeline runs."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Commands return authentication required.",
+        "fix": "Run auth set-token with a valid Airflow JWT or set AIRFLOW_ADMIN_BEARER_AUTH in the shell."
+      },
+      {
+        "symptom": "The CLI cannot reach Airflow.",
+        "fix": "Set AIRFLOW_ADMIN_BASE_URL to the Airflow webserver/API URL and run doctor."
+      }
+    ],
+    "when_to_use": "Use this CLI for read-only Airflow inspection, pipeline incident triage, pool checks, metadata sync, and local search. Do not use it to deploy DAGs or mutate Airflow state.",
+    "recipes": [
+      {
+        "title": "Check the scheduler before debugging a DAG",
+        "command": "airflow-admin-pp-cli monitor --agent",
+        "explanation": "Returns Airflow component health in compact JSON."
+      },
+      {
+        "title": "Find the failed task in a DAG run",
+        "command": "airflow-admin-pp-cli dags dag-runs list-task-instances <dag_id> <dag_run_id> --state failed --agent",
+        "explanation": "Shows the failed task instance, try count, and timing."
+      }
+    ],
+    "trigger_phrases": [
+      "check Airflow health",
+      "list failed Airflow DAG runs",
+      "inspect Airflow task instances",
+      "search Airflow metadata",
+      "sync Airflow DAGs locally"
+    ]
+  }
+}

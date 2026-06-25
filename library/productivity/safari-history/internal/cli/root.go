@@ -79,6 +79,7 @@ func NewRootCmd() *cobra.Command {
 		newSearchesCmd(opts),
 		newDownloadsCmd(opts),
 		newDevicesCmd(opts),
+		newICloudTabsCmd(opts),
 		newVisitedCmd(opts),
 		newReportCmd(opts),
 		newHeatmapCmd(opts),
@@ -89,6 +90,7 @@ func NewRootCmd() *cobra.Command {
 		newGraphCmd(opts),
 		newProfileCmd(opts),
 		newTopicCmd(opts),
+		newArchiveCmd(opts),
 		newAgentContextCmd(opts),
 		newVersionCmd(),
 		newMCPCmd(),
@@ -97,12 +99,13 @@ func NewRootCmd() *cobra.Command {
 }
 
 func newSyncCmd(opts *RootOptions) *cobra.Command {
+	var accumulate bool
 	cmd := &cobra.Command{
 		Use:   "sync",
 		Short: "Snapshot Safari history and build FTS",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if _, err := opts.Source.LocateHistoryDB(opts.Profile); err != nil {
-				return fmt.Errorf("%w: %v", ErrSourceDBMissing, err)
+				return fmt.Errorf("%w: %v. Cannot refresh live Safari history right now; this does not mean there is no data. If a cached snapshot/archive exists, query it directly with search, sql, domains, list, or report (cached reads do not require sync). Grant this terminal Full Disk Access to refresh from live Safari", ErrSourceDBMissing, err)
 			}
 			snapshot, err := snapshotPath()
 			if err != nil {
@@ -121,6 +124,10 @@ func newSyncCmd(opts *RootOptions) *cobra.Command {
 				_ = os.Remove(si.SnapshotPath)
 				return err
 			}
+			archiveEnabled, err := store.IsArchiveEnabled()
+			if err != nil {
+				return err
+			}
 			rows := []map[string]any{{
 				"snapshot":                       snapshot,
 				"profile":                        meta.Profile,
@@ -131,10 +138,26 @@ func newSyncCmd(opts *RootOptions) *cobra.Command {
 				"source_schema_version":          meta.SourceSchemaVersion,
 				"source_last_compatible_version": meta.SourceLastCompatibleVersion,
 			}}
+			if accumulate || archiveEnabled {
+				archivePath, err := store.ArchivePath()
+				if err != nil {
+					return err
+				}
+				counts, err := store.AccumulateFromSource(archivePath, snapshot, time.Now().UTC())
+				if err != nil {
+					return err
+				}
+				rows[0]["archive"] = archivePath
+				rows[0]["archive_accumulated"] = true
+				rows[0]["archive_before"] = counts.Before
+				rows[0]["archive_after"] = counts.After
+				rows[0]["archive_inserted"] = counts.Inserted
+			}
 			output.DefaultToJSONIfNotTTY(&opts.Output)
 			return output.Render(opts.Output, rows)
 		},
 	}
+	cmd.Flags().BoolVar(&accumulate, "accumulate", false, "append snapshot rows into the accumulating archive")
 	return cmd
 }
 
@@ -198,13 +221,68 @@ func newDoctorCmd(opts *RootOptions) *cobra.Command {
 					}
 				}
 			}
-			status["healthy"] = status["source_db"] != "missing" && status["snapshot"] != "missing"
+			archiveStatus, archiveErr := store.ReadArchiveStatus()
+			if archiveErr != nil {
+				status["archive_error"] = archiveErr.Error()
+			} else {
+				status["archive"] = archiveStatus.Path
+				status["archive_enabled"] = archiveStatus.Enabled
+				status["archive_url_count"] = archiveStatus.URLCount
+				status["archive_visit_count"] = archiveStatus.VisitCount
+				status["archive_size_bytes"] = archiveStatus.SizeBytes
+			}
+			status["cached_store"] = cachedStoreStatus(status)
+			if source := cachedStoreSource(status); source != "" {
+				status["cached_store_source"] = source
+			}
+			if status["source_db"] == "missing" && status["cached_store"] == "queryable" {
+				status["note"] = "Live Safari history cannot be refreshed right now, but cached history is queryable offline with search/sql/domains/list/report; no sync required for reads."
+			}
+			status["healthy"] = status["source_db"] != "missing" && status["cached_store"] == "queryable"
 			rows := []map[string]any{status}
 			output.DefaultToJSONIfNotTTY(&opts.Output)
 			return output.Render(opts.Output, rows)
 		},
 	}
 	return cmd
+}
+
+func cachedStoreStatus(status map[string]any) string {
+	visits, ok := status["visits_count"].(int64)
+	if ok && visits > 0 {
+		return "queryable"
+	}
+	pages, ok := status["pages_count"].(int64)
+	if ok && pages > 0 {
+		return "queryable"
+	}
+	archiveVisits, ok := status["archive_visit_count"].(int64)
+	archiveEnabled, _ := status["archive_enabled"].(bool)
+	if ok && archiveEnabled && archiveVisits > 0 {
+		return "queryable"
+	}
+	if _, ok := status["visits_count"]; ok {
+		return "empty"
+	}
+	if _, ok := status["archive_visit_count"]; ok {
+		return "empty"
+	}
+	return "missing"
+}
+
+func cachedStoreSource(status map[string]any) string {
+	if visits, ok := status["archive_visit_count"].(int64); ok && visits > 0 {
+		if enabled, _ := status["archive_enabled"].(bool); enabled {
+			return "archive"
+		}
+	}
+	if visits, ok := status["visits_count"].(int64); ok && visits > 0 {
+		return "snapshot"
+	}
+	if pages, ok := status["pages_count"].(int64); ok && pages > 0 {
+		return "snapshot"
+	}
+	return ""
 }
 
 func newSearchCmd(opts *RootOptions) *cobra.Command {
@@ -224,15 +302,8 @@ func newSearchCmd(opts *RootOptions) *cobra.Command {
 					return errors.Join(ErrUsage, err)
 				}
 			}
-			snapshot, err := snapshotPath()
+			st, _, err := openCoreHistoryStore(opts.Device)
 			if err != nil {
-				return err
-			}
-			st, err := store.OpenExisting(snapshot)
-			if err != nil {
-				if errors.Is(err, store.ErrNoSnapshot) {
-					return ErrNoSnapshot
-				}
 				return err
 			}
 			defer st.Close()
@@ -276,15 +347,8 @@ func newSQLCmd(opts *RootOptions) *cobra.Command {
 			if !store.IsSelectOnly(q) {
 				return fmt.Errorf("%w: only SELECT statements are allowed", ErrUsage)
 			}
-			snapshot, err := snapshotPath()
+			st, _, err := openCoreHistoryStore(opts.Device)
 			if err != nil {
-				return err
-			}
-			st, err := store.OpenExisting(snapshot)
-			if err != nil {
-				if errors.Is(err, store.ErrNoSnapshot) {
-					return ErrNoSnapshot
-				}
 				return err
 			}
 			defer st.Close()
@@ -343,7 +407,7 @@ func usageExactArgs(n int) cobra.PositionalArgs {
 func newVersionCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "version",
-		Short: "Print version",
+		Short: "Print the safari-history CLI version string",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			_, err := io.WriteString(cmd.OutOrStdout(), CLIVersion+"\n")
 			return err

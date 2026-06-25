@@ -174,15 +174,28 @@ func searchNativeDirect(ctx context.Context, opts SearchOptions) (*SearchResult,
 		return nil, fmt.Errorf("shopping endpoint returned HTTP %d: %s", resp.StatusCode, snippet)
 	}
 
+	note := ""
 	flights, err := parseOffersResponse(respBody, currencyCode)
-	if err != nil {
+	switch {
+	case errors.Is(err, errShoppingBlocked):
+		// PATCH(amend-2026-06-11): Google gates the RPC for non-interactive
+		// clients (ErrorResponse code 13). Serve the search from the
+		// server-rendered HTML page instead — same inner schema, parsed by
+		// the same row parser. Page prices are per-person already, so the
+		// group-total divide below is intentionally skipped on this path.
+		flights, note, err = searchViaHTML(ctx, opts, currencyCode)
+		if err != nil {
+			return nil, fmt.Errorf("google flights RPC is blocked and the HTML fallback failed: %w", err)
+		}
+	case err != nil:
 		return nil, fmt.Errorf("parsing response: %w", err)
+	default:
+		// PATCH(library): Google Flights returns the group total for `--passengers N`;
+		// divide back down so the JSON `price` field is per-seat. Aligns with the
+		// per-person contract documented in the flight-goat agent skill and matches
+		// dates_native.go (which hardcodes 1 adult and therefore has no analogue).
+		applyPerPassengerPrice(flights, opts.Passengers)
 	}
-	// PATCH(library): Google Flights returns the group total for `--passengers N`;
-	// divide back down so the JSON `price` field is per-seat. Aligns with the
-	// per-person contract documented in the flight-goat agent skill and matches
-	// dates_native.go (which hardcodes 1 adult and therefore has no analogue).
-	applyPerPassengerPrice(flights, opts.Passengers)
 
 	// PATCH(library): attach booking URLs to each flight so callers have a
 	// one-click handoff. See booking_urls.go.
@@ -212,6 +225,7 @@ func searchNativeDirect(ctx context.Context, opts SearchOptions) (*SearchResult,
 		},
 		Count:   len(flights),
 		Flights: flights,
+		Note:    note,
 	}, nil
 }
 
@@ -475,35 +489,20 @@ func parseOffersResponse(body []byte, currency string) ([]Flight, error) {
 	}
 	innerStr, ok := outer[0][2].(string)
 	if !ok {
-		return []Flight{}, nil
+		// PATCH(amend-2026-06-11): a non-string payload slot used to fall
+		// through as a silent empty result ("success" with 0 flights). Since
+		// ~2026-06-09 Google rejects non-interactive RPC calls with an
+		// ErrorResponse envelope that lands exactly here — classify it so
+		// searchNativeDirect can fall back to the server-rendered HTML path,
+		// and never report a blocked request as a legitimate empty result.
+		return nil, envelopeBlockedErr(text)
 	}
 	var inner []any
 	if err := json.Unmarshal([]byte(innerStr), &inner); err != nil {
 		return nil, fmt.Errorf("decoding inner payload: %w", err)
 	}
 
-	var flights []Flight
-	for _, idx := range []int{2, 3} {
-		if idx >= len(inner) {
-			continue
-		}
-		bucket, ok := inner[idx].([]any)
-		if !ok || len(bucket) == 0 {
-			continue
-		}
-		rows, ok := bucket[0].([]any)
-		if !ok {
-			continue
-		}
-		for _, row := range rows {
-			f, ok := parseOfferRow(row, currency)
-			if !ok {
-				continue
-			}
-			flights = append(flights, f)
-		}
-	}
-	return flights, nil
+	return flightsFromEmbeddedPayload(inner, currency), nil
 }
 
 func parseOfferRow(row any, currency string) (Flight, bool) {
@@ -763,8 +762,19 @@ func formatLegDateTime(dateAny, timeAny any) string {
 		month = int(numericFloat(d[1]))
 		day = int(numericFloat(d[2]))
 	}
-	if len(t) >= 2 {
+	// PATCH(#1084): Google's batchexecute payload is jspb-style — trailing
+	// zero-valued elements are dropped. A whole-hour departure/arrival such as
+	// 17:00 arrives as [17] (and 05:00 as [5]), NOT [17,0] / [5,0]. The minute
+	// is only present when non-zero. Requiring len(t) >= 2 here silently failed
+	// to read the hour for every whole-hour time and defaulted it to 00:00,
+	// fabricating ~10-14% of legs as midnight departures. Read the hour from
+	// t[0] whenever present and treat an omitted minute as 0. Times genuinely
+	// absent from the source (empty/missing array) still fall through to the
+	// all-zero guard below and return "" rather than a fabricated 00:00.
+	if len(t) >= 1 {
 		hour = int(numericFloat(t[0]))
+	}
+	if len(t) >= 2 {
 		min = int(numericFloat(t[1]))
 	}
 	if year == 0 && month == 0 && day == 0 && hour == 0 && min == 0 {

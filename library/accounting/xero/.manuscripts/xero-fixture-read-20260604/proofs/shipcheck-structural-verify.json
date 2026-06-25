@@ -1,0 +1,141 @@
+{
+  "verify": {
+    "mode": "structural",
+    "total": 15,
+    "passed": 15,
+    "failed": 0,
+    "critical": 0,
+    "pass_rate": 100,
+    "data_pipeline": true,
+    "data_pipeline_detail": "PASS (version command)",
+    "freshness": {
+      "enabled": false,
+      "verdict": "SKIP",
+      "detail": "cache freshness helper not emitted"
+    },
+    "verdict": "PASS",
+    "results": [
+      {
+        "command": "accounts",
+        "kind": "structural",
+        "help": true,
+        "dry_run": false,
+        "execute": true,
+        "score": 2
+      },
+      {
+        "command": "auth",
+        "kind": "structural",
+        "help": true,
+        "dry_run": false,
+        "execute": true,
+        "score": 2
+      },
+      {
+        "command": "bills",
+        "kind": "structural",
+        "help": true,
+        "dry_run": false,
+        "execute": true,
+        "score": 2
+      },
+      {
+        "command": "contacts",
+        "kind": "structural",
+        "help": true,
+        "dry_run": false,
+        "execute": true,
+        "score": 2
+      },
+      {
+        "command": "doctor",
+        "kind": "structural",
+        "help": true,
+        "dry_run": false,
+        "execute": true,
+        "score": 2
+      },
+      {
+        "command": "invoices",
+        "kind": "structural",
+        "help": true,
+        "dry_run": false,
+        "execute": true,
+        "score": 2
+      },
+      {
+        "command": "items",
+        "kind": "structural",
+        "help": true,
+        "dry_run": false,
+        "execute": true,
+        "score": 2
+      },
+      {
+        "command": "journals",
+        "kind": "structural",
+        "help": true,
+        "dry_run": false,
+        "execute": true,
+        "score": 2
+      },
+      {
+        "command": "org",
+        "kind": "structural",
+        "help": true,
+        "dry_run": false,
+        "execute": true,
+        "score": 2
+      },
+      {
+        "command": "payments",
+        "kind": "structural",
+        "help": true,
+        "dry_run": false,
+        "execute": true,
+        "score": 2
+      },
+      {
+        "command": "raw",
+        "kind": "structural",
+        "help": true,
+        "dry_run": false,
+        "execute": true,
+        "score": 2
+      },
+      {
+        "command": "reports",
+        "kind": "structural",
+        "help": true,
+        "dry_run": false,
+        "execute": true,
+        "score": 2
+      },
+      {
+        "command": "status",
+        "kind": "structural",
+        "help": true,
+        "dry_run": false,
+        "execute": true,
+        "score": 2
+      },
+      {
+        "command": "suppliers",
+        "kind": "structural",
+        "help": true,
+        "dry_run": false,
+        "execute": true,
+        "score": 2
+      },
+      {
+        "command": "vendors",
+        "kind": "structural",
+        "help": true,
+        "dry_run": false,
+        "execute": true,
+        "score": 2
+      }
+    ],
+    "binary": "/Users/jeffdebolt/printing-press/library/xero/xero"
+  }
+}

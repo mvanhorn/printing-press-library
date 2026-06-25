@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "exchangerate-novel-history-cache",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-025552",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Add history-cache command that reads rates_snapshots for a pair, with --since (e.g. 30d, 24h, YYYY-MM-DD) and --limit. Pure-SQL parameterized; --limit binds via ? not Sprintf.",
+  "reason": "Free-tier alternative to the paid /history endpoint. Users who run sync-rates daily build their own historical archive at no extra quota cost. Returns helpful guidance when no snapshots exist for the requested pair.",
+  "files": [
+    "internal/cli/history_cache.go"
+  ],
+  "validated_outcome": "history-cache USD EUR --since 30d --limit 5 returns snapshots ordered by captured_at DESC; --limit binding parameterized verified by direct SQL inspection."
+}

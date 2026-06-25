@@ -94,13 +94,16 @@ func attachFreshness(prov DataProvenance, flags *rootFlags) DataProvenance {
 //     reads on per-endpoint-versioned APIs silently get the wrong response shape
 //     (cal-com retro #334 F1).
 func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, isList bool, path string, params map[string]string, headers map[string]string) (json.RawMessage, DataProvenance, error) {
+	if isLinearPromotedGraphQLRead(path) {
+		isList = linearPromotedGraphQLReadIsList(resourceType, params)
+	}
 	switch flags.dataSource {
 	case "local":
 		data, prov, err := resolveLocal(ctx, resourceType, isList, path, params, "user_requested")
 		return data, attachFreshness(prov, flags), err
 
 	case "live":
-		data, err := c.GetWithHeaders(path, params, headers)
+		data, err := resolveLiveRead(c, resourceType, path, params, headers)
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
@@ -112,7 +115,7 @@ func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resour
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
-		data, err := c.GetWithHeaders(path, params, headers)
+		data, err := resolveLiveRead(c, resourceType, path, params, headers)
 		if err == nil {
 			writeThroughCache(ctx, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
@@ -128,6 +131,13 @@ func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resour
 		}
 		return fallbackData, attachFreshness(fallbackProv, flags), nil
 	}
+}
+
+func resolveLiveRead(c *client.Client, resourceType, path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
+	if isLinearPromotedGraphQLRead(path) {
+		return resolveLinearPromotedGraphQLRead(c, resourceType, params)
+	}
+	return c.GetWithHeaders(path, params, headers)
 }
 
 // resolvePaginatedRead dispatches a paginated GET request to either the live API

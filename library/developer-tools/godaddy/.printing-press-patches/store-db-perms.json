@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "store-db-perms",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260522-124732",
+  "base_printing_press_version": "4.11.0",
+  "summary": "SQLite store dir/file (and WAL/SHM sidecars) restricted to owner-only (0o700/0o600).",
+  "reason": "Greptile P1/security: OpenWithContext created the db dir 0o755 and the driver created the db file with umask defaults, leaving cached GoDaddy API data world-readable on a shared machine.",
+  "files": [
+    "internal/store/store.go"
+  ]
+}

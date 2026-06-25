@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "expired-token-fails-loudly",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260511-134339",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Return a clear error for expired Gumroad tokens instead of using stale credentials.",
+  "reason": "The generated refresh hook was a no-op, so expired-token configs would continue sending invalid credentials without surfacing the real remediation.",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "go test ./... passes for the generated Gumroad CLI."
+}

@@ -5,7 +5,9 @@ package client
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -26,13 +28,29 @@ import (
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"
 
 type Client struct {
-	BaseURL    string
-	Config     *config.Config
-	HTTPClient *http.Client
-	DryRun     bool
-	NoCache    bool
-	cacheDir   string
-	limiter    *cliutil.AdaptiveLimiter
+	BaseURL         string
+	Config          *config.Config
+	HTTPClient      *http.Client
+	DryRun          bool
+	NoCache         bool
+	cacheDir        string
+	limiter         *cliutil.AdaptiveLimiter
+	lastContentType string
+}
+
+// RequestBaseURL returns the base URL used for requests.
+// Novel commands that build request URLs by hand should use this instead of
+// concatenating c.BaseURL directly.
+func (c *Client) RequestBaseURL() string {
+	return c.BaseURL
+}
+
+// LastContentType returns the last response Content-Type observed by this client.
+func (c *Client) LastContentType() string {
+	if c == nil {
+		return ""
+	}
+	return c.lastContentType
 }
 
 // APIError carries HTTP status information for structured exit codes.
@@ -83,9 +101,14 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 		// receive the auth credential, even though we are inside
 		// CheckRedirect where Go's automatic stripping has already run.
 		if req.URL.Host == via[0].URL.Host {
-			if h, err := c.authHeader(); err == nil && h != "" {
+			if h, err := c.authHeader(req.Context()); err == nil && h != "" {
 				req.Header.Set("Authorization", h)
 			}
+		} else {
+			// Cross-host hop: Go strips standard auth headers (Authorization,
+			// Cookie) but not custom ones, so a custom API-key header would be
+			// forwarded verbatim to the redirect target. Delete it explicitly.
+			req.Header.Del("Authorization")
 		}
 		return nil
 	}
@@ -97,39 +120,26 @@ func (c *Client) RateLimit() float64 {
 	return c.limiter.Rate()
 }
 
-func (c *Client) Get(path string, params map[string]string) (json.RawMessage, error) {
-	return c.GetWithHeaders(path, params, nil)
+func (c *Client) Get(ctx context.Context, path string, params map[string]string) (json.RawMessage, error) {
+	return c.GetWithHeaders(ctx, path, params, nil)
 }
 
-func (c *Client) GetWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
-	binaryResponse := headers != nil && strings.EqualFold(headers[BinaryResponseHeader], "true")
+func (c *Client) GetWithHeaders(ctx context.Context, path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
+	if err := c.validateCachedRequestAuth(ctx); err != nil {
+		return nil, err
+	}
+	binaryResponse := c.wantsBinaryResponse(headers)
+	cacheEnabled := c.responseCacheEnabled(binaryResponse)
 	// Check cache for GET requests
-	if !binaryResponse && !c.NoCache && !c.DryRun && c.cacheDir != "" {
-		if cached, ok := c.readCache(path, params); ok {
+	if cacheEnabled {
+		if cached, contentType, ok := c.readCache(path, params); ok {
+			c.lastContentType = contentType
 			return cached, nil
 		}
 	}
-	result, _, err := c.do("GET", path, params, nil, headers)
-	// PATCH: Binary responses skip cache because the generated cache is text/JSON only.
-	if err == nil && !binaryResponse && !c.NoCache && !c.DryRun && c.cacheDir != "" {
-		c.writeCache(path, params, result)
-	}
-	return result, err
-}
-
-// GetWithHeadersValues preserves repeated query parameters for hand-built
-// Blu-ray.com fetchers that consume sitemap-provided absolute URLs.
-// PATCH: Preserve repeated query values when generated map params are too lossy.
-func (c *Client) GetWithHeadersValues(path string, params url.Values, headers map[string]string) (json.RawMessage, error) {
-	binaryResponse := headers != nil && strings.EqualFold(headers[BinaryResponseHeader], "true")
-	if !binaryResponse && !c.NoCache && !c.DryRun && c.cacheDir != "" {
-		if cached, ok := c.readCacheValues(path, params); ok {
-			return cached, nil
-		}
-	}
-	result, _, err := c.doValues("GET", path, params, nil, headers)
-	if err == nil && !binaryResponse && !c.NoCache && !c.DryRun && c.cacheDir != "" {
-		c.writeCacheValues(path, params, result)
+	result, _, err := c.do(ctx, "GET", path, params, nil, headers)
+	if err == nil && cacheEnabled {
+		c.writeCache(path, params, result, c.lastContentType)
 	}
 	return result, err
 }
@@ -143,37 +153,64 @@ func (c *Client) GetWithHeadersValues(path string, params url.Values, headers ma
 // (e.g. a follow-up `... get <id>` after WaitForJob returns) see the
 // terminal value, not the stale non-terminal snapshot left behind by the
 // first poll.
-func (c *Client) GetNoCache(path string, params map[string]string) (json.RawMessage, error) {
-	return c.GetWithHeadersNoCache(path, params, nil)
+func (c *Client) GetNoCache(ctx context.Context, path string, params map[string]string) (json.RawMessage, error) {
+	return c.GetWithHeadersNoCache(ctx, path, params, nil)
 }
 
-// GetWithHeadersNoCache is GetWithHeaders that skips the cache read but
-// still writes the fresh response on success. See GetNoCache for when to
+// GetWithHeadersNoCache is GetWithHeaders that skips the cache read but still
+// writes cacheable fresh responses on success. See GetNoCache for when to
 // prefer this over Get/GetWithHeaders.
-func (c *Client) GetWithHeadersNoCache(path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
-	binaryResponse := headers != nil && strings.EqualFold(headers[BinaryResponseHeader], "true")
-	result, _, err := c.do("GET", path, params, nil, headers)
-	// PATCH: Binary responses skip cache because the generated cache is text/JSON only.
-	if err == nil && !binaryResponse && !c.NoCache && !c.DryRun && c.cacheDir != "" {
-		c.writeCache(path, params, result)
+func (c *Client) GetWithHeadersNoCache(ctx context.Context, path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
+	binaryResponse := c.wantsBinaryResponse(headers)
+	result, _, err := c.do(ctx, "GET", path, params, nil, headers)
+	if err == nil && c.responseCacheEnabled(binaryResponse) {
+		c.writeCache(path, params, result, c.lastContentType)
 	}
 	return result, err
 }
 
-func (c *Client) ProbeGet(path string) (int, error) {
-	_, status, err := c.do("GET", path, nil, nil, nil)
+func (c *Client) responseCacheEnabled(binaryResponse bool) bool {
+	return !binaryResponse && !c.NoCache && !c.DryRun && c.cacheDir != ""
+}
+
+// The response cache stores text/JSON bodies as <hash>.json. Binary callers
+// opt out so opaque blobs do not land under a misleading extension.
+func (c *Client) wantsBinaryResponse(headers map[string]string) bool {
+	binaryResponse := false
+	if c != nil && c.Config != nil {
+		if value, ok := binaryResponseHeaderValue(c.Config.Headers); ok {
+			binaryResponse = value
+		}
+	}
+	if value, ok := binaryResponseHeaderValue(headers); ok {
+		binaryResponse = value
+	}
+	return binaryResponse
+}
+
+func binaryResponseHeaderValue(headers map[string]string) (bool, bool) {
+	found := false
+	for k, v := range headers {
+		if strings.EqualFold(k, BinaryResponseHeader) {
+			found = true
+			if strings.EqualFold(v, "true") {
+				return true, true
+			}
+		}
+	}
+	return false, found
+}
+
+func (c *Client) validateCachedRequestAuth(ctx context.Context) error {
+	return nil
+}
+
+func (c *Client) ProbeGet(ctx context.Context, path string) (int, error) {
+	_, status, err := c.do(ctx, "GET", path, nil, nil, nil)
 	return status, err
 }
 
 func (c *Client) cacheKey(path string, params map[string]string) string {
-	return c.cacheKeyQuery(path, valuesFromParams(params).Encode())
-}
-
-func (c *Client) cacheKeyValues(path string, params url.Values) string {
-	return c.cacheKeyQuery(path, params.Encode())
-}
-
-func (c *Client) cacheKeyQuery(path, encodedQuery string) string {
 	key := path
 	key += "|base_url=" + c.BaseURL
 	if c.Config != nil {
@@ -186,59 +223,65 @@ func (c *Client) cacheKeyQuery(path, encodedQuery string) string {
 			key += "|config_path=" + c.Config.Path
 		}
 	}
-	if encodedQuery != "" {
-		key += "|query=" + encodedQuery
+	paramKeys := make([]string, 0, len(params))
+	for k := range params {
+		paramKeys = append(paramKeys, k)
+	}
+	sort.Strings(paramKeys)
+	for _, k := range paramKeys {
+		key += k + "=" + params[k]
 	}
 	h := sha256.Sum256([]byte(key))
 	return hex.EncodeToString(h[:8])
 }
 
-func valuesFromParams(params map[string]string) url.Values {
-	vals := url.Values{}
-	for k, v := range params {
-		if v != "" {
-			vals.Set(k, v)
-		}
-	}
-	return vals
-}
-
-func (c *Client) readCache(path string, params map[string]string) (json.RawMessage, bool) {
+func (c *Client) readCache(path string, params map[string]string) (json.RawMessage, string, bool) {
 	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
 	info, err := os.Stat(cacheFile)
 	if err != nil || time.Since(info.ModTime()) > 5*time.Minute {
-		return nil, false
+		return nil, "", false
 	}
 	data, err := os.ReadFile(cacheFile)
 	if err != nil {
-		return nil, false
+		return nil, "", false
 	}
-	return json.RawMessage(data), true
+	contentType := c.readCacheContentType(cacheFile)
+	return json.RawMessage(data), contentType, true
 }
 
-func (c *Client) readCacheValues(path string, params url.Values) (json.RawMessage, bool) {
-	cacheFile := filepath.Join(c.cacheDir, c.cacheKeyValues(path, params)+".json")
-	info, err := os.Stat(cacheFile)
-	if err != nil || time.Since(info.ModTime()) > 5*time.Minute {
-		return nil, false
-	}
-	data, err := os.ReadFile(cacheFile)
-	if err != nil {
-		return nil, false
-	}
-	return json.RawMessage(data), true
-}
-
-func (c *Client) writeCache(path string, params map[string]string, data json.RawMessage) {
-	os.MkdirAll(c.cacheDir, 0o755)
+func (c *Client) writeCache(path string, params map[string]string, data json.RawMessage, contentType string) {
+	os.MkdirAll(c.cacheDir, 0o700)
 	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
-	os.WriteFile(cacheFile, []byte(data), 0o644)
+	os.WriteFile(cacheFile, []byte(data), 0o600)
+	c.writeCacheContentType(cacheFile, contentType)
 }
 
-func (c *Client) writeCacheValues(path string, params url.Values, data json.RawMessage) {
-	os.MkdirAll(c.cacheDir, 0o755)
-	cacheFile := filepath.Join(c.cacheDir, c.cacheKeyValues(path, params)+".json")
-	os.WriteFile(cacheFile, []byte(data), 0o644)
+type cacheMetadata struct {
+	ContentType string `json:"content_type,omitempty"`
+}
+
+func (c *Client) readCacheContentType(cacheFile string) string {
+	data, err := os.ReadFile(cacheFile + ".meta.json")
+	if err != nil {
+		return ""
+	}
+	var meta cacheMetadata
+	if err := json.Unmarshal(data, &meta); err != nil {
+		return ""
+	}
+	return meta.ContentType
+}
+
+func (c *Client) writeCacheContentType(cacheFile, contentType string) {
+	if contentType == "" {
+		_ = os.Remove(cacheFile + ".meta.json")
+		return
+	}
+	data, err := json.Marshal(cacheMetadata{ContentType: contentType})
+	if err != nil {
+		return
+	}
+	_ = os.WriteFile(cacheFile+".meta.json", data, 0o600)
 }
 
 // invalidateCache wholesale-removes the cache directory so the next read
@@ -251,79 +294,184 @@ func (c *Client) invalidateCache() {
 	_ = os.RemoveAll(c.cacheDir)
 }
 
-func (c *Client) Post(path string, body any) (json.RawMessage, int, error) {
-	return c.do("POST", path, nil, body, nil)
+func (c *Client) Post(ctx context.Context, path string, body any) (json.RawMessage, int, error) {
+	return c.do(ctx, "POST", path, nil, body, nil)
 }
 
-func (c *Client) PostWithParams(path string, params map[string]string, body any) (json.RawMessage, int, error) {
-	return c.do("POST", path, params, body, nil)
+func (c *Client) PostWithParams(ctx context.Context, path string, params map[string]string, body any) (json.RawMessage, int, error) {
+	return c.do(ctx, "POST", path, params, body, nil)
 }
 
-func (c *Client) PostWithHeaders(path string, body any, headers map[string]string) (json.RawMessage, int, error) {
-	return c.do("POST", path, nil, body, headers)
+func (c *Client) PostWithHeaders(ctx context.Context, path string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	return c.do(ctx, "POST", path, nil, body, headers)
 }
 
-func (c *Client) PostWithParamsAndHeaders(path string, params map[string]string, body any, headers map[string]string) (json.RawMessage, int, error) {
-	return c.do("POST", path, params, body, headers)
+func (c *Client) PostWithParamsAndHeaders(ctx context.Context, path string, params map[string]string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	return c.do(ctx, "POST", path, params, body, headers)
 }
 
-func (c *Client) Delete(path string) (json.RawMessage, int, error) {
-	return c.do("DELETE", path, nil, nil, nil)
+// PostQueryWithParams is a POST that does not mutate remote state — used
+// by read-only operations that ride a mutating verb on the wire (GraphQL
+// queries, JSON-RPC reads, POST-based search endpoints). The verify-mode
+// short-circuit does not fire for these calls; the request reaches the
+// real transport even under PRINTING_PRESS_VERIFY=1 without LIVE_HTTP=1.
+func (c *Client) PostQueryWithParams(ctx context.Context, path string, params map[string]string, body any) (json.RawMessage, int, error) {
+	return c.doRead(ctx, "POST", path, params, body, nil)
 }
 
-func (c *Client) DeleteWithParams(path string, params map[string]string) (json.RawMessage, int, error) {
-	return c.do("DELETE", path, params, nil, nil)
+// PostQueryWithParamsAndHeaders is the headers-aware counterpart to
+// PostQueryWithParams. See PostQueryWithParams for the verify-mode rationale.
+func (c *Client) PostQueryWithParamsAndHeaders(ctx context.Context, path string, params map[string]string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	return c.doRead(ctx, "POST", path, params, body, headers)
 }
 
-func (c *Client) DeleteWithHeaders(path string, headers map[string]string) (json.RawMessage, int, error) {
-	return c.do("DELETE", path, nil, nil, headers)
+func (c *Client) Delete(ctx context.Context, path string) (json.RawMessage, int, error) {
+	return c.do(ctx, "DELETE", path, nil, nil, nil)
 }
 
-func (c *Client) DeleteWithParamsAndHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, int, error) {
-	return c.do("DELETE", path, params, nil, headers)
+func (c *Client) DeleteWithParams(ctx context.Context, path string, params map[string]string) (json.RawMessage, int, error) {
+	return c.do(ctx, "DELETE", path, params, nil, nil)
 }
 
-func (c *Client) Put(path string, body any) (json.RawMessage, int, error) {
-	return c.do("PUT", path, nil, body, nil)
+func (c *Client) DeleteWithBody(ctx context.Context, path string, body any) (json.RawMessage, int, error) {
+	return c.do(ctx, "DELETE", path, nil, body, nil)
 }
 
-func (c *Client) PutWithParams(path string, params map[string]string, body any) (json.RawMessage, int, error) {
-	return c.do("PUT", path, params, body, nil)
+func (c *Client) DeleteWithParamsAndBody(ctx context.Context, path string, params map[string]string, body any) (json.RawMessage, int, error) {
+	return c.do(ctx, "DELETE", path, params, body, nil)
 }
 
-func (c *Client) PutWithHeaders(path string, body any, headers map[string]string) (json.RawMessage, int, error) {
-	return c.do("PUT", path, nil, body, headers)
+func (c *Client) DeleteWithHeaders(ctx context.Context, path string, headers map[string]string) (json.RawMessage, int, error) {
+	return c.do(ctx, "DELETE", path, nil, nil, headers)
 }
 
-func (c *Client) PutWithParamsAndHeaders(path string, params map[string]string, body any, headers map[string]string) (json.RawMessage, int, error) {
-	return c.do("PUT", path, params, body, headers)
+func (c *Client) DeleteWithParamsAndHeaders(ctx context.Context, path string, params map[string]string, headers map[string]string) (json.RawMessage, int, error) {
+	return c.do(ctx, "DELETE", path, params, nil, headers)
 }
 
-func (c *Client) Patch(path string, body any) (json.RawMessage, int, error) {
-	return c.do("PATCH", path, nil, body, nil)
+func (c *Client) DeleteWithBodyAndHeaders(ctx context.Context, path string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	return c.do(ctx, "DELETE", path, nil, body, headers)
 }
 
-func (c *Client) PatchWithParams(path string, params map[string]string, body any) (json.RawMessage, int, error) {
-	return c.do("PATCH", path, params, body, nil)
+func (c *Client) DeleteWithParamsAndBodyAndHeaders(ctx context.Context, path string, params map[string]string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	return c.do(ctx, "DELETE", path, params, body, headers)
 }
 
-func (c *Client) PatchWithHeaders(path string, body any, headers map[string]string) (json.RawMessage, int, error) {
-	return c.do("PATCH", path, nil, body, headers)
+func (c *Client) Put(ctx context.Context, path string, body any) (json.RawMessage, int, error) {
+	return c.do(ctx, "PUT", path, nil, body, nil)
 }
 
-func (c *Client) PatchWithParamsAndHeaders(path string, params map[string]string, body any, headers map[string]string) (json.RawMessage, int, error) {
-	return c.do("PATCH", path, params, body, headers)
+func (c *Client) PutWithParams(ctx context.Context, path string, params map[string]string, body any) (json.RawMessage, int, error) {
+	return c.do(ctx, "PUT", path, params, body, nil)
+}
+
+func (c *Client) PutWithHeaders(ctx context.Context, path string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	return c.do(ctx, "PUT", path, nil, body, headers)
+}
+
+func (c *Client) PutWithParamsAndHeaders(ctx context.Context, path string, params map[string]string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	return c.do(ctx, "PUT", path, params, body, headers)
+}
+
+func (c *Client) Patch(ctx context.Context, path string, body any) (json.RawMessage, int, error) {
+	return c.do(ctx, "PATCH", path, nil, body, nil)
+}
+
+func (c *Client) PatchWithParams(ctx context.Context, path string, params map[string]string, body any) (json.RawMessage, int, error) {
+	return c.do(ctx, "PATCH", path, params, body, nil)
+}
+
+func (c *Client) PatchWithHeaders(ctx context.Context, path string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	return c.do(ctx, "PATCH", path, nil, body, headers)
+}
+
+func (c *Client) PatchWithParamsAndHeaders(ctx context.Context, path string, params map[string]string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	return c.do(ctx, "PATCH", path, params, body, headers)
+}
+
+// isMutatingVerb reports whether the HTTP method writes server state.
+// Used by do()'s verify-mode short-circuit to gate dial-out: under
+// PRINTING_PRESS_VERIFY=1 (without LIVE_HTTP=1 opt-in), generated
+// commands must not actually issue mutating requests, even if a
+// handler-level dry-run check was missed.
+func isMutatingVerb(method string) bool {
+	switch method {
+	case "DELETE", "POST", "PUT", "PATCH":
+		return true
+	}
+	return false
+}
+
+// verifyShortCircuitEnvelope returns the synthetic JSON body that
+// stands in for a real mutating response when do() short-circuits in
+// verify mode. The __pp_verify_synthetic__ sentinel is namespace-
+// reserved (no real API uses __pp_*) so downstream consumers
+// (validate-narrative, agent inspections) can key on one obvious field
+// instead of trying to disambiguate common literals like status:"noop".
+// method and path are echoed back as diagnostic prose for human/agent
+// inspection.
+func verifyShortCircuitEnvelope(method, path string) json.RawMessage {
+	body, _ := json.Marshal(map[string]any{
+		"__pp_verify_synthetic__": true,
+		"status":                  "noop",
+		"reason":                  "verify_short_circuit",
+		"method":                  method,
+		"path":                    path,
+	})
+	return json.RawMessage(body)
+}
+
+func sleepContext(ctx context.Context, wait time.Duration) error {
+	timer := time.NewTimer(wait)
+	defer timer.Stop()
+	select {
+	case <-timer.C:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 }
 
 // do executes an HTTP request. headerOverrides, when non-nil, override global
 // RequiredHeaders for this specific request (used for per-endpoint API versioning).
-func (c *Client) do(method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
-	return c.doValues(method, path, valuesFromParams(params), body, headerOverrides)
+func (c *Client) do(ctx context.Context, method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
+	return c.doInternal(ctx, method, path, params, body, headerOverrides, false)
 }
 
-// doValues executes an HTTP request with a query map that can preserve repeated keys.
-// PATCH: Support repeated query values for sitemap-provided Blu-ray.com URLs.
-func (c *Client) doValues(method, path string, params url.Values, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
+// doRead is do() minus the verify-mode mutating-verb gate. Used by the
+// PostQuery* family for read-only operations that ride a mutating verb on
+// the wire (GraphQL queries, JSON-RPC reads, POST-based search endpoints).
+// The wire verb is still POST/PUT/PATCH so the server sees a real request,
+// but the verify-mode short-circuit does not fire because the operation
+// does not mutate remote state.
+func (c *Client) doRead(ctx context.Context, method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
+	return c.doInternal(ctx, method, path, params, body, headerOverrides, true)
+}
+
+// doInternal is the shared implementation behind do() and doRead(). The
+// readOnlyIntent flag is set by doRead() callers (read-only POST/PUT/PATCH
+// operations like GraphQL queries) to skip the mutating-verb verify-mode
+// gate. Plain do() callers leave it false and get the usual short-circuit.
+func (c *Client) doInternal(ctx context.Context, method, path string, params map[string]string, body any, headerOverrides map[string]string, readOnlyIntent bool) (json.RawMessage, int, error) {
+	// Verify-mode transport-layer gate. When the verifier (or any consumer
+	// that sets PRINTING_PRESS_VERIFY=1) drives a mutating verb without
+	// the LIVE_HTTP=1 opt-in, return a synthetic envelope without dialing,
+	// minting auth, or touching the cache. The verify pipeline itself
+	// sets both env vars in mock mode so its httptest server still sees
+	// real requests; every other consumer gets a safe no-op.
+	//
+	// readOnlyIntent suppresses the gate for read-only operations that
+	// happen to ride a mutating verb on the wire (GraphQL queries, JSON-RPC
+	// reads, POST-based search endpoints). The handler-level annotation
+	// `mcp:read-only: true` drives the codegen choice of doRead() vs do().
+	//
+	// Placement note: this fires BEFORE URL building, auth header
+	// minting, and the success-branch invalidateCache() call below — so
+	// no cache invalidation runs (no remote state changed) and no
+	// client_credentials mint happens unnecessarily.
+	if !readOnlyIntent && isMutatingVerb(method) && cliutil.IsVerifyEnv() && !cliutil.IsVerifyLiveHTTPEnv() {
+		return verifyShortCircuitEnvelope(method, path), http.StatusOK, nil
+	}
 	targetURL := c.BaseURL + path
 
 	var bodyBytes []byte
@@ -339,14 +487,14 @@ func (c *Client) doValues(method, path string, params url.Values, body any, head
 	// exactly what would be sent. Uses only cached credentials; a token that
 	// requires a network refresh will be re-fetched on the live request path,
 	// not during dry-run.
-	authHeader, err := c.authHeader()
+	authHeader, err := c.authHeader(ctx)
 	if err != nil {
 		return nil, 0, err
 	}
 
 	// Build the request for dry-run display or actual execution
 	if c.DryRun {
-		return c.dryRun(method, targetURL, path, firstParams(params), bodyBytes, headerOverrides, authHeader)
+		return c.dryRun(method, targetURL, path, params, bodyBytes, headerOverrides, authHeader)
 	}
 
 	const maxRetries = 3
@@ -360,7 +508,7 @@ func (c *Client) doValues(method, path string, params url.Values, body any, head
 			bodyReader = strings.NewReader(string(bodyBytes))
 		}
 
-		req, err := http.NewRequest(method, targetURL, bodyReader)
+		req, err := http.NewRequestWithContext(ctx, method, targetURL, bodyReader)
 		if err != nil {
 			return nil, 0, fmt.Errorf("creating request: %w", err)
 		}
@@ -370,11 +518,9 @@ func (c *Client) doValues(method, path string, params url.Values, body any, head
 
 		if params != nil {
 			q := req.URL.Query()
-			for k, vals := range params {
-				for _, v := range vals {
-					if v != "" {
-						q.Add(k, v)
-					}
+			for k, v := range params {
+				if v != "" {
+					q.Set(k, v)
 				}
 			}
 			req.URL.RawQuery = q.Encode()
@@ -420,7 +566,10 @@ func (c *Client) doValues(method, path string, params url.Values, body any, head
 
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {
-			lastErr = fmt.Errorf("%s %s: %w", method, path, err)
+			if ctxErr := ctx.Err(); ctxErr != nil {
+				return nil, 0, ctxErr
+			}
+			lastErr = fmt.Errorf("%s %s: %w", method, c.displayURL(path, authHeader), c.maskError(err, authHeader))
 			continue
 		}
 
@@ -429,24 +578,37 @@ func (c *Client) doValues(method, path string, params url.Values, body any, head
 		if err != nil {
 			return nil, 0, fmt.Errorf("reading response: %w", err)
 		}
-		if !binaryResponse {
-			respBody = sanitizeJSONResponse(respBody)
-		}
 
 		// Success
 		if resp.StatusCode < 400 {
+			c.lastContentType = resp.Header.Get("Content-Type")
 			c.limiter.OnSuccess()
 			if method != http.MethodGet && !c.DryRun {
 				c.invalidateCache()
 			}
-			return json.RawMessage(respBody), resp.StatusCode, nil
+			// Non-textual bodies (PDF, zip, image, octet-stream) must not be
+			// run through the JSON sanitizer or returned as raw json.RawMessage
+			// — return a self-describing base64 envelope instead. Textual and
+			// JSON responses fall through to the unchanged path.
+			if isBinaryResponseContentType(resp.Header.Get("Content-Type")) {
+				env, encErr := wrapBinaryResponse(resp.Header.Get("Content-Type"), respBody)
+				if encErr != nil {
+					return nil, 0, encErr
+				}
+				return env, resp.StatusCode, nil
+			}
+			return json.RawMessage(sanitizeJSONResponse(respBody)), resp.StatusCode, nil
+		}
+
+		if !binaryResponse {
+			respBody = sanitizeJSONResponse(respBody)
 		}
 
 		apiErr := &APIError{
 			Method:     method,
-			Path:       path,
+			Path:       c.displayURL(path, authHeader),
 			StatusCode: resp.StatusCode,
-			Body:       truncateBody(respBody),
+			Body:       c.maskCredentialText(truncateBody(respBody), authHeader),
 		}
 
 		// Rate limited - adjust adaptive limiter and retry
@@ -454,7 +616,9 @@ func (c *Client) doValues(method, path string, params url.Values, body any, head
 			c.limiter.OnRateLimit()
 			wait := cliutil.RetryAfter(resp)
 			fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
-			time.Sleep(wait)
+			if err := sleepContext(ctx, wait); err != nil {
+				return nil, 0, err
+			}
 			lastErr = apiErr
 			continue
 		}
@@ -463,7 +627,9 @@ func (c *Client) doValues(method, path string, params url.Values, body any, head
 		if resp.StatusCode >= 500 && attempt < maxRetries {
 			wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
 			fmt.Fprintf(os.Stderr, "server error %d, retrying in %s (attempt %d/%d)\n", resp.StatusCode, wait, attempt+1, maxRetries)
-			time.Sleep(wait)
+			if err := sleepContext(ctx, wait); err != nil {
+				return nil, 0, err
+			}
 			lastErr = apiErr
 			continue
 		}
@@ -475,21 +641,11 @@ func (c *Client) doValues(method, path string, params url.Values, body any, head
 	return nil, 0, lastErr
 }
 
-func firstParams(params url.Values) map[string]string {
-	out := map[string]string{}
-	for k, vals := range params {
-		if len(vals) > 0 {
-			out[k] = vals[0]
-		}
-	}
-	return out
-}
-
 // dryRun prints the outgoing request exactly as the live path would send it,
 // using the auth material already resolved in `do()`. Never triggers a network
 // call — the caller is responsible for passing cached auth material only.
 func (c *Client) dryRun(method, targetURL, path string, params map[string]string, body []byte, headerOverrides map[string]string, authHeader string) (json.RawMessage, int, error) {
-	fmt.Fprintf(os.Stderr, "%s %s\n", method, targetURL)
+	fmt.Fprintf(os.Stderr, "%s %s\n", method, c.displayURL(targetURL, authHeader))
 	queryPrinted := false
 	if params != nil {
 		keys := make([]string, 0, len(params))
@@ -504,7 +660,7 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 			if queryPrinted {
 				sep = "&"
 			}
-			fmt.Fprintf(os.Stderr, "  %s%s=%s\n", sep, k, params[k])
+			fmt.Fprintf(os.Stderr, "  %s%s=%s\n", sep, k, c.maskCredentialText(params[k], authHeader))
 			queryPrinted = true
 		}
 	}
@@ -529,14 +685,72 @@ func (c *Client) ConfiguredTimeout() time.Duration {
 	if c.HTTPClient != nil && c.HTTPClient.Timeout > 0 {
 		return c.HTTPClient.Timeout
 	}
-	return 30 * time.Second
+	return 60 * time.Second
 }
 
-func (c *Client) authHeader() (string, error) {
+func (c *Client) authHeader(ctx context.Context) (string, error) {
 	if c.Config == nil {
 		return "", nil
 	}
-	return c.Config.AuthHeader(), nil
+	authHeader := c.Config.AuthHeader()
+	return authHeader, nil
+}
+
+// binaryResponseEnvelope wraps a non-textual success body so it survives the
+// json.RawMessage contract every consumer (CLI output, --json, MCP tools)
+// depends on. Without it, raw bytes (PDF, zip, image) are corrupted by
+// sanitizeJSONResponse and emitted as invalid JSON. The _pp_binary
+// discriminator lets callers and agents detect and base64-decode the payload.
+type binaryResponseEnvelope struct {
+	PPBinary    bool   `json:"_pp_binary"`
+	ContentType string `json:"content_type"`
+	Encoding    string `json:"encoding"`
+	Bytes       int    `json:"bytes"`
+	Data        string `json:"data"`
+}
+
+// isBinaryResponseContentType reports whether a successful response with this
+// Content-Type must be base64-wrapped instead of treated as text/JSON. It is
+// deliberately narrow: JSON, */*, XML, and every text/* type (including
+// text/html, so response_format:html CLIs are untouched) pass through
+// unchanged. Only genuinely binary payloads are wrapped.
+func isBinaryResponseContentType(ct string) bool {
+	mt := strings.ToLower(strings.TrimSpace(ct))
+	if i := strings.IndexByte(mt, ';'); i >= 0 {
+		mt = strings.TrimSpace(mt[:i])
+	}
+	if mt == "" {
+		return false
+	}
+	switch {
+	case mt == "application/json", mt == "text/json", mt == "*/*":
+		return false
+	case strings.HasPrefix(mt, "text/"):
+		return false
+	case strings.HasSuffix(mt, "+json"), strings.HasSuffix(mt, "+xml"):
+		return false
+	case mt == "application/xml", mt == "application/xhtml+xml":
+		return false
+	case mt == "application/javascript", mt == "application/ecmascript",
+		mt == "application/x-www-form-urlencoded", mt == "application/graphql":
+		return false
+	}
+	return true
+}
+
+// wrapBinaryResponse marshals body into a self-describing base64 envelope.
+func wrapBinaryResponse(ct string, body []byte) (json.RawMessage, error) {
+	out, err := json.Marshal(binaryResponseEnvelope{
+		PPBinary:    true,
+		ContentType: ct,
+		Encoding:    "base64",
+		Bytes:       len(body),
+		Data:        base64.StdEncoding.EncodeToString(body),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("encoding binary response: %w", err)
+	}
+	return json.RawMessage(out), nil
 }
 
 // sanitizeJSONResponse strips known JSONP/XSSI prefixes and UTF-8 BOM from
@@ -573,6 +787,88 @@ func maskToken(token string) string {
 		return "****"
 	}
 	return "****" + token[len(token)-4:]
+}
+
+type maskedError struct {
+	msg string
+}
+
+func (e maskedError) Error() string {
+	return e.msg
+}
+
+func (c *Client) displayURL(rawURL string, extraCredentials ...string) string {
+	return c.maskCredentialText(rawURL, extraCredentials...)
+}
+
+func (c *Client) maskError(err error, extraCredentials ...string) error {
+	if err == nil {
+		return nil
+	}
+	raw := err.Error()
+	msg := c.maskCredentialText(raw, extraCredentials...)
+	if msg == raw {
+		return err
+	}
+	return maskedError{msg: msg}
+}
+
+func (c *Client) maskCredentialText(text string, extraCredentials ...string) string {
+	if text == "" {
+		return text
+	}
+	type credentialMask struct {
+		needle      string
+		replacement string
+	}
+	var masks []credentialMask
+	seen := map[string]struct{}{}
+	addValue := func(value string) {
+		value = strings.TrimSpace(value)
+		if value == "" {
+			return
+		}
+		replacement := maskToken(value)
+		addMask := func(needle string) {
+			if needle == "" {
+				return
+			}
+			if _, ok := seen[needle]; ok {
+				return
+			}
+			seen[needle] = struct{}{}
+			masks = append(masks, credentialMask{needle: needle, replacement: replacement})
+		}
+		addMask(value)
+		if escaped := url.QueryEscape(value); escaped != value {
+			addMask(escaped)
+		}
+		if escaped := url.PathEscape(value); escaped != value {
+			addMask(escaped)
+		}
+	}
+	addCredential := func(value string) {
+		value = strings.TrimSpace(value)
+		addValue(value)
+		if _, token, ok := strings.Cut(value, " "); ok {
+			addValue(token)
+		}
+	}
+	for _, value := range extraCredentials {
+		addCredential(value)
+	}
+	if c != nil && c.Config != nil {
+		addCredential(c.Config.AuthHeaderVal)
+		addCredential(c.Config.AuthHeader())
+	}
+	sort.SliceStable(masks, func(i, j int) bool {
+		return len(masks[i].needle) > len(masks[j].needle)
+	})
+	masked := text
+	for _, mask := range masks {
+		masked = strings.ReplaceAll(masked, mask.needle, mask.replacement)
+	}
+	return masked
 }
 
 func truncateBody(b []byte) string {

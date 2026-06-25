@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "airflow-review-readonly-config",
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260615-airflow-admin",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Airflow local read paths now open SQLite in read-only mode, and the bearer-token TOML key matches AIRFLOW_ADMIN_BEARER_AUTH.",
+  "reason": "Review identified that openStoreForRead used the write/migration open path and that manual config files using airflow_admin_bearer_auth were ignored because the TOML tag was admin_bearer_auth.",
+  "files": [
+    "internal/cli/data_source.go",
+    "internal/cli/data_source_test.go",
+    "internal/config/config.go",
+    "internal/config/config_test.go"
+  ],
+  "validated_outcome": "Focused tests passed: go test ./internal/cli -run TestOpenStoreForReadUsesReadOnlyHandle -count=1 and go test ./internal/config -count=1."
+}

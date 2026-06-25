@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "gisis",
+  "cli_name": "gisis-pp-cli",
+  "version": "2026.6.2",
+  "released_at": "2026-06-21T08:16:26Z",
+  "source_commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7",
+  "printing_press_version": "4.18.1",
+  "run_id": "20260527-211808",
+  "changes": [
+    {
+      "title": "fix(catalog): require Go 1.26.4 across published modules",
+      "pr": 1308,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1308",
+      "commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7"
+    }
+  ]
+}

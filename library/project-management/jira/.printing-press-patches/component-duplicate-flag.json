@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "component-duplicate-flag",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-114028",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Remove duplicate bodyLeadAccountId var and lead-account-id flag in component create/update.",
+  "reason": "Generator emitted the same variable and flag twice causing a runtime panic on --help.",
+  "files": [
+    "internal/cli/component_create.go",
+    "internal/cli/component_update.go"
+  ]
+}

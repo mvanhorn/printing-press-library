@@ -1,0 +1,310 @@
+{
+  "api_name": "pexels",
+  "base_url": "https://api.pexels.com/v1",
+  "description": "Every Pexels photo, video, and collection endpoint — plus a local store that adds quota forecasting, dedup-aware bulk download, and one-shot attribution exports no other Pexels tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "{PEXELS_API_KEY}",
+    "in": "header",
+    "env_vars": [
+      "PEXELS_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "PEXELS_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "pexels-pp-cli/0.1 (+https://github.com/mvanhorn/printing-press-library)"
+    }
+  ],
+  "tools": [
+    {
+      "name": "collections_featured",
+      "description": "List Pexels featured collections. Optional: page (default: 1), per_page (default: 15). Returns array of Collection.",
+      "method": "GET",
+      "path": "/collections/featured",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 80)"
+        }
+      ]
+    },
+    {
+      "name": "collections_list",
+      "description": "List the authenticated user's own collections (requires PEXELS_API_KEY). Optional: page (default: 1), per_page (default: 15). Returns array of Collection. (requires API key)",
+      "method": "GET",
+      "path": "/collections",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 80)"
+        }
+      ]
+    },
+    {
+      "name": "collections_media",
+      "description": "List the media (photos and/or videos) inside a collection. Required: id. Optional: type, sort (default: asc), page (default: 1) (plus 1 more). Returns array of CollectionMedia.",
+      "method": "GET",
+      "path": "/collections/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Collection id (string, e.g. 9mp14cx)",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to a single media type"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 80)"
+        }
+      ]
+    },
+    {
+      "name": "photos_curated",
+      "description": "Browse the Pexels editor-curated photo feed (use --random for a random page). Optional: page (default: 1), per_page (default: 15). Returns array of Photo.",
+      "method": "GET",
+      "path": "/curated",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 80)"
+        }
+      ]
+    },
+    {
+      "name": "photos_get",
+      "description": "Get a single photo by its numeric id. Required: id. Returns the Photo.",
+      "method": "GET",
+      "path": "/photos/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric photo id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "photos_search",
+      "description": "Search photos by keyword with orientation/size/color/locale filters. Required: query. Optional: orientation, size, color (plus 3 more). Returns array of Photo.",
+      "method": "GET",
+      "path": "/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search keyword, e.g. 'mountain sunrise'",
+          "required": true
+        },
+        {
+          "name": "orientation",
+          "type": "string",
+          "location": "query",
+          "description": "Photo orientation"
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum photo size: large (24MP), medium (12MP), small (4MP)"
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "query",
+          "description": "Named color (red, orange, yellow, green, turquoise, blue, violet, pink, brown, black, gray, white) OR a hex code like #ffffff"
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "Search locale"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 80)"
+        }
+      ]
+    },
+    {
+      "name": "videos_get",
+      "description": "Get a single video by its numeric id. Required: id. Returns the Video.",
+      "method": "GET",
+      "path": "/videos/videos/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric video id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_popular",
+      "description": "Browse popular videos with optional dimension/duration filters. Optional: min_width, min_height, min_duration (plus 3 more). Returns array of Video.",
+      "method": "GET",
+      "path": "/videos/popular",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "min_width",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum video width in pixels"
+        },
+        {
+          "name": "min_height",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum video height in pixels"
+        },
+        {
+          "name": "min_duration",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum duration in seconds"
+        },
+        {
+          "name": "max_duration",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum duration in seconds"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 80)"
+        }
+      ]
+    },
+    {
+      "name": "videos_search",
+      "description": "Search videos by keyword with orientation/size/locale filters. Required: query. Optional: orientation, size, locale (plus 2 more). Returns array of Video.",
+      "method": "GET",
+      "path": "/videos/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search keyword, e.g. 'ocean waves'",
+          "required": true
+        },
+        {
+          "name": "orientation",
+          "type": "string",
+          "location": "query",
+          "description": "Video orientation"
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum video size: large (4K), medium (Full HD), small (HD)"
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "Search locale"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 80)"
+        }
+      ]
+    }
+  ]
+}

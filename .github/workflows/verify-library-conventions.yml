@@ -46,6 +46,11 @@ name: Verify library conventions
 #    instructions instead of publishing ambiguous old artifacts. Existing
 #    published CLIs can still receive narrow bugfixes even when their
 #    historical manifest records an older Printing Press version.
+#
+# 7. Per-CLI release ledger files are owned by the post-merge release-ledger
+#    workflow. New CLIs may add blank skeletons, and scoped ledger-only repair
+#    PRs are allowed, but normal CLI feature/fix PRs must not hand-bump
+#    CHANGELOG.md, .printing-press-release.json, or runtime `var version`.
 
 on:
   pull_request:
@@ -107,6 +112,7 @@ jobs:
             .github/scripts/verify-binary-payload \
             .github/scripts/verify-press-version \
             .github/scripts/verify-publish-package \
+            .github/scripts/verify-release-ledger \
             tools/generate-registry
           do
             if git cat-file -e "${BASE_REMOTE_REF}:${path}" 2>/dev/null; then
@@ -187,6 +193,14 @@ jobs:
           echo "::error::  - cli-skills/pp-<slug>/SKILL.md source: library/<cat>/<slug>/SKILL.md"
           exit 1
 
+      - name: Guard release ledger automation
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REMOTE_REF: ${{ steps.base.outputs.ref }}
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/verify-release-ledger/verify_release_ledger.py --base-ref "${BASE_REMOTE_REF}"
+
       - name: Guard CLI attribution
         if: github.event_name == 'pull_request'
         env:
@@ -243,7 +257,7 @@ jobs:
       # binary that will run after merge.
       - uses: actions/setup-go@v6
         with:
-          go-version: '1.26.3'
+          go-version: '1.26.4'
 
       - name: Validate registry source descriptions
         # Reject PRs whose .printing-press.json + .goreleaser.yaml sources would

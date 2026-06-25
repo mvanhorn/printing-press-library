@@ -100,13 +100,25 @@ func parseOrderCard(card *html.Node) OrderSummary {
 		}
 	}
 
-	// Total: first money string after "TOTAL" label, fall back to first $ in card.
+	// Total: first money string after "TOTAL" label, fall back to first currency-marked amount in card.
+	foundTotal := false
 	if i := strings.Index(strings.ToUpper(cardText), "TOTAL"); i >= 0 {
-		window := cardText[i:min(i+40, len(cardText))]
-		s.Total = ExtractMoney(window)
+		window := cardText[i:min(i+60, len(cardText))]
+		if total, currency, ok := ExtractMoneyWithCurrency(window); ok {
+			s.Total = total
+			foundTotal = true
+			if currency != "" {
+				s.Currency = currency
+			}
+		}
 	}
-	if s.Total == 0 {
-		s.Total = ExtractMoney(cardText)
+	if !foundTotal {
+		if total, currency, ok := ExtractMoneyWithCurrency(cardText); ok {
+			s.Total = total
+			if currency != "" {
+				s.Currency = currency
+			}
+		}
 	}
 
 	// Recipient: SHIP TO label.

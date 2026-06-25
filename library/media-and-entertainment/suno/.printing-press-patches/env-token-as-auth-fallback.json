@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "env-token-as-auth-fallback",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Prefer stored Suno auth/session over SUNO_TOKEN and keep env auth as fallback.",
+  "reason": "A configured Chrome/Clerk session can refresh the stored JWT; allowing SUNO_TOKEN to override it prevents that refresh path from running.",
+  "files": [
+    "internal/config/config.go",
+    "internal/config/config_test.go"
+  ],
+  "validated_outcome": "go test ./...",
+  "findings_addressed": [
+    "env-token-as-auth-fallback"
+  ]
+}

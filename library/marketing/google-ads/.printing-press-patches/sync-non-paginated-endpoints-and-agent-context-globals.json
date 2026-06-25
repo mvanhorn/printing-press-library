@@ -1,0 +1,33 @@
+{
+  "schema_version": 2,
+  "id": "sync-non-paginated-endpoints-and-agent-context-globals",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260506-162403",
+  "base_printing_press_version": "3.10.0",
+  "summary": "Sync must send no pagination/cursor/filter query params to custom-method endpoints (e.g. listAccessibleCustomers) that bind params strictly and 400 on unknown names, and must hydrate their scalar resource-name list responses by wrapping each string into an ID-bearing object (bare strings have no extractable primary key and store 0 rows) while preserving the raw envelope for the path-derived local read; agent-context must expose root persistent flags; help/docs command examples must use the registered kebab-case command path.",
+  "reason": "The Google Ads REST surface exposes the sync root 'customers' as the custom method /v22/customers:listAccessibleCustomers, which takes no paging, rejects any unknown query parameter with HTTP 400 ('Unknown name \"limit\": Cannot bind query parameter'), and responds with {\"resourceNames\": [\"customers/<id>\", ...]} — an array of strings, not objects. The generated sync loop unconditionally appended limit=/after=/since= (the request failed on the very first call) and, once unblocked, would have dropped every string item at ID extraction, so the mirror stayed unhydrated either way. Separately, agent-context omitted the root persistent flags (--data-source, --agent, --json, ...) so the machine-readable context was incomplete, and command Example strings plus the SKILL/README command reference were emitted in snake_case while the commands register in kebab-case, so the printed examples were not executable and SKILL.md failed the unknown-command verifier. auth help/docs also referenced a non-existent 'auth set-token' command instead of the real OAuth 'auth login' flow.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/agent_context.go",
+    "internal/cli/helpers.go",
+    "internal/cli/sync_pagination_test.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "sync against the live API stores one row per accessible customer (typed customers table + generic resources/FTS) plus the raw envelope under id 'customers:listAccessibleCustomers' for --data-source local; agent-context emits schema_version 4 with a 21-entry global_flags array including data-source; verify_skill.py passes all checks including unknown-command; go build/vet/test pass; TestNonPaginatedResourcesSuppressesParams, TestDefaultSyncRootIsNonPaginated, TestWrapScalarResourceNameItems, and TestSyncCustomersHydratesFromResourceNameStrings guard the sync fix end to end (request shape AND data storage).",
+  "upstream_issue": "",
+  "deferred_to_upstream": [
+    {
+      "feature": "Profiler-driven detection of non-paginated / custom-method (:verb) endpoints so the sync engine suppresses pagination params for them automatically.",
+      "reason": "The fix seeds nonPaginatedResources by hand for the customers root; the generator should derive this from the spec (custom ':method' verbs and endpoints with no paging fields) so every printed CLI with such an endpoint gets it without a library patch."
+    },
+    {
+      "feature": "Sync-engine hydration pattern for scalar item lists: when a response's sole array is typed string (resource names, bare IDs), wrap items into ID-bearing objects derived from the spec instead of dropping them at primary-key extraction.",
+      "reason": "The fix seeds scalarResourceNameResources by hand for customers; the same shape exists on other APIs (Firebase /topstories.json, GitHub user-repo lists — already called out in the sync.go anomaly comment) and the generator should derive the wrap from the response schema so scalar-list endpoints hydrate without a library patch."
+    },
+    {
+      "feature": "Generator should emit per-command Example strings and the SKILL/README command reference using the registered kebab-case command path, and reference the real auth flow (auth login) rather than a hardcoded 'auth set-token'.",
+      "reason": "snake_case examples and a non-existent auth subcommand are template-level output bugs reproducible in any CLI whose resource/endpoint names contain underscores; fixing the templates upstream prevents re-emitting non-executable examples on the next regen."
+    }
+  ]
+}

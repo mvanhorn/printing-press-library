@@ -20,7 +20,7 @@ func newCustomersUploadUserDataCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "upload-user-data <customerId>",
 		Short:       "Uploads the given user data.",
-		Example:     "  google-ads-pp-cli customers upload_user_data 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  google-ads-pp-cli customers upload-user-data 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "customers.upload_user_data", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:uploadUserData"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "compliance-auto-block-since-filter-hardening",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260513-091340",
+  "base_printing_press_version": "4.5.2",
+  "summary": "compliance auto-block scanOptOuts now excludes messages with missing or unparseable createdAt from the --since window, instead of silently including them.",
+  "reason": "The previous filter only skipped messages where createdAt parsed AND fell before the cutoff, so messages without createdAt (or with malformed timestamps) bypassed the window entirely and were always treated as opt-out candidates. With --apply, that could bulk-block phone numbers based on arbitrarily old STOP messages -- a compliance-critical mutation gated on a window that wasn't actually enforced. Fix: drop the row if createdAt is empty or doesn't parse; otherwise require it to be at or after cutoff. Surfaced by Greptile P1 in the PR #417 review.",
+  "files": [
+    "internal/cli/compliance_auto_block.go"
+  ],
+  "validated_outcome": "go build ./... succeeds; go test ./... passes; go vet clean."
+}

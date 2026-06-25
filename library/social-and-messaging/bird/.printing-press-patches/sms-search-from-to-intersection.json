@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "sms-search-from-to-intersection",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260513-091340",
+  "base_printing_press_version": "4.5.2",
+  "summary": "sms search --from and --to are now intersected when both are supplied, instead of silently dropping --from.",
+  "reason": "The previous identifier resolution was `identifier := to; if identifier == \"\" { identifier = from }`, which meant that `sms search \"X\" --from +A --to +B` silently discarded --from and only restricted to conversations involving +B. Callers expecting the natural intersection (conversations involving BOTH numbers) got a quietly broader result set. Fix: a three-case switch -- both flags -> intersect the two participant sets; single flag -> filter on that one; no flag -> no participant restriction. Direction-aware filtering (--from for outgoing, --to for incoming) is left as a follow-up because the synced message rows don't expose a uniform direction field. Surfaced by Greptile P1 in the PR #417 fifth review pass.",
+  "files": [
+    "internal/cli/sms_search.go"
+  ],
+  "validated_outcome": "go build ./... succeeds; go test ./... passes; go vet clean."
+}

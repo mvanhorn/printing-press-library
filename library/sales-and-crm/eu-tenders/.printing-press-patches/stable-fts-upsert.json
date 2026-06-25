@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "stable-fts-upsert",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260508-143927",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Keep the FTS index accurate when a synced notice is updated.",
+  "reason": "External-content FTS5 tables retain old tokens unless the previous indexed row is deleted before reinsert.",
+  "files": [
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "SQLite reproduction returns oldmatch=0 and newmatch=1 after an updated notice title is reindexed."
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "captcha-login-keep-window-open",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "auth captcha login leaves the visible Chrome running so the user can finish signing in.",
+  "reason": "Login returned at the page-load event and the deferred close() called allocCancel(), which kills the ExecAllocator-launched browser ~1s in — the window vanished before sign-in. cmd.Context() is context.Background() (plain rootCmd.Execute), so a launched window survives process exit on its own per the persistent-reconnect design; only tear it down when navigate fails.",
+  "files": [
+    "internal/captcha/solver.go",
+    "internal/captcha/login_test.go"
+  ],
+  "validated_outcome": "go test ./internal/captcha/ -run TestLogin",
+  "findings_addressed": [
+    "captcha-login-keep-window-open"
+  ]
+}

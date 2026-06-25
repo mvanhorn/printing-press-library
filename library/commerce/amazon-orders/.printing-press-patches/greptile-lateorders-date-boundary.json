@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-lateorders-date-boundary",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260510-105710",
+  "base_printing_press_version": "4.2.2",
+  "summary": "lateOrders compares ETA against today's midnight, not the current instant.",
+  "reason": "time.Parse(\"2006-01-02\", ...) returns midnight UTC; eta.Before(now) marked any ETA=today order as late once UTC time passed 00:00, producing false positives throughout the delivery day. Comparing eta.Before(today-at-midnight) only flags orders whose ETA date has fully passed.",
+  "files": [
+    "internal/cli/novel_helpers.go"
+  ]
+}

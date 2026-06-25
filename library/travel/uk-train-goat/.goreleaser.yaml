@@ -1,0 +1,51 @@
+version: 2
+project_name: uk-train-goat-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: uk-train-goat-pp-cli
+    main: ./cmd/uk-train-goat-pp-cli
+    binary: uk-train-goat-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/uk-train-goat/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: uk-train-goat-pp-mcp
+    main: ./cmd/uk-train-goat-pp-mcp
+    binary: uk-train-goat-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: uk-train-goat-pp-cli
+    repository:
+      owner: ahujasachin92
+      name: homebrew-tap
+    homepage: "https://github.com/ahujasachin92/uk-train-goat-pp-cli"
+    description: "The only Go-native, agent-native, MCP-exposed UK rail CLI; live boards, journey planning"
+    install: |
+      bin.install "uk-train-goat-pp-cli"
+      bin.install "uk-train-goat-pp-mcp"

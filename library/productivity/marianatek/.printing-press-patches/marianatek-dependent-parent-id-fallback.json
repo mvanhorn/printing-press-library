@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "marianatek-dependent-parent-id-fallback",
+  "applied_at": "2026-05-12T16:10:35Z",
+  "reason": "Generated typed store tables declare resource-specific parent columns as NOT NULL, but dependent-resource sync injects the generic `parent_id`; generic generated upsert tests also exercise id-only rows.",
+  "files": [
+    "internal/store/store.go"
+  ],
+  "change": "Added a helper that fills required parent columns from the resource-specific field, then `parent_id`, then an empty string fallback so dependent typed upserts do not fail before storing the JSON payload."
+}

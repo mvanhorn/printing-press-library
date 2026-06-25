@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -36,10 +37,19 @@ func newEventsRangeCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
+			// PATCH(outlook-calendar-range-relative-dates): resolve --from/--to
+			// through resolveWindow so the documented shortcuts (today, tomorrow,
+			// +Nd, -Nh) work, not just raw ISO 8601. Previously the literal flag
+			// value was forwarded to /me/calendarView, so "today"/"+7d" (used in
+			// the CLI's own Quick Start examples) returned ErrorInvalidParameter.
+			start, end, werr := resolveWindow(flagStartDateTime, flagEndDateTime, 7)
+			if werr != nil {
+				return usageErr(werr)
+			}
 			path := "/me/calendarView"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "events", path, map[string]string{
-				"startDateTime": fmt.Sprintf("%v", flagStartDateTime),
-				"endDateTime":   fmt.Sprintf("%v", flagEndDateTime),
+				"startDateTime": start.Format(time.RFC3339),
+				"endDateTime":   end.Format(time.RFC3339),
 				"$top":          fmt.Sprintf("%v", flagTop),
 				"$orderby":      fmt.Sprintf("%v", flagOrderby),
 				"$select":       fmt.Sprintf("%v", flagSelect),

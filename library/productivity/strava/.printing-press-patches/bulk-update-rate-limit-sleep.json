@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "bulk-update-rate-limit-sleep",
+  "applied_at": "2026-05-22",
+  "base_run_id": "20260521-164944",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Fix bulk-update inter-request sleep from 100ms to 4500ms.",
+  "reason": "Strava's limit is 200 req/15 min = 4.5 s/req minimum for sustained bulk operations. The original 100ms sleep (a 45x underestimate) would exhaust the quota on any non-trivial batch, triggering cascading 429s.",
+  "files": [
+    "internal/cli/activities_bulk_update.go"
+  ]
+}

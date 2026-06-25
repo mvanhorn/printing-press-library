@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "dry-run-pat-label",
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260509-190854",
+  "base_printing_press_version": "4.2.0",
+  "summary": "Use the actual auth-header name (Authorization vs X-Figma-Token) in the --dry-run echo in internal/client/client.go.",
+  "reason": "Sister to pat-auth-wiring: when AuthHeader() returns an X-Figma-Token-prefixed value, the live request path correctly routes it to that header. The dryRun branch hardcoded 'Authorization' as the label, so --dry-run output misled PAT users into thinking the request would carry an Authorization header. Mirror the prefix detection so the label matches the live header. Greptile P2 on PR #380.",
+  "files": [
+    "internal/client/client.go"
+  ]
+}

@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"bytes"
+	"strings"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/normalizecfg"
@@ -80,6 +82,63 @@ func TestValidateRuleBadRegexFails(t *testing.T) {
 	r := normalizecfg.Rule{Match: `(unclosed`, Set: map[string]string{"access_class": "vip"}}
 	if validateRule(r, cached) {
 		t.Error("rule with uncompilable regex must not validate")
+	}
+}
+
+// TestCompileRulesWarnsAndSkips verifies the compile-once cache skips an
+// uncompilable rule, writes a diagnostic to the warn writer, and still applies
+// the good rules — the defense-in-depth half of the silent-skip fix (F1/F9).
+func TestCompileRulesWarnsAndSkips(t *testing.T) {
+	var warn bytes.Buffer
+	rules := []normalizecfg.Rule{
+		{Match: `(unclosed`, Set: map[string]string{"access_class": "vip"}},
+		{Match: `(?i)\bvip\b`, Set: map[string]string{"access_class": "vip"}},
+	}
+	crules := compileRules("ticket_type", rules, &warn)
+	if len(crules) != 1 {
+		t.Fatalf("want 1 compiled rule (bad one skipped), got %d", len(crules))
+	}
+	if !strings.Contains(warn.String(), "skipping uncompilable match") {
+		t.Errorf("expected a warning about the skipped rule, got %q", warn.String())
+	}
+	if got := applyCompiledRules("vip experience", crules); got["access_class"] != "vip" {
+		t.Errorf("good rule should still apply, got %v", got)
+	}
+}
+
+// TestCompileRulesNilWarnSilent verifies a nil warn writer silences the
+// diagnostic without panicking (the applyAttributeRules convenience path).
+func TestCompileRulesNilWarnSilent(t *testing.T) {
+	rules := []normalizecfg.Rule{{Match: `(unclosed`, Set: map[string]string{"access_class": "vip"}}}
+	crules := compileRules("", rules, nil)
+	if len(crules) != 0 {
+		t.Errorf("uncompilable rule should be skipped, got %d compiled", len(crules))
+	}
+}
+
+// TestFuzzyThresholdResolution verifies the configurable fuzzy threshold (F6):
+// an unset/zero value falls back to the default, an in-range value is used
+// verbatim, and an out-of-range value is treated as unset (clamped to default)
+// so a stray 0 or >1 cannot collapse or disable clustering.
+func TestFuzzyThresholdResolution(t *testing.T) {
+	cases := []struct {
+		name string
+		in   float64
+		want float64
+	}{
+		{"unset zero -> default", 0, defaultFuzzyThreshold},
+		{"in range used verbatim", 0.85, 0.85},
+		{"upper bound 1 allowed", 1.0, 1.0},
+		{"above 1 -> default", 1.5, defaultFuzzyThreshold},
+		{"negative -> default", -0.5, defaultFuzzyThreshold},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			got := classifyOpts{FuzzyThreshold: c.in}.fuzzyThreshold()
+			if got != c.want {
+				t.Errorf("fuzzyThreshold(%v) = %v, want %v", c.in, got, c.want)
+			}
+		})
 	}
 }
 

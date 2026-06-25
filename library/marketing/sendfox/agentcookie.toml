@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "sendfox-pp-cli"
+display_name = "Sendfox"
+description = "SendFox email marketing API for authenticated user details, contact lists, contacts, unsubscribe operations"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/sendfox-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+SENDFOX_API_TOKEN = true
+SENDFOX_BEARER_AUTH = true

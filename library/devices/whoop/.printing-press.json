@@ -71,5 +71,15 @@
       "command": "journal",
       "description": "Cross-reference Whoop Journal answers against next-day recovery deltas."
     }
+  ],
+  "contributors": [
+    {
+      "handle": "bobeglz",
+      "name": "Roberto Gonz\u00e1lez Grajeda"
+    },
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
   ]
 }

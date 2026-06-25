@@ -65,15 +65,20 @@ can stretch back as far as the local store has been syncing.`,
 				return fmt.Errorf("querying market history: %w", err)
 			}
 
-			if len(rows) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No price history yet. Run 'sync markets' at least twice (an hour apart) to capture snapshots.")
-				return nil
-			}
-
 			if flags.asJSON {
+				if rows == nil {
+					rows = []marketHistoryRow{} // emit [], never null or prose, in JSON mode
+				}
 				return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
 			}
 
+			if len(rows) == 0 {
+				fmt.Fprintf(cmd.OutOrStdout(), "No price history for %s yet. Run 'sync markets' at least twice (an hour apart) to capture snapshots.\n", ticker)
+				return nil
+			}
+
+			// Name the market above the table so piped/pasted output is self-describing.
+			fmt.Fprintf(cmd.OutOrStdout(), "%s\n", ticker)
 			headers := []string{"Timestamp", "Yes Bid", "Yes Ask", "Last", "Volume"}
 			tableRows := make([][]string, 0, len(rows))
 			for _, r := range rows {
@@ -95,7 +100,7 @@ can stretch back as far as the local store has been syncing.`,
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&since, "since", "7d", "Lookback window (e.g., 24h, 7d, 30d)")
+	cmd.Flags().StringVar(&since, "since", "7d", "Lookback window (e.g., 24h, 7d, 30d) or absolute date (e.g., 2026-04-01)")
 	cmd.Flags().BoolVar(&sparkline, "sparkline", false, "Render a Unicode block sparkline of yes_bid alongside the table")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	return cmd

@@ -1,0 +1,39 @@
+{
+  "schema_version": 2,
+  "id": "add-cut-panel-parity",
+  "applied_at": "2026-05-16",
+  "base_run_id": "20260509-180956",
+  "base_printing_press_version": "4.2.1",
+  "summary": "Add UI-matching `remove-buffers`, narrow `trim-edges`, and unofficial-API `find-mistakes` commands and `clips edit-pass` flags. Fix the pre-existing silent no-op in `--trim-silences-gt` (extractSilenceRanges field-shape drift + cut-args shape).",
+  "reason": "Tella's Cut panel exposes Remove buffers and Find mistakes that the published CLI didn't cover. Live smoke tests against api.tella.com on 2026-05-16 confirmed both POST shapes return 404 — the public OpenAPI has no equivalent. The web UI calls unofficial hosts: www.tella.tv (`/api/stories/{vid}/scenes/{cl}/silences?mode=...` + apply PATCH) for buffer trimming and prod-stream.tella.tv (`/ai-mistakes/analyze-scene` SSE) for mistake detection. Both unofficial hosts reject the public-API Bearer token with 401 `not_authenticated` and require a session cookie issued to a logged-in browser. This patch composes the documented public endpoints (GET /silences + POST /cut) for Remove buffers / Trim edges, and uses a mixed-auth path for Find mistakes (cookie-auth analyze + Bearer-auth public /cut apply) behind a hard `--unofficial` gate. Side-fix: extractSilenceRanges previously only handled `{start,end}`/`{startMs,endMs}` shapes, missing today's `{startTimeMs,durationMs}` response — that's why `--trim-silences-gt N` had been silently planning zero cuts on the live API. The parser now handles both shapes and the planned cut args now use the spec-correct `{fromMs,toMs}`.",
+  "files": [
+    "internal/cli/videos_clips_remove-buffers.go",
+    "internal/cli/videos_clips_trim-edges.go",
+    "internal/cli/videos_clips_find-mistakes.go",
+    "internal/cli/videos_clips.go",
+    "internal/cli/clips_edit_pass.go",
+    "internal/cli/clips_edit_pass_test.go",
+    "internal/cli/unofficial.go",
+    "internal/cli/sse_mistakes.go",
+    "internal/cli/sse_mistakes_test.go",
+    "internal/cli/root.go",
+    "internal/cli/which.go",
+    "internal/mcp/tools.go",
+    "internal/config/config.go",
+    "internal/config/config_test.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "go build/vet/test all clean (24 unit tests across the cli package). Skill verifier: ✓ All checks passed. Live smoke against the test workspace: `videos clips remove-buffers <vid> <cl> --dry-run --min-ms 500` planned 42 cuts from 105 silences; `videos clips trim-edges <vid> <cl> --dry-run` planned head/tail correctly; `videos clips find-mistakes <vid> <cl> --unofficial --detect-only` confirms the unofficial AI service returns detected mistakes when a fresh session cookie is set. Reset via PATCH /clips/{clipId} {cuts:[]} after each mutating run.",
+  "deferred_to_upstream": [
+    {
+      "feature": "single-POST remove-buffers + find-mistakes endpoints on the public API",
+      "reason": "If Tella publishes these on api.tella.com, the per-clip composition wrappers in this patch should be replaced by direct endpoint calls. Tracked at the upstream issue below."
+    },
+    {
+      "feature": "browser session-cookie ingestion UX",
+      "reason": "TELLA_SESSION_COOKIE manual paste is brittle. A login flow or browser-extension capture would improve UX; out of scope for this patch."
+    }
+  ],
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/1528"
+}

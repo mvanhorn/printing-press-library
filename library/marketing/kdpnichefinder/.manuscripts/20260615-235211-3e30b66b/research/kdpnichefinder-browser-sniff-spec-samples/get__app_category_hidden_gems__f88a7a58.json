@@ -1,0 +1,270 @@
+{
+  "endpoint": "GET /app/category/hidden_gems",
+  "method": "GET",
+  "raw_url": "https://kdpnichefinder.com/app/category/hidden_gems",
+  "status": 200,
+  "request_headers": {
+    ":authority": "kdpnichefinder.com",
+    ":method": "GET",
+    ":path": "/app/category/hidden_gems",
+    ":scheme": "https",
+    "accept": "text/html, application/xhtml+xml",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "cache-control": "no-cache",
+    "dnt": "1",
+    "pragma": "no-cache",
+    "priority": "u=1, i",
+    "referer": "https://kdpnichefinder.com/dashboard",
+    "sec-ch-ua": "\"Brave\";v=\"149\", \"Chromium\";v=\"149\", \"Not)A;Brand\";v=\"24\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"macOS\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin",
+    "sec-gpc": "1",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+    "x-inertia": "true",
+    "x-inertia-version": "48dd121c09af69aeaa0e9c68f4bb81b9",
+    "x-requested-with": "XMLHttpRequest",
+    "x-xsrf-token": "REDACTED"
+  },
+  "request_body": null,
+  "response_headers": {
+    "cache-control": "no-cache, private",
+    "content-encoding": "gzip",
+    "content-type": "application/json",
+    "date": "Tue, 16 Jun 2026 05:04:34 GMT",
+    "server": "nginx",
+    "strict-transport-security": "max-age=31536000",
+    "vary": "X-Inertia",
+    "x-inertia": "true",
+    "x-powered-by": "PHP/8.4.17"
+  },
+  "response_body": {
+    "clearHistory": false,
+    "component": "app/book/index",
+    "encryptHistory": false,
+    "props": {
+      "artistlyRedirectUrl": "https://app.artistly.ai/dashboard",
+      "books": {
+        "current_page": 1,
+        "data": [
+          {
+            "amazon_url": "https://www.amazon.com/dp/B0GTDWD9QL",
+            "estimated_monthly_revenue": 5422.71,
+            "estimated_monthly_sales": 271,
+            "id": 2584,
+            "image_url": "https://images-na.ssl-images-amazon.com/images/I/61+Fhl-UsRL.jpg",
+            "price": "19.99",
+            "publisher": "Independently published",
+            "title": "TAI CHI FOR BELLY FAT AFTER 50: 10-Minute Low-Impact Routines That Actually Work - Flatten Your Belly Without Hurting Your Joints, Step-by-Step with ... Hype (Ideal for Men Who Sit Most of the Day)"
+          },
+          {
+            "amazon_url": "https://www.amazon.com/dp/B0GW8J9W64",
+            "estimated_monthly_revenue": 2220.45,
+            "estimated_monthly_sales": 171,
+            "id": 2589,
+            "image_url": "https://images-na.ssl-images-amazon.com/images/I/71iPgxZGV-L.jpg",
+            "price": "12.99",
+            "publisher": "Independently published",
+            "title": "Murdsearch Puzzle Book: A True Crime Activity Book with Cryptograms, Crime Scene Clues, and 26 Cold Cases to Solve"
+          },
+          {
+            "amazon_url": "https://www.amazon.com/dp/B0GSLYXXYK",
+            "estimated_monthly_revenue": 13836.44,
+            "estimated_monthly_sales": 923,
+            "id": 693,
+            "image_url": "https://images-na.ssl-images-amazon.com/images/I/81Fmisk-5jL.jpg",
+            "price": "14.99",
+            "publisher": "Independently published",
+            "title": "Super Interesting History Facts for Smart Boys: 1000+ Mind-Blowing Facts & Crazy Stories About Ancient Civilizations, Warriors, Explorers, Empires & ... Confidence (Super Interesting Facts for Kids)"
+          },
+          {
+            "amazon_url": "https://www.amazon.com/dp/B0GTFMWX85",
+            "estimated_monthly_revenue": 2991.58,
+            "estimated_monthly_sales": 200,
+            "id": 1759,
+            "image_url": "https://images-na.ssl-images-amazon.com/images/I/61wV4ctXhIL.jpg",
+            "price": "14.99",
+            "publisher": "Independently published",
+            "title": "Rescued by Yuki: A Heartwarming True Story About a Rescue Dog, Adoption, and Second Chances"
+          },
+          {
+            "amazon_url": "https://www.amazon.com/dp/B0GN51HMRG",
+            "estimated_monthly_revenue": 1008.82,
+            "estimated_monthly_sales": 168,
+            "id": 1008,
+            "image_url": "https://images-na.ssl-images-amazon.com/images/I/61aoY2WqyuL.jpg",
+            "price": "5.99",
+            "publisher": "Independently published",
+            "title": "Cozy Spring Coloring Book: 40 Simple & Cute Designs for Kids & Adults | Bold & Easy Coloring Pages for Relaxation and Fun (Cozy Seasons – Bold & Easy Coloring Books for Kids & Adults)"
+          },
+          {
+            "amazon_url": "https://www.amazon.com/dp/B0GR5Z6S6Y",
+            "estimated_monthly_revenue": 38059.06,
+            "estimated_monthly_sales": 2537,
+            "id": 661,
+            "image_url": "https://images-na.ssl-images-amazon.com/images/I/61FmG5ypALL.jpg",
+            "price": "15.00",
+            "publisher": "Independently published",
+            "title": "DR. HULDA CLARK CURE FOR CANCER: A Complete Natural Approach to Eliminating Cancer Through Detox, Cleansing, and Parasite Removal"
+          },
+          {
+            "amazon_url": "https://www.amazon.com/dp/B0GWK8CL8W",
+            "estimated_monthly_revenue": 3205.71,
+            "estimated_monthly_sales": 214,
+            "id": 2044,
+            "image_url": "https://images-na.ssl-images-amazon.com/images/I/6190WoS0FUL.jpg",
+            "price": "14.99",
+            "publisher": "Independently published",
+            "title": "Maya's Special Backpack: Powered by FUEL: Helping Little Leaders Discover Their Inner Power"
+          },
+          {
+            "amazon_url": "https://www.amazon.com/dp/B0GSKS5KK5",
+            "estimated_monthly_revenue": 12129.36,
+            "estimated_monthly_sales": 1012,
+            "id": 842,
+            "image_url": "https://images-na.ssl-images-amazon.com/images/I/71Vr3M3UdpL.jpg",
+            "price": "11.99",
+            "publisher": "Independently published",
+            "title": "Super-Simple Ninja Slushie Alcohol Cookbook for Adults: Ninja Slushie Alcohol Recipes for Frozen Cocktails, Margaritas, Daiquiris, Wine Slushies & Bar-Style Frozen Drinks You Can Make at Home"
+          },
+          {
+            "amazon_url": "https://www.amazon.com/dp/B0GVTJZG5G",
+            "estimated_monthly_revenue": 6104.52,
+            "estimated_monthly_sales": 171,
+            "id": 2297,
+            "image_url": "https://images-na.ssl-images-amazon.com/images/I/61HSvaIXjWL.jpg",
+            "price": "35.65",
+            "publisher": "Independently published",
+            "title": "The Smart Chicken Keeper: Simple Strategies for Raising Hens from Chick to Chicken for Healthy Flocks and Fresh Eggs"
+          },
+          {
+            "amazon_url": "https://www.amazon.com/dp/B0GN993TNY",
+            "estimated_monthly_revenue": 2829.2,
+            "estimated_monthly_sales": 202,
+            "id": 2047,
+            "image_url": "https://images-na.ssl-images-amazon.com/images/I/61tElax3JsL.jpg",
+            "price": "13.99",
+            "publisher": "Independently published",
+            "title": "The 85th Birthday Big Trivia Book Fun Facts, Quizzes & Memory-Lane Challenges For 85 Year-Olds (85th Birthday Gifts)"
+          }
+        ],
+        "first_page_url": "https://kdpnichefinder.com/app/category/hidden_gems?page=1",
+        "from": 1,
+        "last_page": 104,
+        "last_page_url": "https://kdpnichefinder.com/app/category/hidden_gems?page=104",
+        "links": [
+          {
+            "active": false,
+            "label": "&laquo; Previous",
+            "page": null,
+            "url": null
+          },
+          {
+            "active": true,
+            "label": "1",
+            "page": 1,
+            "url": "https://kdpnichefinder.com/app/category/hidden_gems?page=1"
+          },
+          {
+            "active": false,
+            "label": "2",
+            "page": 2,
+            "url": "https://kdpnichefinder.com/app/category/hidden_gems?page=2"
+          },
+          {
+            "active": false,
+            "label": "3",
+            "page": 3,
+            "url": "https://kdpnichefinder.com/app/category/hidden_gems?page=3"
+          },
+          {
+            "active": false,
+            "label": "4",
+            "page": 4,
+            "url": "https://kdpnichefinder.com/app/category/hidden_gems?page=4"
+          },
+          {
+            "active": false,
+            "label": "5",
+            "page": 5,
+            "url": "https://kdpnichefinder.com/app/category/hidden_gems?page=5"
+          },
+          {
+            "active": false,
+            "label": "6",
+            "page": 6,
+            "url": "https://kdpnichefinder.com/app/category/hidden_gems?page=6"
+          },
+          {
+            "active": false,
+            "label": "7",
+            "page": 7,
+            "url": "https://kdpnichefinder.com/app/category/hidden_gems?page=7"
+          },
+          {
+            "active": false,
+            "label": "8",
+            "page": 8,
+            "url": "https://kdpnichefinder.com/app/category/hidden_gems?page=8"
+          },
+          {
+            "active": false,
+            "label": "9",
+            "page": 9,
+            "url": "https://kdpnichefinder.com/app/category/hidden_gems?page=9"
+          },
+          {
+            "active": false,
+            "label": "10",
+            "page": 10,
+            "url": "https://kdpnichefinder.com/app/category/hidden_gems?page=10"
+          },
+          {
+            "active": false,
+            "label": "...",
+            "url": null
+          },
+          {
+            "active": false,
+            "label": "103",
+            "page": 103,
+            "url": "https://kdpnichefinder.com/app/category/hidden_gems?page=103"
+          },
+          {
+            "active": false,
+            "label": "104",
+            "page": 104,
+            "url": "https://kdpnichefinder.com/app/category/hidden_gems?page=104"
+          },
+          {
+            "active": false,
+            "label": "Next &raquo;",
+            "page": 2,
+            "url": "https://kdpnichefinder.com/app/category/hidden_gems?page=2"
+          }
+        ],
+        "next_page_url": "https://kdpnichefinder.com/app/category/hidden_gems?page=2",
+        "path": "https://kdpnichefinder.com/app/category/hidden_gems",
+        "per_page": 10,
+        "prev_page_url": null,
+        "to": 10,
+        "total": 1031
+      },
+      "errors": {},
+      "key": "hidden_gems",
+      "savedBookIds": [
+        2584,
+        2589
+      ]
+    },
+    "url": "/app/category/hidden_gems",
+    "version": "48dd121c09af69aeaa0e9c68f4bb81b9"
+  },
+  "response_body_known": true,
+  "redactions": [
+    "request_headers.x-xsrf-token"
+  ]
+}

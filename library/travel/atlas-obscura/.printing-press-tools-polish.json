@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-06-06T22:54:16.199954Z",
+  "cli_dir": "\u003ccli-dir\u003e/atlas-obscura-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-06-06T22:46:56.413222Z"
+  }
+}

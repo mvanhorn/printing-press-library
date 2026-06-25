@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"sort"
@@ -14,6 +15,8 @@ import (
 
 	"github.com/spf13/cobra"
 )
+
+var errTeamFilterNotFound = errors.New("team not found")
 
 // issueRow is the shared projection used by `issues list` and table rendering.
 // It mirrors the shape the sync writes to the `data` JSON column.
@@ -58,12 +61,16 @@ Single-issue get resolution order (with --data-source auto, the default):
   2. live Linear GraphQL query
   3. on live failure with a fresh store, return the store miss as not found
 
-Use 'issues list' for filtered listing against the local sqlite store.`,
+Use 'issues list' for filtered listing against the local sqlite store.
+Use 'issues create --parent' or 'issues edit --parent/--no-parent' to manage
+parent and sub-issue links.`,
 		Example: `  linear-pp-cli issues ESP-1155
   linear-pp-cli issues list
   linear-pp-cli issues list --assignee me
   linear-pp-cli issues list --assignee me --state started
-  linear-pp-cli issues list --team ESP --state started --json`,
+  linear-pp-cli issues list --team ESP --state started --json
+  linear-pp-cli issues create --title "child" --team ESP --parent ESP-1155 --agent
+  linear-pp-cli issues edit ESP-1156 --no-parent --agent`,
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -80,7 +87,9 @@ Use 'issues list' for filtered listing against the local sqlite store.`,
 	cmd.PersistentFlags().StringVar(&dbPath, "db", "", "Database path")
 
 	cmd.AddCommand(newIssuesListCmd(flags, &dbPath))
+	cmd.AddCommand(newIssuesSearchCmd(flags, &dbPath))
 	cmd.AddCommand(newIssuesCreateCmd(flags))
+	cmd.AddCommand(newIssuesEditCmd(flags, &dbPath))
 	return cmd
 }
 
@@ -180,11 +189,15 @@ func runIssuesGet(cmd *cobra.Command, flags *rootFlags, dbPath, identifier strin
 	return classifyAPIError(liveErr, flags)
 }
 
-// fetchIssueLive fetches a single issue by identifier via the Linear GraphQL API.
-// Parses "ESP-1155" into team key "ESP" and number 1155, then filters. This avoids
-// relying on Linear accepting the identifier string in the top-level issue(id:) arg,
-// which behaves inconsistently across workspaces.
-func fetchIssueLive(c *client.Client, identifier string) (json.RawMessage, error) {
+// fetchIssueLive fetches a single issue by UUID or identifier via the Linear
+// GraphQL API. For identifiers it parses "ESP-1155" into team key "ESP" and
+// number 1155, then filters. This avoids relying on Linear accepting the
+// identifier string in the top-level issue(id:) arg, which behaves
+// inconsistently across workspaces.
+func fetchIssueLive(c graphqlQueryer, identifier string) (json.RawMessage, error) {
+	if store.IsUUID(identifier) {
+		return fetchIssueByIDLive(c, identifier)
+	}
 	teamKey, number, ok := parseIssueIdentifier(identifier)
 	if !ok {
 		return nil, fmt.Errorf("invalid issue identifier %q (expected TEAM-NUMBER, e.g. ESP-1155)", identifier)
@@ -193,7 +206,7 @@ func fetchIssueLive(c *client.Client, identifier string) (json.RawMessage, error
 		issues(filter: { team: { key: { eq: $teamKey } }, number: { eq: $number } }, first: 1) {
 			nodes {
 				id identifier title description priority estimate dueDate url updatedAt createdAt
-				state { name type }
+				state { id name type }
 				team { id key name }
 				project { id name }
 				assignee { id name displayName email }
@@ -212,6 +225,82 @@ func fetchIssueLive(c *client.Client, identifier string) (json.RawMessage, error
 		return nil, notFoundErr(fmt.Errorf("issue %q not found", identifier))
 	}
 	return resp.Issues.Nodes[0], nil
+}
+
+func fetchIssueByIDLive(c graphqlQueryer, id string) (json.RawMessage, error) {
+	query := `query($id: String!) {
+		issue(id: $id) {
+			id identifier title description priority estimate dueDate url updatedAt createdAt
+			state { id name type }
+			team { id key name }
+			project { id name }
+			assignee { id name displayName email }
+		}
+	}`
+	var resp struct {
+		Issue json.RawMessage `json:"issue"`
+	}
+	if err := c.QueryInto(query, map[string]any{"id": id}, &resp); err != nil {
+		return nil, err
+	}
+	if len(resp.Issue) == 0 || string(resp.Issue) == "null" {
+		return nil, notFoundErr(fmt.Errorf("issue %q not found", id))
+	}
+	return resp.Issue, nil
+}
+
+func resolveIssueID(c graphqlQueryer, identifier string) (string, error) {
+	if store.IsUUID(identifier) {
+		return identifier, nil
+	}
+	teamKey, number, ok := parseIssueIdentifier(identifier)
+	if !ok {
+		return "", fmt.Errorf("invalid issue identifier %q (expected TEAM-NUMBER, e.g. ESP-1155)", identifier)
+	}
+	query := `query($teamKey: String!, $number: Float!) {
+		issues(filter: { team: { key: { eq: $teamKey } }, number: { eq: $number } }, first: 1) {
+			nodes { id }
+		}
+	}`
+	var resp struct {
+		Issues struct {
+			Nodes []struct {
+				ID string `json:"id"`
+			} `json:"nodes"`
+		} `json:"issues"`
+	}
+	if err := c.QueryInto(query, map[string]any{"teamKey": teamKey, "number": number}, &resp); err != nil {
+		return "", err
+	}
+	if len(resp.Issues.Nodes) == 0 || resp.Issues.Nodes[0].ID == "" {
+		return "", notFoundErr(fmt.Errorf("issue %q not found", identifier))
+	}
+	return resp.Issues.Nodes[0].ID, nil
+}
+
+func resolveParentIssueID(c graphqlQueryer, parent string) (string, error) {
+	parent, err := validateParentIssueRef(parent)
+	if err != nil {
+		return "", err
+	}
+	if store.IsUUID(parent) {
+		return parent, nil
+	}
+	return resolveIssueID(c, parent)
+}
+
+func validateParentIssueRef(parent string) (string, error) {
+	parent = strings.TrimSpace(parent)
+	if parent == "" {
+		return "", usageErr(fmt.Errorf("--parent requires an issue identifier (TEAM-NUMBER) or issue UUID"))
+	}
+	if store.IsUUID(parent) {
+		return parent, nil
+	}
+	if _, _, ok := parseIssueIdentifier(parent); !ok {
+		return "", usageErr(fmt.Errorf("--parent expects an issue identifier (TEAM-NUMBER, e.g. MOB-123) or issue UUID; got %q", parent))
+	}
+	return parent, nil
 }
 
 func parseIssueIdentifier(identifier string) (string, float64, bool) {
@@ -462,7 +551,7 @@ func resolveTeamFilter(db *store.Store, input string) (string, error) {
 			return t.ID, nil
 		}
 	}
-	return "", fmt.Errorf("no team matching %q in local store", input)
+	return "", fmt.Errorf("%w: no team matching %q in local store", errTeamFilterNotFound, input)
 }
 
 // resolveProjectFilter maps --project input to a project UUID. Accepts name or UUID.
@@ -493,11 +582,10 @@ func resolveProjectFilter(db *store.Store, input string) (string, error) {
 func renderIssue(cmd *cobra.Command, flags *rootFlags, data json.RawMessage, prov DataProvenance) error {
 	printProvenance(cmd, 1, prov)
 	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
-		if flags.compact {
-			data = compactFields(data)
-		}
 		if flags.selectFields != "" {
 			data = filterFields(data, flags.selectFields)
+		} else if flags.compact {
+			data = compactFields(data)
 		}
 		wrapped, err := wrapWithProvenance(data, prov)
 		if err != nil {

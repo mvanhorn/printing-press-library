@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "cert-input-normalization",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260516-193948",
+  "base_printing_press_version": "4.8.0",
+  "summary": "All 6 cert-taking commands (coin facts-cert, coin apr-cert, coin images, banknote facts-cert, banknote images, refresh --cert) accept both bare cert numbers (e.g. 64674260) and full slab IDs (e.g. 7258.58/64674260) via normalizeCertNo().",
+  "reason": "The user's natural input shape is the slab label printed on PCGS holders (PCGSNo.Grade/CertNo); the API only accepts the bare cert. Without normalization, slab input URL-encodes the slash and 404s. The normalizer lives in coin_batch.go and is package-level reachable. Surfaced when the user pasted 7258.58/64674260 from their pcgs-coin-list.csv.",
+  "files": [
+    "internal/cli/coin_facts-cert.go",
+    "internal/cli/coin_apr-cert.go",
+    "internal/cli/coin_images.go",
+    "internal/cli/banknote_facts-cert.go",
+    "internal/cli/banknote_images.go",
+    "internal/cli/refresh.go"
+  ],
+  "validated_outcome": "Live verified: bare + slab forms both return 1899 $1 AU58 for cert 64674260"
+}

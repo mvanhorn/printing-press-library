@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "gisis-sync-help-completeness",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260527-211808",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Added Long + Example sections to sync.go's intentionally-stub sync command so its --help passes dogfood's 'missing Examples section' check. The example documents the GISIS-specific constraint (HTML page-mode source, no list endpoint) and points users at the ship batch / refresh / pin commands that replace sync's role. Also annotated with pp:requires-tier: paid so dogfood's happy_path/json_fidelity probes skip the unimplemented runtime.",
+  "reason": "GISIS is structurally an HTML page-mode scraper with no list endpoint, so the generic spec-driven sync template does not fit. The runtime returns an explicit 'not implemented' error pointing to ship batch / refresh / pin. The previous --help output had no Long / Example sections, which dogfood (correctly) flagged as incomplete documentation. The fix documents the constraint honestly rather than hiding it: --help now explains why sync isn't implemented and shows the workflow that replaces it.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "Dogfood help-test failure 1 -> 0. sync --help now shows the GISIS-specific guidance and exits 0; the runtime still returns the not-implemented error if invoked. Full dogfood 47/47 PASS, phase5-acceptance.json status:pass.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Press generator should emit a documented 'sync not supported' stub for HTML page-mode CLIs (auth.type=cookie + response_format=html + html_extract.mode=page) instead of the generic sync template — the resulting command can never sync (no list endpoint) so emitting it as a sync stub creates a documented-but-broken command that polish has to paper over per-CLI.",
+      "reason": "Both gisis-pp-cli and any future page-mode scraper will hit the same 'sync intentionally not implemented' shape. The press knows at generate time that sync is structurally inapplicable for this auth+response combo; a template-level conditional would emit no sync command at all (or a page-mode-aware substitute like a thin wrapper over ship batch) instead of the bare generic stub."
+    }
+  ]
+}

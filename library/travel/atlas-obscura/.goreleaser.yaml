@@ -1,0 +1,51 @@
+version: 2
+project_name: atlas-obscura-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: atlas-obscura-pp-cli
+    main: ./cmd/atlas-obscura-pp-cli
+    binary: atlas-obscura-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/atlas-obscura/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: atlas-obscura-pp-mcp
+    main: ./cmd/atlas-obscura-pp-mcp
+    binary: atlas-obscura-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: atlas-obscura-pp-cli
+    repository:
+      owner: dbryson
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Atlas Obscura search, plus a local database, road-trip corridor routing"
+    install: |
+      bin.install "atlas-obscura-pp-cli"
+      bin.install "atlas-obscura-pp-mcp"

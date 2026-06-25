@@ -1,0 +1,16 @@
+{
+  "action": "wavespeed_daily_image_workflow_fix",
+  "scope": "library/ai/wavespeed",
+  "summary": "Implemented image-edit model discovery with pricing, enum-rich model help, reusable image profiles, last/open commands, and installed the updated local wavespeed-pp-cli binary.",
+  "validation": [
+    "go test ./...",
+    "go vet ./...",
+    "python3 .github/scripts/verify-skill/verify_skill.py --dir library/ai/wavespeed",
+    "go build -o /Users/knox/go/bin/wavespeed-pp-cli ./cmd/wavespeed-pp-cli",
+    "installed binary help exposes last/open and models --capability",
+    "HOME=temp wavespeed-pp-cli profile save littlemight --images @a @b @c + run --profile littlemight --price-only --dry-run"
+  ],
+  "known_blockers": [
+    "publish validate still fails on pre-existing environment/baseline gates: gh is unauthenticated for manifest printer verification, govulncheck flags Go 1.26.3 stdlib CVEs fixed in Go 1.26.4, and the generated SKILL install-section canonical drift pre-existed this change."
+  ]
+}

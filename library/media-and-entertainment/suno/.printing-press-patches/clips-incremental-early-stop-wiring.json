@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "clips-incremental-early-stop-wiring",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Actually deliver client-side incremental clips sync: wire the resolved --since (and the automatic stored last_synced_at boundary) into the hand-built clip walk so 'sync clips --since' and routine 'sync clips' early-stop on created_at instead of re-draining the whole feed. Also: forecast Note reports 'unavailable' (not a measured 0) when the local store read fails; corrected a stale EnsureFreshSession comment.",
+  "reason": "A holistic pre-publish review found the clips-feed-walk-and-incremental patch's early-stop logic lived only in the generic syncResource path, which 'clips' never reaches: runSunoClipsSync intercepts clips and resolves the walk before --since was even computed, so syncSunoClips drained via cursor-resume regardless of --since (the advertised incremental behavior was unreachable). Fix: resolve sinceTS ahead of the clip sync and thread it through runSunoClipsSync -> syncSunoClips, which now derives an early-stop boundary (clipsEarlyStopBoundary: explicit --since, else stored last_synced_at minus a 5-minute clock-skew margin), starts the walk at the head (a stale resume cursor would skip the newest records), and stops once a page's oldest created_at predates the boundary (page upserted first, so straddling clips are kept; fail-open to full drain on a missing/unparseable timestamp). Verified live against a ~982-clip account: '--since 30m' and bare 'sync clips' now fetch 1 page and stop instead of ~50. Two adjacent review nits fixed in the same pass: the --forecast Note built a confident '0 generations' string even when countRecentClipsImpl errored (now states the volume is unavailable), and EnsureFreshSession's doc comment claimed the JWT re-mint clears the cookie/exp pair though the decouple patch intentionally preserves cookies across re-mints.",
+  "files": [
+    "internal/cli/suno_sync.go",
+    "internal/cli/sync.go",
+    "internal/cli/suno_sync_incremental_test.go",
+    "internal/cli/sync_incremental_test.go",
+    "internal/cli/suno_credits.go",
+    "internal/auth/refresh.go"
+  ],
+  "validated_outcome": "go test ./... && go test ./internal/cli/ ./internal/client/ -race",
+  "review_followup": "Library review (Greptile P1) found pageOldestBefore parsed created_at with strict time.RFC3339, which rejects Suno's fractional-second timestamps — skipping such records so the early-stop never fired and the feed re-drained. Switched pageOldestBefore to the shared parseClipTime helper (RFC3339Nano + fallbacks), moved the boundary parses in sync.go/suno_sync.go to RFC3339Nano, and added a pageOldestBefore regression test for a fractional-second oldest record.",
+  "findings_addressed": [
+    "clips-incremental-early-stop-wiring"
+  ]
+}

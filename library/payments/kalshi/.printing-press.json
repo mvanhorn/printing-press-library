@@ -3,6 +3,7 @@
   "generated_at": "2026-05-05T05:42:50.860318Z",
   "printing_press_version": "3.9.0",
   "api_name": "kalshi",
+  "category": "payments",
   "display_name": "Kalshi Trade Manual",
   "cli_name": "kalshi-pp-cli",
   "creator": {
@@ -19,7 +20,8 @@
   "mcp_ready": "full",
   "auth_type": "api_key",
   "auth_env_vars": [
-    "KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY"
+    "KALSHI_API_KEY",
+    "KALSHI_PRIVATE_KEY_PATH"
   ],
   "novel_features": [
     {
@@ -56,6 +58,11 @@
       "name": "Exposure Analysis",
       "command": "portfolio exposure",
       "description": "Break down total exposure by category with concentration warnings when any bucket exceeds a configurable risk threshold."
+    },
+    {
+      "name": "Read-only safe mode",
+      "command": "--read-only",
+      "description": "Global env-var/flag lock that blocks every mutating command client-side regardless of which key tier is loaded — pair with --dry-run on every mutator for safe scripting against read-only credentials."
     },
     {
       "name": "Subaccount roll-up",

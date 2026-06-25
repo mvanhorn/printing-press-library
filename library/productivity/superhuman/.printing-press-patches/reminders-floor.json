@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "reminders-floor",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260512-165241",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Remove the artificial 1-hour minimum on send --remind-in.",
+  "reason": "buildSendReminder rejected any duration shorter than 1h with \"send: --remind-in must be at least 1h\", but the Superhuman web app accepts 1-minute reminders and the backend round-trips them fine. The floor was generator-emitted client-side fiction. Now only non-positive durations are rejected (the parse layer already does that; this branch is defense-in-depth).",
+  "files": [
+    "internal/cli/send.go",
+    "internal/cli/send_test.go"
+  ],
+  "validated_outcome": "TestBuildSendReminderValidation covers 5m success; TestSend_ReminderFlagErrors covers 0s rejection."
+}

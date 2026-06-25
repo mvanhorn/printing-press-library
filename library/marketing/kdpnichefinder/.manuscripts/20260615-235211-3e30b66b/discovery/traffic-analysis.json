@@ -1,0 +1,2767 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://kdpnichefinder.com/dashboard",
+    "entry_count": 273,
+    "api_entry_count": 60,
+    "noise_entry_count": 213,
+    "host_distribution": {
+      "api.everbee.com": 20,
+      "fonts.googleapis.com": 10,
+      "fonts.gstatic.com": 10,
+      "images-na.ssl-images-amazon.com": 72,
+      "kdpnichefinder.com": 161
+    },
+    "http_version_distribution": {
+      "h2": 181,
+      "h3": 92
+    },
+    "time_start": "2026-06-16T05:02:59.388Z",
+    "time_end": "2026-06-16T05:04:38.299Z"
+  },
+  "secondary_hosts": [
+    {
+      "host": "api.everbee.com",
+      "count": 10,
+      "reason": "non-primary host"
+    }
+  ],
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.65,
+    "reasons": [
+      "no browser-only reachability signals observed"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/hidden_gems",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 18,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 19,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 20,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 33,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 35,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 36,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 37,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 59,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 61,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 62,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 64,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/fresh_money",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 67,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 68,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 69,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 91,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 93,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 94,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 96,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/high_ticket",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 99,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 100,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 101,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 123,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 125,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 126,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 128,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/evergreen",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 131,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 132,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 133,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 155,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 157,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 158,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 170,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 172,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 184,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 186,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 187,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 189,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/hidden_gems",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 192,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 193,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 194,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 206,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/hidden_gems",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 208,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/hidden_gems",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 220,
+          "method": "POST",
+          "host": "kdpnichefinder.com",
+          "path": "/api/books/2584/toggle-save",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 221,
+          "method": "POST",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 222,
+          "method": "POST",
+          "host": "kdpnichefinder.com",
+          "path": "/api/books/2589/toggle-save",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 233,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 234,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 249,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 251,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 252,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 254,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/hidden_gems",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 257,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 258,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 259,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 271,
+          "method": "POST",
+          "host": "kdpnichefinder.com",
+          "path": "/api/books/2584/toggle-save",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 272,
+          "method": "POST",
+          "host": "kdpnichefinder.com",
+          "path": "/api/books/2589/toggle-save",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    },
+    {
+      "label": "html_scrape",
+      "confidence": 0.55,
+      "evidence": [
+        {
+          "entry_index": 239,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/dashboard",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        }
+      ]
+    }
+  ],
+  "auth": {},
+  "endpoint_clusters": [
+    {
+      "host": "api.everbee.com",
+      "method": "GET",
+      "path": "/prompts",
+      "count": 10,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "prompts",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 33,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 59,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 91,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 123,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 155,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 170,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 184,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 233,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 249,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "kdpnichefinder.com",
+      "method": "POST",
+      "path": "/api/books/{book_id}/toggle-save",
+      "count": 4,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "folder_id",
+            "type": "integer",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "saved",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-csrf-token"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 220,
+          "method": "POST",
+          "host": "kdpnichefinder.com",
+          "path": "/api/books/2584/toggle-save",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 222,
+          "method": "POST",
+          "host": "kdpnichefinder.com",
+          "path": "/api/books/2589/toggle-save",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 271,
+          "method": "POST",
+          "host": "kdpnichefinder.com",
+          "path": "/api/books/2584/toggle-save",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 272,
+          "method": "POST",
+          "host": "kdpnichefinder.com",
+          "path": "/api/books/2589/toggle-save",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "kdpnichefinder.com",
+      "method": "GET",
+      "path": "/api/categories",
+      "count": 14,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "array",
+        "fields": [
+          {
+            "name": "description",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "key",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 20,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 37,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 62,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 69,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 94,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 101,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 126,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 133,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 158,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 187,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 194,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 252,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 259,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "kdpnichefinder.com",
+      "method": "GET",
+      "path": "/api/folders",
+      "count": 7,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "array",
+        "fields": [
+          {
+            "name": "id",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 19,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 36,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 68,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 100,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 132,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 193,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 258,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "kdpnichefinder.com",
+      "method": "POST",
+      "path": "/api/folders",
+      "count": 1,
+      "statuses": [
+        201
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {},
+      "observed_auth": [
+        "x-csrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 221,
+          "method": "POST",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "kdpnichefinder.com",
+      "method": "GET",
+      "path": "/api/user",
+      "count": 16,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "email",
+            "type": "string",
+            "required": true,
+            "format": "email"
+          },
+          {
+            "name": "image_url",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 18,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 35,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 61,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 67,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 93,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 99,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 125,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 131,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 157,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 172,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 186,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 192,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 234,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 251,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 257,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "kdpnichefinder.com",
+      "method": "GET",
+      "path": "/app/category/evergreen",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 128,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/evergreen",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "kdpnichefinder.com",
+      "method": "GET",
+      "path": "/app/category/fresh_money",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 64,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/fresh_money",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "kdpnichefinder.com",
+      "method": "GET",
+      "path": "/app/category/hidden_gems",
+      "count": 5,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "clearHistory",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "component",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "encryptHistory",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "props",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "url",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "version",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/hidden_gems",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 189,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/hidden_gems",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 206,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/hidden_gems",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 208,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/hidden_gems",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 254,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/hidden_gems",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "kdpnichefinder.com",
+      "method": "GET",
+      "path": "/app/category/high_ticket",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 96,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/high_ticket",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/hidden_gems",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 18,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 19,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 20,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 33,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "HAR timing available for at least one request."
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "create_folders",
+      "resource": "folders",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/folders traffic.",
+      "evidence": [
+        {
+          "entry_index": 221,
+          "method": "POST",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_toggle_save",
+      "resource": "toggle_save",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/books/{book_id}/toggle-save traffic.",
+      "evidence": [
+        {
+          "entry_index": 220,
+          "method": "POST",
+          "host": "kdpnichefinder.com",
+          "path": "/api/books/2584/toggle-save",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 222,
+          "method": "POST",
+          "host": "kdpnichefinder.com",
+          "path": "/api/books/2589/toggle-save",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 271,
+          "method": "POST",
+          "host": "kdpnichefinder.com",
+          "path": "/api/books/2584/toggle-save",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 272,
+          "method": "POST",
+          "host": "kdpnichefinder.com",
+          "path": "/api/books/2589/toggle-save",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_categories",
+      "resource": "categories",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/categories traffic.",
+      "evidence": [
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 20,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 37,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 62,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 69,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 94,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 101,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 126,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 133,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 158,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 187,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 194,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 252,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 259,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_evergreen",
+      "resource": "evergreen",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /app/category/evergreen traffic.",
+      "evidence": [
+        {
+          "entry_index": 128,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/evergreen",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_folders",
+      "resource": "folders",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/folders traffic.",
+      "evidence": [
+        {
+          "entry_index": 19,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 36,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 68,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 100,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 132,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 193,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 258,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_fresh_money",
+      "resource": "fresh_money",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /app/category/fresh_money traffic.",
+      "evidence": [
+        {
+          "entry_index": 64,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/fresh_money",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_hidden_gems",
+      "resource": "hidden_gems",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /app/category/hidden_gems traffic.",
+      "evidence": [
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/hidden_gems",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 189,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/hidden_gems",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 206,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/hidden_gems",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 208,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/hidden_gems",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 254,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/hidden_gems",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_high_ticket",
+      "resource": "high_ticket",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /app/category/high_ticket traffic.",
+      "evidence": [
+        {
+          "entry_index": 96,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/app/category/high_ticket",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_prompts",
+      "resource": "prompts",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /prompts traffic.",
+      "evidence": [
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 33,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 59,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 91,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 123,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 155,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 170,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 184,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 233,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 249,
+          "method": "GET",
+          "host": "api.everbee.com",
+          "path": "/prompts",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_user",
+      "resource": "user",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/user traffic.",
+      "evidence": [
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 18,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 35,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 61,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 67,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 93,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 99,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 125,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 131,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 157,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 172,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 186,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 192,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 234,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 251,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 257,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "warnings": [
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 100,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 101,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 125,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 126,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 131,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 132,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 133,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 157,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 158,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 172,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 186,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 187,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 18,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 192,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 193,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 194,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 19,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 20,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 220,
+          "method": "POST",
+          "host": "kdpnichefinder.com",
+          "path": "/api/books/2584/toggle-save",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 221,
+          "method": "POST",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 222,
+          "method": "POST",
+          "host": "kdpnichefinder.com",
+          "path": "/api/books/2589/toggle-save",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 234,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 35,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 36,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 37,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 61,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 62,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 67,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 68,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/folders",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 69,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 93,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 94,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/categories",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 99,
+          "method": "GET",
+          "host": "kdpnichefinder.com",
+          "path": "/api/user",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    }
+  ]
+}

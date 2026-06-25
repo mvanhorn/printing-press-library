@@ -15,9 +15,11 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/parser"
 	"github.com/spf13/cobra"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -50,38 +52,148 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 
 // chromeProfile holds info about a discovered Chrome profile.
 type chromeProfile struct {
-	Dir         string // directory name (e.g. "Default", "Profile 1")
-	DisplayName string // human-readable name from Preferences
-	CookieCount int    // number of cookies matching the target domain
+	Dir                 string   // directory name (e.g. "Default", "Profile 1")
+	DisplayName         string   // human-readable name from Preferences
+	CookieCount         int      // number of cookies matching the target domain
+	RequiredCookieCount int      // number of required auth cookies present
+	MissingCookies      []string // required auth cookies absent from this profile
+}
+
+func requiredAuthCookies() []string {
+	return []string{}
+}
+
+func cookieDomainFromConfig(cfg *config.Config) (string, error) {
+	baseURL := "https://www.amazon.com"
+	if cfg != nil && strings.TrimSpace(cfg.BaseURL) != "" {
+		baseURL = cfg.BaseURL
+	}
+	return cookieDomainFromBaseURL(baseURL)
+}
+
+var amazonMarketplaceDomains = map[string]struct{}{
+	"amazon.ae":     {},
+	"amazon.ca":     {},
+	"amazon.cn":     {},
+	"amazon.co.jp":  {},
+	"amazon.co.uk":  {},
+	"amazon.com":    {},
+	"amazon.com.au": {},
+	"amazon.com.be": {},
+	"amazon.com.br": {},
+	"amazon.com.mx": {},
+	"amazon.com.tr": {},
+	"amazon.de":     {},
+	"amazon.eg":     {},
+	"amazon.es":     {},
+	"amazon.fr":     {},
+	"amazon.in":     {},
+	"amazon.it":     {},
+	"amazon.nl":     {},
+	"amazon.pl":     {},
+	"amazon.sa":     {},
+	"amazon.se":     {},
+	"amazon.sg":     {},
+}
+
+func cookieDomainFromBaseURL(baseURL string) (string, error) {
+	text := strings.TrimSpace(baseURL)
+	if text == "" {
+		return ".amazon.com", nil
+	}
+	if !strings.Contains(text, "://") {
+		text = "https://" + text
+	}
+	u, err := url.Parse(text)
+	if err != nil {
+		return "", err
+	}
+	host := strings.ToLower(strings.TrimSpace(u.Hostname()))
+	if host == "" {
+		return "", fmt.Errorf("missing host in base URL %q", baseURL)
+	}
+	return normalizeAmazonCookieDomain(host)
+}
+
+func normalizeAmazonCookieDomain(value string) (string, error) {
+	host := strings.ToLower(strings.TrimSpace(value))
+	host = strings.TrimPrefix(host, "http://")
+	host = strings.TrimPrefix(host, "https://")
+	if idx := strings.IndexAny(host, "/:"); idx >= 0 {
+		host = host[:idx]
+	}
+	host = strings.TrimPrefix(host, ".")
+	host = strings.TrimPrefix(host, "www.")
+	if i := strings.Index(host, ".amazon."); i >= 0 {
+		host = host[i+1:]
+	}
+	if _, ok := amazonMarketplaceDomains[host]; !ok {
+		return "", fmt.Errorf("%q is not an Amazon marketplace domain", value)
+	}
+	return "." + host, nil
+}
+
+func baseURLForCookieDomain(domain string) string {
+	return "https://www." + strings.TrimPrefix(domain, ".")
+}
+
+func domainFlagForHint(domain string) string {
+	if domain == "" || domain == ".amazon.com" {
+		return ""
+	}
+	return " --domain " + strings.TrimPrefix(domain, ".")
 }
 
 func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 	var browserFlag bool
 	var profileFlag string
+	var domainFlag string
 
 	cmd := &cobra.Command{
 		Use:   "login",
 		Short: "Authenticate with the API",
 		Long: `Authenticate using your browser session.
 
-Use --chrome to read cookies from Chrome for .amazon.com.
+Use --chrome to read cookies from Chrome for the configured Amazon marketplace.
 Use --browser as an alias for --chrome.
+Use --domain for non-US marketplaces, e.g. --domain amazon.in.
+Alternatively set AMAZON_ORDERS_BASE_URL=https://www.amazon.in before login.
 Requires a cookie extraction tool (pycookiecheat, cookies, or cookie-scoop-cli).
 
 If you have multiple Chrome profiles, pycookiecheat and cookie-scoop-cli can
 auto-detect which profile is logged in. Use --profile to select a specific
 profile by name when the installed backend supports it.`,
-		Example: `  amazon-orders-pp-cli auth login --chrome
-  amazon-orders-pp-cli auth login --browser
-  amazon-orders-pp-cli auth login --chrome --profile "Work"`,
+		Example: strings.Join([]string{
+			"  amazon-orders-pp-cli auth login --chrome",
+			"  amazon-orders-pp-cli auth login --browser",
+			"  amazon-orders-pp-cli auth login --chrome --domain amazon.in",
+			"  amazon-orders-pp-cli auth login --chrome --profile \"Work\"",
+		}, "\n"),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := config.Load(flags.configPath)
+			if err != nil {
+				return configErr(err)
+			}
+			var domain string
+			if domainFlag != "" {
+				domain, err = normalizeAmazonCookieDomain(domainFlag)
+				if err != nil {
+					return authErr(err)
+				}
+				cfg.BaseURL = baseURLForCookieDomain(domain)
+			} else {
+				domain, err = cookieDomainFromConfig(cfg)
+				if err != nil {
+					return configErr(fmt.Errorf("invalid base_url: %w", err))
+				}
+			}
 			// Verify-friendly short-circuit: under PRINTING_PRESS_VERIFY=1 or
 			// --dry-run, we don't actually shell out to a cookie tool. This
 			// keeps the validate-narrative full-example walk happy in
 			// environments where pycookiecheat / cookie-scoop-cli aren't
 			// installed.
 			if flags.dryRun || cliutil.IsVerifyEnv() {
-				fmt.Fprintln(cmd.OutOrStdout(), "would import cookies from Chrome (.amazon.com domain)")
+				fmt.Fprintf(cmd.OutOrStdout(), "would import cookies from Chrome (%s domain)\n", domain)
 				return nil
 			}
 			if !browserFlag {
@@ -97,7 +209,6 @@ profile by name when the installed backend supports it.`,
 			}
 
 			w := cmd.OutOrStdout()
-			domain := ".amazon.com"
 
 			// Step 1: Detect cookie extraction tool
 			tool, err := detectCookieTool()
@@ -118,7 +229,7 @@ profile by name when the installed backend supports it.`,
 			// Step 2: Resolve which Chrome profile to use when the backend can honor it
 			profileDir := ""
 			if cookieToolSupportsProfiles(tool) {
-				profileDir, err = resolveChromeProfile(w, cmd.InOrStdin(), domain, profileFlag)
+				profileDir, err = resolveChromeProfile(w, cmd.InOrStdin(), domain, profileFlag, requiredAuthCookies())
 				if err != nil {
 					loginURL := "https://" + strings.TrimPrefix(domain, ".")
 					fmt.Fprintln(w, "")
@@ -127,7 +238,7 @@ profile by name when the installed backend supports it.`,
 					fmt.Fprintln(w, "Log in to your account:")
 					fmt.Fprintf(w, "\n  %s\n\n", loginURL)
 					fmt.Fprintln(w, "Then run this command again:")
-					fmt.Fprintf(w, "\n  amazon-orders-pp-cli auth login --chrome\n")
+					fmt.Fprintf(w, "\n  amazon-orders-pp-cli auth login --chrome%s\n", domainFlagForHint(domain))
 					return authErr(fmt.Errorf("not logged in to %s", domain))
 				}
 			}
@@ -148,22 +259,12 @@ profile by name when the installed backend supports it.`,
 				return authErr(fmt.Errorf("cookie tool returned no cookies for %s", domain))
 			}
 			// Step 4: Save to config
-			cfg, err := config.Load(flags.configPath)
-			if err != nil {
-				return configErr(err)
-			}
-
 			if err := cfg.SaveTokens("", "", cookies, "", time.Time{}); err != nil {
 				return configErr(fmt.Errorf("saving cookies: %w", err))
 			}
-			fmt.Fprintf(w, "Validating browser session...")
-			if err := validateAndWriteBrowserSessionProof(cfg, flags); err != nil {
-				_ = cfg.ClearTokens()
-				_ = clearBrowserSessionProof(cfg)
-				fmt.Fprintf(w, " %s\n", red("failed"))
-				return authErr(fmt.Errorf("browser session validation failed: %w", err))
-			}
-			fmt.Fprintf(w, " %s\n", green("valid"))
+			validateBrowserSessionOrWarn(w, cfg, func() error {
+				return validateAndWriteBrowserSessionProof(cfg, flags)
+			})
 
 			count := len(strings.Split(cookies, ";"))
 			fmt.Fprintf(w, "%s Found %d cookies for %s\n", green("OK"), count, domain)
@@ -175,6 +276,7 @@ profile by name when the installed backend supports it.`,
 	cmd.Flags().BoolVar(&browserFlag, "chrome", false, "Read cookies from Chrome")
 	cmd.Flags().BoolVar(&browserFlag, "browser", false, "Alias for --chrome")
 	cmd.Flags().StringVar(&profileFlag, "profile", "", "Chrome profile name (e.g. \"Work\", \"Personal\")")
+	cmd.Flags().StringVar(&domainFlag, "domain", "", "Amazon marketplace domain to read cookies for (e.g. amazon.in, amazon.co.uk)")
 	return cmd
 }
 func newAuthRefreshCmd(flags *rootFlags) *cobra.Command {
@@ -204,13 +306,11 @@ func newAuthRefreshCmd(flags *rootFlags) *cobra.Command {
 				return authErr(err)
 			}
 
-			fmt.Fprintf(w, "Validating browser session...")
-			if err := validateAndWriteBrowserSessionProofWithRetry(cfg, flags, waitTimeout); err != nil {
-				fmt.Fprintf(w, " %s\n", red("failed"))
-				return authErr(fmt.Errorf("browser session validation failed: %w", err))
+			if validateBrowserSessionOrWarn(w, cfg, func() error {
+				return validateAndWriteBrowserSessionProofWithRetry(cfg, flags, waitTimeout)
+			}) {
+				fmt.Fprintf(w, "Browser session proof refreshed at %s\n", browserSessionProofPath(cfg))
 			}
-			fmt.Fprintf(w, " %s\n", green("valid"))
-			fmt.Fprintf(w, "Browser session proof refreshed at %s\n", browserSessionProofPath(cfg))
 			return nil
 		},
 	}
@@ -218,12 +318,25 @@ func newAuthRefreshCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
+func validateBrowserSessionOrWarn(w io.Writer, cfg *config.Config, validate func() error) bool {
+	fmt.Fprintf(w, "Validating browser session...")
+	if err := validate(); err != nil {
+		_ = clearBrowserSessionProof(cfg)
+		fmt.Fprintf(w, " %s\n", yellow("skipped"))
+		fmt.Fprintf(w, "Warning: saved cookies but could not validate the browser session (%v).\n", err)
+		fmt.Fprintln(w, "Run 'amazon-orders-pp-cli orders list --time-filter months-3 --json' to verify the session against the live orders endpoint.")
+		return false
+	}
+	fmt.Fprintf(w, " %s\n", green("valid"))
+	return true
+}
+
 func browserSessionTargetURL(cfg *config.Config) string {
 	baseURL := strings.TrimRight("https://www.amazon.com", "/")
 	if cfg != nil && cfg.BaseURL != "" {
 		baseURL = strings.TrimRight(cfg.BaseURL, "/")
 	}
-	validationPath := strings.TrimSpace("/gp/your-account/order-history")
+	validationPath := strings.TrimSpace("/your-orders/orders")
 	if validationPath == "" {
 		return baseURL
 	}
@@ -381,9 +494,9 @@ func waitForCookieRefreshBrowser(cmd *cobra.Command, flags *rootFlags, targetURL
 	fmt.Fprintln(w)
 }
 func refreshStoredBrowserCookies(cfg *config.Config, w io.Writer) error {
-	domain := ".amazon.com"
-	if domain == "" {
-		return fmt.Errorf("no cookie domain configured")
+	domain, err := cookieDomainFromConfig(cfg)
+	if err != nil {
+		return fmt.Errorf("invalid base_url: %w", err)
 	}
 
 	cookies, err := extractLiveCookies(domain)
@@ -412,7 +525,7 @@ func refreshStoredBrowserCookies(cfg *config.Config, w io.Writer) error {
 }
 func cookieToolSupportsProfiles(tool string) bool {
 	switch tool {
-	case "pycookiecheat", "cookie-scoop":
+	case "pycookiecheat", "pycookiecheat-cli", "cookie-scoop":
 		return true
 	default:
 		return false
@@ -445,9 +558,13 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
 
+			domain, err := cookieDomainFromConfig(cfg)
+			if err != nil {
+				return configErr(fmt.Errorf("invalid base_url: %w", err))
+			}
 			fmt.Fprintln(w, green("Authenticated"))
 			fmt.Fprintf(w, "  Source: %s\n", cfg.AuthSource)
-			fmt.Fprintf(w, "  Domain: .amazon.com\n")
+			fmt.Fprintf(w, "  Domain: %s\n", domain)
 			fmt.Fprintf(w, "  Config: %s\n", cfg.Path)
 			return nil
 		},
@@ -512,7 +629,7 @@ func chromeDataDir() (string, error) {
 // shelled out to the binary. countCookiesForDomain now reads the cookie DB via
 // the in-binary modernc.org/sqlite driver, so the guard is no longer needed —
 // keeping it broke profile auto-detection on hosts without `sqlite3` in PATH.
-func discoverChromeProfiles(domain string) ([]chromeProfile, error) {
+func discoverChromeProfiles(domain string, requiredCookies []string) ([]chromeProfile, error) {
 	dataDir, err := chromeDataDir()
 	if err != nil {
 		return nil, err
@@ -547,17 +664,23 @@ func discoverChromeProfiles(domain string) ([]chromeProfile, error) {
 			displayName = name
 		}
 
-		count := countCookiesForDomain(cookiesDB, domainPattern)
+		inspection := inspectCookiesForDomain(cookiesDB, domainPattern, requiredCookies)
 
 		profiles = append(profiles, chromeProfile{
-			Dir:         name,
-			DisplayName: displayName,
-			CookieCount: count,
+			Dir:                 name,
+			DisplayName:         displayName,
+			CookieCount:         inspection.Count,
+			RequiredCookieCount: inspection.RequiredCookieCount,
+			MissingCookies:      inspection.MissingCookies,
 		})
 	}
 
-	// Sort: profiles with cookies first, then by directory name
+	// Sort: profiles with required auth cookies first, then with the most
+	// target-domain cookies, then by directory name for determinism.
 	sort.Slice(profiles, func(i, j int) bool {
+		if profiles[i].RequiredCookieCount != profiles[j].RequiredCookieCount {
+			return profiles[i].RequiredCookieCount > profiles[j].RequiredCookieCount
+		}
 		if profiles[i].CookieCount != profiles[j].CookieCount {
 			return profiles[i].CookieCount > profiles[j].CookieCount
 		}
@@ -585,6 +708,82 @@ func readProfileDisplayName(prefsPath string) string {
 }
 
 // PATCH(greptile-countcookies-sql-injection): swapped fmt.Sprintf + sqlite3 shell-out for database/sql with a bind parameter so host_key cannot be influenced by untrusted callers.
+
+type chromeCookieInspection struct {
+	Count               int
+	RequiredCookieCount int
+	MissingCookies      []string
+}
+
+func inspectCookiesForDomain(cookiesDB, domainPattern string, requiredCookies []string) chromeCookieInspection {
+	result := chromeCookieInspection{Count: countCookiesForDomain(cookiesDB, domainPattern)}
+	if len(requiredCookies) == 0 {
+		return result
+	}
+
+	missing := make(map[string]bool, len(requiredCookies))
+	for _, name := range requiredCookies {
+		missing[name] = true
+	}
+
+	tmpFile, err := os.CreateTemp("", "cookies-probe-*.db")
+	if err != nil {
+		result.MissingCookies = requiredCookies
+		return result
+	}
+	tmpPath := tmpFile.Name()
+	tmpFile.Close()
+	defer os.Remove(tmpPath)
+	defer os.Remove(tmpPath + "-wal")
+	defer os.Remove(tmpPath + "-shm")
+
+	if err := copyFileIfExists(cookiesDB, tmpPath); err != nil {
+		result.MissingCookies = requiredCookies
+		return result
+	}
+	_ = copyFileIfExists(cookiesDB+"-wal", tmpPath+"-wal")
+	_ = copyFileIfExists(cookiesDB+"-shm", tmpPath+"-shm")
+
+	db, err := sql.Open("sqlite", "file:"+tmpPath+"?mode=ro&_journal_mode=OFF&_busy_timeout=2000")
+	if err != nil {
+		result.MissingCookies = requiredCookies
+		return result
+	}
+	defer db.Close()
+
+	placeholders := make([]string, 0, len(requiredCookies))
+	args := make([]any, 0, len(requiredCookies)+1)
+	args = append(args, domainPattern)
+	for _, name := range requiredCookies {
+		placeholders = append(placeholders, "?")
+		args = append(args, name)
+	}
+	query := "SELECT DISTINCT name FROM cookies WHERE host_key LIKE ? AND name IN (" + strings.Join(placeholders, ",") + ")"
+	rows, err := db.Query(query, args...)
+	if err != nil {
+		result.MissingCookies = requiredCookies
+		return result
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			continue
+		}
+		if missing[name] {
+			delete(missing, name)
+			result.RequiredCookieCount++
+		}
+	}
+	for _, name := range requiredCookies {
+		if missing[name] {
+			result.MissingCookies = append(result.MissingCookies, name)
+		}
+	}
+	return result
+}
+
 // countCookiesForDomain copies the Cookies DB (plus WAL/SHM) to temp and counts
 // matching rows via a parameterized read-only query through the in-binary
 // SQLite driver. host_key is plaintext so no decryption is needed.
@@ -648,47 +847,79 @@ func copyFileIfExists(src, dst string) error {
 
 // resolveChromeProfile determines which Chrome profile to read cookies from.
 // Priority: --profile flag > auto-detect (single match) > interactive prompt.
-func resolveChromeProfile(w io.Writer, r io.Reader, domain, profileFlag string) (string, error) {
+func resolveChromeProfile(w io.Writer, r io.Reader, domain, profileFlag string, requiredCookies []string) (string, error) {
 	if profileFlag != "" {
 		return resolveProfileByName(profileFlag)
 	}
 
-	profiles, err := discoverChromeProfiles(domain)
+	profiles, err := discoverChromeProfiles(domain, requiredCookies)
 	if err != nil {
 		// Profile probing is optional; cookie extraction can still succeed without it.
 		fmt.Fprintf(w, "Could not inspect Chrome profiles (%v); continuing without auto-detection.\n", err)
 		return "", nil
 	}
 
-	// Filter to profiles that have cookies for this domain
+	// Prefer profiles that contain every required auth cookie. If the CLI does
+	// not know specific cookie names, fall back to any target-domain cookie.
+	var withRequired []chromeProfile
 	var withCookies []chromeProfile
 	for _, p := range profiles {
+		if len(requiredCookies) > 0 && p.RequiredCookieCount == len(requiredCookies) {
+			withRequired = append(withRequired, p)
+		}
 		if p.CookieCount > 0 {
 			withCookies = append(withCookies, p)
 		}
 	}
 
-	switch len(withCookies) {
-	case 0:
-		return "", fmt.Errorf("no Chrome profile has cookies for %s", domain)
+	if len(withRequired) > 0 {
+		return chooseChromeProfile(w, r, withRequired, domain, true)
+	}
+	if len(requiredCookies) > 0 {
+		printMissingCookieHint(w, profiles, requiredCookies)
+	}
+	if len(withCookies) > 0 {
+		return chooseChromeProfile(w, r, withCookies, domain, false)
+	}
+	return "", fmt.Errorf("no Chrome profile has cookies for %s", domain)
+}
+
+func printMissingCookieHint(w io.Writer, profiles []chromeProfile, requiredCookies []string) {
+	if len(requiredCookies) == 0 {
+		return
+	}
+	for _, p := range profiles {
+		if p.CookieCount == 0 || len(p.MissingCookies) == 0 {
+			continue
+		}
+		fmt.Fprintf(w, "Chrome profile %s (%s) is missing required cookies: %s\n", p.DisplayName, p.Dir, strings.Join(p.MissingCookies, ", "))
+		return
+	}
+}
+
+func chooseChromeProfile(w io.Writer, r io.Reader, profiles []chromeProfile, domain string, required bool) (string, error) {
+	label := "cookies"
+	if required {
+		label = "required cookies"
+	}
+
+	switch len(profiles) {
 	case 1:
-		fmt.Fprintf(w, "Auto-detected Chrome profile: %s (%s)\n", withCookies[0].DisplayName, withCookies[0].Dir)
-		return withCookies[0].Dir, nil
+		fmt.Fprintf(w, "Auto-detected Chrome profile: %s (%s, %d %s)\n", profiles[0].DisplayName, profiles[0].Dir, profileCookieCount(profiles[0], required), label)
+		return profiles[0].Dir, nil
 	default:
-		// Multiple profiles have cookies.
-		// Non-interactive: pick the profile with the most cookies (already sorted).
-		// Interactive: ask the user.
+		// Multiple profiles have matching cookies. Non-interactive runs pick the
+		// strongest match; terminals get an explicit choice.
 		if !isTerminal(w) {
-			// Non-interactive — auto-select the best profile (most cookies, first in sorted list)
-			selected := withCookies[0]
-			fmt.Fprintf(w, "Auto-selected Chrome profile: %s (%s, %d cookies)\n", selected.DisplayName, selected.Dir, selected.CookieCount)
+			selected := profiles[0]
+			fmt.Fprintf(w, "Auto-selected Chrome profile: %s (%s, %d %s)\n", selected.DisplayName, selected.Dir, profileCookieCount(selected, required), label)
 			fmt.Fprintf(w, "Use --profile to select a different profile.\n")
 			return selected.Dir, nil
 		}
 
 		fmt.Fprintf(w, "Multiple Chrome profiles have cookies for %s:\n", domain)
-		for i, p := range withCookies {
-			fmt.Fprintf(w, "  %d. %s (%s, %d cookies)\n", i+1, p.DisplayName, p.Dir, p.CookieCount)
+		for i, p := range profiles {
+			fmt.Fprintf(w, "  %d. %s (%s, %d %s)\n", i+1, p.DisplayName, p.Dir, profileCookieCount(p, required), label)
 		}
 		fmt.Fprintf(w, "Which profile? [1]: ")
 
@@ -700,13 +931,20 @@ func resolveChromeProfile(w io.Writer, r io.Reader, domain, profileFlag string) 
 				fmt.Sscanf(text, "%d", &choice)
 			}
 		}
-		if choice < 1 || choice > len(withCookies) {
+		if choice < 1 || choice > len(profiles) {
 			choice = 1
 		}
-		selected := withCookies[choice-1]
+		selected := profiles[choice-1]
 		fmt.Fprintf(w, "Using profile: %s (%s)\n", selected.DisplayName, selected.Dir)
 		return selected.Dir, nil
 	}
+}
+
+func profileCookieCount(profile chromeProfile, required bool) int {
+	if required {
+		return profile.RequiredCookieCount
+	}
+	return profile.CookieCount
 }
 
 // resolveProfileByName finds a Chrome profile directory by its display name.
@@ -741,21 +979,44 @@ func resolveProfileByName(name string) (string, error) {
 
 // --- Cookie extraction tools ---
 
+var detectedPycookiecheatCLIPath string
+
+func runCookieToolProbe(name string, args ...string) error {
+	cmd := exec.Command(name, args...)
+	cmd.Stdout = io.Discard
+	cmd.Stderr = io.Discard
+	return cmd.Run()
+}
+
 // detectCookieTool checks for available cookie extraction tools in preference order.
 func detectCookieTool() (string, error) {
+	detectedPycookiecheatCLIPath = ""
 	tools := []struct {
 		name  string
 		check []string
 	}{
 		{"pycookiecheat", []string{"python3", "-c", "import pycookiecheat"}},
+		{"pycookiecheat-cli", []string{"pycookiecheat", "--help"}},
 		{"cookies", []string{"cookies", "--help"}},
 		{"cookie-scoop", []string{"cookie-scoop", "--help"}},
 	}
 
 	for _, tool := range tools {
-		if err := exec.Command(tool.check[0], tool.check[1:]...).Run(); err == nil {
+		if runtime.GOOS == "windows" && (tool.name == "pycookiecheat" || tool.name == "pycookiecheat-cli") {
+			continue
+		}
+		if err := runCookieToolProbe(tool.check[0], tool.check[1:]...); err == nil {
+			if tool.name == "pycookiecheat-cli" {
+				detectedPycookiecheatCLIPath = tool.check[0]
+				if path, err := exec.LookPath(tool.check[0]); err == nil {
+					detectedPycookiecheatCLIPath = path
+				}
+			}
 			return tool.name, nil
 		}
+	}
+	if runtime.GOOS == "windows" {
+		return "", fmt.Errorf("no cookie extraction tool found; pycookiecheat does not support Windows. Use `auth login --browser` (live Chrome via CDP) or install cookie-scoop-cli")
 	}
 	return "", fmt.Errorf("no cookie extraction tool found; install one: pip install pycookiecheat")
 }
@@ -766,6 +1027,8 @@ func extractCookies(tool, domain, profileDir string) (string, error) {
 	switch tool {
 	case "pycookiecheat":
 		return extractViaPycookiecheat(domain, profileDir)
+	case "pycookiecheat-cli":
+		return extractViaPycookiecheatCLI(domain, profileDir)
 	case "cookies":
 		return extractViaCookiesCLI(domain)
 	case "cookie-scoop":
@@ -791,7 +1054,7 @@ print(json.dumps(chrome_cookies(url, **kwargs)))`
 func extractViaPycookiecheat(domain, profileDir string) (string, error) {
 	cleanDomain := strings.TrimPrefix(domain, ".")
 	cookiePath := ""
-	if profileDir != "" && profileDir != "Default" {
+	if profileDir != "" {
 		dataDir, err := chromeDataDir()
 		if err == nil {
 			cookiePath = filepath.Join(dataDir, profileDir, "Cookies")
@@ -810,6 +1073,43 @@ func extractViaPycookiecheat(domain, profileDir string) (string, error) {
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		return "", fmt.Errorf("pycookiecheat failed: %w", err)
+	}
+
+	var cookies map[string]string
+	if err := json.Unmarshal(out.Bytes(), &cookies); err != nil {
+		return "", fmt.Errorf("parsing pycookiecheat output: %w", err)
+	}
+
+	var parts []string
+	for name, value := range cookies {
+		parts = append(parts, name+"="+value)
+	}
+	return strings.Join(parts, "; "), nil
+}
+
+func extractViaPycookiecheatCLI(domain, profileDir string) (string, error) {
+	cleanDomain := strings.TrimPrefix(domain, ".")
+	var args []string
+	if profileDir != "" {
+		dataDir, err := chromeDataDir()
+		if err != nil {
+			return "", err
+		}
+		args = append(args, "-c", filepath.Join(dataDir, profileDir, "Cookies"))
+	}
+	args = append(args, "https://"+cleanDomain)
+
+	pycookiecheatBin := detectedPycookiecheatCLIPath
+	if pycookiecheatBin == "" {
+		pycookiecheatBin = "pycookiecheat"
+	}
+
+	var out bytes.Buffer
+	cmd := exec.Command(pycookiecheatBin, args...)
+	cmd.Stdout = &out
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return "", fmt.Errorf("pycookiecheat cli failed: %w", err)
 	}
 
 	var cookies map[string]string
@@ -934,7 +1234,14 @@ func browserSessionProofStatusForAuth(cfg *config.Config, authHeader string) (bo
 	if err := json.Unmarshal(data, &proof); err != nil {
 		return false, "proof is not valid JSON; re-run amazon-orders-pp-cli auth login --chrome"
 	}
-	if proof.APIName != "amazon-orders" || proof.CookieDomain != ".amazon.com" || proof.ValidationPath != "/gp/your-account/order-history" {
+	domain, err := cookieDomainFromConfig(cfg)
+	if err != nil {
+		return false, fmt.Sprintf("invalid base_url: %v", err)
+	}
+	if proof.APIName == "amazon-orders" && proof.CookieDomain == domain && proof.ValidationPath == "/gp/your-account/order-history" {
+		return false, "proof was written against an older validation endpoint; re-run amazon-orders-pp-cli auth login --chrome to refresh it"
+	}
+	if proof.APIName != "amazon-orders" || proof.CookieDomain != domain || proof.ValidationPath != "/your-orders/orders" {
 		return false, "proof does not match this CLI"
 	}
 	if authHeader != "" && proof.CredentialFingerprint != fingerprintCredential(authHeader) {
@@ -947,7 +1254,7 @@ func browserSessionProofStatusForAuth(cfg *config.Config, authHeader string) (bo
 }
 
 func validateAndWriteBrowserSessionProof(cfg *config.Config, flags *rootFlags) error {
-	validationPath := strings.TrimSpace("/gp/your-account/order-history")
+	validationPath := strings.TrimSpace("/your-orders/orders")
 	if validationPath == "" {
 		return fmt.Errorf("no browser-session validation endpoint configured in this CLI")
 	}
@@ -966,17 +1273,28 @@ func validateAndWriteBrowserSessionProof(cfg *config.Config, flags *rootFlags) e
 
 	c := client.New(cfg, flags.timeout, flags.rateLimit)
 	c.NoCache = true
-	status, err := c.ProbeGet(validationPath)
+	body, status, err := c.GetWithStatus(validationPath, map[string]string{"timeFilter": "months-3"})
 	if err != nil {
 		return err
 	}
 	if status < 200 || status >= 300 {
 		return fmt.Errorf("validation endpoint returned HTTP %d", status)
 	}
+	// A logged-out or expired cookie jar is answered with HTTP 200 and an
+	// Amazon sign-in/claim/challenge page, not a 4xx. Treat that as an invalid
+	// session so we don't write a "valid" proof for an unauthenticated jar.
+	if ierr := parser.AuthInterstitialError(body); ierr != nil {
+		return ierr
+	}
+
+	domain, err := cookieDomainFromConfig(cfg)
+	if err != nil {
+		return fmt.Errorf("invalid base_url: %w", err)
+	}
 
 	proof := browserSessionProof{
 		APIName:               "amazon-orders",
-		CookieDomain:          ".amazon.com",
+		CookieDomain:          domain,
 		ValidationMethod:      method,
 		ValidationPath:        validationPath,
 		StatusCode:            status,

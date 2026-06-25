@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "store-sql-injection-listids",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260511-180534",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Validate `resourceType` against a strict identifier regex in `ListIDs` before interpolating into a table-name slot.",
+  "reason": "SQLite cannot bind table names. An unvalidated `resourceType` carrying `; DROP TABLE …; --` could execute arbitrary SQL. Unsafe identifiers now fall straight through to the parameterized generic-table fallback instead of touching the dynamic query.",
+  "files": [
+    "internal/store/store.go"
+  ]
+}

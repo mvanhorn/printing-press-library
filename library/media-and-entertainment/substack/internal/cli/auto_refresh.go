@@ -228,7 +228,12 @@ func runAutoRefresh(ctx context.Context, flags *rootFlags, db *store.Store, reso
 			return ctx.Err()
 		default:
 		}
-		result := syncResource(ctx, c, db, resource, "", false, 1, true, nil, os.Stderr)
+		extraParams, err := syncResourceExtraParams(ctx, c, flags, resource)
+		if err != nil {
+			failures = append(failures, fmt.Sprintf("%s: %v", resource, err))
+			continue
+		}
+		result := syncResource(ctx, c, db, resource, "", false, 1, true, nil, os.Stderr, extraParams)
 		if result.Err != nil {
 			failures = append(failures, fmt.Sprintf("%s: %v", resource, result.Err))
 		}

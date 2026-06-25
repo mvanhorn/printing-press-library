@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "jobber-sync-relay-envelope-compat",
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260522-234028",
+  "base_printing_press_version": "4.10.0",
+  "summary": "Teach the scaffolder-generated sync envelope walker to recognize Relay's pageInfo wrapper and hasNextPage flag.",
+  "reason": "GraphQL transport returns canonical Relay shape {nodes:[...], pageInfo:{hasNextPage, endCursor}}. sync.go's extractPaginationFromEnvelope already recurses into 4 wrapper objects but pageInfo was not one of them, and the hasMore key list did not include hasNextPage. Without this, sync terminates after page 1 against Jobber.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass; envelope walker now extracts endCursor from pageInfo.endCursor and hasMore from pageInfo.hasNextPage."
+}

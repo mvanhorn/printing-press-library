@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-05T20:49:42.209833912Z",
+  "printing_press_version": "4.22.0",
+  "api_name": "rechtspraak",
+  "cli_name": "rechtspraak-pp-cli",
+  "run_id": "20260605-220359",
+  "novel_features": [
+    {
+      "name": "Appeal-chain walker",
+      "command": "chain",
+      "description": "Walk the cassation, conclusie, and eerdere-aanleg graph for a Dutch court decision in both directions and print the full chain as a tree or JSON."
+    },
+    {
+      "name": "Vindplaatsen extractor",
+      "command": "citations",
+      "description": "Extract the citation list (vindplaatsen) for a decision and emit as BibTeX, CSV, or JSON ready for legal-brief footnotes."
+    },
+    {
+      "name": "Dossier by zaaknummer",
+      "command": "dossier",
+      "description": "List every decision sharing a case number across instances, sorted chronologically."
+    },
+    {
+      "name": "Watch / incremental new-decision poll",
+      "command": "watch",
+      "description": "Poll for new decisions matching a filter, dedupe against the local SQLite, and emit only the new ECLIs — cron-friendly with --quiet."
+    },
+    {
+      "name": "Conclusie pairing",
+      "command": "conclusie",
+      "description": "Given a Hoge Raad decision ECLI, return the matching A-G conclusie (or reverse)."
+    },
+    {
+      "name": "Bulk archive ingest",
+      "command": "sync archive",
+      "description": "Download the official weekly full-corpus archive and bulk-insert to the local SQLite — orders of magnitude faster than paging the Atom feed for backfills."
+    },
+    {
+      "name": "Court-code dictionary",
+      "command": "code",
+      "description": "Bidirectional offline lookup against the Instanties controlled vocabulary — court code to full name and PSI URI, or fuzzy name to code."
+    },
+    {
+      "name": "MCP server mode",
+      "command": "mcp serve",
+      "description": "Expose every rechtspraak command as an MCP tool — the first MCP server for Dutch case law."
+    },
+    {
+      "name": "ECLI parse/validate",
+      "command": "ecli parse",
+      "description": "Pure-local regex parse of an ECLI into country, court, year, and sequence — with validation — and `ecli url` for the deeplink."
+    },
+    {
+      "name": "Narrowing pipe",
+      "command": "narrow",
+      "description": "Read an ECLI list from stdin (or piped from search/watch/sync), fetch each decision's content from the live API (paced via the shared rate limiter), apply local include/exclude/phrase/regex filters against title+summary+body, and emit the narrowed list — the defining workflow for keyword-overlap-heavy Dutch legal research. Bounded by --max-pages on upstream input scope; one HTTP call per ECLI."
+    }
+  ],
+  "category": "other",
+  "printer": "markvandeven",
+  "printer_name": "markvandeven"
+}

@@ -1,0 +1,2131 @@
+---
+openapi: 3.0.0
+servers:
+  - url: https://api.judge.me/api/v1
+    description: 'Judge.me API server'
+info:
+  x-logo:
+    url: 'https://pub-images.judge.me/judgeme/logo-judgeme-2025.png'
+    altText: 'Judge.me Logo'
+    href: 'https://help.judge.me/en/'
+  description: |
+    Our REST API lets you access to resources and perform actions on behalf of a store.
+    For more information, read our [integration guidelines](https://help.judge.me/en/articles/8278390-integrating-with-judge-me) and [FAQs](https://help.judge.me/en/articles/8278477-faqs-for-integration-partners), or contact partnerships@judge.me for help.
+
+    # Authentication
+    Pass your API token in the `X-Api-Token` HTTP header (recommended):
+    ```
+    curl -H "X-Api-Token: YOUR_API_TOKEN" https://api.judge.me/api/v1/widgets/product_review?shop_domain=example.myshopify.com&id=123
+    ```
+
+    ## OAuth
+    [Judge.me](http://judge.me/) uses OAuth2 to grant App Developers access to [Judge.me](http://judge.me/) API. You need to use the OAuth api_token generated from the Judge.me app [following this guide](https://help.judge.me/en/articles/8283047-setting-up-the-oauth-flow-for-your-app-in-judge-me).
+    Example of how to authenticate with OAuth:
+    ```
+    GET https://app.judge.me/oauth/authorize?client_id=[your_client_id]&redirect_uri=[your_redirect_uri]&response_type=code&scope=[list_of_permissions_you_are_asking]&state=[state]
+    ```
+
+x-tagGroups:
+  - name: ''
+    tags:
+      - Judge.me ID vs External ID
+      - Find by ID or other fields
+  - name: Displaying Widgets
+    tags:
+      - Main Widgets
+      - Other Widgets
+  - name: Reviews management
+    tags:
+      - Reviews
+      - Webhooks
+
+  - name: General
+    tags:
+      - Reviewers
+      - Shops
+      - Settings
+      - Replies
+      - Private Replies
+
+tags:
+  - name: 'Judge.me ID vs External ID'
+    description: |
+      You can the resource from our API using two types of id:
+      - `id`: ID of the resource identified in Judge.me.
+      - `external_id`: ID of the resource identified in the e-commerce platform (e.g. Shopify).
+      Refer to each endpoint’s document to see which type of id is used in each case.
+
+      In Judge.me's responses and in query parameters, `id` is Judge.me internal ID and `external_id` is the external ID of the resource.
+
+      Meanwhile, in the request body of your update/create requests', `id` is the external ID of the resource.
+  - name: 'Find by ID or other fields'
+    description: |
+      In many endpoints, we allow to find a resource not only by `id`, but also by other fields (e.g. product's handle, reviewer's email, external_id). See each endpoint's document for more details.
+
+      When `id` is a required param (usually required in the request URL), and you want to find by another field, please set `id` to any negative number,-1, and then set value to the other field by which you want to find.
+  - name: 'Main Widgets'
+    description: In this section, you can find main [Judge.me widgets](https://help.judge.me/en/articles/8415708-overview-of-the-judge-me-widgets) used to display Judge.me published reviews on the storefront. Response of the following widget endpoints contains the complete, sanitized, XSS-safe HTML for each widget, that can be embedded inside a storefront page.
+  - name: 'Other Widgets'
+    description: 'In this section, you can find other widget information that is not commonly used alone but can be combined in different ways to make a more meaningful widget.'
+  - name: 'Reviews'
+    description: |
+      You can use the reviews endpoints to access review information. Common use cases include:
+      - Synchronize and display reviews in your admin dashboard.
+      - Get event of new reviews (via webhook) to perform an action on your side.
+      - Let users manage reviews (publish/hide) on your side.
+      *Note: these endpoints respond **raw** review information, which may include **unpublished reviews**, or review content that is **not sanitized** yet (so risks of XSS).
+      To render review content on storefront, please use widget endpoints instead.
+  - name: 'Webhooks'
+    description: |
+      Subscribe to an event happens in Judge.me. Judge.me will send a POST request to the registered URL containing relevant information for each event.
+
+      Common webhook keys:
+      1. **review/created** or **review/created_fail**: to know when a review is created, or not.
+      2. **review/updated**: to know when a review is updated in Judge.me. In particular, when a review is:
+      - curated or mass curated
+      - pinned/featured in carousel
+      - moved to another product
+      - edited from admin or user profile
+      - verified review via request emails
+      - added/hidden/shown review photos from admin or user profile
+      3. Widgets update webhooks (e.g. **widget/settings/updated**): to know when Judge.me updates a widget.
+      ***Note**: You can learn how to verify webhooks from Judge.me following this [guide](https://help.judge.me/en/articles/8299679-verifying-webhooks-from-judge-me).
+
+paths:
+  '/widgets/product_review':
+    get:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - PublicAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [read_widgets]
+      summary: Product Review Widget
+      description: |
+        Review Widget is usually placed at the bottom of each product page, displaying all reviews of a product.
+        You can use product handle, external ID, or [Judge.me](http://judge.me/) internal ID to specify the product.
+      operationId: 'widgets#product_review'
+      parameters:
+        - $ref: '#/components/parameters/product__handle'
+        - $ref: '#/components/parameters/product__external_id'
+        - $ref: '#/components/parameters/product__id'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page_5'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      tags:
+        - Main Widgets
+  '/widgets/preview_badge':
+    get:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - PublicAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [read_widgets]
+      summary: Product Preview Badge
+      description: |
+        Preview Badge is usually placed below product titles on product pages or inside product thumbnails on collection pages. This widget display the average star rating and review count of each product.
+        You can use product handle, external ID, or [Judge.me](http://judge.me/) internal ID to specify the product.
+      operationId: 'widgets#preview_badge'
+      parameters:
+        - $ref: '#/components/parameters/product__handle'
+        - $ref: '#/components/parameters/product__external_id'
+        - $ref: '#/components/parameters/product__id'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      tags:
+        - Main Widgets
+  '/widgets/featured_carousel':
+    get:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - PublicAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [read_widgets]
+      summary: Featured Reviews Carousel
+      description: |
+        Reviews Carousel is usually placed on the homepage to showcase specific reviews featured by the store.
+      operationId: 'widgets#featured_carousel'
+      responses:
+        '200':
+          {
+            $ref: '#/components/responses/success_200',
+          }
+      tags:
+        - Main Widgets
+  '/widgets/reviews_tab':
+    get:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - PublicAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [read_widgets]
+      summary: Floating Reviews Tab
+      description: |
+        Floating Reviews Tab display all product and store reviews via a floating button on any pages.
+      operationId: 'widgets#reviews_tab'
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page_5'
+        - $ref: '#/components/parameters/widget_review_type'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      tags:
+        - Main Widgets
+  '/widgets/all_reviews_page':
+    get:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - PublicAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [read_widgets]
+      summary: All Reviews Page
+      description: |
+        All Reviews Page is a dedicated page to showcase all product and store reviews all in one place.
+      operationId: 'widgets#all_reviews_page'
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/widget_review_type'
+      responses:
+        '200':
+          {
+            $ref: '#/components/responses/success_200',
+          }
+      tags:
+        - Main Widgets
+  '/widgets/verified_badge':
+    get:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - PublicAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [read_widgets]
+      summary: Verified Reviews Count Badge
+      description: |
+        Verified Reviews Count Badge displays the number of verified published reviews. Stores need at least 20 verified reviews to use this widget.
+      operationId: 'widgets#verified_badge'
+      responses:
+        '200':
+          {
+            $ref: '#/components/responses/success_200',
+          }
+      tags:
+        - Main Widgets
+
+  '/widgets/all_reviews_count':
+    get:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - PublicAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [read_widgets]
+      summary: Total number of all reviews
+      description: |
+        Return a single total number of product and store reviews.
+      operationId: 'widgets#all_reviews_count'
+      responses:
+        '200':
+          {
+            $ref: '#/components/responses/success_200',
+          }
+      tags:
+        - Other Widgets
+  '/widgets/all_reviews_rating':
+    get:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - PublicAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [read_widgets]
+      summary: Average rating of all reviews
+      description: |
+        Return a single number of average rating of product reviews and store reviews.
+      operationId: 'widgets#all_reviews_rating'
+      responses:
+        '200':
+          {
+            $ref: '#/components/responses/success_200',
+          }
+      tags:
+        - Other Widgets
+  '/widgets/shop_reviews_count':
+    get:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - PublicAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [read_widgets]
+      summary: Total number of shop-level reviews
+      description: |
+        Return a single total number of store reviews.
+      operationId: 'widgets#shop_reviews_count'
+      responses:
+        '200':
+          {
+            $ref: '#/components/responses/success_200',
+          }
+      tags:
+        - Other Widgets
+  '/widgets/shop_reviews_rating':
+    get:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - PublicAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [read_widgets]
+      summary: Average rating of shop-level reviews
+      description: |
+        Return a single number of average rating of store reviews.
+      operationId: 'widgets#shop_reviews_rating'
+      responses:
+        '200':
+          {
+            $ref: '#/components/responses/success_200',
+          }
+      tags:
+        - Other Widgets
+  '/widgets/settings':
+    get:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - PublicAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [read_widgets]
+      summary: Widget settings of the shop
+      description: |
+        Return widget settings of the shop, under HTML format, containing a `<script>` tag and a `<style>` tag.
+        This contains values of widget customization in [Judge.me](http://judge.me/) such as text and color, which helps you display the widget correctly.
+      operationId: 'widgets#settings'
+      responses:
+        '200':
+          {
+            $ref: '#/components/responses/success_200',
+          }
+      tags:
+        - Other Widgets
+  '/widgets/html_miracle':
+    get:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - PublicAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [read_widgets]
+      summary: Miracle HTML 🪄
+      description: |
+        Return special HTML that helps show essential parts of widgets before the JS and CSS files are loaded.
+      operationId: 'widgets#html_miracle'
+      responses:
+        '200':
+          {
+            $ref: '#/components/responses/success_200',
+          }
+      tags:
+        - Other Widgets
+  '/widgets/checkout_comments_widget':
+    get:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - PublicAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [read_widgets]
+      summary: Product Checkout Comments widget
+      description: |
+        Return Checkout Comments widget for a product (for Checkout Comments app only). You can use product handle, external ID, or [Judge.me](http://judge.me/) internal ID to specify the product.
+      operationId: 'widgets#checkout_comments_widget'
+      parameters:
+        - $ref: '#/components/parameters/product__handle'
+        - $ref: '#/components/parameters/product__external_id'
+        - $ref: '#/components/parameters/product__id'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      tags:
+        - Other Widgets
+
+  '/reviews':
+    get:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [read_reviews]
+      summary: Index
+      description: Get info of reviews of a product. If `product_id` is not provided, return all product and store reviews of that store.
+      operationId: 'reviews#index'
+      parameters:
+        - $ref: '#/components/parameters/per_page'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/reviewer_id'
+        - $ref: '#/components/parameters/product_id'
+        - $ref: '#/components/parameters/rating'
+      responses:
+        '200':
+          description: 'Array of reviews'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_page:
+                    {
+                      $ref: '#/components/parameters/page/schema',
+                    }
+                  per_page:
+                    {
+                      $ref: '#/components/parameters/per_page/schema',
+                    }
+                  reviews:
+                    type: array
+                    items:
+                      {
+                        $ref: '#/components/schemas/ResponseReview',
+                      }
+      tags:
+        - Reviews
+    post:
+      security: [] # No authentication needed
+      summary: Create
+      description: |
+        Create a web review in background, similar to submitting a review via the public form on product pages (no authorization required).
+        This endpoint doesn't create any review if the store [disables web reviews](https://help.judge.me/en/articles/8375147-restricting-web-reviews).
+      operationId: 'reviews#create'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              {
+                $ref: '#/components/schemas/RequestCreateReview',
+              }
+      tags:
+        - Reviews
+
+  'reviews/{id}':
+    put:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [write_reviews]
+      summary: Update
+      description: |
+        Publish or hide a [Judge.me](http://judge.me/) review via your app interface. For authenticity reason, we don’t support editing reviews via API.
+      operationId: 'reviews/#update'
+      parameters:
+        - $ref: '#/components/parameters/review__id_in_path'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                curated:
+                  {
+                    type: string,
+                    description: 'value is either ok or spam: ok is for publish reviews, spam is for hide review',
+                    example: 'ok',
+                  }
+      responses:
+        '200':
+          description: 'message info'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    {
+                      type: string,
+                      example: 'Action performed successful',
+                    }
+        '422':
+          description: 'message info'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    {
+                      type: string,
+                      example: 'error message',
+                    }
+      tags:
+        - Reviews
+
+  '/reviews/count':
+    get:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [read_reviews]
+      summary: Count
+      description: |
+        Get count of reviews for a specific product or reviewer. If product_id is not provided, return the count of all product and store reviews of that store.
+      operationId: 'reviewers#count'
+      parameters:
+        - $ref: '#/components/parameters/reviewer_id'
+        - $ref: '#/components/parameters/product_id'
+        - $ref: '#/components/parameters/rating'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      tags:
+        - Reviews
+  '/reviews/{id}':
+    parameters:
+      - $ref: '#/components/parameters/review__id_in_path'
+    get:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [read_reviews]
+      summary: Get
+      description: Get info of a specific review.
+      operationId: 'reviews#get'
+      responses:
+        '200':
+          description: 'Review info'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  review:
+                    {
+                      $ref: '#/components/schemas/ResponseReview',
+                    }
+      tags:
+        - Reviews
+
+  '/reviewers/{id}':
+    parameters:
+      - $ref: '#/components/parameters/reviewer__id_in_path'
+      - $ref: '#/components/parameters/reviewer__external_id'
+      - $ref: '#/components/parameters/reviewer__email'
+    get:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [read_reviewers]
+      summary: Get
+      description: Get information of the reviewers such as name and email. This is useful when you are building automated flow for users to follow up with reviewers.
+      operationId: 'reviewers#get'
+      responses:
+        '200':
+          description: 'Reviewer info'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reviewer:
+                    {
+                      $ref: '#/components/schemas/ResponseReviewer',
+                    }
+      tags:
+        - Reviewers
+    put:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [write_reviewers]
+      summary: Update
+      description: Create or update a reviewer via your app interface.
+      operationId: 'reviewers#update'
+      responses:
+        '200':
+          description: 'Reviewer info'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reviewer:
+                    {
+                      $ref: '#/components/schemas/ResponseReviewer',
+                    }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reviewer:
+                  {
+                    $ref: '#/components/schemas/RequestReviewer',
+                  }
+      tags:
+        - Reviewers
+  '/reviewers/data_request':
+    post:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [write_reviewers]
+      summary: Data Request
+      operationId: 'reviewers#data_request'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                customer: { email: john@example.com }
+                orders_requested:
+                  - order_external_id_1
+                  - order_external_id_2
+      tags:
+        - Reviewers
+
+  '/webhooks':
+    get:
+      summary: Index
+      operationId: 'webhooks#index'
+      responses:
+        '200':
+          description: 'Array of webhooks'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  shop_id:
+                    {
+                      $ref: '#/components/schemas/internal_id',
+                    }
+                  shop_domain:
+                    {
+                      $ref: '#/components/schemas/shop_domain',
+                    }
+                  webhooks:
+                    type: array
+                    items:
+                      {
+                        $ref: '#/components/schemas/ResponseWebhook',
+                      }
+      tags:
+        - Webhooks
+    delete:
+      summary: Delete
+      operationId: 'webhooks#destroy'
+      responses:
+        '200':
+          description: '{}'
+          content:
+            application/json:
+              schema:
+                type: object
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  {
+                    $ref: '#/components/schemas/webhook_key',
+                  }
+                url:
+                  {
+                    $ref: '#/components/schemas/webhook_url',
+                  }
+      tags:
+        - Webhooks
+    post:
+      summary: Create
+      description: |
+        Create a webhook in Judge.me with a `key` and a `url`. When an event associated with `key` happens,
+        Judge.me will send a POST request to the webhook's `url`.
+      operationId: 'webhooks#create'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  shop_id:
+                    {
+                      $ref: '#/components/schemas/internal_id',
+                    }
+                  shop_domain:
+                    {
+                      $ref: '#/components/schemas/shop_domain',
+                    }
+                  webhook:
+                    {
+                      $ref: '#/components/schemas/ResponseWebhook',
+                    }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                webhook:
+                  {
+                    $ref: '#/components/schemas/RequestWebhook',
+                  }
+      tags:
+        - Webhooks
+  '/webhooks/{id}':
+    parameters:
+      - $ref: '#/components/parameters/webhook__id_in_path'
+    get:
+      summary: Get
+      operationId: 'webhooks#get'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  shop_id:
+                    {
+                      $ref: '#/components/schemas/internal_id',
+                    }
+                  shop_domain:
+                    {
+                      $ref: '#/components/schemas/shop_domain',
+                    }
+                  webhook:
+                    {
+                      $ref: '#/components/schemas/ResponseWebhook',
+                    }
+      tags:
+        - Webhooks
+    put:
+      summary: Update
+      operationId: 'webhooks#update'
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  shop_id:
+                    {
+                      $ref: '#/components/schemas/internal_id',
+                    }
+                  shop_domain:
+                    {
+                      $ref: '#/components/schemas/shop_domain',
+                    }
+                  webhook:
+                    {
+                      $ref: '#/components/schemas/ResponseWebhook',
+                    }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                webhook:
+                  {
+                    $ref: '#/components/schemas/RequestWebhook',
+                  }
+      tags:
+        - Webhooks
+  '/webhooks/bulk_create':
+    post:
+      summary: Bulk Create
+      operationId: 'webhooks#bulk_create'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                webhooks:
+                  type: array
+                  items:
+                    {
+                      $ref: '#/components/schemas/RequestWebhook',
+                    }
+      tags:
+        - Webhooks
+
+  '/shops/info':
+    get:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [read_shops]
+      summary: Get current shop's info
+      description: |
+        Get the basic information of the store such as [Judge.me](http://judge.me/) plan, owner name, email, e-commerce platform, etc. This is helpful when you are developing your app for specific segment of users (e.g. your integration is only available to Judge.me Awesome users).
+      operationId: 'shops#info'
+      responses:
+        '200':
+          {
+            $ref: '#/components/responses/success_200',
+          }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: 'object'
+            example:
+              shop:
+                id: '111'
+                awesome: 'true'
+                country: 'US'
+                created_at: '2022-04-18T10:43:52+00:00'
+                currency: 'USD'
+                custom_domain: '{{shop_domain}}'
+                dmarc_ok: 'true'
+                domain: '{{shop_domain}}'
+                email: 'john@example.com'
+                name: 'Example store'
+                onboarding_progress: 'skip-installation'
+                owner: 'John Smith'
+                phone: '44123456789'
+                plan: 'basic'
+                platform: 'shopify'
+                timezone: '(GMT-05:00) America/New_York'
+                updated_at: '2023-11-23T13:50:40+00:00'
+                widget_version: '3.0'
+      tags:
+        - Shops
+  '/shops':
+    put:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [write_shops]
+      summary: Update current shop
+      description: Update store information
+      operationId: 'shops#update'
+      responses:
+        '200':
+          {
+            $ref: '#/components/responses/success_200',
+          }
+      requestBody:
+        required: true
+        description: New information of the shop
+        content:
+          application/json:
+            schema:
+              type: 'string'
+            example:
+              domain: '{{shop_domain}}'
+              custom_domain: '{{shop_domain}}'
+              email: john@example.com
+              owner: John Smith
+              phone: '+123456789'
+              name: Shop Name
+              country: US
+              timezone: '(GMT-05:00) America/New_York'
+              plan: basic
+      tags:
+        - Shops
+    delete:
+      summary: Uninstall shop from Judge.me
+      description: Uninstall the store from Judge.me
+      operationId: 'shops#destroy'
+      responses:
+        '200':
+          description: Uninstalled shop successfully
+          content:
+            application/json: {}
+      tags:
+        - Shops
+
+    post:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [write_comments]
+      summary: Create
+      description: Create a checkout comment. Available in Checkout Comments app only.
+      operationId: 'comments#create'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  {
+                    type: string,
+                    example: 'Comment content',
+                  }
+                external_product_id:
+                  {
+                    $ref: '#/components/schemas/external_id',
+                  }
+                create_from:
+                  {
+                    type: string,
+                    enum: ['checkout_page', 'email'],
+                    example: 'checkout_page',
+                  }
+                customer:
+                  type: object
+                  properties:
+                    first_name:
+                      { type: string, example: 'John' }
+                    last_name:
+                      {
+                        type: string,
+                        example: 'Smith',
+                      }
+                    email:
+                      {
+                        $ref: '#/components/schemas/email',
+                      }
+                    external_id:
+                      {
+                        $ref: '#/components/schemas/external_id',
+                      }
+      tags:
+        - Comments
+  '/settings':
+    get:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [read_settings]
+      summary: Index
+      description: 'Get multiple settings values of the store in [Judge.me](http://judge.me/), which can serve as conditions for your app integrations.'
+      operationId: 'settings#index'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  settings:
+                    type: object
+                    description: 'An key-value-pair object whose keys are setting keys, values are the value of each setting'
+                    example:
+                      admin_email: 'support@judge.me'
+                      autopublish: true
+                      widget_star_color: '#339999'
+                      enable_review_pictures: true
+      parameters:
+        - name: 'setting_keys[]'
+          description: 'Array of keys of settings'
+          in: query
+          style: form
+          explode: true
+          schema:
+            type: array
+            items: { type: string }
+          example:
+            [
+              'admin_email',
+              'autopublish',
+              'widget_star_color',
+              'enable_review_pictures',
+            ]
+      tags:
+        - Settings
+
+  '/replies':
+    post:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [write_replies]
+      summary: Create
+      description: 'Create a reply to a Judge.me review on the public [Judge.me](http://judge.me/) review widget via your app interface.'
+      operationId: 'replies#create'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestCreateReply'
+      responses:
+        '200':
+          description: 'Reply was created successfully'
+        '422':
+          description: 'Reply was created unsuccessfully'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    {
+                      type: string,
+                      example: 'error message',
+                    }
+      tags:
+        - Replies
+
+  '/private_replies':
+    post:
+      security:
+        - PrivateAPIKey: []
+          ShopDomain: []
+        - OAuthAPIKey: [write_private_replies]
+      summary: Create
+      description: 'Create a private email reply to a [Judge.me](http://judge.me/) review privately via your app interface.'
+      operationId: 'private_replies#create'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestCreatePrivateReply'
+      responses:
+        '200':
+          description: 'Private reply was created successfully'
+        '422':
+          description: 'Private reply was created unsuccessfully'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    {
+                      type: string,
+                      example: 'error message',
+                    }
+      tags:
+        - Private Replies
+
+components:
+  schemas:
+    shop_domain:
+      {
+        type: string,
+        example: 'example.myshopify.com',
+      }
+    email:
+      type: string
+      format: email
+      example: 'john@example.com'
+    external_id:
+      type: number
+      description: 'External (Shopify) ID of the resource. Note: this is NOT internal ID of Judge.me.'
+      example: 999999
+    internal_id:
+      type: number
+      description: 'Judge.me internal ID of the resource. Note: this ID is from Judge.me internally.'
+      example: 111
+    unsubscribed_at:
+      type: string
+      format: 'date-time'
+      description: The time when user has unsubscribed to marketing emails. Blank if user still subscribes.
+      example:
+        {
+          $ref: '#/components/examples/datetime_str/value',
+        }
+    phone: { type: string, example: '+123456789' }
+    person_name:
+      { type: string, example: 'John Smith' }
+    tags:
+      {
+        type: string,
+        description: 'Comma-separated tags',
+        example: 'tag1, tag2, tag3',
+      }
+    tags_array:
+      {
+        type: array,
+        items: { type: string },
+        example: ['tag1', 'tag2', 'tag3'],
+      }
+    rating:
+      {
+        type: number,
+        enum: [1, 2, 3, 4, 5],
+        example: 5,
+      }
+    webhook_key:
+      type: string
+      enum:
+        - widget/settings/updated
+        - widget/review_widget/updated
+        - widget/preview_badge/updated
+        - widget/all_reviews_count/updated
+        - widget/all_reviews_rating/updated
+        - widget/shop_reviews_count/updated
+        - widget/shop_reviews_rating/updated
+        - widget/verified_badge/updated
+        - widget/all_reviews_page/updated
+        - widget/featured_carousel/updated
+        - widget/reviews_tab/updated
+        - widget/html_miracle/updated
+        - widget/product_comment/updated
+        - review/created
+        - review/updated
+        - review/created_fail
+      example: 'review/created'
+    webhook_url:
+      type: string
+      example: 'https://example.com/webhook/example.myshopify.com/settings/updated'
+    Order:
+      type: object
+      required:
+        - name
+        - cancelled_at
+        - fulfillment_status
+        - tags
+        - customer_locale
+        - customer
+      properties:
+        name: { type: string, example: '#1234' }
+        cancelled_at:
+          { type: string, format: 'date-time' }
+        fulfillment_status:
+          {
+            type: string,
+            example: 'fulfilled',
+            description: 'Value other than `fulfilled` means the order is not fulfilled yet.',
+          }
+        tags: { $ref: '#/components/schemas/tags' }
+        customer_locale:
+          type: string
+          example: 'en'
+          description: 'Locale of the buyer, to determine which language to use in the review request email Judge.me sends'
+        customer:
+          {
+            $ref: '#/components/schemas/RequestCustomer',
+          }
+    Product:
+      type: object
+      required:
+        - title
+        - handle
+        - vendor
+        - image_url
+        - in_store
+        - path
+        - tags
+        - product_type
+        - description
+      properties:
+        title:
+          {
+            type: string,
+            example:
+              {
+                $ref: '#/components/examples/product_title/value',
+              },
+          }
+        handle:
+          {
+            type: string,
+            example:
+              {
+                $ref: '#/components/examples/product_handle/value',
+              },
+          }
+        path:
+          type: string
+          example: '/p/example-product'
+          description: |
+            By default, Judge.me constructs product URLs for storefront with this format `/products/[handle]`.
+            If the product URL doesn't follow that format, `path` will be used.
+        excluded:
+          {
+            type: boolean,
+            example: false,
+            description: 'Whether Judge.me sends RREs for this product',
+          }
+        vendor:
+          { type: string, example: 'some vendor' }
+        in_store:
+          {
+            type: boolean,
+            example: true,
+            description: 'Whether the product is published on storefront',
+          }
+        product_type:
+          { type: string, example: 'product type' }
+        description:
+          {
+            type: string,
+            example: 'Some product description',
+          }
+        tags: { $ref: '#/components/schemas/tags' }
+        image_url:
+          {
+            type: string,
+            example:
+              {
+                $ref: '#/components/examples/image_url/value',
+              },
+          }
+        medium_image_url:
+          {
+            type: string,
+            example:
+              {
+                $ref: '#/components/examples/image_url/value',
+              },
+          }
+        small_image_url:
+          {
+            type: string,
+            example:
+              {
+                $ref: '#/components/examples/image_url/value',
+              },
+          }
+    Reviewer:
+      type: object
+      required:
+        - id
+        - email
+        - name
+      properties:
+        id:
+          { $ref: '#/components/schemas/internal_id' }
+        email: { $ref: '#/components/schemas/email' }
+        name:
+          { $ref: '#/components/schemas/person_name' }
+        phone: { $ref: '#/components/schemas/phone' }
+        tags:
+          { $ref: '#/components/schemas/tags_array' }
+        accepts_marketing: { type: boolean }
+        unsubscribed_at:
+          {
+            $ref: '#/components/schemas/unsubscribed_at',
+          }
+    Review:
+      type: object
+      required:
+        - id
+        - email
+        - name
+      properties:
+        id:
+          { $ref: '#/components/schemas/internal_id' }
+        title:
+          {
+            type: string,
+            example: 'Raw review title. This is not sanitized yet so do not print it out as-is in frontend.',
+          }
+        body:
+          {
+            type: string,
+            example: 'Raw review body. This is not sanitized yet so do not print it out as-is in frontend.',
+          }
+        rating: { $ref: '#/components/schemas/rating' }
+        pinned: { type: boolean, example: false }
+        product_external_id:
+          { $ref: '#/components/schemas/external_id' }
+        product_title:
+          {
+            type: string,
+            example:
+              {
+                $ref: '#/components/examples/product_title/value',
+              },
+          }
+        product_handle:
+          {
+            type: string,
+            example:
+              {
+                $ref: '#/components/examples/product_handle/value',
+              },
+          }
+        reviewer:
+          {
+            $ref: '#/components/schemas/ResponseReviewer',
+          }
+        source:
+          type: string
+          example: 'email'
+          description: |
+            Where the review originates. Some sources (e.g. email) determine if review is verified, while other sources (e.g. web) rely on on the **verified** attribute to determine if review is verified.
+            In particular, a web review can be a verified review if its [verified status](https://help.judge.me/en/articles/8403775-verified-status-of-judge-me-reviews) is “confirmed-buyer”.
+        curated:
+          type: string
+          enum: ['not-yet', 'ok', 'spam']
+          example: 'ok'
+          description: |
+            Curated status of the review.
+            - ok: the review is published on the storefront
+            - spam: the review is not published (note: it doesn't mean the review is spam.)
+            - not-yet: the review is waiting to be curated.
+            Note: In the case of not-yet, whether the review is published on storefront depends on [auto-publish](https://help.judge.me/en/articles/8368681-publishing-and-hiding-reviews#h_a639d30ccb) setting of the store.
+        hidden:
+          type: boolean
+          example: false
+          description: |
+            Whether the review is archived and moved to the Archived tab in the Reviews dashboard.
+            Note: this doesn't determine whether the review is published on storefront or not, refer to **curated** attribute instead.
+        verified:
+          type: string
+          example: 'buyer'
+          enum:
+            [
+              'nothing',
+              'not-yet',
+              'confirmed-buyer',
+              'unconfirmed-buyer',
+              'buyer',
+              'verified-purchase',
+              'semi-verified-purchase',
+              'admin',
+            ]
+          description: |
+            Verified status of the review. Learn more about the meaning of each status [here](https://help.judge.me/en/articles/8403775-verified-status-of-judge-me-reviews).
+            Reviews with the following status are considered verified reviews: `confirmed-buyer`, `buyer`, `verified-purchase`, `semi-verified-purchase`, and `admin`.
+            Reviews with other status are considered non-verified reviews.
+        created_at:
+          { type: string, format: 'date-time' }
+        updated_at:
+          { type: string, format: 'date-time' }
+        ip_address: { type: string }
+        has_published_pictures:
+          type: boolean
+          example: false
+          description: |
+            Whether or not the review contains published pictures.
+        has_published_videos:
+          type: boolean
+          example: false
+          description: |
+            Whether or not the review contains published videos.
+        pictures:
+          type: array
+          items:
+            type: object
+            properties:
+              hidden: { type: boolean }
+              urls:
+                type: object
+                properties:
+                  small:
+                    {
+                      type: string,
+                      description: 'URL of the review image',
+                    }
+                  compact:
+                    {
+                      type: string,
+                      description: 'URL of the review image',
+                    }
+                  huge:
+                    {
+                      type: string,
+                      description: 'URL of the review image',
+                    }
+                  original:
+                    {
+                      type: string,
+                      description: 'Original URL of the review image',
+                    }
+    Webhook:
+      type: object
+      description: |
+        After a webhook consumer (i.e. a 3rd-party app) create a webhook in Judge.me with a `key` and a `url`,
+        Judge.me will send a POST request to the webhook's `url` when an event associated with `key` happens.
+      required:
+        - key
+        - url
+      properties:
+        key:
+          { $ref: '#/components/schemas/webhook_key' }
+        url:
+          {
+            type: 'string',
+            description: 'URL that receives the webhook',
+            example:
+              {
+                $ref: '#/components/examples/webhook_url/value',
+              },
+          }
+
+    RequestCustomer:
+      { $ref: '#/components/schemas/RequestReviewer' }
+    RequestFulfillment:
+      type: object
+      required:
+        - id
+        - status
+        - created_at
+      properties:
+        id:
+          { $ref: '#/components/schemas/external_id' }
+        status:
+          {
+            type: string,
+            example: 'success',
+            description: "Value other than 'success' means the fulfillment is not completed yet.",
+          }
+        tracking_company:
+          {
+            type: string,
+            example: 'ups',
+            description: 'Optional order tracking info, used for integrations with other Delivery tracking apps',
+          }
+        tracking_number:
+          {
+            type: string,
+            example: '1Z12345E0205271688',
+            description: 'Optional order tracking info, used for integrations with other Delivery tracking apps',
+          }
+        created_at:
+          type: string
+          format: 'date-time'
+          description: 'This is used to calculate `fulfilled_at` of the order'
+          example:
+            {
+              $ref: '#/components/examples/datetime_str/value',
+            }
+      example:
+        id: 1
+        status: success
+        tracking_company: ups
+        tracking_number: 1Z12345E0205271688
+        created_at: '2020-02-20T20:20:20+00:00'
+    RequestLineItem:
+      type: object
+      required:
+        - id
+        - product_id
+      properties:
+        id:
+          { $ref: '#/components/schemas/external_id' }
+        price: { type: number }
+        quantity: { type: number }
+        product_id:
+          { $ref: '#/components/schemas/external_id' }
+      example:
+        {
+          id: 1,
+          price: 15,
+          quantity: 1,
+          product_id: 1,
+        }
+    RequestCreateOrder:
+      allOf:
+        - $ref: '#/components/schemas/Order'
+        - type: object
+          required:
+            - id
+            - fulfillments
+            - line_items
+          properties:
+            shipping_address:
+              type: object
+              description: Judge.me needs to know shipping-to country of the order to apply whether domestic or international wait days when sending review request emails.
+              example:
+                country_code: US
+            fulfillments:
+              type: array
+              items:
+                {
+                  $ref: '#/components/schemas/RequestFulfillment',
+                }
+            line_items:
+              type: array
+              items:
+                {
+                  $ref: '#/components/schemas/RequestLineItem',
+                }
+    RequestUpdateOrder:
+      { $ref: '#/components/schemas/Order' }
+    RequestDeliveryTracking:
+      type: object
+      required:
+        - courier
+        - tracking_number
+      properties:
+        courier:
+          {
+            type: string,
+            example: 'ups',
+            description: 'Delivery courier name. This is from `tracking_company` of `fulfillments` when creating the order',
+          }
+        tracking_number:
+          {
+            type: string,
+            example: '1Z12345E0205271688',
+            description: 'Delivery tracking number. This is from `tracking_number` of `fulfillments` when creating the order',
+          }
+    RequestProductVariant:
+      type: object
+      required:
+        - price
+      properties:
+        barcode:
+          { type: string, example: '00123456789001' }
+        sku: { type: string, example: 'SKU-1' }
+        mpn: { type: string, example: 'MPN-1' }
+        price: { type: string, example: '100.00' }
+    RequestCreateProduct:
+      allOf:
+        - $ref: '#/components/schemas/Product'
+        - type: object
+          required:
+            - id
+            - variants
+          properties:
+            id:
+              {
+                $ref: '#/components/schemas/external_id',
+              }
+            variants:
+              type: array
+              items:
+                {
+                  $ref: '#/components/schemas/RequestProductVariant',
+                }
+    RequestUpdateProduct:
+      allOf:
+        - $ref: '#/components/schemas/Product'
+        - type: object
+          required:
+            - variants
+          properties:
+            variants:
+              type: array
+              items:
+                {
+                  $ref: '#/components/schemas/RequestProductVariant',
+                }
+    RequestReviewer:
+      allOf:
+        - $ref: '#/components/schemas/Reviewer'
+        - type: object
+          properties:
+            id:
+              {
+                $ref: '#/components/schemas/external_id',
+              }
+            tags: { $ref: '#/components/schemas/tags' }
+    RequestCreateReply:
+      type: object
+      required:
+        - review_id
+        - reply
+      properties:
+        review_id:
+          { $ref: '#/components/schemas/internal_id' }
+        send_reply_email:
+          {
+            type: boolean,
+            description: 'To indicate whether to send email to reviewer. Default is `true`',
+            example: false,
+          }
+        reply:
+          type: object
+          required:
+            - content
+          properties:
+            content:
+              {
+                type: string,
+                description: 'Content of the reply',
+                example: 'Thanks for the review! We are glad that you like it.',
+              }
+
+    RequestCreatePrivateReply:
+      type: object
+      required:
+        - review_id
+        - private_reply
+      properties:
+        review_id:
+          { $ref: '#/components/schemas/internal_id' }
+        send_private_email:
+          {
+            type: boolean,
+            description: 'To indicate whether to send email to reviewer. Default is true',
+            example: false,
+          }
+        private_reply:
+          type: object
+          required:
+            - email_subject
+            - email_body
+          properties:
+            email_subject:
+              {
+                type: string,
+                description: 'Email subject',
+                example: 'email subject',
+              }
+            email_body:
+              {
+                type: string,
+                description: 'Email body',
+                example: 'email body',
+              }
+    RequestCreateReview:
+      type: object
+      required:
+        - shop_domain
+        - platform
+        - name
+        - email
+        - rating
+        - body
+      properties:
+        shop_domain:
+          {
+            type: string,
+            description: 'Domain of the shop',
+            example: 'example.myshopify.com',
+          }
+        platform:
+          {
+            type: string,
+            description: 'Platform of the shop',
+            enum:
+              [
+                'shopify',
+                'woocommerce',
+                'bigcommerce',
+              ],
+            example: 'shopify',
+          }
+        id:
+          type: number
+          example: 999999
+          description: |
+            External (Shopify) ID of the Product. Note: this is NOT internal Product ID of Judge.me.
+            If blank, the review is considered as a shop-level review.
+        email: { $ref: '#/components/schemas/email' }
+        name:
+          { $ref: '#/components/schemas/person_name' }
+        reviewer_name_format:
+          type: string
+          description: |
+            How the `reviewers` want to show their name publicly. Default is showing full name.
+            `Stores` can also choose how they want to display reviewer’s names in all reviews on their stores. When showing reviews, Judge.me will choose the most restrictive option between reviewer's option and store’s option.
+            For example, if a reviewer set their display format as all_initials while the store sets the format as last_initial, we will show the reviewer’s name as all initials, which is J.S., not John S..
+          example: ''
+          enum:
+            [
+              '',
+              'last_initial',
+              'all_initials',
+              'anonymous',
+            ]
+        rating: { $ref: '#/components/schemas/rating' }
+        title:
+          { type: string, example: 'Review title' }
+        body: { type: string, example: 'Review body' }
+        cf_answers:
+          type: array
+          items:
+            type: object
+            required: ['cf_question_id', 'value']
+            properties:
+              cf_question_id:
+                {
+                  type: number,
+                  example: 1,
+                  description: 'Judge.me ID of the custom form question',
+                }
+              value:
+                {
+                  type: 'string',
+                  example: 'Yellow',
+                  description: 'The answer to the custom form question',
+                }
+          description: "Answers to the shop's custom forms"
+          example:
+            - { cf_question_id: 1, value: 'Yellow' }
+            - { cf_question_id: 2, value: 'Big' }
+            - { cf_question_id: 3, value: '4/5' }
+            - {
+                cf_question_id: 4,
+                value: 'Free text answer',
+              }
+        picture_urls:
+          type: array
+          items:
+            {
+              type: string,
+              example:
+                {
+                  $ref: '#/components/examples/image_url',
+                },
+              description: 'URL of the review picture',
+            }
+          example:
+            - https://pub-images.judge.me/judgeme/funny/big-pr.jpg
+            - {
+                $ref: '#/components/examples/image_url/value',
+              }
+        ip_addr:
+          type: string
+          description: |
+            IP address of the reviewer, used to display location of the review. If blank,
+            Judge.me will use IP address that makes the API request
+          example: '123.123.123.123'
+    RequestWebhook:
+      { $ref: '#/components/schemas/Webhook' }
+
+    ResponseOrder:
+      type: object
+      required:
+        - id
+        - name
+        - external_id
+        - reviewer_id
+        - fulfillment_status
+        - fulfilled_at
+      properties:
+        id:
+          { $ref: '#/components/schemas/internal_id' }
+        name: { type: string, example: '#1234' }
+        external_id:
+          { $ref: '#/components/schemas/external_id' }
+        reviewer_id:
+          { $ref: '#/components/schemas/internal_id' }
+        fulfillment_status:
+          { type: string, example: 'fulfilled' }
+        fulfilled_at:
+          {
+            type: string,
+            format: 'date-time',
+            example:
+              {
+                $ref: '#/components/examples/datetime_str/value',
+              },
+          }
+        cancelled_at:
+          {
+            type: string,
+            format: 'date-time',
+            example: null,
+          }
+        country:
+          {
+            type: string,
+            example: 'US',
+            description: "Code of the country from the order's shipping address",
+          }
+    ResponseLineItem:
+      type: object
+      required:
+        - id
+        - external_id
+        - status
+        - price
+        - quantity
+        - processed_at
+        - product_id
+        - product_external_id
+      properties:
+        id:
+          { $ref: '#/components/schemas/internal_id' }
+        external_id:
+          { $ref: '#/components/schemas/external_id' }
+        status:
+          {
+            type: string,
+            example: 'sent',
+            description: 'Status key of the line item in the RRE sequence. Those statuses suffixed with `__predicted` mean the line item is not yet processed.',
+          }
+        price: { type: number, example: 15 }
+        quantity: { type: number, example: 1 }
+        processed_at:
+          type: string
+          description: The time the line item will be or has been processed (in RRE sequence)
+          format: 'date-time'
+          example:
+            {
+              $ref: '#/components/examples/datetime_str/value',
+            }
+        product_id:
+          { $ref: '#/components/schemas/internal_id' }
+        product_external_id:
+          { $ref: '#/components/schemas/external_id' }
+        review_id:
+          { $ref: '#/components/schemas/internal_id' }
+    ResponseDeliveryTracking:
+      type: object
+      required:
+        - id
+        - external_id
+        - courier
+        - tracking_number
+        - tracking_status
+      properties:
+        id:
+          { $ref: '#/components/schemas/internal_id' }
+        external_id:
+          { $ref: '#/components/schemas/external_id' }
+        courier:
+          {
+            type: string,
+            example: 'ups',
+            description: 'Delivery courier name. This is from `tracking_company` of `fulfillments` when creating the order',
+          }
+        tracking_number:
+          {
+            type: string,
+            example: '1Z12345E0205271688',
+            description: 'Delivery tracking number. This is from `tracking_number` of `fulfillments` when creating the order',
+          }
+        tracking_status:
+          type: string
+          example: 'Delivered'
+          description: |
+            Status of the delivery tracking. Judge.me daily fetches this info from a delivery tracking integration (e.g. Aftership), using `courier` and `tracking_number`.
+    ResponseProduct:
+      allOf:
+        - $ref: '#/components/schemas/Product'
+        - type: object
+          required:
+            - id
+            - external_id
+          properties:
+            id:
+              {
+                $ref: '#/components/schemas/internal_id',
+              }
+            external_id:
+              {
+                $ref: '#/components/schemas/external_id',
+              }
+            tags:
+              {
+                $ref: '#/components/schemas/tags_array',
+              }
+            mpns:
+              {
+                type: array,
+                items:
+                  { type: string, example: 'MPN-1' },
+              }
+            barcodes:
+              {
+                type: array,
+                items:
+                  { type: string, example: 'SKU-1' },
+              }
+            skus:
+              {
+                type: array,
+                items:
+                  {
+                    type: string,
+                    example: '00123456789001',
+                  },
+              }
+            lowest_price:
+              { type: number, example: 100 }
+            highest_price:
+              { type: number, example: 100 }
+    ResponseReviewer:
+      allOf:
+        - $ref: '#/components/schemas/Reviewer'
+        - type: object
+          required:
+            - external_id
+          properties:
+            external_id:
+              {
+                $ref: '#/components/schemas/external_id',
+              }
+    ResponseReview:
+      allOf:
+        - $ref: '#/components/schemas/Review'
+    ResponseWebhook:
+      allOf:
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              {
+                $ref: '#/components/schemas/internal_id',
+              }
+            failure_count:
+              type: number
+              description: 'Number of consecutive times that Judge.me receives a non-200 response when sending the webhook.'
+              example: 0
+        - $ref: '#/components/schemas/Webhook'
+
+  parameters:
+    shop_domain:
+      name: shop_domain
+      in: query
+      schema:
+        { $ref: '#/components/schemas/shop_domain' }
+    api_token:
+      name: api_token
+      in: query
+      schema:
+        type: string
+        example: '{{api_token}}'
+    filter_rating:
+      name: filter_rating
+      description: 'Only include reviews with this rating'
+      in: query
+      schema:
+        type: number
+        enum: [1, 2, 3, 4, 5]
+        example: 5
+    widget_review_type:
+      name: review_type
+      description: 'Whether to show product reviews, or shop reviews, default to product reviews'
+      in: query
+      schema:
+        type: string
+        enum: ['product-reviews', 'shop-reviews']
+        example: product-reviews
+    page:
+      name: page
+      description: 'For pagination'
+      in: query
+      schema:
+        type: number
+        example: 1
+    per_page_5:
+      name: per_page
+      description: 'For pagination'
+      in: query
+      schema:
+        type: number
+        example: 5
+    per_page:
+      name: per_page
+      description: 'For pagination'
+      in: query
+      schema:
+        type: number
+        example: 10
+    product__handle:
+      name: handle
+      in: query
+      schema:
+        type: string
+        example: 'example-product'
+    product__external_id:
+      name: external_id
+      in: query
+      schema:
+        type: number
+        example: 999999
+      description: 'External (Shopify) ID of the Product. Note: this is NOT internal Product ID of Judge.me.'
+    product__id:
+      name: id
+      in: query
+      schema:
+        { $ref: '#/components/schemas/internal_id' }
+      description: Judge.me internal ID of the Product
+    product__id_in_path:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: number
+        example: -1
+      description: |
+        Judge.me internal ID of the Product. Set to `-1` and use `external_id` or `handle` param
+        to find Product by external (Shopify) ID or by handle of the Product.
+    order__external_id:
+      name: external_id
+      in: query
+      schema:
+        { $ref: '#/components/schemas/external_id' }
+      description: 'External (Shopify) ID of the Order. Note: this is NOT internal Order ID of Judge.me.'
+    order__id_in_path:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: number
+        example: -1
+      description: Judge.me internal ID of the Order. Set to `-1` and use `external_id` param to find Order by external (Shopify) ID of the Order.
+    order_start_date:
+      name: start_date
+      in: query
+      schema:
+        type: string
+        example: 20/02/2020
+      description: 'Find orders fulfilled since `start_date`, inclusive (dd/mm/yyyy)'
+    order_end_date:
+      name: end_date
+      in: query
+      schema:
+        type: string
+        example: 20/03/2020
+      description: 'Find orders fulfilled until `end_date`, inclusive (dd/mm/yyyy)'
+    order__id:
+      name: id
+      in: query
+      schema:
+        { $ref: '#/components/schemas/internal_id' }
+      description: Judge.me internal ID of the Order
+    line_item__id_in_path:
+      name: id
+      in: path
+      required: true
+      schema:
+        { $ref: '#/components/schemas/internal_id' }
+      description: Judge.me internal ID of the Line Item
+    delivery_tracking__id_in_path:
+      name: id
+      in: path
+      required: true
+      schema:
+        { $ref: '#/components/schemas/internal_id' }
+      description: Judge.me internal ID of the Delivery Tracking (aka Fulfillment)
+    reviewer__id_in_path:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: number
+        example: -1
+      description: |
+        Judge.me internal ID of the Reviewer. Set to `-1` and use `external_id` or `email` param
+        to find Reviewer by external (Shopify) ID or by email of the Reviewer.
+    reviewer__external_id:
+      name: external_id
+      in: query
+      schema:
+        { $ref: '#/components/schemas/external_id' }
+      description: 'External (Shopify) ID of the Reviewer. Note: this is NOT internal Reviewer ID of Judge.me.'
+    reviewer__email:
+      name: email
+      in: query
+      schema: { $ref: '#/components/schemas/email' }
+    reviewer__id:
+      name: id
+      in: query
+      schema:
+        { $ref: '#/components/schemas/internal_id' }
+      description: Judge.me internal ID of the Reviewer
+    product_id:
+      name: product_id
+      in: query
+      schema:
+        { $ref: '#/components/schemas/internal_id' }
+      description: Judge.me internal ID of the Product
+    reviewer_id:
+      name: reviewer_id
+      in: query
+      schema:
+        { $ref: '#/components/schemas/internal_id' }
+      description: Judge.me internal ID of the Reviewer
+    rating:
+      name: rating
+      description: 'Only include reviews with this rating'
+      in: query
+      schema:
+        type: number
+        enum: [1, 2, 3, 4, 5]
+        example: 5
+    review__id_in_path:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: number
+        example: -1
+      description: |
+        Judge.me internal ID of the Review
+    webhook__id_in_path:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: number
+        example: -1
+      description: |
+        Judge.me internal ID of the Webhook
+
+  securitySchemes:
+    PrivateAPIKey:
+      type: apiKey
+      in: header
+      name: X-Api-Token
+      description: "Private API key. Pass as X-Api-Token header."
+    PublicAPIKey:
+      type: apiKey
+      in: header
+      name: X-Api-Token
+      description: "Public API key. Pass as X-Api-Token header."
+    ShopDomain:
+      type: apiKey
+      in: query
+      name: shop_domain
+    OAuthAPIKey:
+      type: apiKey
+      in: header
+      name: X-Api-Token
+      description: "OAuth access token. Pass as X-Api-Token header."
+  examples:
+    datetime_str:
+      value: '2020-02-20T20:20:20+00:00'
+    image_url:
+      value: 'https://pub-images.judge.me/judgeme/funny/random-number.png'
+    product_title:
+      value: 'Example product'
+    product_handle:
+      value: 'example-product'
+    webhook_url:
+      value: 'https://example.com/webhook/example.myshopify.com/settings/updated'
+  responses:
+    success_200:
+      description: Successful operation
+      content:
+        application/json: {}
+security:
+  - PrivateAPIKey: []
+    ShopDomain: []
+    OAuthAPIKey: []

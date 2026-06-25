@@ -41,7 +41,12 @@ func IsUUID(s string) bool {
 // shape — adding columns, dropping indexes, changing FTS5 tokenizers —
 // so an older binary refuses to open a newer database rather than silently
 // producing wrong results against a schema it cannot read.
-const StoreSchemaVersion = 2
+// v3 (2026-06-08): the meta(key,value) table is added; the FTS index is
+// minimized to non-identifying discovery fields and re-keyed off the real
+// collision-free resources.rowid (replacing a 63-bit hash). The v3 upgrade
+// rebuilds resources_fts once (drop + repopulate via ftsContent) inside the
+// migration transaction.
+const StoreSchemaVersion = 3
 
 const resourcesFTSCreateSQL = `CREATE VIRTUAL TABLE IF NOT EXISTS resources_fts USING fts5(
 	id, resource_type, content, tokenize='porter unicode61'
@@ -91,7 +96,9 @@ func OpenReadOnly(dbPath string) (*Store, error) {
 // retry-on-SQLITE_BUSY loop and propagates ctx.Err() back to the caller
 // instead of waiting out the full migrationLockTimeout.
 func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
-	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
+	// 0700: the store holds fan PII at rest; don't create a world/group-
+	// traversable data directory on a multi-user host.
+	if err := os.MkdirAll(filepath.Dir(dbPath), 0o700); err != nil {
 		return nil, fmt.Errorf("creating db directory: %w", err)
 	}
 
@@ -109,6 +116,14 @@ func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
 	if err := s.migrate(ctx); err != nil {
 		db.Close()
 		return nil, fmt.Errorf("running migrations: %w", err)
+	}
+
+	// Tighten the db file to 0600 (owner-only) after migrate has created it.
+	// SQLite creates the file under the process umask (commonly 0644 ->
+	// world-readable); this store holds fan PII at rest. Best-effort: a chmod
+	// failure (e.g. on a filesystem without POSIX modes) must not block opening.
+	if _, statErr := os.Stat(dbPath); statErr == nil {
+		_ = os.Chmod(dbPath, 0o600)
 	}
 
 	return s, nil
@@ -267,6 +282,12 @@ func (s *Store) migrate(ctx context.Context) error {
 			last_synced_at DATETIME,
 			total_count INTEGER DEFAULT 0
 		)`,
+		// meta holds small key/value state (e.g. the MCP pseudonymizer's
+		// per-store HMAC salt). value is BLOB so binary salts round-trip.
+		`CREATE TABLE IF NOT EXISTS meta (
+			key TEXT PRIMARY KEY,
+			value BLOB
+		)`,
 		resourcesFTSCreateSQL,
 	}
 	migrations = append(migrations, normalizationMigrations...)
@@ -308,6 +329,27 @@ func (s *Store) migrate(ctx context.Context) error {
 		for _, m := range migrations {
 			if _, err := conn.ExecContext(ctx, m); err != nil {
 				return fmt.Errorf("migration failed: %w", err)
+			}
+		}
+
+		// v3: rebuild the FTS index so existing rows are re-projected through
+		// ftsContent (dropping email/phone/dob from the index) and re-keyed off
+		// the collision-free resources.rowid. A v1->v3 upgrade already rebuilt
+		// FTS via migrateResourcesCompositeKey (which now uses the new
+		// projection), so only re-run when coming from exactly v2 to avoid a
+		// redundant full rebuild. A fresh DB (current == StoreSchemaVersion at
+		// stamp time, but current==0 here) skips this — its rows were indexed by
+		// the new upsert path as they were inserted; on a brand-new empty DB
+		// there is nothing to rebuild.
+		if current == 2 {
+			if _, err := conn.ExecContext(ctx, `DROP TABLE IF EXISTS resources_fts`); err != nil {
+				return fmt.Errorf("v3: dropping resources_fts: %w", err)
+			}
+			if _, err := conn.ExecContext(ctx, resourcesFTSCreateSQL); err != nil {
+				return fmt.Errorf("v3: creating resources_fts: %w", err)
+			}
+			if err := rebuildResourcesFTS(ctx, conn); err != nil {
+				return fmt.Errorf("v3: rebuilding resources_fts: %w", err)
 			}
 		}
 		// Stamp the schema version. On a fresh DB this writes the current
@@ -407,12 +449,13 @@ func resourcesTableHasCompositeKey(ctx context.Context, conn *sql.Conn) (bool, e
 }
 
 func rebuildResourcesFTS(ctx context.Context, conn *sql.Conn) error {
-	rows, err := conn.QueryContext(ctx, `SELECT id, resource_type, data FROM resources`)
+	rows, err := conn.QueryContext(ctx, `SELECT rowid, id, resource_type, data FROM resources`)
 	if err != nil {
 		return fmt.Errorf("querying resources: %w", err)
 	}
 
 	type resourceRow struct {
+		rowid        int64
 		id           string
 		resourceType string
 		data         string
@@ -420,7 +463,7 @@ func rebuildResourcesFTS(ctx context.Context, conn *sql.Conn) error {
 	var resources []resourceRow
 	for rows.Next() {
 		var r resourceRow
-		if err := rows.Scan(&r.id, &r.resourceType, &r.data); err != nil {
+		if err := rows.Scan(&r.rowid, &r.id, &r.resourceType, &r.data); err != nil {
 			rows.Close()
 			return fmt.Errorf("scanning resource: %w", err)
 		}
@@ -435,9 +478,11 @@ func rebuildResourcesFTS(ctx context.Context, conn *sql.Conn) error {
 	}
 
 	for _, r := range resources {
+		// Key by the real (collision-free) resource rowid; index only the
+		// non-identifying discovery projection (ftsContent), never the raw blob.
 		if _, err := conn.ExecContext(ctx,
 			`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (?, ?, ?, ?)`,
-			ftsRowID(r.resourceType, r.id), r.id, r.resourceType, r.data,
+			r.rowid, r.id, r.resourceType, ftsContent(r.data),
 		); err != nil {
 			return fmt.Errorf("indexing resource %s/%s: %w", r.resourceType, r.id, err)
 		}
@@ -563,17 +608,33 @@ func (s *Store) upsertGenericResourceTx(tx *sql.Tx, resourceType, id string, dat
 		return err
 	}
 
-	ftsRowid := ftsRowID(resourceType, id)
+	// Key the FTS row by the resource's real (collision-free) integer rowid.
+	// The previous design hashed (resource_type,id) into a 63-bit rowid; a hash
+	// collision made the DELETE-then-INSERT below evict ANOTHER record's FTS
+	// row, silently dropping it from search. resources is a rowid table with a
+	// composite UNIQUE (resource_type,id), so its implicit rowid is unique per
+	// record — read it back and reuse it as the FTS rowid.
+	var ftsRowid int64
+	if err := tx.QueryRow(
+		`SELECT rowid FROM resources WHERE resource_type = ? AND id = ?`,
+		resourceType, id,
+	).Scan(&ftsRowid); err != nil {
+		return fmt.Errorf("resolving resource rowid for FTS: %w", err)
+	}
+
 	// Use explicit rowid for FTS5 compatibility with modernc.org/sqlite.
 	// Standard DELETE WHERE column=? may not work on FTS5 virtual tables.
 	if _, err = tx.Exec(`DELETE FROM resources_fts WHERE rowid = ?`, ftsRowid); err != nil {
 		fmt.Fprintf(os.Stderr, "warning: FTS index cleanup failed: %v\n", err)
 	}
 
+	// Index ONLY non-identifying discovery fields (ftsContent), never the raw
+	// blob — so search "<a buyer email/phone>" no longer matches a person and
+	// the PII footprint at rest is not duplicated into the index.
 	if _, err = tx.Exec(
 		`INSERT INTO resources_fts (rowid, id, resource_type, content)
 		 VALUES (?, ?, ?, ?)`,
-		ftsRowid, id, resourceType, string(data),
+		ftsRowid, id, resourceType, ftsContent(string(data)),
 	); err != nil {
 		// FTS insert failure is non-fatal
 		fmt.Fprintf(os.Stderr, "warning: FTS index update failed: %v\n", err)
@@ -636,6 +697,35 @@ func (s *Store) List(resourceType string, limit int) ([]json.RawMessage, error) 
 	return results, rows.Err()
 }
 
+// GetMeta reads a value from the meta key/value table. The bool reports
+// presence (false + nil value for an absent key, with a nil error).
+func (s *Store) GetMeta(key string) ([]byte, bool, error) {
+	var val []byte
+	err := s.db.QueryRow(`SELECT value FROM meta WHERE key = ?`, key).Scan(&val)
+	if err == sql.ErrNoRows {
+		return nil, false, nil
+	}
+	if err != nil {
+		return nil, false, fmt.Errorf("reading meta %q: %w", key, err)
+	}
+	return val, true, nil
+}
+
+// SetMeta writes (inserts or replaces) a value in the meta key/value table.
+func (s *Store) SetMeta(key string, value []byte) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	_, err := s.db.Exec(
+		`INSERT INTO meta (key, value) VALUES (?, ?)
+		 ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+		key, value,
+	)
+	if err != nil {
+		return fmt.Errorf("writing meta %q: %w", key, err)
+	}
+	return nil
+}
+
 func (s *Store) Search(query string, limit int) ([]json.RawMessage, error) {
 	if limit <= 0 {
 		limit = 50
@@ -673,19 +763,80 @@ func extractObjectID(obj map[string]any) string {
 	return ""
 }
 
-// ftsRowID derives a deterministic rowid from a string ID for use with FTS5.
-// modernc.org/sqlite's FTS5 implementation may not support DELETE WHERE column=?
-// on virtual tables, so we use explicit rowids and DELETE WHERE rowid=? instead.
-func ftsRowID(scope, id string) int64 {
-	var h uint64
-	for _, c := range scope {
-		h = h*31 + uint64(c)
+// ftsPIIContainerKeys names JSON object keys whose entire subtree is personal
+// data and must NEVER be indexed into the FTS content. Buyer/holder identifiers
+// (email, phone, name, dob) live under these keys; pruning the subtree wholesale
+// is safer than denylisting individual field names that could drift.
+var ftsPIIContainerKeys = map[string]bool{
+	"fan":    true,
+	"holder": true,
+}
+
+// ftsContentAllowedKeys names the non-identifying discovery fields indexed into
+// resources_fts.content. This is a strict ALLOWLIST: only string values under
+// these keys (and only outside any PII container subtree) are indexed. Direct
+// identifiers (email/phoneNumber/firstName/lastName/dob) are absent by design,
+// so even a top-level stray identifier is never indexed.
+//
+// Covers the DICE discovery surface (events/venues/ticket-types/genres/artists/
+// status) plus the generic synthetic keys the store's own tests use (note).
+var ftsContentAllowedKeys = map[string]bool{
+	"name":        true, // event / venue / ticket-type / artist / genre / product names
+	"description": true,
+	"state":       true, // event status (e.g. on_sale)
+	"status":      true,
+	"city":        true, // venue city (NOT ipCity, which is buyer-derived and excluded)
+	"region":      true,
+	"country":     true, // venue country (NOT ipCountry)
+	"type":        true, // venue type
+	"genres":      true,
+	"genreTypes":  true,
+	"note":        true, // generic/synthetic resources used by store tests
+	"kind":        true,
+	"title":       true,
+}
+
+// ftsContent projects a resource's JSON blob down to a space-joined string of
+// ONLY non-identifying discovery fields, for indexing into resources_fts. It
+// walks the JSON, collecting string values whose object key is in
+// ftsContentAllowedKeys, and prunes any subtree under a PII container key
+// (fan/holder) so buyer/holder identifiers never enter the index. Unparseable
+// JSON yields an empty content string (nothing indexed) rather than the raw
+// blob — fail closed for privacy.
+func ftsContent(data string) string {
+	var v any
+	if err := json.Unmarshal([]byte(data), &v); err != nil {
+		return ""
 	}
-	h *= 31
-	for _, c := range id {
-		h = h*31 + uint64(c)
+	var sb strings.Builder
+	collectFTSContent(v, "", &sb)
+	return strings.TrimSpace(sb.String())
+}
+
+// collectFTSContent recursively walks a decoded JSON value. keyForValue is the
+// object key under which this value sits (empty at the root and inside arrays).
+func collectFTSContent(v any, keyForValue string, sb *strings.Builder) {
+	switch t := v.(type) {
+	case map[string]any:
+		for k, child := range t {
+			if ftsPIIContainerKeys[k] {
+				continue // prune the entire PII subtree (fan/holder)
+			}
+			collectFTSContent(child, k, sb)
+		}
+	case []any:
+		for _, child := range t {
+			// Array elements inherit the array's key (e.g. genres: ["techno"],
+			// artists: [{name: ...}]) so a list of allowed scalars is indexed.
+			collectFTSContent(child, keyForValue, sb)
+		}
+	case string:
+		if ftsContentAllowedKeys[keyForValue] {
+			sb.WriteString(t)
+			sb.WriteByte(' ')
+		}
 	}
-	return int64(h & 0x7FFFFFFFFFFFFFFF) // ensure positive
+	// Numbers/bools/null are never identifying discovery text; skip.
 }
 
 // LookupFieldValue resolves a field value from a JSON object map, trying the

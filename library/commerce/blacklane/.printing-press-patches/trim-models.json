@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "trim-models",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260601-000336",
+  "base_printing_press_version": "4.19.1",
+  "summary": "Trim whitespace from each vehicle-model string in the flattened quote response (new trimModels helper applied where quotePackage is built).",
+  "reason": "The upstream /prices 'models' array carries leading spaces (e.g. ' BMW 5 Series'), which surfaced as ugly leading-space entries in quote/fit/compare/trip output.",
+  "files": [
+    "internal/cli/quote.go"
+  ],
+  "validated_outcome": "Output review (Phase 4.85) format-bugs finding cleared; model lists render without leading spaces."
+}

@@ -44,5 +44,11 @@
       "command": "comp --dedupe-variants",
       "description": "Collapse near-duplicate sold listings to one exemplar per fingerprint (token-bag, order-insensitive)."
     }
+  ],
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
   ]
 }

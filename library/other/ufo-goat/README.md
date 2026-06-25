@@ -1,41 +1,26 @@
-# War.gov UFO Goat CLI
+# War.gov UFO CLI
 
 **The declassified UAP file archive in your terminal — browse, search, and download 162+ files from the PURSUE initiative**
 
-The first CLI for the War.gov/UFO declassified files portal. Search across all four agencies (DoD, FBI, NASA, State), download files with resume support, track new release tranches, and discover video-PDF pairings — all from a single binary with offline SQLite storage.
-
-Created by [@davemorin](https://github.com/davemorin) (Dave Morin).
+The first CLI for the War.gov/UFO declassified files portal. Search across every contributing agency (DoD, FBI, NASA, State, CIA, DOE, ODNI, and more), download files with resume support, track new release tranches, and discover video-PDF pairings — all from a single binary with offline SQLite storage.
 
 ## Install
 
-The recommended path installs both the `ufo-goat-pp-cli` binary and the `pp-ufo-goat` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
+The recommended path installs both the `ufo-goat-pp-cli` binary and the `pp-ufo` agent skill in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press-library install ufo-goat
+npx -y @mvanhorn/printing-press install ufo
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press-library install ufo-goat --cli-only
-```
-
-For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
-
-```bash
-npx -y @mvanhorn/printing-press-library install ufo-goat --skill-only
-```
-
-To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
-
-```bash
-npx -y @mvanhorn/printing-press-library install ufo-goat --agent claude-code
-npx -y @mvanhorn/printing-press-library install ufo-goat --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press install ufo --cli-only
 ```
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/ufo-goat/cmd/ufo-goat-pp-cli@latest
@@ -45,76 +30,30 @@ This installs the CLI only — no skill.
 
 ### Pre-built binary
 
-Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/ufo-goat-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/ufo-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes
 
-Install the CLI binary first. The installer writes binaries to a per-user managed bin directory by default: `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows.
-
-```bash
-npx -y @mvanhorn/printing-press-library install ufo-goat --cli-only
-```
-
-Then install the focused Hermes skill.
-
 From the Hermes CLI:
 
 ```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-ufo-goat --force
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-ufo --force
 ```
 
 Inside a Hermes chat session:
 
 ```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-ufo-goat --force
+/skills install mvanhorn/printing-press-library/cli-skills/pp-ufo --force
 ```
-
-Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
 
 ## Install for OpenClaw
 
-Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
+Tell your OpenClaw agent (copy this):
 
-```bash
-npx -y @mvanhorn/printing-press-library install ufo-goat --agent openclaw
 ```
-
-Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/ufo-goat-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/other/ufo-goat/cmd/ufo-goat-pp-mcp@latest
+Install the pp-ufo skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-ufo. The skill defines how its required CLI can be installed.
 ```
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "ufo-goat": {
-      "command": "ufo-goat-pp-mcp"
-    }
-  }
-}
-```
-
-</details>
 
 ## Authentication
 
@@ -158,16 +97,27 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   ufo-goat-pp-cli sync
   ```
-- **`new`** — See exactly which files were added since your last sync — the 'what did I miss' command for rolling releases
+- **`new`** — Show the files in the latest government release tranche — the 'what just dropped' command, scoped to the batch rather than your sync timing
 
-  _When an agent needs to check for new declassified files without re-scanning the entire archive_
+  _When an agent needs to see exactly what the most recent PURSUE batch contained, regardless of when it last synced_
 
   ```bash
-  ufo-goat-pp-cli new --since 7d
+  ufo-goat-pp-cli new            # latest tranche
+  ufo-goat-pp-cli new --release 1
+  ufo-goat-pp-cli new --since 7d # sync-timing fallback
+  ```
+- **`releases`** — Treat the PURSUE batch as a first-class lens: list every tranche, compare two, and detect when a new one lands
+
+  _The government declassifies files in batches (release_1, release_2, …). `releases` summarizes each batch's date, file count, and agency/type mix; `releases check` is the cron-friendly "did a new batch drop?" probe._
+
+  ```bash
+  ufo-goat-pp-cli releases              # summarize every tranche
+  ufo-goat-pp-cli releases diff 1 2     # compare two tranches
+  ufo-goat-pp-cli releases check --exit-code   # exit 3 when nothing new
   ```
 
 ### Cross-agency intelligence
-- **`timeline`** — View a chronological incident timeline spanning 1944-2025 across all four agencies
+- **`timeline`** — View a chronological incident timeline spanning 1944-2025 across every contributing agency
 
   _Researchers need to see the full picture: FBI case from 1947 next to a DoD mission report from 2024_
 
@@ -211,9 +161,9 @@ These capabilities aren't available in any other tool for this API.
 
 | Command | Description |
 |---------|-------------|
-| `files list` | List all declassified UAP files from local store |
+| `files list` | List all declassified UAP files from local store (filter by `--agency`, `--type`, `--location`, `--release`) |
 | `files get` | Get details of a specific file by ID or title |
-| `files search` | Full-text search across titles, descriptions, and locations |
+| `files search` | Full-text search across titles, descriptions, and locations (`--release` to scope to a tranche) |
 | `search` | Top-level shortcut for `files search` |
 | `download` | Download files from war.gov with resume support |
 
@@ -230,8 +180,10 @@ These capabilities aren't available in any other tool for this API.
 
 | Command | Description |
 |---------|-------------|
-| `sync` | Sync the UAP file manifest from GitHub to local SQLite |
-| `new` | Show files added since your last sync |
+| `sync` | Sync the UAP file manifest to local SQLite from a configurable source (reports newly-landed release tranches) |
+| `sources` | List the manifest sources the CLI can sync from (`--source`, `--manifest-url`, `UFO_SOURCE`, `UFO_MANIFEST_URL`) |
+| `new` | Show files in the latest release tranche (`--release N`, or `--since`/`--since-sync` for sync-timing) |
+| `releases` | Summarize every release tranche; `releases diff <from> <to>` compares two; `releases check` detects a new batch |
 | `analytics` | Run analytics queries on locally synced data |
 | `export` | Export data to JSONL or JSON |
 | `import` | Import data from JSONL file |
@@ -289,6 +241,67 @@ This CLI is designed for AI agent consumption:
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
 
+## Use with Claude Code
+
+Install the focused skill — it auto-installs the CLI on first invocation:
+
+```bash
+npx skills add mvanhorn/printing-press-library/cli-skills/pp-ufo -g
+```
+
+Then invoke `/pp-ufo <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
+
+<details>
+<summary>Use as an MCP server in Claude Code (advanced)</summary>
+
+If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/other/ufo-goat/cmd/ufo-goat-pp-mcp@latest
+```
+
+Then register it:
+
+```bash
+claude mcp add ufo ufo-goat-pp-mcp
+```
+
+</details>
+
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/ufo-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/other/ufo-goat/cmd/ufo-goat-pp-mcp@latest
+```
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "ufo": {
+      "command": "ufo-goat-pp-mcp"
+    }
+  }
+}
+```
+
+</details>
+
 ## Health Check
 
 ```bash
@@ -314,14 +327,26 @@ Example output:
 # Sync and check for new files in one pass
 ufo-goat-pp-cli sync && ufo-goat-pp-cli new
 
+# Summarize every government release tranche
+ufo-goat-pp-cli releases --json
+
+# See everything in a specific release tranche
+ufo-goat-pp-cli files list --release 1 --agent
+
+# Compare the composition of two tranches
+ufo-goat-pp-cli releases diff 1 2 --json
+
+# Scheduled "did a new batch drop?" check (exit 3 when nothing new)
+ufo-goat-pp-cli releases check --exit-code --agent
+
 # List all FBI PDFs from the 1950s
 ufo-goat-pp-cli files list --agency FBI --type PDF --after 1950-01-01 --before 1959-12-31
 
 # Search for incidents in New Mexico
 ufo-goat-pp-cli search "New Mexico" --json
 
-# Export the full archive as JSONL for external analysis
-ufo-goat-pp-cli export files --format jsonl --output ufo-archive.jsonl
+# Export the full archive as JSONL for external analysis (resource: files)
+ufo-goat-pp-cli export <resource> --format jsonl --output ufo-archive.jsonl
 
 # Download only NASA videos
 ufo-goat-pp-cli download --agency NASA --type VID --output-dir ~/ufo-videos
@@ -348,13 +373,42 @@ ufo-goat-pp-cli new --since 1w --json
 ufo-goat-pp-cli sync --full
 ```
 
+## Manifest Sources
+
+The PURSUE archive is published in rolling release tranches (Release 1 on
+2026-05-08, Release 2 on 2026-05-22, Release 3 on 2026-06-12, ...). war.gov
+blocks programmatic access, so the CLI syncs from a community mirror. The source
+is **configurable** — run `ufo-goat-pp-cli sources` to list them:
+
+| Source | Status | Notes |
+|--------|--------|-------|
+| `community` | available (default) | Tracks every release tranche (`abigailhaddad/ufo-releases`) |
+| `legacy` | available | Original Release 1 mirror (`DenisSergeevitch/UFO-USA`), frozen 2026-05-08 |
+| `wargov` | planned | Reserved for a future sanctioned, direct-from-war.gov feed |
+
+Select a source per-sync, or set it via environment variable. Resolution
+precedence (highest first): `--manifest-url`, `--source`, `UFO_MANIFEST_URL`,
+`UFO_SOURCE`, built-in default.
+
+```bash
+ufo-goat-pp-cli sources                                   # list sources
+ufo-goat-pp-cli sync --source legacy                      # named source
+ufo-goat-pp-cli sync --manifest-url https://host/uap.csv  # custom mirror
+UFO_SOURCE=community ufo-goat-pp-cli sync                 # via env
+```
+
+The `wargov` entry is a deliberate placeholder: when a direct, sanctioned feed
+exists, it becomes selectable with `--source wargov` (with auth if required) and
+no other command changes — see `internal/manifest/source.go`.
+
 ## Configuration
 
 Config file: `~/.config/ufo-goat-pp-cli/config.json`
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `UFO_BASE_URL` | Override API base URL | `https://raw.githubusercontent.com/DenisSergeevitch/UFO-USA/main/metadata` |
+| `UFO_SOURCE` | Named manifest source to sync from | `community` |
+| `UFO_MANIFEST_URL` | Custom manifest CSV URL (overrides `UFO_SOURCE`) | (unset) |
 | `UFO_CONFIG` | Override config file path | `~/.config/ufo-goat-pp-cli/config.json` |
 
 Database: `~/.local/share/ufo-goat-pp-cli/data.db` (SQLite, created on first `sync`)

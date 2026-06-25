@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "x-twitter-bookmarks-find",
+  "applied_at": "2026-06-04",
+  "base_run_id": "20260603-230951",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Novel `users bookmarks find` command: offline keyword/author search over synced bookmarks.",
+  "reason": "X has no bookmark search and its API exposes no bookmark timestamp; the local store turns the bookmark graveyard into a searchable, agent-driveable working set. Reads the typed bookmarks table directly (not reimplementation).",
+  "files": [
+    "internal/cli/bookmarks_find.go",
+    "internal/cli/bookmarks_find_test.go",
+    "internal/cli/root.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "Unit tests + live: keyword, --from @handle (resolved via users table), keyword+author, empty-store."
+}

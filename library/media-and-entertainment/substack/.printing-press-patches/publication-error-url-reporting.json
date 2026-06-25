@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "publication-error-url-reporting",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260531-014452",
+  "base_printing_press_version": "4.19.0",
+  "summary": "HTTP error diagnostics for publication-scoped endpoints must report the substituted request URL, not the raw {publication} template.",
+  "reason": "The live request path correctly substitutes --subdomain, but API errors previously displayed the generated template string, making agents and users believe the CLI was still calling https://{publication}.substack.com.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/client_test.go"
+  ],
+  "validated_outcome": "A client regression test verifies 403 errors from https://{publication}.substack.com/api/v1/drafts report https://trevinsays.substack.com/api/v1/drafts."
+}

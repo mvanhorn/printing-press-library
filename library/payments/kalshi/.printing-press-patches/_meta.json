@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "upstream_tracking": [
+    "https://github.com/mvanhorn/cli-printing-press/issues/689"
+  ],
+  "deferred_to_upstream": [
+    {
+      "summary": "Bug 3 — multi-array envelope support for /portfolio/positions",
+      "reason": "Architectural; needs spec annotation or generator heuristic. `portfolio exposure` can't return real data until then."
+    },
+    {
+      "summary": "Bug 5 — Kalshi RSA-PSS auth specialization (doctor hint, set-token slot, auth_source labeling)",
+      "reason": "Cosmetic; touches generator auth-emission templates."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "fix-ok-false-detection",
+  "applied_at": "2026-05-08",
+  "base_run_id": "20260409-073625",
+  "base_printing_press_version": "1.2.1",
+  "summary": "Detect Slack ok:false API errors before attempting to store the response as a record.",
+  "reason": "The generic syncResource loop had no Slack-specific error detection. When Slack returned {ok:false, error:\"missing_scope\"}, it was stored as a valid record and counted as a successful sync. This masked real failures and corrupted the store.",
+  "files": [
+    "internal/cli/sync.go"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "sync-deliver-writer-race",
+  "applied_at": "2026-06-18",
+  "base_run_id": "20260616-232033",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Sync worker pool now writes progress events through a mutex-guarded writer.",
+  "reason": "With --deliver set, syncEventWriter wraps a *bytes.Buffer via io.MultiWriter, which is not goroutine-safe; concurrent syncResource workers writing to it could race and garble output or panic. A lockedWriter serializes the writes.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "go build ./... && go vet ./... && go test ./..."
+}

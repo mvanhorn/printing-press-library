@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-16T21:47:34.43964Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "claude-agent-sdk-python-docs",
+  "display_name": "Claude Agent SDK Python Docs",
+  "cli_name": "claude-agent-sdk-python-docs-pp-cli",
+  "creator": {
+    "handle": "nikships",
+    "name": "Nik"
+  },
+  "owner": "nikships",
+  "printer": "nikships",
+  "printer_name": "Nik",
+  "spec_path": "claude-agent-sdk-python-docs-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:abe4801fe11b0d5d874298d199c12176355ab651a519a72210f3020c98bb9393",
+  "run_id": "20260616-163051-a6293bcd",
+  "category": "developer-tools",
+  "description": "A source-grounded CLI for exploring and verifying the Claude Agent SDK Python docs.",
+  "mcp_binary": "claude-agent-sdk-python-docs-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_public_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Code usage verifier against documented symbols",
+      "command": "verify",
+      "description": "Check Python code imports and qualified names against documented Claude Agent SDK symbols."
+    },
+    {
+      "name": "Agent-ready task context bundle",
+      "command": "context",
+      "description": "Build a compact source-cited docs bundle for one SDK implementation task."
+    },
+    {
+      "name": "Doc change diff by content hash",
+      "command": "diff",
+      "description": "Compare current docs entity hashes against an optional baseline file."
+    },
+    {
+      "name": "Minimal recipe composer from examples and signatures",
+      "command": "recipe",
+      "description": "Compose a deterministic implementation scaffold from documented snippets and exact signatures."
+    },
+    {
+      "name": "SDK surface map by entity type",
+      "command": "map",
+      "description": "Map functions, classes, types, options, tools, hooks, and message blocks by entity type."
+    },
+    {
+      "name": "Example-to-symbol coverage map",
+      "command": "coverage examples",
+      "description": "Report which documented symbols have extracted examples and which do not."
+    },
+    {
+      "name": "Anchor and link integrity audit",
+      "command": "audit-links",
+      "description": "Validate internal anchors, guide links, and section references in the fetched docs corpus."
+    }
+  ]
+}

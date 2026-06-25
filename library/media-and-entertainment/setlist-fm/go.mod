@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/media-and-entertainment/setlist-fm
 
-go 1.23.0
+go 1.26.4
 
 require (
 	github.com/pelletier/go-toml/v2 v2.2.4

@@ -78,6 +78,9 @@ underlying sync lands.`,
 			}
 
 			if flags.asJSON {
+				if rows == nil {
+					rows = []subaccountsRollupRow{} // emit [], never null (same guard as movers/calendar)
+				}
 				return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
 			}
 

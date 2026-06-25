@@ -1,0 +1,66 @@
+{
+  "api_name": "atlas-obscura",
+  "base_url": "https://www.atlasobscura.com",
+  "description": "Every Atlas Obscura search, plus a local database, road-trip corridor routing, and saved trips no other Atlas Obscura tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "categories_places",
+      "description": "List place links in a category (e.g. cemeteries, caves, ruins). Required: slug.",
+      "method": "GET",
+      "path": "/categories/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Category slug (e.g. cemeteries, abandoned, caves, ruins, museums)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "destinations_places",
+      "description": "List place links for a destination (e.g. paris-france, new-york). Required: slug.",
+      "method": "GET",
+      "path": "/things-to-do/{slug}/places",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Destination slug (e.g. paris-france, london-england, new-york)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "places_get",
+      "description": "Fetch a place detail page by slug or numeric id. Required: slug. Returns the Place.",
+      "method": "GET",
+      "path": "/places/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Place slug (e.g. gustave-eiffels-secret-apartment) or numeric id",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "api_name": "motohunt",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-10T17:28:00Z",
+  "novel_features": [
+    {
+      "name": "Price-research surfacing",
+      "command": "get",
+      "description": "See a listing's MSRP, average listing price, and deal rating as typed fields, not buried prose.",
+      "rationale": "MotoHunt computes MSRP/ALP/deal-rating per listing; we expose them as structured fields an agent can compare.",
+      "example": "motohunt-pp-cli get 13153926 --agent --select base_msrp,alp,deal_rating",
+      "why_it_matters": "Reach for this to answer 'is this listing actually a good price?' without reading the page.",
+      "group": "Price intelligence"
+    },
+    {
+      "name": "Offline deal ranking",
+      "command": "deal",
+      "description": "Rank synced listings by how far the asking price sits below the average listing price.",
+      "rationale": "Requires syncing many listings into a local store and ranking by ask-vs-ALP gap; the site deal-rates one listing at a time.",
+      "example": "motohunt-pp-cli deal --make Harley-Davidson --location 33705 --limit 20 --agent",
+      "why_it_matters": "Reach for this to surface the biggest under-market deals across a whole search.",
+      "group": "Price intelligence"
+    },
+    {
+      "name": "Saved-search watch + diff",
+      "command": "watch run",
+      "description": "Re-run saved searches and report new listings and price drops since the last run.",
+      "rationale": "Requires snapshot history in the local store; the site has no alerts for anonymous users.",
+      "example": "motohunt-pp-cli watch run --agent",
+      "why_it_matters": "Reach for this to monitor a hunt over time instead of re-searching by hand.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Dual-marketplace parity",
+      "command": "search",
+      "description": "Search motorcycles (motohunt.com) or ATV/UTV/SxS (atvhunt.com) from one binary via --site.",
+      "rationale": "atvhunt is the same engine and HTML; one CLI covers both marketplaces.",
+      "example": "motohunt-pp-cli search --site atv --location 33705 --agent",
+      "why_it_matters": "Reach for --site atv when the hunt is four-wheelers instead of bikes.",
+      "group": "Coverage"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Price-research surfacing",
+      "command": "get",
+      "description": "See a listing's MSRP, average listing price, and deal rating as typed fields, not buried prose.",
+      "rationale": "MotoHunt computes MSRP/ALP/deal-rating per listing; we expose them as structured fields an agent can compare.",
+      "example": "motohunt-pp-cli get 13153926 --agent --select base_msrp,alp,deal_rating",
+      "why_it_matters": "Reach for this to answer 'is this listing actually a good price?' without reading the page.",
+      "group": "Price intelligence"
+    },
+    {
+      "name": "Offline deal ranking",
+      "command": "deal",
+      "description": "Rank synced listings by how far the asking price sits below the average listing price.",
+      "rationale": "Requires syncing many listings into a local store and ranking by ask-vs-ALP gap; the site deal-rates one listing at a time.",
+      "example": "motohunt-pp-cli deal --make Harley-Davidson --location 33705 --limit 20 --agent",
+      "why_it_matters": "Reach for this to surface the biggest under-market deals across a whole search.",
+      "group": "Price intelligence"
+    },
+    {
+      "name": "Saved-search watch + diff",
+      "command": "watch run",
+      "description": "Re-run saved searches and report new listings and price drops since the last run.",
+      "rationale": "Requires snapshot history in the local store; the site has no alerts for anonymous users.",
+      "example": "motohunt-pp-cli watch run --agent",
+      "why_it_matters": "Reach for this to monitor a hunt over time instead of re-searching by hand.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Dual-marketplace parity",
+      "command": "search",
+      "description": "Search motorcycles (motohunt.com) or ATV/UTV/SxS (atvhunt.com) from one binary via --site.",
+      "rationale": "atvhunt is the same engine and HTML; one CLI covers both marketplaces.",
+      "example": "motohunt-pp-cli search --site atv --location 33705 --agent",
+      "why_it_matters": "Reach for --site atv when the hunt is four-wheelers instead of bikes.",
+      "group": "Coverage"
+    }
+  ],
+  "narrative": {
+    "display_name": "MotoHunt",
+    "headline": "Search motorcycle and ATV listings from the terminal — with MotoHunt's MSRP/average-price/deal-rating data exposed as structured fields no other tool gives you.",
+    "value_prop": "MotoHunt has no public API; this CLI scrapes its server-rendered HTML with one HTTP GET per page and returns clean JSON. It surfaces the price-research data (base MSRP, average listing price, deal rating) that makes 'is this a good deal?' answerable, ranks synced inventory by under-market gap with `deal`, watches saved searches for new listings and price drops, and covers the ATV sister site via `--site atv`.",
+    "quickstart": [
+      {
+        "command": "motohunt-pp-cli doctor --dry-run",
+        "comment": "health check + selector-health probe, no network needed"
+      },
+      {
+        "command": "motohunt-pp-cli search --make Harley-Davidson --location 33705 --sort c --limit 30 --agent",
+        "comment": "best-deal Harleys near a ZIP, parsed cards as JSON"
+      },
+      {
+        "command": "motohunt-pp-cli get 13153926 --agent --select title,price,base_msrp,alp,deal_rating",
+        "comment": "one listing's price-research at a glance"
+      },
+      {
+        "command": "motohunt-pp-cli search --site atv --style Sport --location 33705 --agent",
+        "comment": "same search against the ATV marketplace"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "search returns zero cards but the site shows results",
+        "fix": "the page HTML changed; run `motohunt-pp-cli doctor` to check selector health and re-verify the card selectors"
+      },
+      {
+        "symptom": "only 24 results come back",
+        "fix": "raise --limit; the CLI auto-pages via ?start= in 24-row pages up to --max-pages"
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or script needs to search used motorcycle or ATV inventory, pull a listing's specs and price-research, rank a search by under-market deal gap, or watch a saved search for new listings and price drops. It is the only programmatic access to MotoHunt's MSRP/ALP/deal-rating data.",
+    "recipes": [
+      {
+        "title": "Best-deal Harleys near me",
+        "command": "motohunt-pp-cli search --make Harley-Davidson --location 33705 --sort c --limit 40 --agent --select title,price,deal_rating,location",
+        "explanation": "Top under-market Harleys, slimmed to the fields that matter."
+      },
+      {
+        "title": "Is this listing a good price?",
+        "command": "motohunt-pp-cli get 13153926 --agent --select price,base_msrp,alp,deal_rating",
+        "explanation": "Compare the ask against MSRP and the average listing price."
+      },
+      {
+        "title": "Watch a hunt for price drops",
+        "command": "motohunt-pp-cli watch add --name 'gs near me' --make BMW --model R-1250-GS --location 33705 \u0026\u0026 motohunt-pp-cli watch run --agent",
+        "explanation": "Save a search, then diff it over time for new listings and price drops."
+      }
+    ],
+    "trigger_phrases": [
+      "search motohunt",
+      "find a motorcycle for sale",
+      "is this bike a good deal",
+      "search atvhunt",
+      "watch motorcycle listings",
+      "use motohunt",
+      "run motohunt"
+    ]
+  }
+}

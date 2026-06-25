@@ -1,0 +1,17 @@
+{
+  "meta": {
+    "source": "live"
+  },
+  "results": {
+    "user_id":"<REDACTED:user-id>",
+    "team_id":"<REDACTED:team-id>",
+    "zdr_status": "no_zdr",
+    "team_blocked": false,
+    "api_key": {
+      "redacted_api_key":"<REDACTED:xai-key>",
+      "api_key_id":"<REDACTED:api-key-id>",
+      "blocked": false,
+      "disabled": false
+    }
+  }
+}

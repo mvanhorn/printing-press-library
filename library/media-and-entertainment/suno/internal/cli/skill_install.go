@@ -99,10 +99,10 @@ func newSkillInstallCmd(flags *rootFlags) *cobra.Command {
 					results = append(results, res)
 					continue
 				}
-				if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
+				if err := os.MkdirAll(filepath.Dir(dest), 0o750); err != nil {
 					return fmt.Errorf("creating %s: %w", filepath.Dir(dest), err)
 				}
-				if err := os.WriteFile(dest, []byte(skillContentForAgent(a)), 0o644); err != nil {
+				if err := os.WriteFile(dest, []byte(skillContentForAgent(a)), 0o600); err != nil {
 					return fmt.Errorf("writing %s: %w", dest, err)
 				}
 				res.Written = true

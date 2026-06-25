@@ -1,0 +1,517 @@
+{
+  "api_name": "calendly",
+  "base_url": "https://api.calendly.com",
+  "description": "Read-first Calendly API surface for scheduling, availability, event, invitee, and webhook inspection.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "CALENDLY_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "CALENDLY_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "event-type-available-times_list",
+      "description": "List available times for an event type. Required: event_type, start_time, end_time. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/event_type_available_times",
+      "params": [
+        {
+          "name": "event_type",
+          "type": "string",
+          "location": "query",
+          "description": "Event type",
+          "required": true
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "Start time",
+          "required": true
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "End time",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "event-type-memberships_list",
+      "description": "List event type memberships. Optional: event_type, organization, user (plus 2 more). Returns the GenericObject.",
+      "method": "GET",
+      "path": "/event_type_memberships",
+      "params": [
+        {
+          "name": "event_type",
+          "type": "string",
+          "location": "query",
+          "description": "Event type"
+        },
+        {
+          "name": "organization",
+          "type": "string",
+          "location": "query",
+          "description": "Organization"
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "User"
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Count"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        }
+      ]
+    },
+    {
+      "name": "event-types_get",
+      "description": "Get an event type by UUID. Required: uuid. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/event_types/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Uuid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "event-types_list",
+      "description": "List Calendly event types. Optional: organization, user, active (plus 2 more). Returns the GenericObject.",
+      "method": "GET",
+      "path": "/event_types",
+      "params": [
+        {
+          "name": "organization",
+          "type": "string",
+          "location": "query",
+          "description": "Organization"
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "User"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "query",
+          "description": "Active"
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Count"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        }
+      ]
+    },
+    {
+      "name": "organization-memberships_get",
+      "description": "Get an organization membership by UUID. Required: uuid. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/organization_memberships/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Uuid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organization-memberships_list",
+      "description": "List organization memberships. Optional: organization, user, count (plus 1 more). Returns the GenericObject.",
+      "method": "GET",
+      "path": "/organization_memberships",
+      "params": [
+        {
+          "name": "organization",
+          "type": "string",
+          "location": "query",
+          "description": "Organization"
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "User"
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Count"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        }
+      ]
+    },
+    {
+      "name": "organizations_get",
+      "description": "Get a Calendly organization by UUID. Required: uuid. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/organizations/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Uuid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "routing-forms_get",
+      "description": "Get a routing form by UUID. Required: uuid. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/routing_forms/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Uuid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "routing-forms_list",
+      "description": "List routing forms. Optional: organization, count, page_token. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/routing_forms",
+      "params": [
+        {
+          "name": "organization",
+          "type": "string",
+          "location": "query",
+          "description": "Organization"
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Count"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        }
+      ]
+    },
+    {
+      "name": "routing-forms_submissions_list-routing-form",
+      "description": "List routing form submissions. Required: uuid. Optional: count, page_token. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/routing_forms/{uuid}/submissions",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Uuid",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Count"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        }
+      ]
+    },
+    {
+      "name": "scheduled-events_get",
+      "description": "Get a scheduled event by UUID. Required: uuid. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/scheduled_events/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Uuid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scheduled-events_list",
+      "description": "List scheduled events. Required: start_time, end_time. Optional: organization, user, invitee_email (plus 3 more). Returns the GenericObject.",
+      "method": "GET",
+      "path": "/scheduled_events",
+      "params": [
+        {
+          "name": "organization",
+          "type": "string",
+          "location": "query",
+          "description": "Organization"
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "User"
+        },
+        {
+          "name": "invitee_email",
+          "type": "string",
+          "location": "query",
+          "description": "Invitee email"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "Start time",
+          "required": true
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "End time",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Count"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        }
+      ]
+    },
+    {
+      "name": "scheduled-events_invitees_get-scheduled-event",
+      "description": "Get an invitee for a scheduled event. Required: uuid, invitee_uuid. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/scheduled_events/{uuid}/invitees/{invitee_uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Uuid",
+          "required": true
+        },
+        {
+          "name": "invitee_uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Invitee uuid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scheduled-events_invitees_list-scheduled-event",
+      "description": "List invitees for a scheduled event. Required: uuid. Optional: email, status, count (plus 1 more). Returns the GenericObject.",
+      "method": "GET",
+      "path": "/scheduled_events/{uuid}/invitees",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Uuid",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "Email"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Count"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        }
+      ]
+    },
+    {
+      "name": "user-busy-times_list",
+      "description": "List busy times for a user. Required: user, start_time, end_time. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/user_busy_times",
+      "params": [
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "User",
+          "required": true
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "Start time",
+          "required": true
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "End time",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "Get a Calendly user by UUID. Required: uuid. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/users/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Uuid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get-current",
+      "description": "Get the authenticated Calendly user. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/users/me",
+      "params": []
+    },
+    {
+      "name": "webhook-subscriptions_get",
+      "description": "Get a webhook subscription by UUID. Required: uuid. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/webhook_subscriptions/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Uuid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhook-subscriptions_list",
+      "description": "List webhook subscriptions. Optional: organization, user, scope (plus 2 more). Returns the GenericObject.",
+      "method": "GET",
+      "path": "/webhook_subscriptions",
+      "params": [
+        {
+          "name": "organization",
+          "type": "string",
+          "location": "query",
+          "description": "Organization"
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "User"
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "query",
+          "description": "Scope"
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Count"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        }
+      ]
+    }
+  ]
+}

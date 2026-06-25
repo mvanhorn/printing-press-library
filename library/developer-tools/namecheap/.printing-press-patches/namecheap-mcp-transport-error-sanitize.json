@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "namecheap-mcp-transport-error-sanitize",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-namecheap",
+  "base_printing_press_version": "4.6.0",
+  "summary": "Sanitize MCP transport errors before returning them to hosts.",
+  "reason": "Go transport errors can include full request URLs; Namecheap authenticates through query params, so MCP error responses must redact ApiKey-style query parameters on every path.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/cliutil/text.go",
+    "internal/cliutil/cliutil_test.go"
+  ],
+  "validated_outcome": "TestAuthErrorHelpers verifies ApiKey query params are redacted; go test ./... passes."
+}

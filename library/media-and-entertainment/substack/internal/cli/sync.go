@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/spf13/cobra"
 	"io"
 	"net/url"
 	"os"
@@ -16,12 +15,14 @@ import (
 	"slices"
 	"strconv"
 	"strings"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/store"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // unresolvedPathKeyRE matches `{key}` placeholders left in a sync path
@@ -149,6 +150,15 @@ Resource scoping:
 					if !endpointTemplateVarSet[k] {
 						fmt.Fprintf(os.Stderr, "warning: --path-context key %q is not a known endpoint placeholder; this value will not be substituted into any request path\n", k)
 					}
+					if k == "publication" {
+						if flags.subdomain != "" && v != flags.subdomain {
+							return usageErr(fmt.Errorf("--path-context publication cannot override --subdomain; pass one publication binding"))
+						}
+						if err := c.Config.SetPublication(v); err != nil {
+							return usageErr(fmt.Errorf("--path-context publication: %w", err))
+						}
+						continue
+					}
 					c.Config.TemplateVars[k] = v
 				}
 			}
@@ -242,6 +252,18 @@ Resource scoping:
 				concurrency = 1
 			}
 
+			var draftExtraParams map[string]string
+			for _, resource := range resources {
+				if resource == "drafts" {
+					var err error
+					draftExtraParams, err = syncResourceExtraParams(cmd.Context(), c, flags, resource)
+					if err != nil {
+						return err
+					}
+					break
+				}
+			}
+
 			started := time.Now()
 			work := make(chan string, len(resources))
 			results := make(chan syncResult, len(resources))
@@ -252,7 +274,11 @@ Resource scoping:
 				go func() {
 					defer wg.Done()
 					for resource := range work {
-						res := syncResource(cmd.Context(), c, db, resource, sinceTS, full, maxPages, effectiveLatestOnly, userParams, syncEventWriter)
+						var extraParams map[string]string
+						if resource == "drafts" {
+							extraParams = draftExtraParams
+						}
+						res := syncResource(cmd.Context(), c, db, resource, sinceTS, full, maxPages, effectiveLatestOnly, userParams, syncEventWriter, extraParams)
 						results <- res
 					}
 				}()
@@ -376,6 +402,17 @@ Resource scoping:
 	return cmd
 }
 
+func syncResourceExtraParams(ctx context.Context, c *client.Client, flags *rootFlags, resource string) (map[string]string, error) {
+	if resource != "drafts" {
+		return nil, nil
+	}
+	publicationID, err := writerPublicationID(ctx, c, flags)
+	if err != nil {
+		return nil, err
+	}
+	return map[string]string{"publication_id": publicationID}, nil
+}
+
 // syncResource handles the full paginated sync of a single resource.
 // It resumes from the last cursor unless sinceTS or full mode overrides it.
 // channel_workflow.go.tmpl mirrors the trailing dates arg conditional;
@@ -383,7 +420,7 @@ Resource scoping:
 func syncResource(ctx context.Context, c interface {
 	Get(context.Context, string, map[string]string) (json.RawMessage, error)
 	RateLimit() float64
-}, db *store.Store, resource, sinceTS string, full bool, maxPages int, latestOnly bool, userParams *syncUserParams, syncEvents io.Writer) syncResult {
+}, db *store.Store, resource, sinceTS string, full bool, maxPages int, latestOnly bool, userParams *syncUserParams, syncEvents io.Writer, baseParams map[string]string) syncResult {
 	started := time.Now()
 	if syncEvents == nil {
 		syncEvents = io.Discard
@@ -487,9 +524,16 @@ func syncResource(ctx context.Context, c interface {
 	var extractFailureTotal int
 	var consumedTotal int
 	anomalyEmitted := false
+	publicationParamWarningEmitted := false
 
 	for {
 		params := map[string]string{}
+		for k, v := range baseParams {
+			if v != "" {
+				params[k] = v
+			}
+		}
+		basePublicationID := params["publication_id"]
 
 		if resourceSupportsPagination(resource) {
 			params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
@@ -507,6 +551,16 @@ func syncResource(ctx context.Context, c interface {
 		// win over spec-derived defaults (e.g. forcing mine=true on a list
 		// endpoint whose OpenAPI spec marks the filter optional).
 		userParams.applyTo(resource, params, false)
+		if resource == "drafts" && basePublicationID != "" && params["publication_id"] != basePublicationID && !publicationParamWarningEmitted {
+			msg := fmt.Sprintf("user-supplied publication_id %q overrides auto-resolved drafts publication_id %q", params["publication_id"], basePublicationID)
+			if !humanFriendly {
+				fmt.Fprintf(syncEvents, `{"event":"sync_warning","resource":"%s","reason":"publication_id_override","message":"%s"}`+"\n",
+					resource, strings.ReplaceAll(msg, `"`, `\"`))
+			} else {
+				fmt.Fprintf(os.Stderr, "  %s: warning: %s\n", resource, msg)
+			}
+			publicationParamWarningEmitted = true
+		}
 
 		data, err := c.Get(ctx, path, params)
 		if err != nil {
@@ -1267,16 +1321,16 @@ func knownSyncResourceNames() []string {
 func syncResourcePath(resource string) (string, error) {
 	paths := map[string]string{
 		"categories":      "/categories",
-		"drafts":          "/drafts",
+		"drafts":          globalAPIPath("/drafts"),
 		"inbox":           "/reader/feed",
 		"inbox-posts":     "/reader/posts",
-		"posts":           "/archive",
-		"posts-published": "/post_management/published",
-		"posts-ranked":    "/publication/users/ranked",
+		"posts":           publicationAPIPath("/archive"),
+		"posts-published": publicationAPIPath("/post_management/published"),
+		"posts-ranked":    publicationAPIPath("/publication/users/ranked"),
 		"profiles":        "/handle/options",
-		"sections":        "/subscriptions",
-		"subs":            "/publication/users",
-		"tags":            "/publication/post-tag",
+		"sections":        publicationAPIPath("/subscriptions"),
+		"subs":            publicationAPIPath("/publication/users"),
+		"tags":            publicationAPIPath("/publication/post-tag"),
 	}
 	if p, ok := paths[resource]; ok {
 		return p, nil

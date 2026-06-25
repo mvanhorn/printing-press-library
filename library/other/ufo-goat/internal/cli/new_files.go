@@ -16,23 +16,37 @@ import (
 
 func newNewFilesCmd(flags *rootFlags) *cobra.Command {
 	var since string
+	var sinceSync bool
+	var releaseBatch int
 	var dbPath string
 
 	cmd := &cobra.Command{
 		Use:   "new",
-		Short: "Show files added since your last sync",
-		Long: `Show files that were added to the local store since your last sync,
-or within a specified time period. Useful for tracking new releases.`,
-		Example: `  # Show files added since last sync
+		Short: "Show files from the latest release tranche (or a chosen one)",
+		Long: `Show the declassified files in the most recent PURSUE release tranche.
+
+The government publishes files in batches (release_1, release_2, ...). By
+default this command shows everything in the highest-numbered tranche present
+locally — the real "what just dropped" view. Override the tranche with
+--release N, or fall back to sync-timing semantics with --since / --since-sync.
+
+Run 'ufo-goat-pp-cli sync' first to populate the local store.`,
+		Example: `  # Show files in the latest release tranche (default)
   ufo-goat-pp-cli new
 
-  # Show files from the last 7 days
-  ufo-goat-pp-cli new --since 7d
+  # Show files in a specific tranche
+  ufo-goat-pp-cli new --release 2
 
-  # Show files from the last 24 hours
-  ufo-goat-pp-cli new --since 24h`,
+  # Files added to the local store since your last sync (timing-based)
+  ufo-goat-pp-cli new --since-sync
+
+  # Files synced within a time window
+  ufo-goat-pp-cli new --since 7d`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if dryRunOK(flags) {
+				return nil
+			}
 			if dbPath == "" {
 				dbPath = defaultDBPath("ufo-goat-pp-cli")
 			}
@@ -49,34 +63,58 @@ or within a specified time period. Useful for tracking new releases.`,
 				return fmt.Errorf("no files in local store. Run 'ufo-goat-pp-cli sync' first")
 			}
 
-			// Determine the "since" timestamp
-			var sinceTime time.Time
-			if since != "" {
-				t, err := parseNewSinceDuration(since)
-				if err != nil {
-					return fmt.Errorf("invalid --since value %q: %w", since, err)
-				}
-				sinceTime = t
-			} else {
-				// Default: show files from the last sync cycle
-				// Use the previous sync timestamp minus a small buffer
-				_, lastSynced, _, _ := db.GetSyncState("files")
-				if lastSynced.IsZero() {
-					// No previous sync, show everything from last 24h
-					sinceTime = time.Now().Add(-24 * time.Hour)
-				} else {
-					// Show files from before the latest sync
-					sinceTime = lastSynced.Add(-1 * time.Minute)
-				}
-			}
+			var files []store.UFOFile
+			var heading string
 
-			files, err := db.GetNewFiles(sinceTime)
-			if err != nil {
-				return err
+			switch {
+			case since != "" || sinceSync:
+				// Timing-based fallback: files synced after a timestamp.
+				var sinceTime time.Time
+				if since != "" {
+					t, err := parseNewSinceDuration(since)
+					if err != nil {
+						return fmt.Errorf("invalid --since value %q: %w", since, err)
+					}
+					sinceTime = t
+				} else {
+					_, lastSynced, _, _ := db.GetSyncState("files")
+					if lastSynced.IsZero() {
+						sinceTime = time.Now().Add(-24 * time.Hour)
+					} else {
+						sinceTime = lastSynced.Add(-1 * time.Minute)
+					}
+				}
+				files, err = db.GetNewFiles(sinceTime)
+				if err != nil {
+					return err
+				}
+				heading = fmt.Sprintf("%d files synced since %s", len(files), sinceTime.Format("2006-01-02 15:04"))
+
+			default:
+				// Batch mode (default): files in the chosen or latest tranche.
+				batch := releaseBatch
+				if batch == 0 {
+					batch, err = db.GetMaxReleaseBatch()
+					if err != nil {
+						return fmt.Errorf("resolving latest release: %w", err)
+					}
+				}
+				if batch == 0 {
+					return fmt.Errorf("no release tranche information in local store. Run 'ufo-goat-pp-cli sync' to refresh")
+				}
+				files, err = db.ListUFOFiles(store.FileFilter{ReleaseBatch: batch})
+				if err != nil {
+					return err
+				}
+				heading = fmt.Sprintf("%d files in Release %d", len(files), batch)
 			}
 
 			if len(files) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No new files since last check.")
+				if releaseBatch > 0 {
+					fmt.Fprintf(cmd.OutOrStdout(), "No files found in Release %d.\n", releaseBatch)
+				} else {
+					fmt.Fprintln(cmd.OutOrStdout(), "No new files since last check.")
+				}
 				return nil
 			}
 
@@ -94,7 +132,7 @@ or within a specified time period. Useful for tracking new releases.`,
 
 			// Human output
 			w := cmd.OutOrStdout()
-			fmt.Fprintf(w, "%d new files since %s\n\n", len(files), sinceTime.Format("2006-01-02 15:04"))
+			fmt.Fprintf(w, "%s\n\n", heading)
 
 			tw := newTabWriter(w)
 			fmt.Fprintln(tw, strings.Join([]string{
@@ -113,8 +151,10 @@ or within a specified time period. Useful for tracking new releases.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&since, "since", "", "Show files newer than this duration (e.g. 7d, 24h, 1w)")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
+	cmd.Flags().IntVar(&releaseBatch, "release", 0, "Show files in a specific release tranche number (default: latest)")
+	cmd.Flags().BoolVar(&sinceSync, "since-sync", false, "Use sync-timing instead of tranche: files added to the store since your last sync")
+	cmd.Flags().StringVar(&since, "since", "", "Use sync-timing instead of tranche: files synced within a duration (e.g. 7d, 24h, 1w)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Override the synced SQLite store path (default: ~/.local/share/ufo-goat-pp-cli/data.db)")
 	return cmd
 }
 

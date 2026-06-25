@@ -5,12 +5,6 @@
   "api_name": "ufo-goat",
   "display_name": "War.gov UFO",
   "cli_name": "ufo-goat-pp-cli",
-  "creator": {
-    "handle": "davemorin",
-    "name": "Dave Morin"
-  },
-  "printer": "davemorin",
-  "printer_name": "Dave Morin",
   "spec_format": "internal",
   "spec_checksum": "sha256:ec5d430ebefe8b5c7ca2ed4177fb00a1d2cdbefe8eac571baff38c116bac1464",
   "mcp_binary": "ufo-goat-pp-mcp",
@@ -56,5 +50,7 @@
     }
   ],
   "category": "other",
-  "run_id": "20260508-101534"
+  "run_id": "20260508-101534",
+  "printer": "davemorin",
+  "printer_name": "Dave Morin"
 }

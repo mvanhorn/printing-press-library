@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "greptile-year-default",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260510-105710",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Replace static \"year-2026\" --window default with a defaultYearWindow() helper that returns the current calendar year.",
+  "reason": "A hardcoded year silently produces empty result sets after calendar rollover. The helper evaluates at flag-declaration time so defaults stay correct without a rebuild.",
+  "files": [
+    "internal/cli/spend.go",
+    "internal/cli/find.go",
+    "internal/cli/top_items.go"
+  ]
+}

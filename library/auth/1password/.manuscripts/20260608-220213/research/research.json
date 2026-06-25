@@ -1,0 +1,398 @@
+{
+  "api_name": "1password",
+  "novelty_score": 0,
+  "alternatives": null,
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Fuzzy-to-exact secret resolver",
+      "command": "secrets resolve",
+      "description": "Resolve fuzzy agent requests to exact op:// vault/item/field references without printing values.",
+      "rationale": "Agents need stable references, not plaintext values.",
+      "example": "1password-pp-cli secrets resolve --query \"token\" --json",
+      "why_it_matters": "Prevents accidental broad reads and gives later commands an exact reference to use.",
+      "group": "Secrets"
+    },
+    {
+      "name": "Exact-reference secret read",
+      "command": "secrets read",
+      "description": "Read only an exact op:// reference, with policy checks and an explicit --reveal gate before values are printed.",
+      "rationale": "Secret values should require exact targeting and affirmative operator intent.",
+      "example": "1password-pp-cli secrets read op://Engineering/GitHub/token --dry-run --json",
+      "why_it_matters": "Turns value access into a narrow, auditable action instead of a fuzzy search.",
+      "group": "Secrets"
+    },
+    {
+      "name": "Secret selection explanation",
+      "command": "secrets explain",
+      "description": "Explain why a particular item and field was selected for a task without revealing the field value.",
+      "rationale": "Agents should be able to justify credential choices before using them.",
+      "example": "1password-pp-cli secrets explain --query \"token\" --json",
+      "group": "Secrets"
+    },
+    {
+      "name": "Secret access preflight",
+      "command": "secrets preflight",
+      "description": "Check whether a planned task or command appears to require secret values, documents, cards, or write permissions.",
+      "rationale": "Preflight lets agents ask for permission before starting a workflow.",
+      "example": "1password-pp-cli secrets preflight --task \"deploy using op run --env-file .env\" --json",
+      "group": "Secrets"
+    },
+    {
+      "name": "Environment reference planner",
+      "command": "env plan",
+      "description": "Parse .env, config, or shell files for missing variables and map them to safe op:// references.",
+      "rationale": "Environment setup should produce references, not resolved secrets.",
+      "example": "1password-pp-cli env plan API_TOKEN= --json",
+      "group": "Environment"
+    },
+    {
+      "name": "Explicit environment injector",
+      "command": "env inject",
+      "description": "Wrap op inject with a redacted plan first and require --write before producing an output file.",
+      "rationale": "Injecting secrets into files is a visible write and needs an explicit gate.",
+      "example": "1password-pp-cli env inject --in-file README.md --out-file injected.env --json",
+      "group": "Environment"
+    },
+    {
+      "name": "Item category classifier",
+      "command": "items classify",
+      "description": "Find secure notes that look like API credentials, logins, SSH keys, cards, or documents.",
+      "rationale": "Misclassified items make later agent policy harder to enforce.",
+      "example": "1password-pp-cli items classify --json",
+      "group": "Items"
+    },
+    {
+      "name": "Duplicate item detector",
+      "command": "items duplicates",
+      "description": "Detect duplicate titles, URLs, usernames, and likely copied credentials across vaults without printing secret values.",
+      "rationale": "Duplicate credentials create ambiguity for fuzzy agent requests.",
+      "example": "1password-pp-cli items duplicates --json",
+      "group": "Items"
+    },
+    {
+      "name": "Item ownership audit",
+      "command": "items ownership",
+      "description": "Flag shared or service credentials missing owner, purpose, rotation, or environment tags.",
+      "rationale": "Ownership tags are a practical prerequisite for agent policy.",
+      "example": "1password-pp-cli items ownership --json",
+      "group": "Items"
+    },
+    {
+      "name": "Credit-card metadata audit",
+      "command": "cards audit",
+      "description": "Find cards stored as notes or logins, missing owner/purpose tags, or CVV-like fields without printing card values.",
+      "rationale": "Card handling needs stronger default denial than generic secrets.",
+      "example": "1password-pp-cli cards audit --json",
+      "group": "Cards"
+    },
+    {
+      "name": "Card field resolver",
+      "command": "cards resolve",
+      "description": "Return card item and field references without printing card numbers, expiry values, or CVVs.",
+      "rationale": "Agents may need to identify a card without receiving card values.",
+      "example": "1password-pp-cli cards resolve --query \"card\" --json",
+      "group": "Cards"
+    },
+    {
+      "name": "Document metadata inventory",
+      "command": "documents inventory",
+      "description": "List document metadata and exact references without downloading document contents.",
+      "rationale": "Document names and placement are useful; document contents are high-risk.",
+      "example": "1password-pp-cli documents inventory --json",
+      "group": "Documents"
+    },
+    {
+      "name": "Document metadata audit",
+      "command": "documents audit",
+      "description": "Flag sensitive filenames, oversized docs, private-key/cert-like documents, and documents in shared vaults.",
+      "rationale": "Documents often hide secrets that item field policy cannot see.",
+      "example": "1password-pp-cli documents audit --json",
+      "group": "Documents"
+    },
+    {
+      "name": "Share safety preflight",
+      "command": "share preflight",
+      "description": "Before sharing an item, show recipient, item category, included fields, expiry, and risk.",
+      "rationale": "Sharing is a write-like external disclosure and needs a plan gate.",
+      "example": "1password-pp-cli share preflight --ref op://Engineering/GitHub/token --recipient recipient --expires-in 1d --json",
+      "group": "Sharing"
+    },
+    {
+      "name": "Share support audit",
+      "command": "share audit",
+      "description": "Report whether existing/shareable item link inspection is supported by op or the SDK and document unsupported status clearly.",
+      "rationale": "Agents need to know when a safety check cannot be performed.",
+      "example": "1password-pp-cli share audit --json",
+      "group": "Sharing"
+    },
+    {
+      "name": "Agent policy checker",
+      "command": "policy check",
+      "description": "Enforce rules such as never reading credit-card values, exact refs for production, and required owner tags.",
+      "rationale": "Policy turns metadata into a hard precondition for reveal or injection.",
+      "example": "1password-pp-cli policy check --ref op://Production/API/token --require-exact --json",
+      "group": "Policy"
+    },
+    {
+      "name": "Service-account access scope",
+      "command": "access scope",
+      "description": "Summarize what the current service account or op session can access by vault, category, and count without values.",
+      "rationale": "Agents need scope awareness before broad reads.",
+      "example": "1password-pp-cli access scope --json",
+      "group": "Access"
+    },
+    {
+      "name": "Service-account rate-limit status",
+      "command": "rate-limit status",
+      "description": "Wrap op service-account ratelimit so agents can avoid burning quota.",
+      "rationale": "1Password service accounts have hourly and daily limits.",
+      "example": "1password-pp-cli rate-limit status --json",
+      "group": "Access"
+    },
+    {
+      "name": "Minimum grant planner",
+      "command": "agent grant-plan",
+      "description": "Suggest the minimum service-account vault permissions needed for a task.",
+      "rationale": "Least privilege should be designed before creating a service account token.",
+      "example": "1password-pp-cli agent grant-plan --task \"read staging deploy token\" --json",
+      "group": "Agent"
+    },
+    {
+      "name": "op run reference planner",
+      "command": "run plan",
+      "description": "Inspect an op run command or env files and show which secret references will resolve before executing.",
+      "rationale": "Runtime injection should be previewable without executing the target process.",
+      "example": "1password-pp-cli run plan --command \"npm test\" --json",
+      "group": "Runtime"
+    },
+    {
+      "name": "Stale metadata audit",
+      "command": "audit stale",
+      "description": "Flag items that appear old, untagged, duplicated, or probably unused from metadata.",
+      "rationale": "Stale items are poor candidates for automated access.",
+      "example": "1password-pp-cli audit stale --days 180 --json",
+      "group": "Audit"
+    },
+    {
+      "name": "Misplaced item audit",
+      "command": "audit misplaced",
+      "description": "Find API keys, cards, documents, or SSH material saved in the wrong 1Password category.",
+      "rationale": "Correct categories let agents apply the right safety policy.",
+      "example": "1password-pp-cli audit misplaced --json",
+      "group": "Audit"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Fuzzy-to-exact secret resolver",
+      "command": "secrets resolve",
+      "description": "Resolve fuzzy agent requests to exact op:// vault/item/field references without printing values.",
+      "rationale": "Agents need stable references, not plaintext values.",
+      "example": "1password-pp-cli secrets resolve --query \"token\" --json",
+      "why_it_matters": "Prevents accidental broad reads and gives later commands an exact reference to use.",
+      "group": "Secrets"
+    },
+    {
+      "name": "Exact-reference secret read",
+      "command": "secrets read",
+      "description": "Read only an exact op:// reference, with policy checks and an explicit --reveal gate before values are printed.",
+      "rationale": "Secret values should require exact targeting and affirmative operator intent.",
+      "example": "1password-pp-cli secrets read op://Engineering/GitHub/token --dry-run --json",
+      "why_it_matters": "Turns value access into a narrow, auditable action instead of a fuzzy search.",
+      "group": "Secrets"
+    },
+    {
+      "name": "Secret selection explanation",
+      "command": "secrets explain",
+      "description": "Explain why a particular item and field was selected for a task without revealing the field value.",
+      "rationale": "Agents should be able to justify credential choices before using them.",
+      "example": "1password-pp-cli secrets explain --query \"token\" --json",
+      "group": "Secrets"
+    },
+    {
+      "name": "Secret access preflight",
+      "command": "secrets preflight",
+      "description": "Check whether a planned task or command appears to require secret values, documents, cards, or write permissions.",
+      "rationale": "Preflight lets agents ask for permission before starting a workflow.",
+      "example": "1password-pp-cli secrets preflight --task \"deploy using op run --env-file .env\" --json",
+      "group": "Secrets"
+    },
+    {
+      "name": "Environment reference planner",
+      "command": "env plan",
+      "description": "Parse .env, config, or shell files for missing variables and map them to safe op:// references.",
+      "rationale": "Environment setup should produce references, not resolved secrets.",
+      "example": "1password-pp-cli env plan API_TOKEN= --json",
+      "group": "Environment"
+    },
+    {
+      "name": "Explicit environment injector",
+      "command": "env inject",
+      "description": "Wrap op inject with a redacted plan first and require --write before producing an output file.",
+      "rationale": "Injecting secrets into files is a visible write and needs an explicit gate.",
+      "example": "1password-pp-cli env inject --in-file README.md --out-file injected.env --json",
+      "group": "Environment"
+    },
+    {
+      "name": "Item category classifier",
+      "command": "items classify",
+      "description": "Find secure notes that look like API credentials, logins, SSH keys, cards, or documents.",
+      "rationale": "Misclassified items make later agent policy harder to enforce.",
+      "example": "1password-pp-cli items classify --json",
+      "group": "Items"
+    },
+    {
+      "name": "Duplicate item detector",
+      "command": "items duplicates",
+      "description": "Detect duplicate titles, URLs, usernames, and likely copied credentials across vaults without printing secret values.",
+      "rationale": "Duplicate credentials create ambiguity for fuzzy agent requests.",
+      "example": "1password-pp-cli items duplicates --json",
+      "group": "Items"
+    },
+    {
+      "name": "Item ownership audit",
+      "command": "items ownership",
+      "description": "Flag shared or service credentials missing owner, purpose, rotation, or environment tags.",
+      "rationale": "Ownership tags are a practical prerequisite for agent policy.",
+      "example": "1password-pp-cli items ownership --json",
+      "group": "Items"
+    },
+    {
+      "name": "Credit-card metadata audit",
+      "command": "cards audit",
+      "description": "Find cards stored as notes or logins, missing owner/purpose tags, or CVV-like fields without printing card values.",
+      "rationale": "Card handling needs stronger default denial than generic secrets.",
+      "example": "1password-pp-cli cards audit --json",
+      "group": "Cards"
+    },
+    {
+      "name": "Card field resolver",
+      "command": "cards resolve",
+      "description": "Return card item and field references without printing card numbers, expiry values, or CVVs.",
+      "rationale": "Agents may need to identify a card without receiving card values.",
+      "example": "1password-pp-cli cards resolve --query \"card\" --json",
+      "group": "Cards"
+    },
+    {
+      "name": "Document metadata inventory",
+      "command": "documents inventory",
+      "description": "List document metadata and exact references without downloading document contents.",
+      "rationale": "Document names and placement are useful; document contents are high-risk.",
+      "example": "1password-pp-cli documents inventory --json",
+      "group": "Documents"
+    },
+    {
+      "name": "Document metadata audit",
+      "command": "documents audit",
+      "description": "Flag sensitive filenames, oversized docs, private-key/cert-like documents, and documents in shared vaults.",
+      "rationale": "Documents often hide secrets that item field policy cannot see.",
+      "example": "1password-pp-cli documents audit --json",
+      "group": "Documents"
+    },
+    {
+      "name": "Share safety preflight",
+      "command": "share preflight",
+      "description": "Before sharing an item, show recipient, item category, included fields, expiry, and risk.",
+      "rationale": "Sharing is a write-like external disclosure and needs a plan gate.",
+      "example": "1password-pp-cli share preflight --ref op://Engineering/GitHub/token --recipient recipient --expires-in 1d --json",
+      "group": "Sharing"
+    },
+    {
+      "name": "Share support audit",
+      "command": "share audit",
+      "description": "Report whether existing/shareable item link inspection is supported by op or the SDK and document unsupported status clearly.",
+      "rationale": "Agents need to know when a safety check cannot be performed.",
+      "example": "1password-pp-cli share audit --json",
+      "group": "Sharing"
+    },
+    {
+      "name": "Agent policy checker",
+      "command": "policy check",
+      "description": "Enforce rules such as never reading credit-card values, exact refs for production, and required owner tags.",
+      "rationale": "Policy turns metadata into a hard precondition for reveal or injection.",
+      "example": "1password-pp-cli policy check --ref op://Production/API/token --require-exact --json",
+      "group": "Policy"
+    },
+    {
+      "name": "Service-account access scope",
+      "command": "access scope",
+      "description": "Summarize what the current service account or op session can access by vault, category, and count without values.",
+      "rationale": "Agents need scope awareness before broad reads.",
+      "example": "1password-pp-cli access scope --json",
+      "group": "Access"
+    },
+    {
+      "name": "Service-account rate-limit status",
+      "command": "rate-limit status",
+      "description": "Wrap op service-account ratelimit so agents can avoid burning quota.",
+      "rationale": "1Password service accounts have hourly and daily limits.",
+      "example": "1password-pp-cli rate-limit status --json",
+      "group": "Access"
+    },
+    {
+      "name": "Minimum grant planner",
+      "command": "agent grant-plan",
+      "description": "Suggest the minimum service-account vault permissions needed for a task.",
+      "rationale": "Least privilege should be designed before creating a service account token.",
+      "example": "1password-pp-cli agent grant-plan --task \"read staging deploy token\" --json",
+      "group": "Agent"
+    },
+    {
+      "name": "op run reference planner",
+      "command": "run plan",
+      "description": "Inspect an op run command or env files and show which secret references will resolve before executing.",
+      "rationale": "Runtime injection should be previewable without executing the target process.",
+      "example": "1password-pp-cli run plan --command \"npm test\" --json",
+      "group": "Runtime"
+    },
+    {
+      "name": "Stale metadata audit",
+      "command": "audit stale",
+      "description": "Flag items that appear old, untagged, duplicated, or probably unused from metadata.",
+      "rationale": "Stale items are poor candidates for automated access.",
+      "example": "1password-pp-cli audit stale --days 180 --json",
+      "group": "Audit"
+    },
+    {
+      "name": "Misplaced item audit",
+      "command": "audit misplaced",
+      "description": "Find API keys, cards, documents, or SSH material saved in the wrong 1Password category.",
+      "rationale": "Correct categories let agents apply the right safety policy.",
+      "example": "1password-pp-cli audit misplaced --json",
+      "group": "Audit"
+    }
+  ],
+  "narrative": {
+    "value_prop": "Use 1Password from agents without turning every task into a secret reveal. The CLI resolves fuzzy requests to exact op:// references, audits metadata, checks policy, and only calls op read, op inject, or op run after an explicit plan.",
+    "quickstart": [
+      {
+        "command": "1password-pp-cli op --json",
+        "comment": "Verify the official op CLI is installed and authenticated without reading any secret values."
+      },
+      {
+        "command": "1password-pp-cli access scope --json",
+        "comment": "Summarize accessible vault and category metadata before planning a task."
+      },
+      {
+        "command": "1password-pp-cli secrets preflight --task \"deploy using op run --env-file .env\" --json",
+        "comment": "Check whether a task needs secret values, documents, cards, or write permissions."
+      }
+    ],
+    "recipes": [
+      {
+        "title": "Resolve a secret request without revealing the value",
+        "command": "1password-pp-cli secrets resolve --query \"token\" --json",
+        "explanation": "Returns exact op:// references and candidate metadata with values redacted so a later step can require an exact reference."
+      },
+      {
+        "title": "Plan environment injection before writing output",
+        "command": "1password-pp-cli env inject --in-file README.md --out-file injected.env --json",
+        "explanation": "Shows the references op inject would resolve and keeps will_write false unless --write is explicitly supplied."
+      }
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "clear-tokens-headers-map",
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260522-162911",
+  "base_printing_press_version": "4.11.0",
+  "summary": "ClearTokens now sets Config.Headers = nil so a logout drops any custom credential header in addition to the named token fields.",
+  "reason": "Greptile (Squarespace #919) class: ClearTokens zeroed the named credential fields but left the Headers map intact, and the client's do() loop applies every Config.Headers entry to every request, so a logout could leave an Authorization/credential header active. Mirrors the goodreads fix.",
+  "files": [
+    "internal/config/config.go"
+  ],
+  "validated_outcome": "go build/vet/test pass; verify-skill passes."
+}

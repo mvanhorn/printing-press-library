@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "http-client-context-propagation",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-164045",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Plumb cobra command context through the HTTP client: client.Client gains a Ctx field, client.do() switches from http.NewRequest to http.NewRequestWithContext, flags.newClient() takes a context argument, and all 218 call sites in internal/cli/*.go pass cmd.Context().",
+  "reason": "Greptile P1 review finding on PR #676: long-running operations (sync, bulk paginated GETs) were unresponsive to Ctrl+C because in-flight HTTP requests didn't honour the command context. The fix is broad but mechanical — each call site changes from flags.newClient() to flags.newClient(cmd.Context()).",
+  "files": [
+    "internal/client/client.go",
+    "internal/cli/root.go",
+    "internal/cli/*.go"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "quote-ledger",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260601-000336",
+  "base_printing_press_version": "4.19.1",
+  "summary": "Hand-authored SQLite quote ledger powering watch/log/search (every quote snapshot persisted; watch reports price delta vs last snapshot).",
+  "reason": "Quotes are POST-generated, not a GET resource, so the generator's sync-based store can't capture them; a dedicated ledger enables fare tracking over time.",
+  "files": [
+    "internal/cli/ledger.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "watch records snapshots and reports deltas; log/search return rows; modernc.org/sqlite (pure Go)."
+}

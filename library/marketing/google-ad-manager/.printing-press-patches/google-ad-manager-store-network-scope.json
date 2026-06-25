@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "google-ad-manager-store-network-scope",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260616-124304-8944dbb7",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Filter gamLoadResource's local-store read by resource-name network prefix (new gamItemsForNetwork helper) so a mirror populated for one network is never served when a different --network is requested; fall through to a live fetch when the store holds nothing for the requested network.",
+  "reason": "Flagged during library review round 2 (PR #1243): the store keys resources by type alone, so 'adunits tree' and 'inventory orphans' run against a second network after the first was cached silently returned the first network's data. This mirrors the network-prefix filter the 'since' command already applies in its SQL WHERE clause.",
+  "files": ["internal/cli/gam_helpers.go", "internal/cli/gam_helpers_network_test.go"],
+  "validated_outcome": "TestGamItemsForNetwork covers bare/normalized/other-network/substring-safety/unknown/empty cases; full cli package test suite passes in both trees with no caller-test regressions."
+}

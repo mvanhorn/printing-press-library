@@ -1,0 +1,23 @@
+# Built binary
+/pexels-pp-cli
+
+# Downloaded media and attribution sidecars (runtime output of `download`)
+*.jpeg
+*.jpg
+*.png
+*.gif
+*.mp4
+*.mov
+*.meta.json
+
+# Local data / exports
+*.db
+*.sqlite
+*.sqlite3
+
+# Local polish ledgers (not published)
+.printing-press-tools-polish.json
+.printing-press-pii-polish.json
+
+# Default download output dir
+/pexels-downloads/

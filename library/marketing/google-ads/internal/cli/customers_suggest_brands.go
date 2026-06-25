@@ -20,7 +20,7 @@ func newCustomersSuggestBrandsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "suggest-brands <customerId>",
 		Short:       "Rpc to return a list of matching brands based on a prefix for this customer.",
-		Example:     "  google-ads-pp-cli customers suggest_brands 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  google-ads-pp-cli customers suggest-brands 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "customers.suggest_brands", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:suggestBrands"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

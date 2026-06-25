@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "store-list-unbounded-limit",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260526-193757",
+  "base_printing_press_version": "4.18.0",
+  "summary": "store.List treats negative limit as unbounded; analytics/data_source pass -1 for the full dataset.",
+  "reason": "Greptile P1: analytics --group-by called db.List(...,0) which clamped to 200, producing wrong counts on datasets over 200 rows.",
+  "files": [
+    "internal/store/store.go",
+    "internal/cli/analytics.go",
+    "internal/cli/data_source.go"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "masterpark-profile-synced-means-persisted",
+  "applied_at": "2026-06-09",
+  "base_run_id": "manual-masterpark-20260609T023930Z",
+  "base_printing_press_version": "4.24.0",
+  "summary": "auth from-1password reports profile_synced only when a profile was actually persisted to config; a fetched-but-unsaved profile is reported as profile_fetched instead.",
+  "reason": "Reporting profile_synced=true whenever --sync-profile fetched a profile (even without --save) misleads agents into assuming a later reserve --use-saved-profile can rely on a saved profile that was never written to disk.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/profile_cmd_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli covers from-1password --sync-profile without --save (profile_synced=false, profile_fetched=true, no config written) and with --save --sync-profile (profile_synced=true, profile persisted)."
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "mcp-graphql-variables-object",
+  "applied_at": "2026-05-24",
+  "base_run_id": "2026-05-13T21:47:44.838084603Z",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Parse MCP GraphQL variables strings into JSON objects before posting typed endpoint requests.",
+  "reason": "Greptile flagged that typed MCP GraphQL tools forwarded variables as a JSON string, causing parameterized GraphQL calls to fail because the HTTP body requires variables to be an object.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go"
+  ],
+  "validated_outcome": "go test ./... passed in library/commerce/doordash before updating PR #784."
+}

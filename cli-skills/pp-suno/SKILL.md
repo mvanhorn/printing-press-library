@@ -34,13 +34,15 @@ This skill drives the `suno-pp-cli` binary. **You must verify the CLI is install
 2. Verify: `suno-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/cmd/suno-pp-cli@latest
 ```
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
+
+Suno has no official API and every reverse-engineered client is abandoned and wrong in ways that matter today: broken pagination, broken cover, stale pre-2026 auth, no local persistence. This CLI is built from the current contract. It walks the real opaque feed cursor, sends the now-required cover title, tolerates the drifted billing schema, authenticates against the current auth.suno.com Clerk flow via your logged-in browser, and persists your whole library to local SQLite for offline grep, SQL, lineage, and analytics. Generate, extend, cover, remaster, stems, lyrics, WAV download, and workspaces, all with --json, --select, --dry-run, and typed exit codes.
 
 ## When to Use This CLI
 
@@ -125,9 +127,9 @@ These capabilities aren't available in any other tool for this API.
 **generate** — Music, lyrics, and video generation jobs
 
 - `suno-pp-cli generate create` — Generate a custom song from lyrics (captcha-gated). `--variation high|normal|subtle`, `--project <id>`.
-- `suno-pp-cli generate describe` — Description-driven (inspiration) generation. `--variation`, `--instrumental`. No `--title` is needed; the model writes its own.
+- `suno-pp-cli generate describe` — Description-driven (inspiration) generation. `--variation`, `--instrumental`.
 
-All captcha-gated generate commands accept `--wait-for-gate` (with `--gate-timeout`, default 30m): when Suno's adaptive gate is tripped (HTTP 422 `token_validation_failed`), the command backs off and retries until the gate reopens or the timeout elapses. Off by default. In `--agent`/JSON mode a gate failure is emitted as a structured envelope on stdout with `error_type: "captcha_required"` and `retriable: true`, so agents branch on a field rather than parsing prose.
+All captcha-gated generate commands accept `--wait-for-gate` (with `--gate-timeout`, default 30m): when Suno's adaptive gate is tripped (HTTP 422 `token_validation_failed`), the command backs off and retries until the gate reopens or the timeout elapses. Off by default. It composes with the auto-solver — the solver runs first and `--wait-for-gate` rides out any residual gate, while under `--no-captcha` it drives the passive, no-browser fallback on its own. In `--agent`/JSON mode a gate failure is emitted as a structured envelope on stdout with `error_type: "captcha_required"` and `retriable: true`, so agents branch on a field rather than parsing prose.
 - `suno-pp-cli generate extend <clip_id>` — Extend a clip from a timestamp
 - `suno-pp-cli generate cover <clip_id>` — Cover / restyle a clip
 - `suno-pp-cli generate remaster <clip_id>` — Remaster a clip
@@ -197,7 +199,7 @@ suno-pp-cli which "<capability in your own words>"
 suno-pp-cli generate create --title "Night Drive" --tags "synthwave, retro" --lyrics "Neon lights on wet asphalt" --token hc_demo_token --wait --json
 ```
 
-Submits a custom generation, polls until complete, and prints the finished clip as JSON. Replace the token with a real hCaptcha token.
+Submits a custom generation, polls until complete, and prints the finished clip as JSON. Omit `--token` to let the CLI auto-solve via the captcha profile, or supply a pre-solved token to skip the browser.
 
 ### Pull a deeply nested clip and select only what you need
 
@@ -241,7 +243,7 @@ Triggers WAV conversion, polls until ready, and saves the lossless file (Pro/Pre
 
 ## Auth Setup
 
-Suno uses Clerk session auth (auth.suno.com). Run `suno-pp-cli auth login --chrome` to capture your logged-in session cookie from Chrome; the CLI mints and refreshes the short-lived JWT for you. No password or API key is stored. Music generation is attempted optimistically with no token. Suno gates generation adaptively (an hCaptcha anti-bot challenge that usually fires only after sustained use), so many generations succeed outright; if Suno challenges a request, the CLI tells you to retry with `--token` carrying an hCaptcha token (e.g. solved via 2Captcha). All read, library, and metadata commands never need a captcha.
+Suno uses Clerk session auth (auth.suno.com). Run `suno-pp-cli auth login --chrome` to capture your logged-in session cookie from Chrome; the CLI mints and refreshes the short-lived JWT for you. No password or API key is stored. Music generation is attempted optimistically with no token. Suno gates generation adaptively (an hCaptcha anti-bot challenge that usually fires only after sustained use), so many generations succeed outright. When the gate does trip, the CLI automatically solves it using a dedicated piloted-Chrome profile — run `suno-pp-cli auth captcha login --profile <name>` to sign a profile in, then pass `--captcha-profile <name>` on any gated command to select that account. Under `--agent`/`--no-input` the visible browser fallback is suppressed and a structured `{"error_type":"captcha_required","retriable":true}` envelope is emitted on stdout (exit 2). To skip the auto-solver entirely, pass `--no-captcha` or supply a pre-solved token with `--token`. All read, library, and metadata commands never need a captcha.
 
 Run `suno-pp-cli doctor` to verify setup. Add `--probe-gate` to check the live generation gate specifically: the default health check only proves the billing API is reachable, which stays green even while generation is gated. `doctor --probe-gate` reports `tripped` (the adaptive hCaptcha gate is active) or `open`. WARNING: it issues a real generation — free when the gate is tripped, but it creates a clip and spends credits when the gate is open (the probe clip is best-effort trashed).
 

@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "safari-history-agent-cache-read-steering",
+  "applied_at": "2026-05-24T00:00:00Z",
+  "base_run_id": "20260523-231334",
+  "base_printing_press_version": "4.13.0",
+  "summary": "Clarified sync, doctor, MCP, and skill surfaces so agents read existing cached history instead of treating live-source refresh failures as no data.",
+  "reason": "AQL live eval found agents reflexively synced before reads and refused to answer when the live Safari source was unavailable despite queryable snapshot/archive cache data.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/archive.go",
+    "internal/cli/doctor_test.go",
+    "internal/cli/archive_cmd_test.go",
+    "internal/mcp/server.go",
+    "internal/mcp/server_test.go",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go build ./... && go vet ./... && go test ./... passed; peer-test review added write-tool negative steering assertion, archive-enabled doctor coverage, and archive status cached_store branch coverage."
+}

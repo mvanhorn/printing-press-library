@@ -45,7 +45,7 @@ brews:
       owner: benjamin-huang
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Operate a Shopify store from the terminal with local sync, analytics, and bulk exports."
+    description: "Operate a Shopify store with Admin GraphQL commands, local sync, analytics, bulk exports, and ShopifyQL reporting."
     install: |
       bin.install "shopify-pp-cli"
       bin.install "shopify-pp-mcp"

@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "decouple-studio-cookies-from-jwt",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Cache the long-lived studio cookies independently of the JWT; drop the rotating __session*; re-pull from the browser only when missing or on a 422 token_validation_failed.",
+  "reason": "Part A coupled the cookie cache to the JWT (cleared cookies on every 60-minute re-mint), causing an hourly Chrome read though the suno.com cookies are valid for months. Verified against the live API that POST /api/feed/v3 returns 200 with __session* stripped, so the WAF does not require the rotating cookie. Now: __session* is excluded from the cache; SaveSunoSession no longer clears cookies on re-mint; cookies are cached indefinitely and re-pulled only when the header is empty or the server rejects them as stale (422 token_validation_failed -> RefreshStudioCookies + one retry).",
+  "files": [
+    "internal/auth/chrome.go",
+    "internal/auth/studio_cookie_test.go",
+    "internal/auth/refresh.go",
+    "internal/auth/refresh_test.go",
+    "internal/config/suno_config.go",
+    "internal/config/suno_config_test.go",
+    "internal/client/suno_headers.go",
+    "internal/client/client.go",
+    "internal/client/suno_headers_test.go",
+    "internal/client/client_cookie_retry_test.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go test ./...",
+  "findings_addressed": [
+    "decouple-studio-cookies-from-jwt"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "api_name": "gainsight",
+  "run_id": "20260622-071510",
+  "source": "local-openapi-spec",
+  "spec_path": "spec.yaml",
+  "summary": "Read-first Gainsight API CLI generated from the saved local OpenAPI spec.",
+  "narrative": {
+    "quickstart": [
+      {
+        "command": "gainsight-pp-cli which --help",
+        "description": "Inspect the agent command-discovery surface."
+      },
+      {
+        "command": "gainsight-pp-cli agent-context --help",
+        "description": "Inspect the structured agent metadata command."
+      }
+    ],
+    "recipes": [
+      {
+        "command": "gainsight-pp-cli sync --help",
+        "description": "Inspect the local SQLite sync framework."
+      },
+      {
+        "command": "gainsight-pp-cli analytics --help",
+        "description": "Inspect the read-only SQL analytics surface."
+      }
+    ]
+  }
+}

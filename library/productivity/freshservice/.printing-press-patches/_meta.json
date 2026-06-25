@@ -1,0 +1,57 @@
+{
+  "schema_version": 2,
+  "deferred_to_upstream": [
+    {
+      "summary": "Generator should detect Freshservice-style HTTP-Link-only pagination (no body cursor) and synthesize integer page advancement automatically",
+      "reason": "Filed as a printing-press generator issue. Same shape applies to any vendor that paginates via integer ?page=N with the next-page URL exclusively in the Link header."
+    },
+    {
+      "summary": "Generator should learn Basic-auth `<credential>:` (empty password) as a first-class auth shape",
+      "reason": "Filed as a printing-press generator issue. Freshservice, Zendesk, and similar vendors use this form; the generator currently emits `<username>:<password>` even when the spec or vendor docs describe an empty-password Basic flow."
+    },
+    {
+      "summary": "Generator should accept lenient subdomain inputs (bare slug, https://, trailing path) for tenant-scoped APIs",
+      "reason": "Filed as a printing-press generator issue. normalizeFreshserviceDomain is generic — every tenant-subdomain vendor benefits from the same normalization."
+    },
+    {
+      "summary": "Generator should preserve `private` (and similarly server-default-true) optional bools on the wire instead of omitting on zero value",
+      "reason": "Filed as a printing-press generator issue. The omit-zero idiom is correct for most optional bools but inverts intent when the server-side default differs from Go's zero value."
+    },
+    {
+      "summary": "Generator's ClearTokens template should clear API-key fields, not just OAuth fields",
+      "reason": "Greptile P1 on PR #533 (Freshservice). The OAuth-shaped ClearTokens applies to every API-key-auth CLI the generator prints — same bug class across the library."
+    },
+    {
+      "summary": "Generator should emit validIdentifierRE guards symmetrically across mirrored store helpers",
+      "reason": "Greptile P1 (security) on PR #533. ListField has the guard; ResolveByName, emitted from the same store template, does not. Any CLI generated from this template inherits the asymmetry."
+    },
+    {
+      "summary": "Generator-emitted analytics commands should route writes through cmd.OutOrStdout()",
+      "reason": "Greptile P2 on PR #533. The analytics template wires JSON and text output to os.Stdout directly, breaking test redirection and MCP shell-out. Applies to every printed CLI that includes the analytics command."
+    },
+    {
+      "summary": "Generator's auth-status hint should produce env-var-shape-specific placeholders, not a uniform token placeholder",
+      "reason": "Greptile P2 on PR #533. The 'your-token-here' placeholder is correct for token env vars but wrong for hosts/domains/region IDs/etc. Every API with a non-token required env var inherits the trap."
+    },
+    {
+      "summary": "Generator's auth-setup template should mirror auth-status's env-var shape-specific placeholders",
+      "reason": "Greptile residual finding on PR #533. `newAuthSetupCmd` emits the same generator template as `newAuthStatusCmd`. The two should share a single rendering function — fixing one but not the other (as happened in this round) leaves the same trap in the other site."
+    },
+    {
+      "summary": "Generator's env-var override block should label AuthSource only from credential env vars, not from tenant/routing env vars",
+      "reason": "Greptile residual finding on PR #533. The template currently overwrites `cfg.AuthSource` after every env-var assignment, regardless of whether the env var represents a credential or tenant routing. Adjacent to printing-press issue #1158 (\"Generated config.go AuthHeader() unconditionally overwrites AuthSource\"). Fix: emit `AuthSource = \"env:\" + name` only when the assigned field is the credential, not when it's a routing/identity tag."
+    },
+    {
+      "summary": "Generator's cache + store templates should ALL use 0o600/0o700, not 0o644/0o755 — applies to client.go:writeCache, cache.go:Set, AND store.go SQLite DB directory + file",
+      "reason": "Greptile flagged client.go:writeCache; own-audit found two more sites with the same bug class. The SQLite DB site is the most sensitive (full synced data) and the easiest for generator audit to miss because the file's effective permissions come from the OS umask after sql.Open. Generator should emit 0o700 dirs + explicit os.Chmod(file, 0o600) after every DB/cache open across all data-at-rest templates."
+    },
+    {
+      "summary": "Generator's AdaptiveLimiter.Wait template should reserve next-slot atomically, not lock/unlock/sleep/lock",
+      "reason": "Greptile blocking finding on PR #533 round 3. The current template's race window admits concurrent callers reading the same lastRequest and firing simultaneously, defeating rate-limiting under any concurrent sync (the default sync worker pool is 4 goroutines). Standard token-bucket-style reservation under the lock fixes it without changing the API surface or the rate semantics."
+    },
+    {
+      "summary": "Generator's Store.List template should honor `limit <= 0` as 'no limit' (SQL LIMIT -1), not silently cap at 200",
+      "reason": "Greptile round-4 P1 on PR #533. Existing callers in multiple templates (analytics, data_source) document `0 = no limit` in their inline comments — the implementation contradicts that, producing silent row drops in analytics aggregations on any store with more than 200 records of a resource type. Affects every printed CLI that ships the store + analytics templates."
+    }
+  ]
+}

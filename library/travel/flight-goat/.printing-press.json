@@ -22,5 +22,11 @@
   "auth_type": "api_key",
   "auth_env_vars": [
     "FLIGHT_GOAT_API_KEY_AUTH"
+  ],
+  "contributors": [
+    {
+      "handle": "lloydarmbrust",
+      "name": "Lloyd Armbrust"
+    }
   ]
 }

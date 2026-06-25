@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "chrome-profile-cookie-selection",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260527-211808",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Prefer Chrome profiles with required auth cookies during browser-cookie login.",
+  "reason": "Profile auto-detection previously ranked profiles only by total target-domain cookie count and skipped explicit Default-profile pycookiecheat paths, which could choose a profile with guest or challenge cookies instead of the authenticated session.",
+  "files": [
+    "internal/cli/auth.go"
+  ],
+  "validated_outcome": "go test ./... passed from library/other/gisis",
+  "upstream_issue": "https://github.com/mvanhorn/printing-press-library/issues/1064"
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "linear-project-sync-page-size-under-complexity-cap",
+  "applied_at": "2026-06-07",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Project sync must keep the top-level projects page size low enough that Linear accepts the nested project query under its GraphQL complexity cap.",
+  "reason": "The sync query keeps useful nested project fields such as members, teams, and milestones; asking for 50 projects at once makes Linear reject the request as too complex before any data is returned.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "The offline syncProjects regression test verifies project sync sends first=25 across paginated GraphQL requests."
+}

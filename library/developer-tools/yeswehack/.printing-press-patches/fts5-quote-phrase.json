@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "fts5-quote-phrase",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260510-215840",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Search and SearchByType wrap the user query as an FTS5 phrase via quoteFTS5Phrase so titles with special chars (parens, *, internal double quotes, OR/AND tokens) don't crash report dedupe / submit.",
+  "reason": "FTS5 MATCH parses the right operand as a query expression; passing raw user-supplied title+asset+cwe text propagated SQL parse errors as hard failures through reportDedupeCollisions. Phrase-wrap is the safe default for the dedupe and search paths in this CLI (titles are sequences, not boolean expressions). Greptile P1 on PR #459.",
+  "files": [
+    "internal/store/store.go",
+    "internal/store/search_by_type_test.go"
+  ],
+  "validated_outcome": "New TestSearchByType_FTS5SpecialCharsNoCrash exercises 6 previously-crashing inputs (unbalanced parens, internal quotes, bare *, OR/AND keywords) and confirms each returns without error."
+}

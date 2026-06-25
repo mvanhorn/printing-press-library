@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "videos-viewed-help-clarity",
+  "applied_at": "2026-05-16",
+  "base_run_id": "20260509-180956",
+  "base_printing_press_version": "4.2.1",
+  "summary": "Add long-form --help text clarifying that videos viewed sources from the webhook event stream.",
+  "reason": "Empty results from videos viewed against a workspace with real views (622 total) was confusing. The rollup is keyed off video.viewed/video.milestone webhook events, not the API counter — empty results don't mean zero views, they mean no view events have hit the inbox yet.",
+  "files": [
+    "internal/cli/videos_viewed.go"
+  ],
+  "validated_outcome": "videos viewed --help now explains the data source and points users to wire a webhook endpoint."
+}

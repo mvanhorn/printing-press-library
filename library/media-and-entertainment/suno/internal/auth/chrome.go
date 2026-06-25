@@ -68,6 +68,89 @@ func ReadChromeSession(ctx context.Context) (ChromeSession, error) {
 	return out, nil
 }
 
+// SunoCookie is a browser cookie for a Suno/Clerk domain, in a shape the
+// captcha solver can map directly to CDP Network.setCookies params.
+type SunoCookie struct {
+	Name     string
+	Value    string
+	Domain   string
+	Path     string
+	Secure   bool
+	HTTPOnly bool
+}
+
+// ReadSunoCookies returns every cookie on suno.com / auth.suno.com / .suno.com
+// from the user's Chrome store — the full jar, including the Clerk __client and
+// __session cookies. The captcha solver re-seeds from this on every solve so the
+// dedicated profile's session can never go stale (this is what keeps us clear of
+// paperfoot/suno-cli#3's popup); SunoStudioCookieHeader also reads it. Returns
+// an empty slice (not an error) when none are found.
+func ReadSunoCookies(ctx context.Context) ([]SunoCookie, error) {
+	raw := kooky.TraverseCookies(ctx, kooky.DomainHasSuffix("suno.com")).Collect(ctx)
+	out := make([]SunoCookie, 0, len(raw))
+	for _, c := range raw {
+		if c == nil || c.Name == "" {
+			continue
+		}
+		path := c.Path
+		if path == "" {
+			path = "/"
+		}
+		out = append(out, SunoCookie{
+			Name:     c.Name,
+			Value:    c.Value,
+			Domain:   c.Domain,
+			Path:     path,
+			Secure:   c.Secure,
+			HTTPOnly: c.HttpOnly,
+		})
+	}
+	return out, nil
+}
+
+// SunoStudioCookieHeader builds a "name=value; ..." Cookie header from the
+// browser's stored cookies that a real browser sends to
+// studio-api-prod.suno.com — the apex (.suno.com / suno.com) session and
+// analytics cookies. Suno's WAF cross-checks these against the Bearer JWT and
+// returns 422 token_validation_failed without them. Returns "" when none found.
+func SunoStudioCookieHeader(ctx context.Context) string {
+	cs, err := ReadSunoCookies(ctx)
+	if err != nil {
+		return ""
+	}
+	return studioCookieHeader(cs)
+}
+
+// studioCookieHeader is the pure filter+join behind SunoStudioCookieHeader:
+// keep only cookies a browser attaches to studio-api-prod.suno.com (apex
+// suno.com host + domain-scoped, and the studio-api host itself); drop other
+// subdomains (auth.suno.com, hcaptcha-*.suno.com).
+func studioCookieHeader(cs []SunoCookie) string {
+	var b strings.Builder
+	for _, c := range cs {
+		if c.Name == "" {
+			continue
+		}
+		dom := strings.ToLower(strings.TrimPrefix(c.Domain, "."))
+		if dom != "suno.com" && dom != "studio-api-prod.suno.com" {
+			continue
+		}
+		// The rotating Clerk __session* cookies are not required by the studio
+		// WAF (verified: the feed returns 200 without them) and would go stale
+		// in a long-lived cache; drop them so we only cache durable cookies.
+		if strings.HasPrefix(c.Name, "__session") {
+			continue
+		}
+		if b.Len() > 0 {
+			b.WriteString("; ")
+		}
+		b.WriteString(c.Name)
+		b.WriteString("=")
+		b.WriteString(c.Value)
+	}
+	return b.String()
+}
+
 // sanitizeDeviceID strips quotes/whitespace and rejects values that don't look
 // UUID-ish, returning "" so the caller falls back to the zero UUID.
 func sanitizeDeviceID(v string) string {

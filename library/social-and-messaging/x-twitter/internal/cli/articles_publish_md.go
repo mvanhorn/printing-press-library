@@ -6,8 +6,9 @@
 // CURRENT SCOPE: article body + media. Supported block types:
 // paragraph, header-one, header-two, unordered-list-item, ordered-list-item,
 // blockquote, fenced code blocks, markdown table blocks, markdown image blocks,
-// tweet embeds, dividers, plus bold/italic inline styles. Cover image uses the
-// captured upload + UpdateCoverMedia flow.
+// tweet embeds, dividers, plus bold/italic inline styles and [text](url)
+// inline links (LINK entities), and inline `code` spans. HTML comment lines
+// are stripped. Cover image uses the captured upload + UpdateCoverMedia flow.
 
 package cli
 
@@ -72,19 +73,21 @@ type draftEntityValue struct {
 func newNovelArticlesPublishMdCmd(flags *rootFlags) *cobra.Command {
 	var post bool
 	var draft bool
+	var updateID string
+	var replaceUnknownEntities bool
 	cmd := &cobra.Command{
 		Use:     "articles-publish-md <markdown-file>",
 		Short:   "Convert a markdown file to an X Article (preview by default; --draft or --post to write)",
-		Long:    "Parses frontmatter (title, cover, tags) and body, converts the body to the Draft.js content_state JSON X's Articles editor accepts. Previews the payload by default (no API call); pass --draft to save a draft (not published) or --post to create and publish the article publicly.",
-		Example: "  x-twitter-pp-cli articles-publish-md draft.md",
+		Long:    "Parses frontmatter (title, cover, tags) and body, converts the body to the Draft.js content_state JSON X's Articles editor accepts. Previews the payload by default (no API call); pass --draft to save a new draft, --post to create and publish publicly, or --update <article_id> to update an existing draft in place.",
+		Example: "  x-twitter-pp-cli articles-publish-md draft.md\n  x-twitter-pp-cli articles-publish-md draft.md --update 1750000000000000000",
 		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Dry-run probes call with no file arg: short-circuit before the
-			// required-arg check so verify can exercise the command cleanly.
-			if dryRunOK(flags) {
-				return nil
-			}
 			if len(args) == 0 {
+				// Dry-run probes call with no file arg: short-circuit before the
+				// required-arg check so verify can exercise the command cleanly.
+				if dryRunOK(flags) {
+					return nil
+				}
 				return cmd.Help()
 			}
 			data, err := os.ReadFile(args[0])
@@ -96,6 +99,60 @@ func newNovelArticlesPublishMdCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			cs := MarkdownBodyToDraftJS(parsed.Body)
+			if strings.TrimSpace(updateID) != "" {
+				if post {
+					return usageErr(fmt.Errorf("--update cannot be combined with --post; use `articles update-md --article-id %s --republish` for published articles", strings.TrimSpace(updateID)))
+				}
+				if draft {
+					return usageErr(fmt.Errorf("--update cannot be combined with --draft; --update already targets an existing draft (id %s); drop --draft", strings.TrimSpace(updateID)))
+				}
+				payload := map[string]any{
+					"article_id":    strings.TrimSpace(updateID),
+					"title":         parsed.Frontmatter.Title,
+					"cover":         parsed.Frontmatter.Cover,
+					"content_state": cs,
+				}
+				if flags.dryRun {
+					enc := json.NewEncoder(cmd.OutOrStdout())
+					if !flags.asJSON {
+						fmt.Fprintln(cmd.OutOrStdout(), "── Article update payload (dry-run, no API call) ──")
+						enc.SetIndent("", "  ")
+					}
+					return enc.Encode(payload)
+				}
+				if os.Getenv("PRINTING_PRESS_VERIFY") == "1" {
+					fmt.Fprintln(cmd.OutOrStdout(), "verify-env: skipping article update")
+					return nil
+				}
+				c, err := flags.newClient()
+				if err != nil {
+					return err
+				}
+				deps := articleUpdateDeps{
+					post: c,
+					fetchSlice: func(ctx context.Context, lifecycle string) (json.RawMessage, error) {
+						return fetchArticleSlice(ctx, c, lifecycle)
+					},
+					uploadImage: func(p string) (string, error) {
+						return c.UploadArticleImage(cmd.Context(), p)
+					},
+				}
+				result, err := updateMarkdownArticle(cmd.Context(), deps, articleUpdateOptions{
+					articleID:              strings.TrimSpace(updateID),
+					title:                  parsed.Frontmatter.Title,
+					coverPath:              parsed.Frontmatter.Cover,
+					contentState:           cs,
+					replaceUnknownEntities: replaceUnknownEntities,
+				})
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+				if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+					return json.NewEncoder(cmd.OutOrStdout()).Encode(result)
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "updated draft article %s\n%s\n", result.ArticleID, result.URL)
+				return nil
+			}
 			payload := map[string]any{
 				"title":         parsed.Frontmatter.Title,
 				"cover":         parsed.Frontmatter.Cover,
@@ -146,6 +203,8 @@ func newNovelArticlesPublishMdCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().BoolVar(&draft, "draft", false, "Create the article as a draft without publishing")
 	cmd.Flags().BoolVar(&post, "post", false, "Create and publish the article publicly (default: preview only)")
+	cmd.Flags().StringVar(&updateID, "update", "", "Update an existing draft article by rest_id instead of creating a new draft")
+	cmd.Flags().BoolVar(&replaceUnknownEntities, "replace-unknown-entities", false, "With --update, proceed even when the target draft contains entity types the converter cannot reproduce")
 	return cmd
 }
 
@@ -156,40 +215,107 @@ type publishedArticleResult struct {
 	CoverMediaID string `json:"cover_media_id,omitempty"`
 }
 
+// articleGraphQLPoster is the minimal client surface the shared article
+// GraphQL composition helpers need. *client.Client satisfies it; tests inject
+// a fake transport so no network is involved.
+type articleGraphQLPoster interface {
+	Post(ctx context.Context, path string, body any) (json.RawMessage, int, error)
+}
+
+// PATCH: Shared X Articles GraphQL composition. Both articles-publish-md
+// (create) and articles update-md (in-place update) compose the same proven
+// mutations through these helpers; queryIds resolve through the client's
+// article-ops table instead of hardcoded literals that drift when X redeploys.
+func articleOpRequestBody(opName string, variables map[string]any) map[string]any {
+	return map[string]any{
+		"variables": variables,
+		"features":  articleGraphQLFeatures(),
+		"queryId":   client.ArticleOpQueryID(opName),
+	}
+}
+
+func createArticleDraftEntity(ctx context.Context, p articleGraphQLPoster) (string, error) {
+	body := articleOpRequestBody("ArticleEntityDraftCreate", map[string]any{
+		"content_state": map[string]any{"blocks": []any{}, "entity_map": []any{}},
+		"title":         "",
+	})
+	createData, _, err := p.Post(ctx, client.ArticleOpURL("ArticleEntityDraftCreate"), body)
+	if err != nil {
+		return "", err
+	}
+	articleID := articleIDFromCreateResponse(createData)
+	if articleID == "" {
+		return "", fmt.Errorf("create draft response did not include article rest_id")
+	}
+	return articleID, nil
+}
+
+func updateArticleEntityTitle(ctx context.Context, p articleGraphQLPoster, articleID string, title string) error {
+	body := articleOpRequestBody("ArticleEntityUpdateTitle", map[string]any{
+		"articleEntityId": articleID,
+		"title":           title,
+	})
+	_, _, err := p.Post(ctx, client.ArticleOpURL("ArticleEntityUpdateTitle"), body)
+	return err
+}
+
+// updateArticleEntityContent sends the proven UpdateContent variable shape:
+// {content_state: {blocks, entity_map}, article_entity: <id>}. This replaces
+// the entire body of the target draft.
+func updateArticleEntityContent(ctx context.Context, p articleGraphQLPoster, articleID string, contentState draftContentState) error {
+	body := articleOpRequestBody("ArticleEntityUpdateContent", map[string]any{
+		"content_state":  articleContentStateRequest(contentState),
+		"article_entity": articleID,
+	})
+	_, _, err := p.Post(ctx, client.ArticleOpURL("ArticleEntityUpdateContent"), body)
+	return err
+}
+
+func updateArticleEntityCoverMedia(ctx context.Context, p articleGraphQLPoster, articleID string, mediaID string) error {
+	body := articleOpRequestBody("ArticleEntityUpdateCoverMedia", map[string]any{
+		"articleEntityId": articleID,
+		"coverMedia": map[string]any{
+			"media_id":       mediaID,
+			"media_category": "DraftTweetImage",
+		},
+	})
+	_, _, err := p.Post(ctx, client.ArticleOpURL("ArticleEntityUpdateCoverMedia"), body)
+	return err
+}
+
+func publishArticleEntity(ctx context.Context, p articleGraphQLPoster, articleID string) (json.RawMessage, error) {
+	body := articleOpRequestBody("ArticleEntityPublish", map[string]any{
+		"articleEntityId":   articleID,
+		"visibilitySetting": "Public",
+	})
+	publishData, _, err := p.Post(ctx, client.ArticleOpURL("ArticleEntityPublish"), body)
+	return publishData, err
+}
+
+func unpublishArticleEntity(ctx context.Context, p articleGraphQLPoster, articleID string) error {
+	body := articleOpRequestBody("ArticleEntityUnpublish", map[string]any{
+		"articleEntityId": articleID,
+	})
+	_, _, err := p.Post(ctx, client.ArticleOpURL("ArticleEntityUnpublish"), body)
+	return err
+}
+
 // PATCH: Wire the X-specific Articles create/update/publish GraphQL sequence.
 func publishMarkdownArticle(ctx context.Context, flags *rootFlags, title string, coverPath string, contentState draftContentState, publish bool) (*publishedArticleResult, error) {
 	if strings.TrimSpace(title) == "" {
-		return nil, fmt.Errorf("frontmatter title is required when --post is set")
+		return nil, fmt.Errorf("frontmatter title is required when creating an article draft or post")
 	}
 	c, err := flags.newClient()
 	if err != nil {
 		return nil, err
 	}
-	features := articleGraphQLFeatures()
 
-	createBody := map[string]any{
-		"variables": map[string]any{
-			"content_state": map[string]any{"blocks": []any{}, "entity_map": []any{}},
-			"title":         "",
-		},
-		"features": features,
-		"queryId":  "g1l5N8BxGewYuCy5USe_bQ",
-	}
-	createData, _, err := c.Post(ctx, client.ArticleOpURL("ArticleEntityDraftCreate"), createBody)
+	articleID, err := createArticleDraftEntity(ctx, c)
 	if err != nil {
 		return nil, classifyAPIError(err, flags)
 	}
-	articleID := articleIDFromCreateResponse(createData)
-	if articleID == "" {
-		return nil, fmt.Errorf("create draft response did not include article rest_id")
-	}
 
-	updateTitleBody := map[string]any{
-		"variables": map[string]any{"articleEntityId": articleID, "title": title},
-		"features":  features,
-		"queryId":   "x75E2ABzm8_mGTg1bz8hcA",
-	}
-	if _, _, err := c.Post(ctx, client.ArticleOpURL("ArticleEntityUpdateTitle"), updateTitleBody); err != nil {
+	if err := updateArticleEntityTitle(ctx, c, articleID, title); err != nil {
 		return nil, classifyAPIError(err, flags)
 	}
 
@@ -200,15 +326,7 @@ func publishMarkdownArticle(ctx context.Context, flags *rootFlags, title string,
 		return nil, classifyAPIError(err, flags)
 	}
 
-	updateContentBody := map[string]any{
-		"variables": map[string]any{
-			"content_state":  articleContentStateRequest(contentState),
-			"article_entity": articleID,
-		},
-		"features": features,
-		"queryId":  "M7N2FrPrlOmu-YrVIBxFnQ",
-	}
-	if _, _, err := c.Post(ctx, client.ArticleOpURL("ArticleEntityUpdateContent"), updateContentBody); err != nil {
+	if err := updateArticleEntityContent(ctx, c, articleID, contentState); err != nil {
 		return nil, classifyAPIError(err, flags)
 	}
 
@@ -218,18 +336,7 @@ func publishMarkdownArticle(ctx context.Context, flags *rootFlags, title string,
 		if err != nil {
 			return nil, classifyAPIError(err, flags)
 		}
-		updateCoverBody := map[string]any{
-			"variables": map[string]any{
-				"articleEntityId": articleID,
-				"coverMedia": map[string]any{
-					"media_id":       coverMediaID,
-					"media_category": "DraftTweetImage",
-				},
-			},
-			"features": features,
-			"queryId":  "Es8InPh7mEkK9PxclxFAVQ",
-		}
-		if _, _, err := c.Post(ctx, client.ArticleOpURL("ArticleEntityUpdateCoverMedia"), updateCoverBody); err != nil {
+		if err := updateArticleEntityCoverMedia(ctx, c, articleID, coverMediaID); err != nil {
 			return nil, classifyAPIError(err, flags)
 		}
 	}
@@ -245,12 +352,7 @@ func publishMarkdownArticle(ctx context.Context, flags *rootFlags, title string,
 		}, nil
 	}
 
-	publishBody := map[string]any{
-		"variables": map[string]any{"articleEntityId": articleID, "visibilitySetting": "Public"},
-		"features":  features,
-		"queryId":   "m4SHicYMoWO_qkLvjhDk7Q",
-	}
-	publishData, _, err := c.Post(ctx, client.ArticleOpURL("ArticleEntityPublish"), publishBody)
+	publishData, err := publishArticleEntity(ctx, c, articleID)
 	if err != nil {
 		return nil, classifyAPIError(err, flags)
 	}
@@ -388,14 +490,15 @@ func parseFrontmatter(yamlSrc string, fm *articleFrontmatter) {
 }
 
 // MarkdownBodyToDraftJS converts a markdown body to a Draft.js content_state.
-// Supports: paragraph, header-one (# ), header-two (## ), unordered-list-item,
+// Supports: paragraph, header-one (# ), header-two (## and deeper headings),
 // ordered-list-item, blockquote, markdown image lines, standalone tweet URLs,
 // standalone dividers (---), markdown tables, plus inline bold (**...**) and
-// italic (*...*). Fenced code blocks and markdown tables are emitted as X
-// Articles MARKDOWN entities bound to atomic Draft.js blocks. Image lines are
-// emitted as placeholder MEDIA entities in dry-run output, then rebound to
-// uploaded media IDs before live publish. Setext headings are intentionally
-// unsupported; use ## for header-two because --- is reserved for dividers.
+// italic (*...*) and code (`...`). Fenced code blocks and markdown tables are
+// emitted as X Articles MARKDOWN entities bound to atomic Draft.js blocks.
+// Image lines are emitted as placeholder MEDIA entities in dry-run output, then
+// rebound to uploaded media IDs before live publish. Setext headings are
+// intentionally unsupported; use ## for header-two because --- is reserved for
+// dividers.
 func MarkdownBodyToDraftJS(md string) draftContentState {
 	cs := draftContentState{}
 	lines := strings.Split(md, "\n")
@@ -404,6 +507,13 @@ func MarkdownBodyToDraftJS(md string) draftContentState {
 		line := strings.TrimRight(raw, " \t")
 		trim := strings.TrimSpace(line)
 		if trim == "" {
+			continue
+		}
+		// PATCH: Strip HTML comment lines (`<!-- ... -->`) so loader directives
+		// never ship as visible article text. Only whole comment lines are
+		// stripped; an inline comment mid-paragraph passes through as literal
+		// text (multi-token HTML parsing is out of converter scope).
+		if strings.HasPrefix(trim, "<!--") {
 			continue
 		}
 		if strings.HasPrefix(trim, "```") {
@@ -450,6 +560,13 @@ func MarkdownBodyToDraftJS(md string) draftContentState {
 		case strings.HasPrefix(trim, "## "):
 			blk.Type = "header-two"
 			blk.Text = strings.TrimSpace(trim[3:])
+		case strings.HasPrefix(trim, "###"):
+			if headingText, ok := downgradeMarkdownHeading(trim); ok {
+				blk.Type = "header-two"
+				blk.Text = headingText
+			} else {
+				blk.Text = trim
+			}
 		case strings.HasPrefix(trim, "> "):
 			blk.Type = "blockquote"
 			blk.Text = strings.TrimSpace(trim[2:])
@@ -463,7 +580,33 @@ func MarkdownBodyToDraftJS(md string) draftContentState {
 		default:
 			blk.Text = trim
 		}
-		blk.Text, blk.InlineStyleRanges = extractInlineStyles(blk.Text)
+		// PATCH: Run the combined inline pass (bold/italic + [text](url) links)
+		// on every non-atomic block, including blockquotes, and attach LINK
+		// entities with UTF-16 entity_ranges.
+		var links []linkSpan
+		blk.Text, blk.InlineStyleRanges, links = extractInlineSpans(blk.Text)
+		for _, ln := range links {
+			entityIndex := len(cs.EntityMap)
+			cs.EntityMap = append(cs.EntityMap, draftEntity{
+				Key: strconv.Itoa(entityIndex),
+				Value: draftEntityValue{
+					// Read-back of a live composer-authored draft (article
+					// 2064864205749280768) shows {entityKey: <uuid>, url: <url>},
+					// but entityKey is server-generated: ArticleEntityUpdateContent
+					// rejects it with GRAPHQL_VALIDATION_FAILED (HTTP 422) at
+					// entity_map[N].value.data.entityKey. Write url only, verbatim
+					// (not t.co-wrapped); the server owns entityKey.
+					Data:       map[string]any{"url": ln.URL},
+					Type:       "LINK",
+					Mutability: "Mutable",
+				},
+			})
+			blk.EntityRanges = append(blk.EntityRanges, map[string]any{
+				"key":    entityIndex,
+				"offset": ln.Offset,
+				"length": ln.Length,
+			})
+		}
 		cs.Blocks = append(cs.Blocks, blk)
 	}
 	return cs
@@ -640,6 +783,171 @@ func splitMarkdownTableRow(line string) []string {
 	return strings.Split(trimmed, "|")
 }
 
+func downgradeMarkdownHeading(line string) (string, bool) {
+	hashes := 0
+	for hashes < len(line) && line[hashes] == '#' {
+		hashes++
+	}
+	if hashes < 3 {
+		return "", false
+	}
+	if hashes >= len(line) || line[hashes] != ' ' {
+		return "", false
+	}
+	text := strings.TrimSpace(line[hashes+1:])
+	if text == "" {
+		return "", false
+	}
+	return text, true
+}
+
+// linkSpan describes one [text](url) span found by extractInlineSpans, with
+// Offset/Length in UTF-16 code units over the cleaned block text.
+type linkSpan struct {
+	Offset int
+	Length int
+	URL    string
+}
+
+// PATCH: extractInlineSpans is the combined inline pass: bold/italic markers
+// plus [text](url) inline links. Link text is recursively cleaned through
+// extractInlineStyles so `[**bold** link](url)` yields both the LINK range and
+// the inner Bold range with correct UTF-16 offsets. Image syntax (`![alt](p)`)
+// is left untouched, and degenerate links (`[](url)`, `[text]()`) degrade to
+// plain text.
+func extractInlineSpans(s string) (string, []inlineStyle, []linkSpan) {
+	ranges := []inlineStyle{}
+	links := []linkSpan{}
+	out := strings.Builder{}
+	i := 0
+	for i < len(s) {
+		if next, ok := consumeInlineCode(s, i, &out, &ranges); ok {
+			i = next
+			continue
+		}
+		// Bold first (**...**) so it doesn't get consumed as italic.
+		if i+2 <= len(s) && s[i:i+2] == "**" {
+			end := strings.Index(s[i+2:], "**")
+			if end >= 0 {
+				inner := s[i+2 : i+2+end]
+				offset := utf16Len(out.String())
+				out.WriteString(inner)
+				ranges = append(ranges, inlineStyle{Offset: offset, Length: utf16Len(inner), Style: "Bold"})
+				i = i + 2 + end + 2
+				continue
+			}
+		}
+		// Italic (*...*), single asterisk
+		if s[i] == '*' && (i == 0 || s[i-1] != '*') {
+			end := strings.Index(s[i+1:], "*")
+			if end > 0 && (i+1+end+1 >= len(s) || s[i+1+end+1] != '*') {
+				inner := s[i+1 : i+1+end]
+				offset := utf16Len(out.String())
+				out.WriteString(inner)
+				ranges = append(ranges, inlineStyle{Offset: offset, Length: utf16Len(inner), Style: "Italic"})
+				i = i + 1 + end + 1
+				continue
+			}
+		}
+		// Inline link [text](url). Skip image syntax (preceding '!').
+		if s[i] == '[' && (i == 0 || s[i-1] != '!') {
+			if inner, linkURL, advance, ok := parseInlineLinkAt(s, i); ok {
+				cleanedInner, innerStyles := extractInlineStyles(inner)
+				offset := utf16Len(out.String())
+				out.WriteString(cleanedInner)
+				for _, st := range innerStyles {
+					st.Offset += offset
+					ranges = append(ranges, st)
+				}
+				links = append(links, linkSpan{Offset: offset, Length: utf16Len(cleanedInner), URL: linkURL})
+				i += advance
+				continue
+			}
+		}
+		out.WriteByte(s[i])
+		i++
+	}
+	return out.String(), ranges, links
+}
+
+// parseInlineLinkAt parses a [text](url) span starting at s[i] (which must be
+// '['). Returns the raw link text, the url, and how many bytes the whole span
+// consumes. Empty link text or empty url returns ok=false so the caller copies
+// the characters through as plain text.
+func parseInlineLinkAt(s string, i int) (inner string, linkURL string, advance int, ok bool) {
+	closeText := findInlineLinkTextClose(s, i)
+	if closeText < 0 {
+		return "", "", 0, false
+	}
+	inner = s[i+1 : closeText]
+	if strings.TrimSpace(inner) == "" {
+		return "", "", 0, false
+	}
+	urlStart := closeText + 2
+	// PATCH: balance nested parens so URLs like .../Rust_(programming_language)
+	// are not truncated at the inner ')' (Greptile P1 on PR #1141).
+	closeURL := -1
+	depth := 0
+	for j := urlStart; j < len(s); j++ {
+		switch s[j] {
+		case '(':
+			depth++
+		case ')':
+			if depth == 0 {
+				closeURL = j - urlStart
+			} else {
+				depth--
+			}
+		}
+		if closeURL >= 0 {
+			break
+		}
+	}
+	if closeURL < 0 {
+		return "", "", 0, false
+	}
+	linkURL = strings.TrimSpace(s[urlStart : urlStart+closeURL])
+	if linkURL == "" {
+		return "", "", 0, false
+	}
+	advance = urlStart + closeURL + 1 - i
+	return inner, linkURL, advance, true
+}
+
+func findInlineLinkTextClose(s string, open int) int {
+	depth := 0
+	for j := open + 1; j+1 < len(s); j++ {
+		switch s[j] {
+		case '[':
+			depth++
+		case ']':
+			if depth > 0 {
+				depth--
+				continue
+			}
+			if s[j+1] == '(' {
+				return j
+			}
+		}
+	}
+	return -1
+}
+
+func consumeInlineCode(s string, i int, out *strings.Builder, ranges *[]inlineStyle) (int, bool) {
+	if i >= len(s) || s[i] != '`' {
+		return i, false
+	}
+	end := strings.Index(s[i+1:], "`")
+	if end < 0 {
+		return i, false
+	}
+	inner := s[i+1 : i+1+end]
+	offset := utf16Len(out.String())
+	out.WriteString(inner)
+	*ranges = append(*ranges, inlineStyle{Offset: offset, Length: utf16Len(inner), Style: "CODE"})
+	return i + 1 + end + 1, true
+}
+
 // extractInlineStyles scans a string for **bold** and *italic* markers and
 // returns the cleaned text plus the inline_style_ranges that describe them.
 //
@@ -651,6 +959,10 @@ func extractInlineStyles(s string) (string, []inlineStyle) {
 	out := strings.Builder{}
 	i := 0
 	for i < len(s) {
+		if next, ok := consumeInlineCode(s, i, &out, &ranges); ok {
+			i = next
+			continue
+		}
 		// Bold first (**...**) so it doesn't get consumed as italic.
 		if i+2 <= len(s) && s[i:i+2] == "**" {
 			end := strings.Index(s[i+2:], "**")

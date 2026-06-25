@@ -1,0 +1,25 @@
+{
+  "api_name": "1password",
+  "base_url": "",
+  "description": "Agent-safe command layer over the official 1Password CLI and SDK service-account workflows.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "endpoint-mirror"
+  },
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "op_status",
+      "description": "Show whether op is installed and authenticated without reading secret values. Returns the OpStatus.",
+      "method": "GET",
+      "path": "/status",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

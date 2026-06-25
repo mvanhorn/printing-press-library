@@ -1,0 +1,54 @@
+{
+  "manifest_version": "0.3",
+  "name": "airbyte-admin-pp-mcp",
+  "display_name": "Airbyte Admin",
+  "version": "4.18.1",
+  "description": "Read-only Airbyte administration MCP server for inspecting workspaces, connections, jobs, sources, destinations, connector definitions, and access metadata.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/airbyte-admin-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/airbyte-admin-pp-mcp",
+      "args": [],
+      "env": {
+        "AIRBYTE_ADMIN_BASE_URL": "${user_config.airbyte_admin_base_url}",
+        "AIRBYTE_ADMIN_TOKEN": "${user_config.airbyte_admin_token}",
+        "AIRBYTE_ADMIN_AUTH_HEADER": "${user_config.airbyte_admin_auth_header}"
+      }
+    }
+  },
+  "user_config": {
+    "airbyte_admin_base_url": {
+      "type": "string",
+      "title": "AIRBYTE_ADMIN_BASE_URL",
+      "description": "Optional Airbyte API root. Use https://cloud.airbyte.com/api for Airbyte Cloud or http://localhost:8000/api for a local self-managed instance.",
+      "required": false
+    },
+    "airbyte_admin_token": {
+      "type": "string",
+      "title": "AIRBYTE_ADMIN_TOKEN",
+      "description": "Optional Airbyte bearer token. The CLI adds the Bearer prefix if omitted.",
+      "sensitive": true,
+      "required": false
+    },
+    "airbyte_admin_auth_header": {
+      "type": "string",
+      "title": "AIRBYTE_ADMIN_AUTH_HEADER",
+      "description": "Optional full Authorization header such as Basic ... for self-managed deployments.",
+      "sensitive": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

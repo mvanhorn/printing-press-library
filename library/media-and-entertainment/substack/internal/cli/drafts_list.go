@@ -20,15 +20,19 @@ func newDraftsListCmd(flags *rootFlags) *cobra.Command {
 		Use:         "list",
 		Short:       "List drafts",
 		Example:     "  substack-pp-cli drafts list",
-		Annotations: map[string]string{"pp:endpoint": "drafts.list", "pp:method": "GET", "pp:path": "https://{publication}.substack.com/api/v1/drafts", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "drafts.list", "pp:method": "GET", "pp:path": "https://substack.com/api/v1/drafts?publication_id={publication_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "https://{publication}.substack.com/api/v1/drafts"
-			params := map[string]string{}
+			path := globalAPIPath("/drafts")
+			publicationID, err := writerPublicationID(cmd.Context(), c, flags)
+			if err != nil {
+				return err
+			}
+			params := map[string]string{"publication_id": publicationID}
 			if flagFilter != "" {
 				params["filter"] = fmt.Sprintf("%v", flagFilter)
 			}

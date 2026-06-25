@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "drop-sync-and-analytics-novel-features",
+  "applied_at": "2026-05-10T18:30:00Z",
+  "base_run_id": "20260510T124341Z-e440f457",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Drop `sync` and `Analytics Over Mirror` from .printing-press.json novel_features and document in defaultSyncResources why the resource list is empty for Etherpad.",
+  "reason": "Etherpad's HTTP API is RPC-shaped, not REST-shaped: every list endpoint (`listAllPads`, `listAllGroups`, `listAuthorsOfPad`, `listSessionsOfAuthor`, ...) returns a wrapper of scalar IDs (`{\"data\":{\"padIDs\":[\"id1\",\"id2\",...]}}`), not arrays of objects with extractable primary-key fields. Hydrating each ID into a record requires a separate per-resource RPC call per item (e.g., `getRevisionsCount`, `getLastEdited`). The generator's sync template assumes paginated object lists, so `defaultSyncResources()` and `syncResourcePath()` ship as empty stubs — the command exits 0 with 0 records by default, and any `--resources <name>` invocation returns `unknown sync resource`. Advertising sync/analytics as novel features in this state was misleading (Greptile P1 on PR #396). The `sync` and `analytics` commands themselves remain in the binary so a future patch can wire in a fan-out adapter, but they are not part of the published feature set.",
+  "files": [
+    ".printing-press.json",
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "novel_features now lists only the four commands that work end-to-end against Etherpad's API shape: tail, workflow archive, import, agent-context. defaultSyncResources() carries an inline comment explaining the Etherpad-specific gap so the next regen reviewer doesn't try to remove the comment as dead code.",
+  "upstream_issue": "TODO: file on mvanhorn/cli-printing-press — generator template should detect APIs that return only scalar-ID lists (no object hydration) and either elide sync/analytics from novel_features automatically or emit a per-resource fan-out adapter."
+}

@@ -1,0 +1,227 @@
+{
+  "api_name": "kdpnichefinder",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "kdp-scout",
+      "url": "https://github.com/rxpelle/kdp-scout",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-16T05:18:23Z",
+  "novel_features": [
+    {
+      "name": "Opportunity rank",
+      "command": "rank",
+      "description": "Rank niches across all four buckets at once by a composite of estimated revenue, sales, and price.",
+      "rationale": "The web UI only shows one bucket at a time; ranking across the full synced set needs the local store.",
+      "example": "kdpnichefinder-pp-cli rank --max-price 9.99 --sort value --agent",
+      "why_it_matters": "Pick this when an agent needs the single best niche by opportunity, not a bucket-by-bucket browse.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Revenue drift",
+      "command": "drift",
+      "description": "Show which synced niches are rising or fading in estimated revenue versus an earlier snapshot.",
+      "rationale": "The API is point-in-time only and has no history endpoint; trend exists only because we snapshot on every sync.",
+      "example": "kdpnichefinder-pp-cli drift --since 7d --sort rising --agent",
+      "why_it_matters": "Pick this for timing decisions (publish now vs skip) that the source tool cannot answer at all.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-bucket dedup",
+      "command": "dupes",
+      "description": "Find books that appear in more than one niche bucket (same ASIN) and show which buckets.",
+      "rationale": "Requires an ASIN-derived join across buckets in local SQLite that no single API call exposes.",
+      "example": "kdpnichefinder-pp-cli dupes --agent",
+      "why_it_matters": "Pick this to spot niches surfacing in multiple buckets, a strong cross-validated signal.",
+      "group": "Cross-bucket analysis"
+    },
+    {
+      "name": "Publisher saturation",
+      "command": "saturation",
+      "description": "Per bucket, show how concentrated estimated revenue is among publishers (whale vs fragmented).",
+      "rationale": "The API exposes a publisher field but no concentration metric; the signal is computed locally.",
+      "example": "kdpnichefinder-pp-cli saturation --type hidden_gems --agent",
+      "why_it_matters": "Pick this to tell an open niche from one a single publisher already dominates.",
+      "group": "Cross-bucket analysis"
+    },
+    {
+      "name": "Competitor inspect",
+      "command": "competitors",
+      "description": "For a focus book, list same-publisher and same-price-band competitors using the extracted ASIN.",
+      "rationale": "Reverse-ASIN-style competitor grouping is a local join the web UI does not offer.",
+      "example": "kdpnichefinder-pp-cli competitors 2584 --agent",
+      "why_it_matters": "Pick this to study who else is winning a specific niche before committing to it.",
+      "group": "Cross-bucket analysis"
+    },
+    {
+      "name": "KDP keyword CSV export",
+      "command": "export",
+      "description": "Export title, ASIN, price, estimated sales, and revenue as CSV for KDP backend keyword and cover work.",
+      "rationale": "CSV export is a table-stakes gap the web tool lacks; emitted from the local store.",
+      "example": "kdpnichefinder-pp-cli export --csv",
+      "why_it_matters": "Pick this to hand a shortlist off to keyword/cover tooling without retyping titles.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Title keyword frequency",
+      "command": "keywords",
+      "description": "Tokenize synced book titles and count keyword frequency to surface hot terms for a niche.",
+      "rationale": "Mechanical title-token aggregation over the local store, no LLM and no upstream support.",
+      "example": "kdpnichefinder-pp-cli keywords --type evergreen --min-count 3 --agent",
+      "why_it_matters": "Pick this to seed KDP backend keyword fields from what is actually selling.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Opportunity rank",
+      "command": "rank",
+      "description": "Rank niches across all four buckets at once by a composite of estimated revenue, sales, and price.",
+      "rationale": "The web UI only shows one bucket at a time; ranking across the full synced set needs the local store.",
+      "example": "kdpnichefinder-pp-cli rank --max-price 9.99 --sort value --agent",
+      "why_it_matters": "Pick this when an agent needs the single best niche by opportunity, not a bucket-by-bucket browse.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Revenue drift",
+      "command": "drift",
+      "description": "Show which synced niches are rising or fading in estimated revenue versus an earlier snapshot.",
+      "rationale": "The API is point-in-time only and has no history endpoint; trend exists only because we snapshot on every sync.",
+      "example": "kdpnichefinder-pp-cli drift --since 7d --sort rising --agent",
+      "why_it_matters": "Pick this for timing decisions (publish now vs skip) that the source tool cannot answer at all.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-bucket dedup",
+      "command": "dupes",
+      "description": "Find books that appear in more than one niche bucket (same ASIN) and show which buckets.",
+      "rationale": "Requires an ASIN-derived join across buckets in local SQLite that no single API call exposes.",
+      "example": "kdpnichefinder-pp-cli dupes --agent",
+      "why_it_matters": "Pick this to spot niches surfacing in multiple buckets, a strong cross-validated signal.",
+      "group": "Cross-bucket analysis"
+    },
+    {
+      "name": "Publisher saturation",
+      "command": "saturation",
+      "description": "Per bucket, show how concentrated estimated revenue is among publishers (whale vs fragmented).",
+      "rationale": "The API exposes a publisher field but no concentration metric; the signal is computed locally.",
+      "example": "kdpnichefinder-pp-cli saturation --type hidden_gems --agent",
+      "why_it_matters": "Pick this to tell an open niche from one a single publisher already dominates.",
+      "group": "Cross-bucket analysis"
+    },
+    {
+      "name": "Competitor inspect",
+      "command": "competitors",
+      "description": "For a focus book, list same-publisher and same-price-band competitors using the extracted ASIN.",
+      "rationale": "Reverse-ASIN-style competitor grouping is a local join the web UI does not offer.",
+      "example": "kdpnichefinder-pp-cli competitors 2584 --agent",
+      "why_it_matters": "Pick this to study who else is winning a specific niche before committing to it.",
+      "group": "Cross-bucket analysis"
+    },
+    {
+      "name": "KDP keyword CSV export",
+      "command": "export",
+      "description": "Export title, ASIN, price, estimated sales, and revenue as CSV for KDP backend keyword and cover work.",
+      "rationale": "CSV export is a table-stakes gap the web tool lacks; emitted from the local store.",
+      "example": "kdpnichefinder-pp-cli export --csv",
+      "why_it_matters": "Pick this to hand a shortlist off to keyword/cover tooling without retyping titles.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Title keyword frequency",
+      "command": "keywords",
+      "description": "Tokenize synced book titles and count keyword frequency to surface hot terms for a niche.",
+      "rationale": "Mechanical title-token aggregation over the local store, no LLM and no upstream support.",
+      "example": "kdpnichefinder-pp-cli keywords --type evergreen --min-count 3 --agent",
+      "why_it_matters": "Pick this to seed KDP backend keyword fields from what is actually selling.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "KDP Niche Finder",
+    "headline": "Every KDP Niche Finder bucket as a local research database — rank niches across buckets, track whether revenue is rising or fading, and export shortlists, none of which the web tool does.",
+    "value_prop": "KDP Niche Finder is a click-to-browse web tool that shows one curated niche bucket at a time with no history and no export. This CLI mirrors all four buckets into local SQLite so you can rank niches by opportunity across buckets (rank), see which niches are rising or fading since your last refresh (drift), spot books that appear in multiple buckets (dupes), gauge publisher saturation, and export KDP-ready CSVs — all offline and agent-native.",
+    "auth_narrative": "KDP Niche Finder uses a Laravel session login (no API key). Run `kdpnichefinder-pp-cli auth login --chrome` to capture your logged-in kdpnichefinder.com browser session; reads use the session cookie and saves/folders additionally send the CSRF token the CLI composes for you.",
+    "quickstart": [
+      {
+        "command": "kdpnichefinder-pp-cli doctor --dry-run",
+        "comment": "Check config and reachability before anything else (no auth needed)."
+      },
+      {
+        "command": "kdpnichefinder-pp-cli refresh",
+        "comment": "Mirror all four niche buckets into the local store (also snapshots revenue for drift)."
+      },
+      {
+        "command": "kdpnichefinder-pp-cli rank --max-price 9.99 --sort value",
+        "comment": "Rank the best low-price niches across every bucket at once."
+      },
+      {
+        "command": "kdpnichefinder-pp-cli drift --since 7d --sort rising",
+        "comment": "After a second refresh on a later day, see which niches are gaining revenue."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Commands return 401 / redirect to login",
+        "fix": "Your session expired; re-run `kdpnichefinder-pp-cli auth login --chrome`."
+      },
+      {
+        "symptom": "drift shows nothing",
+        "fix": "drift needs at least two refreshes on different dates; run `refresh` again tomorrow."
+      },
+      {
+        "symptom": "Saving a book fails with a CSRF/419 error",
+        "fix": "Re-run `auth login --chrome` to refresh the XSRF token cookie."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or power user needs to research Amazon KDP niches programmatically: ranking opportunities across all buckets, tracking niche revenue trends over time, studying publisher competition, or exporting shortlists. It turns KDP Niche Finder's browse-only web UI into a queryable local database.",
+    "anti_triggers": [
+      "Do not use this CLI to generate book covers or interiors — that is Artistly's generation suite, not this niche tool.",
+      "Do not use it for live Amazon BSR lookups of arbitrary ASINs — it only covers the curated KDP Niche Finder buckets.",
+      "Do not use it for non-US marketplaces — the source data is US-centric."
+    ],
+    "recipes": [
+      {
+        "title": "Best low-price niche across all buckets",
+        "command": "kdpnichefinder-pp-cli rank --max-price 9.99 --sort value --agent",
+        "explanation": "Ranks every synced book by revenue-per-dollar so cheap, high-return niches surface first."
+      },
+      {
+        "title": "Narrow a verbose niche list to the fields that matter",
+        "command": "kdpnichefinder-pp-cli niches hidden_gems --search journal --agent --select title,estimated_monthly_revenue,amazon_url",
+        "explanation": "Uses dotted --select paths to pull just title, revenue, and Amazon link from the paginated bucket response."
+      },
+      {
+        "title": "Spot rising niches week over week",
+        "command": "kdpnichefinder-pp-cli drift --since 7d --sort rising --agent",
+        "explanation": "Diffs the latest snapshot against one a week ago to show niches gaining estimated revenue."
+      },
+      {
+        "title": "Export a saved shortlist for keyword work",
+        "command": "kdpnichefinder-pp-cli export --csv",
+        "explanation": "Emits title/ASIN/price/sales/revenue as CSV for KDP backend keyword and cover tooling."
+      }
+    ],
+    "trigger_phrases": [
+      "find a kdp niche",
+      "rank kdp niches",
+      "which book niche is rising",
+      "kdp niche research",
+      "best low-content book niche",
+      "use kdpnichefinder",
+      "run kdpnichefinder"
+    ]
+  }
+}

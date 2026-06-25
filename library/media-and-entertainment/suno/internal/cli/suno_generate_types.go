@@ -52,14 +52,20 @@ type sunoControlSliders struct {
 
 // sunoGenerateMetadata is the metadata sub-object of the generation body.
 type sunoGenerateMetadata struct {
-	WebClientPathname          string              `json:"web_client_pathname"`
-	IsMaxMode                  bool                `json:"is_max_mode"`
-	IsMumble                   bool                `json:"is_mumble"`
-	CreateMode                 string              `json:"create_mode"`
-	UserTier                   string              `json:"user_tier"`
-	CreateSessionToken         string              `json:"create_session_token"`
-	DisableVolumeNormalization bool                `json:"disable_volume_normalization"`
-	ControlSliders             *sunoControlSliders `json:"control_sliders"`
+	WebClientPathname          string `json:"web_client_pathname"`
+	IsMaxMode                  bool   `json:"is_max_mode"`
+	IsMumble                   bool   `json:"is_mumble"`
+	CreateMode                 string `json:"create_mode"`
+	UserTier                   string `json:"user_tier"`
+	CreateSessionToken         string `json:"create_session_token"`
+	DisableVolumeNormalization bool   `json:"disable_volume_normalization"`
+	// ControlSliders is omitted entirely when no slider is set — the web app
+	// does not send the key at all, and sending an explicit null makes the
+	// server return 500.
+	ControlSliders *sunoControlSliders `json:"control_sliders,omitempty"`
+	// LyricsModel is sent only when Suno writes the lyrics (inspiration mode);
+	// the custom-lyrics flow omits the key, and including it there 500s.
+	LyricsModel string `json:"lyrics_model,omitempty"`
 	// Variation is the advanced "how different from the prompt" preset
 	// (high/normal/subtle). Best-effort: omitted entirely unless --variation
 	// is set, so the default body stays byte-identical to the known-good flow.
@@ -68,11 +74,7 @@ type sunoGenerateMetadata struct {
 
 // sunoGenerateBody is the full POST /api/generate/v2-web/ request body. Every
 // field is always serialized; *string / *float64 fields emit JSON null when
-// nil, which the upstream API requires as explicit placeholders for the
-// optional reference fields (cover_clip_id, persona_id, continue_*). Title and
-// Tags are the exception: the API requires them to be JSON strings (a null
-// title is rejected before the captcha gate), so they are always non-nil — see
-// alwaysStrPtr.
+// nil, which the upstream API requires as explicit placeholders.
 type sunoGenerateBody struct {
 	Token                  *string              `json:"token"`
 	GenerationType         string               `json:"generation_type"`
@@ -82,21 +84,27 @@ type sunoGenerateBody struct {
 	Mv                     string               `json:"mv"`
 	Prompt                 string               `json:"prompt"`
 	MakeInstrumental       bool                 `json:"make_instrumental"`
+	UserUploadedImagesB64  *string              `json:"user_uploaded_images_b64"`
 	Metadata               sunoGenerateMetadata `json:"metadata"`
 	OverrideFields         []string             `json:"override_fields"`
 	CoverClipID            *string              `json:"cover_clip_id"`
 	CoverStartS            *float64             `json:"cover_start_s"`
 	CoverEndS              *float64             `json:"cover_end_s"`
 	PersonaID              *string              `json:"persona_id"`
+	ArtistClipID           *string              `json:"artist_clip_id"`
+	ArtistStartS           *float64             `json:"artist_start_s"`
+	ArtistEndS             *float64             `json:"artist_end_s"`
 	ContinueClipID         *string              `json:"continue_clip_id"`
 	ContinuedAlignedPrompt *string              `json:"continued_aligned_prompt"`
 	ContinueAt             *float64             `json:"continue_at"`
 	TransactionUUID        string               `json:"transaction_uuid"`
+	// TokenProvider identifies the captcha token source (1 = hCaptcha). The web
+	// app sends null when no token is present and 1 once a token is attached;
+	// sending 1 with a null token makes the server return 500.
+	TokenProvider *int `json:"token_provider"`
 }
 
-// strPtr returns a pointer to s, or nil when s is empty. Used for the optional
-// reference fields (cover_clip_id, persona_id, continue_clip_id) that the
-// upstream API genuinely wants as JSON null when absent.
+// strPtr returns a pointer to s, or nil when s is empty.
 func strPtr(s string) *string {
 	if s == "" {
 		return nil
@@ -122,6 +130,7 @@ type generateInput struct {
 	mv           string // wire model key
 	title        string
 	tags         string
+	negativeTags string // styles to exclude; empty -> sent as ""
 	prompt       string // lyrics for custom, description for inspiration
 	instrumental bool
 	personaID    string
@@ -165,6 +174,11 @@ func buildGenerateBody(in generateInput) sunoGenerateBody {
 		CreateSessionToken:         uuid.NewString(),
 		DisableVolumeNormalization: false,
 	}
+	// Only the description→lyrics (inspiration) flow carries lyrics_model; the
+	// custom-lyrics flow omits it (matching the web app).
+	if in.createMode == "inspiration" {
+		meta.LyricsModel = "default"
+	}
 	if in.weirdness != nil || in.styleInfluence != nil {
 		sliders := &sunoControlSliders{}
 		if in.weirdness != nil {
@@ -178,22 +192,37 @@ func buildGenerateBody(in generateInput) sunoGenerateBody {
 	meta.Variation = in.variation
 
 	return sunoGenerateBody{
-		Token:            strPtr(in.token),
-		GenerationType:   "TEXT",
-		Title:            alwaysStrPtr(in.title),
-		Tags:             alwaysStrPtr(in.tags),
-		NegativeTags:     "",
-		Mv:               in.mv,
-		Prompt:           in.prompt,
-		MakeInstrumental: in.instrumental,
-		Metadata:         meta,
-		OverrideFields:   []string{},
-		CoverClipID:      strPtr(in.coverClipID),
-		PersonaID:        strPtr(in.personaID),
-		ContinueClipID:   strPtr(in.continueClipID),
-		ContinueAt:       in.continueAt,
-		TransactionUUID:  uuid.NewString(),
+		Token:                 strPtr(in.token),
+		GenerationType:        "TEXT",
+		Title:                 alwaysStrPtr(in.title),
+		Tags:                  alwaysStrPtr(in.tags),
+		NegativeTags:          in.negativeTags,
+		Mv:                    in.mv,
+		Prompt:                in.prompt,
+		MakeInstrumental:      in.instrumental,
+		UserUploadedImagesB64: nil,
+		Metadata:              meta,
+		OverrideFields:        []string{},
+		CoverClipID:           strPtr(in.coverClipID),
+		PersonaID:             strPtr(in.personaID),
+		ArtistClipID:          nil,
+		ArtistStartS:          nil,
+		ArtistEndS:            nil,
+		ContinueClipID:        strPtr(in.continueClipID),
+		ContinueAt:            in.continueAt,
+		TransactionUUID:       uuid.NewString(),
+		TokenProvider:         tokenProvider(in.token),
 	}
+}
+
+// tokenProvider mirrors the web app: null when no captcha token is attached,
+// 1 (hCaptcha) once a token is present.
+func tokenProvider(token string) *int {
+	if token == "" {
+		return nil
+	}
+	hcaptcha := 1
+	return &hcaptcha
 }
 
 // appendTag folds an additional descriptor (e.g. "male vocals") into a tags

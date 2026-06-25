@@ -14,8 +14,10 @@ import (
 
 // agentContextSchemaVersion is bumped on any breaking change to the JSON
 // shape emitted by `agent-context`. Agents should check this before
-// parsing. Shape at v3 adds kind-aware auth env var metadata.
-const agentContextSchemaVersion = "3"
+// parsing. Shape at v3 adds kind-aware auth env var metadata. v4 adds the
+// top-level global_flags array (root persistent flags such as --data-source,
+// --agent, --json) so agents see them without parsing --help.
+const agentContextSchemaVersion = "4"
 
 // agentContext is the structured description of this CLI consumed by AI
 // agents. Inspired by Cloudflare's /cdn-cgi/explorer/api runtime endpoint
@@ -26,6 +28,7 @@ type agentContext struct {
 	CLI                        agentContextCLI        `json:"cli"`
 	Auth                       agentContextAuth       `json:"auth"`
 	Discovery                  *agentContextDiscovery `json:"discovery,omitempty"`
+	GlobalFlags                []agentContextFlag     `json:"global_flags"`
 	Commands                   []agentContextCommand  `json:"commands"`
 	AvailableProfiles          []string               `json:"available_profiles"`
 	FeedbackEndpointConfigured bool                   `json:"feedback_endpoint_configured"`
@@ -146,10 +149,34 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 			EnvVars: envVars,
 		},
 		Discovery:                  buildAgentDiscoveryContext(),
+		GlobalFlags:                collectGlobalFlags(rootCmd),
 		Commands:                   collectAgentCommands(rootCmd),
 		AvailableProfiles:          profiles,
 		FeedbackEndpointConfigured: FeedbackEndpointConfigured(),
 	}
+}
+
+// collectGlobalFlags captures the root command's persistent flags (the global
+// flags shared by every subcommand, e.g. --data-source, --agent, --json).
+// These do not appear in collectAgentCommands: that walk reads each
+// subcommand's local flag set, and Cobra does not merge inherited persistent
+// flags into a subcommand's Flags() until command execution, so a static walk
+// never surfaces them. Listing them once at the top level keeps the machine-
+// readable context complete without duplicating them onto every command.
+// Output is sorted by flag name for stable diffs across regenerations.
+// PATCH(amend-2026-06-05: expose root persistent flags in agent-context) — schema_version bumped to 4
+func collectGlobalFlags(rootCmd *cobra.Command) []agentContextFlag {
+	out := []agentContextFlag{}
+	rootCmd.PersistentFlags().VisitAll(func(f *pflag.Flag) {
+		out = append(out, agentContextFlag{
+			Name:    f.Name,
+			Type:    f.Value.Type(),
+			Usage:   f.Usage,
+			Default: f.DefValue,
+		})
+	})
+	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
+	return out
 }
 
 func buildAgentDiscoveryContext() *agentContextDiscovery {

@@ -32,8 +32,9 @@ func newSunoExtendCmd(flags *rootFlags) *cobra.Command {
 		Short: "Extend (continue) an existing clip from a time offset (captcha-gated)",
 		Long: `Continue an existing clip, generating new audio that picks up from --at seconds.
 
-Captcha-gated: pass --token <hcaptcha-token> or --no-captcha. This command
-never launches a browser or solver.`,
+Captcha-gated: when Suno's hCaptcha gate trips, the CLI auto-solves it with a
+dedicated piloted-Chrome profile (see 'auth captcha'). Use --captcha-profile to
+pick an account, or pass a pre-solved --token to skip the browser.`,
 		Example: `  suno-pp-cli generate extend 550e8400-e29b-41d4-a716-446655440000 --at 120 --token <hc>
   suno-pp-cli generate extend <id> --at 90 --lyrics "next verse..." --no-captcha`,
 		Annotations: map[string]string{"pp:method": "POST", "pp:path": "/api/generate/v2-web/"},
@@ -53,7 +54,6 @@ never launches a browser or solver.`,
 
 			// Optimistic captcha: attempt without a token; runGenerationFlow
 			// surfaces captchaRequiredError only if Suno actually challenges it.
-			_ = noCaptcha
 			if dryRunOK(flags) {
 				return nil
 			}
@@ -68,7 +68,7 @@ never launches a browser or solver.`,
 				continueClipID: clipID,
 				continueAt:     &continueAt,
 			})
-			return runGenerationFlow(cmd, flags, body, wait, downloadDir, workspace)
+			return runGenerationFlow(cmd, flags, body, wait, downloadDir, workspace, noCaptcha)
 		},
 	}
 
@@ -78,6 +78,7 @@ never launches a browser or solver.`,
 	cmd.Flags().StringVar(&model, "model", defaultGenerateModel, "Model: v5.5, v5, v4.5+, v4.5, v4, v3.5, v3, v2")
 	cmd.Flags().StringVar(&token, "token", "", "hCaptcha token (required unless --no-captcha)")
 	cmd.Flags().BoolVar(&noCaptcha, "no-captcha", false, "Bypass the hCaptcha requirement")
+	cmd.Flags().StringVar(&captchaProfileFlag, "captcha-profile", "", "Solver profile (Chrome account) to use when the gate trips")
 	cmd.Flags().StringVar(&workspace, "workspace", "", "Workspace (project) ID to add the generated clip(s) to")
 	cmd.Flags().BoolVar(&wait, "wait", false, "Poll until generation completes")
 	cmd.Flags().StringVar(&downloadDir, "download", "", "Download finished clips to this directory (implies --wait)")

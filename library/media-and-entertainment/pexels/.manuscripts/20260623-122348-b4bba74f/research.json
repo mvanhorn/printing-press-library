@@ -1,0 +1,297 @@
+{
+  "api_name": "pexels",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "pexels (official SDK)",
+      "url": "https://github.com/pexels/pexels-javascript",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 171,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pypexels",
+      "url": "https://github.com/salvoventura/pypexels",
+      "language": "Python",
+      "install_method": "",
+      "stars": 76,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pexels-image-downloader",
+      "url": "https://github.com/AguilarLagunasArturo/pexels-image-downloader",
+      "language": "Python",
+      "install_method": "",
+      "stars": 44,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "stock-images-mcp",
+      "url": "https://github.com/Zulelee/stock-images-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 37,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "garylab pexels-mcp-server",
+      "url": "https://github.com/garylab/pexels-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 17,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "CaullenOmdahl pexels-mcp-server",
+      "url": "https://github.com/CaullenOmdahl/pexels-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 7,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "afshinator mcp-server-pexels",
+      "url": "https://github.com/afshinator/mcp-server-pexels",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "developer-ishan mcp-pexels",
+      "url": "https://github.com/developer-ishan/mcp-pexels",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-23T17:42:00Z",
+  "novel_features": [
+    {
+      "name": "Quota forecaster",
+      "command": "quota forecast",
+      "description": "Check before a bulk pull whether it fits your remaining hourly/monthly Pexels quota, with a reset ETA.",
+      "rationale": "Pexels drops the X-Ratelimit-* headers on the 429 you most want them on; only a local ledger that persists them across calls can forecast affordable pages.",
+      "example": "pexels-pp-cli quota forecast --resources photos,videos --max-pages 10 --agent",
+      "why_it_matters": "Reach for this before any large download to avoid burning the 200/hour budget mid-batch.",
+      "group": "Rate-limit intelligence"
+    },
+    {
+      "name": "Best-fit resolution picker",
+      "command": "resolve",
+      "description": "Pick the smallest photo size or video file that meets a target dimension without upscaling.",
+      "rationale": "Requires encoding Pexels' crop-vs-scale semantics across the 8-size src ladder and video_files against a cached media record.",
+      "example": "pexels-pp-cli resolve 2014422 --target-width 1280 --target-height 720 --agent",
+      "why_it_matters": "Use when you know the media id and need exactly one URL sized for a target, instead of parsing eight src variants.",
+      "group": "Resolution \u0026 download intelligence"
+    },
+    {
+      "name": "Attribution ledger + SOURCES export",
+      "command": "attribution export",
+      "description": "Emit a SOURCES.md and per-file .meta.json sidecars crediting every photographer in your local download ledger.",
+      "rationale": "Requires a persistent downloads ledger correlating media ids, photographers, and URLs that only the local store holds together.",
+      "example": "pexels-pp-cli attribution export --resources photos,videos --csv",
+      "why_it_matters": "Reach for this to satisfy Pexels' attribution guideline in one shot rather than hand-building credit lists.",
+      "group": "License compliance"
+    },
+    {
+      "name": "Dedup + rate-aware bulk download",
+      "command": "download",
+      "description": "Bulk-download a query, skipping media already in your ledger and checkpointing each page so a hit quota stops you gracefully.",
+      "rationale": "Requires a cross-session SQLite ledger join on media id plus live rate-header watching that no stateless wrapper has.",
+      "example": "pexels-pp-cli download \"mountain lake\" --type photo --limit 30 --max-pages 3 --size large --sidecar",
+      "why_it_matters": "Use for repeated or large harvests that must not re-download files or exceed the rate budget.",
+      "group": "Resolution \u0026 download intelligence"
+    },
+    {
+      "name": "Offline re-search of synced media",
+      "command": "search",
+      "description": "Full-text search media you already synced, with stable ordering and no API call.",
+      "rationale": "Requires a local FTS index over synced photo alt/photographer/query and video user.name that the live API cannot reproduce.",
+      "example": "pexels-pp-cli search \"sunset\" --type photos --limit 10 --agent --select id,photographer,alt",
+      "why_it_matters": "Reach for this to re-find media you pulled earlier instead of spending quota on a fresh live search.",
+      "group": "Local store that compounds"
+    },
+    {
+      "name": "Photographer attribution roll-up",
+      "command": "analytics",
+      "description": "Group your synced photos by photographer to review credit balance and licensing coverage.",
+      "rationale": "Requires a local GROUP BY over the synced photos and download ledger that no single Pexels endpoint exposes.",
+      "example": "pexels-pp-cli analytics --type photos --group-by photographer --limit 20",
+      "why_it_matters": "Use during a licensing or credit review to see which photographers dominate your pulled set.",
+      "group": "Local store that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Quota forecaster",
+      "command": "quota forecast",
+      "description": "Check before a bulk pull whether it fits your remaining hourly/monthly Pexels quota, with a reset ETA.",
+      "rationale": "Pexels drops the X-Ratelimit-* headers on the 429 you most want them on; only a local ledger that persists them across calls can forecast affordable pages.",
+      "example": "pexels-pp-cli quota forecast --resources photos,videos --max-pages 10 --agent",
+      "why_it_matters": "Reach for this before any large download to avoid burning the 200/hour budget mid-batch.",
+      "group": "Rate-limit intelligence"
+    },
+    {
+      "name": "Best-fit resolution picker",
+      "command": "resolve",
+      "description": "Pick the smallest photo size or video file that meets a target dimension without upscaling.",
+      "rationale": "Requires encoding Pexels' crop-vs-scale semantics across the 8-size src ladder and video_files against a cached media record.",
+      "example": "pexels-pp-cli resolve 2014422 --target-width 1280 --target-height 720 --agent",
+      "why_it_matters": "Use when you know the media id and need exactly one URL sized for a target, instead of parsing eight src variants.",
+      "group": "Resolution \u0026 download intelligence"
+    },
+    {
+      "name": "Attribution ledger + SOURCES export",
+      "command": "attribution export",
+      "description": "Emit a SOURCES.md and per-file .meta.json sidecars crediting every photographer in your local download ledger.",
+      "rationale": "Requires a persistent downloads ledger correlating media ids, photographers, and URLs that only the local store holds together.",
+      "example": "pexels-pp-cli attribution export --resources photos,videos --csv",
+      "why_it_matters": "Reach for this to satisfy Pexels' attribution guideline in one shot rather than hand-building credit lists.",
+      "group": "License compliance"
+    },
+    {
+      "name": "Dedup + rate-aware bulk download",
+      "command": "download",
+      "description": "Bulk-download a query, skipping media already in your ledger and checkpointing each page so a hit quota stops you gracefully.",
+      "rationale": "Requires a cross-session SQLite ledger join on media id plus live rate-header watching that no stateless wrapper has.",
+      "example": "pexels-pp-cli download \"mountain lake\" --type photo --limit 30 --max-pages 3 --size large --sidecar",
+      "why_it_matters": "Use for repeated or large harvests that must not re-download files or exceed the rate budget.",
+      "group": "Resolution \u0026 download intelligence"
+    },
+    {
+      "name": "Offline re-search of synced media",
+      "command": "search",
+      "description": "Full-text search media you already synced, with stable ordering and no API call.",
+      "rationale": "Requires a local FTS index over synced photo alt/photographer/query and video user.name that the live API cannot reproduce.",
+      "example": "pexels-pp-cli search \"sunset\" --type photos --limit 10 --agent --select id,photographer,alt",
+      "why_it_matters": "Reach for this to re-find media you pulled earlier instead of spending quota on a fresh live search.",
+      "group": "Local store that compounds"
+    },
+    {
+      "name": "Photographer attribution roll-up",
+      "command": "analytics",
+      "description": "Group your synced photos by photographer to review credit balance and licensing coverage.",
+      "rationale": "Requires a local GROUP BY over the synced photos and download ledger that no single Pexels endpoint exposes.",
+      "example": "pexels-pp-cli analytics --type photos --group-by photographer --limit 20",
+      "why_it_matters": "Use during a licensing or credit review to see which photographers dominate your pulled set.",
+      "group": "Local store that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "PEXELS_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Pexels",
+    "headline": "Every Pexels photo, video, and collection endpoint — plus a local store that adds quota forecasting, dedup-aware bulk download, and one-shot attribution exports no other Pexels tool has.",
+    "value_prop": "A single binary for the full Pexels API: search and curated photos, video search and popular feeds, and collections including your own. It mirrors results into a local SQLite store so you can re-search offline, dedup downloads across sessions, forecast your rate budget, pick the best-fit resolution for a target, and export license-compliant attribution in one command.",
+    "auth_narrative": "Pexels uses a free API key sent as a raw `Authorization: \u003ckey\u003e` header — there is NO `Bearer` prefix (the single most common 401 in the ecosystem). Set `PEXELS_API_KEY` or run `pexels-pp-cli auth login`. Every request also sends a User-Agent, since Pexels' edge returns 403 to header-less clients.",
+    "quickstart": [
+      {
+        "command": "pexels-pp-cli doctor --dry-run",
+        "comment": "Confirm the CLI is wired and see whether your API key is detected"
+      },
+      {
+        "command": "pexels-pp-cli photos search --query \"golden retriever puppy\" --orientation square --per-page 5",
+        "comment": "Core photo search with Pexels' filters"
+      },
+      {
+        "command": "pexels-pp-cli download \"mountain lake\" --type photo --limit 3 --size large --sidecar",
+        "comment": "Dedup-aware download that writes attribution sidecars"
+      },
+      {
+        "command": "pexels-pp-cli attribution export --csv",
+        "comment": "Emit SOURCES.md crediting everything you've downloaded"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every call",
+        "fix": "Your key is likely sent with a Bearer prefix by another tool; this CLI sends the raw key. Verify with `pexels-pp-cli doctor` and re-set via `pexels-pp-cli auth login`."
+      },
+      {
+        "symptom": "403 from api.pexels.com",
+        "fix": "Header-less clients get Cloudflare-403'd; this CLI sets a User-Agent automatically. If you still see it, your key may be gated — check status.pexels.com."
+      },
+      {
+        "symptom": "Bulk download stops early",
+        "fix": "You hit the 200/hour budget. Run `pexels-pp-cli quota forecast` first, then resume with --max-pages once the reset passes."
+      },
+      {
+        "symptom": "search returns nothing",
+        "fix": "Offline search reads the local store; run `pexels-pp-cli sync --resources photos` first, or use `photos search` for a live query."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or script needs stock photos or video b-roll from Pexels with deterministic JSON output, license-compliant attribution, and rate-budget awareness. It is the right choice for repeated or bulk media harvesting, re-finding previously pulled media offline, and picking exact resolutions for known media ids.",
+    "anti_triggers": [
+      "Do not use this CLI to upload, like, or modify content on Pexels — the API is strictly read-only.",
+      "Do not use it as a wallpaper app or to replicate Pexels' core browsing experience; Pexels' guidelines forbid that and gate such clients.",
+      "Do not use it for non-Pexels stock sources (Unsplash, Pixabay); it only speaks the Pexels API."
+    ],
+    "recipes": [
+      {
+        "title": "Agent-native photo search, narrowed",
+        "command": "pexels-pp-cli photos search --query \"foggy forest\" --orientation portrait --per-page 8 --agent --select photos.id,photos.photographer,photos.src.large2x,photos.alt",
+        "explanation": "Returns only the four fields an agent needs from a deeply-nested response, instead of all eight src sizes per photo."
+      },
+      {
+        "title": "Forecast then harvest",
+        "command": "pexels-pp-cli quota forecast --resources photos --max-pages 5 \u0026\u0026 pexels-pp-cli download \"city skyline night\" --type photo --limit 50 --max-pages 5 --size large --sidecar",
+        "explanation": "Check the rate budget, then run a dedup-aware bulk pull that writes attribution sidecars."
+      },
+      {
+        "title": "Best-fit resolution for a known id",
+        "command": "pexels-pp-cli resolve 2014422 --target-width 1920 --target-height 1080 --agent",
+        "explanation": "Picks the smallest src/video_file that covers 1080p without upscaling."
+      },
+      {
+        "title": "Browse your own collections",
+        "command": "pexels-pp-cli collections list --per-page 20 --json",
+        "explanation": "Lists the authenticated user's collections — a surface only two ecosystem tools expose."
+      },
+      {
+        "title": "Re-find synced media offline",
+        "command": "pexels-pp-cli sync --resources photos --max-pages 3 \u0026\u0026 pexels-pp-cli search \"sunset\" --type photos --limit 10",
+        "explanation": "Mirror a few pages locally, then full-text search them without spending more quota."
+      }
+    ],
+    "trigger_phrases": [
+      "search pexels for photos",
+      "download stock video b-roll",
+      "get a stock photo of",
+      "find royalty-free images",
+      "export photo attribution credits",
+      "use pexels",
+      "run pexels"
+    ]
+  }
+}

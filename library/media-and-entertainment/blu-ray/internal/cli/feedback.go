@@ -35,7 +35,7 @@ func feedbackFilePath() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("resolving home dir: %w", err)
 	}
-	dir := filepath.Join(home, ".blu-ray-pp-cli")
+	dir := filepath.Join(home, ".local", "share", "blu-ray-pp-cli")
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", fmt.Errorf("creating state dir: %w", err)
 	}
@@ -100,7 +100,7 @@ func newFeedbackCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "feedback [text]",
 		Short: "Record feedback about this CLI (local by default; upstream opt-in)",
-		Long: `Feedback is captured locally first at ~/.blu-ray-pp-cli/feedback.jsonl.
+		Long: `Feedback is captured locally first at ~/.local/share/blu-ray-pp-cli/feedback.jsonl.
 When ` + "`BLU_RAY_FEEDBACK_ENDPOINT`" + ` is set and either --send is
 passed or ` + "`BLU_RAY_FEEDBACK_AUTO_SEND=true`" + `, the entry is
 POSTed as JSON after the local write.
@@ -184,6 +184,9 @@ func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List recent feedback entries",
+		Annotations: map[string]string{
+			"mcp:read-only": "true",
+		},
 		Example: `  blu-ray-pp-cli feedback list
   blu-ray-pp-cli feedback list --limit 5
   blu-ray-pp-cli feedback list --json`,

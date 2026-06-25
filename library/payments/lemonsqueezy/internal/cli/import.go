@@ -23,8 +23,8 @@ func newImportCmd(flags *rootFlags) *cobra.Command {
 		Use:   "import <resource>",
 		Short: "Import data from JSONL file via API create/upsert calls",
 		Long: `Import data from a JSONL file by issuing POST requests for each record.
-Each line must be a valid JSON object. Failed records are logged to stderr
-but do not stop the import.`,
+
+Important: Lemon Squeezy catalog resources are not generally writable through the public API. Products, variants, and files are read-only (list/get only), so this command refuses those resources with a structured resource_read_only / operation_not_supported_by_public_api error instead of printing fake POST dry-runs.`,
 		Example: `  # Import from a JSONL file
   lemonsqueezy-pp-cli import <resource> --input data.jsonl
 
@@ -41,7 +41,10 @@ but do not stop the import.`,
 			}
 			c.DryRun = dryRun
 
-			resource := args[0]
+			resource := normalizeResourceName(args[0])
+			if cap, ok := capabilityForResource(resource); ok && !operationSupported(cap, "import") {
+				return emitUnsupportedOperation(cmd, flags, resource, "import")
+			}
 			path := "/" + resource
 
 			var reader io.Reader

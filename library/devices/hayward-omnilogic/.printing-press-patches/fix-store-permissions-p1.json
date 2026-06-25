@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "fix-store-permissions-p1",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260510-160303",
+  "base_printing_press_version": "4.2.2",
+  "summary": "SQLite store dir created with 0o700 and the .sqlite file (plus WAL/SHM sidecars) chmod'd to 0o600 so local non-owner users cannot dump telemetry, chemistry, equipment topology, command log, or alarm history.",
+  "reason": "Greptile P1 #3216091791. The SQLite store dir was created with 0o755 and the .sqlite file inherited umask (typically 0o644 on macOS/Linux), letting any local user `sqlite3 store.sqlite` and read the entire history. The cache.go fix from a previous review covered the response cache but missed the store — same sensitivity, same treatment. Fix: MkdirAll mode -> 0o700; after sql.Open succeeds, os.Chmod the SQLite file to 0o600 and conditionally chmod WAL/SHM sidecars (NotExist is non-fatal because sidecars only exist after the first write transaction).",
+  "files": [
+    "internal/store/store.go",
+    "internal/store/store_test.go"
+  ],
+  "validated_outcome": "TestOpenPermissions locks 0o700 dir / 0o600 file using a nested path that exercises the MkdirAll codepath. Verified live: drwx------ store dir, -rw------- store.sqlite after fresh open."
+}

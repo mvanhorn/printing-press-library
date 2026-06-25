@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "sms-reconcile-retry-flag-guard-persist-and-error-clear",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260513-091340",
+  "base_printing_press_version": "4.5.2",
+  "summary": "sms reconcile --retry-failed guards on the same population the retry loop iterates over, persists retried rows back into the stored batch, and clears the original Error field on successful retry.",
+  "reason": "The previous guard `result.Failed > 0` gated on Bird-side delivery failures (from runAudit), while the loop body matched rows where `row.Status == \"failed\" || row.Error != \"\"` (HTTP send failures). The two populations are disjoint, so --retry-failed silently no-op'd in the two most common scenarios: (1) all POSTs succeeded but Bird rejected delivery -- guard passed, retries stayed empty; (2) all POSTs failed -- result.Failed stayed at zero, guard never fired. The flag's help text reads 'Re-send rows whose original send failed', so guarding on send-failure rows aligns the implementation with the documented contract. A second-order bug surfaced after the first guard fix: retried rows received new MessageIDs from sendOneRow but were only updated in memory; the persisted batch still held the original `MessageID == \"\"` entries, so a follow-up `sms reconcile <batch-id>` skipped the retried rows on line 90 (`if row.MessageID == \"\" { continue }`) and could not audit their delivery. A third-order bug surfaced after the persist fix: `retry := row` shallow-copied the original Error string, sendOneRow only writes MessageID + Status on success, so a successful retry persisted with `Status == \"retried\" && Error != \"\"`. The next --retry-failed pass then re-retried an already-delivered row indefinitely (Bird's idempotency keys suppress duplicate delivery, but the stored state stays incorrect). Fix: clear retry.Error in the success branch. Surfaced by Greptile P1 in the PR #417 second, third, and eighth review passes.",
+  "files": [
+    "internal/cli/sms_reconcile.go"
+  ],
+  "validated_outcome": "go build ./... succeeds; go test ./... passes; go vet clean."
+}

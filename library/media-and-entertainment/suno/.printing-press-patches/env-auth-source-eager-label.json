@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "env-auth-source-eager-label",
+  "applied_at": "2026-06-07",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Label AuthSource from the env token in config.Load() so IsEnvAuth() is correct before the first AuthHeader() call, routing env-only users (SUNO_TOKEN/SUNO_JWT) to the per-run browser cookie pull instead of the managed Clerk-session path.",
+  "reason": "Load() stored env tokens in EnvSunoJwt/EnvAuthSource but never wrote AuthSource, so IsEnvAuth() returned false until AuthHeader() was lazily invoked on the first HTTP request. newClient() consults IsEnvAuth() before that to choose the auth path, so env-only users silently fell into the managed Clerk-session branch (EnsureFreshSession's JWT re-mint + stored-cookie reuse, neither applicable to an unmanaged env token), got an empty cookie header, and lost 422 recovery (the installed refresher no-ops once AuthHeader() flips IsEnvAuth true mid-run). Fix: after the file-credential labeling, set AuthSource = EnvAuthSource when AuthSource is still empty and an env token is present. File-credential precedence is preserved because the file-credential branch sets AuthSource=config first.",
+  "files": [
+    "internal/config/config.go",
+    "internal/config/config_test.go"
+  ],
+  "validated_outcome": "TestLoadEnvOnlyAuthDetectedBeforeAuthHeader asserts IsEnvAuth() is true and AuthSource is env:SUNO_TOKEN / env:SUNO_JWT immediately after Load() (before any AuthHeader() call). Existing precedence tests (stored JWT or stored clerk cookie -> AuthSource=config) still pass.",
+  "findings_addressed": [
+    "env-auth-source-eager-label"
+  ]
+}

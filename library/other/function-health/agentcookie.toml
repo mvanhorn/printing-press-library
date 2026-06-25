@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "function-health-pp-cli"
+display_name = "Function Health"
+description = "Every Function Health feature, plus a local SQLite store with biomarker trends across every round you've ever drawn, plus a branded shareable PDF your doctor will actually read."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/function-health-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+FUNCTION_HEALTH_TOKEN = true

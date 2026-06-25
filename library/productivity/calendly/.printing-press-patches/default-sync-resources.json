@@ -1,0 +1,9 @@
+{
+  "id": "default-sync-resources",
+  "summary": "Use generated known flat resources as default sync targets.",
+  "reason": "The docs-derived OpenAPI spec emitted valid sync resource path mappings but left defaultSyncResources empty, making `sync` a runtime no-op unless users supplied --resources manually.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "reprint_guard": "If the source spec is regenerated with explicit response envelopes or x-sync metadata, preserve non-empty default sync resources so `sync` can populate the local SQLite store by default."
+}

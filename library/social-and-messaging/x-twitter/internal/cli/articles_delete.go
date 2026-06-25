@@ -16,6 +16,7 @@ import (
 
 func newArticlesDeleteCmd(flags *rootFlags) *cobra.Command {
 	var flagData string
+	var articleID string
 	var bodyQueryId string
 	var bodyVariables string
 	var stdinBody bool
@@ -26,6 +27,14 @@ func newArticlesDeleteCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  x-twitter-pp-cli articles delete --data example-value --query-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "articles.delete", "pp:method": "POST", "pp:path": "/i/api/graphql/e4lWqB6m2TA8Fn_j9L9xEA/ArticleEntityDelete"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			friendly := cmd.Flags().Changed("id")
+			if friendly {
+				body, err := articleDeleteRequestBody(articleID)
+				if err != nil {
+					return err
+				}
+				return runArticleGraphQLMutation(cmd, flags, "ArticleEntityDelete", body)
+			}
 			if !cmd.Flags().Changed("data") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "data")
 			}
@@ -135,6 +144,7 @@ func newArticlesDeleteCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagData, "data", "", "")
+	cmd.Flags().StringVar(&articleID, "id", "", "Article rest_id to delete")
 	cmd.Flags().StringVar(&bodyQueryId, "query-id", "", "")
 	cmd.Flags().StringVar(&bodyVariables, "variables", "", "")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")

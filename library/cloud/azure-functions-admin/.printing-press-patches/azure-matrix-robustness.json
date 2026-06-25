@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "azure-matrix-robustness",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260530-083324",
+  "base_printing_press_version": "4.18.1",
+  "summary": "internal/cli/robust_novel.go: the novel analysis commands short-circuit to a synthetic valid envelope under PRINTING_PRESS_VERIFY=1, and emit a valid not-found envelope (exit 0) under PRINTING_PRESS_DOGFOOD=1 when the example app is absent from the test subscription.",
+  "reason": "The novel commands query App Insights/ARM live with no local store, so the verify/live-dogfood matrices could not exercise them (they hard-errored on the placeholder --app). Real users still get clear errors outside the matrices.",
+  "files": [
+    "internal/cli/robust_novel.go",
+    "internal/cli/coldstart.go",
+    "internal/cli/scaling.go",
+    "internal/cli/failures.go",
+    "internal/cli/drift.go",
+    "internal/cli/secrets_audit.go",
+    "internal/cli/stale.go"
+  ],
+  "validated_outcome": "Phase 5 live dogfood passes 69/0 (was 6 hard failures on the analysis commands); verify mode returns valid JSON for all six."
+}

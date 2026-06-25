@@ -27,12 +27,10 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
-	{Command: "search", Description: "Instant offline search across every Blu-ray release in Blu-ray.com's published sitemap (~400k+ entries). Faster than the site's JS-rendered search and works without a network round-trip after one sync.", Group: "Local state that compounds", WhyItMatters: "Reach for this whenever an agent needs to resolve a title to a release id, list every edition of a film, or filter the catalog by year/format/country. Single round-trip vs. the dozens of network hits the website does."},
 	{Command: "watch check", Description: "Local watchlist of release ids; re-scans Blu-ray.com deals on demand and alerts when any watched disc hits its target price or a new historical low.", Group: "Local state that compounds", WhyItMatters: "Use this whenever a user wants notifications about disc prices without polling third-party services. Pairs naturally with cron or a launchd job."},
 	{Command: "editions", Description: "Given a movie umbrella id, lists every disc edition (4K UHD, Blu-ray, Steelbook, Director's Cut, country variant) with release date, list price, current price, and Blu-ray.com community rating in a single view.", Group: "Decision support", WhyItMatters: "Use this when a user is deciding which edition of a film to buy (4K vs Blu-ray, Criterion vs Arrow, region A vs region B). Surfaces the trade-off at a glance."},
 	{Command: "upc", Description: "Resolves a CSV of UPC codes (e.g. the comma-separated export Blu-ray.com itself produces) back to local release records, hydrating titles, formats, ratings, and current prices.", Group: "Round-tripping", WhyItMatters: "Use this whenever a user is moving a collection between tools (Blu-ray.com to Trakt, CLZ, Letterboxd) or building a watch-list from a barcode scan."},
 	{Command: "drift", Description: "Diffs today's sitemap against the last sync and surfaces 'new in catalog this week', 'removed', and 'metadata changed' so collectors don't miss announcements.", Group: "Local state that compounds", WhyItMatters: "Use this to catch up after being away from the site for a week, or to build a weekly digest of what dropped, what got delayed, and what got pulled."},
-	{Command: "export", Description: "Dump the local catalog as JSON, CSV, or a portable SQLite snapshot filtered by kind.", Group: "Local state that compounds", WhyItMatters: "Use this when the synced catalog should feed another tool, spreadsheet, or archival snapshot without scraping Blu-ray.com again."},
 	{Command: "history", Description: "Shows per-retailer price history for a release id, captured automatically by watch check + deals --record. Optional inline ASCII spark plot.", Group: "Decision support", WhyItMatters: "Use this to know whether the current 'deal' is actually historically low, or just a small dip. Distinguishes real bargains from clickbait."},
 }
 
@@ -137,6 +135,7 @@ func newWhichCmd(flags *rootFlags) *cobra.Command {
 		Use:   "which [query]",
 		Short: "Find the command that implements a capability",
 		Annotations: map[string]string{
+			"mcp:read-only":       "true",
 			"pp:typed-exit-codes": "0,2",
 		},
 		Long: `which resolves a natural-language capability query (for example, "search messages" or "stale tickets") to the best matching command from this CLI's curated feature index.

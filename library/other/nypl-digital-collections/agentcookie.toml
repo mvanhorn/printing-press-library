@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "nypl-digital-collections-pp-cli"
+display_name = "Nypl Digital Collections"
+description = "New York Public Library Digital Collections API. Source docs: https://api.repo.nypl.org/."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/nypl-digital-collections-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+NYPL_DIGITAL_COLLECTIONS_NYPL_TOKEN = true

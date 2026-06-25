@@ -1,0 +1,154 @@
+name: daraz
+description: "Daraz.pk shopper CLI — search products, read reviews, track prices"
+version: "0.1.0"
+base_url: "https://www.daraz.pk"
+http_transport: standard
+health_check_path: "/"
+category: commerce
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/daraz-pp-cli/config.toml"
+
+resources:
+  products:
+    description: "Search Daraz product listings"
+    endpoints:
+      search:
+        method: GET
+        path: "/catalog/"
+        description: "Search products by keyword with sort and price filtering"
+        params:
+          - name: ajax
+            type: bool
+            required: false
+            default: true
+            description: "Return JSON (always true)"
+          - name: q
+            flag_name: query
+            aliases: [q]
+            type: string
+            required: true
+            description: "Search keyword, e.g. \"gaming laptop\""
+          - name: page
+            type: int
+            required: false
+            default: 1
+            description: "Result page (40 items per page)"
+          - name: sort
+            type: string
+            required: false
+            enum: [popularity, priceasc, pricedesc]
+            description: "Sort order: popularity (default), priceasc, pricedesc"
+          - name: price
+            type: string
+            required: false
+            description: "Price range in PKR as min-max, e.g. 10000-50000"
+        response:
+          type: array
+          item: Product
+        response_path: "mods.listItems"
+
+  reviews:
+    description: "Read product reviews and rating distribution"
+    endpoints:
+      list:
+        method: GET
+        base_url: "https://my.daraz.pk"
+        path: "/pdp/review/getReviewList"
+        description: "List reviews for a product by its numeric item ID"
+        params:
+          - name: itemId
+            flag_name: item-id
+            type: string
+            required: true
+            description: "Numeric Daraz item ID (from a product URL or search result)"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            required: false
+            default: 10
+            description: "Reviews per page"
+          - name: page
+            type: int
+            required: false
+            default: 1
+            description: "Review page number"
+          - name: filter
+            type: int
+            required: false
+            default: 0
+            description: "Rating filter: 0=all, 1..5=that star rating"
+          - name: sort
+            type: int
+            required: false
+            default: 0
+            description: "Sort: 0=relevance/recent"
+        response:
+          type: array
+          item: Review
+        response_path: "model.items"
+
+types:
+  Product:
+    fields:
+      - name: itemId
+        type: string
+      - name: name
+        type: string
+      - name: price
+        type: string
+      - name: originalPrice
+        type: string
+      - name: discount
+        type: string
+      - name: ratingScore
+        type: string
+      - name: review
+        type: string
+      - name: itemSoldCntShow
+        type: string
+      - name: location
+        type: string
+      - name: sellerName
+        type: string
+      - name: sellerId
+        type: string
+      - name: brandName
+        type: string
+      - name: inStock
+        type: bool
+      - name: itemUrl
+        type: string
+      - name: image
+        type: string
+
+  Review:
+    fields:
+      - name: reviewRateId
+        type: string
+      - name: rating
+        type: int
+      - name: reviewTitle
+        type: string
+      - name: reviewContent
+        type: string
+      - name: buyerName
+        type: string
+      - name: reviewTime
+        type: string
+      - name: boughtDate
+        type: string
+      - name: upVotes
+        type: int
+      - name: likeCount
+        type: int
+      - name: skuInfo
+        type: string

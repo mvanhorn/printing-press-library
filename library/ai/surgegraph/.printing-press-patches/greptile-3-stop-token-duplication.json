@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "greptile-3-stop-token-duplication",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-171718",
+  "base_printing_press_version": "4.5.0",
+  "summary": "Stop duplicating the OAuth access token into Config.SurgegraphToken on login, and stop AuthHeader() overwriting Config.AuthSource on read.",
+  "reason": "Two related defects: (a) auth login wrote the access token to both AccessToken and SurgegraphToken; AuthHeader prefers SurgegraphToken, so a future refresh that updates only AccessToken would have left the stale SurgegraphToken winning. (b) AuthHeader unconditionally relabeled AuthSource as 'env:SURGEGRAPH_TOKEN' whenever SurgegraphToken was non-empty, regardless of whether it came from the env var or a config-file value, breaking doctor's auth-source report.",
+  "files": [
+    "internal/cli/auth_login.go",
+    "internal/config/config.go"
+  ]
+}

@@ -7,6 +7,7 @@ GISIS is the IMO's canonical ship registry, gated by a login + Cloudflare Turnst
 Learn more at [GISIS](https://gisis.imo.org).
 
 Created by [@6myfzqx6bv-ctrl](https://github.com/6myfzqx6bv-ctrl) (ivory_elephant).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 
@@ -37,7 +38,7 @@ npx -y @mvanhorn/printing-press-library install gisis --agent claude-code --agen
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/gisis/cmd/gisis-pp-cli@latest

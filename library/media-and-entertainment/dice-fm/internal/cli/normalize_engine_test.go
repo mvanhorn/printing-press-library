@@ -13,8 +13,8 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/store"
 )
 
-// TestApplyAttributesOverlay verifies the overlay delegates to the entity's
-// rules: a single rule on the entity sets the corresponding axis.
+// TestApplyAttributesOverlay verifies the overlay applies the entity's
+// precompiled rules: a single rule on the entity sets the corresponding axis.
 func TestApplyAttributesOverlay(t *testing.T) {
 	ent := normalizecfg.Entity{
 		Shape: normalizecfg.ShapeAttributes,
@@ -22,12 +22,12 @@ func TestApplyAttributesOverlay(t *testing.T) {
 			{Match: `(?i)\bvip\b`, Set: map[string]string{"access_class": "vip"}},
 		},
 	}
-	got := applyAttributesOverlay("vip experience", ent)
+	got := applyAttributesOverlay("vip experience", compileRules("ticket_type", ent.Rules, nil))
 	if got["access_class"] != "vip" {
 		t.Errorf("got %v, want access_class=vip", got)
 	}
 	// No rules -> empty overlay.
-	none := applyAttributesOverlay("vip experience", normalizecfg.Entity{})
+	none := applyAttributesOverlay("vip experience", compileRules("ticket_type", normalizecfg.Entity{}.Rules, nil))
 	if len(none) != 0 {
 		t.Errorf("got %v, want empty overlay for entity without rules", none)
 	}

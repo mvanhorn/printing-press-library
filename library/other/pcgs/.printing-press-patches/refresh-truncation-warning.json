@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "refresh-truncation-warning",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260516-193948",
+  "base_printing_press_version": "4.8.0",
+  "summary": "refresh --all now refuses to silently truncate when quota < cert count; requires --accept-partial to proceed, and prints a stderr warning naming the dropped count.",
+  "reason": "Previously `certs = certs[:q.Remaining]` silently truncated the cert list. A user running `refresh --all` on 500 cached coins with 200 quota would only see 200 refreshed with no signal that 300 were dropped. Greptile P1 finding on PR #630 (review 2). Mirrors coin batch's explicit `ran out of quota at row %d of %d; resume tomorrow.` stderr message.",
+  "files": [
+    "internal/cli/refresh.go"
+  ],
+  "validated_outcome": "go build ./... && go vet ./..."
+}

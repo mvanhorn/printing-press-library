@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "doctor-sectioned-output",
+  "applied_at": "2026-05-23",
+  "base_run_id": "hand-written",
+  "base_printing_press_version": "0.1.3",
+  "summary": "doctor.go emits System / Library / Assets / Messages sections with colored pass/fail checks.",
+  "reason": "Agents need to verify macOS, Photos.app, library path, schema, asset count, and chat.db access before running any query. A structured pre-flight keeps error surfaces small.",
+  "files": [
+    "internal/cli/doctor.go"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "dry-run-form-body",
+  "applied_at": "2026-06-22",
+  "base_run_id": "20260622-180206",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Dry-run decodes and prints the form-encoded request body (authToken masked) instead of attempting a JSON pretty-print that silently shows nothing.",
+  "reason": "Bodies are application/x-www-form-urlencoded; the JSON-only dry-run printer showed no fields.",
+  "files": [
+    "internal/client/client.go"
+  ]
+}

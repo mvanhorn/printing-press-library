@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "sync-site-uuid-honours-config-file",
+  "applied_at": "2026-05-26",
+  "base_run_id": "20260526-094831",
+  "base_printing_press_version": "4.11.0",
+  "summary": "sync.go injects site_uuid via resolveSiteUUID(\"\", flags) instead of os.Getenv(\"BENTO_SITE_UUID\") so the config-file path is honoured even without the env var set; syncResource() signature gained *rootFlags param (call sites in sync.go + channel_workflow.go updated).",
+  "reason": "Greptile P1: every other command resolved site_uuid via the (flag -> env -> config) helper; sync skipped step 3 and silently failed for users who had only run auth set-token without exporting BENTO_SITE_UUID.",
+  "review_url": "https://github.com/mvanhorn/printing-press-library/pull/869",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/channel_workflow.go"
+  ]
+}

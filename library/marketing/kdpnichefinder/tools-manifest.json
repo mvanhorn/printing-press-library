@@ -1,0 +1,19 @@
+{
+  "api_name": "kdpnichefinder",
+  "base_url": "https://kdpnichefinder.com",
+  "description": "Every KDP Niche Finder bucket as a local research database — rank niches across buckets, track whether revenue is rising or fading, and export shortlists, none of which the web tool does.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "cookie_domain": "kdpnichefinder.com"
+  },
+  "required_headers": [
+    {
+      "name": "X-Requested-With",
+      "value": "XMLHttpRequest"
+    }
+  ],
+  "tools": []
+}

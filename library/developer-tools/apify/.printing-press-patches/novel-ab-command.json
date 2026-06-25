@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "novel-ab-command",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-132617",
+  "base_printing_press_version": "4.8.0",
+  "summary": "New `ab` parent + `ab run` subcommand (internal/cli/ab.go): runs two Actors with the same input, normalizes both via the shared schema, persists items + run history, and reports items/novel/cost plus overlap percentage. --judge picks the winner: novelty | cost-per-item | cost-per-novel | item-count.",
+  "rationale": "Head-to-head Actor comparison needs the normalize + novelty layers; impossible from the REST API alone.",
+  "files": [
+    "internal/cli/ab.go",
+    "internal/cli/root.go"
+  ],
+  "upstream_issue": ""
+}

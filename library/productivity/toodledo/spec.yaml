@@ -1,0 +1,710 @@
+name: toodledo
+description: "Toodledo GTD task manager from the terminal — offline mirror, GTD reviews, agent-native"
+version: "0.1.0"
+base_url: "https://api.toodledo.com/3"
+category: productivity
+health_check_path: "/account/get.php"
+
+required_headers:
+  - name: User-Agent
+    value: "toodledo-pp-cli/0.1 (+https://github.com/mvanhorn/printing-press-library)"
+
+auth:
+  type: oauth2
+  oauth2_grant: authorization_code
+  authorization_url: "https://api.toodledo.com/3/account/authorize.php"
+  token_url: "https://api.toodledo.com/3/account/token.php"
+  scopes: ["basic", "tasks", "notes", "outlines", "lists", "write"]
+  header: "Authorization"
+  format: "Bearer {token}"
+  env_vars:
+    - TOODLEDO_CLIENT_ID
+    - TOODLEDO_CLIENT_SECRET
+
+config:
+  format: toml
+  path: "~/.config/toodledo-pp-cli/config.toml"
+
+mcp:
+  # 34 typed endpoints sits just above the 30-endpoint auto-http threshold, so
+  # remote transport must be opted into explicitly. A personal GTD task agent is
+  # exactly the case a cloud-hosted agent reaches for, so compile both in.
+  transport: [stdio, http]
+
+resources:
+  tasks:
+    description: "Tasks (the GTD hub). Writes (add/edit/complete/delete) are hand-built ergonomic commands; list/deleted feed the local mirror."
+    endpoints:
+      list:
+        method: GET
+        path: "/tasks/get.php"
+        description: "List tasks (incomplete by default). Feeds the local mirror via sync."
+        params:
+          - name: comp
+            type: int
+            required: false
+            description: "Completion filter: 0=incomplete (default), 1=completed, -1=both"
+          - name: after
+            type: int
+            required: false
+            description: "Only tasks modified after this GMT unix timestamp (incremental sync cursor)"
+          - name: before
+            type: int
+            required: false
+            description: "Only tasks modified before this GMT unix timestamp"
+          - name: start
+            type: int
+            required: false
+            description: "Pagination offset (skip this many results)"
+          - name: num
+            type: int
+            required: false
+            default: 1000
+            description: "Max tasks to return (API max 1000)"
+          - name: fields
+            type: string
+            required: false
+            default: "folder,context,goal,location,tag,startdate,duedate,duedatemod,starttime,duetime,remind,repeat,status,star,priority,length,added,note,parent,children,order"
+            description: "Comma-separated optional task fields to include"
+        response:
+          type: array
+          item: Task
+      deleted:
+        method: GET
+        path: "/tasks/deleted.php"
+        description: "List task ids deleted after a timestamp (for mirror reconciliation)"
+        params:
+          - name: after
+            type: int
+            required: false
+            description: "Only deletions after this GMT unix timestamp"
+        response:
+          type: array
+          item: DeletedRef
+
+  folders:
+    description: "Folders (GTD projects)"
+    endpoints:
+      list:
+        method: GET
+        path: "/folders/get.php"
+        description: "List all folders"
+        response:
+          type: array
+          item: Folder
+      add:
+        method: POST
+        path: "/folders/add.php"
+        description: "Create a folder"
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Folder name (max 64 chars)"
+          - name: private
+            type: int
+            required: false
+            description: "1 = private, 0 = shared"
+        response:
+          type: array
+          item: Folder
+      edit:
+        method: POST
+        path: "/folders/edit.php"
+        description: "Edit/rename/archive a folder"
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: id
+            type: int
+            required: true
+            description: "Folder id to edit"
+          - name: name
+            type: string
+            required: false
+            description: "New folder name"
+          - name: archived
+            type: int
+            required: false
+            description: "1 = archived, 0 = active"
+          - name: private
+            type: int
+            required: false
+            description: "1 = private, 0 = shared"
+        response:
+          type: array
+          item: Folder
+      delete:
+        method: POST
+        path: "/folders/delete.php"
+        description: "Delete a folder (its tasks become unassigned)"
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: id
+            type: int
+            required: true
+            description: "Folder id to delete"
+
+  contexts:
+    description: "Contexts (GTD contexts like @home, @work)"
+    endpoints:
+      list:
+        method: GET
+        path: "/contexts/get.php"
+        description: "List all contexts"
+        response:
+          type: array
+          item: Context
+      add:
+        method: POST
+        path: "/contexts/add.php"
+        description: "Create a context"
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Context name (max 64 chars)"
+        response:
+          type: array
+          item: Context
+      edit:
+        method: POST
+        path: "/contexts/edit.php"
+        description: "Rename a context"
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: id
+            type: int
+            required: true
+            description: "Context id to edit"
+          - name: name
+            type: string
+            required: true
+            description: "New context name"
+        response:
+          type: array
+          item: Context
+      delete:
+        method: POST
+        path: "/contexts/delete.php"
+        description: "Delete a context (its tasks become unassigned)"
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: id
+            type: int
+            required: true
+            description: "Context id to delete"
+
+  goals:
+    description: "Goals (lifetime / long-term / short-term)"
+    endpoints:
+      list:
+        method: GET
+        path: "/goals/get.php"
+        description: "List all goals"
+        response:
+          type: array
+          item: Goal
+      add:
+        method: POST
+        path: "/goals/add.php"
+        description: "Create a goal"
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Goal name (max 250 chars)"
+          - name: level
+            type: int
+            required: false
+            description: "0 = lifetime, 1 = long-term, 2 = short-term (default)"
+          - name: contributes
+            type: int
+            required: false
+            description: "Id of a higher-level goal this contributes to"
+        response:
+          type: array
+          item: Goal
+      edit:
+        method: POST
+        path: "/goals/edit.php"
+        description: "Edit a goal"
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: id
+            type: int
+            required: true
+            description: "Goal id to edit"
+          - name: name
+            type: string
+            required: false
+            description: "New goal name"
+          - name: level
+            type: int
+            required: false
+            description: "0 = lifetime, 1 = long-term, 2 = short-term"
+          - name: contributes
+            type: int
+            required: false
+            description: "Id of a higher-level goal this contributes to"
+          - name: archived
+            type: int
+            required: false
+            description: "1 = archived, 0 = active"
+        response:
+          type: array
+          item: Goal
+      delete:
+        method: POST
+        path: "/goals/delete.php"
+        description: "Delete a goal"
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: id
+            type: int
+            required: true
+            description: "Goal id to delete"
+
+  locations:
+    description: "Locations (named places with coordinates)"
+    endpoints:
+      list:
+        method: GET
+        path: "/locations/get.php"
+        description: "List all locations"
+        response:
+          type: array
+          item: Location
+      add:
+        method: POST
+        path: "/locations/add.php"
+        description: "Create a location"
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Location name (max 64 chars)"
+          - name: description
+            type: string
+            required: false
+            description: "Description (max 255 chars)"
+          - name: lat
+            type: float
+            required: false
+            description: "Latitude"
+          - name: lon
+            type: float
+            required: false
+            description: "Longitude"
+        response:
+          type: array
+          item: Location
+      edit:
+        method: POST
+        path: "/locations/edit.php"
+        description: "Edit a location"
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: id
+            type: int
+            required: true
+            description: "Location id to edit"
+          - name: name
+            type: string
+            required: false
+            description: "New location name"
+          - name: description
+            type: string
+            required: false
+            description: "New description"
+          - name: lat
+            type: float
+            required: false
+            description: "Latitude"
+          - name: lon
+            type: float
+            required: false
+            description: "Longitude"
+        response:
+          type: array
+          item: Location
+      delete:
+        method: POST
+        path: "/locations/delete.php"
+        description: "Delete a location"
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: id
+            type: int
+            required: true
+            description: "Location id to delete"
+
+  notes:
+    description: "Notes (standalone notes, optionally filed in folders)"
+    endpoints:
+      list:
+        method: GET
+        path: "/notes/get.php"
+        description: "List notes. Feeds the local mirror via sync."
+        params:
+          - name: after
+            type: int
+            required: false
+            description: "Only notes modified after this GMT unix timestamp"
+        response:
+          type: array
+          item: Note
+      add:
+        method: POST
+        path: "/notes/add.php"
+        description: "Create note(s). Pass a JSON array of note objects."
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: notes
+            type: string
+            required: true
+            description: "JSON array of note objects, e.g. [{\"title\":\"Idea\",\"text\":\"...\",\"folder\":0}]"
+        response:
+          type: array
+          item: Note
+      edit:
+        method: POST
+        path: "/notes/edit.php"
+        description: "Edit note(s). Pass a JSON array of note objects including id."
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: notes
+            type: string
+            required: true
+            description: "JSON array of note objects with id, e.g. [{\"id\":123,\"text\":\"...\"}]"
+        response:
+          type: array
+          item: Note
+      delete:
+        method: POST
+        path: "/notes/delete.php"
+        description: "Delete note(s). Pass a JSON array of note ids."
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: notes
+            type: string
+            required: true
+            description: "JSON array of note ids, e.g. [123,456]"
+      deleted:
+        method: GET
+        path: "/notes/deleted.php"
+        description: "List note ids deleted after a timestamp"
+        params:
+          - name: after
+            type: int
+            required: false
+            description: "Only deletions after this GMT unix timestamp"
+        response:
+          type: array
+          item: DeletedRef
+
+  outlines:
+    description: "Outlines (hierarchical outline documents)"
+    endpoints:
+      list:
+        method: GET
+        path: "/outlines/get.php"
+        description: "List outlines. Feeds the local mirror via sync."
+        response:
+          type: array
+          item: Outline
+      add:
+        method: POST
+        path: "/outlines/add.php"
+        description: "Create outline(s). Pass a JSON array of outline objects."
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: outlines
+            type: string
+            required: true
+            description: "JSON array of outline objects"
+        response:
+          type: array
+          item: Outline
+      edit:
+        method: POST
+        path: "/outlines/edit.php"
+        description: "Edit outline(s). Pass a JSON array of outline objects including id."
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: outlines
+            type: string
+            required: true
+            description: "JSON array of outline objects with id"
+        response:
+          type: array
+          item: Outline
+      delete:
+        method: POST
+        path: "/outlines/delete.php"
+        description: "Delete outline(s). Pass a JSON array of outline ids."
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: outlines
+            type: string
+            required: true
+            description: "JSON array of outline ids"
+      deleted:
+        method: GET
+        path: "/outlines/deleted.php"
+        description: "List outline ids deleted after a timestamp"
+        params:
+          - name: after
+            type: int
+            required: false
+            description: "Only deletions after this GMT unix timestamp"
+        response:
+          type: array
+          item: DeletedRef
+
+  lists:
+    description: "Custom lists (user-defined tabular lists)"
+    endpoints:
+      list:
+        method: GET
+        path: "/lists/get.php"
+        description: "List custom lists. Feeds the local mirror via sync."
+        response:
+          type: array
+          item: CustomList
+      add:
+        method: POST
+        path: "/lists/add.php"
+        description: "Create custom list(s). Pass a JSON array of list objects."
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: lists
+            type: string
+            required: true
+            description: "JSON array of list objects"
+        response:
+          type: array
+          item: CustomList
+      edit:
+        method: POST
+        path: "/lists/edit.php"
+        description: "Edit custom list(s). Pass a JSON array of list objects including id."
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: lists
+            type: string
+            required: true
+            description: "JSON array of list objects with id"
+        response:
+          type: array
+          item: CustomList
+      delete:
+        method: POST
+        path: "/lists/delete.php"
+        description: "Delete custom list(s). Pass a JSON array of list ids."
+        request_content_type: "application/x-www-form-urlencoded"
+        body:
+          - name: lists
+            type: string
+            required: true
+            description: "JSON array of list ids"
+      deleted:
+        method: GET
+        path: "/lists/deleted.php"
+        description: "List custom-list ids deleted after a timestamp"
+        params:
+          - name: after
+            type: int
+            required: false
+            description: "Only deletions after this GMT unix timestamp"
+        response:
+          type: array
+          item: DeletedRef
+
+  account:
+    description: "Account info (subscription, sync cursors)"
+    endpoints:
+      get:
+        method: GET
+        path: "/account/get.php"
+        description: "Get account info, including per-resource lastedit/lastdelete sync cursors and Pro status"
+        response:
+          type: object
+          item: Account
+
+types:
+  Task:
+    fields:
+      - name: id
+        type: int
+      - name: title
+        type: string
+      - name: modified
+        type: int
+      - name: completed
+        type: int
+      - name: folder
+        type: int
+      - name: context
+        type: int
+      - name: goal
+        type: int
+      - name: location
+        type: int
+      - name: tag
+        type: string
+      - name: parent
+        type: int
+      - name: children
+        type: int
+      - name: order
+        type: int
+      - name: duedate
+        type: int
+      - name: startdate
+        type: int
+      - name: duetime
+        type: int
+      - name: starttime
+        type: int
+      - name: remind
+        type: int
+      - name: repeat
+        type: string
+      - name: status
+        type: int
+      - name: length
+        type: int
+      - name: priority
+        type: int
+      - name: star
+        type: int
+      - name: added
+        type: int
+      - name: note
+        type: string
+  Folder:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: private
+        type: int
+      - name: archived
+        type: int
+      - name: ord
+        type: int
+  Context:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: private
+        type: int
+  Goal:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: level
+        type: int
+      - name: contributes
+        type: int
+      - name: archived
+        type: int
+      - name: note
+        type: string
+  Location:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: lat
+        type: float
+      - name: lon
+        type: float
+  Note:
+    fields:
+      - name: id
+        type: int
+      - name: title
+        type: string
+      - name: text
+        type: string
+      - name: folder
+        type: int
+      - name: added
+        type: int
+      - name: modified
+        type: int
+      - name: private
+        type: int
+  Outline:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: keywords
+        type: string
+      - name: note
+        type: string
+      - name: added
+        type: int
+      - name: modified
+        type: int
+  CustomList:
+    fields:
+      - name: id
+        type: int
+      - name: title
+        type: string
+      - name: keywords
+        type: string
+      - name: note
+        type: string
+      - name: added
+        type: int
+      - name: modified
+        type: int
+  Account:
+    fields:
+      - name: userid
+        type: string
+      - name: pro
+        type: int
+      - name: lastedit_task
+        type: int
+      - name: lastdelete_task
+        type: int
+      - name: lastedit_folder
+        type: int
+      - name: lastedit_context
+        type: int
+      - name: lastedit_goal
+        type: int
+      - name: lastedit_location
+        type: int
+      - name: lastedit_note
+        type: int
+      - name: lastdelete_note
+        type: int
+      - name: lastedit_outline
+        type: int
+      - name: lastedit_list
+        type: int
+  DeletedRef:
+    fields:
+      - name: id
+        type: int
+      - name: stamp
+        type: int

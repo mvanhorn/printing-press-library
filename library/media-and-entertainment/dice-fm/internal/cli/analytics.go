@@ -87,11 +87,37 @@ Data must be synced first with the sync command.`,
 	}
 
 	cmd.Flags().StringVar(&resourceType, "type", "", "Resource type to analyze")
-	cmd.Flags().StringVar(&groupBy, "group-by", "", "Field to group by")
+	cmd.Flags().StringVar(&groupBy, "group-by", "", "Field to group by; supports dotted paths into nested objects (e.g. ticketType.name)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	cmd.Flags().IntVar(&limit, "limit", 25, "Max groups to show")
 
 	return cmd
+}
+
+// resolveDottedField resolves a possibly-dotted field path against a decoded
+// JSON object, descending through nested objects (e.g. "ticketType.name").
+// Returns nil if any segment is missing or a non-terminal segment is not an
+// object. A field with no dot resolves a top-level key (back-compat).
+func resolveDottedField(obj map[string]any, field string) any {
+	cur := any(obj)
+	start := 0
+	for i := 0; i <= len(field); i++ {
+		if i < len(field) && field[i] != '.' {
+			continue
+		}
+		seg := field[start:i]
+		start = i + 1
+		m, ok := cur.(map[string]any)
+		if !ok {
+			return nil
+		}
+		v, ok := m[seg]
+		if !ok {
+			return nil
+		}
+		cur = v
+	}
+	return cur
 }
 
 func runGroupBy(db *store.Store, resourceType, field string, limit int, flags *rootFlags) error {
@@ -106,7 +132,7 @@ func runGroupBy(db *store.Store, resourceType, field string, limit int, flags *r
 		if err := json.Unmarshal(item, &obj); err != nil {
 			continue
 		}
-		val := fmt.Sprintf("%v", obj[field])
+		val := fmt.Sprintf("%v", resolveDottedField(obj, field))
 		counts[val]++
 	}
 
