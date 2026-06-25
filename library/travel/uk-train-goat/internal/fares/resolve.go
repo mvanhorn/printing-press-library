@@ -135,7 +135,8 @@ func Resolve(db *sql.DB, fromCRS, toCRS, date string) ([]ResolvedFare, error) {
 		JOIN rjf_ticket_types tt ON tt.code = n.ticket_code
 		LEFT JOIN rjf_restrictions r ON r.code = n.restriction_code AND n.restriction_code != ''
 		WHERE n.origin_nlc = ? AND n.dest_nlc = ?
-		  AND n.start_date <= ? AND n.end_date >= ?`,
+		  AND (n.start_date = '' OR n.start_date <= ?)
+		  AND (n.end_date = '' OR n.end_date >= ?)`,
 		fromNLC, toNLC, date, date)
 	if err != nil {
 		return nil, fmt.Errorf("fares: Resolve: query ndf: %w", err)
@@ -270,7 +271,7 @@ func matchFlows(db *sql.DB, oSet, dSet map[string]struct{}, date string) ([]flow
 
 	q := fmt.Sprintf(`
 		SELECT flow_id, route FROM rjf_flows
-		WHERE start_date <= ? AND end_date >= ?
+		WHERE (start_date = '' OR start_date <= ?) AND (end_date = '' OR end_date >= ?)
 		  AND (
 		    (origin_nlc IN (%s) AND dest_nlc IN (%s))
 		    OR

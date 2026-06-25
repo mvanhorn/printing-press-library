@@ -203,6 +203,60 @@ func TestResolveNDFOverride(t *testing.T) {
 	}
 }
 
+func TestResolveBlankFlowDatesIncluded(t *testing.T) {
+	// parseDate returns "" for blank/short RJFAF date fields. A flow stored with
+	// blank start/end dates is open-ended and must still match, exactly like the
+	// (col = '' OR col op ?) guard used for locations and group members. A bare
+	// end_date >= ? comparison would wrongly drop it ('' sorts below any date).
+	db := seedResolveDB(t)
+	if _, err := db.Exec(
+		`UPDATE rjf_flows SET start_date = '', end_date = '' WHERE flow_id = '0662636'`); err != nil {
+		t.Fatalf("blank flow dates: %v", err)
+	}
+	fares, err := Resolve(db, "PAD", "RDG", "20260621")
+	if err != nil {
+		t.Fatalf("Resolve: %v", err)
+	}
+	var sds00735 *ResolvedFare
+	for i := range fares {
+		if fares[i].TicketCode == "SDS" && fares[i].Route == "00735" {
+			sds00735 = &fares[i]
+		}
+	}
+	if sds00735 == nil {
+		t.Fatal("blank flow dates: SDS route 00735 should still resolve, got none")
+	}
+	if sds00735.Pence != 2310 {
+		t.Errorf("blank flow dates: want SDS route 00735 = 2310, got %d", sds00735.Pence)
+	}
+}
+
+func TestResolveBlankNDFDatesIncluded(t *testing.T) {
+	// An NDF override stored with blank dates is open-ended and must surface.
+	db := seedResolveDB(t)
+	if _, err := db.Exec(
+		`INSERT INTO rjf_ndf(origin_nlc,dest_nlc,route,ticket_code,pence,restriction_code,start_date,end_date)
+		 VALUES('3087','3149','00735','SDS',1500,'','','')`); err != nil {
+		t.Fatalf("insert ndf: %v", err)
+	}
+	fares, err := Resolve(db, "PAD", "RDG", "20260621")
+	if err != nil {
+		t.Fatalf("Resolve: %v", err)
+	}
+	var sds00735 *ResolvedFare
+	for i := range fares {
+		if fares[i].TicketCode == "SDS" && fares[i].Route == "00735" {
+			sds00735 = &fares[i]
+		}
+	}
+	if sds00735 == nil {
+		t.Fatal("blank NDF dates: SDS route 00735 should still resolve, got none")
+	}
+	if sds00735.Pence != 1500 {
+		t.Errorf("blank NDF dates: want SDS route 00735 = 1500 (open-ended NDF), got %d", sds00735.Pence)
+	}
+}
+
 func TestResolvePastDate(t *testing.T) {
 	// Before every flow's start_date: must return empty slice, no error.
 	db := seedResolveDB(t)
