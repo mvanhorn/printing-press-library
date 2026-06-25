@@ -48,7 +48,7 @@ but do not stop the import.`,
 			}
 
 			var reader io.Reader
-			if inputFile == "-" || inputFile == "" {
+			if inputFile == "-" {
 				reader = os.Stdin
 			} else {
 				f, err := os.Open(inputFile)
@@ -107,6 +107,7 @@ but do not stop the import.`,
 	_ = cmd.MarkFlagRequired("input")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Preview import without sending requests")
 	cmd.Flags().IntVar(&batchSize, "batch-size", 1, "Records per batch (future: batch API support)")
+	_ = cmd.Flags().MarkHidden("batch-size")
 
 	return cmd
 }

@@ -4,6 +4,9 @@
 package cli
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -44,5 +47,42 @@ func TestOpenStorePathForReadUsesReadOnlyHandle(t *testing.T) {
 		t.Fatal("read-only store accepted a write")
 	} else if !strings.Contains(strings.ToLower(err.Error()), "readonly") {
 		t.Fatalf("write error = %v, want readonly failure", err)
+	}
+}
+
+func TestResolveLocalWritesUnfilteredWarningToHintWriter(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+
+	dbPath := defaultDBPath("postscript-pp-cli")
+	writer, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatalf("open writer: %v", err)
+	}
+	items := []json.RawMessage{
+		json.RawMessage(`{"id":"sub_1","email":"qa@example.com"}`),
+	}
+	if _, _, err := writer.UpsertBatch("subscribers", items); err != nil {
+		t.Fatalf("seed subscribers: %v", err)
+	}
+	if err := writer.Close(); err != nil {
+		t.Fatalf("close writer: %v", err)
+	}
+
+	var hints bytes.Buffer
+	_, _, err = resolveLocal(
+		context.Background(),
+		&rootFlags{},
+		&hints,
+		"subscribers",
+		true,
+		"/api/v2/subscribers",
+		map[string]string{"email__contains": "qa"},
+		"test",
+	)
+	if err != nil {
+		t.Fatalf("resolveLocal: %v", err)
+	}
+	if got, want := hints.String(), "warning: local data is unfiltered"; !strings.Contains(got, want) {
+		t.Fatalf("hint writer output = %q, want to contain %q", got, want)
 	}
 }

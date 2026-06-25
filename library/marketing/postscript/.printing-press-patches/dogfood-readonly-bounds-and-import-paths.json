@@ -1,14 +1,22 @@
 {
-    "schema_version": 2,
-    "id": "fix-tail-resource-paths",
-    "applied_at": "2026-06-26",
-    "base_run_id": "20260622-071434",
-    "base_printing_press_version": "4.24.0",
-    "summary": "Use generated sync resource paths for tail polling instead of assuming /<resource> root paths.",
-    "reason": "Postscript resources live under /api/v2. Dogfooding tail subscribers showed the generated helper would poll /subscribers, and tail also advertised non-pollable mutation resources.",
-    "files": [
-        "internal/cli/tail.go",
-        "internal/cli/tail_test.go"
-    ],
-    "validated_outcome": "go test ./internal/cli and tail subscribers --follow=false --dry-run --agent emit /api/v2/subscribers."
+  "schema_version": 2,
+  "id": "dogfood-readonly-bounds-and-import-paths",
+  "applied_at": "2026-06-26",
+  "base_run_id": "20260622-071434",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Keep dogfooded local-read and MCP surfaces read-only, bounded, and mapped to real Postscript endpoints.",
+  "reason": "Postscript QA found the same non-live failure classes called out on adjacent PRs: local read commands opened SQLite in write/migration mode, analytics materialized all records before applying --limit, MCP SQL could return unbounded rows, generic import assumed /<resource> paths that Postscript does not expose, and review cleanup found an exposed no-op batch flag plus an uncapturable local-read warning.",
+  "files": [
+    "internal/cli/analytics.go",
+    "internal/cli/analytics_test.go",
+    "internal/cli/data_source.go",
+    "internal/cli/data_source_readonly_test.go",
+    "internal/cli/import.go",
+    "internal/cli/import_test.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go",
+    "internal/store/store.go",
+    "internal/store/upsert_batch_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli ./internal/mcp ./internal/store passes, analytics reads a seeded SQLite store through OpenReadOnly, MCP SQL envelopes rows under the tool result budget, import dry-run accepts only events at /api/v2/events, --batch-size is hidden until implemented, and local unfiltered warnings route through hintWriter."
 }

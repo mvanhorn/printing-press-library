@@ -27,3 +27,14 @@ func TestImportResourcePathRejectsUnsupportedResources(t *testing.T) {
 		t.Fatalf("importResourcePath(subscribers) error = %q, want to contain %q", got, want)
 	}
 }
+
+func TestImportCommandHidesFutureBatchSizeFlag(t *testing.T) {
+	cmd := newImportCmd(&rootFlags{})
+	flag := cmd.Flags().Lookup("batch-size")
+	if flag == nil {
+		t.Fatal("batch-size flag is missing")
+	}
+	if !flag.Hidden {
+		t.Fatal("batch-size flag is visible even though batch import is not implemented")
+	}
+}

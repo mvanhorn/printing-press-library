@@ -570,8 +570,8 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 	prov := localProvenance(db, resourceType, reason)
 
 	// Warn if endpoint had filters that local reads can't reproduce
-	if len(params) > 0 {
-		fmt.Fprintf(os.Stderr, "warning: local data is unfiltered — endpoint filters are not applied to cached data\n")
+	if len(params) > 0 && hintWriter != nil {
+		fmt.Fprintf(hintWriter, "warning: local data is unfiltered — endpoint filters are not applied to cached data\n")
 	}
 
 	if isList {
