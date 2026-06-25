@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "affine-greptile-review-fixes",
+  "applied_at": "2026-06-25",
+  "base_run_id": "20260617-174848",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Preserves local snapshot audit semantics and explicit empty-snapshot failures for AFFiNE canvas writes.",
+  "files": [
+    "internal/canvaswrite/doc_audit.go",
+    "internal/canvaswrite/doc_audit_test.go",
+    "internal/canvaswrite/card_image.go"
+  ],
+  "reason": "Local snapshot-file audit should stay offline and not require live workspace/doc flags. Live AFFiNE document loads can also return an empty snapshot, which must fail clearly before applying a Y.js update. Historical snapshot fetches need a bounded HTTP client.",
+  "validated_outcome": "go test ./..., go vet ./..., go build ./..., verify-skill, govulncheck, and git diff --check."
+}

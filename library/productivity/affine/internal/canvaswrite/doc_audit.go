@@ -8,6 +8,7 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/productivity/affine/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/affine/internal/config"
@@ -59,10 +60,10 @@ type DocAuditNoteModeStats struct {
 }
 
 func AuditDoc(cfg *config.Config, opts DocAuditOptions) (DocAuditResult, error) {
-	if opts.WorkspaceID == "" {
+	if opts.SnapshotFile == "" && opts.WorkspaceID == "" {
 		return DocAuditResult{}, fmt.Errorf("--workspace is required")
 	}
-	if opts.DocID == "" {
+	if opts.SnapshotFile == "" && opts.DocID == "" {
 		return DocAuditResult{}, fmt.Errorf("--doc is required")
 	}
 	if opts.TextLimit <= 0 {
@@ -210,7 +211,8 @@ func auditBlocks(cfg *config.Config, engine *yjs.Engine, opts DocAuditOptions) (
 		}
 		limiter := cliutil.NewAdaptiveLimiter(1)
 		limiter.Wait()
-		res, err := http.DefaultClient.Do(req)
+		hc := &http.Client{Timeout: 60 * time.Second}
+		res, err := hc.Do(req)
 		if err != nil {
 			return nil, err
 		}
