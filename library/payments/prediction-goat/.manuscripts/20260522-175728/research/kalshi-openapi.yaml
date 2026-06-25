@@ -2516,7 +2516,7 @@ paths:
   /account/limits:
     get:
       operationId: GetAccountApiLimits
-      summary: Get Account API Limits 
+      summary: Get Account API Limits
       description: ' Endpoint to retrieve the API tier limits associated with the authenticated user.'
       tags:
         - account
@@ -4222,7 +4222,7 @@ components:
           description: Ordered list of sports for display
           items:
             type: string
-    
+
     BucketLimit:
       type: object
       description: |
