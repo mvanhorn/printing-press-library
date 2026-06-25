@@ -14,9 +14,10 @@ import (
 
 // spendRow is one aggregated spend bucket.
 type spendRow struct {
-	Key   string  `json:"key"`
-	Count int     `json:"count"`
-	Total float64 `json:"total"`
+	Key        string  `json:"key"`
+	Count      int     `json:"count"`
+	CountLabel string  `json:"count_label"`
+	Total      float64 `json:"total"`
 }
 
 // validSpendDimension reports whether by is a supported grouping.
@@ -74,8 +75,13 @@ func aggregateSpend(receipts []costcoReceipt, by string) ([]spendRow, error) {
 			}
 		}
 	}
+	label := "receipts"
+	if by == "department" {
+		label = "items"
+	}
 	rows := make([]spendRow, 0, len(agg))
 	for _, v := range agg {
+		v.CountLabel = label
 		rows = append(rows, *v)
 	}
 	if by == "month" {

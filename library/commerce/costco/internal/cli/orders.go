@@ -143,6 +143,7 @@ purchases.`, "\n"),
 				maxPages = 10
 			}
 			rows := []orderSummary{}
+			truncated := true
 			for page := 1; page <= maxPages; page++ {
 				env, err := fetchOnlineOrdersPage(ctx, flags, start, end, warehouse, page, pageSize)
 				if err != nil {
@@ -159,12 +160,13 @@ purchases.`, "\n"),
 					})
 				}
 				total := env.Data.GetOnlineOrders.TotalNumberOfRecords
-				// Stop on an empty page, a short (final) page, or once we have
-				// covered the reported total. The short-page check avoids a
-				// gratuitous extra round-trip on exact boundaries.
 				if len(got) == 0 || len(got) < pageSize || (total > 0 && page*pageSize >= total) {
+					truncated = false
 					break
 				}
+			}
+			if truncated && len(rows) > 0 {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: fetched %d pages (%d orders); more may exist — increase --max-pages to fetch all\n", maxPages, len(rows))
 			}
 			sort.Slice(rows, func(i, j int) bool { return rows[i].OrderedDate > rows[j].OrderedDate })
 			b, err := json.Marshal(rows)
