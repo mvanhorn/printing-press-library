@@ -39,6 +39,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func init() {
+	// module_issues is keyed by module_id. A module reconciled away from EITHER the
+	// active `modules` list or the `archived_modules` list must drop its junction
+	// rows, so register the cascade under both per_parent resources — otherwise an
+	// archived module swept by the archived_modules sweep (e.g. when the active
+	// `modules` sweep was skipped for that project on a 403/incomplete page) would
+	// leave its module_issues rows orphaned. The delete is keyed by module_id, so
+	// registering on archived_modules is a harmless no-op when no such rows exist.
+	mi := store.CascadeJunction{Table: "module_issues", FKColumn: "module_id"}
+	store.RegisterCascadeJunction("modules", mi)
+	store.RegisterCascadeJunction("archived_modules", mi)
+}
+
 // applyClientSlug honors an explicit --slug / positional slug by writing it into
 // the client's endpoint TemplateVars. PATCH(slug-env-align): the reprinted client
 // puts the workspace scope in BaseURL (/api/v1/workspaces/{slug}) and resolves

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "brand-kit-rename-and-enrichment-workflows",
+  "applied_at": "2026-06-23",
+  "base_run_id": "20260623-222307",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Rename the asset-pack workflow to brand-kit (keeping asset-pack as an alias) and add three enrichment workflows — brand-qa (/brand/ai/query), email-enrich (/brand/retrieve-by-email), ticker-enrich (/brand/retrieve-by-ticker|isin + NAICS/SIC) — that close Context.dev's marketed Automated Brand Kits, Power Generative AI, Autofill Onboarding Forms, and Stock Ticker Enrichment use cases.",
+  "reason": "These compose endpoints the generated CLI only exposes as raw passthroughs. Two live-API contracts must survive a regen: /brand/ai/query requires each data_to_extract item to be an object with a NON-EMPTY datapoint_example (min length 1) — an empty example returns HTTP 400 — and brand-qa wraps a free-form --question as a single text datapoint, reading the answer from data.data_extracted[].datapoint_value (under the `data` envelope). ticker vs ISIN is auto-detected (ISIN = 2 letters + 9 alphanumerics + check digit) and email/ticker/isin all return the standard {brand:{...}} envelope handled by brandData.",
+  "files": [
+    "internal/cli/operator_workflows.go",
+    "internal/cli/operator_workflows_test.go",
+    "internal/cli/root.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "Live against bestself.co/houseofnoa.com/AAPL/US0378331005: brand-kit unchanged behavior under the new name (asset-pack alias resolves); brand-qa returns grounded answers + urls_analyzed; email-enrich returns company + prefill; ticker-enrich resolves ticker and ISIN to apple.com with NAICS/SIC. go test ./... passes with new regression tests including the non-empty datapoint_example guard and ticker/ISIN routing."
+}

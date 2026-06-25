@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "mixlayer-pp-cli"
+display_name = "Mixlayer"
+description = "CLI for mixlayer"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/mixlayer-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+MIXLAYER_API_KEY = true
