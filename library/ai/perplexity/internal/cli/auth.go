@@ -1307,7 +1307,7 @@ func browserSessionAuthSource(cfg *config.Config, authHeader string) string {
 // extractLiveCookies reads document.cookie from a live Chrome session.
 // Tries: agent-browser → browser-use → raw CDP, in that order.
 func extractLiveCookies(domain string) (string, error) {
-	targetURL := "https://" + strings.TrimPrefix(domain, ".")
+	targetURL := "https://" + browserCookieURLHost(domain)
 
 	// 1. Try browser-use --connect (preferred — has full DOM/cookie access)
 	if _, err := exec.LookPath("browser-use"); err == nil {
