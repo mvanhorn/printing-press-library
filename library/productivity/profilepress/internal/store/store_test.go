@@ -42,7 +42,7 @@ func TestSnapshotPacketApplyLogAndMessageRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.Status != "draft" || got.Body != "hello" {
+	if got.Status != "draft" || got.Body != "hello" || got.SentAt != nil {
 		t.Fatalf("bad draft: %+v", got)
 	}
 	listed, err := s.ListMessageDrafts(10)
@@ -56,7 +56,7 @@ func TestSnapshotPacketApplyLogAndMessageRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if sent.Status != "sent" || sent.SendMode != "simulate-live" {
+	if sent.Status != "sent" || sent.SendMode != "simulate-live" || sent.SentAt == nil {
 		t.Fatalf("bad sent draft: %+v", sent)
 	}
 }

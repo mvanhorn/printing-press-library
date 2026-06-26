@@ -62,8 +62,11 @@ func newApplyPacketCmd() *cobra.Command {
 			result := "applied"
 			if dryRun {
 				result = "dry-run-passed"
+			} else if simulateLive {
+				result = "simulated-apply-passed"
 			}
-			log, err := db.AddApplyLog(packet.ApplyLog{PacketID: p.ID, PrivacyStatus: string(privacyStatus), SensitiveStatus: sensitiveStatus, Result: result, DryRun: dryRun, ConfirmationSource: "cli"})
+			auditDryRun := dryRun || simulateLive
+			log, err := db.AddApplyLog(packet.ApplyLog{PacketID: p.ID, PrivacyStatus: string(privacyStatus), SensitiveStatus: sensitiveStatus, Result: result, DryRun: auditDryRun, ConfirmationSource: "cli"})
 			if err != nil {
 				return err
 			}

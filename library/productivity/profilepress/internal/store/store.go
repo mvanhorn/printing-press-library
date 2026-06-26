@@ -152,20 +152,22 @@ func (s *Store) CreateMessageDraft(d message.Draft) (message.Draft, error) {
 	if d.Status == "" {
 		d.Status = "draft"
 	}
-	_, err := s.db.Exec(`INSERT INTO message_drafts(id, created_at, recipient, body, status, source_note, sent_at, send_mode, confirm_text) VALUES(?,?,?,?,?,?,?,?,?)`, d.ID, d.CreatedAt.Format(time.RFC3339), d.To, d.Body, d.Status, d.SourceNote, timeString(d.SentAt), d.SendMode, d.ConfirmText)
+	_, err := s.db.Exec(`INSERT INTO message_drafts(id, created_at, recipient, body, status, source_note, sent_at, send_mode, confirm_text) VALUES(?,?,?,?,?,?,?,?,?)`, d.ID, d.CreatedAt.Format(time.RFC3339), d.To, d.Body, d.Status, d.SourceNote, timeStringPtr(d.SentAt), d.SendMode, d.ConfirmText)
 	return d, err
 }
 
 func (s *Store) GetMessageDraft(id string) (message.Draft, error) {
 	var d message.Draft
-	var created, sent string
+	var created string
+	var sent sql.NullString
 	err := s.db.QueryRow(`SELECT id, created_at, recipient, body, status, source_note, sent_at, send_mode, confirm_text FROM message_drafts WHERE id=?`, id).Scan(&d.ID, &created, &d.To, &d.Body, &d.Status, &d.SourceNote, &sent, &d.SendMode, &d.ConfirmText)
 	if err != nil {
 		return d, err
 	}
 	d.CreatedAt, _ = time.Parse(time.RFC3339, created)
-	if sent != "" {
-		d.SentAt, _ = time.Parse(time.RFC3339, sent)
+	if sent.Valid && sent.String != "" {
+		t, _ := time.Parse(time.RFC3339, sent.String)
+		d.SentAt = &t
 	}
 	return d, nil
 }
@@ -211,9 +213,9 @@ func (s *Store) MarkMessageSent(id, mode, confirm string) (message.Draft, error)
 	return s.GetMessageDraft(id)
 }
 
-func timeString(t time.Time) string {
-	if t.IsZero() {
-		return ""
+func timeStringPtr(t *time.Time) any {
+	if t == nil || t.IsZero() {
+		return nil
 	}
 	return t.UTC().Format(time.RFC3339)
 }

@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS message_drafts (
   body TEXT NOT NULL,
   status TEXT NOT NULL,
   source_note TEXT NOT NULL,
-  sent_at TEXT NOT NULL,
+  sent_at TEXT,
   send_mode TEXT NOT NULL,
   confirm_text TEXT NOT NULL
 );
