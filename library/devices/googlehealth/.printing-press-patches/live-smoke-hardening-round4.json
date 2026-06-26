@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "patch_id": "live-smoke-hardening-round4",
+  "base_run_id": "20260619-180224",
+  "title": "Apply live-smoke hardening for OAuth scopes and sync warning classification",
+  "rationale": "Real OAuth/live smoke against Google Health showed two production blockers for maintainer approval: (1) login requested the disallowed cloud-platform scope, causing DISALLOWED_OAUTH_SCOPES 403 responses for every sync call; (2) account/linkage and datatype-action preconditions were surfaced as hard sync failures, making first-run behavior rough even when auth succeeded. This patch removes the disallowed scope and classifies known Google Health 400 preconditions as warning-path outcomes.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/helpers.go",
+    "internal/cli/helpers_sync_warning_test.go"
+  ],
+  "changes": [
+    {
+      "file": "internal/cli/auth.go",
+      "summary": "Removed https://www.googleapis.com/auth/cloud-platform from OAuth login scope list.",
+      "validated_outcome": "Live re-auth no longer produces DISALLOWED_OAUTH_SCOPES; token issuance succeeds with health scopes only."
+    },
+    {
+      "file": "internal/cli/helpers.go",
+      "summary": "Extended isSyncAccessWarning to treat ACCOUNT_NOT_LINKED and UNSUPPORTED_DATA_TYPE_ACTION API reasons as warning-class sync outcomes.",
+      "validated_outcome": "Sync emits warning semantics for known account/datatype preconditions instead of immediate hard-fail classification."
+    },
+    {
+      "file": "internal/cli/helpers_sync_warning_test.go",
+      "summary": "Added unit tests for Google Health-specific warning classification branches.",
+      "validated_outcome": "go test ./internal/cli -count=1 passes, including new regression coverage."
+    }
+  ]
+}

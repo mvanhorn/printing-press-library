@@ -513,6 +513,13 @@ func isSyncAccessWarning(err error) (*accessWarning, bool) {
 		case 403:
 			return &accessWarning{Status: 403, Reason: "forbidden", Message: apiErr.Body}, true
 		case 400:
+			lowerBody := strings.ToLower(apiErr.Body)
+			if strings.Contains(lowerBody, "\"reason\":\"account_not_linked\"") {
+				return &accessWarning{Status: 400, Reason: "account_not_linked", Message: apiErr.Body}, true
+			}
+			if strings.Contains(lowerBody, "\"reason\":\"unsupported_data_type_action\"") {
+				return &accessWarning{Status: 400, Reason: "unsupported_data_type_action", Message: apiErr.Body}, true
+			}
 			if looksLikeAccessDenial(apiErr.Body) {
 				return &accessWarning{Status: 400, Reason: "insufficient_access", Message: apiErr.Body}, true
 			}
