@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/sigma-computing-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260625-111145",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

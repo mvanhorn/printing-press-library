@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "sigma-computing-pp-cli"
+display_name = "Sigma"
+description = "The first full-featured CLI for the Sigma Computing API, plus a local mirror, offline search, and governance audits no other Sigma tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/sigma-computing-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+SIGMA_COMPUTING_CLIENT_ID = false
+SIGMA_COMPUTING_CLIENT_SECRET = true

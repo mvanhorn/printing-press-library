@@ -1,0 +1,51 @@
+version: 2
+project_name: sigma-computing-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: sigma-computing-pp-cli
+    main: ./cmd/sigma-computing-pp-cli
+    binary: sigma-computing-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/sigma-computing/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: sigma-computing-pp-mcp
+    main: ./cmd/sigma-computing-pp-mcp
+    binary: sigma-computing-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: sigma-computing-pp-cli
+    repository:
+      owner: crhatton
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The first full-featured CLI for the Sigma Computing API, plus a local mirror, offline search, and governance audits no other Sigma tool has."
+    install: |
+      bin.install "sigma-computing-pp-cli"
+      bin.install "sigma-computing-pp-mcp"

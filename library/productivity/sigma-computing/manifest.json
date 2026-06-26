@@ -1,0 +1,55 @@
+{
+  "manifest_version": "0.3",
+  "name": "sigma-computing-pp-mcp",
+  "display_name": "Sigma",
+  "version": "0.0.0",
+  "description": "The first full-featured CLI for the Sigma Computing API, plus a local mirror, offline search, and governance audits no other Sigma tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/sigma-computing-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/sigma-computing-pp-mcp",
+      "args": [],
+      "env": {
+        "SIGMA_COMPUTING_CLIENT_ID": "${user_config.sigma_computing_client_id}",
+        "SIGMA_COMPUTING_CLIENT_SECRET": "${user_config.sigma_computing_client_secret}",
+        "SIGMA_COMPUTING_OAUTH_SCOPE": "${user_config.sigma_computing_oauth_scope}"
+      }
+    }
+  },
+  "user_config": {
+    "sigma_computing_client_id": {
+      "type": "string",
+      "title": "SIGMA_COMPUTING_CLIENT_ID",
+      "description": "Sets SIGMA_COMPUTING_CLIENT_ID for the Sigma MCP server. Get a credential from https://help.sigmacomputing.com/reference.",
+      "sensitive": true,
+      "required": true
+    },
+    "sigma_computing_client_secret": {
+      "type": "string",
+      "title": "SIGMA_COMPUTING_CLIENT_SECRET",
+      "description": "Sets SIGMA_COMPUTING_CLIENT_SECRET for the Sigma MCP server. Get a credential from https://help.sigmacomputing.com/reference.",
+      "sensitive": true,
+      "required": true
+    },
+    "sigma_computing_oauth_scope": {
+      "type": "string",
+      "title": "SIGMA_COMPUTING_OAUTH_SCOPE",
+      "description": "Sets SIGMA_COMPUTING_OAUTH_SCOPE for the Sigma MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

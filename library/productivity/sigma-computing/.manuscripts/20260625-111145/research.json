@@ -1,0 +1,264 @@
+{
+  "api_name": "sigma-computing",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "sigma-agent-skills",
+      "url": "https://github.com/sigmacomputing/sigma-agent-skills",
+      "language": "Shell",
+      "install_method": "",
+      "stars": 8,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sigma-sample-api",
+      "url": "https://github.com/sigmacomputing/sigma-sample-api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 7,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "embed-sdk",
+      "url": "https://github.com/sigmacomputing/embed-sdk",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 5,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ja2z/mcp-server",
+      "url": "https://github.com/ja2z/mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-25T17:20:00Z",
+  "novel_features": [
+    {
+      "name": "Grant audit (effective access)",
+      "command": "grant audit",
+      "description": "Expand a workbook, connection, workspace, or dataset's grants into the full effective member list and flag org-wide or public access.",
+      "rationale": "Requires a local join across grants, teams, and members that no single Sigma API call returns.",
+      "example": "sigma-computing-pp-cli grant audit workbook abc123 --agent",
+      "why_it_matters": "Reach for this when answering 'who can actually see this resource?' — it resolves team grants down to people, which the raw API leaves to you.",
+      "group": "Governance you can't get from one API call"
+    },
+    {
+      "name": "Workbook copy with ownership repair",
+      "command": "workbook copy",
+      "description": "Copy a workbook and automatically reassign ownership to the intended recipient instead of the calling admin.",
+      "rationale": "Bundles the documented copy-then-PATCH-inode ownership fix into one safe command; the raw API silently leaves the copy owned by the caller.",
+      "example": "sigma-computing-pp-cli workbook copy abc123 --to user@example.com",
+      "why_it_matters": "Use this instead of the raw copy endpoint whenever the new workbook should belong to someone other than the API service account.",
+      "group": "Bundled correctness"
+    },
+    {
+      "name": "Stale-workbook detection",
+      "command": "workbook stale",
+      "description": "List workbooks untouched for more than N days, joined to their owner and folder path.",
+      "rationale": "A local-data threshold over synced workbooks; the API has no 'untouched in N days' filter.",
+      "example": "sigma-computing-pp-cli workbook stale --days 90 --agent",
+      "why_it_matters": "Reach for this during content cleanup or governance reviews to find abandoned workbooks and who owns them.",
+      "group": "Governance you can't get from one API call"
+    },
+    {
+      "name": "Member offboard with content reassign",
+      "command": "member offboard",
+      "description": "Deactivate a member and reassign every workbook and file they own to another member in one command.",
+      "rationale": "Combines deactivation with a local owned-content index and per-inode ownership reassignment that the API requires you to orchestrate yourself.",
+      "example": "sigma-computing-pp-cli member offboard leaver@example.com --transfer-to manager@example.com --dry-run",
+      "why_it_matters": "Use this when someone leaves so their content doesn't become orphaned — the single biggest admin offboarding gap.",
+      "group": "Bundled correctness"
+    },
+    {
+      "name": "Bulk member provisioning",
+      "command": "member provision",
+      "description": "Create or update members in bulk from a CSV, assigning teams and user attributes idempotently in one pass.",
+      "rationale": "Loops the member-create, team-assign, and user-attribute endpoints idempotently; it is the only programmatic provisioning path for orgs without Enterprise+SAML SCIM.",
+      "example": "sigma-computing-pp-cli member provision --from new-hires.csv --dry-run",
+      "why_it_matters": "Reach for this for Monday onboarding batches when SCIM isn't available and clicking through the UI per-person isn't viable.",
+      "group": "Provisioning at scale"
+    },
+    {
+      "name": "Member access review",
+      "command": "access review",
+      "description": "Show everything one member can reach across workbooks, connections, and workspaces via direct and team grants.",
+      "rationale": "A reverse local join from member to teams to grants to resources that no single API call provides.",
+      "example": "sigma-computing-pp-cli access review user@example.com --agent",
+      "why_it_matters": "Use this to verify a deactivated member lost access, or to answer a security question about one person's reach.",
+      "group": "Governance you can't get from one API call"
+    },
+    {
+      "name": "Bulk export by search",
+      "command": "export bulk",
+      "description": "Resolve a set of workbooks by offline name/path search and export them all to CSV, PDF, or XLSX in one invocation.",
+      "rationale": "Combines offline FTS over synced workbook names and paths with a loop over the export endpoint across every match.",
+      "example": "sigma-computing-pp-cli export bulk --query \"finance\" --format pdf",
+      "why_it_matters": "Reach for this for recurring stakeholder exports where you want every workbook matching a name pattern, not one at a time.",
+      "group": "Provisioning at scale"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Grant audit (effective access)",
+      "command": "grant audit",
+      "description": "Expand a workbook, connection, workspace, or dataset's grants into the full effective member list and flag org-wide or public access.",
+      "rationale": "Requires a local join across grants, teams, and members that no single Sigma API call returns.",
+      "example": "sigma-computing-pp-cli grant audit workbook abc123 --agent",
+      "why_it_matters": "Reach for this when answering 'who can actually see this resource?' — it resolves team grants down to people, which the raw API leaves to you.",
+      "group": "Governance you can't get from one API call"
+    },
+    {
+      "name": "Workbook copy with ownership repair",
+      "command": "workbook copy",
+      "description": "Copy a workbook and automatically reassign ownership to the intended recipient instead of the calling admin.",
+      "rationale": "Bundles the documented copy-then-PATCH-inode ownership fix into one safe command; the raw API silently leaves the copy owned by the caller.",
+      "example": "sigma-computing-pp-cli workbook copy abc123 --to user@example.com",
+      "why_it_matters": "Use this instead of the raw copy endpoint whenever the new workbook should belong to someone other than the API service account.",
+      "group": "Bundled correctness"
+    },
+    {
+      "name": "Stale-workbook detection",
+      "command": "workbook stale",
+      "description": "List workbooks untouched for more than N days, joined to their owner and folder path.",
+      "rationale": "A local-data threshold over synced workbooks; the API has no 'untouched in N days' filter.",
+      "example": "sigma-computing-pp-cli workbook stale --days 90 --agent",
+      "why_it_matters": "Reach for this during content cleanup or governance reviews to find abandoned workbooks and who owns them.",
+      "group": "Governance you can't get from one API call"
+    },
+    {
+      "name": "Member offboard with content reassign",
+      "command": "member offboard",
+      "description": "Deactivate a member and reassign every workbook and file they own to another member in one command.",
+      "rationale": "Combines deactivation with a local owned-content index and per-inode ownership reassignment that the API requires you to orchestrate yourself.",
+      "example": "sigma-computing-pp-cli member offboard leaver@example.com --transfer-to manager@example.com --dry-run",
+      "why_it_matters": "Use this when someone leaves so their content doesn't become orphaned — the single biggest admin offboarding gap.",
+      "group": "Bundled correctness"
+    },
+    {
+      "name": "Bulk member provisioning",
+      "command": "member provision",
+      "description": "Create or update members in bulk from a CSV, assigning teams and user attributes idempotently in one pass.",
+      "rationale": "Loops the member-create, team-assign, and user-attribute endpoints idempotently; it is the only programmatic provisioning path for orgs without Enterprise+SAML SCIM.",
+      "example": "sigma-computing-pp-cli member provision --from new-hires.csv --dry-run",
+      "why_it_matters": "Reach for this for Monday onboarding batches when SCIM isn't available and clicking through the UI per-person isn't viable.",
+      "group": "Provisioning at scale"
+    },
+    {
+      "name": "Member access review",
+      "command": "access review",
+      "description": "Show everything one member can reach across workbooks, connections, and workspaces via direct and team grants.",
+      "rationale": "A reverse local join from member to teams to grants to resources that no single API call provides.",
+      "example": "sigma-computing-pp-cli access review user@example.com --agent",
+      "why_it_matters": "Use this to verify a deactivated member lost access, or to answer a security question about one person's reach.",
+      "group": "Governance you can't get from one API call"
+    },
+    {
+      "name": "Bulk export by search",
+      "command": "export bulk",
+      "description": "Resolve a set of workbooks by offline name/path search and export them all to CSV, PDF, or XLSX in one invocation.",
+      "rationale": "Combines offline FTS over synced workbook names and paths with a loop over the export endpoint across every match.",
+      "example": "sigma-computing-pp-cli export bulk --query \"finance\" --format pdf",
+      "why_it_matters": "Reach for this for recurring stakeholder exports where you want every workbook matching a name pattern, not one at a time.",
+      "group": "Provisioning at scale"
+    }
+  ],
+  "narrative": {
+    "display_name": "Sigma",
+    "headline": "The first full-featured CLI for the Sigma Computing API, plus a local mirror, offline search, and governance audits no other Sigma tool has.",
+    "value_prop": "Every Sigma REST resource as a composable command with --json and a local SQLite store. On top of the raw API it adds governance and provisioning commands the platform forces you to hand-roll: grant audit resolves team grants down to people, member offboard reassigns a leaver's content instead of orphaning it, member provision bulk-onboards from a CSV, and workbook copy fixes the documented ownership bug automatically.",
+    "auth_narrative": "Sigma uses OAuth2 client-credentials. Create an API client under Administration \u003e Developer Access to get a client ID and secret. Run 'auth login' to store them, or set SIGMA_COMPUTING_CLIENT_ID, SIGMA_COMPUTING_CLIENT_SECRET, and SIGMA_COMPUTING_BASE_URL (your org's API base URL, also under Developer Access). The CLI exchanges these for a ~1-hour bearer token and refreshes it automatically.",
+    "quickstart": [
+      {
+        "command": "sigma-computing-pp-cli doctor",
+        "comment": "Confirm credentials and base URL resolve and the token exchange works."
+      },
+      {
+        "command": "sigma-computing-pp-cli workbooks list --json",
+        "comment": "List workbooks to confirm read access and see the resource shape."
+      },
+      {
+        "command": "sigma-computing-pp-cli sync",
+        "comment": "Mirror workbooks, members, teams, connections, and grants into the local store for offline search and audits."
+      },
+      {
+        "command": "sigma-computing-pp-cli workbook stale --days 90",
+        "comment": "First governance payoff: find abandoned workbooks and their owners."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 / token exchange fails",
+        "fix": "Verify SIGMA_CLIENT_ID and SIGMA_CLIENT_SECRET, and that SIGMA_BASE_URL matches your org's API base URL under Administration \u003e Developer Access (it is per-cloud and cannot be guessed)."
+      },
+      {
+        "symptom": "Materialization run fails immediately",
+        "fix": "A materialization schedule must have run successfully at least once before a manual run works; create and let the schedule run first."
+      },
+      {
+        "symptom": "Copied workbook is owned by the wrong person",
+        "fix": "Use 'workbook copy --to \u003cmember\u003e' which auto-reassigns ownership, instead of the raw copy endpoint."
+      },
+      {
+        "symptom": "List command seems to return only some rows",
+        "fix": "List endpoints are cursor-paginated; the CLI follows nextPage automatically on 'sync' and list commands — use 'sync' for the complete set."
+      }
+    ],
+    "when_to_use": "Use this CLI for Sigma administration and BI delivery automation: bulk member onboarding/offboarding, grant and access audits, stale-content cleanup, workbook copy/export pipelines, and connection/data-model management. It is the right tool when you need scriptable, --json output for CI or governance reviews rather than clicking through the Sigma web UI, and especially when SCIM provisioning is unavailable.",
+    "recipes": [
+      {
+        "title": "Audit who can see a connection",
+        "command": "sigma-computing-pp-cli grant audit connection conn123 --agent --select email,grantedVia",
+        "explanation": "Resolves direct and team grants into the effective member list, showing how each person got access."
+      },
+      {
+        "title": "Offboard a departing employee safely",
+        "command": "sigma-computing-pp-cli member offboard leaver@example.com --transfer-to manager@example.com --dry-run",
+        "explanation": "Previews the deactivation plus every workbook reassignment before committing; drop --dry-run to apply."
+      },
+      {
+        "title": "Bulk-onboard new hires",
+        "command": "sigma-computing-pp-cli member provision --from new-hires.csv --dry-run",
+        "explanation": "Creates members and assigns teams + user attributes idempotently from a CSV; safe to re-run."
+      },
+      {
+        "title": "Find abandoned workbooks for cleanup",
+        "command": "sigma-computing-pp-cli workbook stale --days 120 --json --select name,ownerEmail,path",
+        "explanation": "Lists workbooks untouched for 120+ days with just the fields you need to triage."
+      },
+      {
+        "title": "Export every finance workbook to PDF",
+        "command": "sigma-computing-pp-cli export bulk --query finance --format pdf",
+        "explanation": "Offline search resolves the matching workbooks, then exports them all in one pass."
+      }
+    ],
+    "trigger_phrases": [
+      "audit Sigma grants",
+      "who can see this Sigma workbook",
+      "offboard a Sigma member",
+      "bulk provision Sigma members",
+      "find stale Sigma workbooks",
+      "export Sigma workbooks",
+      "use sigma-computing",
+      "run sigma-computing"
+    ]
+  }
+}
