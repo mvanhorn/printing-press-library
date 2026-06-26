@@ -149,7 +149,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("usersId", mcplib.Required(), mcplib.Description("Users id")),
 			mcplib.WithString("dataTypesId", mcplib.Required(), mcplib.Description("Data types id")),
 			mcplib.WithString("names", mcplib.Description("Required. The names of the DataPoints to delete. A maximum of 10000 data points can be deleted in a single request.")),
-			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/v4/users/{usersId}/dataTypes/{dataTypesId}/dataPoints:batchDelete", false, false, nil, []mcpParamBinding{{PublicName: "usersId", WireName: "usersId", Location: "path"}, {PublicName: "dataTypesId", WireName: "dataTypesId", Location: "path"}, {PublicName: "names", WireName: "names", Location: "body"}}, []string{"usersId", "dataTypesId"}),
@@ -1319,9 +1319,7 @@ func mcpOversizedPreviewEnvelope(data json.RawMessage) []byte {
 }
 
 func newMCPClient() (*client.Client, error) {
-	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "googlehealth-pp-cli", "config.toml")
-	cfg, err := config.Load(cfgPath)
+	cfg, err := config.Load("")
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}

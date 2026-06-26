@@ -491,6 +491,15 @@ func looksLikeArgumentMissing(body string) bool {
 	return false
 }
 
+func hasAPIReason(body, reason string) bool {
+	if reason == "" {
+		return false
+	}
+	lowerBody := strings.ToLower(body)
+	pattern := regexp.MustCompile(`"reason"\s*:\s*"` + regexp.QuoteMeta(strings.ToLower(reason)) + `"`)
+	return pattern.MatchString(lowerBody)
+}
+
 // isSyncAccessWarning classifies err as an access-denial warning suitable for
 // sync's warn-and-continue path. It returns nil, false for any error that
 // should remain a hard sync failure: HTTP 401 (token-level auth failure
@@ -514,10 +523,10 @@ func isSyncAccessWarning(err error) (*accessWarning, bool) {
 			return &accessWarning{Status: 403, Reason: "forbidden", Message: apiErr.Body}, true
 		case 400:
 			lowerBody := strings.ToLower(apiErr.Body)
-			if strings.Contains(lowerBody, "\"reason\":\"account_not_linked\"") {
+			if hasAPIReason(lowerBody, "account_not_linked") {
 				return &accessWarning{Status: 400, Reason: "account_not_linked", Message: apiErr.Body}, true
 			}
-			if strings.Contains(lowerBody, "\"reason\":\"unsupported_data_type_action\"") {
+			if hasAPIReason(lowerBody, "unsupported_data_type_action") {
 				return &accessWarning{Status: 400, Reason: "unsupported_data_type_action", Message: apiErr.Body}, true
 			}
 			if looksLikeAccessDenial(apiErr.Body) {

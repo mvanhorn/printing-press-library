@@ -5,11 +5,48 @@ package mcp
 
 import (
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 )
+
+func TestNewMCPClientHonorsGoogleHealthConfigOverride(t *testing.T) {
+	tempDir := t.TempDir()
+	cfgPath := filepath.Join(tempDir, "custom-config.toml")
+	cfgBody := "base_url = \"https://example.test\"\n"
+	if err := os.WriteFile(cfgPath, []byte(cfgBody), 0o600); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+
+	original := os.Getenv("GOOGLEHEALTH_CONFIG")
+	if err := os.Setenv("GOOGLEHEALTH_CONFIG", cfgPath); err != nil {
+		t.Fatalf("set GOOGLEHEALTH_CONFIG: %v", err)
+	}
+	t.Cleanup(func() {
+		if original == "" {
+			_ = os.Unsetenv("GOOGLEHEALTH_CONFIG")
+			return
+		}
+		_ = os.Setenv("GOOGLEHEALTH_CONFIG", original)
+	})
+
+	c, err := newMCPClient()
+	if err != nil {
+		t.Fatalf("newMCPClient: %v", err)
+	}
+	if c.Config == nil {
+		t.Fatalf("expected non-nil config")
+	}
+	if c.Config.Path != cfgPath {
+		t.Fatalf("config path = %q, want %q", c.Config.Path, cfgPath)
+	}
+	if c.BaseURL != "https://example.test" {
+		t.Fatalf("base URL = %q, want https://example.test", c.BaseURL)
+	}
+}
 
 // TestValidateReadOnlyQuery_AllowsSelectAndWITH pins the contract: the MCP
 // sql tool's allowlist accepts SELECT and WITH-prefix queries, including
