@@ -83,7 +83,7 @@ func newISBNCmd(flags *rootFlags) *cobra.Command {
 			if err := client.getJSON(ctx, path, nil, &raw); err != nil {
 				return err
 			}
-			edition := raw.toSummary(client.baseURL)
+			edition := raw.toSummary()
 			result := EditionResult{
 				Source:     "Open Library ISBN API",
 				Configured: true,
@@ -237,7 +237,7 @@ func newEditionsCmd(flags *rootFlags) *cobra.Command {
 			}
 			editions := make([]EditionSummary, 0, len(raw.Entries))
 			for _, entry := range raw.Entries {
-				editions = append(editions, entry.toSummary(client.baseURL))
+				editions = append(editions, entry.toSummary())
 			}
 			sourceURL := client.sourceURL("/works/" + workID + "/editions")
 			result := EditionsResult{
@@ -287,6 +287,14 @@ func newSubjectsCmd(flags *rootFlags) *cobra.Command {
 			if err := client.getJSON(ctx, path, values, &raw); err != nil {
 				return err
 			}
+			var facets *SubjectFacets
+			if details {
+				facets = &SubjectFacets{
+					Subjects:   trimFacets(raw.Subjects, 10),
+					Authors:    trimFacets(raw.Authors, 10),
+					Publishers: trimFacets(raw.Publishers, 10),
+				}
+			}
 			result := SubjectResult{
 				Source:     "Open Library Subjects API",
 				Configured: true,
@@ -301,7 +309,7 @@ func newSubjectsCmd(flags *rootFlags) *cobra.Command {
 					DetailsUsed: details,
 				},
 				Works:     subjectWorks(raw.Works, client.baseURL),
-				Facets:    SubjectFacets{Subjects: trimFacets(raw.Subjects, 10), Authors: trimFacets(raw.Authors, 10), Publishers: trimFacets(raw.Publishers, 10)},
+				Facets:    facets,
 				SourceURL: client.sourceURL("/subjects/" + slug),
 				Freshness: freshnessNote(),
 				Caveats: append(sourceCaveats(client.identified),
@@ -455,7 +463,7 @@ func (c *openLibraryClient) sourceURL(key string) string {
 	return c.baseURL + strings.TrimSuffix(key, ".json")
 }
 
-func (e editionAPI) toSummary(baseURL string) EditionSummary {
+func (e editionAPI) toSummary() EditionSummary {
 	return EditionSummary{
 		Key:         e.Key,
 		Title:       e.Title,
@@ -671,8 +679,9 @@ func trimFacets(values []Facet, limit int) []Facet {
 
 func shorten(value string, limit int) string {
 	value = strings.TrimSpace(value)
-	if len(value) <= limit {
+	runes := []rune(value)
+	if len(runes) <= limit {
 		return value
 	}
-	return strings.TrimSpace(value[:limit]) + "..."
+	return strings.TrimSpace(string(runes[:limit])) + "..."
 }

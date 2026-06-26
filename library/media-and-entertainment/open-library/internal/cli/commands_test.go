@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf8"
 )
 
 func TestBookSearchQueriesOpenLibrarySearch(t *testing.T) {
@@ -147,6 +148,31 @@ func TestSubjectsSlugAndDetails(t *testing.T) {
 	}
 }
 
+func TestSubjectsOmitFacetsWithoutDetails(t *testing.T) {
+	withTestTransport(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/subjects/distributed_systems.json" {
+			t.Fatalf("unexpected path %s", r.URL.Path)
+		}
+		if got := r.URL.Query().Get("details"); got != "" {
+			t.Fatalf("details = %q", got)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"key":"/subjects/distributed_systems","name":"distributed systems","work_count":1,"works":[]}`))
+	}))
+
+	t.Setenv(baseURLEnv, "https://openlibrary.test")
+
+	output := runCLI(t, "subjects", "distributed systems", "--agent")
+
+	var result map[string]any
+	if err := json.Unmarshal([]byte(output), &result); err != nil {
+		t.Fatalf("unmarshal subjects output: %v\n%s", err, output)
+	}
+	if _, ok := result["facets"]; ok {
+		t.Fatalf("facets should be omitted without --details: %s", output)
+	}
+}
+
 func TestSourcesReportsNoAuthAndRatePosture(t *testing.T) {
 	t.Setenv(userAgentEnv, "")
 	t.Setenv(contactEmailEnv, "")
@@ -163,6 +189,16 @@ func TestSourcesReportsNoAuthAndRatePosture(t *testing.T) {
 	caveats := result["caveats"].([]any)
 	if !containsString(caveats, "bulk") {
 		t.Fatalf("caveats did not mention bulk guidance: %#v", caveats)
+	}
+}
+
+func TestShortenPreservesUTF8(t *testing.T) {
+	got := shorten("éclair", 1)
+	if got != "é..." {
+		t.Fatalf("shorten = %q", got)
+	}
+	if !utf8.ValidString(got) {
+		t.Fatalf("shorten returned invalid UTF-8: %q", got)
 	}
 }
 

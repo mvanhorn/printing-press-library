@@ -126,7 +126,7 @@ type SubjectResult struct {
 	Request    RequestInfo     `json:"request"`
 	Subject    SubjectSummary  `json:"subject"`
 	Works      []BookCandidate `json:"works"`
-	Facets     SubjectFacets   `json:"facets,omitempty"`
+	Facets     *SubjectFacets  `json:"facets,omitempty"`
 	SourceURL  string          `json:"source_url"`
 	Freshness  string          `json:"freshness"`
 	Caveats    []string        `json:"caveats"`
