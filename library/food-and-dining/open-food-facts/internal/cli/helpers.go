@@ -4,18 +4,9 @@ package cli
 
 import (
 	"encoding/json"
-	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
 )
-
-// printJSON writes v as indented JSON to stdout.
-func printJSON(v any) error {
-	enc := json.NewEncoder(os.Stdout)
-	enc.SetIndent("", "  ")
-	return enc.Encode(v)
-}
 
 func writeJSON(cmd *cobra.Command, flags *rootFlags, v any) error {
 	enc := json.NewEncoder(cmd.OutOrStdout())
@@ -23,11 +14,6 @@ func writeJSON(cmd *cobra.Command, flags *rootFlags, v any) error {
 		enc.SetIndent("", "  ")
 	}
 	return enc.Encode(v)
-}
-
-// printError writes an error message to stderr.
-func printError(format string, args ...any) {
-	fmt.Fprintf(os.Stderr, "Error: "+format+"\n", args...)
 }
 
 func clampInt(value, minValue, maxValue int) int {

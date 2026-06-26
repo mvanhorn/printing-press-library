@@ -332,13 +332,24 @@ func searchQuerySummary(args []string, category, brand, country, label, nutritio
 func trimTags(tags []string) []string {
 	out := make([]string, 0, len(tags))
 	for _, tag := range tags {
-		tag = strings.TrimPrefix(strings.TrimSpace(tag), "en:")
+		tag = stripLocalePrefix(strings.TrimSpace(tag))
 		tag = strings.ReplaceAll(tag, "-", " ")
 		if tag != "" {
 			out = append(out, tag)
 		}
 	}
 	return out
+}
+
+func stripLocalePrefix(tag string) string {
+	if len(tag) >= 3 && tag[2] == ':' && isASCIIAlpha(tag[0]) && isASCIIAlpha(tag[1]) {
+		return tag[3:]
+	}
+	return tag
+}
+
+func isASCIIAlpha(ch byte) bool {
+	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
 }
 
 func rateLimitFacts() []string {

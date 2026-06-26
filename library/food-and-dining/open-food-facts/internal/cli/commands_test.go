@@ -221,6 +221,34 @@ func TestSourcesReportsNoAuthAndNoBulkPosture(t *testing.T) {
 	}
 }
 
+func TestTrimTagsStripsLocalePrefixes(t *testing.T) {
+	got := trimTags([]string{
+		"en:sweet-spreads",
+		"fr:pates-a-tartiner",
+		"de:schokolade",
+		"es:azucar",
+		"plain-tag",
+		"too-long:prefix",
+		"fr:",
+	})
+	want := []string{
+		"sweet spreads",
+		"pates a tartiner",
+		"schokolade",
+		"azucar",
+		"plain tag",
+		"too long:prefix",
+	}
+	if len(got) != len(want) {
+		t.Fatalf("trimTags length = %d, want %d: %#v", len(got), len(want), got)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("trimTags[%d] = %q, want %q; all = %#v", i, got[i], want[i], got)
+		}
+	}
+}
+
 func TestHTTPErrorBodyIsSummarized(t *testing.T) {
 	withTestTransport(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusServiceUnavailable)
