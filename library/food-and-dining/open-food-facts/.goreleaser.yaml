@@ -1,0 +1,13 @@
+version: 2
+
+builds:
+  - id: open-food-facts-pp-cli
+    main: ./cmd/open-food-facts-pp-cli
+    binary: open-food-facts-pp-cli
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
