@@ -83,8 +83,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("equity_derivatives",
-			mcplib.WithDescription("F&O data — futures (3 expiries with OI, volume, turnover) and options contracts (CE/PE by strike and expiry). Required: functionName (default: getSymbolDerivativesData), symbol. Optional: marketType (default: N), series (default: EQ)."),
-			mcplib.WithString("functionName", mcplib.Required(), mcplib.Description("")),
+			mcplib.WithDescription("F&O data — futures (3 expiries with OI, volume, turnover) and options contracts (CE/PE by strike and expiry). Required: symbol. Optional: marketType (default: N), series (default: EQ)."),
 			mcplib.WithString("marketType", mcplib.Description("")),
 			mcplib.WithString("series", mcplib.Description("")),
 			mcplib.WithString("symbol", mcplib.Required(), mcplib.Description("NSE stock symbol eligible for F&O (e.g. ADANIPORTS, RELIANCE, NIFTY)")),
@@ -92,12 +91,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/api/NextApi/apiClient/GetQuoteApi", []mcpParamBinding{{PublicName: "functionName", WireName: "functionName", Location: "query"},{PublicName: "marketType", WireName: "marketType", Location: "query"},{PublicName: "series", WireName: "series", Location: "query"},{PublicName: "symbol", WireName: "symbol", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/api/NextApi/apiClient/GetQuoteApi?functionName=getSymbolDerivativesData", []mcpParamBinding{{PublicName: "marketType", WireName: "marketType", Location: "query"},{PublicName: "series", WireName: "series", Location: "query"},{PublicName: "symbol", WireName: "symbol", Location: "query"}, }, []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("equity_quote",
-			mcplib.WithDescription("Full equity quote — last price, 52w H/L, sector PE, order book (5 bid/ask levels), delivery%, VaR margin, index memberships, pre-open IEP. Required: functionName (default: getSymbolData), symbol. Optional: marketType (default: N), series (default: EQ)."),
-			mcplib.WithString("functionName", mcplib.Required(), mcplib.Description("")),
+			mcplib.WithDescription("Full equity quote — last price, 52w H/L, sector PE, order book (5 bid/ask levels), delivery%, VaR margin, index memberships, pre-open IEP. Required: symbol. Optional: marketType (default: N), series (default: EQ)."),
 			mcplib.WithString("marketType", mcplib.Description("")),
 			mcplib.WithString("series", mcplib.Description("")),
 			mcplib.WithString("symbol", mcplib.Required(), mcplib.Description("NSE stock symbol (e.g. INFY, ADANIPORTS, RELIANCE)")),
@@ -105,7 +103,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/api/NextApi/apiClient/GetQuoteApi", []mcpParamBinding{{PublicName: "functionName", WireName: "functionName", Location: "query"},{PublicName: "marketType", WireName: "marketType", Location: "query"},{PublicName: "series", WireName: "series", Location: "query"},{PublicName: "symbol", WireName: "symbol", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/api/NextApi/apiClient/GetQuoteApi?functionName=getSymbolData", []mcpParamBinding{{PublicName: "marketType", WireName: "marketType", Location: "query"},{PublicName: "series", WireName: "series", Location: "query"},{PublicName: "symbol", WireName: "symbol", Location: "query"}, }, []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("indices_constituents",
@@ -143,7 +141,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/api/live-analysis-most-active-securities", []mcpParamBinding{{PublicName: "by", WireName: "index", Location: "query"}, }, []string{ }),
+		makeMoversHandler(),
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
@@ -176,6 +174,40 @@ type mcpParamBinding struct {
 	PublicName string
 	WireName   string
 	Location   string
+}
+
+// makeMoversHandler calls /api/live-analysis-most-active-securities and unwraps
+// the {data:[...],timestamp:...} envelope before returning, so MCP callers
+// receive an iterable array rather than the raw envelope object.
+func makeMoversHandler() server.ToolHandlerFunc {
+	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+		c, err := newMCPClient()
+		if err != nil {
+			return mcplib.NewToolResultError(err.Error()), nil
+		}
+		args := req.GetArguments()
+		params := map[string]string{}
+		if by, ok := args["by"].(string); ok && by != "" {
+			params["index"] = by
+		}
+		data, err := c.Get("/api/live-analysis-most-active-securities", params)
+		if err != nil {
+			return mcplib.NewToolResultError(err.Error()), nil
+		}
+		// Unwrap {data:[...], timestamp:...} envelope
+		var envelope struct {
+			Data json.RawMessage `json:"data"`
+		}
+		if json.Unmarshal(data, &envelope) == nil && len(envelope.Data) > 0 {
+			data = envelope.Data
+		}
+		var items []json.RawMessage
+		if json.Unmarshal(data, &items) == nil {
+			out, _ := json.Marshal(map[string]any{"count": len(items), "items": items})
+			return mcplib.NewToolResultText(string(out)), nil
+		}
+		return mcplib.NewToolResultText(string(data)), nil
+	}
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
