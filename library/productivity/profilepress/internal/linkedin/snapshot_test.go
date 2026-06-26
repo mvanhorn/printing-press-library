@@ -2,6 +2,7 @@ package linkedin
 
 import (
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -24,5 +25,17 @@ func TestLoadSnapshotFixture(t *testing.T) {
 		if s.Name == "headline" && s.Normalized != "Senior UXR Manager" {
 			t.Fatalf("normalized=%q", s.Normalized)
 		}
+	}
+}
+
+func TestLoadSnapshotFixtureRejectsDuplicateSections(t *testing.T) {
+	path := t.TempDir() + "/fixture.json"
+	fixture := `{"sections":[{"name":"headline","raw_text":"old headline"}],"section_map":{"headline":"new headline"}}`
+	if err := os.WriteFile(path, []byte(fixture), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	_, _, err := LoadSnapshotFixture(path)
+	if err == nil || !strings.Contains(err.Error(), "duplicate section") {
+		t.Fatalf("expected duplicate section error, got %v", err)
 	}
 }

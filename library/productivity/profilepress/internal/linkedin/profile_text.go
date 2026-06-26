@@ -58,7 +58,8 @@ func validateLinkedInPage(page browser.PageText, expectedName string) error {
 	if err != nil || !strings.Contains(strings.ToLower(u.Host), "linkedin.com") {
 		return fmt.Errorf("browser page is not LinkedIn: url=%q title=%q", page.URL, page.Title)
 	}
-	if !strings.Contains(strings.ToLower(page.URL), "/in/") && !strings.Contains(strings.ToLower(page.Title), "linkedin") {
+	cleanPath := strings.TrimRight(strings.ToLower(u.EscapedPath()), "/")
+	if !strings.HasPrefix(cleanPath, "/in/") || len(cleanPath) <= len("/in/") {
 		return fmt.Errorf("browser page does not look like a LinkedIn profile: url=%q title=%q", page.URL, page.Title)
 	}
 	if expectedName != "" && !strings.Contains(strings.ToLower(page.Text), strings.ToLower(expectedName)) && !strings.Contains(strings.ToLower(page.Title), strings.ToLower(expectedName)) {

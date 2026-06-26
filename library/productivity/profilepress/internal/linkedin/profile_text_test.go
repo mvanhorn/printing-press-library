@@ -76,3 +76,10 @@ func TestParseProfilePageTextRequiresRecognizableSections(t *testing.T) {
 		t.Fatalf("expected thin-section error, got %v", err)
 	}
 }
+func TestParseProfilePageTextRejectsLinkedInFeed(t *testing.T) {
+	page := browser.PageText{URL: "https://www.linkedin.com/feed/", Title: "Feed | LinkedIn", Text: "Michael Marcusa\nAbout\nNot a profile"}
+	_, _, err := ParseProfilePageText(page, "Michael Marcusa")
+	if err == nil || !strings.Contains(err.Error(), "does not look like a LinkedIn profile") {
+		t.Fatalf("expected non-profile LinkedIn error, got %v", err)
+	}
+}

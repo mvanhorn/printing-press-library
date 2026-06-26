@@ -157,10 +157,18 @@ func (s *Store) CreateMessageDraft(d message.Draft) (message.Draft, error) {
 }
 
 func (s *Store) GetMessageDraft(id string) (message.Draft, error) {
+	return scanMessageDraft(s.db.QueryRow(`SELECT id, created_at, recipient, body, status, source_note, sent_at, send_mode, confirm_text FROM message_drafts WHERE id=?`, id))
+}
+
+type scanner interface {
+	Scan(dest ...any) error
+}
+
+func scanMessageDraft(row scanner) (message.Draft, error) {
 	var d message.Draft
 	var created string
 	var sent sql.NullString
-	err := s.db.QueryRow(`SELECT id, created_at, recipient, body, status, source_note, sent_at, send_mode, confirm_text FROM message_drafts WHERE id=?`, id).Scan(&d.ID, &created, &d.To, &d.Body, &d.Status, &d.SourceNote, &sent, &d.SendMode, &d.ConfirmText)
+	err := row.Scan(&d.ID, &created, &d.To, &d.Body, &d.Status, &d.SourceNote, &sent, &d.SendMode, &d.ConfirmText)
 	if err != nil {
 		return d, err
 	}
@@ -184,18 +192,14 @@ func (s *Store) ListMessageDrafts(limit int) ([]message.Draft, error) {
 	if limit <= 0 {
 		limit = 20
 	}
-	rows, err := s.db.Query(`SELECT id FROM message_drafts ORDER BY created_at DESC LIMIT ?`, limit)
+	rows, err := s.db.Query(`SELECT id, created_at, recipient, body, status, source_note, sent_at, send_mode, confirm_text FROM message_drafts ORDER BY created_at DESC LIMIT ?`, limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	var drafts []message.Draft
 	for rows.Next() {
-		var id string
-		if err := rows.Scan(&id); err != nil {
-			return nil, err
-		}
-		d, err := s.GetMessageDraft(id)
+		d, err := scanMessageDraft(rows)
 		if err != nil {
 			return nil, err
 		}
