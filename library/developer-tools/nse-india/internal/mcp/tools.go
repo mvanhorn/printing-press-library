@@ -186,10 +186,11 @@ func makeMoversHandler() server.ToolHandlerFunc {
 			return mcplib.NewToolResultError(err.Error()), nil
 		}
 		args := req.GetArguments()
-		params := map[string]string{}
-		if by, ok := args["by"].(string); ok && by != "" {
-			params["index"] = by
+		by := "volume" // NSE API requires index=volume or index=value; default to volume
+		if v, ok := args["by"].(string); ok && v != "" {
+			by = v
 		}
+		params := map[string]string{"index": by}
 		data, err := c.Get("/api/live-analysis-most-active-securities", params)
 		if err != nil {
 			return mcplib.NewToolResultError(err.Error()), nil
