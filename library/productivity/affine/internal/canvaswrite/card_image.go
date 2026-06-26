@@ -166,6 +166,9 @@ func SetCardImage(cfg *config.Config, opts CardImageOptions) (CardImageResult, e
 	if err != nil {
 		return CardImageResult{}, err
 	}
+	if reloaded.Missing == "" {
+		return CardImageResult{}, fmt.Errorf("document returned empty snapshot")
+	}
 	reloadedDoc, err := engine.ApplyBase64Update(reloaded.Missing)
 	if err != nil {
 		return CardImageResult{}, err

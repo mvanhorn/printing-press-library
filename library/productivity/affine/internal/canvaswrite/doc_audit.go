@@ -251,6 +251,9 @@ func auditBlocks(cfg *config.Config, engine *yjs.Engine, opts DocAuditOptions) (
 	if err != nil {
 		return nil, err
 	}
+	if loaded.Missing == "" {
+		return nil, fmt.Errorf("document returned empty snapshot")
+	}
 	doc, err := engine.ApplyBase64Update(loaded.Missing)
 	if err != nil {
 		return nil, err

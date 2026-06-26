@@ -275,6 +275,9 @@ func RepairDoc(cfg *config.Config, opts DocRepairOptions) (DocRepairResult, erro
 	if err != nil {
 		return DocRepairResult{}, err
 	}
+	if reloaded.Missing == "" {
+		return DocRepairResult{}, fmt.Errorf("document returned empty snapshot")
+	}
 	reloadedDoc, err := engine.ApplyBase64Update(reloaded.Missing)
 	if err != nil {
 		return DocRepairResult{}, err
