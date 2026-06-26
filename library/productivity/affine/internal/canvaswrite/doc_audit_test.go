@@ -10,6 +10,40 @@ import (
 )
 
 func TestAuditDocAllowsSnapshotFileWithoutDocFlags(t *testing.T) {
+	path := writeSnapshot(t)
+
+	result, err := AuditDoc(&config.Config{}, DocAuditOptions{
+		SnapshotFile: path,
+		Keywords:     []string{"audit"},
+	})
+	if err != nil {
+		t.Fatalf("AuditDoc returned error: %v", err)
+	}
+	if result.BlockCount != 1 {
+		t.Fatalf("BlockCount = %d, want 1", result.BlockCount)
+	}
+	if result.KeywordHits["audit"] != 1 {
+		t.Fatalf("KeywordHits[audit] = %d, want 1", result.KeywordHits["audit"])
+	}
+}
+
+func TestCheckDocIntegrityAllowsSnapshotFileWithoutDocFlags(t *testing.T) {
+	path := writeSnapshot(t)
+
+	result, err := CheckDocIntegrity(&config.Config{}, DocIntegrityOptions{
+		SnapshotFile: path,
+	})
+	if err != nil {
+		t.Fatalf("CheckDocIntegrity returned error: %v", err)
+	}
+	if result.BlockCount != 1 {
+		t.Fatalf("BlockCount = %d, want 1", result.BlockCount)
+	}
+}
+
+func writeSnapshot(t *testing.T) string {
+	t.Helper()
+
 	engine, err := yjs.NewEngine()
 	if err != nil {
 		t.Fatal(err)
@@ -33,18 +67,5 @@ func TestAuditDocAllowsSnapshotFileWithoutDocFlags(t *testing.T) {
 	if err := os.WriteFile(path, raw, 0o600); err != nil {
 		t.Fatal(err)
 	}
-
-	result, err := AuditDoc(&config.Config{}, DocAuditOptions{
-		SnapshotFile: path,
-		Keywords:     []string{"audit"},
-	})
-	if err != nil {
-		t.Fatalf("AuditDoc returned error: %v", err)
-	}
-	if result.BlockCount != 1 {
-		t.Fatalf("BlockCount = %d, want 1", result.BlockCount)
-	}
-	if result.KeywordHits["audit"] != 1 {
-		t.Fatalf("KeywordHits[audit] = %d, want 1", result.KeywordHits["audit"])
-	}
+	return path
 }

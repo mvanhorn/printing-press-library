@@ -61,7 +61,7 @@ type DocRepairResult struct {
 }
 
 func CheckDocIntegrity(cfg *config.Config, opts DocIntegrityOptions) (DocIntegrityResult, error) {
-	if opts.WorkspaceID == "" {
+	if opts.SnapshotFile == "" && opts.WorkspaceID == "" {
 		return DocIntegrityResult{}, fmt.Errorf("--workspace is required")
 	}
 	if opts.DocID == "" && opts.SnapshotFile == "" {

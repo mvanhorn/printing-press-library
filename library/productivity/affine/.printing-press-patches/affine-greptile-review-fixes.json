@@ -8,8 +8,9 @@
   "files": [
     "internal/canvaswrite/doc_audit.go",
     "internal/canvaswrite/doc_audit_test.go",
+    "internal/canvaswrite/integrity.go",
     "internal/canvaswrite/card_image.go"
   ],
-  "reason": "Local snapshot-file audit should stay offline and not require live workspace/doc flags. Live AFFiNE document loads can also return an empty snapshot, which must fail clearly before applying a Y.js update. Historical snapshot fetches need a bounded HTTP client.",
+  "reason": "Local snapshot-file audit and integrity checks should stay offline and not require live workspace/doc flags. Live AFFiNE document loads can also return an empty snapshot, which must fail clearly before applying a Y.js update. Historical snapshot fetches need a bounded HTTP client.",
   "validated_outcome": "go test ./..., go vet ./..., go build ./..., verify-skill, govulncheck, and git diff --check."
 }
