@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "api_name": "profilepress",
+  "cli_name": "profilepress-pp-cli",
+  "run_id": "20260626T143515Z-b1b7b3d8",
+  "summary": "Plan-driven browser-session LinkedIn workflow CLI with default-private profile packets and draft-first messaging.",
+  "novel_features": [
+    {
+      "name": "Default-private LinkedIn profile packets",
+      "command": "profilepress apply-packet",
+      "description": "Profile edits default to not notifying the network; notifying requires --notify-network plus explicit confirmation."
+    },
+    {
+      "name": "Draft-first LinkedIn messaging",
+      "command": "profilepress messages draft",
+      "description": "Messages are stored locally as drafts and require an explicit confirmation command before sending."
+    }
+  ]
+}

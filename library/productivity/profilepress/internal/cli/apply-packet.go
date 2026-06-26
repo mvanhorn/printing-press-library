@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/profilepress/internal/linkedin"
+	"github.com/mvanhorn/printing-press-library/library/productivity/profilepress/internal/packet"
 	"github.com/spf13/cobra"
-	"profilepress-pp-cli/internal/linkedin"
-	"profilepress-pp-cli/internal/packet"
 )
 
 func newApplyPacketCmd() *cobra.Command {

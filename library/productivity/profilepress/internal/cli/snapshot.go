@@ -3,8 +3,8 @@ package cli
 import (
 	"errors"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/profilepress/internal/linkedin"
 	"github.com/spf13/cobra"
-	"profilepress-pp-cli/internal/linkedin"
 )
 
 func newSnapshotCmd() *cobra.Command {

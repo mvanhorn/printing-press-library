@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/profilepress/internal/message"
 	"github.com/spf13/cobra"
-	"profilepress-pp-cli/internal/message"
 )
 
 const confirmSendText = "SEND-MESSAGE"

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"os"
 
-	"profilepress-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/productivity/profilepress/internal/store"
 )
 
 func openStore(path string) (*store.Store, error) { return store.Open(path) }

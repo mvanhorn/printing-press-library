@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"profilepress-pp-cli/internal/profile"
+	"github.com/mvanhorn/printing-press-library/library/productivity/profilepress/internal/profile"
 )
 
 type fixtureSnapshot struct {

@@ -3,9 +3,9 @@ package store
 import (
 	"testing"
 
-	"profilepress-pp-cli/internal/message"
-	"profilepress-pp-cli/internal/packet"
-	"profilepress-pp-cli/internal/profile"
+	"github.com/mvanhorn/printing-press-library/library/productivity/profilepress/internal/message"
+	"github.com/mvanhorn/printing-press-library/library/productivity/profilepress/internal/packet"
+	"github.com/mvanhorn/printing-press-library/library/productivity/profilepress/internal/profile"
 )
 
 func TestSnapshotPacketApplyLogAndMessageRoundTrip(t *testing.T) {

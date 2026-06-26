@@ -1,8 +1,8 @@
 package cli
 
 import (
+	"github.com/mvanhorn/printing-press-library/library/productivity/profilepress/internal/linkedin"
 	"github.com/spf13/cobra"
-	"profilepress-pp-cli/internal/linkedin"
 )
 
 func newPrivacyCheckCmd() *cobra.Command {

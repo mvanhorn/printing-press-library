@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"profilepress-pp-cli/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/productivity/profilepress/internal/cli"
 )
 
 func main() {

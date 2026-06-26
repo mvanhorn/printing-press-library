@@ -1,9 +1,9 @@
 package cli
 
 import (
+	"github.com/mvanhorn/printing-press-library/library/productivity/profilepress/internal/packet"
+	"github.com/mvanhorn/printing-press-library/library/productivity/profilepress/internal/store"
 	"github.com/spf13/cobra"
-	"profilepress-pp-cli/internal/packet"
-	"profilepress-pp-cli/internal/store"
 )
 
 func newPacketCmd() *cobra.Command {

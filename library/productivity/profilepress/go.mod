@@ -1,4 +1,4 @@
-module profilepress-pp-cli
+module github.com/mvanhorn/printing-press-library/library/productivity/profilepress
 
 go 1.26.4
 
