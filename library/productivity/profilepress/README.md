@@ -1,0 +1,85 @@
+# profilepress-printed
+
+This directory is the Printing Press generated `profilepress` CLI, augmented with the CEE safety workflow for private LinkedIn operations.
+
+Generated with:
+
+```bash
+cli-printing-press generate --plan /home/mgmarcusa/docs/plans/2026-06-26-001-feat-linkedin-private-profile-cli-printing-press-plan.md --name profilepress --output /home/mgmarcusa/profilepress-printed --json
+```
+
+## Product stance
+
+`profilepress` operates a user's own LinkedIn account through a user-controlled browser/session model. It does not collect credentials, export cookies, bypass LinkedIn authentication, or bulk-automate social actions.
+
+Default safety posture:
+
+- Profile changes are local change packets until explicitly applied.
+- Network notification is off by default.
+- `--notify-network` requires `--confirm-notify NOTIFY-NETWORK`.
+- Message sending is draft-first and requires `--confirm-send SEND-MESSAGE`.
+- Current live browser write/send adapters are intentionally disabled; `--simulate-live` is only for local workflow testing.
+
+## Implemented commands
+
+- `snapshot`
+- `privacy-check`
+- `propose-for-job`
+- `diff`
+- `packet export`
+- `apply-packet`
+- `messages draft`
+- `messages list`
+- `messages send`
+- `auth status`
+- `doctor`
+
+## Examples
+
+Create a safe profile edit packet:
+
+```bash
+profilepress snapshot --fixture profile.json
+profilepress propose-for-job --change 'headline=Principal Researcher @ Meta | Human-Centered AI Evaluation & Alignment' --source-note 'user requested removing (UX)'
+profilepress diff
+profilepress apply-packet --privacy-status disabled --dry-run --confirm-sensitive APPLY-SENSITIVE
+```
+
+Explicitly allow network notification only when intended:
+
+```bash
+profilepress apply-packet --packet pkt_123 --privacy-status disabled --notify-network --confirm-notify NOTIFY-NETWORK --confirm-sensitive APPLY-SENSITIVE --confirm-apply APPLY
+```
+
+Draft and send a LinkedIn message safely:
+
+```bash
+profilepress messages draft --to https://www.linkedin.com/in/example --body-file message.md
+profilepress messages send --draft msg_123 --dry-run
+profilepress messages send --draft msg_123 --confirm-send SEND-MESSAGE --simulate-live
+```
+
+## Publishing to Printing Press library
+
+Publishing path:
+
+1. Make validation green locally:
+
+```bash
+export PATH="/home/mgmarcusa/.local/go/bin:/home/mgmarcusa/.local/bin:$PATH"
+go test ./...
+go build -buildvcs=false -o bin/profilepress ./cmd/profilepress
+cli-printing-press verify --dir /home/mgmarcusa/profilepress-printed --no-spec --cleanup
+cli-printing-press dogfood --dir /home/mgmarcusa/profilepress-printed --json
+cli-printing-press publish validate --dir /home/mgmarcusa/profilepress-printed --json
+```
+
+2. Package it for review:
+
+```bash
+cli-printing-press publish package --dir /home/mgmarcusa/profilepress-printed --category productivity --target /tmp/profilepress-publish --json
+```
+
+3. Open a PR against `mvanhorn/printing-press-library` with the packaged `library/productivity/profilepress` tree.
+
+The upstream docs prefer the `/printing-press-publish profilepress` skill when available; in this environment we use the equivalent `cli-printing-press publish` commands directly.
