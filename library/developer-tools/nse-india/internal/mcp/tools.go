@@ -187,8 +187,8 @@ func makeMoversHandler() server.ToolHandlerFunc {
 		}
 		args := req.GetArguments()
 		by := "volume" // NSE API requires index=volume or index=value; default to volume
-		if v, ok := args["by"].(string); ok && v != "" {
-			by = v
+		if v, ok := args["by"].(string); ok && v == "value" {
+			by = "value"
 		}
 		params := map[string]string{"index": by}
 		data, err := c.Get("/api/live-analysis-most-active-securities", params)

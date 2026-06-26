@@ -389,10 +389,12 @@ func resolveLocal(ctx context.Context, resourceType string, isList bool, path st
 func writeConstituentCache(ctx context.Context, indexName string, items []map[string]any) {
 	db, err := store.OpenWithContext(ctx, defaultDBPath("nse-india-pp-cli"))
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "warning: could not open local store to cache constituent data: %v\n", err)
 		return
 	}
 	defer db.Close()
 
+	var failed int
 	for _, item := range items {
 		sym, _ := item["symbol"].(string)
 		if sym == "" {
@@ -400,9 +402,15 @@ func writeConstituentCache(ctx context.Context, indexName string, items []map[st
 		}
 		itemJSON, err := json.Marshal(item)
 		if err != nil {
+			failed++
 			continue
 		}
-		_ = db.Upsert("index_constituents", sym+"_"+indexName, json.RawMessage(itemJSON))
+		if err := db.Upsert("index_constituents", sym+"_"+indexName, json.RawMessage(itemJSON)); err != nil {
+			failed++
+		}
+	}
+	if failed > 0 {
+		fmt.Fprintf(os.Stderr, "warning: %d constituent rows failed to write to local store; 'index-driver' and 'sector-breadth' may return empty results — retry 'indices constituents'\n", failed)
 	}
 }
 
