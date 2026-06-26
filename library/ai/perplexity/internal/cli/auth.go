@@ -1099,7 +1099,7 @@ func browserCookieURLHost(domain string) string {
 func extractViaCookiesCLI(domain string) (string, error) {
 	// barnardb/cookies doesn't support profile selection — reads Default
 	var out bytes.Buffer
-	cmd := exec.Command("cookies", "https://"+strings.TrimPrefix(domain, "."))
+	cmd := exec.Command("cookies", "https://"+browserCookieURLHost(domain))
 	cmd.Stdout = &out
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
