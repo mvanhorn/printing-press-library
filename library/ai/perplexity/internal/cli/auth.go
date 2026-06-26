@@ -1129,7 +1129,7 @@ func parseCookieString(cookies string) map[string]string {
 }
 
 func extractViaCookieScoop(domain, profileDir string) (string, error) {
-	cleanDomain := strings.TrimPrefix(domain, ".")
+	cleanDomain := browserCookieURLHost(domain)
 	args := []string{"--url", "https://" + cleanDomain, "--header"}
 	if profileDir != "" {
 		args = append(args, "--chrome-profile", profileDir)
