@@ -57,7 +57,7 @@ func (c *Client) ListTargets(ctx context.Context) ([]Target, error) {
 }
 
 func (c *Client) NewTarget(ctx context.Context, rawURL string) (Target, error) {
-	endpoint := "/json/new?" + url.QueryEscape(rawURL)
+	endpoint := "/json/new?" + rawURL
 	var target Target
 	if err := c.putJSON(ctx, endpoint, nil, &target); err != nil {
 		// Older Chrome builds accept GET for /json/new. Retry once for compatibility.
@@ -180,6 +180,9 @@ func (c *Client) call(ctx context.Context, wsURL, method string, params map[stri
 		case <-ctx.Done():
 			return nil, ctx.Err()
 		default:
+		}
+		if deadline, ok := ctx.Deadline(); ok {
+			_ = conn.SetReadDeadline(deadline)
 		}
 		_, b, err := conn.ReadMessage()
 		if err != nil {
