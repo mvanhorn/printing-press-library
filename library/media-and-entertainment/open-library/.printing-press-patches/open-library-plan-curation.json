@@ -3,7 +3,7 @@
   "id": "open-library-plan-curation",
   "applied_at": "2026-06-26",
   "base_run_id": "20260626-061033",
-  "base_printing_press_version": "4.18.1",
+  "base_printing_press_version": "4.26.0",
   "summary": "Curated the plan-generated skeleton into source-aware Open Library recipes with compact agent JSON, bounded requests, and explicit source/rate-limit caveats.",
   "reason": "Issue #1191 needs an agent-usable Open Library metadata CLI, not placeholder environment-variable commands or a raw endpoint mirror. The first print keeps the command surface read-only and aligned with Open Library's anti-bulk usage guidance.",
   "files": [

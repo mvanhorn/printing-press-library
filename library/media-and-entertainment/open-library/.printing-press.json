@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-06-26T06:10:33Z",
-  "printing_press_version": "4.18.1",
+  "printing_press_version": "4.26.0",
   "api_name": "open-library",
   "display_name": "Open Library",
   "cli_name": "open-library-pp-cli",
