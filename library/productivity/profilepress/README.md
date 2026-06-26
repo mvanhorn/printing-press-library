@@ -36,7 +36,7 @@ Default safety posture:
 
 ## Examples
 
-Create a safe profile edit packet:
+Create a safe profile edit packet from a fixture:
 
 ```bash
 profilepress snapshot --fixture profile.json
@@ -44,6 +44,21 @@ profilepress propose-for-job --change 'headline=Principal Researcher @ Meta | Hu
 profilepress diff
 profilepress apply-packet --privacy-status disabled --dry-run --confirm-sensitive APPLY-SENSITIVE
 ```
+
+Capture a real authenticated LinkedIn profile read-only from a user-controlled Chrome session:
+
+```bash
+# Start Chrome/Chromium yourself with local CDP enabled. The CLI never asks for
+# credentials and never exports cookies.
+google-chrome --remote-debugging-port=9222
+
+profilepress snapshot \
+  --browser-cdp \
+  --profile-url 'https://www.linkedin.com/in/example/' \
+  --expect-name 'Example Person'
+```
+
+The browser-CDP path evaluates visible page text only (`document.body.innerText`, URL, and title), validates that the page is LinkedIn and contains the expected name when provided, then stores the parsed sections plus `raw_text` in the local SQLite mirror.
 
 Explicitly allow network notification only when intended:
 

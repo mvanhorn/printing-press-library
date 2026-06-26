@@ -61,7 +61,21 @@ Do not use this CLI for bulk automation, scraping at scale, spam, credential ext
 
 ## Auth Setup
 
-ProfilePress uses a user-controlled browser-session model. It must not collect passwords, cookies, OAuth tokens, or API secrets. A future live adapter should attach to a browser the user already controls and should never export session material.
+ProfilePress uses a user-controlled browser-session model. It must not collect passwords, cookies, OAuth tokens, or API secrets. Browser reads use a local Chrome/Chromium DevTools endpoint that the user starts explicitly; the CLI evaluates visible page text only and never calls cookie/token APIs.
+
+For live profile reads:
+
+```bash
+# Start Chrome yourself with local CDP enabled, then sign in normally if needed.
+google-chrome --remote-debugging-port=9222
+
+profilepress-pp-cli snapshot \
+  --browser-cdp \
+  --profile-url 'https://www.linkedin.com/in/example/' \
+  --expect-name 'Example Person'
+```
+
+If CDP is unavailable, the CLI fails closed with setup guidance. If the captured page does not look like LinkedIn or does not contain `--expect-name`, it refuses to snapshot the page.
 
 Run:
 

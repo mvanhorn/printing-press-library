@@ -166,8 +166,8 @@ func (s *Store) GetMessageDraft(id string) (message.Draft, error) {
 	}
 	d.CreatedAt, _ = time.Parse(time.RFC3339, created)
 	if sent.Valid && sent.String != "" {
-		t, _ := time.Parse(time.RFC3339, sent.String)
-		d.SentAt = &t
+		parsed, _ := time.Parse(time.RFC3339, sent.String)
+		d.SentAt = &parsed
 	}
 	return d, nil
 }
