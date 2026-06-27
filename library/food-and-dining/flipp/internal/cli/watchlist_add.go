@@ -6,6 +6,7 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -35,6 +36,24 @@ func upsertWatchEntry(entries []watchEntry, entry watchEntry) ([]watchEntry, boo
 		}
 	}
 	return append(entries, entry), false
+}
+
+func loadWatchEntries(path string) ([]watchEntry, error) {
+	data, err := os.ReadFile(path) // #nosec G304 -- path is constrained to cliutil.DataDir() by caller.
+	if errors.Is(err, os.ErrNotExist) {
+		return []watchEntry{}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	if len(data) == 0 {
+		return []watchEntry{}, nil
+	}
+	entries := []watchEntry{}
+	if err := json.Unmarshal(data, &entries); err != nil {
+		return nil, fmt.Errorf("invalid watchlist JSON at %s: %w", path, err)
+	}
+	return entries, nil
 }
 
 // pp:data-source computed
@@ -71,9 +90,9 @@ func newNovelWatchlistAddCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			path := filepath.Join(dir, "watchlist.json")
-			entries := []watchEntry{}
-			if data, err := os.ReadFile(path); err == nil && len(data) > 0 { // #nosec G304 -- path is constrained to cliutil.DataDir().
-				_ = json.Unmarshal(data, &entries)
+			entries, err := loadWatchEntries(path)
+			if err != nil {
+				return err
 			}
 			entry := watchEntry{Query: args[0], TargetPrice: target, Zip: flagZip, Locale: flagLocale, AddedAt: time.Now().UTC()}
 			entries, _ = upsertWatchEntry(entries, entry)
@@ -81,7 +100,7 @@ func newNovelWatchlistAddCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			if err := os.WriteFile(path, data, 0o600); err != nil {
+			if err := cliutil.AtomicWritePrivateFile(path, data, 0o600, 0o750); err != nil {
 				return err
 			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)

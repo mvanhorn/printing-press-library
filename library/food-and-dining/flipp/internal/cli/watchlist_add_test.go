@@ -6,6 +6,8 @@ package cli
 
 import (
 	"bytes"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -61,5 +63,18 @@ func TestUpsertWatchEntryReplacesSameQueryZipLocale(t *testing.T) {
 	}
 	if !updated[0].AddedAt.Equal(newTime) {
 		t.Fatalf("added_at = %s, want %s", updated[0].AddedAt, newTime)
+	}
+}
+
+func TestLoadWatchEntriesRejectsMalformedJSON(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "watchlist.json")
+	if err := os.WriteFile(path, []byte("{not-json"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := loadWatchEntries(path); err == nil {
+		t.Fatal("expected malformed watchlist JSON to return an error")
+	} else if !strings.Contains(err.Error(), "invalid watchlist JSON") {
+		t.Fatalf("error = %q, want invalid watchlist JSON context", err)
 	}
 }
