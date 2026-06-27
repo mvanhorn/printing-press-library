@@ -1,0 +1,271 @@
+{
+  "api_name": "acris",
+  "base_url": "https://data.cityofnewyork.us/resource",
+  "description": "Query NYC property records — deeds, mortgages, parties, and full BBL history — straight from NYC Open Data, with cross-dataset joins no raw ACRIS query can do.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-App-Token",
+    "format": "{ACRIS_APP_TOKEN}",
+    "env_vars": [
+      "ACRIS_APP_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ACRIS_APP_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "doc-types_list",
+      "description": "List document control codes, optionally filtered by class. Optional: class-code-description, q, limit (default: 200). Returns array of DocType.",
+      "method": "GET",
+      "path": "/7isb-wh4c.json",
+      "params": [
+        {
+          "name": "class-code-description",
+          "wire_name": "class_code_description",
+          "type": "string",
+          "location": "query",
+          "description": "Class filter: 'DEEDS AND OTHER CONVEYANCES', 'MORTGAGES \u0026 INSTRUMENTS', 'UCC AND FEDERAL LIENS', 'OTHER DOCUMENTS'"
+        },
+        {
+          "name": "q",
+          "wire_name": "$q",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across code descriptions"
+        },
+        {
+          "name": "limit",
+          "wire_name": "$limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return"
+        }
+      ]
+    },
+    {
+      "name": "documents_get",
+      "description": "Fetch a single document master record by document ID. Required: document-id. Returns array of Document.",
+      "method": "GET",
+      "path": "/bnx9-e6tj.json",
+      "params": [
+        {
+          "name": "document-id",
+          "wire_name": "document_id",
+          "type": "string",
+          "location": "query",
+          "description": "ACRIS document ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "documents_list",
+      "description": "List or filter recorded documents by type, borough, CRFN, or SoQL query. Optional: document_id, crfn, doc-type (plus 6 more). Returns array of Document.",
+      "method": "GET",
+      "path": "/bnx9-e6tj.json",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "query",
+          "description": "Exact ACRIS document ID (e.g. 2023012300123001)"
+        },
+        {
+          "name": "crfn",
+          "type": "string",
+          "location": "query",
+          "description": "City Register File Number"
+        },
+        {
+          "name": "doc-type",
+          "wire_name": "doc_type",
+          "type": "string",
+          "location": "query",
+          "description": "Document type code (e.g. DEED, MTGE, AGMT). See 'acris-pp-cli doc-types list'"
+        },
+        {
+          "name": "recorded-borough",
+          "wire_name": "recorded_borough",
+          "type": "string",
+          "location": "query",
+          "description": "Recording borough code: 1=Manhattan 2=Bronx 3=Brooklyn 4=Queens 5=Staten Island"
+        },
+        {
+          "name": "q",
+          "wire_name": "$q",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across all fields"
+        },
+        {
+          "name": "where",
+          "wire_name": "$where",
+          "type": "string",
+          "location": "query",
+          "description": "Raw SoQL filter, e.g. 'document_amt \u003e 1000000 and document_date \u003e '2022-01-01''"
+        },
+        {
+          "name": "order",
+          "wire_name": "$order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort expression, e.g. 'recorded_datetime DESC'"
+        },
+        {
+          "name": "limit",
+          "wire_name": "$limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return (Socrata caps at 50000)"
+        },
+        {
+          "name": "offset",
+          "wire_name": "$offset",
+          "type": "int",
+          "location": "query",
+          "description": "Row offset for pagination"
+        }
+      ]
+    },
+    {
+      "name": "legals_list",
+      "description": "List property legal records by BBL, address, or document ID. Optional: document_id, borough, block (plus 7 more). Returns array of Legal.",
+      "method": "GET",
+      "path": "/8h5j-fqxa.json",
+      "params": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to one document's property records"
+        },
+        {
+          "name": "borough",
+          "type": "string",
+          "location": "query",
+          "description": "Borough code: 1=Manhattan 2=Bronx 3=Brooklyn 4=Queens 5=Staten Island"
+        },
+        {
+          "name": "block",
+          "type": "string",
+          "location": "query",
+          "description": "Tax block number (not zero-padded)"
+        },
+        {
+          "name": "lot",
+          "type": "string",
+          "location": "query",
+          "description": "Tax lot number (not zero-padded)"
+        },
+        {
+          "name": "street-name",
+          "wire_name": "street_name",
+          "type": "string",
+          "location": "query",
+          "description": "Street name as recorded (uppercase, e.g. MADISON AVENUE)"
+        },
+        {
+          "name": "q",
+          "wire_name": "$q",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across all fields"
+        },
+        {
+          "name": "where",
+          "wire_name": "$where",
+          "type": "string",
+          "location": "query",
+          "description": "Raw SoQL filter expression"
+        },
+        {
+          "name": "order",
+          "wire_name": "$order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort expression"
+        },
+        {
+          "name": "limit",
+          "wire_name": "$limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return"
+        },
+        {
+          "name": "offset",
+          "wire_name": "$offset",
+          "type": "int",
+          "location": "query",
+          "description": "Row offset for pagination"
+        }
+      ]
+    },
+    {
+      "name": "parties_list",
+      "description": "List parties by document ID, exact name, or party type. Optional: document-id, name, party-type (plus 4 more). Returns array of Party.",
+      "method": "GET",
+      "path": "/636b-3b5g.json",
+      "params": [
+        {
+          "name": "document-id",
+          "wire_name": "document_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to parties on one document"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Exact party name as recorded (uppercase). For substring search use 'acris-pp-cli party-search'"
+        },
+        {
+          "name": "party-type",
+          "wire_name": "party_type",
+          "type": "string",
+          "location": "query",
+          "description": "Party role code: 1=party-of-the-first-part (grantor/mortgagor) 2=party-of-the-second-part (grantee/mortgagee)"
+        },
+        {
+          "name": "q",
+          "wire_name": "$q",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across all fields"
+        },
+        {
+          "name": "where",
+          "wire_name": "$where",
+          "type": "string",
+          "location": "query",
+          "description": "Raw SoQL filter expression"
+        },
+        {
+          "name": "limit",
+          "wire_name": "$limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return"
+        },
+        {
+          "name": "offset",
+          "wire_name": "$offset",
+          "type": "int",
+          "location": "query",
+          "description": "Row offset for pagination"
+        }
+      ]
+    }
+  ]
+}

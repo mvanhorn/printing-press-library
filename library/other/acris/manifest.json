@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "acris-pp-mcp",
+  "display_name": "ACRIS",
+  "version": "0.1.0",
+  "description": "Query NYC property records — deeds, mortgages, parties, and full BBL history — straight from NYC Open Data, with cross-dataset joins no raw ACRIS query can do.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/acris-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/acris-pp-mcp",
+      "args": [],
+      "env": {
+        "ACRIS_APP_TOKEN": "${user_config.acris_app_token}"
+      }
+    }
+  },
+  "user_config": {
+    "acris_app_token": {
+      "type": "string",
+      "title": "ACRIS_APP_TOKEN",
+      "description": "Sets ACRIS_APP_TOKEN for the ACRIS MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,328 @@
+name: acris
+description: "NYC ACRIS property records CLI — deeds, mortgages, parties, and BBL history from NYC Open Data"
+version: "0.1.0"
+base_url: "https://data.cityofnewyork.us/resource"
+health_check_path: "/7isb-wh4c.json"
+category: other
+
+# ACRIS (Automated City Register Information System) is published by the NYC
+# Department of Finance through NYC Open Data on the Socrata (SODA) platform.
+# Every dataset is a REST endpoint at /resource/<dataset-id>.json and accepts
+# SoQL query parameters ($where, $order, $limit, $offset, $q) plus direct
+# field-equality filters. An app token is optional; it raises the anonymous
+# throttling ceiling. Anonymous access works without any credential.
+auth:
+  type: api_key
+  header: "X-App-Token"
+  format: "{token}"
+  env_vars:
+    - ACRIS_APP_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/acris-pp-cli/config.toml"
+
+resources:
+  documents:
+    description: "Recorded document master records — deeds, mortgages, assignments, satisfactions (ACRIS Real Property Master, bnx9-e6tj)"
+    endpoints:
+      list:
+        method: GET
+        path: "/bnx9-e6tj.json"
+        description: "List or filter recorded documents by type, borough, CRFN, or SoQL query"
+        example: "  acris-pp-cli documents list --doc-type DEED --recorded-borough 1 --limit 25"
+        happy_args: "--limit=5"
+        params:
+          - name: document_id
+            type: string
+            required: false
+            description: "Exact ACRIS document ID (e.g. 2023012300123001)"
+          - name: crfn
+            type: string
+            required: false
+            description: "City Register File Number"
+          - name: doc_type
+            flag_name: doc-type
+            type: string
+            required: false
+            description: "Document type code (e.g. DEED, MTGE, AGMT). See 'acris-pp-cli doc-types list'"
+          - name: recorded_borough
+            flag_name: recorded-borough
+            type: string
+            required: false
+            description: "Recording borough code: 1=Manhattan 2=Bronx 3=Brooklyn 4=Queens 5=Staten Island"
+          - name: "$q"
+            flag_name: q
+            type: string
+            required: false
+            description: "Full-text search across all fields"
+          - name: "$where"
+            flag_name: where
+            type: string
+            required: false
+            description: "Raw SoQL filter, e.g. \"document_amt > 1000000 and document_date > '2022-01-01'\""
+          - name: "$order"
+            flag_name: order
+            type: string
+            required: false
+            description: "Sort expression, e.g. 'recorded_datetime DESC'"
+          - name: "$limit"
+            flag_name: limit
+            type: int
+            required: false
+            default: 50
+            description: "Maximum rows to return (Socrata caps at 50000)"
+          - name: "$offset"
+            flag_name: offset
+            type: int
+            required: false
+            description: "Row offset for pagination"
+        response:
+          type: array
+          item: Document
+      get:
+        method: GET
+        path: "/bnx9-e6tj.json"
+        description: "Fetch a single document master record by document ID"
+        example: "  acris-pp-cli documents get --document-id 2023012300123001"
+        params:
+          - name: document_id
+            flag_name: document-id
+            type: string
+            required: true
+            description: "ACRIS document ID"
+        response:
+          type: array
+          item: Document
+
+  legals:
+    description: "Document-to-property (borough/block/lot) mappings — resolve a BBL to its recorded documents (ACRIS Real Property Legals, 8h5j-fqxa)"
+    endpoints:
+      list:
+        method: GET
+        path: "/8h5j-fqxa.json"
+        description: "List property legal records by BBL, address, or document ID"
+        example: "  acris-pp-cli legals list --borough 1 --block 852 --lot 134"
+        happy_args: "--limit=5"
+        params:
+          - name: document_id
+            type: string
+            required: false
+            description: "Filter to one document's property records"
+          - name: borough
+            type: string
+            required: false
+            description: "Borough code: 1=Manhattan 2=Bronx 3=Brooklyn 4=Queens 5=Staten Island"
+          - name: block
+            type: string
+            required: false
+            description: "Tax block number (not zero-padded)"
+          - name: lot
+            type: string
+            required: false
+            description: "Tax lot number (not zero-padded)"
+          - name: street_name
+            flag_name: street-name
+            type: string
+            required: false
+            description: "Street name as recorded (uppercase, e.g. MADISON AVENUE)"
+          - name: "$q"
+            flag_name: q
+            type: string
+            required: false
+            description: "Full-text search across all fields"
+          - name: "$where"
+            flag_name: where
+            type: string
+            required: false
+            description: "Raw SoQL filter expression"
+          - name: "$order"
+            flag_name: order
+            type: string
+            required: false
+            description: "Sort expression"
+          - name: "$limit"
+            flag_name: limit
+            type: int
+            required: false
+            default: 50
+            description: "Maximum rows to return"
+          - name: "$offset"
+            flag_name: offset
+            type: int
+            required: false
+            description: "Row offset for pagination"
+        response:
+          type: array
+          item: Legal
+
+  parties:
+    description: "Parties (grantors, grantees, mortgagors, mortgagees) named on recorded documents (ACRIS Real Property Parties, 636b-3b5g)"
+    endpoints:
+      list:
+        method: GET
+        path: "/636b-3b5g.json"
+        description: "List parties by document ID, exact name, or party type"
+        example: "  acris-pp-cli parties list --document-id 2023012300123001"
+        happy_args: "--limit=5"
+        params:
+          - name: document_id
+            flag_name: document-id
+            type: string
+            required: false
+            description: "Filter to parties on one document"
+          - name: name
+            type: string
+            required: false
+            description: "Exact party name as recorded (uppercase). For substring search use 'acris-pp-cli party-search'"
+          - name: party_type
+            flag_name: party-type
+            type: string
+            required: false
+            description: "Party role code: 1=party-of-the-first-part (grantor/mortgagor) 2=party-of-the-second-part (grantee/mortgagee)"
+          - name: "$q"
+            flag_name: q
+            type: string
+            required: false
+            description: "Full-text search across all fields"
+          - name: "$where"
+            flag_name: where
+            type: string
+            required: false
+            description: "Raw SoQL filter expression"
+          - name: "$limit"
+            flag_name: limit
+            type: int
+            required: false
+            default: 50
+            description: "Maximum rows to return"
+          - name: "$offset"
+            flag_name: offset
+            type: int
+            required: false
+            description: "Row offset for pagination"
+        response:
+          type: array
+          item: Party
+
+  doc-types:
+    description: "Document type code lookup — translate ACRIS doc_type codes to descriptions and classes (ACRIS Document Control Codes, 7isb-wh4c)"
+    endpoints:
+      list:
+        method: GET
+        path: "/7isb-wh4c.json"
+        description: "List document control codes, optionally filtered by class"
+        example: "  acris-pp-cli doc-types list --class-code-description 'MORTGAGES & INSTRUMENTS'"
+        happy_args: "--limit=10"
+        params:
+          - name: class_code_description
+            flag_name: class-code-description
+            type: string
+            required: false
+            description: "Class filter: 'DEEDS AND OTHER CONVEYANCES', 'MORTGAGES & INSTRUMENTS', 'UCC AND FEDERAL LIENS', 'OTHER DOCUMENTS'"
+          - name: "$q"
+            flag_name: q
+            type: string
+            required: false
+            description: "Full-text search across code descriptions"
+          - name: "$limit"
+            flag_name: limit
+            type: int
+            required: false
+            default: 200
+            description: "Maximum rows to return"
+        response:
+          type: array
+          item: DocType
+
+types:
+  Document:
+    fields:
+      - name: document_id
+        type: string
+      - name: crfn
+        type: string
+      - name: recorded_borough
+        type: string
+      - name: doc_type
+        type: string
+      - name: document_amt
+        type: string
+      - name: document_date
+        type: string
+      - name: recorded_datetime
+        type: string
+      - name: percent_trans
+        type: string
+      - name: reel_yr
+        type: string
+      - name: reel_nbr
+        type: string
+      - name: reel_pg
+        type: string
+      - name: good_through_date
+        type: string
+  Legal:
+    fields:
+      - name: document_id
+        type: string
+      - name: borough
+        type: string
+      - name: block
+        type: string
+      - name: lot
+        type: string
+      - name: easement
+        type: string
+      - name: partial_lot
+        type: string
+      - name: air_rights
+        type: string
+      - name: subterranean_rights
+        type: string
+      - name: property_type
+        type: string
+      - name: street_number
+        type: string
+      - name: street_name
+        type: string
+      - name: unit
+        type: string
+      - name: good_through_date
+        type: string
+  Party:
+    fields:
+      - name: document_id
+        type: string
+      - name: party_type
+        type: string
+      - name: name
+        type: string
+      - name: address_1
+        type: string
+      - name: address_2
+        type: string
+      - name: country
+        type: string
+      - name: city
+        type: string
+      - name: state
+        type: string
+      - name: zip
+        type: string
+      - name: good_through_date
+        type: string
+  DocType:
+    fields:
+      - name: doc__type
+        type: string
+      - name: doc__type_description
+        type: string
+      - name: class_code_description
+        type: string
+      - name: party1_type
+        type: string
+      - name: party2_type
+        type: string
+      - name: party3_type
+        type: string
