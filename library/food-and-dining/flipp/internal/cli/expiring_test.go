@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"strings"
 	"testing"
+	"time"
 )
 
 // TestNovelExpiringHelpWires smoke-tests that the expiring command
@@ -28,5 +29,20 @@ func TestNovelExpiringHelpWires(t *testing.T) {
 		if !strings.Contains(help, want) {
 			t.Fatalf("expiring --help missing %q in output:\n%s", want, help)
 		}
+	}
+}
+
+func TestWithinExpiringWindowExcludesExpiredItems(t *testing.T) {
+	now := time.Date(2026, 6, 27, 12, 0, 0, 0, time.UTC)
+	deadline := now.Add(72 * time.Hour)
+
+	if withinExpiringWindow(now.Add(-time.Hour), now, deadline) {
+		t.Fatal("already-expired items should not be included")
+	}
+	if !withinExpiringWindow(now.Add(24*time.Hour), now, deadline) {
+		t.Fatal("items expiring inside the window should be included")
+	}
+	if withinExpiringWindow(now.Add(96*time.Hour), now, deadline) {
+		t.Fatal("items beyond the requested window should not be included")
 	}
 }

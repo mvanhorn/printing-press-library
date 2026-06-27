@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"strings"
 	"testing"
+	"time"
 )
 
 // TestNovelWatchlistAddHelpWires smoke-tests that the watchlist add command
@@ -28,5 +29,37 @@ func TestNovelWatchlistAddHelpWires(t *testing.T) {
 		if !strings.Contains(help, want) {
 			t.Fatalf("watchlist add --help missing %q in output:\n%s", want, help)
 		}
+	}
+}
+
+func TestUpsertWatchEntryReplacesSameQueryZipLocale(t *testing.T) {
+	oldTime := time.Date(2026, 6, 26, 12, 0, 0, 0, time.UTC)
+	newTime := oldTime.Add(time.Hour)
+	entries := []watchEntry{{
+		Query:       "milk",
+		TargetPrice: 3.50,
+		Zip:         "85050",
+		Locale:      "en-us",
+		AddedAt:     oldTime,
+	}}
+
+	updated, replaced := upsertWatchEntry(entries, watchEntry{
+		Query:       "Milk",
+		TargetPrice: 2.99,
+		Zip:         "85050",
+		Locale:      "en-us",
+		AddedAt:     newTime,
+	})
+	if !replaced {
+		t.Fatal("expected existing watch entry to be replaced")
+	}
+	if len(updated) != 1 {
+		t.Fatalf("len(updated) = %d, want 1", len(updated))
+	}
+	if got, want := updated[0].TargetPrice, 2.99; got != want {
+		t.Fatalf("target price = %.2f, want %.2f", got, want)
+	}
+	if !updated[0].AddedAt.Equal(newTime) {
+		t.Fatalf("added_at = %s, want %s", updated[0].AddedAt, newTime)
 	}
 }

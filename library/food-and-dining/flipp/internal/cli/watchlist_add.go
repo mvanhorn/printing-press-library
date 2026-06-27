@@ -10,11 +10,32 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/flipp/internal/cliutil"
 	"github.com/spf13/cobra"
 )
+
+type watchEntry struct {
+	Query       string    `json:"query"`
+	TargetPrice float64   `json:"target_price"`
+	Zip         string    `json:"zip"`
+	Locale      string    `json:"locale"`
+	AddedAt     time.Time `json:"added_at"`
+}
+
+func upsertWatchEntry(entries []watchEntry, entry watchEntry) ([]watchEntry, bool) {
+	for i, existing := range entries {
+		if strings.EqualFold(existing.Query, entry.Query) &&
+			strings.EqualFold(existing.Zip, entry.Zip) &&
+			strings.EqualFold(existing.Locale, entry.Locale) {
+			entries[i] = entry
+			return entries, true
+		}
+	}
+	return append(entries, entry), false
+}
 
 // pp:data-source computed
 func newNovelWatchlistAddCmd(flags *rootFlags) *cobra.Command {
@@ -50,19 +71,12 @@ func newNovelWatchlistAddCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			path := filepath.Join(dir, "watchlist.json")
-			type watchEntry struct {
-				Query       string    `json:"query"`
-				TargetPrice float64   `json:"target_price"`
-				Zip         string    `json:"zip"`
-				Locale      string    `json:"locale"`
-				AddedAt     time.Time `json:"added_at"`
-			}
 			entries := []watchEntry{}
 			if data, err := os.ReadFile(path); err == nil && len(data) > 0 { // #nosec G304 -- path is constrained to cliutil.DataDir().
 				_ = json.Unmarshal(data, &entries)
 			}
 			entry := watchEntry{Query: args[0], TargetPrice: target, Zip: flagZip, Locale: flagLocale, AddedAt: time.Now().UTC()}
-			entries = append(entries, entry)
+			entries, _ = upsertWatchEntry(entries, entry)
 			data, err := json.MarshalIndent(entries, "", "  ")
 			if err != nil {
 				return err

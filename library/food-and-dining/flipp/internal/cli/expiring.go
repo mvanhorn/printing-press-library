@@ -13,6 +13,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func withinExpiringWindow(expiresAt, now, deadline time.Time) bool {
+	return expiresAt.After(now) && !expiresAt.After(deadline)
+}
+
 // pp:data-source live
 func newNovelExpiringCmd(flags *rootFlags) *cobra.Command {
 	var flagDays string
@@ -47,7 +51,8 @@ func newNovelExpiringCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			deadline := time.Now().Add(time.Duration(days) * 24 * time.Hour)
+			now := time.Now()
+			deadline := now.Add(time.Duration(days) * 24 * time.Hour)
 			type expiringRow struct {
 				Kind       string   `json:"kind"`
 				ID         int      `json:"id"`
@@ -60,20 +65,20 @@ func newNovelExpiringCmd(flags *rootFlags) *cobra.Command {
 			rows := []expiringRow{}
 			for _, flyer := range data.Flyers {
 				t, ok := parseFlippTime(flyer.ValidTo)
-				if !ok || t.After(deadline) {
+				if !ok || !withinExpiringWindow(t, now, deadline) {
 					continue
 				}
-				rows = append(rows, expiringRow{Kind: "flyer", ID: flyer.ID, Merchant: flyer.Merchant, Name: flyer.Name, Categories: flyer.Categories, ValidTo: flyer.ValidTo, DaysLeft: int(time.Until(t).Hours() / 24)})
+				rows = append(rows, expiringRow{Kind: "flyer", ID: flyer.ID, Merchant: flyer.Merchant, Name: flyer.Name, Categories: flyer.Categories, ValidTo: flyer.ValidTo, DaysLeft: int(t.Sub(now).Hours() / 24)})
 			}
 			allCoupons := append([]flippCoupon{}, data.Coupons...)
 			allCoupons = append(allCoupons, data.LoyaltyProgramCoupons...)
 			allCoupons = append(allCoupons, data.FlyerItemCoupons...)
 			for _, coupon := range allCoupons {
 				t, ok := parseFlippTime(coupon.ValidTo)
-				if !ok || t.After(deadline) {
+				if !ok || !withinExpiringWindow(t, now, deadline) {
 					continue
 				}
-				rows = append(rows, expiringRow{Kind: "coupon", ID: coupon.ID, Merchant: coupon.Merchant, Name: firstNonEmpty(coupon.Name, coupon.Description, coupon.Value), ValidTo: coupon.ValidTo, DaysLeft: int(time.Until(t).Hours() / 24)})
+				rows = append(rows, expiringRow{Kind: "coupon", ID: coupon.ID, Merchant: coupon.Merchant, Name: firstNonEmpty(coupon.Name, coupon.Description, coupon.Value), ValidTo: coupon.ValidTo, DaysLeft: int(t.Sub(now).Hours() / 24)})
 			}
 			if flagLimit > 0 && len(rows) > flagLimit {
 				rows = rows[:flagLimit]

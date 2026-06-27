@@ -78,6 +78,9 @@ func newNovelBasketPriceCmd(flags *rootFlags) *cobra.Command {
 					if item.CurrentPrice == nil {
 						continue
 					}
+					if !matchesSearchIntent(item, query) {
+						continue
+					}
 					merchant := merchantName(item)
 					if byMerchant[merchant] == nil {
 						byMerchant[merchant] = map[string]basketItem{}
