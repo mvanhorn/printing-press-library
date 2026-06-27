@@ -1,0 +1,220 @@
+{
+  "api_name": "hostex",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-27T06:10:00Z",
+  "novel_features": [
+    {
+      "name": "Operations gap finder",
+      "command": "ops-gaps",
+      "description": "Find imminent or occupied stays with no cleaning task or missing check-in details.",
+      "rationale": "No single Hostex endpoint returns 'occupied stay lacking a task' — it needs a local join across reservations, tasks, and check-in details.",
+      "example": "hostex-pp-cli ops-gaps --within 7d --agent",
+      "why_it_matters": "Reach for this to catch turnover and check-in problems before a guest complains, instead of eyeballing the calendar.",
+      "group": "Operations: stop problems before guests do"
+    },
+    {
+      "name": "Stay brief dossier",
+      "command": "stay-brief",
+      "description": "One dossier for a single stay: reservation, guest, thread state, tasks, transactions, and review.",
+      "rationale": "Fan-joins every local entity keyed on stay_code into one object, replacing five tab-switches across the app and OTAs.",
+      "example": "hostex-pp-cli stay-brief HMABC123 --agent",
+      "why_it_matters": "Use when you need the full picture of one stay; to scan many stays for problems use ops-gaps.",
+      "group": "Operations: stop problems before guests do"
+    },
+    {
+      "name": "Inbox SLA triage",
+      "command": "inbox-sla",
+      "description": "Rank open guest conversations by age since the last guest message and flag threads past your SLA.",
+      "rationale": "query-conversations returns threads but no age clock; this derives age from the latest-message timestamp and unread_count locally.",
+      "example": "hostex-pp-cli inbox-sla --breach 6h --agent",
+      "why_it_matters": "OTAs penalize slow replies; use this to triage which threads are about to breach SLA.",
+      "group": "Inbox and automation SLA"
+    },
+    {
+      "name": "Automation preview",
+      "command": "automation-preview",
+      "description": "List pending automated messages and reviews and flag any whose thread a human has already handled.",
+      "rationale": "Pending plans alone don't tell you a human already replied; the join to conversation reply-state does.",
+      "example": "hostex-pp-cli automation-preview --day tomorrow --agent",
+      "why_it_matters": "Use to vet queued bot actions before they fire on a human-handled thread; for slow human threads use inbox-sla.",
+      "group": "Inbox and automation SLA"
+    },
+    {
+      "name": "Cross-channel price parity",
+      "command": "price-parity",
+      "description": "Flag property-dates where per-channel listing price or min-stay diverges across channels.",
+      "rationale": "Parity needs N channel listings diffed for the same date; no single Hostex call diffs channels.",
+      "example": "hostex-pp-cli price-parity --property 12345 --days 30 --agent",
+      "why_it_matters": "Use to catch silent revenue loss from channel price drift; for availability mismatch use oversell-watch.",
+      "group": "Channel parity and revenue (portfolio)"
+    },
+    {
+      "name": "Oversell / double-sell watch",
+      "command": "oversell-watch",
+      "description": "Flag dates a channel still shows bookable on a property that is blocked or booked on the master calendar.",
+      "rationale": "Master availability vs per-channel inventory is a two-source join the API exposes only separately.",
+      "example": "hostex-pp-cli oversell-watch --days 30 --agent",
+      "why_it_matters": "Use to catch double-sell risk; for price or min-stay drift use price-parity.",
+      "group": "Channel parity and revenue (portfolio)"
+    },
+    {
+      "name": "Revenue rollup",
+      "command": "revenue-rollup",
+      "description": "Net income minus expense by property or month over a date range, from the live ledger.",
+      "rationale": "The transactions endpoint requires an explicit start/end date and returns raw entries; this paginates the range and nets them by group and currency in one command.",
+      "example": "hostex-pp-cli revenue-rollup --by property --month 2026-06 --agent",
+      "why_it_matters": "Use for the Monday portfolio revenue review in one command.",
+      "group": "Channel parity and revenue (portfolio)"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Operations gap finder",
+      "command": "ops-gaps",
+      "description": "Find imminent or occupied stays with no cleaning task or missing check-in details.",
+      "rationale": "No single Hostex endpoint returns 'occupied stay lacking a task' — it needs a local join across reservations, tasks, and check-in details.",
+      "example": "hostex-pp-cli ops-gaps --within 7d --agent",
+      "why_it_matters": "Reach for this to catch turnover and check-in problems before a guest complains, instead of eyeballing the calendar.",
+      "group": "Operations: stop problems before guests do"
+    },
+    {
+      "name": "Stay brief dossier",
+      "command": "stay-brief",
+      "description": "One dossier for a single stay: reservation, guest, thread state, tasks, transactions, and review.",
+      "rationale": "Fan-joins every local entity keyed on stay_code into one object, replacing five tab-switches across the app and OTAs.",
+      "example": "hostex-pp-cli stay-brief HMABC123 --agent",
+      "why_it_matters": "Use when you need the full picture of one stay; to scan many stays for problems use ops-gaps.",
+      "group": "Operations: stop problems before guests do"
+    },
+    {
+      "name": "Inbox SLA triage",
+      "command": "inbox-sla",
+      "description": "Rank open guest conversations by age since the last guest message and flag threads past your SLA.",
+      "rationale": "query-conversations returns threads but no age clock; this derives age from the latest-message timestamp and unread_count locally.",
+      "example": "hostex-pp-cli inbox-sla --breach 6h --agent",
+      "why_it_matters": "OTAs penalize slow replies; use this to triage which threads are about to breach SLA.",
+      "group": "Inbox and automation SLA"
+    },
+    {
+      "name": "Automation preview",
+      "command": "automation-preview",
+      "description": "List pending automated messages and reviews and flag any whose thread a human has already handled.",
+      "rationale": "Pending plans alone don't tell you a human already replied; the join to conversation reply-state does.",
+      "example": "hostex-pp-cli automation-preview --day tomorrow --agent",
+      "why_it_matters": "Use to vet queued bot actions before they fire on a human-handled thread; for slow human threads use inbox-sla.",
+      "group": "Inbox and automation SLA"
+    },
+    {
+      "name": "Cross-channel price parity",
+      "command": "price-parity",
+      "description": "Flag property-dates where per-channel listing price or min-stay diverges across channels.",
+      "rationale": "Parity needs N channel listings diffed for the same date; no single Hostex call diffs channels.",
+      "example": "hostex-pp-cli price-parity --property 12345 --days 30 --agent",
+      "why_it_matters": "Use to catch silent revenue loss from channel price drift; for availability mismatch use oversell-watch.",
+      "group": "Channel parity and revenue (portfolio)"
+    },
+    {
+      "name": "Oversell / double-sell watch",
+      "command": "oversell-watch",
+      "description": "Flag dates a channel still shows bookable on a property that is blocked or booked on the master calendar.",
+      "rationale": "Master availability vs per-channel inventory is a two-source join the API exposes only separately.",
+      "example": "hostex-pp-cli oversell-watch --days 30 --agent",
+      "why_it_matters": "Use to catch double-sell risk; for price or min-stay drift use price-parity.",
+      "group": "Channel parity and revenue (portfolio)"
+    },
+    {
+      "name": "Revenue rollup",
+      "command": "revenue-rollup",
+      "description": "Net income minus expense by property or month over a date range, from the live ledger.",
+      "rationale": "The transactions endpoint requires an explicit start/end date and returns raw entries; this paginates the range and nets them by group and currency in one command.",
+      "example": "hostex-pp-cli revenue-rollup --by property --month 2026-06 --agent",
+      "why_it_matters": "Use for the Monday portfolio revenue review in one command.",
+      "group": "Channel parity and revenue (portfolio)"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "HOSTEX_ACCESS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Hostex",
+    "headline": "Every Hostex v3 operation, plus a local SQLite mirror that answers cross-property questions no single Hostex call can — occupancy gaps, revenue rollups, and guest-message SLA, offline.",
+    "value_prop": "Hostex has a REST API and an official MCP server but no first-class CLI. This one mirrors all 86 endpoints as typed commands with --json/--select/--dry-run, then syncs reservations, properties, listings, conversations, reviews, tasks and transactions into local SQLite so you can run joins the API can't: which occupied stays have no cleaning task, revenue by property this month, threads unanswered past your SLA, and price-parity gaps across channels. It gets the tricky Hostex plumbing right once: every response is HTTP 200 with error_code in the body, and the multi-layer rate limits return Retry-After.",
+    "auth_narrative": "Hostex authenticates with a Hostex-Access-Token header. Create one in the Host Portal (OpenAPI Settings) with read-only or writable scope; tokens do not expire. Set it as HOSTEX_ACCESS_TOKEN. The server also accepts Authorization: Bearer, but prefer the dedicated header. A read-only token rejects every write with error_code 401.",
+    "quickstart": [
+      {
+        "command": "hostex-pp-cli doctor --dry-run",
+        "comment": "Health check; confirms token presence and API reachability without spending a real call."
+      },
+      {
+        "command": "hostex-pp-cli sync --resources reservations,properties --db ./hostex.db",
+        "comment": "Pull your reservations and properties into the local SQLite mirror."
+      },
+      {
+        "command": "hostex-pp-cli search \"smith\" --type reservations --db ./hostex.db",
+        "comment": "Offline full-text search across synced reservations."
+      },
+      {
+        "command": "hostex-pp-cli reservations query --json --select data.reservations.stay_code,data.reservations.status",
+        "comment": "Live query with field projection to keep agent context small."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Calls return HTTP 200 but nothing works",
+        "fix": "Hostex puts the real result in error_code; branch on it, not the HTTP status. error_code 0 means success."
+      },
+      {
+        "symptom": "\"Invalid access token\" on the first call",
+        "fix": "Check the header spelling Hostex-Access-Token (with the dash) and that HOSTEX_ACCESS_TOKEN is exported."
+      },
+      {
+        "symptom": "Writes fail with error_code 401 though the token is valid",
+        "fix": "Your token is read-only scope. Create a writable token in the Host Portal; scope cannot be changed after creation."
+      },
+      {
+        "symptom": "error_code 429",
+        "fix": "Rate limit hit (per-token, per-endpoint, or per-thread). Back off for the seconds in the Retry-After header."
+      },
+      {
+        "symptom": "error_code 420",
+        "fix": "Account/subscription problem (expired, or Basic edition using a Pro feature). Only the host can fix it in the portal; do not retry."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent or script needs to read or mutate a Hostex host's data: triaging the guest inbox, querying reservations by date/property/status, pushing price/inventory/restriction updates across channels, scheduling cleaning tasks, or rolling up revenue. It is the right tool when the question spans multiple entities (stays + tasks + transactions) because the local SQLite mirror answers those joins offline; a single REST call cannot.",
+    "anti_triggers": [
+      "Do not use this CLI to build a multi-tenant SaaS that acts on behalf of many hosts — that needs the OAuth 2.0 partner flow, not a single access token.",
+      "Do not use it as a real-time webhook receiver; it manages webhook subscriptions but does not host an inbound endpoint.",
+      "Do not use it to bulk-message guests faster than the per-thread throttle allows; channel OTAs will suspend the account."
+    ],
+    "recipes": [
+      {
+        "title": "Project only what you need from a verbose reservation list",
+        "command": "hostex-pp-cli reservations query --agent --select data.reservations.stay_code,data.reservations.guest_name,data.reservations.check_in_date,data.reservations.status",
+        "explanation": "Reservation payloads are large and deeply nested; --select narrows to the fields an agent needs so it doesn't burn context."
+      },
+      {
+        "title": "Dry-run a price push before sending it",
+        "command": "hostex-pp-cli listings update-prices --dry-run",
+        "explanation": "Shows the request body that would be sent to the async price endpoint without mutating any channel."
+      },
+      {
+        "title": "Offline search across synced guest threads",
+        "command": "hostex-pp-cli search \"refund\" --type conversations --db ./hostex.db",
+        "explanation": "After sync, full-text search runs locally with no API call and no rate-limit cost."
+      }
+    ],
+    "trigger_phrases": [
+      "check my Hostex reservations",
+      "which guests check in this week",
+      "update listing prices on Hostex",
+      "reply to a guest message",
+      "revenue by property this month",
+      "use hostex",
+      "run hostex"
+    ]
+  }
+}

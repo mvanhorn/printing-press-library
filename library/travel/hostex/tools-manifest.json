@@ -1,0 +1,3096 @@
+{
+  "api_name": "hostex",
+  "base_url": "https://api.hostex.io/v3",
+  "description": "Every Hostex v3 operation, plus a local SQLite mirror that answers cross-property questions no single Hostex call can — occupancy gaps, revenue rollups, and guest-message SLA, offline.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "Hostex-Access-Token",
+    "in": "header",
+    "env_vars": [
+      "HOSTEX_HOSTEX_ACCESS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "HOSTEX_HOSTEX_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "automation_delete-action",
+      "description": "Removes a **waiting** message or review automation plan without running it (same as deleting an upcoming action in the app). Requires a **writable** access token. Only `send_message` and `review` plan types are supported. Required: plan_id. Returns the CommonResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/automation/actions/{plan_id}",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "int",
+          "location": "path",
+          "description": "Automation plan id from `GET /automation/actions` (`data.actions[].id`).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "automation_execute-action",
+      "description": "Dispatches a **waiting** message or review automation plan immediately (same behavior as executing an upcoming action in the app). For **review** plans, the reservation must have reached check-out date in the operator timezone. Requires a **writable** access token. Only `send_message` and `review` plan types are supported. Required: plan_id. Returns the new CommonResponse.",
+      "method": "POST",
+      "path": "/automation/actions/{plan_id}/execute",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "int",
+          "location": "path",
+          "description": "Automation plan id from `GET /automation/actions` (`data.actions[].id`).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "automation_query-actions",
+      "description": "Returns scheduled automation **actions** that are waiting to run: either automated **messages** (`type=message`, same scope as the in-app “upcoming message actions” list, within the next 30 days) or automated **reviews** (`type=review`). Filters mirror the internal automation plan lists (keyword, property IDs, time range, channel types, rule event filters). Pagination uses `offset` and `limit` like other v3 list endpoints. Required: type. Optional: keyword, stay_code, property_ids (plus 5 more).",
+      "method": "GET",
+      "path": "/automation/actions",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Kind of scheduled action: `message` for automated guest messages, `review` for scheduled host reviews.",
+          "required": true
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Optional text matched against the plan detail payload (same as the in-app keyword filter)."
+        },
+        {
+          "name": "stay_code",
+          "type": "string",
+          "location": "query",
+          "description": "The code of the stay."
+        },
+        {
+          "name": "property_ids",
+          "type": "string",
+          "location": "query",
+          "description": "Enter property IDs to search. Comma-separated integer IDs (e.g. `1,2,3`) or a JSON array string (e.g. `[1,2,3]`)."
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "Include only actions scheduled at or after this time (inclusive). ISO 8601 or `Y-m-d H:i:s` as accepted by date validation."
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "Include only actions scheduled at or before this time (inclusive)."
+        },
+        {
+          "name": "channel_types",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by channel types. Comma-separated channel names, e.g. `airbnb,agoda`."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Zero-based index of the first row to return. Default: 0."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of rows to return (1–100). Default: 20."
+        }
+      ]
+    },
+    {
+      "name": "availabilities_query",
+      "description": "By sending a request to this endpoint, you can retrieve the availabilities of the properties. Required: property_ids, start_date, end_date. Returns the AvailabilitiesQueryResponse.",
+      "method": "GET",
+      "path": "/availabilities",
+      "params": [
+        {
+          "name": "property_ids",
+          "type": "string",
+          "location": "query",
+          "description": "Enter property IDs to search, separating them with commas (,). A maximum of 100 properties can be queried at once.",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "The start date for records. The date format is YYYY-MM-DD, and must be within 1 years from now.",
+          "required": true
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "The end date for records. The date format is YYYY-MM-DD, and must be within 3 years from now.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "availabilities_update",
+      "description": "Use this endpoint to update property availabilities. Please be aware that a successful response indicates only that we have initiated an asynchronous task to handle your submission; it \u003cb\u003eDOES NOT\u003c/b\u003e ensure that the channel inventories have been modified successfully. If you wish to view detailed results of the task execution, please visit the [Host Portal](https://hostex.io/app/calendar). Required: available, property_ids. Optional: dates, end_date, start_date. Returns the new CommonResponse.",
+      "method": "POST",
+      "path": "/availabilities",
+      "params": [
+        {
+          "name": "available",
+          "type": "bool",
+          "location": "body",
+          "description": "Set the availability status: `true` for available or `false` for unavailable.",
+          "required": true
+        },
+        {
+          "name": "dates",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Provide a list of dates for the update in YYYY-MM-DD format. Dates must be today's date or later. If `start_date` and `end_date` are specified, the list of dates will not be considered."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "body",
+          "description": "Specify the update's end date using the YYYY-MM-DD format. This must be a future date within 3 years from now. If omitted, the `dates` becomes mandatory."
+        },
+        {
+          "name": "property_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Specify the property IDs to update.",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Specify the update's start date using the YYYY-MM-DD format. This must be either the current date or a future date. If omitted, the `dates` becomes mandatory."
+        }
+      ]
+    },
+    {
+      "name": "calendar-share-links_create",
+      "description": "Create a new public calendar share link. `scope = entire` exposes every property in the operator's account; `scope = partial` exposes only the properties listed in `property_ids`. Each operator can have at most one entire-scope link: requesting one when it already exists simply returns the existing link. Required: scope. Optional: property_ids.",
+      "method": "POST",
+      "path": "/calendar_share_links",
+      "params": [
+        {
+          "name": "property_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Required (non-empty) when `scope = partial`. Each id must reference a property owned by the operator."
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "body",
+          "description": "`entire` exposes every property of the operator; `partial` exposes only the ids listed in `property_ids`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendar-share-links_delete",
+      "description": "Permanently invalidate a calendar share link. The public URL will start returning a `share link invalid` error to anyone who tries to open it. Required: id. Returns the CommonResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/calendar_share_links/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Internal share link id (from `search_calendar_share_links`).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendar-share-links_query",
+      "description": "List the operator's public calendar share links. Each link exposes a read-only calendar (and reservation list) of either every property (`scope = entire`) or a selected subset (`scope = partial`) and is reachable by anyone who has the URL. Optional: offset, limit, id. Returns the CalendarShareLinksQueryResponse.",
+      "method": "GET",
+      "path": "/calendar_share_links",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset. Defaults to 0."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size. Defaults to 20. Max 100."
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Fetch a single share link by its internal id."
+        }
+      ]
+    },
+    {
+      "name": "channel-accounts_query",
+      "description": "Query the third-party channel accounts (Airbnb, Booking.com, etc.) that the operator has connected. Each entry exposes the account identity and current authorization status. Use `id` to fetch a single account. Optional: id, channel_type, offset (default: 0) (plus 1 more). Returns the ChannelAccountsQueryResponse.",
+      "method": "GET",
+      "path": "/channel_accounts",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Internal id of a specific channel account."
+        },
+        {
+          "name": "channel_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by channel type."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The starting point from which to begin returning results. Default: 0."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return. The maximum value is 100. Default: 20."
+        }
+      ]
+    },
+    {
+      "name": "conversations_get-details",
+      "description": "This endpoint is used to retrieve the messages and details of a conversation. We are constantly improving our API which could mean that message schema may change. In order to maintain a healthy integration, your Application must parse and ignore unexpected parameters instead of throwing errors. Required: conversation_id. Returns the ConversationsGetDetailsResponse.",
+      "method": "GET",
+      "path": "/conversations/{conversation_id}",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the conversation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_query",
+      "description": "This endpoint is used to query the list of conversations regarding guest inquiries. Optional: offset (default: 0), limit (default: 20). Returns the ConversationsQueryResponse.",
+      "method": "GET",
+      "path": "/conversations",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Specifies the starting index from which the results should be returned."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Determines the maximum number of results to be returned, up to a maximum of 100."
+        }
+      ]
+    },
+    {
+      "name": "conversations_send-message",
+      "description": "Send a text or image message to the guest. Required: conversation_id. Optional: jpeg_base64, message. Returns the new CommonResponse.",
+      "method": "POST",
+      "path": "/conversations/{conversation_id}",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the conversation.",
+          "required": true
+        },
+        {
+          "name": "jpeg_base64",
+          "type": "string",
+          "location": "body",
+          "description": "The base64 encoded string of the JPEG image."
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "The text content of the message. Max length depends on the limit of different channels."
+        }
+      ]
+    },
+    {
+      "name": "conversations_note_update-conversation",
+      "description": "Set or clear the host's private note attached to a conversation thread. The note is stored only in Hostex (visible in the Hostex Inbox), is **never** sent to the guest or pushed to any channel, and is shared across operators inside the same account. Pass an empty string or `null` in `note` to clear the existing note. Required: conversation_id, note. Returns the updated NoteUpdateConversationResponse.",
+      "method": "PATCH",
+      "path": "/conversations/{conversation_id}/note",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the conversation.",
+          "required": true
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "The host-side private note. Pass an empty string or `null` to clear the existing note. Max 5000 characters.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_preapprovals_send",
+      "description": "Pre-approve the guest's inquiry in a conversation, inviting them to book the listing and dates they asked about at the standard price. Supported on Airbnb conversations only; requests on other channels return an error. The pre-approval typically expires 24 hours after being sent. No request body is required. Required: conversation_id. Returns the new CommonResponse.",
+      "method": "POST",
+      "path": "/conversations/{conversation_id}/preapprovals",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the conversation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_special-offers_get",
+      "description": "List the special offers and pre-approvals that have been sent in a conversation, with their current status. Use the returned `id` to withdraw an offer that is still active. Only Airbnb and booking-site (direct booking) conversations can contain special offers. Required: conversation_id. Returns the SpecialOffersGetResponse.",
+      "method": "GET",
+      "path": "/conversations/{conversation_id}/special_offers",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the conversation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_special-offers_send",
+      "description": "Send a special offer to the guest in a conversation. A special offer invites the guest to book the given listing for the given dates at a custom total price, and typically expires 24 hours after being sent. Supported on Airbnb and booking-site (direct booking) conversations only; requests on other channels return an error. For booking-site conversations, `rate_plan_id` and `currency` are also required. Required: conversation_id, check_in_date, check_out_date, listing_id, number_of_adults, price. Optional: currency, number_of_children, number_of_infants (plus 2 more). Returns the new CommonResponse.",
+      "method": "POST",
+      "path": "/conversations/{conversation_id}/special_offers",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the conversation.",
+          "required": true
+        },
+        {
+          "name": "check_in_date",
+          "type": "string",
+          "location": "body",
+          "description": "Check-in date of the offered stay, `YYYY-MM-DD`.",
+          "required": true
+        },
+        {
+          "name": "check_out_date",
+          "type": "string",
+          "location": "body",
+          "description": "Check-out date of the offered stay, `YYYY-MM-DD`. Must be after `check_in_date`.",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "Currency code of `price`, e.g. `USD`. Required for booking-site (direct booking) conversations; ignored on Airbnb."
+        },
+        {
+          "name": "listing_id",
+          "type": "string",
+          "location": "body",
+          "description": "The channel listing id to offer, as returned by `GET /listings`.",
+          "required": true
+        },
+        {
+          "name": "number_of_adults",
+          "type": "int",
+          "location": "body",
+          "description": "Number of adults.",
+          "required": true
+        },
+        {
+          "name": "number_of_children",
+          "type": "int",
+          "location": "body",
+          "description": "Number of children. Defaults to 0."
+        },
+        {
+          "name": "number_of_infants",
+          "type": "int",
+          "location": "body",
+          "description": "Number of infants. Defaults to 0."
+        },
+        {
+          "name": "number_of_pets",
+          "type": "int",
+          "location": "body",
+          "description": "Number of pets. Defaults to 0."
+        },
+        {
+          "name": "price",
+          "type": "float",
+          "location": "body",
+          "description": "Total price for the whole stay, in major currency units (not per night).",
+          "required": true
+        },
+        {
+          "name": "rate_plan_id",
+          "type": "string",
+          "location": "body",
+          "description": "The rate plan to offer. Required for booking-site (direct booking) conversations; ignored on Airbnb."
+        }
+      ]
+    },
+    {
+      "name": "conversations_special-offers_withdraw",
+      "description": "Withdraw a previously sent special offer or pre-approval that is still active. `special_offer_id` is the offer `id` returned by `GET /conversations/{conversation_id}/special_offers`. Required: conversation_id, special_offer_id. Returns the CommonResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/conversations/{conversation_id}/special_offers/{special_offer_id}",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the conversation.",
+          "required": true
+        },
+        {
+          "name": "special_offer_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the special offer, as returned by `GET /conversations/{conversation_id}/special_offers`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "custom-channels_query",
+      "description": "Query custom channels created from the [Custom Options Page](https://hostex.io/app/settings/custom-options). Returns the CustomChannelsQueryResponse.",
+      "method": "GET",
+      "path": "/custom_channels",
+      "params": []
+    },
+    {
+      "name": "expense-items_query",
+      "description": "Query the dictionary of expense item categorizations available to the operator. The returned `id` matches the `item_id` returned by `GET /transactions` for entries with `direction=expense`. Returns the ExpenseItemsQueryResponse.",
+      "method": "GET",
+      "path": "/expense_items",
+      "params": []
+    },
+    {
+      "name": "expense-methods_query",
+      "description": "Query the dictionary of payment methods available to the operator for expense entries. The returned `id` matches the `payment_method_id` returned by `GET /transactions` for entries with `direction=expense`. Returns the ExpenseMethodsQueryResponse.",
+      "method": "GET",
+      "path": "/expense_methods",
+      "params": []
+    },
+    {
+      "name": "groups_create",
+      "description": "Create a new property group. Optionally pre-attach properties at creation time via `property_ids`. The group name must be unique within the operator's account. Required: name. Optional: property_ids. Returns the new GroupsCreateResponse.",
+      "method": "POST",
+      "path": "/groups",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Group display name. Max 50 characters. Must be unique within the operator's account.",
+          "required": true
+        },
+        {
+          "name": "property_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Optional list of property ids to attach to the new group. Each id must belong to the operator."
+        }
+      ]
+    },
+    {
+      "name": "groups_delete",
+      "description": "Delete a property group. All property-group pivot rows are removed automatically; the underlying properties themselves are unaffected. Required: id. Returns the CommonResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/groups/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Internal group id (from `search_property_groups`).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups_query",
+      "description": "You can query property groups by making a request to this endpoint. Optional: offset (default: 0), limit (default: 20), id. Returns the GroupsQueryResponse.",
+      "method": "GET",
+      "path": "/groups",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The starting point from which to begin returning results."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return. The maximum value is 100."
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "The id of the group."
+        }
+      ]
+    },
+    {
+      "name": "groups_update",
+      "description": "Update a property group. Pass `name` to rename it; pass `property_ids` to **replace** the group's full property assignment with the supplied list (pass an empty array to detach all properties). Omitted fields are left unchanged. Required: id. Optional: name, property_ids. Returns the updated CommonResponse.",
+      "method": "PATCH",
+      "path": "/groups/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Internal group id (from `search_property_groups`).",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New display name. Must remain unique within the operator's account."
+        },
+        {
+          "name": "property_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Replaces the group's property list with the given ids (each must belong to the operator). Empty array detaches all."
+        }
+      ]
+    },
+    {
+      "name": "income-items_query",
+      "description": "Query the dictionary of income item categorizations available to the operator. The returned `id` matches the `item_id` returned by `GET /transactions` for entries with `direction=income`. Returns the IncomeItemsQueryResponse.",
+      "method": "GET",
+      "path": "/income_items",
+      "params": []
+    },
+    {
+      "name": "income-methods_query",
+      "description": "Query the dictionary of payment methods available to the operator for income entries. The returned `id` matches the `payment_method_id` returned by `GET /transactions` for entries with `direction=income`. Returns the IncomeMethodsQueryResponse.",
+      "method": "GET",
+      "path": "/income_methods",
+      "params": []
+    },
+    {
+      "name": "knowledge-bases_create",
+      "description": "Create a new knowledge base entry for the HostGPT automation assistant. The entry defines AI content and the property/channel scope where it applies. Required: contents, is_enable, scope_channel, scope_property. Optional: title. Returns the new CommonResponse.",
+      "method": "POST",
+      "path": "/knowledge_bases",
+      "params": [
+        {
+          "name": "contents",
+          "type": "array",
+          "location": "body",
+          "description": "The content entries of the knowledge base.",
+          "required": true
+        },
+        {
+          "name": "is_enable",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the entry is enabled.",
+          "required": true
+        },
+        {
+          "name": "scope-channel-channels",
+          "wire_name": "scope_channel.channels",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Channel names this knowledge base applies to (e.g. `['airbnb', 'booking.com']`). Use `['unlimited']` for `all`. See [Supported Channels](/reference/supported-channels).",
+          "required": true
+        },
+        {
+          "name": "scope-channel-type",
+          "wire_name": "scope_channel.type",
+          "type": "string",
+          "location": "body",
+          "description": "Channel scope type: all or by_channel.",
+          "required": true
+        },
+        {
+          "name": "scope-property-ids",
+          "wire_name": "scope_property.ids",
+          "type": "array",
+          "location": "body",
+          "description": "Scope IDs interpreted according to `type`: property IDs for `by_property`, group IDs for `by_group`, room type IDs for `by_room_type`. Use `[-1]` for `all`.",
+          "required": true
+        },
+        {
+          "name": "scope-property-type",
+          "wire_name": "scope_property.type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of property scope.",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Optional title for the knowledge base entry."
+        }
+      ]
+    },
+    {
+      "name": "knowledge-bases_delete",
+      "description": "Delete a knowledge base entry by its ID. Required: id. Returns the CommonResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/knowledge_bases/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The ID of the knowledge base entry to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "knowledge-bases_get",
+      "description": "Retrieve the full details of a single knowledge base entry by its ID. Required: id. Returns the KnowledgeBasesGetResponse.",
+      "method": "GET",
+      "path": "/knowledge_bases/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The ID of the knowledge base entry.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "knowledge-bases_query",
+      "description": "You can query knowledge base entries by making a request to this endpoint. Results are paginated and can be filtered by property or channel. Optional: offset (default: 0), limit (default: 10), property_ids (plus 1 more). Returns the KnowledgeBasesQueryResponse.",
+      "method": "GET",
+      "path": "/knowledge_bases",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Zero-based index of the first row to return. Default: 0."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of rows to return (1–100). Default: 10."
+        },
+        {
+          "name": "property_ids",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by property IDs. Comma-separated integer IDs (e.g. `1,2,3`)."
+        },
+        {
+          "name": "channel_types",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by channel types. Comma-separated channel names, e.g. `airbnb,booking.com`."
+        }
+      ]
+    },
+    {
+      "name": "knowledge-bases_update",
+      "description": "Replace an existing knowledge base entry. This endpoint performs a **full replacement** — `scope_property`, `scope_channel`, `contents` and `is_enable` must all be supplied. Use `GET /knowledge_bases/{id}` first if you only want to change one field. Required: id, contents, is_enable, scope_channel, scope_property. Optional: title. Returns the updated CommonResponse.",
+      "method": "PATCH",
+      "path": "/knowledge_bases/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The ID of the knowledge base entry to update.",
+          "required": true
+        },
+        {
+          "name": "contents",
+          "type": "array",
+          "location": "body",
+          "description": "The content entries of the knowledge base.",
+          "required": true
+        },
+        {
+          "name": "is_enable",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the entry is enabled.",
+          "required": true
+        },
+        {
+          "name": "scope-channel-channels",
+          "wire_name": "scope_channel.channels",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Channel names this knowledge base applies to (e.g. `['airbnb', 'booking.com']`). Use `['unlimited']` for `all`. See [Supported Channels](/reference/supported-channels).",
+          "required": true
+        },
+        {
+          "name": "scope-channel-type",
+          "wire_name": "scope_channel.type",
+          "type": "string",
+          "location": "body",
+          "description": "Channel scope type: all or by_channel.",
+          "required": true
+        },
+        {
+          "name": "scope-property-ids",
+          "wire_name": "scope_property.ids",
+          "type": "array",
+          "location": "body",
+          "description": "Scope IDs interpreted according to `type`: property IDs for `by_property`, group IDs for `by_group`, room type IDs for `by_room_type`. Use `[-1]` for `all`.",
+          "required": true
+        },
+        {
+          "name": "scope-property-type",
+          "wire_name": "scope_property.type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of property scope.",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Optional title for the knowledge base entry."
+        }
+      ]
+    },
+    {
+      "name": "listings_get-airbnb-price-and-rules",
+      "description": "Fetch the current pricing, availability rules and booking settings of an Airbnb listing in real time from Airbnb. The response fields mirror the `settings` object accepted by `POST /listings/airbnb/price_and_rules`, so values read here can be written back as-is. This endpoint calls multiple Airbnb APIs per request and therefore shares the stricter rate limit of write operations (120 requests per minute). Required: listing_id. Returns the ListingsGetAirbnbPriceAndRulesResponse.",
+      "method": "GET",
+      "path": "/listings/airbnb/price_and_rules",
+      "params": [
+        {
+          "name": "listing_id",
+          "type": "string",
+          "location": "query",
+          "description": "The Airbnb listing id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listings_get-vrbo-price-and-rules",
+      "description": "Get the pricing and rules of a Vrbo listing as currently recorded by Hostex. The data is the snapshot Hostex keeps in sync with Vrbo (updated when changes are made through Hostex or the listing is re-synced), not a real-time read from Vrbo. The response fields mirror the `settings` object accepted by `POST /listings/vrbo/price_and_rules`. Required: listing_id. Returns the ListingsGetVrboPriceAndRulesResponse.",
+      "method": "GET",
+      "path": "/listings/vrbo/price_and_rules",
+      "params": [
+        {
+          "name": "listing_id",
+          "type": "string",
+          "location": "query",
+          "description": "The Vrbo listing id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listings_query",
+      "description": "Query the listings (third-party properties) synced from the operator's connected channel accounts. A listing is a property as it exists on a specific channel, identified by `listing_id` (the channel-side property id). Filter by `channel_account_id`, `listing_id` and/or `channel_type` to scope results. Optional: channel_account_id, listing_id, channel_type (plus 2 more). Returns the ListingsQueryResponse.",
+      "method": "GET",
+      "path": "/listings",
+      "params": [
+        {
+          "name": "channel_account_id",
+          "type": "int",
+          "location": "query",
+          "description": "Internal id of a channel account (from `GET /channel_accounts`). Limits results to listings under this account."
+        },
+        {
+          "name": "listing_id",
+          "type": "string",
+          "location": "query",
+          "description": "Channel-side listing id (matches the `listing_id` exposed by other endpoints)."
+        },
+        {
+          "name": "channel_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by channel type."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The starting point from which to begin returning results. Default: 0."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return. The maximum value is 100. Default: 20."
+        }
+      ]
+    },
+    {
+      "name": "listings_query-calendars",
+      "description": "By sending a request to this endpoint, you can retrieve calendar information for multiple listings. This endpoint will return daily details on price, inventory, and restrictions for each listing. Required: end_date, listings, start_date. Returns the new ListingsQueryCalendarsResponse.",
+      "method": "POST",
+      "path": "/listings/calendar",
+      "params": [
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "body",
+          "description": "The end date for the calendar. The date format is YYYY-MM-DD, and must be within 3 years from now.",
+          "required": true
+        },
+        {
+          "name": "listings",
+          "type": "array",
+          "location": "body",
+          "description": "A list of listing object. The listing object contains the listing id and channel type.",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "The start date for records. The date format is YYYY-MM-DD, and must be within 1 years from now.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listings_update-airbnb-price-and-rules",
+      "description": "Update the listing-level pricing, fees, booking settings and availability rules of an Airbnb listing. Unlike the calendar endpoints, this updates the listing's default settings (not a specific date range). Only the fields you provide are updated; omit a field to leave it unchanged. This request is processed synchronously against Airbnb: a successful response means the changes were accepted by Airbnb. Required: listing_id, settings. Returns the new CommonResponse.",
+      "method": "POST",
+      "path": "/listings/airbnb/price_and_rules",
+      "params": [
+        {
+          "name": "listing_id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier for different channels.",
+          "required": true
+        },
+        {
+          "name": "settings-advance-notice",
+          "wire_name": "settings.advance_notice",
+          "type": "int",
+          "location": "body",
+          "description": "Booking lead time in hours."
+        },
+        {
+          "name": "settings-allow-rtb-above-max-nights",
+          "wire_name": "settings.allow_rtb_above_max_nights",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to allow request-to-book for stays exceeding the maximum nights."
+        },
+        {
+          "name": "settings-availability-window",
+          "wire_name": "settings.availability_window",
+          "type": "int",
+          "location": "body",
+          "description": "How far in advance (in days) the calendar is bookable."
+        },
+        {
+          "name": "settings-base-price",
+          "wire_name": "settings.base_price",
+          "type": "float",
+          "location": "body",
+          "description": "The default nightly price."
+        },
+        {
+          "name": "settings-cancellation-policy",
+          "wire_name": "settings.cancellation_policy",
+          "type": "string",
+          "location": "body",
+          "description": "The cancellation policy category."
+        },
+        {
+          "name": "settings-check-in-end-time",
+          "wire_name": "settings.check_in_end_time",
+          "type": "string",
+          "location": "body",
+          "description": "Check-in end time. An integer hour 9-26 (`25`/`26` for 1am/2am next day) or `FLEXIBLE`."
+        },
+        {
+          "name": "settings-check-in-start-time",
+          "wire_name": "settings.check_in_start_time",
+          "type": "string",
+          "location": "body",
+          "description": "Check-in start time. An integer hour 8-24, `25`/`26` for 1am/2am next day, or `FLEXIBLE`."
+        },
+        {
+          "name": "settings-check-out-before",
+          "wire_name": "settings.check_out_before",
+          "type": "int",
+          "location": "body",
+          "description": "Check-out latest time, an integer hour 0-23."
+        },
+        {
+          "name": "settings-cleaning-fee",
+          "wire_name": "settings.cleaning_fee",
+          "type": "float",
+          "location": "body",
+          "description": "The cleaning fee amount."
+        },
+        {
+          "name": "settings-day-of-week-min-nights",
+          "wire_name": "settings.day_of_week_min_nights",
+          "type": "string",
+          "location": "body",
+          "description": "Per-day-of-week minimum nights rule."
+        },
+        {
+          "name": "settings-days-of-week-check-in",
+          "wire_name": "settings.days_of_week_check_in",
+          "type": "array",
+          "location": "body",
+          "description": "Days of week (0=Sunday ... 6=Saturday) on which check-in IS allowed; the remaining days are blocked."
+        },
+        {
+          "name": "settings-days-of-week-check-out",
+          "wire_name": "settings.days_of_week_check_out",
+          "type": "array",
+          "location": "body",
+          "description": "Days of week (0=Sunday ... 6=Saturday) on which check-out IS allowed; the remaining days are blocked."
+        },
+        {
+          "name": "settings-early-bird-discount-days",
+          "wire_name": "settings.early_bird_discount.days",
+          "type": "int",
+          "location": "body",
+          "description": "Days"
+        },
+        {
+          "name": "settings-early-bird-discount-discount",
+          "wire_name": "settings.early_bird_discount.discount",
+          "type": "int",
+          "location": "body",
+          "description": "Discount"
+        },
+        {
+          "name": "settings-extra-guest-fee",
+          "wire_name": "settings.extra_guest_fee",
+          "type": "float",
+          "location": "body",
+          "description": "The fee charged per extra guest."
+        },
+        {
+          "name": "settings-high-rated-guest-discount",
+          "wire_name": "settings.high_rated_guest_discount",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to enable the Airbnb highly-rated guest discount (15% off for guests rated 4.8+ with at least 3 reviews)."
+        },
+        {
+          "name": "settings-instant-booking",
+          "wire_name": "settings.instant_booking",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether instant booking is allowed."
+        },
+        {
+          "name": "settings-last-minute-discount-days",
+          "wire_name": "settings.last_minute_discount.days",
+          "type": "int",
+          "location": "body",
+          "description": "Days"
+        },
+        {
+          "name": "settings-last-minute-discount-discount",
+          "wire_name": "settings.last_minute_discount.discount",
+          "type": "int",
+          "location": "body",
+          "description": "Discount"
+        },
+        {
+          "name": "settings-listing-currency",
+          "wire_name": "settings.listing_currency",
+          "type": "string",
+          "location": "body",
+          "description": "The listing currency code, e.g. `USD`."
+        },
+        {
+          "name": "settings-long-term-cancellation-policy",
+          "wire_name": "settings.long_term_cancellation_policy",
+          "type": "string",
+          "location": "body",
+          "description": "The long-term-stay cancellation policy id."
+        },
+        {
+          "name": "settings-long-term-discount-days",
+          "wire_name": "settings.long_term_discount.days",
+          "type": "int",
+          "location": "body",
+          "description": "Days"
+        },
+        {
+          "name": "settings-long-term-discount-discount",
+          "wire_name": "settings.long_term_discount.discount",
+          "type": "int",
+          "location": "body",
+          "description": "Discount"
+        },
+        {
+          "name": "settings-max-guests",
+          "wire_name": "settings.max_guests",
+          "type": "int",
+          "location": "body",
+          "description": "The number of guests included in the base price."
+        },
+        {
+          "name": "settings-maximum-stay",
+          "wire_name": "settings.maximum_stay",
+          "type": "int",
+          "location": "body",
+          "description": "The default maximum number of nights."
+        },
+        {
+          "name": "settings-minimum-stay",
+          "wire_name": "settings.minimum_stay",
+          "type": "int",
+          "location": "body",
+          "description": "The default minimum number of nights."
+        },
+        {
+          "name": "settings-mobile-only-discount",
+          "wire_name": "settings.mobile_only_discount",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to enable the Airbnb mobile-only discount (10% off for guests booking via the Airbnb mobile app)."
+        },
+        {
+          "name": "settings-new-listing-promotion",
+          "wire_name": "settings.new_listing_promotion",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to enable the Airbnb new listing promotion."
+        },
+        {
+          "name": "settings-non-refundable-price-factor",
+          "wire_name": "settings.non_refundable_price_factor",
+          "type": "float",
+          "location": "body",
+          "description": "The non-refundable discount percentage (0-100). Stored as a price factor of `(100 - value) / 100`."
+        },
+        {
+          "name": "settings-pet-fee",
+          "wire_name": "settings.pet_fee",
+          "type": "float",
+          "location": "body",
+          "description": "The pet fee amount. Mutually exclusive with `pet_fee_obj`."
+        },
+        {
+          "name": "settings-pet-fee-obj-amount",
+          "wire_name": "settings.pet_fee_obj.amount",
+          "type": "float",
+          "location": "body",
+          "description": "Amount"
+        },
+        {
+          "name": "settings-pet-fee-obj-charge-period",
+          "wire_name": "settings.pet_fee_obj.charge_period",
+          "type": "string",
+          "location": "body",
+          "description": "Charge period"
+        },
+        {
+          "name": "settings-pet-fee-obj-charge-type",
+          "wire_name": "settings.pet_fee_obj.charge_type",
+          "type": "string",
+          "location": "body",
+          "description": "Charge type"
+        },
+        {
+          "name": "settings-preparation-time",
+          "wire_name": "settings.preparation_time",
+          "type": "int",
+          "location": "body",
+          "description": "Turnover/preparation days between reservations."
+        },
+        {
+          "name": "settings-seasonal-min-stay",
+          "wire_name": "settings.seasonal_min_stay",
+          "type": "array",
+          "location": "body",
+          "description": "Seasonal minimum nights rules."
+        },
+        {
+          "name": "settings-security-deposit",
+          "wire_name": "settings.security_deposit",
+          "type": "float",
+          "location": "body",
+          "description": "The security deposit amount."
+        },
+        {
+          "name": "settings-short-term-cleaning-fee",
+          "wire_name": "settings.short_term_cleaning_fee",
+          "type": "float",
+          "location": "body",
+          "description": "The short-term cleaning fee amount."
+        },
+        {
+          "name": "settings-weekend-price",
+          "wire_name": "settings.weekend_price",
+          "type": "float",
+          "location": "body",
+          "description": "The Friday and Saturday nightly price."
+        }
+      ]
+    },
+    {
+      "name": "listings_update-inventories",
+      "description": "Update the inventories of channel listings. Please be aware that a successful response indicates only that we have initiated an asynchronous task to handle your submission; it \u003cb\u003eDOES NOT\u003c/b\u003e ensure that the channel inventories have been modified successfully. If you wish to view detailed results of the task execution, please visit the [Host Portal](https://hostex.io/app/price). Furthermore, you should be aware that this endpoint only modifies the listing's inventory and \u003cb\u003eDOES NOT\u003c/b\u003e affect the property availability. If the property availability is modified, it may still result in the channel inventory being overwritten again. Required: channel_type, inventories, listing_id. Returns the new CommonResponse.",
+      "method": "POST",
+      "path": "/listings/inventories",
+      "params": [
+        {
+          "name": "channel_type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of the channel to be queried.",
+          "required": true
+        },
+        {
+          "name": "inventories",
+          "type": "array",
+          "location": "body",
+          "description": "Inventories",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier for different channels.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listings_update-prices",
+      "description": "Update the prices of channel listings. Please be aware that a successful response indicates only that we have initiated an asynchronous task to handle your submission; it \u003cb\u003eDOES NOT\u003c/b\u003e ensure that the channel prices have been modified successfully. If you wish to view detailed results of the task execution, please visit the [Host Portal](https://hostex.io/app/price). Required: channel_type, listing_id, prices. Returns the new CommonResponse.",
+      "method": "POST",
+      "path": "/listings/prices",
+      "params": [
+        {
+          "name": "channel_type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of the channel to be queried.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier for different channels.",
+          "required": true
+        },
+        {
+          "name": "prices",
+          "type": "array",
+          "location": "body",
+          "description": "Prices",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listings_update-restrictions",
+      "description": "Update the restrictions of channel listings. Please be aware that a successful response indicates only that we have initiated an asynchronous task to handle your submission; it \u003cb\u003eDOES NOT\u003c/b\u003e ensure that the channel restrictions have been modified successfully. If you wish to view detailed results of the task execution, please visit the [Host Portal](https://hostex.io/app/price). Required: channel_type, listing_id, restrictions. Returns the new CommonResponse.",
+      "method": "POST",
+      "path": "/listings/restrictions",
+      "params": [
+        {
+          "name": "channel_type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of the channel to be queried.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier for different channels.",
+          "required": true
+        },
+        {
+          "name": "restrictions",
+          "type": "array",
+          "location": "body",
+          "description": "Restrictions",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listings_update-vrbo-price-and-rules",
+      "description": "Update the listing-level pricing, fees and booking rules of a Vrbo listing. Unlike the calendar endpoints, this updates the listing's default settings (not a specific date range). Only the fields you provide are updated; omit a field to leave it unchanged. This request is processed synchronously against Vrbo: a successful response means the changes were accepted by Vrbo. Required: listing_id, settings. Returns the new CommonResponse.",
+      "method": "POST",
+      "path": "/listings/vrbo/price_and_rules",
+      "params": [
+        {
+          "name": "listing_id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier for different channels.",
+          "required": true
+        },
+        {
+          "name": "settings-advance-notice",
+          "wire_name": "settings.advance_notice",
+          "type": "int",
+          "location": "body",
+          "description": "Booking lead time / advance notice."
+        },
+        {
+          "name": "settings-availability-window",
+          "wire_name": "settings.availability_window",
+          "type": "int",
+          "location": "body",
+          "description": "How far in advance the calendar is bookable."
+        },
+        {
+          "name": "settings-base-price",
+          "wire_name": "settings.base_price",
+          "type": "float",
+          "location": "body",
+          "description": "The default nightly price applied to every day of the week. Takes precedence over `nightly_rate` when both are provided."
+        },
+        {
+          "name": "settings-check-in-start-time",
+          "wire_name": "settings.check_in_start_time",
+          "type": "string",
+          "location": "body",
+          "description": "The earliest check-in time."
+        },
+        {
+          "name": "settings-check-out-before",
+          "wire_name": "settings.check_out_before",
+          "type": "string",
+          "location": "body",
+          "description": "The latest check-out time."
+        },
+        {
+          "name": "settings-cleaning-fee",
+          "wire_name": "settings.cleaning_fee",
+          "type": "float",
+          "location": "body",
+          "description": "The cleaning fee amount. `0` clears the fee."
+        },
+        {
+          "name": "settings-extra-guest-fee",
+          "wire_name": "settings.extra_guest_fee",
+          "type": "float",
+          "location": "body",
+          "description": "The fee charged per extra guest. `0` clears the fee."
+        },
+        {
+          "name": "settings-extra-guest-number",
+          "wire_name": "settings.extra_guest_number",
+          "type": "int",
+          "location": "body",
+          "description": "The number of guests after which the extra guest fee applies."
+        },
+        {
+          "name": "settings-instant-booking",
+          "wire_name": "settings.instant_booking",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether instant booking is allowed."
+        },
+        {
+          "name": "settings-max-guests",
+          "wire_name": "settings.max_guests",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of guests."
+        },
+        {
+          "name": "settings-minimum-stay",
+          "wire_name": "settings.minimum_stay",
+          "type": "int",
+          "location": "body",
+          "description": "The default minimum number of nights."
+        },
+        {
+          "name": "settings-monthly-discount",
+          "wire_name": "settings.monthly_discount",
+          "type": "float",
+          "location": "body",
+          "description": "The monthly stay discount percentage (0-99)."
+        },
+        {
+          "name": "settings-nightly-rate-friday",
+          "wire_name": "settings.nightly_rate.friday",
+          "type": "float",
+          "location": "body",
+          "description": "Friday"
+        },
+        {
+          "name": "settings-nightly-rate-monday",
+          "wire_name": "settings.nightly_rate.monday",
+          "type": "float",
+          "location": "body",
+          "description": "Monday"
+        },
+        {
+          "name": "settings-nightly-rate-saturday",
+          "wire_name": "settings.nightly_rate.saturday",
+          "type": "float",
+          "location": "body",
+          "description": "Saturday"
+        },
+        {
+          "name": "settings-nightly-rate-sunday",
+          "wire_name": "settings.nightly_rate.sunday",
+          "type": "float",
+          "location": "body",
+          "description": "Sunday"
+        },
+        {
+          "name": "settings-nightly-rate-thursday",
+          "wire_name": "settings.nightly_rate.thursday",
+          "type": "float",
+          "location": "body",
+          "description": "Thursday"
+        },
+        {
+          "name": "settings-nightly-rate-tuesday",
+          "wire_name": "settings.nightly_rate.tuesday",
+          "type": "float",
+          "location": "body",
+          "description": "Tuesday"
+        },
+        {
+          "name": "settings-nightly-rate-wednesday",
+          "wire_name": "settings.nightly_rate.wednesday",
+          "type": "float",
+          "location": "body",
+          "description": "Wednesday"
+        },
+        {
+          "name": "settings-security-deposit",
+          "wire_name": "settings.security_deposit",
+          "type": "float",
+          "location": "body",
+          "description": "The security deposit amount. `0` clears the deposit."
+        },
+        {
+          "name": "settings-weekly-discount",
+          "wire_name": "settings.weekly_discount",
+          "type": "float",
+          "location": "body",
+          "description": "The weekly stay discount percentage (0-99)."
+        }
+      ]
+    },
+    {
+      "name": "oauth_obtain-token",
+      "description": "This endpoint is used to obtain a new access token using various OAuth 2.0 grant types or refresh an existing token. Required: client_id, client_secret, grant_type. Optional: code, refresh_token. Returns the new OauthObtainTokenResponse.",
+      "method": "POST",
+      "path": "/oauth/authorizations",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier for the client application requesting the token.",
+          "required": true
+        },
+        {
+          "name": "client_secret",
+          "type": "string",
+          "location": "body",
+          "description": "The secret key associated with the client application, used for authentication.",
+          "required": true
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "The authorization code received from the authorization endpoint. Required if 'grant_type' is 'authorization_code'."
+        },
+        {
+          "name": "grant_type",
+          "type": "string",
+          "location": "body",
+          "description": "The OAuth 2.0 grant type. Possible values: 'authorization_code' or 'refresh_token'.",
+          "required": true
+        },
+        {
+          "name": "refresh_token",
+          "type": "string",
+          "location": "body",
+          "description": "The refresh token used to obtain a new access token. Required if 'grant_type' is 'refresh_token'."
+        }
+      ]
+    },
+    {
+      "name": "oauth_revoke-token",
+      "description": "This endpoint allows clients to revoke an access or refresh token. Deleting/revoking a token will disconnect the Host from your application. Required: client_id, client_secret, token. Returns the new OauthRevokeTokenResponse.",
+      "method": "POST",
+      "path": "/oauth/revoke",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier for the client application requesting the token revocation.",
+          "required": true
+        },
+        {
+          "name": "client_secret",
+          "type": "string",
+          "location": "body",
+          "description": "The secret key associated with the client application, used to authenticate the revocation request.",
+          "required": true
+        },
+        {
+          "name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "The access or refresh token to be revoked. Once revoked, the token cannot be used for further authentication.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pricing-ratios_query",
+      "description": "Return the per-channel pricing ratio of each OTA listing linked to a property (`property_id`) or a room type (`room_type_id`). Pricing ratio is the **percentage** Hostex multiplies a base (property/room-type level) price by to derive the actual price pushed to each listing. Use this endpoint at the skill layer to compose a 'change price by property / room type' workflow: read the ratios, compute `target_price = round(base_price * ratio / 100)` for every non-readonly listing, then call `POST /listings/prices` once per listing. Listings marked `readonly: true` are silently controlled by the channel (e.g. Airbnb child rate plans) and cannot be repriced via `POST /listings/prices`; skip them. Optional: property_id, room_type_id. Returns the PricingRatiosQueryResponse.",
+      "method": "GET",
+      "path": "/pricing_ratios",
+      "params": [
+        {
+          "name": "property_id",
+          "type": "int",
+          "location": "query",
+          "description": "Id of the property to read ratios for. Mutually exclusive with `room_type_id`; exactly one of the two must be supplied."
+        },
+        {
+          "name": "room_type_id",
+          "type": "int",
+          "location": "query",
+          "description": "Id of the room type to read ratios for. Mutually exclusive with `property_id`; exactly one of the two must be supplied."
+        }
+      ]
+    },
+    {
+      "name": "properties_create-property",
+      "description": "Create a new property (room) under the current operator. Hostex properties are physical room units; OTA listings can be attached to a property afterwards via the Hostex Host Portal. The newly created property has no address, channels or pictures and starts with the operator's default check-in / check-out time settings. Subject to the property quantity limit of the operator's subscription. Required: title. Returns the new PropertiesCreatePropertyResponse.",
+      "method": "POST",
+      "path": "/properties",
+      "params": [
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title of the new property. Must be unique within the operator.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "properties_query",
+      "description": "You can query properties by making a request to this endpoint. Optional: offset (default: 0), limit (default: 20), id (plus 2 more). Returns the PropertiesQueryResponse.",
+      "method": "GET",
+      "path": "/properties",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The starting point from which to begin returning results."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return. The maximum value is 100."
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "The id of the property."
+        },
+        {
+          "name": "group_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filter properties by the group id. Only properties belonging to this group are returned."
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filter properties by the tag id. Only properties tagged with this tag are returned."
+        }
+      ]
+    },
+    {
+      "name": "reservation-tags_create",
+      "description": "Create a new reservation tag in the operator's dictionary. Color is auto-assigned from the Hostex palette. Names must be unique across both system default tags and the operator's own tags (a soft-deleted tag with the same name will be restored). Operators are capped at 500 tags. Required: tag_name. Returns the new ReservationTagsCreateResponse.",
+      "method": "POST",
+      "path": "/reservation_tags",
+      "params": [
+        {
+          "name": "tag_name",
+          "type": "string",
+          "location": "body",
+          "description": "Tag display name. Max 15 characters.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reservation-tags_delete",
+      "description": "Delete one of the operator's custom reservation tags. System default tags (`is_default = true`) cannot be deleted via this API and will return 404. Deleting a tag also removes it from any reservations it had been applied to. Required: id. Returns the CommonResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/reservation_tags/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Internal tag id (from `search_reservation_tags`).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reservation-tags_query",
+      "description": "List the operator's reservation tag dictionary. Includes both system default tags (`is_default = true`, shared across all operators) and the operator's own custom tags. These are the tags that `POST /reservations/{stay_code}/tags` can attach to a reservation. Optional: offset, limit, id (plus 1 more). Returns the ReservationTagsQueryResponse.",
+      "method": "GET",
+      "path": "/reservation_tags",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset. Defaults to 0."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size. Defaults to 20. Max 100."
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Fetch a single tag by its internal id."
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Case-insensitive substring match on `tag_name`."
+        }
+      ]
+    },
+    {
+      "name": "reservations_cancel",
+      "description": "Cancel a direct booking reservation in Hostex. Note that this endpoint does not support the cancellation of channel bookings. Required: reservation_code. Returns the CommonResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/reservations/{reservation_code}",
+      "params": [
+        {
+          "name": "reservation_code",
+          "type": "string",
+          "location": "path",
+          "description": "The code of the reservation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reservations_create",
+      "description": "Create a reservation (Direct Booking) in Hostex. Required: check_in_date, check_out_date, commission_amount, currency, custom_channel_id, guest_name, income_method_id, property_id, rate_amount, received_amount. Optional: email, mobile, number_of_guests (plus 1 more). Returns the new CommonResponse.",
+      "method": "POST",
+      "path": "/reservations",
+      "params": [
+        {
+          "name": "check_in_date",
+          "type": "string",
+          "location": "body",
+          "description": "The check-in date for the reservation in YYYY-MM-DD format.",
+          "required": true
+        },
+        {
+          "name": "check_out_date",
+          "type": "string",
+          "location": "body",
+          "description": "The check-out date for the reservation in YYYY-MM-DD format.",
+          "required": true
+        },
+        {
+          "name": "commission_amount",
+          "type": "int",
+          "location": "body",
+          "description": "The commission amount for the reservation.",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "The currency code for the reservation amounts. See [Supported Currencies](/reference/supported-currencies) for more information.",
+          "required": true
+        },
+        {
+          "name": "custom_channel_id",
+          "type": "int",
+          "location": "body",
+          "description": "The id of the custom channel through which the reservation is booked. See [Query Custom Channel](/reference/query-custom-channels) for retrieving custom channels.",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The email address of the primary guest."
+        },
+        {
+          "name": "guest_name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the primary guest.",
+          "required": true
+        },
+        {
+          "name": "income_method_id",
+          "type": "int",
+          "location": "body",
+          "description": "The identifier for the income method used for the reservation payment. See [Query Income methods](/reference/query-income-methods) for retrieving all income methods.",
+          "required": true
+        },
+        {
+          "name": "mobile",
+          "type": "string",
+          "location": "body",
+          "description": "The mobile phone number of the primary guest."
+        },
+        {
+          "name": "number_of_guests",
+          "type": "int",
+          "location": "body",
+          "description": "The total number of guests included in the reservation."
+        },
+        {
+          "name": "property_id",
+          "type": "int",
+          "location": "body",
+          "description": "The id of the property for the reservation.",
+          "required": true
+        },
+        {
+          "name": "rate_amount",
+          "type": "int",
+          "location": "body",
+          "description": "The total rate amount for the reservation.",
+          "required": true
+        },
+        {
+          "name": "received_amount",
+          "type": "int",
+          "location": "body",
+          "description": "The total amount received for the reservation.",
+          "required": true
+        },
+        {
+          "name": "remarks",
+          "type": "string",
+          "location": "body",
+          "description": "Any additional remarks related to the reservation."
+        }
+      ]
+    },
+    {
+      "name": "reservations_query",
+      "description": "You can query reservations by making a request to this endpoint. Optional: reservation_code, channel_id, property_id (plus 9 more). Returns the ReservationsQueryResponse.",
+      "method": "GET",
+      "path": "/reservations",
+      "params": [
+        {
+          "name": "reservation_code",
+          "type": "string",
+          "location": "query",
+          "description": "Filters the results by the specified reservation code."
+        },
+        {
+          "name": "channel_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filters the results by the reservation ID in the channel (matches the `channel_id` field returned in the response)."
+        },
+        {
+          "name": "property_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filters the results by the specified property ID."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filters the results by the specified reservation status."
+        },
+        {
+          "name": "start_check_in_date",
+          "type": "string",
+          "location": "query",
+          "description": "Filters the results to include reservations with check-in dates starting from this date (inclusive)."
+        },
+        {
+          "name": "end_check_in_date",
+          "type": "string",
+          "location": "query",
+          "description": "Filters the results to include reservations with check-in dates up to this date (inclusive)."
+        },
+        {
+          "name": "start_check_out_date",
+          "type": "string",
+          "location": "query",
+          "description": "Filters the results to include reservations with check-out dates starting from this date (inclusive). By default, reservations within 180 days are returned."
+        },
+        {
+          "name": "end_check_out_date",
+          "type": "string",
+          "location": "query",
+          "description": "Filters the results to include reservations with check-out dates up to this date (inclusive)."
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sorts the results by the specified field (always descending). Default is `booked_at`. `created_at` sorts by the row creation timestamp (i.e. when the reservation was first synced into Hostex)."
+        },
+        {
+          "name": "channel_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filters the results by the specified channel type."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Specifies the starting index from which the results should be returned. Default: 0"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Determines the maximum number of results to be returned, up to a maximum of 100. Default: 20."
+        }
+      ]
+    },
+    {
+      "name": "reservations_update-basic-info",
+      "description": "Update basic information of a stay including guest details, dates, pricing, and other attributes. Required: stay_code. Optional: check_in_date, check_out_date, commission_amount (plus 9 more). Returns the updated CommonResponse.",
+      "method": "PATCH",
+      "path": "/reservations/{stay_code}",
+      "params": [
+        {
+          "name": "stay_code",
+          "type": "string",
+          "location": "path",
+          "description": "The code of the stay.",
+          "required": true
+        },
+        {
+          "name": "check_in_date",
+          "type": "string",
+          "location": "body",
+          "description": "The check-in date for the reservation in YYYY-MM-DD format."
+        },
+        {
+          "name": "check_out_date",
+          "type": "string",
+          "location": "body",
+          "description": "The check-out date for the reservation in YYYY-MM-DD format."
+        },
+        {
+          "name": "commission_amount",
+          "type": "float",
+          "location": "body",
+          "description": "The commission amount for the reservation."
+        },
+        {
+          "name": "creator",
+          "type": "string",
+          "location": "body",
+          "description": "The account of the creator."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "The currency code for the reservation amounts. See [Supported Currencies](/reference/supported-currencies) for more information."
+        },
+        {
+          "name": "custom_channel_id",
+          "type": "int",
+          "location": "body",
+          "description": "The id of the custom channel."
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The email address of the guest."
+        },
+        {
+          "name": "guest_name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the primary guest."
+        },
+        {
+          "name": "mobile",
+          "type": "string",
+          "location": "body",
+          "description": "The mobile phone number of the guest."
+        },
+        {
+          "name": "number_of_guests",
+          "type": "int",
+          "location": "body",
+          "description": "The total number of guests."
+        },
+        {
+          "name": "rate_amount",
+          "type": "float",
+          "location": "body",
+          "description": "The total rate amount for the reservation."
+        },
+        {
+          "name": "remarks",
+          "type": "string",
+          "location": "body",
+          "description": "Remarks for the reservation."
+        }
+      ]
+    },
+    {
+      "name": "reservations_allocate_reservation",
+      "description": "Allocate a reservation to a specific property. This action is used to assign or reassign a reservation to a particular property. If there is already a stay for the target property, it will be marked as a conflicting stay and move to the reservation box. Required: stay_code, property_id. Returns the new CommonResponse.",
+      "method": "POST",
+      "path": "/reservations/{stay_code}/allocate",
+      "params": [
+        {
+          "name": "stay_code",
+          "type": "string",
+          "location": "path",
+          "description": "The code of the stay to allocate.",
+          "required": true
+        },
+        {
+          "name": "property_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the property to allocate the reservation to.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reservations_approve_reservation",
+      "description": "Approve a pending reservation request. The reservation must be in `wait_accept` status. This endpoint communicates with the channel to confirm the booking. Required: reservation_code. Returns the new CommonResponse.",
+      "method": "POST",
+      "path": "/reservations/{reservation_code}/approve",
+      "params": [
+        {
+          "name": "reservation_code",
+          "type": "string",
+          "location": "path",
+          "description": "The code of the reservation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reservations_check-in-details_update",
+      "description": "Update check-in details for a stay including lock code, arrival/departure times, and deposit information. Required: stay_code. Optional: arrival_at, departure_at, deposit (plus 3 more). Returns the updated CommonResponse.",
+      "method": "PATCH",
+      "path": "/reservations/{stay_code}/check_in_details",
+      "params": [
+        {
+          "name": "stay_code",
+          "type": "string",
+          "location": "path",
+          "description": "The code of the stay.",
+          "required": true
+        },
+        {
+          "name": "arrival-at-hour",
+          "wire_name": "arrival_at.hour",
+          "type": "int",
+          "location": "body",
+          "description": "Hour in 24-hour format (0-23)",
+          "required": true
+        },
+        {
+          "name": "arrival-at-minute",
+          "wire_name": "arrival_at.minute",
+          "type": "int",
+          "location": "body",
+          "description": "Minute (0-59)",
+          "required": true
+        },
+        {
+          "name": "departure-at-hour",
+          "wire_name": "departure_at.hour",
+          "type": "int",
+          "location": "body",
+          "description": "Hour in 24-hour format (0-23)",
+          "required": true
+        },
+        {
+          "name": "departure-at-minute",
+          "wire_name": "departure_at.minute",
+          "type": "int",
+          "location": "body",
+          "description": "Minute (0-59)",
+          "required": true
+        },
+        {
+          "name": "deposit",
+          "type": "int",
+          "location": "body",
+          "description": "The deposit amount in the host's currency. For example, if the currency is USD, 100 means 100 US Dollars."
+        },
+        {
+          "name": "id_required",
+          "type": "string",
+          "location": "body",
+          "description": "Whether the guest must register / upload identity documents (ID) for this stay before check-in. `not_required` = no ID required; `required` = guest must upload an ID, no manual review; `required_with_review` = guest must upload an ID and the host needs to manually review and approve it before check-in is unlocked."
+        },
+        {
+          "name": "lock_code",
+          "type": "string",
+          "location": "body",
+          "description": "The lock code for the property, stored only in Hostex and shown in the check-in guide. This field is independent of any smart-lock channel integration and is NOT pushed to external smart-lock providers. Set to null to remove the lock code."
+        },
+        {
+          "name": "lock_code_visible_after",
+          "type": "string",
+          "location": "body",
+          "description": "The time after which the lock code becomes visible, in HH:mm format (24-hour). Example: '14:00'. Set to null to remove the restriction."
+        }
+      ]
+    },
+    {
+      "name": "reservations_custom-fields_query",
+      "description": "Query custom fields for a stay. For more information, please refer to the [Custom Fields Guide](/reference/custom-fields-guide). Required: stay_code. Returns the CustomFieldsQueryResponse.",
+      "method": "GET",
+      "path": "/reservations/{stay_code}/custom_fields",
+      "params": [
+        {
+          "name": "stay_code",
+          "type": "string",
+          "location": "path",
+          "description": "The code of the stay.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reservations_custom-fields_update",
+      "description": "Update custom fields for a stay. For more information, please refer to the [Custom Fields Guide](/reference/custom-fields-guide). Required: stay_code. Optional: custom_fields. Returns the updated CustomFieldsUpdateResponse.",
+      "method": "PATCH",
+      "path": "/reservations/{stay_code}/custom_fields",
+      "params": [
+        {
+          "name": "stay_code",
+          "type": "string",
+          "location": "path",
+          "description": "The code of the stay.",
+          "required": true
+        },
+        {
+          "name": "custom-fields-online-checkin-url",
+          "wire_name": "custom_fields.online_checkin_url",
+          "type": "string",
+          "location": "body",
+          "description": "This is just an example."
+        }
+      ]
+    },
+    {
+      "name": "reservations_decline_reservation",
+      "description": "Decline a pending reservation request. The reservation must be in `wait_accept` status. This endpoint communicates with the channel to reject the booking. Required: reservation_code. Returns the new CommonResponse.",
+      "method": "POST",
+      "path": "/reservations/{reservation_code}/decline",
+      "params": [
+        {
+          "name": "reservation_code",
+          "type": "string",
+          "location": "path",
+          "description": "The code of the reservation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reservations_move-to-box_move-reservation-to-box",
+      "description": "Move a stay of the reservation to the reservation box. This action is typically used when you want to temporarily remove a reservation from the active calendar view. Required: stay_code. Returns the new CommonResponse.",
+      "method": "POST",
+      "path": "/reservations/{stay_code}/move_to_box",
+      "params": [
+        {
+          "name": "stay_code",
+          "type": "string",
+          "location": "path",
+          "description": "The code of the stay to move to the box.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reservations_stay-status_update",
+      "description": "Update the stay status of a reservation. This endpoint allows you to change the status of a stay between different states such as check-in pending, in-house, and stay completed. Required: stay_code, stay_status. Returns the updated CommonResponse.",
+      "method": "PUT",
+      "path": "/reservations/{stay_code}/stay_status",
+      "params": [
+        {
+          "name": "stay_code",
+          "type": "string",
+          "location": "path",
+          "description": "The code of the stay to update.",
+          "required": true
+        },
+        {
+          "name": "stay_status",
+          "type": "string",
+          "location": "body",
+          "description": "The new status for the stay.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reservations_tags_add",
+      "description": "Add a tag to a reservation. If the tag does not exist, it will be created automatically. Required: stay_code, tag_name. Returns the new CommonResponse.",
+      "method": "POST",
+      "path": "/reservations/{stay_code}/tags",
+      "params": [
+        {
+          "name": "stay_code",
+          "type": "string",
+          "location": "path",
+          "description": "The code of the stay.",
+          "required": true
+        },
+        {
+          "name": "tag_name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the tag to add.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reservations_tags_remove",
+      "description": "Remove a tag from a reservation. Required: stay_code, tag_name. Returns the CommonResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/reservations/{stay_code}/tags",
+      "params": [
+        {
+          "name": "stay_code",
+          "type": "string",
+          "location": "path",
+          "description": "The code of the stay.",
+          "required": true
+        },
+        {
+          "name": "tag_name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the tag to remove.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reviews_create",
+      "description": "Create review or reply for a reservation. Required: reservation_code. Optional: category_ratings, host_reply_content, host_review_content (plus 1 more). Returns the new CommonResponse.",
+      "method": "POST",
+      "path": "/reviews/{reservation_code}",
+      "params": [
+        {
+          "name": "reservation_code",
+          "type": "string",
+          "location": "path",
+          "description": "The unique code identifying the reservation.",
+          "required": true
+        },
+        {
+          "name": "category-ratings-cleanliness",
+          "wire_name": "category_ratings.cleanliness",
+          "type": "float",
+          "location": "body",
+          "description": "Cleanliness rating. The value is between 0 and 5."
+        },
+        {
+          "name": "category-ratings-communication",
+          "wire_name": "category_ratings.communication",
+          "type": "float",
+          "location": "body",
+          "description": "Communication rating. The value is between 0 and 5."
+        },
+        {
+          "name": "category-ratings-overall-rating",
+          "wire_name": "category_ratings.overall_rating",
+          "type": "float",
+          "location": "body",
+          "description": "Overall rating of the guest. The value is between 0 and 5."
+        },
+        {
+          "name": "category-ratings-recommend",
+          "wire_name": "category_ratings.recommend",
+          "type": "float",
+          "location": "body",
+          "description": "Whether the host recommends the guest. 1 for yes, 0 for no (Airbnb only)."
+        },
+        {
+          "name": "category-ratings-respect-of-house-rules",
+          "wire_name": "category_ratings.respect_of_house_rules",
+          "type": "float",
+          "location": "body",
+          "description": "Respect of house rules rating. The value is between 0 and 5."
+        },
+        {
+          "name": "host_reply_content",
+          "type": "string",
+          "location": "body",
+          "description": "The reply of the host."
+        },
+        {
+          "name": "host_review_content",
+          "type": "string",
+          "location": "body",
+          "description": "The comment of the host."
+        },
+        {
+          "name": "host_review_score",
+          "type": "float",
+          "location": "body",
+          "description": "The rating score of the host review. The value is between 0 and 5."
+        }
+      ]
+    },
+    {
+      "name": "reviews_query",
+      "description": "Query reviews like the [Reviews Page](https://hostex.io/app/reviews). Required: offset (default: 0), limit (default: 20). Optional: reservation_code, property_id, review_status (plus 2 more). Returns the ReviewsQueryResponse.",
+      "method": "GET",
+      "path": "/reviews",
+      "params": [
+        {
+          "name": "reservation_code",
+          "type": "string",
+          "location": "query",
+          "description": "Filters the results by the specified reservation code."
+        },
+        {
+          "name": "property_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filters the results by the specified property ID."
+        },
+        {
+          "name": "review_status",
+          "type": "string",
+          "location": "query",
+          "description": "Filters the results by the specified review status. Default: `reviewed`"
+        },
+        {
+          "name": "start_check_out_date",
+          "type": "string",
+          "location": "query",
+          "description": "Filters the results to include reservations with check-out dates starting from this date (inclusive). Default: 180 days ago."
+        },
+        {
+          "name": "end_check_out_date",
+          "type": "string",
+          "location": "query",
+          "description": "Filters the results to include reservations with check-out dates up to this date (inclusive). Less than 180 days from `start_check_out_date`. Default: today"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Specifies the starting index from which the results should be returned. Default: 0",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Determines the maximum number of results to be returned, up to a maximum of 100. Default: 20",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "room-types_create",
+      "description": "Create a new room type under the current operator. A room type is a group of interchangeable properties (rooms) sold as a single inventory pool. Optionally link existing properties at creation time via `property_ids` — each linked property must not already belong to another room type. Subject to the room type quantity limit of the operator's subscription (capped by the property quantity limit) and not available on Basic editions. Required: title. Optional: property_ids. Returns the new RoomTypesCreateResponse.",
+      "method": "POST",
+      "path": "/room_types",
+      "params": [
+        {
+          "name": "property_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Optional list of property ids to link to the new room type. Each property must belong to the operator and must not already be linked to another room type."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title of the new room type. Must be unique within the operator.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "room-types_query",
+      "description": "You can query room types by making a request to this endpoint. Optional: offset (default: 0), limit (default: 20), id (plus 1 more). Returns the RoomTypesQueryResponse.",
+      "method": "GET",
+      "path": "/room_types",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The starting point from which to begin returning results."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return. The maximum value is 100."
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "The id of the room type."
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filter room types by the tag id. Only room types tagged with this tag are returned."
+        }
+      ]
+    },
+    {
+      "name": "staffs_create",
+      "description": "Create a schedule staff. The staff is created as active by default. Use `property_ids` to limit the staff to specific properties; the staff will be created with access to all properties when omitted. For international operators, `mobile` must be in `+\u003ccountry code\u003e \u003cnumber\u003e` format (e.g. `+86 13800138000`). Required: mobile, name. Optional: email, note, property_ids. Returns the new StaffsCreateResponse.",
+      "method": "POST",
+      "path": "/staffs",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email address."
+        },
+        {
+          "name": "mobile",
+          "type": "string",
+          "location": "body",
+          "description": "Mobile number. International operators must use `+\u003ccountry code\u003e \u003cnumber\u003e` format.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Display name of the staff (max 128 characters).",
+          "required": true
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Free-form note (max 500 characters)."
+        },
+        {
+          "name": "property_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Properties this staff can access. Omit to grant access to all properties available to the operator."
+        }
+      ]
+    },
+    {
+      "name": "staffs_delete",
+      "description": "Delete a staff permanently along with their property assignments. Returns 404 if the staff does not exist or is not accessible to the current operator. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/staffs/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id of the staff to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "staffs_query",
+      "description": "You can query schedule staffs (cleaners / operators / receptionists, etc.) by making a request to this endpoint. Optional: offset (default: 0), limit (default: 20), id (plus 1 more). Returns the StaffsQueryResponse.",
+      "method": "GET",
+      "path": "/staffs",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The starting point from which to begin returning results."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return. The maximum value is 100."
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "The id of the staff."
+        },
+        {
+          "name": "is_active",
+          "type": "int",
+          "location": "query",
+          "description": "Filter staffs by active state. 1: active only, 0: inactive only."
+        }
+      ]
+    },
+    {
+      "name": "staffs_update",
+      "description": "Update an existing staff. All fields are optional; only the supplied fields are changed. Passing `property_ids` replaces the staff's full property assignment list (use an empty array to clear). Use `is_active` to enable or disable the staff. Required: id. Optional: email, is_active, mobile (plus 3 more). Returns the updated CommonResponse.",
+      "method": "PATCH",
+      "path": "/staffs/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id of the staff to update.",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable (`true`) or disable (`false`) the staff."
+        },
+        {
+          "name": "mobile",
+          "type": "string",
+          "location": "body",
+          "description": "Mobile"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Note"
+        },
+        {
+          "name": "property_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Replaces the staff's property assignment list. Use an empty array to remove all assignments."
+        }
+      ]
+    },
+    {
+      "name": "tags_create",
+      "description": "Create a new property tag. Optionally pre-attach properties via `property_ids` and / or room types via `room_type_ids`. The name must be unique within the operator's account (soft-deleted same-name tags are restored). Color is auto-assigned from the Hostex palette unless one of the allowed hex strings is supplied. Operators are capped at 500 property tags. Required: name. Optional: color, property_ids, room_type_ids. Returns the new TagsCreateResponse.",
+      "method": "POST",
+      "path": "/tags",
+      "params": [
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Hex color string. Auto-assigned from the palette when omitted."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Tag display name. Max 15 characters. Must be unique within the operator's account.",
+          "required": true
+        },
+        {
+          "name": "property_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Optional list of property ids to attach to the new tag."
+        },
+        {
+          "name": "room_type_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Optional list of room type ids to attach to the new tag."
+        }
+      ]
+    },
+    {
+      "name": "tags_delete",
+      "description": "Delete a property tag. All property-tag and room-type-tag pivot rows are removed automatically; the underlying properties / room types themselves are unaffected. Required: id. Returns the CommonResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/tags/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Internal tag id (from `search_tags`).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_query",
+      "description": "You can query tags by making a request to this endpoint. Optional: offset (default: 0), limit (default: 20), id. Returns the TagsQueryResponse.",
+      "method": "GET",
+      "path": "/tags",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The starting point from which to begin returning results."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return. The maximum value is 100."
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "The id of the tag."
+        }
+      ]
+    },
+    {
+      "name": "tags_update",
+      "description": "Update a property tag. Pass `name` and / or `color` to change the tag itself; pass `property_ids` and / or `room_type_ids` to **replace** the tag's full assignment list. Pass an empty array to detach all properties / all room types. Omitted fields are left unchanged. Required: id. Optional: color, name, property_ids (plus 1 more). Returns the updated CommonResponse.",
+      "method": "PATCH",
+      "path": "/tags/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Internal tag id (from `search_tags`).",
+          "required": true
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Hex color string from the allowed palette."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New display name. Must remain unique within the operator's account."
+        },
+        {
+          "name": "property_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Replaces the tag's property list with the given ids (each must belong to the operator). Empty array detaches all."
+        },
+        {
+          "name": "room_type_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Replaces the tag's room type list with the given ids (each must belong to the operator). Empty array detaches all."
+        }
+      ]
+    },
+    {
+      "name": "tasks_create",
+      "description": "Create a schedule task. The task may be linked to a property (`property_id`), to a specific stay (`stay_code`), and/or assigned to a staff (`staff_id`); all are optional. When `stay_code` is provided the task is linked to the reservation; `property_id` is inferred from the stay when omitted (and must match the stay's property when both are supplied). The `type` selects the task category and `level` is only meaningful for cleaning tasks. Required: currency, expected_date, type. Optional: expected_time, fee, level (plus 4 more). Returns the new TasksCreateResponse.",
+      "method": "POST",
+      "path": "/tasks",
+      "params": [
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "Currency code for `fee`. See [Supported Currencies](/reference/supported-currencies) for more information.",
+          "required": true
+        },
+        {
+          "name": "expected_date",
+          "type": "string",
+          "location": "body",
+          "description": "Expected execution date in `YYYY-MM-DD`. Interpreted in the operator's configured timezone (see [Account Settings](https://hostex.io/app/account/setting)).",
+          "required": true
+        },
+        {
+          "name": "expected_time",
+          "type": "string",
+          "location": "body",
+          "description": "Expected execution time in `HH:mm:ss`. Optional. Interpreted in the operator's configured timezone."
+        },
+        {
+          "name": "fee",
+          "type": "float",
+          "location": "body",
+          "description": "Task fee. Defaults to 0 (or to the property's configured cleaning fee for cleaning tasks linked to a property when omitted)."
+        },
+        {
+          "name": "level",
+          "type": "string",
+          "location": "body",
+          "description": "Cleaning level. Only meaningful when `type=cleaning`."
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Free-form note attached to the task (max 500 characters)."
+        },
+        {
+          "name": "property_id",
+          "type": "int",
+          "location": "body",
+          "description": "Id of the property the task belongs to. Omit to record an unassigned task (or to inherit from `stay_code` when supplied)."
+        },
+        {
+          "name": "staff_id",
+          "type": "int",
+          "location": "body",
+          "description": "Id of the staff to assign. Omit to leave the task unassigned."
+        },
+        {
+          "name": "stay_code",
+          "type": "string",
+          "location": "body",
+          "description": "Stay code to link the task to a specific reservation. When provided, the task is linked to the reservation and `property_id` defaults to the stay's property (an explicit `property_id` must match)."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Task category.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_delete",
+      "description": "Delete a task permanently. Returns 404 if the task does not exist or is not accessible to the current operator. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/tasks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id of the task to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_query",
+      "description": "You can query schedule tasks (cleaning / maintain / reception / housekeeping / others) by making a request to this endpoint. Optional: id, offset (default: 0), limit (default: 20) (plus 6 more). Returns the TasksQueryResponse.",
+      "method": "GET",
+      "path": "/tasks",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Internal id of a specific task. When supplied, returns at most one entry (the matching task under the current operator)."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The starting point from which to begin returning results."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return. The maximum value is 100."
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "The start of the expected date range to filter tasks by. The date format is YYYY-MM-DD. `start_date` and `end_date` must be supplied together."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "The end of the expected date range to filter tasks by. The date format is YYYY-MM-DD. `start_date` and `end_date` must be supplied together."
+        },
+        {
+          "name": "staff_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filter tasks assigned to the given staff id."
+        },
+        {
+          "name": "property_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filter tasks under the given property id."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter tasks by type."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter tasks by status."
+        }
+      ]
+    },
+    {
+      "name": "tasks_update",
+      "description": "Update an existing task. All fields are optional; only the supplied fields are changed. Pass `property_id=0` or `staff_id=0` to detach the task from the related property or staff. Required: id. Optional: currency, expected_date, expected_time (plus 7 more). Returns the updated CommonResponse.",
+      "method": "PATCH",
+      "path": "/tasks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id of the task to update.",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "Currency"
+        },
+        {
+          "name": "expected_date",
+          "type": "string",
+          "location": "body",
+          "description": "Expected execution date in `YYYY-MM-DD`. Interpreted in the operator's configured timezone."
+        },
+        {
+          "name": "expected_time",
+          "type": "string",
+          "location": "body",
+          "description": "Expected execution time in `HH:mm:ss`. Interpreted in the operator's configured timezone."
+        },
+        {
+          "name": "fee",
+          "type": "float",
+          "location": "body",
+          "description": "Fee"
+        },
+        {
+          "name": "level",
+          "type": "string",
+          "location": "body",
+          "description": "Level"
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Note"
+        },
+        {
+          "name": "property_id",
+          "type": "int",
+          "location": "body",
+          "description": "Pass `0` to detach the task from any property."
+        },
+        {
+          "name": "staff_id",
+          "type": "int",
+          "location": "body",
+          "description": "Pass `0` to unassign the task."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        }
+      ]
+    },
+    {
+      "name": "transactions_create",
+      "description": "Record a new income or expense entry. What the entry is linked to is inferred from the request: - provide `stay_code` to record an entry against a specific stay, - provide `property_id` to record an entry against a specific property, - provide neither to record an operator-level entry (not tied to any specific property or stay; only available to the master operator). `stay_code` and `property_id` are mutually exclusive. The `direction` field decides whether the entry is an `income` or an `expense`, which in turn determines which dictionaries are used for `item_id` (`GET /income_items` or `GET /expense_items`) and `payment_method_id` (`GET /income_methods` or `GET /expense_methods`). The `amount` is always provided as a positive number; the sign is derived from `direction`. The `currency` accompanies the amount and must be supplied unless `stay_code` is provided, in which case it is inherited from the reservation order and, if you do provide it, it must match the order's currency. Required: amount, direction, item_id, payment_method_id. Optional: action_at, currency, note (plus 2 more). Returns the new TransactionsCreateResponse.",
+      "method": "POST",
+      "path": "/transactions",
+      "params": [
+        {
+          "name": "action_at",
+          "type": "string",
+          "location": "body",
+          "description": "When the action took place. Accepts ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`). Defaults to the current time. If set to a future time the entry is created with status `outstanding`; otherwise it is `paid`."
+        },
+        {
+          "name": "amount",
+          "type": "float",
+          "location": "body",
+          "description": "Absolute amount of the entry. Always provide a positive value; the sign is derived from `direction`.",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "Currency code that accompanies `amount`. Required unless `stay_code` is provided; reservation-linked entries inherit the currency from the order and reject mismatching values. See [Supported Currencies](/reference/supported-currencies) for more information."
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "body",
+          "description": "Whether this entry represents money received (`income`) or money spent (`expense`).",
+          "required": true
+        },
+        {
+          "name": "item_id",
+          "type": "int",
+          "location": "body",
+          "description": "The id of the item categorization. Must be a valid id from `GET /income_items` when `direction=income`, or from `GET /expense_items` when `direction=expense`.",
+          "required": true
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Free-form note (max 500 characters)."
+        },
+        {
+          "name": "payment_method_id",
+          "type": "int",
+          "location": "body",
+          "description": "The id of the payment method. Must be a valid id from `GET /income_methods` when `direction=income`, or from `GET /expense_methods` when `direction=expense`.",
+          "required": true
+        },
+        {
+          "name": "property_id",
+          "type": "int",
+          "location": "body",
+          "description": "The id of the property to record the entry against. Mutually exclusive with `stay_code`. Omit both to record an operator-level entry."
+        },
+        {
+          "name": "stay_code",
+          "type": "string",
+          "location": "body",
+          "description": "The `stay_code` (returned by `GET /reservations`) of the stay to record the entry against. Mutually exclusive with `property_id`. Omit both to record an operator-level entry."
+        }
+      ]
+    },
+    {
+      "name": "transactions_delete",
+      "description": "Delete a transaction entry. The operation is irreversible. Returns 404 if the entry does not exist or is not accessible to the current operator. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/transactions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id of the transaction entry to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_query",
+      "description": "Query income and expense entries (also known as `transactions`) recorded against the operator, properties or reservations. The response provides each entry with its categorization (`item_id` / `item_name`) and payment method (`payment_method_id` / `payment_method_name`). The values of `item_id` and `payment_method_id` reference the dictionaries returned by `GET /income_items`, `GET /expense_items`, `GET /income_methods` and `GET /expense_methods` (which dictionary applies depends on `direction`). Optional: id, start_date, end_date (plus 9 more). Returns the TransactionsQueryResponse.",
+      "method": "GET",
+      "path": "/transactions",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Internal id of a specific transaction entry. When supplied, returns at most one matching entry under the current operator; `start_date` and `end_date` may then be omitted."
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start of the action time range, inclusive. Format `YYYY-MM-DD`. Interpreted in the operator's configured timezone. Required unless `id` is supplied."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End of the action time range, inclusive. Format `YYYY-MM-DD`. Interpreted in the operator's configured timezone. The range from `start_date` to `end_date` cannot exceed 366 days. Required unless `id` is supplied."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The starting point from which to begin returning results."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return. The maximum value is 100."
+        },
+        {
+          "name": "property_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filter entries linked to the given property id (either directly recorded against the property, or indirectly through a reservation on this property)."
+        },
+        {
+          "name": "stay_code",
+          "type": "string",
+          "location": "query",
+          "description": "Filter entries linked to the given stay (the `stay_code` returned by `GET /reservations`)."
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by direction: `income` for money received, `expense` for money spent."
+        },
+        {
+          "name": "item_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filter by item id (the categorization of the entry). For income entries the id refers to `GET /income_items`; for expense entries it refers to `GET /expense_items`."
+        },
+        {
+          "name": "payment_method_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filter by payment method id. For income entries the id refers to `GET /income_methods`; for expense entries it refers to `GET /expense_methods`."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by currency code. See [Supported Currencies](/reference/supported-currencies) for more information."
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Substring match on the entry `note`."
+        }
+      ]
+    },
+    {
+      "name": "transactions_update",
+      "description": "Update an existing transaction entry. Only the fields listed below can be modified. The entry's `direction`, link target (related property / reservation / operator) and `currency` are immutable; if you need to change any of these, delete the entry and create a new one. Required: id. Optional: action_at, amount, item_id (plus 2 more). Returns the updated CommonResponse.",
+      "method": "PATCH",
+      "path": "/transactions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id of the transaction entry returned by `GET /transactions` or `POST /transactions`.",
+          "required": true
+        },
+        {
+          "name": "action_at",
+          "type": "string",
+          "location": "body",
+          "description": "New action time. Accepts ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`)."
+        },
+        {
+          "name": "amount",
+          "type": "float",
+          "location": "body",
+          "description": "New absolute amount. Always provide a positive value; the original `direction` (income or expense) is preserved."
+        },
+        {
+          "name": "item_id",
+          "type": "int",
+          "location": "body",
+          "description": "New item categorization id. Must be a valid id from `GET /income_items` when the entry's direction is `income`, or `GET /expense_items` when it is `expense`."
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "New free-form note (max 500 characters)."
+        },
+        {
+          "name": "payment_method_id",
+          "type": "int",
+          "location": "body",
+          "description": "New payment method id. Must be a valid id from `GET /income_methods` when the entry's direction is `income`, or `GET /expense_methods` when it is `expense`."
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create",
+      "description": "Create a webhook. Required: url. Optional: events. Returns the new CommonResponse.",
+      "method": "POST",
+      "path": "/webhooks",
+      "params": [
+        {
+          "name": "events",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The list of event types to subscribe to. Defaults to all events if omitted."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The webhook endpoint URL.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_delete",
+      "description": "You can only delete webhooks created by your own app if they are manageable. Attempting to delete non-manageable webhooks from other apps will result in a 403 error. Required: id. Returns the CommonResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/webhooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the webhook.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_query",
+      "description": "Query Webhooks like the [Webhooks Page](https://hostex.io/app/api/web-hooks). Returns the WebhooksQueryResponse.",
+      "method": "GET",
+      "path": "/webhooks",
+      "params": []
+    },
+    {
+      "name": "webhooks_update",
+      "description": "Update the url or event subscriptions for a webhook. You can only update webhooks created by your own app. Required: id. Optional: events, url. Returns the updated CommonResponse.",
+      "method": "PATCH",
+      "path": "/webhooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the webhook.",
+          "required": true
+        },
+        {
+          "name": "events",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The list of event types to subscribe to."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The new webhook endpoint URL."
+        }
+      ]
+    }
+  ]
+}

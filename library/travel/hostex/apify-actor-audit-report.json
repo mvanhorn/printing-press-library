@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/hostex-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260627-060401-7471d49d",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}
