@@ -1,0 +1,318 @@
+{
+    "exhaustive": {
+        "nbHits": false,
+        "typo": false
+    },
+    "exhaustiveNbHits": false,
+    "exhaustiveTypo": false,
+    "hits": [
+        {
+            "_highlightResult": {
+                "author": {
+                    "matchLevel": "none",
+                    "matchedWords": [],
+                    "value": "gasull"
+                },
+                "title": {
+                    "fullyHighlighted": false,
+                    "matchLevel": "full",
+                    "matchedWords": [
+                        "local",
+                        "first",
+                        "software"
+                    ],
+                    "value": "<em>Local-first</em> <em>software</em> (2019)"
+                },
+                "url": {
+                    "fullyHighlighted": false,
+                    "matchLevel": "partial",
+                    "matchedWords": [
+                        "local",
+                        "first"
+                    ],
+                    "value": "https://www.inkandswitch.com/essay/<em>local-first</em>/"
+                }
+            },
+            "_tags": [
+                "story",
+                "author_gasull",
+                "story_44473135"
+            ],
+            "author": "gasull",
+            "children": [
+                44473317,
+                44473335,
+                44473500,
+                44473511,
+                44473549,
+                44473558,
+                44473619,
+                44473705,
+                44473717,
+                44473720,
+                44473761,
+                44473776,
+                44473808,
+                44474024,
+                44474034,
+                44474068,
+                44474087,
+                44474152,
+                44474404,
+                44474444,
+                44474474,
+                44474495,
+                44474504,
+                44474527,
+                44474572,
+                44474673,
+                44474688,
+                44474771,
+                44474795,
+                44474801,
+                44474819,
+                44474873,
+                44474963,
+                44474966,
+                44475097,
+                44475130,
+                44475186,
+                44475224,
+                44475439,
+                44475558,
+                44475603,
+                44475887,
+                44475888,
+                44475890,
+                44476235,
+                44476503,
+                44476608,
+                44476752,
+                44476864,
+                44476967,
+                44477278,
+                44477410,
+                44478099,
+                44478635,
+                44478760,
+                44478968,
+                44479137,
+                44479369,
+                44481966,
+                44481970,
+                44481998,
+                44482400,
+                44542354
+            ],
+            "created_at": "2025-07-05T14:45:39Z",
+            "created_at_i": 1751726739,
+            "num_comments": 297,
+            "objectID": "44473135",
+            "points": 883,
+            "story_id": 44473135,
+            "title": "Local-first software (2019)",
+            "updated_at": "2026-05-26T05:21:38Z",
+            "url": "https://www.inkandswitch.com/essay/local-first/"
+        },
+        {
+            "_highlightResult": {
+                "author": {
+                    "matchLevel": "none",
+                    "matchedWords": [],
+                    "value": "godelmachine"
+                },
+                "title": {
+                    "fullyHighlighted": false,
+                    "matchLevel": "full",
+                    "matchedWords": [
+                        "local",
+                        "first",
+                        "software"
+                    ],
+                    "value": "<em>Local-first</em> <em>software</em>: you own your data, in spite of the cloud"
+                },
+                "url": {
+                    "fullyHighlighted": false,
+                    "matchLevel": "full",
+                    "matchedWords": [
+                        "local",
+                        "first",
+                        "software"
+                    ],
+                    "value": "https://blog.acolyer.org/2019/11/20/<em>local-first</em>-<em>software</em>/"
+                }
+            },
+            "_tags": [
+                "story",
+                "author_godelmachine",
+                "story_21581444"
+            ],
+            "author": "godelmachine",
+            "children": [
+                21581625,
+                21581627,
+                21581634,
+                21581641,
+                21581654,
+                21581672,
+                21581699,
+                21581704,
+                21581705,
+                21581716,
+                21581719,
+                21581774,
+                21581784,
+                21581829,
+                21581863,
+                21581886,
+                21581894,
+                21581963,
+                21581969,
+                21582033,
+                21582044,
+                21582062,
+                21582081,
+                21582084,
+                21582242,
+                21582343,
+                21582356,
+                21582528,
+                21582614,
+                21582623,
+                21582645,
+                21582677,
+                21582746,
+                21582752,
+                21582803,
+                21582901,
+                21583007,
+                21583120,
+                21583128,
+                21583154,
+                21583223,
+                21583285,
+                21583419,
+                21583729,
+                21583887,
+                21583915,
+                21584007,
+                21584113,
+                21584476,
+                21584509,
+                21584865,
+                21585116,
+                21585435,
+                21585462,
+                21585633,
+                21585825,
+                21587552,
+                21588386,
+                21589245,
+                21591602,
+                21594405,
+                21597815,
+                21601914,
+                21613922
+            ],
+            "created_at": "2019-11-20T06:02:19Z",
+            "created_at_i": 1574229739,
+            "num_comments": 239,
+            "objectID": "21581444",
+            "points": 748,
+            "story_id": 21581444,
+            "title": "Local-first software: you own your data, in spite of the cloud",
+            "updated_at": "2026-04-23T22:16:00Z",
+            "url": "https://blog.acolyer.org/2019/11/20/local-first-software/"
+        },
+        {
+            "_highlightResult": {
+                "author": {
+                    "matchLevel": "none",
+                    "matchedWords": [],
+                    "value": "c-cube"
+                },
+                "title": {
+                    "fullyHighlighted": false,
+                    "matchLevel": "full",
+                    "matchedWords": [
+                        "local",
+                        "first",
+                        "software"
+                    ],
+                    "value": "<em>Local-first</em> <em>software</em>: You own your data, in spite of the cloud"
+                },
+                "url": {
+                    "fullyHighlighted": false,
+                    "matchLevel": "partial",
+                    "matchedWords": [
+                        "local",
+                        "first"
+                    ],
+                    "value": "https://www.inkandswitch.com/<em>local-first</em>.html"
+                }
+            },
+            "_tags": [
+                "story",
+                "author_c-cube",
+                "story_19804478"
+            ],
+            "author": "c-cube",
+            "children": [
+                19816180,
+                19816272,
+                19816304,
+                19816335,
+                19816446,
+                19816490,
+                19816503,
+                19816534,
+                19816607,
+                19816648,
+                19816744,
+                19816767,
+                19816833,
+                19816911,
+                19816956,
+                19817076,
+                19817099,
+                19817431,
+                19817568,
+                19817722,
+                19818900,
+                19818945,
+                19819086,
+                19819278,
+                19821721,
+                19858772
+            ],
+            "created_at": "2019-05-02T03:40:30Z",
+            "created_at_i": 1556768430,
+            "num_comments": 190,
+            "objectID": "19804478",
+            "points": 566,
+            "story_id": 19804478,
+            "title": "Local-first software: You own your data, in spite of the cloud",
+            "updated_at": "2026-01-17T06:58:19Z",
+            "url": "https://www.inkandswitch.com/local-first.html"
+        }
+    ],
+    "hitsPerPage": 3,
+    "nbHits": 100,
+    "nbPages": 34,
+    "page": 0,
+    "params": "query=local-first+software&tags=story&hitsPerPage=3&advancedSyntax=true&analyticsTags=backend",
+    "processingTimeMS": 11,
+    "processingTimingsMS": {
+        "_request": {
+            "roundTrip": 18
+        },
+        "fetch": {
+            "query": 5,
+            "scanning": 5,
+            "total": 11
+        },
+        "total": 11
+    },
+    "query": "local-first software",
+    "serverTimeMS": 12
+}

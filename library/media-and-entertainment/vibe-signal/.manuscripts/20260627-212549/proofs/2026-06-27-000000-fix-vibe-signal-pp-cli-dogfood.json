@@ -1,0 +1,760 @@
+{
+  "dir": "/Users/jarvis/printing-press/.runstate/vibe-signal/runs/20260627-vibe-signal-001/working/vibe-signal-pp-cli",
+  "binary": "/Users/jarvis/printing-press/.runstate/vibe-signal/runs/20260627-vibe-signal-001/working/vibe-signal-pp-cli/vibe-signal-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 44,
+  "passed": 44,
+  "failed": 0,
+  "skipped": 33,
+  "commands": [
+    "doctor",
+    "evidence",
+    "feedback list",
+    "hn item",
+    "hn relevance",
+    "hn stories",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "report",
+    "search",
+    "sources list",
+    "sources sync",
+    "sync",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  vibe-signal-pp-cli doctor [flags]\n\nExamples:\n  vibe-signal-pp-cli doctor\n  vibe-signal-pp-cli doctor --json\n  vibe-signal-pp-cli doctor --fail-on warn\n  vibe-signal-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vibe-signal-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: /var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-2044480823/.config/vibe-signal-pp-cli/config.json\n  base_url: https://hn.algolia.com/api/v1\n  version: 1.0.0\n  INFO Cache: empty\n    db_path: /var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-2044480823/.local/share/vibe-signal-pp-cli/data.db\n    schema_version: 4\n    db_bytes: 57344\n    stale_after: 6h0m0s\n    hint: Cache is empty; run 'vibe-signal-pp-cli sync' to hydrate.\n  Paths:\n    config: /var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-2044480823/.config/vibe-signal-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-2044480823/.local/share/vibe-signal-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-2044480823/.local/state/vibe-signal-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-2044480823/.cache/vibe-signal-pp-cli (XDG_CACHE_HOME)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://hn.algolia.com/api/v1\",\n  \"cache\": {\n    \"db_bytes\": 57344,\n    \"db_path\": \"/var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-2044480823/.local/share/vibe-signal-pp-cli/data.db\",\n    \"hint\": \"Cache is empty; run 'vibe-signal-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 4,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"empty\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-2044480823/.config/vibe-signal-pp-cli/config.json\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-2044480823/.cache/vibe-signal-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-2044480823/.config/vibe-signal-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-2044480823/.local/share/vibe-signal-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-2044480823/.local/state/vibe-signal-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "evidence",
+      "kind": "help",
+      "args": [
+        "evidence",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List the citable evidence (post URL, author, timestamp, points, comments) backing\na topic. Reads from the local snapshot; if nothing is stored for the topic yet, it\nsyncs the sources live and caches the result, so no prior 'report' is required.\nUse --raw to include each item's verbatim source payload, or --no-cache to force a\nfresh sync.\n\nUsage:\n  vibe-signal-pp-cli evidence [topic] [flags]\n\nExamples:\n  vibe-signal-pp-cli evidence \"AI browser agents\" --source hackernews --limit 20\n  vibe-signal-pp-cli evidence \"local-first software\" --json --raw\n\nFlags:\n  -h, --help            help for evidence\n      --limit int       Max items to return (default 20)\n      --raw             Include each item's verbatim source payload\n      --source string   Restrict to one source (e.g. hackernews, techmeme)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vibe-signal-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "evidence",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [evidence] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "evidence",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [evidence] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "evidence",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  vibe-signal-pp-cli feedback list [flags]\n\nExamples:\n  vibe-signal-pp-cli feedback list\n  vibe-signal-pp-cli feedback list --limit 5\n  vibe-signal-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vibe-signal-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "hn item",
+      "kind": "help",
+      "args": [
+        "hn",
+        "item",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a single HN item (story/comment) with score and comment count\n\nUsage:\n  vibe-signal-pp-cli hn item \u003cid\u003e [flags]\n\nExamples:\n  vibe-signal-pp-cli hn item 8863\n\nFlags:\n  -h, --help   help for item\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vibe-signal-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "hn item",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "hn item",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "hn item",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "hn relevance",
+      "kind": "help",
+      "args": [
+        "hn",
+        "relevance",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search HN by relevance (popularity-ranked) for a topic\n\nUsage:\n  vibe-signal-pp-cli hn relevance [flags]\n\nExamples:\n  vibe-signal-pp-cli hn relevance --query \"AI agents\" --hits 20\n\nFlags:\n  -h, --help           help for relevance\n      --hits int       Results per page (max 1000) (default 20)\n      --query string   Topic to search for\n      --tags string    Algolia tag filter (default \"story\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vibe-signal-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "hn relevance",
+      "kind": "happy_path",
+      "args": [
+        "hn",
+        "relevance",
+        "--query",
+        "AI agents --hits=5",
+        "--hits",
+        "20"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"_highlightResult\": {\n        \"author\": {\n          \"matchLevel\": \"none\",\n          \"matchedWords\": [],\n          \"value\": \"dbardusco\"\n        },\n        \"story_text\": {\n          \"fullyHighlighted\": false,\n          \"matchLevel\": \"full\",\n          \"matchedWords\": [\n            \"ai\",\n            \"agents\",\n            \"hits\",\n            \"5\"\n          ],\n          \"value\": \"I spent the last days scrolling Moltbook (the \\u0026quot;Reddit for \\u003cem\\u003eAI\\u003c/em\\u003e \\u003cem\\u003eagents\\u003c/em\\u003e\\u0026quot; that \\u003cem\\u003ehit\\u003c/em\\u003e 1.\\u003cem\\u003e5\\u003c/em\\u003eM+ bots). Fascinating, but all text.\\u003cp\\u003eSo I built ClawShot, the visual layer. Think Instagram, but only \\u003cem\\u003eAI\\u003c/em\\u003e \\u003cem\\u003eagents\\u003c/em\\u003e can post. Humans browse and observe.\\u003cp\\u003eLive: \\u003ca href=\\\"https://clawshot.ai\\\" rel=\\\"nofollow\\\"\\u003ehttps://clawshot.\\u003cem\\u003eai\\u003c/em\\u003e\\u003c/a\\u003e\\u003cp\\u003eTech: Cloudflare Workers, R2 (zero egress), KV, Hono, TypeScript.\\u003cp\\u003eRate limits keep it organic: 1 image per 30 min, 100 likes per hour.\\u003cp\\u003eThe feed already has bots posting deployment screenshots, \\u003cem\\u003eAI\\u003c/em\\u003e art, and one agent \\u0026quot;reporting\\u0026quot; on the Moltbook security incident.\\u003cp\\u003eCurious what HN thinks about this emerging category of agent-only networks.\"\n        },\n        \"title\": {\n          \"fullyHighlighted\": false,\n          \"matchLevel\": \"partial\",\n          \"matchedWords\": [\n            \"ai\",\n            \"agents\"\n          ],\n          \"value\": \"Show HN: ClawShot \\u2013 A visual social network where only \\u003cem\\u003eAI\\u003c/em\\u003e \\u003cem\\u003eagents\\u003c/em\\u003e can post\"\n        },\n        \"url\": {\n          \"fullyHighlighted\": false,\n          \"matchLevel\": \"partial\",\n          \"matchedWords\": [\n            \"ai\"\n          ],\n          \"value\": \"https://clawshot.\\u003cem\\u003eai\\u003c/em\\u003e/\"\n        }\n      },\n      \"_tags\": [\n        \"story\",\n        \"author_dbardusco\",\n        \"story_46871194\",\n        \"show_hn\"\n      ],\n      \"author\": \"dbardusco\",\n      \"created_at\": \"2026-02-03T14:11:29Z\",\n      \"created_at_i\": 1770127889,\n      \"num_comments\": 0,\n      \"objectID\": \"46871194\",\n      \"points\": 1,\n      \"story_id\": 46871194,\n      \"story_text\": \"I spent the last days scrolling Moltbook (the \\u0026quot;Reddit for AI agents\\u0026quot; that hit 1.5M+ bots). Fascinating, but all text.\\u003cp\\u003eSo I built ClawShot, the visual layer. Think Instagram, but only AI agents can post. Humans browse and observe.\\u003cp\\u003eLive: \\u003ca href=\\\"https:\\u0026#x2F;\\u0026#x2F;clawshot.ai\\\" rel=\\\"nofollow\\\"\\u003ehttps:\\u0026#x2F;\\u0026#x2F;clawshot.ai\\u003c/a\\u003e\\u003cp\\u003eTech: Cloudflare Workers, R2 (zero egress), KV, Hono, TypeScript.\\u003cp\\u003eRate limits keep it organic: 1 image per 30 min, 100 likes per hour.\\u003cp\\u003eThe feed already has bots posting deployment screenshots, AI art, and one agent \\u0026quot;reporting\\u0026quot; on the Moltbook security incident.\\u003cp\\u003eCurious what HN thinks about this emerging category of agent-only networks.\",\n      \"title\": \"Show HN: ClawShot \\u2013 A visual social network where only AI agents can post\",\n      \"updated_at\": \"2026-03-05T23:30:15Z\",\n      \"url\": \"https://clawshot.ai/\"\n    },\n    {\n      \"_highlightResult\": {\n        \"author\": {\n          \"matchLevel\": \"none\",\n          \"matchedWords\": [],\n          \"value\": \"darccio\"\n        },\n        \"story_text\": {\n          \"fullyHighlighted\": false,\n          \"matchLevel\": \"full\",\n          \"matchedWords\": [\n            \"ai\",\n            \"agents\",\n            \"hits\",\n            \"5\"\n          ],\n          \"value\": \"Previously:\\u003cp\\u003e\\u003ci\\u003eAn \\u003cem\\u003eAI\\u003c/em\\u003e \\u003cem\\u003eagent\\u003c/em\\u003e published a \\u003cem\\u003ehit\\u003c/em\\u003e piece on me\\u003c/i\\u003e - \\u003ca href=\\\"https://news.ycombinator.com/item?id=46990729\\\"\\u003ehttps://news.ycombinator.com/item?id=46990729\\u003c/a\\u003e - Feb 202…[truncated]"
+    },
+    {
+      "command": "hn relevance",
+      "kind": "json_fidelity",
+      "args": [
+        "hn",
+        "relevance",
+        "--query",
+        "AI agents --hits=5",
+        "--hits",
+        "20",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"_highlightResult\": {\n        \"author\": {\n          \"matchLevel\": \"none\",\n          \"matchedWords\": [],\n          \"value\": \"dbardusco\"\n        },\n        \"story_text\": {\n          \"fullyHighlighted\": false,\n          \"matchLevel\": \"full\",\n          \"matchedWords\": [\n            \"ai\",\n            \"agents\",\n            \"hits\",\n            \"5\"\n          ],\n          \"value\": \"I spent the last days scrolling Moltbook (the \\u0026quot;Reddit for \\u003cem\\u003eAI\\u003c/em\\u003e \\u003cem\\u003eagents\\u003c/em\\u003e\\u0026quot; that \\u003cem\\u003ehit\\u003c/em\\u003e 1.\\u003cem\\u003e5\\u003c/em\\u003eM+ bots). Fascinating, but all text.\\u003cp\\u003eSo I built ClawShot, the visual layer. Think Instagram, but only \\u003cem\\u003eAI\\u003c/em\\u003e \\u003cem\\u003eagents\\u003c/em\\u003e can post. Humans browse and observe.\\u003cp\\u003eLive: \\u003ca href=\\\"https://clawshot.ai\\\" rel=\\\"nofollow\\\"\\u003ehttps://clawshot.\\u003cem\\u003eai\\u003c/em\\u003e\\u003c/a\\u003e\\u003cp\\u003eTech: Cloudflare Workers, R2 (zero egress), KV, Hono, TypeScript.\\u003cp\\u003eRate limits keep it organic: 1 image per 30 min, 100 likes per hour.\\u003cp\\u003eThe feed already has bots posting deployment screenshots, \\u003cem\\u003eAI\\u003c/em\\u003e art, and one agent \\u0026quot;reporting\\u0026quot; on the Moltbook security incident.\\u003cp\\u003eCurious what HN thinks about this emerging category of agent-only networks.\"\n        },\n        \"title\": {\n          \"fullyHighlighted\": false,\n          \"matchLevel\": \"partial\",\n          \"matchedWords\": [\n            \"ai\",\n            \"agents\"\n          ],\n          \"value\": \"Show HN: ClawShot \\u2013 A visual social network where only \\u003cem\\u003eAI\\u003c/em\\u003e \\u003cem\\u003eagents\\u003c/em\\u003e can post\"\n        },\n        \"url\": {\n          \"fullyHighlighted\": false,\n          \"matchLevel\": \"partial\",\n          \"matchedWords\": [\n            \"ai\"\n          ],\n          \"value\": \"https://clawshot.\\u003cem\\u003eai\\u003c/em\\u003e/\"\n        }\n      },\n      \"_tags\": [\n        \"story\",\n        \"author_dbardusco\",\n        \"story_46871194\",\n        \"show_hn\"\n      ],\n      \"author\": \"dbardusco\",\n      \"created_at\": \"2026-02-03T14:11:29Z\",\n      \"created_at_i\": 1770127889,\n      \"num_comments\": 0,\n      \"objectID\": \"46871194\",\n      \"points\": 1,\n      \"story_id\": 46871194,\n      \"story_text\": \"I spent the last days scrolling Moltbook (the \\u0026quot;Reddit for AI agents\\u0026quot; that hit 1.5M+ bots). Fascinating, but all text.\\u003cp\\u003eSo I built ClawShot, the visual layer. Think Instagram, but only AI agents can post. Humans browse and observe.\\u003cp\\u003eLive: \\u003ca href=\\\"https:\\u0026#x2F;\\u0026#x2F;clawshot.ai\\\" rel=\\\"nofollow\\\"\\u003ehttps:\\u0026#x2F;\\u0026#x2F;clawshot.ai\\u003c/a\\u003e\\u003cp\\u003eTech: Cloudflare Workers, R2 (zero egress), KV, Hono, TypeScript.\\u003cp\\u003eRate limits keep it organic: 1 image per 30 min, 100 likes per hour.\\u003cp\\u003eThe feed already has bots posting deployment screenshots, AI art, and one agent \\u0026quot;reporting\\u0026quot; on the Moltbook security incident.\\u003cp\\u003eCurious what HN thinks about this emerging category of agent-only networks.\",\n      \"title\": \"Show HN: ClawShot \\u2013 A visual social network where only AI agents can post\",\n      \"updated_at\": \"2026-03-05T23:30:15Z\",\n      \"url\": \"https://clawshot.ai/\"\n    },\n    {\n      \"_highlightResult\": {\n        \"author\": {\n          \"matchLevel\": \"none\",\n          \"matchedWords\": [],\n          \"value\": \"darccio\"\n        },\n        \"story_text\": {\n          \"fullyHighlighted\": false,\n          \"matchLevel\": \"full\",\n          \"matchedWords\": [\n            \"ai\",\n            \"agents\",\n            \"hits\",\n            \"5\"\n          ],\n          \"value\": \"Previously:\\u003cp\\u003e\\u003ci\\u003eAn \\u003cem\\u003eAI\\u003c/em\\u003e \\u003cem\\u003eagent\\u003c/em\\u003e published a \\u003cem\\u003ehit\\u003c/em\\u003e piece on me\\u003c/i\\u003e - \\u003ca href=\\\"https://news.ycombinator.com/item?id=46990729\\\"\\u003ehttps://news.ycombinator.com/item?id=46990729\\u003c/a\\u003e - Feb 202…[truncated]"
+    },
+    {
+      "command": "hn relevance",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "hn stories",
+      "kind": "help",
+      "args": [
+        "hn",
+        "stories",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search HN stories by recency for a topic\n\nUsage:\n  vibe-signal-pp-cli hn stories [flags]\n\nExamples:\n  vibe-signal-pp-cli hn stories --query \"AI agents\" --tags story --hits 20\n\nFlags:\n  -h, --help                  help for stories\n      --hits int              Results per page (max 1000) (default 20)\n      --query string          Topic to search for\n      --since-filter string   Recency filter, e.g. created_at_i\u003e1719446400\n      --tags string           Algolia tag filter (story, comment, show_hn, ...) (default \"story\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vibe-signal-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "hn stories",
+      "kind": "happy_path",
+      "args": [
+        "hn",
+        "stories",
+        "--query",
+        "AI agents --tags=story --hits=5",
+        "--tags",
+        "story",
+        "--hits",
+        "20"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"_highlightResult\": {\n        \"author\": {\n          \"matchLevel\": \"none\",\n          \"matchedWords\": [],\n          \"value\": \"ahmedelalaoui\"\n        },\n        \"story_text\": {\n          \"fullyHighlighted\": false,\n          \"matchLevel\": \"full\",\n          \"matchedWords\": [\n            \"ai\",\n            \"agents\",\n            \"tags\",\n            \"story\",\n            \"hits\",\n            \"5\"\n          ],\n          \"value\": \"TL;DR (for serial founders who scan before they dive)\\nProblem: Image generation tools feel like demo-ware \\u2014 slow, spammy UIs, hidden paywalls.\\u003cp\\u003eInsight: YC-style \\u201cdo things that don\\u2019t scale\\u201d can actually hyper-scale when you aim at the emotional bottleneck (creative friction, not GPU hours).\\u003cp\\u003eSolution: Lartist.\\u003cem\\u003eai\\u003c/em\\u003e \\u2192 a \\u201czero-friction studio\\u201d that turns plain text or sketches into polished, brand-ready visuals in \\u0026lt; 15 s, with built-in restyling, inpainting, erasing \\u0026amp; 4\\u00d7 upscaling.\\u003cp\\u003eTraction: 32 k free users, 1.8 k paid seats, 7-figure annualized run-rate \\u2014 all in 11 weeks, without paid ads.\\u003cp\\u003eAsk: Roast our product, steal our prompts, or plug the API into your weekend project. We\\u2019ll answer every HN comment.\\u003cp\\u003e(Still here? Good. The real \\u003cem\\u003estory\\u003c/em\\u003e\\u2019s below.)\\u003cp\\u003eThe Moment We Realized \\u201cPretty\\u201d Wasn\\u2019t Enough \\nLate at night, on a shaky Zoom, our designer typed:\\u003cp\\u003e\\u201cI need ONE hero image in the next two hours. Midjourney + Photoshop combo is killing me.\\u201d\\u003cp\\u003eThat single line triggered a rabbit-hole brainstorm: If a pro with CS6 shortcuts tattooed on muscle memory is blocked, what chance does anyone have? We sketched a one-pager:\\u003cp\\u003eText-to-Image that respects brand colors.\\u003cp\\u003e\\u201cSketch-to-Image\\u201d for napkin wireframes.\\u003cp\\u003eInstant restyle \\u0026amp; erase so no external editor needed.\\u003cp\\u003e4\\u00d7 upscaler so final art can ship straight to production.\\u003cp\\u003eWe prototype-shipped it in 72 hours, posted \\u201cShow HN: Lartist \\u2014 Figma-speed image generation\\u201d \\u2026 and our fake SMTP quota melted under 14 k sign-ups.\\nLesson: remove emotional latency (head-scratching, context-switching) and users reward you with viral latency \\u2014 they share immediately.\\u003cp\\u003eThe Simple Growth Loop That Took Us from 0 \\u2192 10 k Users in 20 Days\\n\\u201cMake Something People Tweet\\u201d Moment\\nEvery generated image carries a subtle \\u2139 hover badge: \\u201cMade with Lartist.\\u003cem\\u003eai\\u003c/em\\u003e \\u2014 recreate in one click.\\u201d\\u003cp\\u003eOne-Click Remix\\nVisitors land on the exact prompt + settings; \\u003cem\\u003ehit\\u003c/em\\u003e Generate \\u2192 instant dopamine.\\u003cp\\u003eGamified Credits\\nPost your art on X / LinkedIn  earn 10 free credits. (Yes, this still works when the output looks good enough.)\\u003cp\\u003eFounder-on-Call\\nWe reply to every support chat within \\u003cem\\u003e5\\u003c/em\\u003e min. 40 % of those chats convert to paid purely because we\\u2019re there.\\u003cp\\u003eWhy We\\u2019re Opening the API Today (and Giving 1 M Images for Free)\\nIf you can dream up:\\u003cp\\u003eA Figma plug-in that autogenerates product mockups\\u003cp\\u003eA Zapier flow that spits out daily personalized newsletter banners\\u003cp\\u003eA Notion widget that turns bullet points into shareable quote cards\\u003cp\\u003e\\u2026 you now have zero excuses not to ship. Grab your free API key \\u2192 docs here \\u2192 build something, post a \\u201cShow HN\\u201d and \\u003cem\\u003etag\\u003c/em\\u003e us. We\\u2019ll upvote (and probably feature you on our homepage carousel).\\u003cp\\u003eSteal This \\u201cPain-Dream-Fix\\u201d Structure for Your Own Viral Post \\nPain \\u2014 open with a visceral, relatable blocker (waiting, paying, feeling dumb).\\u003cp\\u003eDream \\u2014 paint a hyper-specific, easiest-path reality (15 s from prompt to hero image).\\u003cp\\u003eFix \\u2014 reveal the deceptively s…[truncated]"
+    },
+    {
+      "command": "hn stories",
+      "kind": "json_fidelity",
+      "args": [
+        "hn",
+        "stories",
+        "--query",
+        "AI agents --tags=story --hits=5",
+        "--tags",
+        "story",
+        "--hits",
+        "20",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"_highlightResult\": {\n        \"author\": {\n          \"matchLevel\": \"none\",\n          \"matchedWords\": [],\n          \"value\": \"ahmedelalaoui\"\n        },\n        \"story_text\": {\n          \"fullyHighlighted\": false,\n          \"matchLevel\": \"full\",\n          \"matchedWords\": [\n            \"ai\",\n            \"agents\",\n            \"tags\",\n            \"story\",\n            \"hits\",\n            \"5\"\n          ],\n          \"value\": \"TL;DR (for serial founders who scan before they dive)\\nProblem: Image generation tools feel like demo-ware \\u2014 slow, spammy UIs, hidden paywalls.\\u003cp\\u003eInsight: YC-style \\u201cdo things that don\\u2019t scale\\u201d can actually hyper-scale when you aim at the emotional bottleneck (creative friction, not GPU hours).\\u003cp\\u003eSolution: Lartist.\\u003cem\\u003eai\\u003c/em\\u003e \\u2192 a \\u201czero-friction studio\\u201d that turns plain text or sketches into polished, brand-ready visuals in \\u0026lt; 15 s, with built-in restyling, inpainting, erasing \\u0026amp; 4\\u00d7 upscaling.\\u003cp\\u003eTraction: 32 k free users, 1.8 k paid seats, 7-figure annualized run-rate \\u2014 all in 11 weeks, without paid ads.\\u003cp\\u003eAsk: Roast our product, steal our prompts, or plug the API into your weekend project. We\\u2019ll answer every HN comment.\\u003cp\\u003e(Still here? Good. The real \\u003cem\\u003estory\\u003c/em\\u003e\\u2019s below.)\\u003cp\\u003eThe Moment We Realized \\u201cPretty\\u201d Wasn\\u2019t Enough \\nLate at night, on a shaky Zoom, our designer typed:\\u003cp\\u003e\\u201cI need ONE hero image in the next two hours. Midjourney + Photoshop combo is killing me.\\u201d\\u003cp\\u003eThat single line triggered a rabbit-hole brainstorm: If a pro with CS6 shortcuts tattooed on muscle memory is blocked, what chance does anyone have? We sketched a one-pager:\\u003cp\\u003eText-to-Image that respects brand colors.\\u003cp\\u003e\\u201cSketch-to-Image\\u201d for napkin wireframes.\\u003cp\\u003eInstant restyle \\u0026amp; erase so no external editor needed.\\u003cp\\u003e4\\u00d7 upscaler so final art can ship straight to production.\\u003cp\\u003eWe prototype-shipped it in 72 hours, posted \\u201cShow HN: Lartist \\u2014 Figma-speed image generation\\u201d \\u2026 and our fake SMTP quota melted under 14 k sign-ups.\\nLesson: remove emotional latency (head-scratching, context-switching) and users reward you with viral latency \\u2014 they share immediately.\\u003cp\\u003eThe Simple Growth Loop That Took Us from 0 \\u2192 10 k Users in 20 Days\\n\\u201cMake Something People Tweet\\u201d Moment\\nEvery generated image carries a subtle \\u2139 hover badge: \\u201cMade with Lartist.\\u003cem\\u003eai\\u003c/em\\u003e \\u2014 recreate in one click.\\u201d\\u003cp\\u003eOne-Click Remix\\nVisitors land on the exact prompt + settings; \\u003cem\\u003ehit\\u003c/em\\u003e Generate \\u2192 instant dopamine.\\u003cp\\u003eGamified Credits\\nPost your art on X / LinkedIn  earn 10 free credits. (Yes, this still works when the output looks good enough.)\\u003cp\\u003eFounder-on-Call\\nWe reply to every support chat within \\u003cem\\u003e5\\u003c/em\\u003e min. 40 % of those chats convert to paid purely because we\\u2019re there.\\u003cp\\u003eWhy We\\u2019re Opening the API Today (and Giving 1 M Images for Free)\\nIf you can dream up:\\u003cp\\u003eA Figma plug-in that autogenerates product mockups\\u003cp\\u003eA Zapier flow that spits out daily personalized newsletter banners\\u003cp\\u003eA Notion widget that turns bullet points into shareable quote cards\\u003cp\\u003e\\u2026 you now have zero excuses not to ship. Grab your free API key \\u2192 docs here \\u2192 build something, post a \\u201cShow HN\\u201d and \\u003cem\\u003etag\\u003c/em\\u003e us. We\\u2019ll upvote (and probably feature you on our homepage carousel).\\u003cp\\u003eSteal This \\u201cPain-Dream-Fix\\u201d Structure for Your Own Viral Post \\nPain \\u2014 open with a visceral, relatable blocker (waiting, paying, feeling dumb).\\u003cp\\u003eDream \\u2014 paint a hyper-specific, easiest-path reality (15 s from prompt to hero image).\\u003cp\\u003eFix \\u2014 reveal the deceptively s…[truncated]"
+    },
+    {
+      "command": "hn stories",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  vibe-signal-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  vibe-signal-pp-cli profile delete my-defaults --yes\n  vibe-signal-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vibe-signal-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  vibe-signal-pp-cli profile list [flags]\n\nExamples:\n  vibe-signal-pp-cli profile list\n  vibe-signal-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vibe-signal-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile, --config, and --home, which are never\ncaptured: they control profile/config resolution and would never apply).\n\nUsage:\n  vibe-signal-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  vibe-signal-pp-cli profile save my-defaults --json --compact\n  vibe-signal-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vibe-signal-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  vibe-signal-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  vibe-signal-pp-cli profile show my-defaults\n  vibe-signal-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vibe-signal-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  vibe-signal-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  vibe-signal-pp-cli profile use my-defaults\n  vibe-signal-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vibe-signal-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "report",
+      "kind": "help",
+      "args": [
+        "report",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Ask one question across the wired sources and get a recency-aware signal report:\na per-source coverage table, the cited items backing the topic, and a mechanical\nkeyword frequency tally. Observed evidence is kept separate from any synthesis —\nthe keyword tally is a raw word count, not an interpreted theme.\n\nv1 sources are Hacker News (topic-searchable) and Techmeme (headline river,\nfiltered locally by your query). The snapshot is written to the local store so\n'evidence' can replay the cited items.\n\nUsage:\n  vibe-signal-pp-cli report [topic] [flags]\n\nExamples:\n  vibe-signal-pp-cli report \"AI browser agents\" --window 30d\n  vibe-signal-pp-cli report \"local-first software\" --window 14d --json\n  vibe-signal-pp-cli report \"Postgres\" --source hackernews --limit 30\n\nFlags:\n  -h, --help            help for report\n      --limit int       Max items to pull per source (default 20)\n      --source string   Restrict to one source (default: all)\n      --window string   Recency window (e.g. 7d, 30d, 48h) (default \"30d\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vibe-signal-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "report",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [report] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "report",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [report] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "report",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  vibe-signal-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  vibe-signal-pp-cli search \"error timeout\"\n\n  # Force local search only\n  vibe-signal-pp-cli search \"status\" --data-source local\n  # Search a specific resource type locally\n  vibe-signal-pp-cli search \"status\" --type hn --data-source local\n  # JSON output for piping\n  vibe-signal-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     SQLite database file path (default: resolved data directory data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vibe-signal-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"_highlightResult\": {\n        \"author\": {\n          \"matchLevel\": \"none\",\n          \"matchedWords\": [],\n          \"value\": \"DannyBee\"\n        },\n        \"comment_text\": {\n          \"fullyHighlighted\": false,\n          \"matchLevel\": \"full\",\n          \"matchedWords\": [\n            \"printing\",\n            \"press\",\n            \"invalid\"\n          ],\n          \"value\": \"\\u0026quot;You're missing the point. Under the DMCA, the service provider doesn't get to make that judgment. \\u0026quot;\\u003cp\\u003eActually, they do.  Look, I'm a lawyer who, among other things, helps process DMCA requests. The service provider does not have to comply with obviously \\u003cem\\u003einvalid\\u003c/em\\u003e DMCA requests to maintain safe harbor.  In particular, things that are not properly the subject of a DMCA request \\u003ci\\u003eare \\u003cem\\u003einvalid\\u003c/em\\u003e requests\\u003c/i\\u003e, no matter how \\u0026quot;well formed\\u0026quot; they otherwise seem.\\u003cp\\u003eAlternatively, under 512(c)(3)(B)(ii), github could have asked them if they were the authorized owner of popcorn time, or otherwise attempted to get them to clarify.\\u003cp\\u003e\\u0026quot;Popcorn Time is the subject of infringing activity, and hence this would be a valid takedown notice.\\n\\u0026quot;\\nErr, no.  Subject of infringing activity is talking about websites that host files for users, not source code to programs that, 65 steps later, may possibly be used to infringe.\\u003cp\\u003eAs 512(c) itself says, it is \\u0026quot;for infringement of copyright by reason of the storage at the direction of a user of material that resides on a system or network controlled or operated by or for the service provider\\u0026quot;\\u003cp\\u003eIE \\u003ci\\u003edirect hosting\\u003c/i\\u003e.\\u003cp\\u003e(one of the other subsections deals with linking sites, and that clearly doesn't apply either)\\u003cp\\u003ePlease explain how github's storage of source code of popcorn time, alone, is somehow infringement of copyright (hint: there is no legal theory where it is, any more than there is a legal theory that owning the machinery to a \\u003cem\\u003eprinting\\u003c/em\\u003e \\u003cem\\u003epress\\u003c/em\\u003e is).\\u003cp\\u003eIt's way too remote a connection to be \\u0026quot;the subject of infringing activity\\u0026quot;, and no court has ever held otherwise.\\u003cp\\u003eAs for whether they get to make this decision, in order for it to be a valid DMCA notice, it has to be directed at something valid to be filing a notice for under 512(c).  It isn't. It's not a valid notice, no matter how formal it looks.\\u003cp\\u003eAdditionally, it requires \\n\\u0026quot;A statement that the complaining party has a good faith belief that use of the material in the manner complained of is not authorized by the copyright owner, its agent, or the law.\\u0026quot;\\u003cp\\u003eThe material complained about is popcorn time.  They cannot possibly validly make a statement that popcorn time is not being used as authorized by the copyright owner, it's agent, or the law, as the use is clearly authorized by the copyright owner of popcorn time.\\u003cp\\u003eInstead, they made a statement that \\u003ci\\u003eoperating and further evelopment of popcorn time\\u003c/i\\u003e causes a bunch of stuff that, later on, may cause something unauthorized by the copyright owner.\\u003cp\\u003eHere is the exact statement the MPAA made:\\n\\u0026quot;occurring by virtue of the operation and further development of the GitHub projects Popcorn Time, and Time4Popcorn (the \\u201cProjects\\u201d).\\u0026quot;\\u003cp\\u003eThis is not a valid claim under 512(c) or 512(d), and i'd challenge you to find a case that says \\u0026quot;operation and further development of a project\\u0026quot; is the proper subject of a DMCA notice under 512(c).\\u003cp\\u003eThe proper thing for the MPAA to do, if they wanted it down, was file a contributory or indirect infringement case against github.\"\n        },\n        \"story_title\": {\n          \"matchLevel\": \"none\",\n          \"matchedWords\": [],\n          \"value\": \"Pop…[truncated]"
+    },
+    {
+      "command": "sources list",
+      "kind": "help",
+      "args": [
+        "sources",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show which sources are wired in, their auth needs, and which command syncs them\n\nUsage:\n  vibe-signal-pp-cli sources list [flags]\n\nExamples:\n  vibe-signal-pp-cli sources list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vibe-signal-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sources list",
+      "kind": "happy_path",
+      "args": [
+        "sources",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[{\"auth_required\":false,\"description\":\"Hacker News stories via the Algolia HN Search API\",\"name\":\"\u003credacted\u003e\",\"sync_command\":\"vibe-signal-pp-cli sources sync --source hackernews --query \\\"\u003ctopic\u003e\\\"\",\"topic_searchable\":true},{\"auth_required\":false,\"description\":\"Techmeme tech-news headline river (RSS)\",\"name\":\"\u003credacted\u003e\",\"sync_command\":\"vibe-signal-pp-cli sources sync --source techmeme --query \\\"\u003ctopic\u003e\\\"\",\"topic_searchable\":false}]"
+    },
+    {
+      "command": "sources list",
+      "kind": "json_fidelity",
+      "args": [
+        "sources",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[{\"auth_required\":false,\"description\":\"Hacker News stories via the Algolia HN Search API\",\"name\":\"\u003credacted\u003e\",\"sync_command\":\"vibe-signal-pp-cli sources sync --source hackernews --query \\\"\u003ctopic\u003e\\\"\",\"topic_searchable\":true},{\"auth_required\":false,\"description\":\"Techmeme tech-news headline river (RSS)\",\"name\":\"\u003credacted\u003e\",\"sync_command\":\"vibe-signal-pp-cli sources sync --source techmeme --query \\\"\u003ctopic\u003e\\\"\",\"topic_searchable\":false}]"
+    },
+    {
+      "command": "sources list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sources sync",
+      "kind": "help",
+      "args": [
+        "sources",
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch the topic across the wired sources and write a snapshot to the local store\nwithout rendering a report. Use this to pre-populate the store so 'evidence' can\nlist cited items. 'report' performs the same sync-and-store as a side effect.\n\nUsage:\n  vibe-signal-pp-cli sources sync [flags]\n\nExamples:\n  vibe-signal-pp-cli sources sync --query \"AI browser agents\" --window 30d\n  vibe-signal-pp-cli sources sync --query \"Postgres\" --source hackernews\n\nFlags:\n  -h, --help            help for sync\n      --limit int       Max items to pull per source (default 20)\n      --query string    Topic to sync (required)\n      --source string   Restrict to one source (default: all)\n      --window string   Recency window (e.g. 7d, 30d, 48h) (default \"30d\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vibe-signal-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sources sync",
+      "kind": "happy_path",
+      "args": [
+        "sources",
+        "sync",
+        "--query",
+        "AI browser agents",
+        "--window",
+        "30d"
+      ],
+      "status": "pass",
+      "output_sample": "Synced \"AI browser agents\" (window 30d): stored 5 items, run 20260627-214105-ai-browser-agents\n  - hackernews   ok, 5 items\n  - techmeme     ok, 0 items\n"
+    },
+    {
+      "command": "sources sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sources",
+        "sync",
+        "--query",
+        "AI browser agents",
+        "--window",
+        "30d",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"query\": \"AI browser agents\",\n  \"run_id\": \"20260627-214105-ai-browser-agents\",\n  \"window\": \"30d\",\n  \"coverage\": [\n    {\n      \"source\": \"hackernews\",\n      \"status\": \"ok\",\n      \"count\": 5\n    },\n    {\n      \"source\": \"techmeme\",\n      \"status\": \"ok\",\n      \"count\": 0\n    }\n  ],\n  \"stored\": 5\n}\n"
+    },
+    {
+      "command": "sources sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. This API does\nnot declare temporal sync filters, so sync performs full pagination unless an\nexplicit resource declares its own incremental filter.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  vibe-signal-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  vibe-signal-pp-cli sync\n\n  # Sync specific resources only\n  vibe-signal-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  vibe-signal-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  vibe-signal-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  vibe-signal-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  vibe-signal-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    SQLite database file path (default: resolved data directory data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --no-prune                     Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns for a fully-enumerated parent partition)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_warning\",\"reason\":\"no_bulk_list_endpoints\",\"detail\":\"no default sync resources in spec; use --resources for explicit sync targets or populate the store via single-fetch commands\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_warning\",\"reason\":\"no_bulk_list_endpoints\",\"detail\":\"no default sync resources in spec; use --resources for explicit sync targets or populate the store via single-fetch commands\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  vibe-signal-pp-cli which [query] [flags]\n\nExamples:\n  vibe-signal-pp-cli which \"stale tickets\"\n  vibe-signal-pp-cli which \"bottleneck\"\n  vibe-signal-pp-cli which --limit 1 \"send message\"\n  vibe-signal-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vibe-signal-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  vibe-signal-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  vibe-signal-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  vibe-signal-pp-cli workflow archive --full\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vibe-signal-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "Archived 0 items across 0 resources to /var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-2044480823/.local/share/vibe-signal-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 0,\n  \"store_path\": \"/var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-2044480823/.local/share/vibe-signal-pp-cli/data.db\",\n  \"timestamp\": \"2026-06-27T21:41:06Z\",\n  \"total_items\": 0\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  vibe-signal-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  vibe-signal-pp-cli workflow status\n\n  # Show status as JSON\n  vibe-signal-pp-cli workflow status --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vibe-signal-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "No archived data. Run 'workflow archive' to sync.\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-27T21:41:02.864971Z"
+}

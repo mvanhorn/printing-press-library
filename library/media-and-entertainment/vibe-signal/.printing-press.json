@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-27T21:25:49.512715Z",
+  "printing_press_version": "4.27.0",
+  "api_name": "vibe-signal",
+  "display_name": "Vibe Signal",
+  "cli_name": "vibe-signal-pp-cli",
+  "creator": {
+    "handle": "Avanderheyde",
+    "name": "not0xjarvis"
+  },
+  "owner": "avanderheyde",
+  "printer": "Avanderheyde",
+  "printer_name": "not0xjarvis",
+  "spec_path": "vibe-signal.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:86dd18b406316d6334b8c648a202909b6c4b3634d91df5938b51af934343e3a2",
+  "run_id": "20260627-212549",
+  "category": "media-and-entertainment",
+  "description": "One question, every low-friction source: a recency-aware, cited signal report instead of ten raw source dumps.",
+  "mcp_binary": "vibe-signal-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Cross-source trend report",
+      "command": "report",
+      "description": "Ask one question across Hacker News and Techmeme and get a recency-aware signal report with per-source coverage."
+    },
+    {
+      "name": "Raw evidence preservation",
+      "command": "evidence",
+      "description": "List the raw, cited items (post URL, author, timestamp, points, comments) backing a topic from a chosen source."
+    },
+    {
+      "name": "Source registry",
+      "command": "sources list",
+      "description": "Show which sources are wired in, their auth needs, and which command syncs them."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-source trend report",
+      "command": "report",
+      "description": "Ask one question across Hacker News and Techmeme and get a recency-aware signal report with per-source coverage."
+    },
+    {
+      "name": "Raw evidence preservation",
+      "command": "evidence",
+      "description": "List the raw, cited items (post URL, author, timestamp, points, comments) backing a topic from a chosen source."
+    },
+    {
+      "name": "Source registry",
+      "command": "sources list",
+      "description": "Show which sources are wired in, their auth needs, and which command syncs them."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 17,
+    "total": 17,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 83,
+      "grade": "A",
+      "total": 83
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "vibe-signal-pp-mcp",
+  "display_name": "Vibe Signal",
+  "version": "0.1.0",
+  "description": "One question, every low-friction source: a recency-aware, cited signal report instead of ten raw source dumps.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/vibe-signal-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/vibe-signal-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "api_name": "vibe-signal",
+  "base_url": "https://hn.algolia.com/api/v1",
+  "description": "One question, every low-friction source: a recency-aware, cited signal report instead of ten raw source dumps.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "vibe-signal-pp-cli (+https://github.com/mvanhorn/printing-press-library)"
+    }
+  ],
+  "tools": [
+    {
+      "name": "hn_item",
+      "description": "Get a single HN item (story/comment) with score and comment count. Required: id. Returns the HNItem.",
+      "method": "GET",
+      "path": "/item/{id}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "HN item id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hn_relevance",
+      "description": "Search HN by relevance (popularity-ranked) for a topic. Required: query. Optional: tags (default: story), hits (default: 20). Returns array of AlgoliaHit.",
+      "method": "GET",
+      "path": "/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Topic to search for",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "query",
+          "description": "Algolia tag filter"
+        },
+        {
+          "name": "hits",
+          "wire_name": "hitsPerPage",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 1000)"
+        }
+      ]
+    },
+    {
+      "name": "hn_stories",
+      "description": "Search HN stories by recency for a topic. Required: query. Optional: tags (default: story), since-filter, hits (default: 20). Returns array of AlgoliaHit.",
+      "method": "GET",
+      "path": "/search_by_date",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Topic to search for",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "query",
+          "description": "Algolia tag filter (story, comment, show_hn, ...)"
+        },
+        {
+          "name": "since-filter",
+          "wire_name": "numericFilters",
+          "type": "string",
+          "location": "query",
+          "description": "Recency filter, e.g. created_at_i\u003e1719446400"
+        },
+        {
+          "name": "hits",
+          "wire_name": "hitsPerPage",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 1000)"
+        }
+      ]
+    }
+  ]
+}

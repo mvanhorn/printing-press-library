@@ -1,0 +1,126 @@
+name: vibe-signal
+description: "Find what people are saying now about a topic across low-friction sources, with raw evidence preserved."
+version: "0.1.0"
+base_url: "https://hn.algolia.com/api/v1"
+health_check_path: "/search?query=test&hitsPerPage=1"
+category: media-and-entertainment
+auth:
+  type: none
+required_headers:
+  - name: User-Agent
+    value: "vibe-signal-pp-cli (+https://github.com/mvanhorn/printing-press-library)"
+
+resources:
+  hn:
+    description: "Hacker News source: search (Algolia) and item lookup (Firebase)"
+    endpoints:
+      stories:
+        method: GET
+        path: "/search_by_date"
+        description: "Search HN stories by recency for a topic"
+        example: "  vibe-signal-pp-cli hn stories --query \"AI agents\" --tags story --hits 20"
+        happy_args: "--query=AI agents --tags=story --hits=5"
+        params:
+          - name: query
+            type: string
+            required: true
+            description: "Topic to search for"
+          - name: tags
+            type: string
+            required: false
+            default: "story"
+            description: "Algolia tag filter (story, comment, show_hn, ...)"
+          - name: numericFilters
+            flag_name: since-filter
+            type: string
+            required: false
+            description: "Recency filter, e.g. created_at_i>1719446400"
+          - name: hitsPerPage
+            flag_name: hits
+            type: int
+            required: false
+            default: 20
+            description: "Results per page (max 1000)"
+        response:
+          type: array
+          item: AlgoliaHit
+        response_path: hits
+      relevance:
+        method: GET
+        path: "/search"
+        description: "Search HN by relevance (popularity-ranked) for a topic"
+        example: "  vibe-signal-pp-cli hn relevance --query \"AI agents\" --hits 20"
+        happy_args: "--query=AI agents --hits=5"
+        params:
+          - name: query
+            type: string
+            required: true
+            description: "Topic to search for"
+          - name: tags
+            type: string
+            required: false
+            default: "story"
+            description: "Algolia tag filter"
+          - name: hitsPerPage
+            flag_name: hits
+            type: int
+            required: false
+            default: 20
+            description: "Results per page (max 1000)"
+        response:
+          type: array
+          item: AlgoliaHit
+        response_path: hits
+      item:
+        method: GET
+        path: "/item/{id}.json"
+        base_url: "https://hacker-news.firebaseio.com/v0"
+        description: "Get a single HN item (story/comment) with score and comment count"
+        example: "  vibe-signal-pp-cli hn item 8863"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "HN item id"
+        response:
+          type: object
+          item: HNItem
+
+types:
+  AlgoliaHit:
+    fields:
+      - name: objectID
+        type: string
+      - name: title
+        type: string
+      - name: url
+        type: string
+      - name: author
+        type: string
+      - name: points
+        type: int
+      - name: num_comments
+        type: int
+      - name: created_at_i
+        type: int
+      - name: story_text
+        type: string
+  HNItem:
+    fields:
+      - name: id
+        type: int
+      - name: type
+        type: string
+      - name: by
+        type: string
+      - name: title
+        type: string
+      - name: url
+        type: string
+      - name: score
+        type: int
+      - name: descendants
+        type: int
+      - name: time
+        type: int

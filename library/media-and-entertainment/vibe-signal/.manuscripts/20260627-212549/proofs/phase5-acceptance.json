@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "vibe-signal",
+  "run_id": "20260627-212549",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 44,
+  "tests_passed": 44,
+  "tests_skipped": 33,
+  "auth_context": {
+    "type": "none"
+  }
+}
