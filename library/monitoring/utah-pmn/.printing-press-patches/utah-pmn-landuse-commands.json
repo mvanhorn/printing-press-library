@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "utah-pmn-landuse-commands",
+  "applied_at": "2026-06-26",
+  "base_run_id": "20260626-230015-d1a83064",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Implemented the 6 novel land-use commands (millard, landuse, since, watch, agenda scan, locations) and added shared helpers.",
+  "reason": "Generator emitted novel-command stubs from research.json; filled in the land-use monitoring logic and added two hand-authored support files the generator does not produce.",
+  "files": [
+    "internal/cli/pmn_helpers.go",
+    "internal/cli/pmn_store.go",
+    "internal/cli/millard.go",
+    "internal/cli/landuse.go",
+    "internal/cli/since.go",
+    "internal/cli/watch.go",
+    "internal/cli/agenda_scan.go",
+    "internal/cli/locations.go"
+  ],
+  "validated_outcome": "Full live dogfood 60/60; commands return real Millard County notices and the since-diff persists across runs."
+}

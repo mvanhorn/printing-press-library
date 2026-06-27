@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-27T06:28:20.702014Z",
+  "printing_press_version": "4.25.0",
+  "api_name": "utah-pmn",
+  "display_name": "Utah Public Notice Website",
+  "cli_name": "utah-pmn-pp-cli",
+  "creator": {
+    "handle": "pgradeff",
+    "name": "Paul Gradeff"
+  },
+  "owner": "pgradeff",
+  "printer": "pgradeff",
+  "printer_name": "Paul Gradeff",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:82f6d331fb1cb070c73886c73e23857bb480bc18439afd2c1fb804cfc8217e6c",
+  "run_id": "20260626-230015-d1a83064",
+  "category": "monitoring",
+  "description": "One command to sweep Utah public-meeting notices for land-use approvals — county-wide, agenda-scanned, and diffed against what you've already seen.",
+  "mcp_binary": "utah-pmn-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Millard County land-use sweep",
+      "command": "millard",
+      "description": "Sweep every Millard County town in one command and keep only land-use approval bodies (planning commissions, councils, county commission, boards)."
+    },
+    {
+      "name": "Land-use relevance filter",
+      "command": "landuse",
+      "description": "Filter any notice set to meetings whose body or agenda involves zoning, subdivisions, rezones, CUPs, variances, annexations, or plats."
+    },
+    {
+      "name": "New-since diff",
+      "command": "since",
+      "description": "Show only notices first seen since the last run, so a scheduled run reports just what changed. The CLI records what it has seen locally; it does not depend on a separate sync step."
+    },
+    {
+      "name": "Watch named bodies",
+      "command": "watch",
+      "description": "Track a saved list of public bodies (e.g. Delta City Council, Millard County Planning Commission) and report their upcoming meetings across locations."
+    },
+    {
+      "name": "Agenda keyword scan",
+      "command": "agenda scan",
+      "description": "Search the inline agenda text of upcoming notices for arbitrary terms (e.g. a project name, a parcel, an applicant), with surrounding context."
+    },
+    {
+      "name": "Location registry",
+      "command": "locations",
+      "description": "List the curated Millard County town/ZIP set the sweep uses, so the coverage is transparent and editable."
+    }
+  ]
+}

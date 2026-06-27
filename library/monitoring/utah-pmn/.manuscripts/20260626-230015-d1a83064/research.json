@@ -1,0 +1,182 @@
+{
+  "api_name": "utah-pmn",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-26T23:00:00Z",
+  "novel_features": [
+    {
+      "name": "Millard County land-use sweep",
+      "command": "millard",
+      "description": "Sweep every Millard County town in one command and keep only land-use approval bodies (planning commissions, councils, county commission, boards).",
+      "rationale": "The state site is queried one ZIP at a time; only a local registry + dedup turns a whole county into a single call.",
+      "example": "utah-pmn-pp-cli millard --days 30 --agent",
+      "why_it_matters": "Pick this when the user asks what development/zoning meetings are coming up in Millard County.",
+      "group": "County-wide land-use monitoring"
+    },
+    {
+      "name": "Land-use relevance filter",
+      "command": "landuse",
+      "description": "Filter any notice set to meetings whose body or agenda involves zoning, subdivisions, rezones, CUPs, variances, annexations, or plats.",
+      "rationale": "Requires scanning inline agenda text against a land-use keyword model the API has no concept of.",
+      "example": "utah-pmn-pp-cli landuse --location Delta --days 60 --agent",
+      "why_it_matters": "Pick this to cut a body's full calendar down to only the approval items that matter.",
+      "group": "County-wide land-use monitoring"
+    },
+    {
+      "name": "New-since diff",
+      "command": "since",
+      "description": "Show only notices first seen since the last run, so a scheduled run reports just what changed. The CLI records what it has seen locally; it does not depend on a separate sync step.",
+      "rationale": "Requires a local store of previously-seen noticeIds with first_seen timestamps; no single API call provides a delta.",
+      "example": "utah-pmn-pp-cli since --location Fillmore --agent",
+      "why_it_matters": "Pick this for a recurring/scheduled check so the user only sees new meetings.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Watch named bodies",
+      "command": "watch",
+      "description": "Track a saved list of public bodies (e.g. Delta City Council, Millard County Planning Commission) and report their upcoming meetings across locations.",
+      "rationale": "Requires persisting a user body-watchlist and matching it across the union of location queries.",
+      "example": "utah-pmn-pp-cli watch list --agent",
+      "why_it_matters": "Pick this when the user cares about specific bodies rather than a whole county.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Agenda keyword scan",
+      "command": "agenda scan",
+      "description": "Search the inline agenda text of upcoming notices for arbitrary terms (e.g. a project name, a parcel, an applicant), with surrounding context.",
+      "rationale": "Requires offline full-text search over stored agenda bodies; the site offers no agenda search that works reliably.",
+      "example": "utah-pmn-pp-cli agenda scan \"solar\" --agent",
+      "why_it_matters": "Pick this to find every meeting touching a specific project, parcel, or applicant.",
+      "group": "County-wide land-use monitoring"
+    },
+    {
+      "name": "Location registry",
+      "command": "locations",
+      "description": "List the curated Millard County town/ZIP set the sweep uses, so the coverage is transparent and editable.",
+      "rationale": "Requires a bundled geographic registry the API does not expose.",
+      "example": "utah-pmn-pp-cli locations --agent",
+      "why_it_matters": "Pick this to see or confirm which towns a county sweep covers.",
+      "group": "County-wide land-use monitoring"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Millard County land-use sweep",
+      "command": "millard",
+      "description": "Sweep every Millard County town in one command and keep only land-use approval bodies (planning commissions, councils, county commission, boards).",
+      "rationale": "The state site is queried one ZIP at a time; only a local registry + dedup turns a whole county into a single call.",
+      "example": "utah-pmn-pp-cli millard --days 30 --agent",
+      "why_it_matters": "Pick this when the user asks what development/zoning meetings are coming up in Millard County.",
+      "group": "County-wide land-use monitoring"
+    },
+    {
+      "name": "Land-use relevance filter",
+      "command": "landuse",
+      "description": "Filter any notice set to meetings whose body or agenda involves zoning, subdivisions, rezones, CUPs, variances, annexations, or plats.",
+      "rationale": "Requires scanning inline agenda text against a land-use keyword model the API has no concept of.",
+      "example": "utah-pmn-pp-cli landuse --location Delta --days 60 --agent",
+      "why_it_matters": "Pick this to cut a body's full calendar down to only the approval items that matter.",
+      "group": "County-wide land-use monitoring"
+    },
+    {
+      "name": "New-since diff",
+      "command": "since",
+      "description": "Show only notices first seen since the last run, so a scheduled run reports just what changed. The CLI records what it has seen locally; it does not depend on a separate sync step.",
+      "rationale": "Requires a local store of previously-seen noticeIds with first_seen timestamps; no single API call provides a delta.",
+      "example": "utah-pmn-pp-cli since --location Fillmore --agent",
+      "why_it_matters": "Pick this for a recurring/scheduled check so the user only sees new meetings.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Watch named bodies",
+      "command": "watch",
+      "description": "Track a saved list of public bodies (e.g. Delta City Council, Millard County Planning Commission) and report their upcoming meetings across locations.",
+      "rationale": "Requires persisting a user body-watchlist and matching it across the union of location queries.",
+      "example": "utah-pmn-pp-cli watch list --agent",
+      "why_it_matters": "Pick this when the user cares about specific bodies rather than a whole county.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Agenda keyword scan",
+      "command": "agenda scan",
+      "description": "Search the inline agenda text of upcoming notices for arbitrary terms (e.g. a project name, a parcel, an applicant), with surrounding context.",
+      "rationale": "Requires offline full-text search over stored agenda bodies; the site offers no agenda search that works reliably.",
+      "example": "utah-pmn-pp-cli agenda scan \"solar\" --agent",
+      "why_it_matters": "Pick this to find every meeting touching a specific project, parcel, or applicant.",
+      "group": "County-wide land-use monitoring"
+    },
+    {
+      "name": "Location registry",
+      "command": "locations",
+      "description": "List the curated Millard County town/ZIP set the sweep uses, so the coverage is transparent and editable.",
+      "rationale": "Requires a bundled geographic registry the API does not expose.",
+      "example": "utah-pmn-pp-cli locations --agent",
+      "why_it_matters": "Pick this to see or confirm which towns a county sweep covers.",
+      "group": "County-wide land-use monitoring"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Utah Public Notice Website",
+    "headline": "One command to sweep Utah public-meeting notices for land-use approvals — county-wide, agenda-scanned, and diffed against what you've already seen.",
+    "value_prop": "The state Public Notice Website makes you pick a ZIP and click through bodies one at a time. This CLI sweeps a whole county's towns in one call, keeps only planning/council/commission/board meetings, scans the inline agendas for rezones, subdivisions, CUPs, and variances, and with a local store tells you what's new since your last run. Built for tracking Delta City and Millard County development approvals.",
+    "quickstart": [
+      {
+        "command": "utah-pmn-pp-cli doctor --dry-run",
+        "comment": "confirm the PMN endpoint is reachable"
+      },
+      {
+        "command": "utah-pmn-pp-cli millard --days 30",
+        "comment": "land-use meetings across Millard County for the next month"
+      },
+      {
+        "command": "utah-pmn-pp-cli landuse --location Delta --days 60",
+        "comment": "Delta-area approval items for the next two months"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "A town returns no notices",
+        "fix": "Nothing is scheduled in the window — widen --days or check another town with 'locations'."
+      },
+      {
+        "symptom": "Agenda text says TBD",
+        "fix": "The body posted the meeting before finalizing its agenda; re-run closer to the meeting date or fetch the notice detail page."
+      }
+    ],
+    "when_to_use": "Use this CLI to monitor Utah public-body meetings for land-use and development approvals, especially across Delta City and Millard County. It is ideal for recurring/scheduled checks where you only want new meetings, and for cutting a body's calendar down to zoning/subdivision/CUP items.",
+    "anti_triggers": [
+      "Do not use this for meeting notices outside Utah — the source is the Utah-only state registry.",
+      "Do not use this to register or submit public comment — it is read-only monitoring.",
+      "Do not rely on it for legally-binding minutes; always confirm against the official notice detail page."
+    ],
+    "recipes": [
+      {
+        "title": "Monthly county scan",
+        "command": "utah-pmn-pp-cli millard --days 30 --agent",
+        "explanation": "All land-use bodies meeting in Millard County over the next month, structured for an agent."
+      },
+      {
+        "title": "New since last check",
+        "command": "utah-pmn-pp-cli since --location Fillmore --agent",
+        "explanation": "Only notices first seen since the previous run — ideal on a schedule."
+      },
+      {
+        "title": "Find a project by name",
+        "command": "utah-pmn-pp-cli agenda scan \"subdivision\" --agent --select noticeId,publicBodyName,meetingStartTime",
+        "explanation": "Every stored agenda mentioning the term, narrowed to the key fields."
+      }
+    ],
+    "trigger_phrases": [
+      "what land-use meetings are coming up in Millard County",
+      "check Delta City planning meetings",
+      "any new public notices in Fillmore",
+      "scan agendas for rezoning",
+      "use utah-pmn",
+      "run utah-pmn"
+    ]
+  }
+}

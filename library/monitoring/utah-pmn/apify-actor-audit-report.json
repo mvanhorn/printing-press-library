@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/utah-pmn-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260626-230015-d1a83064",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

@@ -1,0 +1,51 @@
+version: 2
+project_name: utah-pmn-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: utah-pmn-pp-cli
+    main: ./cmd/utah-pmn-pp-cli
+    binary: utah-pmn-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/monitoring/utah-pmn/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: utah-pmn-pp-mcp
+    main: ./cmd/utah-pmn-pp-mcp
+    binary: utah-pmn-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: utah-pmn-pp-cli
+    repository:
+      owner: pgradeff
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "One command to sweep Utah public-meeting notices for land-use approvals — county-wide, agenda-scanned, and diffed against what you've already seen."
+    install: |
+      bin.install "utah-pmn-pp-cli"
+      bin.install "utah-pmn-pp-mcp"

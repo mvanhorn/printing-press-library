@@ -1,0 +1,74 @@
+{
+  "api_name": "utah-pmn",
+  "base_url": "https://www.utah.gov/pmn",
+  "description": "One command to sweep Utah public-meeting notices for land-use approvals — county-wide, agenda-scanned, and diffed against what you've already seen.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "notice_get",
+      "description": "Fetch the full HTML detail page for a notice, including minutes and material links. Required: noticeId.",
+      "method": "GET",
+      "path": "/sitemap/notice/{noticeId}.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "noticeId",
+          "type": "string",
+          "location": "path",
+          "description": "Notice ID from the upcoming notices list",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "notices_upcoming",
+      "description": "List meeting notices near a ZIP code or city, within a date range. Returns past and future notices when startDate/endDate span them. Each notice carries the full agenda text inline. Required: location. Optional: start, end, limit (plus 1 more).",
+      "method": "GET",
+      "path": "/getUpcomingNotices.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "location",
+          "wire_name": "zipOrCity",
+          "type": "string",
+          "location": "query",
+          "description": "Utah ZIP code (e.g. 84624) or city name (e.g. Delta, Fillmore)",
+          "required": true
+        },
+        {
+          "name": "start",
+          "wire_name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Window start date (YYYY-MM-DD)"
+        },
+        {
+          "name": "end",
+          "wire_name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "Window end date (YYYY-MM-DD)"
+        },
+        {
+          "name": "limit",
+          "wire_name": "listSize",
+          "type": "string",
+          "location": "query",
+          "description": "Max notices to return (default 50)"
+        },
+        {
+          "name": "formatted-dates",
+          "wire_name": "returnFormattedDateValues",
+          "type": "string",
+          "location": "query",
+          "description": "Return human dates instead of epoch millis (true/false)"
+        }
+      ]
+    }
+  ]
+}
