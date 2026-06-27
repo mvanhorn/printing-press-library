@@ -41,8 +41,20 @@ func TestSnapshotBrowserCDPRejectsWrongExpectedName(t *testing.T) {
 
 func TestSnapshotRequiresFixtureOrBrowser(t *testing.T) {
 	_, err := captureRun(t, "snapshot", "--db", filepath.Join(t.TempDir(), "pp.db"))
-	if err == nil || !strings.Contains(err.Error(), "--fixture or --browser-cdp") {
+	if err == nil || !strings.Contains(err.Error(), "--fixture, --browser-cdp, --managed-browser, or --chrome-session") {
 		t.Fatalf("expected mode error, got %v", err)
+	}
+}
+
+func TestSnapshotHelpIncludesManagedBrowser(t *testing.T) {
+	out, err := captureRun(t, "snapshot", "--help")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"--chrome-session", "--managed-browser", "--browser-user-data-dir", "--browser-port"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("help missing %s:\n%s", want, out)
+		}
 	}
 }
 

@@ -89,20 +89,38 @@ func normalizedLines(text string) []string {
 }
 
 func extractHeadline(lines []string, expectedName string) string {
-	lowerName := strings.ToLower(expectedName)
+	// Prefer an exact profile-name line. Avoid matching the page title
+	// "Name | LinkedIn", which appears before the real profile header.
 	for i, line := range lines {
-		if strings.EqualFold(line, expectedName) || strings.Contains(strings.ToLower(line), lowerName) {
-			for j := i + 1; j < len(lines) && j < i+8; j++ {
-				candidate := strings.TrimSpace(lines[j])
-				if candidate == "" || isChromeLinkedInChrome(candidate) || strings.Contains(strings.ToLower(candidate), "contact info") {
-					continue
-				}
-				if isMarker(candidate) || strings.Contains(strings.ToLower(candidate), "followers") || strings.Contains(strings.ToLower(candidate), "connections") {
-					break
-				}
-				return candidate
+		if strings.EqualFold(line, expectedName) {
+			if headline := firstHeadlineAfter(lines, i); headline != "" {
+				return headline
 			}
 		}
+	}
+	lowerName := strings.ToLower(expectedName)
+	for i, line := range lines {
+		low := strings.ToLower(line)
+		if !strings.Contains(low, "linkedin") && strings.Contains(low, lowerName) {
+			if headline := firstHeadlineAfter(lines, i); headline != "" {
+				return headline
+			}
+		}
+	}
+	return ""
+}
+
+func firstHeadlineAfter(lines []string, i int) string {
+	for j := i + 1; j < len(lines) && j < i+10; j++ {
+		candidate := strings.TrimSpace(lines[j])
+		low := strings.ToLower(candidate)
+		if candidate == "" || isChromeLinkedInChrome(candidate) || strings.Contains(low, "contact info") || strings.Contains(low, "notifications") {
+			continue
+		}
+		if isMarker(candidate) || strings.Contains(low, "followers") || strings.Contains(low, "connections") || strings.EqualFold(candidate, "Resources") || strings.EqualFold(candidate, "Add section") || strings.EqualFold(candidate, "Open to") {
+			break
+		}
+		return candidate
 	}
 	return ""
 }
@@ -126,10 +144,22 @@ func extractMarkerSections(lines []string) map[string]string {
 		}
 		body = trimBlankEdges(body)
 		if len(body) > 0 {
-			out[marker] = strings.Join(body, "\n")
+			text := strings.Join(body, "\n")
+			if isFooterSection(marker, text) {
+				continue
+			}
+			out[marker] = text
 		}
 	}
 	return out
+}
+
+func isFooterSection(marker, text string) bool {
+	low := strings.ToLower(text)
+	if strings.EqualFold(marker, "About") && strings.Contains(low, "talent solutions") && strings.Contains(low, "linkedin corporation") {
+		return true
+	}
+	return false
 }
 
 func canonicalMarker(line string) (string, bool) {

@@ -61,21 +61,37 @@ Do not use this CLI for bulk automation, scraping at scale, spam, credential ext
 
 ## Auth Setup
 
-ProfilePress uses a user-controlled browser-session model. It must not collect passwords, cookies, OAuth tokens, or API secrets. Browser reads use a local Chrome/Chromium DevTools endpoint that the user starts explicitly; the CLI evaluates visible page text only and never calls cookie/token APIs.
+ProfilePress uses a user-controlled browser-session model. It must not collect passwords, OAuth tokens, or API secrets. The preferred read path imports the already-authenticated local Chrome LinkedIn session through the OS/browser cookie store, without driving, closing, relaunching, or remote-controlling Chrome. Cookie values stay inside the local helper process and are never printed by ProfilePress.
 
 For live profile reads:
 
 ```bash
-# Start Chrome yourself with local CDP enabled, then sign in normally if needed.
-google-chrome --remote-debugging-port=9222
-
 profilepress-pp-cli snapshot \
-  --browser-cdp \
+  --chrome-session \
   --profile-url 'https://www.linkedin.com/in/example/' \
   --expect-name 'Example Person'
 ```
 
-If CDP is unavailable, the CLI fails closed with setup guidance. If the captured page does not look like LinkedIn or does not contain `--expect-name`, it refuses to snapshot the page.
+Fallback: launch a ProfilePress-owned isolated browser profile if Chrome-session import is unavailable:
+
+```bash
+profilepress-pp-cli snapshot \
+  --managed-browser \
+  --profile-url 'https://www.linkedin.com/in/example/' \
+  --expect-name 'Example Person'
+```
+
+Advanced users can still attach to an already-started separate CDP browser:
+
+```bash
+profilepress-pp-cli snapshot \
+  --browser-cdp \
+  --cdp-url 'http://127.0.0.1:9222' \
+  --profile-url 'https://www.linkedin.com/in/example/' \
+  --expect-name 'Example Person'
+```
+
+If browser capture is unavailable, the CLI fails closed with setup guidance. If the captured page does not look like a LinkedIn `/in/<slug>` profile or does not contain `--expect-name`, it refuses to snapshot the page.
 
 Run:
 

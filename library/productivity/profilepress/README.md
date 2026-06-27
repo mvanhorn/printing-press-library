@@ -45,20 +45,39 @@ profilepress diff
 profilepress apply-packet --privacy-status disabled --dry-run --confirm-sensitive APPLY-SENSITIVE
 ```
 
-Capture a real authenticated LinkedIn profile read-only from a user-controlled Chrome session:
+Capture a real authenticated LinkedIn profile read-only from your existing Chrome session:
 
 ```bash
-# Start Chrome/Chromium yourself with local CDP enabled. The CLI never asks for
-# credentials and never exports cookies.
-google-chrome --remote-debugging-port=9222
-
+# Uses your already-authenticated local Chrome LinkedIn session.
+# Does not drive, close, relaunch, or remote-control Chrome.
 profilepress snapshot \
-  --browser-cdp \
+  --chrome-session \
   --profile-url 'https://www.linkedin.com/in/example/' \
   --expect-name 'Example Person'
 ```
 
-The browser-CDP path evaluates visible page text only (`document.body.innerText`, URL, and title), validates that the page is LinkedIn and contains the expected name when provided, then stores the parsed sections plus `raw_text` in the local SQLite mirror.
+Fallback: capture from a ProfilePress-owned browser profile:
+
+```bash
+# First run opens an isolated browser profile under ~/.local/share/profilepress.
+# Log into LinkedIn there once if prompted. Your normal Chrome is not touched.
+profilepress snapshot \
+  --managed-browser \
+  --profile-url 'https://www.linkedin.com/in/example/' \
+  --expect-name 'Example Person'
+```
+
+Advanced fallback for users who already started a separate Chrome/Chromium with CDP enabled:
+
+```bash
+profilepress snapshot \
+  --browser-cdp \
+  --cdp-url 'http://127.0.0.1:9222' \
+  --profile-url 'https://www.linkedin.com/in/example/' \
+  --expect-name 'Example Person'
+```
+
+The browser paths evaluate visible page text only (`document.body.innerText`, URL, and title), validate that the page is a LinkedIn `/in/<slug>` profile and contains the expected name when provided, then store the parsed sections plus `raw_text` in the local SQLite mirror.
 
 Explicitly allow network notification only when intended:
 
