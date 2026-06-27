@@ -1,0 +1,1085 @@
+{
+  "dir": "/Users/labrenz/printing-press/.runstate/codebase-7217492d/runs/20260627-124259-5ec5d802/working/flipp-pp-cli",
+  "binary": "/Users/labrenz/printing-press/.runstate/codebase-7217492d/runs/20260627-124259-5ec5d802/working/flipp-pp-cli/flipp-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 65,
+  "passed": 65,
+  "failed": 0,
+  "skipped": 41,
+  "commands": [
+    "api",
+    "basket price",
+    "coverage",
+    "deals scan",
+    "doctor",
+    "expiring",
+    "export",
+    "feedback list",
+    "flyers data",
+    "flyers items",
+    "flyers list",
+    "items",
+    "location",
+    "merchants",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "search",
+    "sync",
+    "unit-price",
+    "watchlist add",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  flipp-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  flipp-pp-cli api\n\n  # Show methods for a specific interface\n  flipp-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'flipp-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "basket price",
+      "kind": "help",
+      "args": [
+        "basket",
+        "price",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compare a grocery list across nearby merchants and see the cheapest practical basket.\n\nUsage:\n  flipp-pp-cli basket price [flags]\n\nExamples:\n  flipp-pp-cli basket price --items milk,eggs,bread --zip 85001 --agent\n\nFlags:\n  -h, --help                 help for price\n      --items string         Comma-separated shopping-list items to compare\n      --limit-per-item int   Maximum low-price matches to keep per basket item (default 8)\n      --locale string        Flipp locale, such as en-us or en-ca (default \"en-us\")\n      --zip string           ZIP or postal code used to find local Flipp deals (default \"85001\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "basket price",
+      "kind": "happy_path",
+      "args": [
+        "basket",
+        "price",
+        "--items",
+        "milk,eggs,bread",
+        "--zip",
+        "85001",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"local\"},\"results\":{\"items\":[\"milk\",\"eggs\",\"bread\"],\"merchants\":[{\"items\":[{\"flyer_id\":7960377,\"image_url\":\"https://f.wishabi.net/page_items/422081357/1779920194/extra_large.jpg\",\"merchant\":\"Safeway\",\"name\":\"\u003credacted\u003e\",\"price\":3.77,\"query\":\"milk\",\"valid_to\":\"2026-07-01T03:59:59+00:00\"},{\"flyer_id\":7987766,\"image_url\":\"https://f.wishabi.net/page_items/424324582/1781663324/extra_large.jpg\",\"merchant\":\"Safeway\",\"name\":\"\u003credacted\u003e\",\"price\":1.49,\"query\":\"eggs\",\"valid_to\":\"2026-07-01T03:59:59+00:00\"},{\"discount_pct\":58,\"flyer_id\":7987766,\"image_url\":\"https://f.wishabi.net/page_items/424324774/1781663361/extra_large.jpg\",\"merchant\":\"Safeway\",\"name\":\"\u003credacted\u003e\",\"price\":1.27,\"query\":\"bread\",\"valid_to\":\"2026-07-01T03:59:59+00:00\"}],\"matched_items\":3,\"merchant\":\"Safeway\",\"missing_items\":[],\"total\":6.53},{\"items\":[{\"flyer_id\":7960204,\"image_url\":\"https://f.wishabi.net/page_items/422066347/1779919909/extra_large.jpg\",\"merchant\":\"Albertsons\",\"name\":\"\u003credacted\u003e\",\"price\":3.77,\"query\":\"milk\",\"valid_to\":\"2026-07-01T03:59:59+00:00\"},{\"flyer_id\":7960204,\"image_url\":\"https://f.wishabi.net/page_items/422066339/1779919904/extra_large.jpg\",\"merchant\":\"Albertsons\",\"name\":\"\u003credacted\u003e\",\"price\":5.47,\"query\":\"eggs\",\"valid_to\":\"2026-07-01T03:59:59+00:00\"},{\"discount_pct\":58,\"flyer_id\":7987729,\"image_url\":\"https://f.wishabi.net/page_items/424320528/1781658522/extra_large.jpg\",\"merchant\":\"Albertsons\",\"name\":\"\u003credacted\u003e\",\"price\":1.27,\"query\":\"bread\",\"valid_to\":\"2026-07-01T03:59:59+00:00\"}],\"matched_items\":3,\"merchant\":\"Albertsons\",\"missing_items\":[],\"total\":10.51},{\"items\":[{\"flyer_id\":7987498,\"image_url\":\"https://f.wishabi.net/page_items/424298265/1781689990/extra_large.jpg\",\"merchant\":\"Food City\",\"name\":\"\u003credacted\u003e\",\"price\":1.99,\"query\":\"milk\",\"valid_to\":\"2026-07-01T03:59:59+00:00\"},{\"flyer_id\":7987498,\"image_url\":\"https://f.wishabi.net/page_items/424298278/1781690001/extra_large.jpg\",\"merchant\":\"Food City\",\"name\":\"\u003credacted\u003e\",\"price\":2.49,\"query\":\"bread\",\"valid_to\":\"2026-07-01T03:59:59+00:00\"}],\"matched_items\":2,\"merchant\":\"Food City\",\"missing_items\":[\"eggs\"],\"total\":4.48},{\"items\":[{\"flyer_id\":7987513,\"image_url\":\"https://f.wishabi.net/page_items/424305394/1781690228/extra_large.jpg\",\"merchant\":\"Bashas'\",\"name\":\"\u003credacted\u003e\",\"price\":1.99,\"query\":\"milk\",\"valid_to\":\"2026-07-01T03:59:59+00:00\"},{\"flyer_id\":7987513,\"image_url\":\"https://f.wishabi.net/page_items/424305283/1781690213/extra_large.jpg\",\"merchant\":\"Bashas'\",\"name\":\"\u003credacted\u003e\",\"price\":3.79,\"query\":\"bread\",\"valid_to\":\"2026-07-01T03:59:59+00:00\"}],\"matched_items\":2,\"merchant\":\"Bashas'\",\"missing_items\":[\"eggs\"],\"total\":5.78},{\"items\":[{\"image_url\":\"https://flipp-image-retrieval.flipp.com/api/aHR0cHM6Ly9mLndpc2hhYmkubmV0L2l0ZW0tYXNzZXRzLzIyNjQvOWQyNjQ3ZGI2NTBjMWZjMzQ5MmMxNjY3NjYxMzU3YTgvb3JpZ2luYWwucG5n?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9mbGlwcC1pbWFnZS1yZXRyaWV2YWwuZmxpcHAuY29tL2FwaS9hSFIwY0hNNkx5OW1MbmRwYzJoaFlta3VibVYwTDJsMFpXMHRZWE56WlhSekx6SXlOalF2T1dReU5qUTNaR0kyTlRCak1XWmpNelE1TW1NeE5qWTNOall4TXpVM1lUZ3ZiM0pwWjJsdVlXd3VjRzVuPyoiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3ODMxOTQ4NTB9fX1dfQ__\u0026Signature=HddqIsCTJi7rr2HAsyQ0SXlzRmTDhhPKAwORnxLTE7vVfe0xeEFmiHEifLEP~HuKJa~20cMeIiWK0rcMuUJzjHP6s4vZwYAb7zeStTLCUXGupmnH4XVGrwac5QQaXD~mPBM0n9-Bsz4eIXtOtY7d5IUePPP1Gpj-fQh4gJ55cP39iRt6vSSa9uD2JW-rp7dXIJFEO4BOxvtiiVhpEei26362HO7dU8V7~eCXrACZ8dGL7WGXHhkjHUkL2~wmzxIH4jN5JcEyE9eaD-KFCsXMXqtgCKz1rbX8Gy6HnhyAJYdcPY9ATcMEiJlRue9yQRo8nxAuqzVdGZ5ViYQ~E5mbOg__\u0026Key-Pair-Id=KDIF3067XOLU0\u0026transforms=resizep:162:140\",\"merchant\":\"CVS Pharmacy\",\"name\":\"\u003credacted\u003e\",\"price\":1.09,\"query\":\"milk\"},{\"image_url\":\"https://flipp-image-retrieval.flipp.com/api/aHR0cHM6Ly9mLndpc2hhYmkubmV0L2l0ZW0tYXNzZXRzLzIyNjQvZWI1ZDlkZTE5NDNmNzNmZGU1YWMyN2ZiNDRhNzExNTEvb3JpZ2luYWwucG5n?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9mbGlwcC1pbWFnZS1yZXRyaWV2YWwuZmxpcHAuY29tL2FwaS9hSFIwY0hNNkx5OW1MbmRwYzJoaFlta3VibVYwTDJsMFpXMHRZWE56WlhSekx6SXlOalF2WldJMVpEbGtaVEU1TkRObU56Tm1aR1UxWVdNeU4yWmlORFJoTnpFeE5URXZiM0pwWjJsdVlXd3VjRzVuPyoiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFc…[truncated]"
+    },
+    {
+      "command": "basket price",
+      "kind": "json_fidelity",
+      "args": [
+        "basket",
+        "price",
+        "--items",
+        "milk,eggs,bread",
+        "--zip",
+        "85001",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"local\"},\"results\":{\"items\":[\"milk\",\"eggs\",\"bread\"],\"merchants\":[{\"items\":[{\"flyer_id\":7987766,\"image_url\":\"https://f.wishabi.net/page_items/424324659/1781663333/extra_large.jpg\",\"merchant\":\"Safeway\",\"name\":\"\u003credacted\u003e\",\"price\":3.77,\"query\":\"milk\",\"valid_to\":\"2026-07-01T03:59:59+00:00\"},{\"flyer_id\":7987766,\"image_url\":\"https://f.wishabi.net/page_items/424324582/1781663324/extra_large.jpg\",\"merchant\":\"Safeway\",\"name\":\"\u003credacted\u003e\",\"price\":1.49,\"query\":\"eggs\",\"valid_to\":\"2026-07-01T03:59:59+00:00\"},{\"discount_pct\":58,\"flyer_id\":7987766,\"image_url\":\"https://f.wishabi.net/page_items/424324774/1781663361/extra_large.jpg\",\"merchant\":\"Safeway\",\"name\":\"\u003credacted\u003e\",\"price\":1.27,\"query\":\"bread\",\"valid_to\":\"2026-07-01T03:59:59+00:00\"}],\"matched_items\":3,\"merchant\":\"Safeway\",\"missing_items\":[],\"total\":6.53},{\"items\":[{\"flyer_id\":7987729,\"image_url\":\"https://f.wishabi.net/page_items/424320440/1781658499/extra_large.jpg\",\"merchant\":\"Albertsons\",\"name\":\"\u003credacted\u003e\",\"price\":3.77,\"query\":\"milk\",\"valid_to\":\"2026-07-01T03:59:59+00:00\"},{\"flyer_id\":7960204,\"image_url\":\"https://f.wishabi.net/page_items/422066339/1779919904/extra_large.jpg\",\"merchant\":\"Albertsons\",\"name\":\"\u003credacted\u003e\",\"price\":5.47,\"query\":\"eggs\",\"valid_to\":\"2026-07-01T03:59:59+00:00\"},{\"discount_pct\":58,\"flyer_id\":7987729,\"image_url\":\"https://f.wishabi.net/page_items/424320528/1781658522/extra_large.jpg\",\"merchant\":\"Albertsons\",\"name\":\"\u003credacted\u003e\",\"price\":1.27,\"query\":\"bread\",\"valid_to\":\"2026-07-01T03:59:59+00:00\"}],\"matched_items\":3,\"merchant\":\"Albertsons\",\"missing_items\":[],\"total\":10.51},{\"items\":[{\"flyer_id\":7987498,\"image_url\":\"https://f.wishabi.net/page_items/424298265/1781689990/extra_large.jpg\",\"merchant\":\"Food City\",\"name\":\"\u003credacted\u003e\",\"price\":1.99,\"query\":\"milk\",\"valid_to\":\"2026-07-01T03:59:59+00:00\"},{\"flyer_id\":7987498,\"image_url\":\"https://f.wishabi.net/page_items/424298278/1781690001/extra_large.jpg\",\"merchant\":\"Food City\",\"name\":\"\u003credacted\u003e\",\"price\":2.49,\"query\":\"bread\",\"valid_to\":\"2026-07-01T03:59:59+00:00\"}],\"matched_items\":2,\"merchant\":\"Food City\",\"missing_items\":[\"eggs\"],\"total\":4.48},{\"items\":[{\"flyer_id\":7987513,\"image_url\":\"https://f.wishabi.net/page_items/424305394/1781690228/extra_large.jpg\",\"merchant\":\"Bashas'\",\"name\":\"\u003credacted\u003e\",\"price\":1.99,\"query\":\"milk\",\"valid_to\":\"2026-07-01T03:59:59+00:00\"},{\"flyer_id\":7987513,\"image_url\":\"https://f.wishabi.net/page_items/424305283/1781690213/extra_large.jpg\",\"merchant\":\"Bashas'\",\"name\":\"\u003credacted\u003e\",\"price\":3.79,\"query\":\"bread\",\"valid_to\":\"2026-07-01T03:59:59+00:00\"}],\"matched_items\":2,\"merchant\":\"Bashas'\",\"missing_items\":[\"eggs\"],\"total\":5.78},{\"items\":[{\"image_url\":\"https://flipp-image-retrieval.flipp.com/api/aHR0cHM6Ly9mLndpc2hhYmkubmV0L2l0ZW0tYXNzZXRzLzIyNjQvOWQyNjQ3ZGI2NTBjMWZjMzQ5MmMxNjY3NjYxMzU3YTgvb3JpZ2luYWwucG5n?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9mbGlwcC1pbWFnZS1yZXRyaWV2YWwuZmxpcHAuY29tL2FwaS9hSFIwY0hNNkx5OW1MbmRwYzJoaFlta3VibVYwTDJsMFpXMHRZWE56WlhSekx6SXlOalF2T1dReU5qUTNaR0kyTlRCak1XWmpNelE1TW1NeE5qWTNOall4TXpVM1lUZ3ZiM0pwWjJsdVlXd3VjRzVuPyoiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3ODMxNjgwMjV9fX1dfQ__\u0026Signature=KqB14~Vnz1YSgdsgc8IRqWIteJylK9iElGeOfEIJyUmdHyj-JrrZaSysYGilRVYHgxpZGJi5Zq19w~VHd3R3gU986tWceU6jN-1-yB8b2peKn9D0E7nI6LMUpqWdAuSCyf5h5la9ezaNlbsfWbyFPjuhwKRUOHL8E634Ab1VPaOT2fE51q8jUg1Fe1-e-H-0pTI8Rpv5q~vwgp5ufHlWYQ5FZ9Y7pZal40w9-nXaZ2dJkE7B4x1nnwxSkfS26yi~raq-yaR4s-CKb3iub3F50LsY22iY8mldoWFh68omHrE2HTNzdwDaaC3~547SxBwVHFNP4zRYHjeyyVb4zdJERw__\u0026Key-Pair-Id=KDIF3067XOLU0\u0026transforms=resizep:162:140\",\"merchant\":\"CVS Pharmacy\",\"name\":\"\u003credacted\u003e\",\"price\":1.09,\"query\":\"milk\"},{\"image_url\":\"https://flipp-image-retrieval.flipp.com/api/aHR0cHM6Ly9mLndpc2hhYmkubmV0L2l0ZW0tYXNzZXRzLzIyNjQvZWI1ZDlkZTE5NDNmNzNmZGU1YWMyN2ZiNDRhNzExNTEvb3JpZ2luYWwucG5n?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9mbGlwcC1pbWFnZS1yZXRyaWV2YWwuZmxpcHAuY29tL2FwaS9hSFIwY0hNNkx5OW1MbmRwYzJoaFlta3VibVYwTDJsMFpXMHRZWE56WlhSekx6SXlOalF2WldJMVpEbGtaVEU1TkRObU56Tm1aR1UxWVdNeU4yWmlORFJoTnpFeE5URXZiM0pwWjJsdVlXd3VjRzVuPyoiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFc…[truncated]"
+    },
+    {
+      "command": "basket price",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "coverage",
+      "kind": "help",
+      "args": [
+        "coverage",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show which nearby merchants have active food flyers, searchable items, and coupon coverage.\n\nUsage:\n  flipp-pp-cli coverage [flags]\n\nExamples:\n  flipp-pp-cli coverage --zip 85001 --agent\n\nFlags:\n  -h, --help            help for coverage\n      --locale string   Flipp locale, such as en-us or en-ca (default \"en-us\")\n      --zip string      ZIP or postal code used to find local coverage (default \"85001\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "coverage",
+      "kind": "happy_path",
+      "args": [
+        "coverage",
+        "--zip",
+        "85001",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"local\"},\"results\":{\"merchants\":[{\"categories\":[\"All Flyers\",\"General Merchandise\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":4,\"grocery_flyers\":3,\"latest_valid_to\":\"2026-07-06T23:59:59-04:00\",\"merchant\":\"Family Dollar\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":2,\"grocery_flyers\":2,\"latest_valid_to\":\"2026-07-12T23:59:59-04:00\",\"merchant\":\"Vallarta Supermarkets\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":2,\"grocery_flyers\":2,\"latest_valid_to\":\"2026-07-07T23:59:59-04:00\",\"merchant\":\"Smart \u0026 Final\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":2,\"grocery_flyers\":2,\"latest_valid_to\":\"2026-07-07T23:59:59-04:00\",\"merchant\":\"ALDI\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":2,\"grocery_flyers\":2,\"latest_valid_to\":\"2026-06-30T23:59:59-04:00\",\"merchant\":\"Safeway\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":2,\"grocery_flyers\":2,\"latest_valid_to\":\"2026-06-30T23:59:59-04:00\",\"merchant\":\"Albertsons\"},{\"categories\":[\"All Flyers\",\"General Merchandise\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":3,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-09-08T23:59:59-04:00\",\"merchant\":\"Fry's Food Stores\"},{\"categories\":[\"All Flyers\",\"Automotive\",\"General Merchandise\",\"Groceries\",\"Pharmacy\"],\"coupon_presence\":false,\"flyer_count\":2,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-28T23:59:59-04:00\",\"merchant\":\"Costco \"},{\"categories\":[\"All Flyers\",\"General Merchandise\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-30T23:59:59-04:00\",\"merchant\":\"Walmart\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-30T23:59:59-04:00\",\"merchant\":\"Food City\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-07-02T23:59:59-04:00\",\"merchant\":\"Baiz Market Place\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-30T23:59:59-04:00\",\"merchant\":\"Cardenas Markets\"},{\"categories\":[\"All Flyers\",\"General Merchandise\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-27T23:59:59-04:00\",\"merchant\":\"Dollar General\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-30T23:59:59-04:00\",\"merchant\":\"Restaurant Depot\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-30T23:59:59-04:00\",\"merchant\":\"Sprouts Farmers Market\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-30T23:59:59-04:00\",\"merchant\":\"El Super\"},{\"categories\":[\"All Flyers\",\"General Merchandise\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-27T23:59:59-04:00\",\"merchant\":\"Target\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-28T23:59:59-04:00\",\"merchant\":\"US Foods CHEF’STORE\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-30T23:59:59-04:00\",\"merchant\":\"Bashas'\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-30T23:59:59-04:00\",\"merchant\":\"El Rancho Market\"},{\"categories\":[\"All Flyers\",\"Pharmacy\"],\"coupon_presence\":false,\"flyer_count\":3,\"grocery_flyers\":0,\"latest_valid_to\":\"2026-07-04T23:59:59-04:00\",\"merchant\":\"Walgreens\"},{\"categories\":[\"All Flyers\",\"Home \u0026 Garden\"],\"coupon_presence\":false,\"flyer_count\":2,\"grocery_flyers\":0,\"latest_valid_to\":\"2026-07-08T23:59:59-04:00\",\"merchant\":\"Home Depot\"},{\"categories\":[\"All Flyers\",\"Home \u0026 Garden\"],\"coupon_presence\":false,\"flye…[truncated]"
+    },
+    {
+      "command": "coverage",
+      "kind": "json_fidelity",
+      "args": [
+        "coverage",
+        "--zip",
+        "85001",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"local\"},\"results\":{\"merchants\":[{\"categories\":[\"All Flyers\",\"General Merchandise\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":4,\"grocery_flyers\":3,\"latest_valid_to\":\"2026-07-06T23:59:59-04:00\",\"merchant\":\"Family Dollar\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":2,\"grocery_flyers\":2,\"latest_valid_to\":\"2026-06-30T23:59:59-04:00\",\"merchant\":\"Albertsons\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":2,\"grocery_flyers\":2,\"latest_valid_to\":\"2026-07-07T23:59:59-04:00\",\"merchant\":\"Smart \u0026 Final\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":2,\"grocery_flyers\":2,\"latest_valid_to\":\"2026-07-07T23:59:59-04:00\",\"merchant\":\"ALDI\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":2,\"grocery_flyers\":2,\"latest_valid_to\":\"2026-07-12T23:59:59-04:00\",\"merchant\":\"Vallarta Supermarkets\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":2,\"grocery_flyers\":2,\"latest_valid_to\":\"2026-06-30T23:59:59-04:00\",\"merchant\":\"Safeway\"},{\"categories\":[\"All Flyers\",\"General Merchandise\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":3,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-09-08T23:59:59-04:00\",\"merchant\":\"Fry's Food Stores\"},{\"categories\":[\"All Flyers\",\"Automotive\",\"General Merchandise\",\"Groceries\",\"Pharmacy\"],\"coupon_presence\":false,\"flyer_count\":2,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-28T23:59:59-04:00\",\"merchant\":\"Costco \"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-30T23:59:59-04:00\",\"merchant\":\"Food City\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-28T23:59:59-04:00\",\"merchant\":\"US Foods CHEF’STORE\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-30T23:59:59-04:00\",\"merchant\":\"El Super\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-30T23:59:59-04:00\",\"merchant\":\"Bashas'\"},{\"categories\":[\"All Flyers\",\"General Merchandise\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-27T23:59:59-04:00\",\"merchant\":\"Target\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-30T23:59:59-04:00\",\"merchant\":\"Cardenas Markets\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-07-02T23:59:59-04:00\",\"merchant\":\"Baiz Market Place\"},{\"categories\":[\"All Flyers\",\"General Merchandise\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-27T23:59:59-04:00\",\"merchant\":\"Dollar General\"},{\"categories\":[\"All Flyers\",\"General Merchandise\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-30T23:59:59-04:00\",\"merchant\":\"Walmart\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-30T23:59:59-04:00\",\"merchant\":\"El Rancho Market\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-30T23:59:59-04:00\",\"merchant\":\"Sprouts Farmers Market\"},{\"categories\":[\"All Flyers\",\"Groceries\"],\"coupon_presence\":false,\"flyer_count\":1,\"grocery_flyers\":1,\"latest_valid_to\":\"2026-06-30T23:59:59-04:00\",\"merchant\":\"Restaurant Depot\"},{\"categories\":[\"All Flyers\",\"Pharmacy\"],\"coupon_presence\":false,\"flyer_count\":3,\"grocery_flyers\":0,\"latest_valid_to\":\"2026-07-04T23:59:59-04:00\",\"merchant\":\"Walgreens\"},{\"categories\":[\"All Flyers\",\"Pharmacy\"],\"coupon_presence\":false,\"flyer_count\":2,\"grocery_flyers\":0,\"latest_valid_to\":\"2026-07-05T00:59:59-04:00\",\"merchant\":\"CVS Pharmacy\"},{\"categories\":[\"All Flyers\",\"Home \u0026 Garden\"],\"coupon_presence\":false,\"flyer_c…[truncated]"
+    },
+    {
+      "command": "coverage",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "deals scan",
+      "kind": "help",
+      "args": [
+        "deals",
+        "scan",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Scan curated staple categories and rank local deals by discount, urgency, and merchant.\n\nUsage:\n  flipp-pp-cli deals scan [flags]\n\nExamples:\n  flipp-pp-cli deals scan --category groceries --zip 85001 --min-discount 25 --agent\n\nFlags:\n      --category string       Comma-separated category packs to scan (default \"groceries\")\n  -h, --help                  help for scan\n      --limit int             Maximum ranked deals to return (default 20)\n      --locale string         Flipp locale, such as en-us or en-ca (default \"en-us\")\n      --min-discount string   Minimum computed discount percentage\n      --queries string        Comma-separated custom search terms; overrides --category\n      --zip string            ZIP or postal code used to find local deals (default \"85001\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "deals scan",
+      "kind": "happy_path",
+      "args": [
+        "deals",
+        "scan",
+        "--category",
+        "groceries",
+        "--zip",
+        "85001",
+        "--min-discount",
+        "25",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"local\"},\"results\":{\"category\":\"groceries\",\"deals\":[{\"discount_pct\":58,\"image_url\":\"https://f.wishabi.net/page_items/424324774/1781663361/extra_large.jpg\",\"merchant\":\"Safeway\",\"name\":\"\u003credacted\u003e\",\"price\":1.27,\"query\":\"bread\",\"was\":2.99},{\"discount_pct\":58,\"image_url\":\"https://f.wishabi.net/page_items/424320528/1781658522/extra_large.jpg\",\"merchant\":\"Albertsons\",\"name\":\"\u003credacted\u003e\",\"price\":1.27,\"query\":\"bread\",\"was\":2.99},{\"discount_pct\":52,\"image_url\":\"https://flipp-image-retrieval.flipp.com/api/aHR0cHM6Ly9mLndpc2hhYmkubmV0L2l0ZW0tYXNzZXRzLzIyNjQvYjFmMzMzNWUxYjE2Y2FjYWVmZjhlZjE3ZDczMGQxMWEvb3JpZ2luYWwucG5n?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9mbGlwcC1pbWFnZS1yZXRyaWV2YWwuZmxpcHAuY29tL2FwaS9hSFIwY0hNNkx5OW1MbmRwYzJoaFlta3VibVYwTDJsMFpXMHRZWE56WlhSekx6SXlOalF2WWpGbU16TXpOV1V4WWpFMlkyRmpZV1ZtWmpobFpqRTNaRGN6TUdReE1XRXZiM0pwWjJsdVlXd3VjRzVuPyoiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3ODMxNzM2Mjd9fX1dfQ__\u0026Signature=SupHkKtskWJWZcNcCaZ3LkVZ4OIPPuCdp4FdFYoXSI22kJy7QFNGdp34ZMF7ke9ErbPAdpH33X3Cu8IWuhpHSV3lWy3uTZnT4tynta7-TUuPG8uW2ZTobHNsXREHYnQ~Q~eXjhVPIALklrXTATwuFPVqkKZaonfWpMD~2rG~Wk19Q2TztGKCtre9m1rJt7P7RhgAQfVTMh9LYLDRjPACSrqMztsf5qELRSaB5DX~Qqs7o-CAnW~yplIHOCwvcB92PuCcZA35QtnWqmBfW-qIyD6ucPro9a6giBpTPC9XzOEFFUE-VptWuItVIOubPWbJO8YeqhQAzas8J22m84qM4g__\u0026Key-Pair-Id=KDIF3067XOLU0\u0026transforms=resizep:162:140\",\"merchant\":\"CVS Pharmacy\",\"name\":\"\u003credacted\u003e\",\"price\":5.99,\"query\":\"coffee\",\"was\":12.49},{\"discount_pct\":52,\"image_url\":\"https://flipp-image-retrieval.flipp.com/api/aHR0cHM6Ly9mLndpc2hhYmkubmV0L2l0ZW0tYXNzZXRzLzIyNjQvZDEzNTFkM2UyOGE3ODI3N2IwZjIyZmQyNjVlZTJiYTQvb3JpZ2luYWwucG5n?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9mbGlwcC1pbWFnZS1yZXRyaWV2YWwuZmxpcHAuY29tL2FwaS9hSFIwY0hNNkx5OW1MbmRwYzJoaFlta3VibVYwTDJsMFpXMHRZWE56WlhSekx6SXlOalF2WkRFek5URmtNMlV5T0dFM09ESTNOMkl3WmpJeVptUXlOalZsWlRKaVlUUXZiM0pwWjJsdVlXd3VjRzVuPyoiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3ODMxNzczMTd9fX1dfQ__\u0026Signature=n2kNAvJFl0CYltRWdQ~8KhrWzsqSEtIqVaGukNe3djMwcN2wrToYdDASC~z7KhFrs7iz2xuo6WMWJmXY8I3~ao-huDdMfO8glu1UltbkfNYEbAy1HzOmP25O2O5cRYBaC5195XaJ3jmyzrQuUpilhNbic75Ei6EaQ26RgeDGmFM55eTBQDjJhW0DAIjhDt-IgLaWaywJghD~b35KA~70EoWWpHQS1vo7rmTy~ANp5L4~45RsCKTBVUEuSRuz6s8fv5fQU9yAWcYbk7knrxGVVuO2kbbgg5zk7FSUe-I93NjINi9-eMY287FA~ZPgLRo0bdWpfmJmBDdOVYYR56tN~A__\u0026Key-Pair-Id=KDIF3067XOLU0\u0026transforms=resizep:162:140\",\"merchant\":\"CVS Pharmacy\",\"name\":\"\u003credacted\u003e\",\"price\":5.99,\"query\":\"coffee\",\"was\":12.49},{\"discount_pct\":52,\"image_url\":\"https://flipp-image-retrieval.flipp.com/api/aHR0cHM6Ly9mLndpc2hhYmkubmV0L2l0ZW0tYXNzZXRzLzIyNjQvZDUwZmQ4ODY0MmY1NTA1MDc4MmZmMjgwMmE3NGQ0ZTEvb3JpZ2luYWwucG5n?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9mbGlwcC1pbWFnZS1yZXRyaWV2YWwuZmxpcHAuY29tL2FwaS9hSFIwY0hNNkx5OW1MbmRwYzJoaFlta3VibVYwTDJsMFpXMHRZWE56WlhSekx6SXlOalF2WkRVd1ptUTRPRFkwTW1ZMU5UQTFNRGM0TW1abU1qZ3dNbUUzTkdRMFpURXZiM0pwWjJsdVlXd3VjRzVuPyoiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3ODMxNzczMTd9fX1dfQ__\u0026Signature=fOw6GA0LLh1M0zVcWFON1GG1BEHHUugOAH89FulA3xgiDN4HkgRmeH4ImYLoRFK6xnsDMimv~r1n0R-eR9bFjf08wSxSBMpX2VreS-CDhYTFL39qPocGr~R0XPBV0~1yOJyNk3DedBPMI3uP~ehJ8iQG7jd556xjmwfDXR~WzGmfivnRayUvulfFv3cpU-DsN9GQudSW7FCd3VmtzSfVnllYfZsFWQ~PgbVGNUE8jMyL-DrSsYt1oEz8UNomn1WvYvW1-B0sZuxiCzwyJsPzCNGcxoDGIfbQLGHizq7XaB9a8WADF5emXqmsphSooemB-7rEaD7vTirKCqqlHFpMkw__\u0026Key-Pair-Id=KDIF3067XOLU0\u0026transforms=resizep:162:140\",\"merchant\":\"CVS Pharmacy\",\"name\":\"\u003credacted\u003e\",\"price\":5.99,\"query\":\"coffee\",\"was\":12.49},{\"discount_pct\":52,\"image_url\":\"https://flipp-image-retrieval.flipp.com/api/aHR0cHM6Ly9mLndpc2hhYmkubmV0L2l0ZW0tYXNzZXRzLzIyMDcvMzgxZmZjZTg4YTBmMzY0ODk0NWU2YmY5NWM1Y2U4YmYvb3JpZ2luYWwucG5n?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9mbGlwcC1pbWFnZS1yZXRyaWV2YWwuZmxpcHAuY29tL2FwaS9hSFIwY0hNNkx5OW1MbmRwYzJoaFlta3VibVYwTDJsMFpXMHRZWE56WlhSekx6SXlNRGN2TXpneFptWmpaVGc0WVRCbU16WTBPRGswTldVMlltWTVOV00xWTJVNFltWXZiM0pwWjJsdVlXd3VjRzVuPyoiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3ODMxNzc0NTl9fX1dfQ__\u0026Signature=DgGRL5KSn5Szx8jNv0YSA~9oE4hI1sd3f…[truncated]"
+    },
+    {
+      "command": "deals scan",
+      "kind": "json_fidelity",
+      "args": [
+        "deals",
+        "scan",
+        "--category",
+        "groceries",
+        "--zip",
+        "85001",
+        "--min-discount",
+        "25",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"local\"},\"results\":{\"category\":\"groceries\",\"deals\":[{\"discount_pct\":58,\"image_url\":\"https://f.wishabi.net/page_items/424324774/1781663361/extra_large.jpg\",\"merchant\":\"Safeway\",\"name\":\"\u003credacted\u003e\",\"price\":1.27,\"query\":\"bread\",\"was\":2.99},{\"discount_pct\":58,\"image_url\":\"https://f.wishabi.net/page_items/424320528/1781658522/extra_large.jpg\",\"merchant\":\"Albertsons\",\"name\":\"\u003credacted\u003e\",\"price\":1.27,\"query\":\"bread\",\"was\":2.99},{\"discount_pct\":52,\"image_url\":\"https://flipp-image-retrieval.flipp.com/api/aHR0cHM6Ly9mLndpc2hhYmkubmV0L2l0ZW0tYXNzZXRzLzIyNjQvYjFmMzMzNWUxYjE2Y2FjYWVmZjhlZjE3ZDczMGQxMWEvb3JpZ2luYWwucG5n?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9mbGlwcC1pbWFnZS1yZXRyaWV2YWwuZmxpcHAuY29tL2FwaS9hSFIwY0hNNkx5OW1MbmRwYzJoaFlta3VibVYwTDJsMFpXMHRZWE56WlhSekx6SXlOalF2WWpGbU16TXpOV1V4WWpFMlkyRmpZV1ZtWmpobFpqRTNaRGN6TUdReE1XRXZiM0pwWjJsdVlXd3VjRzVuPyoiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3ODMxNzM2Mjd9fX1dfQ__\u0026Signature=SupHkKtskWJWZcNcCaZ3LkVZ4OIPPuCdp4FdFYoXSI22kJy7QFNGdp34ZMF7ke9ErbPAdpH33X3Cu8IWuhpHSV3lWy3uTZnT4tynta7-TUuPG8uW2ZTobHNsXREHYnQ~Q~eXjhVPIALklrXTATwuFPVqkKZaonfWpMD~2rG~Wk19Q2TztGKCtre9m1rJt7P7RhgAQfVTMh9LYLDRjPACSrqMztsf5qELRSaB5DX~Qqs7o-CAnW~yplIHOCwvcB92PuCcZA35QtnWqmBfW-qIyD6ucPro9a6giBpTPC9XzOEFFUE-VptWuItVIOubPWbJO8YeqhQAzas8J22m84qM4g__\u0026Key-Pair-Id=KDIF3067XOLU0\u0026transforms=resizep:162:140\",\"merchant\":\"CVS Pharmacy\",\"name\":\"\u003credacted\u003e\",\"price\":5.99,\"query\":\"coffee\",\"was\":12.49},{\"discount_pct\":52,\"image_url\":\"https://flipp-image-retrieval.flipp.com/api/aHR0cHM6Ly9mLndpc2hhYmkubmV0L2l0ZW0tYXNzZXRzLzIyNjQvZDUwZmQ4ODY0MmY1NTA1MDc4MmZmMjgwMmE3NGQ0ZTEvb3JpZ2luYWwucG5n?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9mbGlwcC1pbWFnZS1yZXRyaWV2YWwuZmxpcHAuY29tL2FwaS9hSFIwY0hNNkx5OW1MbmRwYzJoaFlta3VibVYwTDJsMFpXMHRZWE56WlhSekx6SXlOalF2WkRVd1ptUTRPRFkwTW1ZMU5UQTFNRGM0TW1abU1qZ3dNbUUzTkdRMFpURXZiM0pwWjJsdVlXd3VjRzVuPyoiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3ODMxNzczMTd9fX1dfQ__\u0026Signature=fOw6GA0LLh1M0zVcWFON1GG1BEHHUugOAH89FulA3xgiDN4HkgRmeH4ImYLoRFK6xnsDMimv~r1n0R-eR9bFjf08wSxSBMpX2VreS-CDhYTFL39qPocGr~R0XPBV0~1yOJyNk3DedBPMI3uP~ehJ8iQG7jd556xjmwfDXR~WzGmfivnRayUvulfFv3cpU-DsN9GQudSW7FCd3VmtzSfVnllYfZsFWQ~PgbVGNUE8jMyL-DrSsYt1oEz8UNomn1WvYvW1-B0sZuxiCzwyJsPzCNGcxoDGIfbQLGHizq7XaB9a8WADF5emXqmsphSooemB-7rEaD7vTirKCqqlHFpMkw__\u0026Key-Pair-Id=KDIF3067XOLU0\u0026transforms=resizep:162:140\",\"merchant\":\"CVS Pharmacy\",\"name\":\"\u003credacted\u003e\",\"price\":5.99,\"query\":\"coffee\",\"was\":12.49},{\"discount_pct\":52,\"image_url\":\"https://flipp-image-retrieval.flipp.com/api/aHR0cHM6Ly9mLndpc2hhYmkubmV0L2l0ZW0tYXNzZXRzLzIyNjQvZDEzNTFkM2UyOGE3ODI3N2IwZjIyZmQyNjVlZTJiYTQvb3JpZ2luYWwucG5n?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9mbGlwcC1pbWFnZS1yZXRyaWV2YWwuZmxpcHAuY29tL2FwaS9hSFIwY0hNNkx5OW1MbmRwYzJoaFlta3VibVYwTDJsMFpXMHRZWE56WlhSekx6SXlOalF2WkRFek5URmtNMlV5T0dFM09ESTNOMkl3WmpJeVptUXlOalZsWlRKaVlUUXZiM0pwWjJsdVlXd3VjRzVuPyoiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3ODMxNzczMTd9fX1dfQ__\u0026Signature=n2kNAvJFl0CYltRWdQ~8KhrWzsqSEtIqVaGukNe3djMwcN2wrToYdDASC~z7KhFrs7iz2xuo6WMWJmXY8I3~ao-huDdMfO8glu1UltbkfNYEbAy1HzOmP25O2O5cRYBaC5195XaJ3jmyzrQuUpilhNbic75Ei6EaQ26RgeDGmFM55eTBQDjJhW0DAIjhDt-IgLaWaywJghD~b35KA~70EoWWpHQS1vo7rmTy~ANp5L4~45RsCKTBVUEuSRuz6s8fv5fQU9yAWcYbk7knrxGVVuO2kbbgg5zk7FSUe-I93NjINi9-eMY287FA~ZPgLRo0bdWpfmJmBDdOVYYR56tN~A__\u0026Key-Pair-Id=KDIF3067XOLU0\u0026transforms=resizep:162:140\",\"merchant\":\"CVS Pharmacy\",\"name\":\"\u003credacted\u003e\",\"price\":5.99,\"query\":\"coffee\",\"was\":12.49},{\"discount_pct\":52,\"image_url\":\"https://flipp-image-retrieval.flipp.com/api/aHR0cHM6Ly9mLndpc2hhYmkubmV0L2l0ZW0tYXNzZXRzLzIyMDcvMzgxZmZjZTg4YTBmMzY0ODk0NWU2YmY5NWM1Y2U4YmYvb3JpZ2luYWwucG5n?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9mbGlwcC1pbWFnZS1yZXRyaWV2YWwuZmxpcHAuY29tL2FwaS9hSFIwY0hNNkx5OW1MbmRwYzJoaFlta3VibVYwTDJsMFpXMHRZWE56WlhSekx6SXlNRGN2TXpneFptWmpaVGc0WVRCbU16WTBPRGswTldVMlltWTVOV00xWTJVNFltWXZiM0pwWjJsdVlXd3VjRzVuPyoiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3ODMxNzc0NTl9fX1dfQ__\u0026Signature=DgGRL5KSn5Szx8jNv0YSA~9oE4hI1sd3f…[truncated]"
+    },
+    {
+      "command": "deals scan",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  flipp-pp-cli doctor [flags]\n\nExamples:\n  flipp-pp-cli doctor\n  flipp-pp-cli doctor --json\n  flipp-pp-cli doctor --fail-on warn\n  flipp-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: /var/folders/39/y3drpc295ql9dvkfblcqpnxm0000gn/T/printing-press-subprocess-423806212/.config/flipp-pp-cli/config.toml\n  base_url: https://backflipp.wishabi.com/flipp\n  version: 1.0.0\n  OK Cache: fresh\n    db_path: /var/folders/39/y3drpc295ql9dvkfblcqpnxm0000gn/T/printing-press-subprocess-423806212/.local/share/flipp-pp-cli/data.db\n    schema_version: 4\n    db_bytes: 1380352\n    stale_after: 6h0m0s\n    resources:\n      - flyers: 66 rows, 0s\n      - merchants: 2508 rows, 0s\n  Paths:\n    config: /var/folders/39/y3drpc295ql9dvkfblcqpnxm0000gn/T/printing-press-subprocess-423806212/.config/flipp-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/39/y3drpc295ql9dvkfblcqpnxm0000gn/T/printing-press-subprocess-423806212/.local/share/flipp-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/39/y3drpc295ql9dvkfblcqpnxm0000gn/T/printing-press-subprocess-423806212/.local/state/flipp-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/39/y3drpc295ql9dvkfblcqpnxm0000gn/T/printing-press-subprocess-423806212/.cache/flipp-pp-cli (XDG_CACHE_HOME)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://backflipp.wishabi.com/flipp\",\n  \"cache\": {\n    \"db_bytes\": 1380352,\n    \"db_path\": \"/var/folders/39/y3drpc295ql9dvkfblcqpnxm0000gn/T/printing-press-subprocess-423806212/.local/share/flipp-pp-cli/data.db\",\n    \"resources\": [\n      {\n        \"last_synced_at\": \"2026-06-27T20:04:12Z\",\n        \"rows\": 66,\n        \"staleness\": \"0s\",\n        \"type\": \"flyers\"\n      },\n      {\n        \"last_synced_at\": \"2026-06-27T20:04:12Z\",\n        \"rows\": 2508,\n        \"staleness\": \"0s\",\n        \"type\": \"merchants\"\n      }\n    ],\n    \"schema_version\": 4,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"fresh\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/39/y3drpc295ql9dvkfblcqpnxm0000gn/T/printing-press-subprocess-423806212/.config/flipp-pp-cli/config.toml\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/39/y3drpc295ql9dvkfblcqpnxm0000gn/T/printing-press-subprocess-423806212/.cache/flipp-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/39/y3drpc295ql9dvkfblcqpnxm0000gn/T/printing-press-subprocess-423806212/.config/flipp-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/39/y3drpc295ql9dvkfblcqpnxm0000gn/T/printing-press-subprocess-423806212/.local/share/flipp-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/39/y3drpc295ql9dvkfblcqpnxm0000gn/T/printing-press-subprocess-423806212/.local/state/flipp-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "expiring",
+      "kind": "help",
+      "args": [
+        "expiring",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Find local flyer and coupon savings that expire within a chosen window.\n\nUsage:\n  flipp-pp-cli expiring [flags]\n\nExamples:\n  flipp-pp-cli expiring --days 3 --zip 85001 --agent\n\nFlags:\n      --days string     Number of days ahead to include (default \"3\")\n  -h, --help            help for expiring\n      --limit int       Maximum expiring rows to return (default 50)\n      --locale string   Flipp locale, such as en-us or en-ca (default \"en-us\")\n      --zip string      ZIP or postal code used to find local savings (default \"85001\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "expiring",
+      "kind": "happy_path",
+      "args": [
+        "expiring",
+        "--days",
+        "3",
+        "--zip",
+        "85001",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"local\"},\"results\":{\"days\":3,\"results\":[{\"days_left\":0,\"id\":7980134,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-27T23:59:59-04:00\"},{\"days_left\":2,\"id\":8001238,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-29T23:59:59-04:00\"},{\"days_left\":1,\"id\":7999782,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":1,\"id\":7999133,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":2,\"id\":8000955,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-29T23:59:59-04:00\"},{\"days_left\":0,\"id\":7982014,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-27T23:59:59-04:00\"},{\"days_left\":2,\"id\":8001220,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-29T23:59:59-04:00\"},{\"days_left\":2,\"id\":8001229,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-29T23:59:59-04:00\"},{\"days_left\":1,\"id\":7999819,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":2,\"id\":8000884,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-29T23:59:59-04:00\"},{\"days_left\":1,\"id\":7983871,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":1,\"id\":7996897,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":1,\"id\":7991860,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":1,\"id\":7999125,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":0,\"id\":7983012,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-27T23:59:59-04:00\"},{\"days_left\":1,\"id\":7999223,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":1,\"id\":8005107,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-29T06:59:59-04:00\"},{\"days_left\":0,\"id\":7981604,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T00:59:59-04:00\"},{\"days_left\":0,\"id\":7990154,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-27T23:59:59-04:00\"},{\"days_left\":1,\"id\":7999673,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":0,\"id\":7999297,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-27T23:59:59-04:00\"},{\"days_left\":1,\"id\":7999859,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":1,\"id\":7999791,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":0,\"id\":7962340,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-27T23:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":1,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-29T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-27T20:00:00-04:00\"},{\"days_left\":2,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-30T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-27T20:00:00-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-27T20:00:00-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-27T23:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-27T23:59:59-04:00\"},{\"days…[truncated]"
+    },
+    {
+      "command": "expiring",
+      "kind": "json_fidelity",
+      "args": [
+        "expiring",
+        "--days",
+        "3",
+        "--zip",
+        "85001",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"local\"},\"results\":{\"days\":3,\"results\":[{\"days_left\":0,\"id\":7980134,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-27T23:59:59-04:00\"},{\"days_left\":2,\"id\":8001238,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-29T23:59:59-04:00\"},{\"days_left\":1,\"id\":7999782,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":1,\"id\":7999133,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":2,\"id\":8000955,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-29T23:59:59-04:00\"},{\"days_left\":0,\"id\":7982014,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-27T23:59:59-04:00\"},{\"days_left\":2,\"id\":8001220,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-29T23:59:59-04:00\"},{\"days_left\":2,\"id\":8001229,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-29T23:59:59-04:00\"},{\"days_left\":1,\"id\":7999819,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":2,\"id\":8000884,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-29T23:59:59-04:00\"},{\"days_left\":1,\"id\":7983871,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":1,\"id\":7996897,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":1,\"id\":7991860,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":1,\"id\":7999125,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":0,\"id\":7983012,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-27T23:59:59-04:00\"},{\"days_left\":1,\"id\":7999223,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":1,\"id\":8005107,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-29T06:59:59-04:00\"},{\"days_left\":0,\"id\":7981604,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T00:59:59-04:00\"},{\"days_left\":0,\"id\":7990154,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-27T23:59:59-04:00\"},{\"days_left\":1,\"id\":7999673,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":0,\"id\":7999297,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-27T23:59:59-04:00\"},{\"days_left\":1,\"id\":7999859,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":1,\"id\":7999791,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-28T23:59:59-04:00\"},{\"days_left\":0,\"id\":7962340,\"kind\":\"flyer\",\"name\":\"\u003credacted\u003e\",\"valid_to\":\"2026-06-27T23:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":1,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-29T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-27T20:00:00-04:00\"},{\"days_left\":2,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-30T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-27T20:00:00-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-28T02:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-27T20:00:00-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-27T23:59:59-04:00\"},{\"days_left\":0,\"id\":0,\"kind\":\"coupon\",\"valid_to\":\"2026-06-27T23:59:59-04:00\"},{\"days…[truncated]"
+    },
+    {
+      "command": "expiring",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "args": [
+        "export",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Export paginated API data to a local file. Supports JSONL (one JSON object\nper line, streaming-friendly) and JSON (array). JSONL is recommended for\nlarge datasets as it has no memory pressure.\n\nUsage:\n  flipp-pp-cli export \u003cresource\u003e [id] [flags]\n\nExamples:\n  # Export all items as JSONL (streaming, recommended for large datasets)\n  flipp-pp-cli export \u003cresource\u003e --format jsonl --output data.jsonl\n\n  # Export with limit\n  flipp-pp-cli export \u003cresource\u003e --format jsonl --limit 1000\n\n  # Pipe to another tool\n  flipp-pp-cli export \u003cresource\u003e --format jsonl | jq '.id'\n\nFlags:\n      --format string   Output format: jsonl or json (default \"jsonl\")\n  -h, --help            help for export\n      --limit int       Maximum records to export (0 = unlimited)\n      --no-cache        Bypass response cache for fresh data\n  -o, --output string   Output file path (default: stdout)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "args": [
+        "export",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: unknown resource \"__printing_press_invalid__\"; valid: flyers, merchants\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  flipp-pp-cli feedback list [flags]\n\nExamples:\n  flipp-pp-cli feedback list\n  flipp-pp-cli feedback list --limit 5\n  flipp-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "flyers data",
+      "kind": "help",
+      "args": [
+        "flyers",
+        "data",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch the combined local flyer and coupon data payload\n\nUsage:\n  flipp-pp-cli flyers data [flags]\n\nExamples:\n  flipp-pp-cli flyers data --zip 85001 --json --select flyers.id,flyers.merchant,coupons.id\n\nFlags:\n  -h, --help            help for data\n      --locale string   Flipp locale for the combined data payload (one of: en-us, en-ca, fr-ca) (default \"en-us\")\n      --zip string      ZIP or postal code used to find local flyer and coupon data (default \"85001\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "flyers data",
+      "kind": "happy_path",
+      "args": [
+        "flyers",
+        "data",
+        "--zip",
+        "85001",
+        "--json",
+        "--select",
+        "flyers.id,flyers.merchant,coupons.id"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"coupons\":[{\"available_from\":\"2026-06-21T03:01:00-04:00\",\"available_to\":\"2026-07-19T02:59:59-04:00\",\"barcode_image_url\":null,\"brand\":\"Camille Rose\",\"brand_logo_url\":null,\"categories\":[\"All Deals\",\"Other\"],\"category_ids\":[],\"coupon_id\":4560458,\"coupon_image_url\":\"http://f.wishabi.net/coupon_translations/4385396/1781421731/medium\",\"coupon_type\":\"amountoff\",\"coupon_vendor_id\":30,\"dollars_off\":3,\"merchant_id\":null,\"merchant_logo_url\":null,\"merchant_name\":null,\"percent_off\":null,\"postal_code\":\"\u003credacted\u003e\",\"premium\":false,\"premium_video_url\":null,\"priority\":200,\"promotion_text\":\"SAVE $3.00 on any ONE (1) Camille Rose Product (excludes trial and travel sizes)\",\"qualifying_quantity\":null,\"raw_brand\":null,\"redeemable_from\":\"2026-06-21T03:01:00-04:00\",\"redeemable_to\":\"2026-08-05T02:59:59-04:00\",\"redemption_method\":\"savetocard\",\"reward_quantity\":null,\"sale_story\":\"SAVE $3.00\",\"short_prod_name\":null,\"use_sales_story\":false,\"valid_from\":\"2026-06-21T03:01:00-04:00\",\"valid_to\":\"2026-08-02T02:59:59-04:00\"},{\"available_from\":\"2026-05-24T03:00:00-04:00\",\"available_to\":\"2026-07-05T02:59:00-04:00\",\"barcode_image_url\":null,\"brand\":\"Fixodent\",\"brand_logo_url\":\"http://f.wishabi.net/brand_translations/1110/90d0e832-4ce1-11ea-8450-1290545492fe/logo\",\"categories\":[\"All Deals\",\"Health \u0026 Beauty\"],\"category_ids\":[3],\"coupon_id\":4475902,\"coupon_image_url\":\"http://f.wishabi.net/coupon_translations/4300840/1779001320/medium\",\"coupon_type\":\"amountoff\",\"coupon_vendor_id\":30,\"dollars_off\":2,\"merchant_id\":null,\"merchant_logo_url\":null,\"merchant_name\":null,\"percent_off\":null,\"postal_code\":\"\u003credacted\u003e\",\"premium\":false,\"premium_video_url\":null,\"priority\":200,\"promotion_text\":\"Save $2.00 TWO FIXODENT ADHESIVE SINGLE, OR TWIN/TRIPLE PACK 1.4 oz or larger (excludes trial/travel size).\",\"qualifying_quantity\":null,\"raw_brand\":null,\"redeemable_from\":\"2026-05-24T03:00:00-04:00\",\"redeemable_to\":\"2026-07-08T02:59:00-04:00\",\"redemption_method\":\"savetocard\",\"reward_quantity\":null,\"sale_story\":\"Save $2.00\",\"short_prod_name\":null,\"use_sales_story\":false,\"valid_from\":\"2026-05-24T03:00:00-04:00\",\"valid_to\":\"2026-07-05T02:59:00-04:00\"},{\"available_from\":\"2026-05-24T03:00:00-04:00\",\"available_to\":\"2026-07-05T02:59:00-04:00\",\"barcode_image_url\":null,\"brand\":\"Tide\",\"brand_logo_url\":\"http://f.wishabi.net/brand_translations/863/0f8a1fea-5fe8-11ea-bb24-0e7ca39ae4ef/logo\",\"categories\":[\"All Deals\",\"Household\"],\"category_ids\":[4],\"coupon_id\":4475903,\"coupon_image_url\":\"http://f.wishabi.net/coupon_translations/4300841/1779001321/medium\",\"coupon_type\":\"amountoff\",\"coupon_vendor_id\":30,\"dollars_off\":1,\"merchant_id\":null,\"merchant_logo_url\":null,\"merchant_name\":null,\"percent_off\":null,\"postal_code\":\"\u003credacted\u003e\",\"premium\":false,\"premium_video_url\":null,\"priority\":200,\"promotion_text\":\"Save $1.00 ONE Tide PODS Laundry Detergent 11 ct TO 16 ct (includes Tide Ultra Oxi PODS), (excludes Tide EVO, Tide Rinse, Tide Liquid/Powder Laundry Detergent, Tide Simply Laundry Detergent, Tide PODS 9 ct and below and trial/travel size).\",\"qualifying_quantity\":null,\"raw_brand\":null,\"redeemable_from\":\"2026-05-24T03:00:00-04:00\",\"redeemable_to\":\"2026-07-08T02:59:00-04:00\",\"redemption_method\":\"savetocard\",\"reward_quantity\":null,\"sale_story\":\"Save $1.00\",\"short_prod_name\":null,\"use_sales_story\":false,\"valid_from\":\"2026-05-24T03:00:00-04:00\",\"valid_to\":\"2026-07-05T02:59:00-04:00\"},{\"available_from\":\"2026-05-24T03:00:00-04:00\",\"available_to\":\"2026-07-05T02:59:00-04:00\",\"barcode_image_url\":null,\"brand\":\"Tide\",\"brand_logo_url\":\"http://f.wishabi.net/brand_translations/863/0f8a1fea-5fe8-11ea-bb24-0e7ca39ae4ef/logo\",\"categories\":[\"All Deals\",\"Household\"],\"category_ids\":[4],\"coupon_id\":4475905,\"coupon_image_url\":\"http://f.wishabi.net/coupon_translations/4300843/1779001323/medium\",\"coupon_type\":\"amountoff\",\"coupon_vendor_id\":30,\"dollars_off\":0.75,\"merchant_id\":null,\"merchant_logo_url\":null,\"merchant_name\":null,\"percent_off\":null,\"postal_code\":\"\u003credacted\u003e\",\"premium\":false,\"premium_video_url\":null,\"priority\":200,\"promotion_text\":\"Save $0.75 ONE Tide Simply Laundry Detergent 30-32 oz …[truncated]"
+    },
+    {
+      "command": "flyers data",
+      "kind": "json_fidelity",
+      "args": [
+        "flyers",
+        "data",
+        "--zip",
+        "85001",
+        "--json",
+        "--select",
+        "flyers.id,flyers.merchant,coupons.id"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"coupons\":[{\"available_from\":\"2026-06-21T03:01:00-04:00\",\"available_to\":\"2026-07-19T02:59:59-04:00\",\"barcode_image_url\":null,\"brand\":\"Camille Rose\",\"brand_logo_url\":null,\"categories\":[\"All Deals\",\"Other\"],\"category_ids\":[],\"coupon_id\":4560458,\"coupon_image_url\":\"http://f.wishabi.net/coupon_translations/4385396/1781421731/medium\",\"coupon_type\":\"amountoff\",\"coupon_vendor_id\":30,\"dollars_off\":3,\"merchant_id\":null,\"merchant_logo_url\":null,\"merchant_name\":null,\"percent_off\":null,\"postal_code\":\"\u003credacted\u003e\",\"premium\":false,\"premium_video_url\":null,\"priority\":200,\"promotion_text\":\"SAVE $3.00 on any ONE (1) Camille Rose Product (excludes trial and travel sizes)\",\"qualifying_quantity\":null,\"raw_brand\":null,\"redeemable_from\":\"2026-06-21T03:01:00-04:00\",\"redeemable_to\":\"2026-08-05T02:59:59-04:00\",\"redemption_method\":\"savetocard\",\"reward_quantity\":null,\"sale_story\":\"SAVE $3.00\",\"short_prod_name\":null,\"use_sales_story\":false,\"valid_from\":\"2026-06-21T03:01:00-04:00\",\"valid_to\":\"2026-08-02T02:59:59-04:00\"},{\"available_from\":\"2026-05-24T03:00:00-04:00\",\"available_to\":\"2026-07-05T02:59:00-04:00\",\"barcode_image_url\":null,\"brand\":\"Fixodent\",\"brand_logo_url\":\"http://f.wishabi.net/brand_translations/1110/90d0e832-4ce1-11ea-8450-1290545492fe/logo\",\"categories\":[\"All Deals\",\"Health \u0026 Beauty\"],\"category_ids\":[3],\"coupon_id\":4475902,\"coupon_image_url\":\"http://f.wishabi.net/coupon_translations/4300840/1779001320/medium\",\"coupon_type\":\"amountoff\",\"coupon_vendor_id\":30,\"dollars_off\":2,\"merchant_id\":null,\"merchant_logo_url\":null,\"merchant_name\":null,\"percent_off\":null,\"postal_code\":\"\u003credacted\u003e\",\"premium\":false,\"premium_video_url\":null,\"priority\":200,\"promotion_text\":\"Save $2.00 TWO FIXODENT ADHESIVE SINGLE, OR TWIN/TRIPLE PACK 1.4 oz or larger (excludes trial/travel size).\",\"qualifying_quantity\":null,\"raw_brand\":null,\"redeemable_from\":\"2026-05-24T03:00:00-04:00\",\"redeemable_to\":\"2026-07-08T02:59:00-04:00\",\"redemption_method\":\"savetocard\",\"reward_quantity\":null,\"sale_story\":\"Save $2.00\",\"short_prod_name\":null,\"use_sales_story\":false,\"valid_from\":\"2026-05-24T03:00:00-04:00\",\"valid_to\":\"2026-07-05T02:59:00-04:00\"},{\"available_from\":\"2026-05-24T03:00:00-04:00\",\"available_to\":\"2026-07-05T02:59:00-04:00\",\"barcode_image_url\":null,\"brand\":\"Tide\",\"brand_logo_url\":\"http://f.wishabi.net/brand_translations/863/0f8a1fea-5fe8-11ea-bb24-0e7ca39ae4ef/logo\",\"categories\":[\"All Deals\",\"Household\"],\"category_ids\":[4],\"coupon_id\":4475903,\"coupon_image_url\":\"http://f.wishabi.net/coupon_translations/4300841/1779001321/medium\",\"coupon_type\":\"amountoff\",\"coupon_vendor_id\":30,\"dollars_off\":1,\"merchant_id\":null,\"merchant_logo_url\":null,\"merchant_name\":null,\"percent_off\":null,\"postal_code\":\"\u003credacted\u003e\",\"premium\":false,\"premium_video_url\":null,\"priority\":200,\"promotion_text\":\"Save $1.00 ONE Tide PODS Laundry Detergent 11 ct TO 16 ct (includes Tide Ultra Oxi PODS), (excludes Tide EVO, Tide Rinse, Tide Liquid/Powder Laundry Detergent, Tide Simply Laundry Detergent, Tide PODS 9 ct and below and trial/travel size).\",\"qualifying_quantity\":null,\"raw_brand\":null,\"redeemable_from\":\"2026-05-24T03:00:00-04:00\",\"redeemable_to\":\"2026-07-08T02:59:00-04:00\",\"redemption_method\":\"savetocard\",\"reward_quantity\":null,\"sale_story\":\"Save $1.00\",\"short_prod_name\":null,\"use_sales_story\":false,\"valid_from\":\"2026-05-24T03:00:00-04:00\",\"valid_to\":\"2026-07-05T02:59:00-04:00\"},{\"available_from\":\"2026-05-24T03:00:00-04:00\",\"available_to\":\"2026-07-05T02:59:00-04:00\",\"barcode_image_url\":null,\"brand\":\"Tide\",\"brand_logo_url\":\"http://f.wishabi.net/brand_translations/863/0f8a1fea-5fe8-11ea-bb24-0e7ca39ae4ef/logo\",\"categories\":[\"All Deals\",\"Household\"],\"category_ids\":[4],\"coupon_id\":4475905,\"coupon_image_url\":\"http://f.wishabi.net/coupon_translations/4300843/1779001323/medium\",\"coupon_type\":\"amountoff\",\"coupon_vendor_id\":30,\"dollars_off\":0.75,\"merchant_id\":null,\"merchant_logo_url\":null,\"merchant_name\":null,\"percent_off\":null,\"postal_code\":\"\u003credacted\u003e\",\"premium\":false,\"premium_video_url\":null,\"priority\":200,\"promotion_text\":\"Save $0.75 ONE Tide Simply Laundry Detergent 30-32 oz …[truncated]"
+    },
+    {
+      "command": "flyers data",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "flyers items",
+      "kind": "help",
+      "args": [
+        "flyers",
+        "items",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List item clippings from a specific flyer\n\nUsage:\n  flipp-pp-cli flyers items \u003cflyer_id\u003e [flags]\n\nExamples:\n  flipp-pp-cli flyers items 8005907 --sid 1234567890123456 --json\n\nFlags:\n  -h, --help            help for items\n      --locale string   Flyer item locale (one of: en, fr) (default \"en\")\n      --sid string      16-digit Flipp session identifier accepted by flyer item endpoints (default \"1234567890123456\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "flyers items",
+      "kind": "happy_path",
+      "args": [
+        "flyers",
+        "items",
+        "7932643",
+        "--sid",
+        "1234567890123456",
+        "--json"
+      ],
+      "status": "pass",
+      "fixture_source": "store",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"available_to\":\"2026-07-06T23:59:59-04:00\",\"bottom\":-2533.330078125,\"brand\":\"\",\"cutout_image_url\":\"https://f.wishabi.net/page_items/415938096/1775273274/extra_large.jpg\",\"display_type\":1,\"flyer_id\":7932643,\"id\":1013414034,\"left\":64,\"name\":\"\u003credacted\u003e\",\"page_destination\":null,\"price\":\"1.25\",\"right\":2208,\"top\":-442.6669921875,\"valid_from\":\"2026-04-06T00:00:00-04:00\",\"valid_to\":\"2026-07-06T23:59:59-04:00\",\"video_url\":null},{\"available_to\":\"2026-07-06T23:59:59-04:00\",\"bottom\":-2257.5400390625,\"brand\":\"\",\"cutout_image_url\":\"https://f.wishabi.net/page_items/415938072/1782401959/extra_large.jpg\",\"display_type\":1,\"flyer_id\":7932643,\"id\":1013414048,\"left\":2389.03125,\"name\":\"\u003credacted\u003e\",\"page_destination\":null,\"price\":\"1.75\",\"right\":3264.970947265625,\"top\":-1060.109985351562,\"valid_from\":\"2026-04-06T00:00:00-04:00\",\"valid_to\":\"2026-07-06T23:59:59-04:00\",\"video_url\":null},{\"available_to\":\"2026-07-06T23:59:59-04:00\",\"bottom\":-2251.81005859375,\"brand\":\"Zuru\",\"cutout_image_url\":\"https://f.wishabi.net/page_items/415937817/1782402003/extra_large.jpg\",\"display_type\":1,\"flyer_id\":7932643,\"id\":1013414056,\"left\":4754.080078125,\"name\":\"\u003credacted\u003e\",\"page_destination\":null,\"price\":\"10.0\",\"right\":5090.6201171875,\"top\":-1789.530029296875,\"valid_from\":\"2026-04-06T00:00:00-04:00\",\"valid_to\":\"2026-07-06T23:59:59-04:00\",\"video_url\":null},{\"available_to\":\"2026-07-06T23:59:59-04:00\",\"bottom\":-1264,\"brand\":\"\",\"cutout_image_url\":\"https://f.wishabi.net/page_items/415937783/1775273189/extra_large.jpg\",\"display_type\":1,\"flyer_id\":7932643,\"id\":1013414057,\"left\":6992,\"name\":\"\u003credacted\u003e\",\"page_destination\":null,\"price\":\"5.0\",\"right\":9136,\"top\":-85.33329772949219,\"valid_from\":\"2026-04-06T00:00:00-04:00\",\"valid_to\":\"2026-07-06T23:59:59-04:00\",\"video_url\":null},{\"available_to\":\"2026-07-06T23:59:59-04:00\",\"bottom\":-2470.389892578125,\"brand\":\"Pure Life\",\"cutout_image_url\":\"https://f.wishabi.net/page_items/415938028/1782402131/extra_large.jpg\",\"display_type\":1,\"flyer_id\":7932643,\"id\":1013414077,\"left\":15274.1904296875,\"name\":\"\u003credacted\u003e\",\"page_destination\":null,\"price\":\"2.0\",\"right\":15786.7099609375,\"top\":-1927.589965820312,\"valid_from\":\"2026-04-06T00:00:00-04:00\",\"valid_to\":\"2026-07-06T23:59:59-04:00\",\"video_url\":null},{\"available_to\":\"2026-07-06T23:59:59-04:00\",\"bottom\":-933.041015625,\"brand\":\"Hawaiian Punch\",\"cutout_image_url\":\"https://f.wishabi.net/page_items/415937987/1782402318/extra_large.jpg\",\"display_type\":1,\"flyer_id\":7932643,\"id\":1013414081,\"left\":16828.87890625,\"name\":\"\u003credacted\u003e\",\"page_destination\":null,\"price\":\"2.95\",\"right\":17034.13671875,\"top\":-672.1199951171875,\"valid_from\":\"2026-04-06T00:00:00-04:00\",\"valid_to\":\"2026-07-06T23:59:59-04:00\",\"video_url\":null},{\"available_to\":\"2026-07-06T23:59:59-04:00\",\"bottom\":-2213.02001953125,\"brand\":\"\",\"cutout_image_url\":\"https://f.wishabi.net/page_items/415938041/1775273192/extra_large.jpg\",\"display_type\":1,\"flyer_id\":7932643,\"id\":1013414094,\"left\":20937.513671875,\"name\":\"\u003credacted\u003e\",\"page_destination\":null,\"price\":\"3.5\",\"right\":21438.3828125,\"top\":-2175.739990234375,\"valid_from\":\"2026-04-06T00:00:00-04:00\",\"valid_to\":\"2026-07-06T23:59:59-04:00\",\"video_url\":null},{\"available_to\":\"2026-07-06T23:59:59-04:00\",\"bottom\":-861.1630249023438,\"brand\":\"\",\"cutout_image_url\":\"https://f.wishabi.net/page_items/415938005/1782401830/extra_large.jpg\",\"display_type\":1,\"flyer_id\":7932643,\"id\":1013414104,\"left\":23647.30859375,\"name\":\"\u003credacted\u003e\",\"page_destination\":null,\"price\":\"5.0\",\"right\":24717.58984375,\"top\":-256.2489929199219,\"valid_from\":\"2026-04-06T00:00:00-04:00\",\"valid_to\":\"2026-07-06T23:59:59-04:00\",\"video_url\":null},{\"available_to\":\"2026-07-06T23:59:59-04:00\",\"bottom\":-1567.859985351562,\"brand\":\"Tiki\",\"cutout_image_url\":\"https://f.wishabi.net/page_items/415938057/1782401926/extra_large.jpg\",\"display_type\":1,\"flyer_id\":7932643,\"id\":1013414119,\"left\":28632.267578125,\"name\":\"\u003credacted\u003e\",\"page_destination\":null,\"price\":\"5.0\",\"right\":28851.25,\"top\":-952.8419799804688,\"valid_from\":\"2026-04-06T00:00:00-04:00\",\"valid_to\":\"2026-07-06T23:59:59-04:00\",\"video_url\":null},{\"available_to\":\"2026-07-0…[truncated]"
+    },
+    {
+      "command": "flyers items",
+      "kind": "json_fidelity",
+      "args": [
+        "flyers",
+        "items",
+        "7932643",
+        "--sid",
+        "1234567890123456",
+        "--json"
+      ],
+      "status": "pass",
+      "fixture_source": "store",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"available_to\":\"2026-07-06T23:59:59-04:00\",\"bottom\":-2533.330078125,\"brand\":\"\",\"cutout_image_url\":\"https://f.wishabi.net/page_items/415938096/1775273274/extra_large.jpg\",\"display_type\":1,\"flyer_id\":7932643,\"id\":1013414034,\"left\":64,\"name\":\"\u003credacted\u003e\",\"page_destination\":null,\"price\":\"1.25\",\"right\":2208,\"top\":-442.6669921875,\"valid_from\":\"2026-04-06T00:00:00-04:00\",\"valid_to\":\"2026-07-06T23:59:59-04:00\",\"video_url\":null},{\"available_to\":\"2026-07-06T23:59:59-04:00\",\"bottom\":-2257.5400390625,\"brand\":\"\",\"cutout_image_url\":\"https://f.wishabi.net/page_items/415938072/1782401959/extra_large.jpg\",\"display_type\":1,\"flyer_id\":7932643,\"id\":1013414048,\"left\":2389.03125,\"name\":\"\u003credacted\u003e\",\"page_destination\":null,\"price\":\"1.75\",\"right\":3264.970947265625,\"top\":-1060.109985351562,\"valid_from\":\"2026-04-06T00:00:00-04:00\",\"valid_to\":\"2026-07-06T23:59:59-04:00\",\"video_url\":null},{\"available_to\":\"2026-07-06T23:59:59-04:00\",\"bottom\":-2251.81005859375,\"brand\":\"Zuru\",\"cutout_image_url\":\"https://f.wishabi.net/page_items/415937817/1782402003/extra_large.jpg\",\"display_type\":1,\"flyer_id\":7932643,\"id\":1013414056,\"left\":4754.080078125,\"name\":\"\u003credacted\u003e\",\"page_destination\":null,\"price\":\"10.0\",\"right\":5090.6201171875,\"top\":-1789.530029296875,\"valid_from\":\"2026-04-06T00:00:00-04:00\",\"valid_to\":\"2026-07-06T23:59:59-04:00\",\"video_url\":null},{\"available_to\":\"2026-07-06T23:59:59-04:00\",\"bottom\":-1264,\"brand\":\"\",\"cutout_image_url\":\"https://f.wishabi.net/page_items/415937783/1775273189/extra_large.jpg\",\"display_type\":1,\"flyer_id\":7932643,\"id\":1013414057,\"left\":6992,\"name\":\"\u003credacted\u003e\",\"page_destination\":null,\"price\":\"5.0\",\"right\":9136,\"top\":-85.33329772949219,\"valid_from\":\"2026-04-06T00:00:00-04:00\",\"valid_to\":\"2026-07-06T23:59:59-04:00\",\"video_url\":null},{\"available_to\":\"2026-07-06T23:59:59-04:00\",\"bottom\":-2470.389892578125,\"brand\":\"Pure Life\",\"cutout_image_url\":\"https://f.wishabi.net/page_items/415938028/1782402131/extra_large.jpg\",\"display_type\":1,\"flyer_id\":7932643,\"id\":1013414077,\"left\":15274.1904296875,\"name\":\"\u003credacted\u003e\",\"page_destination\":null,\"price\":\"2.0\",\"right\":15786.7099609375,\"top\":-1927.589965820312,\"valid_from\":\"2026-04-06T00:00:00-04:00\",\"valid_to\":\"2026-07-06T23:59:59-04:00\",\"video_url\":null},{\"available_to\":\"2026-07-06T23:59:59-04:00\",\"bottom\":-933.041015625,\"brand\":\"Hawaiian Punch\",\"cutout_image_url\":\"https://f.wishabi.net/page_items/415937987/1782402318/extra_large.jpg\",\"display_type\":1,\"flyer_id\":7932643,\"id\":1013414081,\"left\":16828.87890625,\"name\":\"\u003credacted\u003e\",\"page_destination\":null,\"price\":\"2.95\",\"right\":17034.13671875,\"top\":-672.1199951171875,\"valid_from\":\"2026-04-06T00:00:00-04:00\",\"valid_to\":\"2026-07-06T23:59:59-04:00\",\"video_url\":null},{\"available_to\":\"2026-07-06T23:59:59-04:00\",\"bottom\":-2213.02001953125,\"brand\":\"\",\"cutout_image_url\":\"https://f.wishabi.net/page_items/415938041/1775273192/extra_large.jpg\",\"display_type\":1,\"flyer_id\":7932643,\"id\":1013414094,\"left\":20937.513671875,\"name\":\"\u003credacted\u003e\",\"page_destination\":null,\"price\":\"3.5\",\"right\":21438.3828125,\"top\":-2175.739990234375,\"valid_from\":\"2026-04-06T00:00:00-04:00\",\"valid_to\":\"2026-07-06T23:59:59-04:00\",\"video_url\":null},{\"available_to\":\"2026-07-06T23:59:59-04:00\",\"bottom\":-861.1630249023438,\"brand\":\"\",\"cutout_image_url\":\"https://f.wishabi.net/page_items/415938005/1782401830/extra_large.jpg\",\"display_type\":1,\"flyer_id\":7932643,\"id\":1013414104,\"left\":23647.30859375,\"name\":\"\u003credacted\u003e\",\"page_destination\":null,\"price\":\"5.0\",\"right\":24717.58984375,\"top\":-256.2489929199219,\"valid_from\":\"2026-04-06T00:00:00-04:00\",\"valid_to\":\"2026-07-06T23:59:59-04:00\",\"video_url\":null},{\"available_to\":\"2026-07-06T23:59:59-04:00\",\"bottom\":-1567.859985351562,\"brand\":\"Tiki\",\"cutout_image_url\":\"https://f.wishabi.net/page_items/415938057/1782401926/extra_large.jpg\",\"display_type\":1,\"flyer_id\":7932643,\"id\":1013414119,\"left\":28632.267578125,\"name\":\"\u003credacted\u003e\",\"page_destination\":null,\"price\":\"5.0\",\"right\":28851.25,\"top\":-952.8419799804688,\"valid_from\":\"2026-04-06T00:00:00-04:00\",\"valid_to\":\"2026-07-06T23:59:59-04:00\",\"video_url\":null},{\"available_to\":\"2026-07-0…[truncated]"
+    },
+    {
+      "command": "flyers items",
+      "kind": "error_path",
+      "args": [
+        "flyers",
+        "items",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET https://flyers-ng.flippback.com/api/flipp/flyers/__printing_press_invalid__/flyer_items returned HTTP 404: {\"error\":\"404\",\"message\":\"Flyer not found\"}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "flyers list",
+      "kind": "help",
+      "args": [
+        "flyers",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List active flyers for a ZIP or postal code\n\nUsage:\n  flipp-pp-cli flyers list [flags]\n\nExamples:\n  flipp-pp-cli flyers list --zip 85001 --json --select flyers.id,flyers.merchant,flyers.valid_to\n\nFlags:\n  -h, --help            help for list\n      --locale string   Flipp locale for flyers (one of: en-us, en-ca, fr-ca) (default \"en-us\")\n      --zip string      ZIP or postal code used to find local flyers (default \"85001\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "flyers list",
+      "kind": "happy_path",
+      "args": [
+        "flyers",
+        "list",
+        "--zip",
+        "85001",
+        "--json",
+        "--select",
+        "flyers.id,flyers.merchant,flyers.valid_to"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"flyers\": [\n      {\n        \"id\": 7932643,\n        \"merchant\": \"Family Dollar\",\n        \"valid_to\": \"2026-07-06T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8005907,\n        \"merchant\": \"Family Dollar\",\n        \"valid_to\": \"2026-07-04T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7980134,\n        \"merchant\": \"Target\",\n        \"valid_to\": \"2026-06-27T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7987766,\n        \"merchant\": \"Safeway\",\n        \"valid_to\": \"2026-06-30T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8005560,\n        \"merchant\": \"Sam's Club\",\n        \"valid_to\": \"2026-07-01T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8001238,\n        \"merchant\": \"Tractor Supply Company \",\n        \"valid_to\": \"2026-06-29T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7999782,\n        \"merchant\": \"ULTA\",\n        \"valid_to\": \"2026-06-28T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8005641,\n        \"merchant\": \"Academy Sports + Outdoors\",\n        \"valid_to\": \"2026-07-01T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8006791,\n        \"merchant\": \"Victoria's Secret\",\n        \"valid_to\": \"2026-07-02T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7999133,\n        \"merchant\": \"Costco \",\n        \"valid_to\": \"2026-06-28T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8000955,\n        \"merchant\": \"Five Below\",\n        \"valid_to\": \"2026-06-29T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7985809,\n        \"merchant\": \"ALDI\",\n        \"valid_to\": \"2026-07-07T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7989396,\n        \"merchant\": \"Walgreens\",\n        \"valid_to\": \"2026-07-04T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7982014,\n        \"merchant\": \"Walgreens\",\n        \"valid_to\": \"2026-06-27T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8001220,\n        \"merchant\": \"Marshalls\",\n        \"valid_to\": \"2026-06-29T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8001229,\n        \"merchant\": \"Ikea \",\n        \"valid_to\": \"2026-06-29T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7999819,\n        \"merchant\": \"Costco \",\n        \"valid_to\": \"2026-06-28T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8005555,\n        \"merchant\": \"TJ Maxx \",\n        \"valid_to\": \"2026-07-01T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8002859,\n        \"merchant\": \"Dick's Sporting Goods\",\n        \"valid_to\": \"2026-06-30T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8000884,\n        \"merchant\": \"Best Buy\",\n        \"valid_to\": \"2026-06-29T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7924924,\n        \"merchant\": \"Ace Hardware\",\n        \"valid_to\": \"2026-06-30T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8002460,\n        \"merchant\": \"El Rancho Market\",\n        \"valid_to\": \"2026-06-30T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7987498,\n        \"merchant\": \"Food City\",\n        \"valid_to\": \"2026-06-30T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8002862,\n        \"merchant\": \"Nordstrom Inc.\",\n        \"valid_to\": \"2026-06-30T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7989018,\n        \"merchant\": \"Sprouts Farmers Market\",\n        \"valid_to\": \"2026-06-30T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7983871,\n        \"merchant\": \"US Foods CHEF’STORE\",\n        \"valid_to\": \"2026-06-28T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7996897,\n        \"merchant\": \"Hobby Lobby\",\n        \"valid_to\": \"2026-06-28T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7991860,\n        \"merchant\": \"JCPenney\",\n        \"valid_to\": \"2026-06-28T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7999125,\n        \"merchant\": \"Office Depot OfficeMax\",\n        \"valid_to\": \"2026-06-28T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8000981,\n        \"merchant\": \"Harbor Freight Tools\",\n        \"valid_to\": \"2026-07-06T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8001169,\n        \"merchant\": \"Walmart\",\n        \"valid_to\": \"2026-06-30T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7960377,\n        \"merchant\": \"Safeway\",\n        \"valid_to\": \"2026-06-30T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7960204,\n        \"merchant\": \"Alber…[truncated]"
+    },
+    {
+      "command": "flyers list",
+      "kind": "json_fidelity",
+      "args": [
+        "flyers",
+        "list",
+        "--zip",
+        "85001",
+        "--json",
+        "--select",
+        "flyers.id,flyers.merchant,flyers.valid_to"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"flyers\": [\n      {\n        \"id\": 7932643,\n        \"merchant\": \"Family Dollar\",\n        \"valid_to\": \"2026-07-06T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8005907,\n        \"merchant\": \"Family Dollar\",\n        \"valid_to\": \"2026-07-04T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7980134,\n        \"merchant\": \"Target\",\n        \"valid_to\": \"2026-06-27T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7987766,\n        \"merchant\": \"Safeway\",\n        \"valid_to\": \"2026-06-30T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8005560,\n        \"merchant\": \"Sam's Club\",\n        \"valid_to\": \"2026-07-01T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8001238,\n        \"merchant\": \"Tractor Supply Company \",\n        \"valid_to\": \"2026-06-29T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7999782,\n        \"merchant\": \"ULTA\",\n        \"valid_to\": \"2026-06-28T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8005641,\n        \"merchant\": \"Academy Sports + Outdoors\",\n        \"valid_to\": \"2026-07-01T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8006791,\n        \"merchant\": \"Victoria's Secret\",\n        \"valid_to\": \"2026-07-02T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7999133,\n        \"merchant\": \"Costco \",\n        \"valid_to\": \"2026-06-28T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8000955,\n        \"merchant\": \"Five Below\",\n        \"valid_to\": \"2026-06-29T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7985809,\n        \"merchant\": \"ALDI\",\n        \"valid_to\": \"2026-07-07T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7989396,\n        \"merchant\": \"Walgreens\",\n        \"valid_to\": \"2026-07-04T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7982014,\n        \"merchant\": \"Walgreens\",\n        \"valid_to\": \"2026-06-27T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8001220,\n        \"merchant\": \"Marshalls\",\n        \"valid_to\": \"2026-06-29T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8001229,\n        \"merchant\": \"Ikea \",\n        \"valid_to\": \"2026-06-29T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7999819,\n        \"merchant\": \"Costco \",\n        \"valid_to\": \"2026-06-28T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8005555,\n        \"merchant\": \"TJ Maxx \",\n        \"valid_to\": \"2026-07-01T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8002859,\n        \"merchant\": \"Dick's Sporting Goods\",\n        \"valid_to\": \"2026-06-30T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8000884,\n        \"merchant\": \"Best Buy\",\n        \"valid_to\": \"2026-06-29T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7924924,\n        \"merchant\": \"Ace Hardware\",\n        \"valid_to\": \"2026-06-30T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8002460,\n        \"merchant\": \"El Rancho Market\",\n        \"valid_to\": \"2026-06-30T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7987498,\n        \"merchant\": \"Food City\",\n        \"valid_to\": \"2026-06-30T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8002862,\n        \"merchant\": \"Nordstrom Inc.\",\n        \"valid_to\": \"2026-06-30T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7989018,\n        \"merchant\": \"Sprouts Farmers Market\",\n        \"valid_to\": \"2026-06-30T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7983871,\n        \"merchant\": \"US Foods CHEF’STORE\",\n        \"valid_to\": \"2026-06-28T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7996897,\n        \"merchant\": \"Hobby Lobby\",\n        \"valid_to\": \"2026-06-28T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7991860,\n        \"merchant\": \"JCPenney\",\n        \"valid_to\": \"2026-06-28T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7999125,\n        \"merchant\": \"Office Depot OfficeMax\",\n        \"valid_to\": \"2026-06-28T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8000981,\n        \"merchant\": \"Harbor Freight Tools\",\n        \"valid_to\": \"2026-07-06T23:59:59-04:00\"\n      },\n      {\n        \"id\": 8001169,\n        \"merchant\": \"Walmart\",\n        \"valid_to\": \"2026-06-30T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7960377,\n        \"merchant\": \"Safeway\",\n        \"valid_to\": \"2026-06-30T23:59:59-04:00\"\n      },\n      {\n        \"id\": 7960204,\n        \"merchant\": \"Alber…[truncated]"
+    },
+    {
+      "command": "flyers list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "items",
+      "kind": "help",
+      "args": [
+        "items",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search local flyer and ecommerce deals by keyword\n\nUsage:\n  flipp-pp-cli items \u003cq\u003e [flags]\n\nExamples:\n  flipp-pp-cli items milk --zip 85001 --sort price_low_to_high --json\n\nFlags:\n  -h, --help            help for items\n      --locale string   Flipp locale for the search (one of: en-us, en-ca, fr-ca) (default \"en-us\")\n      --sort string     Upstream Flipp sort mode (one of: relevancy, price_low_to_high, price_high_to_low)\n      --zip string      ZIP or postal code used to find local Flipp results (default \"85001\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "items",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [items] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "items",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [items] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "items",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "location",
+      "kind": "help",
+      "args": [
+        "location",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Detect the current public IP location as a Flipp postal code\n\nUsage:\n  flipp-pp-cli location [flags]\n\nExamples:\n  flipp-pp-cli location --json\n\nFlags:\n  -h, --help   help for location\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "location",
+      "kind": "happy_path",
+      "args": [
+        "location",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"city_name\":\"Phoenix\",\"country_code\":\"US\",\"ip\":\"98.168.14.178\",\"postal_code\":\"\u003credacted\u003e\",\"region_name\":\"AZ\"}}warning: 1/1 location items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "location",
+      "kind": "json_fidelity",
+      "args": [
+        "location",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"city_name\":\"Phoenix\",\"country_code\":\"US\",\"ip\":\"98.168.14.178\",\"postal_code\":\"\u003credacted\u003e\",\"region_name\":\"AZ\"}}warning: 1/1 location items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "location",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "merchants",
+      "kind": "help",
+      "args": [
+        "merchants",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List Flipp merchants available for a ZIP or postal code\n\nUsage:\n  flipp-pp-cli merchants [flags]\n\nExamples:\n  flipp-pp-cli merchants --zip 85001 --json --select merchants.id,merchants.name\n\nFlags:\n  -h, --help            help for merchants\n      --locale string   Flipp locale for merchants (one of: en-us, en-ca, fr-ca) (default \"en-us\")\n      --zip string      ZIP or postal code used to find relevant merchants (default \"85001\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "merchants",
+      "kind": "happy_path",
+      "args": [
+        "merchants",
+        "--zip",
+        "85001",
+        "--json",
+        "--select",
+        "merchants.id,merchants.name"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"merchants\":[{\"id\":208,\"name\":\"\u003credacted\u003e\"},{\"id\":210,\"name\":\"\u003credacted\u003e\"},{\"id\":215,\"name\":\"\u003credacted\u003e\"},{\"id\":218,\"name\":\"\u003credacted\u003e\"},{\"id\":219,\"name\":\"\u003credacted\u003e\"},{\"id\":220,\"name\":\"\u003credacted\u003e\"},{\"id\":221,\"name\":\"\u003credacted\u003e\"},{\"id\":222,\"name\":\"\u003credacted\u003e\"},{\"id\":223,\"name\":\"\u003credacted\u003e\"},{\"id\":226,\"name\":\"\u003credacted\u003e\"},{\"id\":228,\"name\":\"\u003credacted\u003e\"},{\"id\":232,\"name\":\"\u003credacted\u003e\"},{\"id\":233,\"name\":\"\u003credacted\u003e\"},{\"id\":234,\"name\":\"\u003credacted\u003e\"},{\"id\":236,\"name\":\"\u003credacted\u003e\"},{\"id\":237,\"name\":\"\u003credacted\u003e\"},{\"id\":243,\"name\":\"\u003credacted\u003e\"},{\"id\":246,\"name\":\"\u003credacted\u003e\"},{\"id\":253,\"name\":\"\u003credacted\u003e\"},{\"id\":254,\"name\":\"\u003credacted\u003e\"},{\"id\":267,\"name\":\"\u003credacted\u003e\"},{\"id\":268,\"name\":\"\u003credacted\u003e\"},{\"id\":276,\"name\":\"\u003credacted\u003e\"},{\"id\":285,\"name\":\"\u003credacted\u003e\"},{\"id\":286,\"name\":\"\u003credacted\u003e\"},{\"id\":289,\"name\":\"\u003credacted\u003e\"},{\"id\":299,\"name\":\"\u003credacted\u003e\"},{\"id\":300,\"name\":\"\u003credacted\u003e\"},{\"id\":310,\"name\":\"\u003credacted\u003e\"},{\"id\":393,\"name\":\"\u003credacted\u003e\"},{\"id\":413,\"name\":\"\u003credacted\u003e\"},{\"id\":414,\"name\":\"\u003credacted\u003e\"},{\"id\":434,\"name\":\"\u003credacted\u003e\"},{\"id\":435,\"name\":\"\u003credacted\u003e\"},{\"id\":440,\"name\":\"\u003credacted\u003e\"},{\"id\":441,\"name\":\"\u003credacted\u003e\"},{\"id\":447,\"name\":\"\u003credacted\u003e\"},{\"id\":464,\"name\":\"\u003credacted\u003e\"},{\"id\":485,\"name\":\"\u003credacted\u003e\"},{\"id\":486,\"name\":\"\u003credacted\u003e\"},{\"id\":531,\"name\":\"\u003credacted\u003e\"},{\"id\":540,\"name\":\"\u003credacted\u003e\"},{\"id\":550,\"name\":\"\u003credacted\u003e\"},{\"id\":589,\"name\":\"\u003credacted\u003e\"},{\"id\":683,\"name\":\"\u003credacted\u003e\"},{\"id\":701,\"name\":\"\u003credacted\u003e\"},{\"id\":702,\"name\":\"\u003credacted\u003e\"},{\"id\":757,\"name\":\"\u003credacted\u003e\"},{\"id\":806,\"name\":\"\u003credacted\u003e\"},{\"id\":832,\"name\":\"\u003credacted\u003e\"},{\"id\":958,\"name\":\"\u003credacted\u003e\"},{\"id\":991,\"name\":\"\u003credacted\u003e\"},{\"id\":1079,\"name\":\"\u003credacted\u003e\"},{\"id\":1083,\"name\":\"\u003credacted\u003e\"},{\"id\":1085,\"name\":\"\u003credacted\u003e\"},{\"id\":1132,\"name\":\"\u003credacted\u003e\"},{\"id\":1136,\"name\":\"\u003credacted\u003e\"},{\"id\":1162,\"name\":\"\u003credacted\u003e\"},{\"id\":1164,\"name\":\"\u003credacted\u003e\"},{\"id\":1222,\"name\":\"\u003credacted\u003e\"},{\"id\":1247,\"name\":\"\u003credacted\u003e\"},{\"id\":1249,\"name\":\"\u003credacted\u003e\"},{\"id\":1292,\"name\":\"\u003credacted\u003e\"},{\"id\":1307,\"name\":\"\u003credacted\u003e\"},{\"id\":1331,\"name\":\"\u003credacted\u003e\"},{\"id\":1333,\"name\":\"\u003credacted\u003e\"},{\"id\":1338,\"name\":\"\u003credacted\u003e\"},{\"id\":1341,\"name\":\"\u003credacted\u003e\"},{\"id\":1378,\"name\":\"\u003credacted\u003e\"},{\"id\":1448,\"name\":\"\u003credacted\u003e\"},{\"id\":1478,\"name\":\"\u003credacted\u003e\"},{\"id\":1516,\"name\":\"\u003credacted\u003e\"},{\"id\":1578,\"name\":\"\u003credacted\u003e\"},{\"id\":1591,\"name\":\"\u003credacted\u003e\"},{\"id\":1608,\"name\":\"\u003credacted\u003e\"},{\"id\":1616,\"name\":\"\u003credacted\u003e\"},{\"id\":1623,\"name\":\"\u003credacted\u003e\"},{\"id\":1631,\"name\":\"\u003credacted\u003e\"},{\"id\":1953,\"name\":\"\u003credacted\u003e\"},{\"id\":1956,\"name\":\"\u003credacted\u003e\"},{\"id\":1970,\"name\":\"\u003credacted\u003e\"},{\"id\":1976,\"name\":\"\u003credacted\u003e\"},{\"id\":1978,\"name\":\"\u003credacted\u003e\"},{\"id\":1988,\"name\":\"\u003credacted\u003e\"},{\"id\":1995,\"name\":\"\u003credacted\u003e\"},{\"id\":1996,\"name\":\"\u003credacted\u003e\"},{\"id\":2015,\"name\":\"\u003credacted\u003e\"},{\"id\":2016,\"name\":\"\u003credacted\u003e\"},{\"id\":2018,\"name\":\"\u003credacted\u003e\"},{\"id\":2019,\"name\":\"\u003credacted\u003e\"},{\"id\":2023,\"name\":\"\u003credacted\u003e\"},{\"id\":2024,\"name\":\"\u003credacted\u003e\"},{\"id\":2028,\"name\":\"\u003credacted\u003e\"},{\"id\":2034,\"name\":\"\u003credacted\u003e\"},{\"id\":2037,\"name\":\"\u003credacted\u003e\"},{\"id\":2038,\"name\":\"\u003credacted\u003e\"},{\"id\":2040,\"name\":\"\u003credacted\u003e\"},{\"id\":2044,\"name\":\"\u003credacted\u003e\"},{\"id\":2046,\"name\":\"\u003credacted\u003e\"},{\"id\":2047,\"name\":\"\u003credacted\u003e\"},{\"id\":2049,\"name\":\"\u003credacted\u003e\"},{\"id\":2051,\"name\":\"\u003credacted\u003e\"},{\"id\":2053,\"name\":\"\u003credacted\u003e\"},{\"id\":2060,\"name\":\"\u003credacted\u003e\"},{\"id\":2061,\"name\":\"\u003credacted\u003e\"},{\"id\":2062,\"name\":\"\u003credacted\u003e\"},{\"id\":2063,\"name\":\"\u003credacted\u003e\"},{\"id\":2067,\"name\":\"\u003credacted\u003e\"},{\"id\":2072,\"name\":\"\u003credacted\u003e\"},{\"id\":2079,\"name\":\"\u003credacted\u003e\"},{\"id\":2080,\"name\":\"\u003credacted\u003e\"},{\"id\":2082,\"name\":\"\u003credacted\u003e\"},{\"id\":2084,\"name\":\"\u003credacted\u003e\"},{\"id\":2096,\"name\":\"\u003credacted\u003e\"},{\"id\":2099,\"name\":\"\u003credacted\u003e\"},{\"id\":2100,\"name\":\"\u003credacted\u003e\"},{\"id\":2101,\"name\":\"\u003credacted\u003e\"},{\"id\":2110,\"name\":\"\u003credacted\u003e\"},{\"id\":2120,\"name\":\"\u003credacted\u003e\"},{\"id\":2121,\"name\":\"\u003credacted\u003e\"},{\"id\":2126,\"name\":\"\u003credacted\u003e\"},{\"id\":2130,\"name\":\"\u003credacted\u003e\"},{\"id\":2133,\"name\":\"\u003credacted\u003e\"},{\"id\":2135,\"name\":\"\u003credacted\u003e\"},{\"id\":2138,\"name\":\"\u003credacted\u003e\"},{\"id\":2142,\"name\":\"\u003credacted\u003e\"},{\"id\":2143,\"name\":\"\u003credacted\u003e\"},{\"id\":2148,\"name\":\"\u003credacted\u003e\"},{\"…[truncated]"
+    },
+    {
+      "command": "merchants",
+      "kind": "json_fidelity",
+      "args": [
+        "merchants",
+        "--zip",
+        "85001",
+        "--json",
+        "--select",
+        "merchants.id,merchants.name"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"merchants\":[{\"id\":208,\"name\":\"\u003credacted\u003e\"},{\"id\":210,\"name\":\"\u003credacted\u003e\"},{\"id\":215,\"name\":\"\u003credacted\u003e\"},{\"id\":218,\"name\":\"\u003credacted\u003e\"},{\"id\":219,\"name\":\"\u003credacted\u003e\"},{\"id\":220,\"name\":\"\u003credacted\u003e\"},{\"id\":221,\"name\":\"\u003credacted\u003e\"},{\"id\":222,\"name\":\"\u003credacted\u003e\"},{\"id\":223,\"name\":\"\u003credacted\u003e\"},{\"id\":226,\"name\":\"\u003credacted\u003e\"},{\"id\":228,\"name\":\"\u003credacted\u003e\"},{\"id\":232,\"name\":\"\u003credacted\u003e\"},{\"id\":233,\"name\":\"\u003credacted\u003e\"},{\"id\":234,\"name\":\"\u003credacted\u003e\"},{\"id\":236,\"name\":\"\u003credacted\u003e\"},{\"id\":237,\"name\":\"\u003credacted\u003e\"},{\"id\":243,\"name\":\"\u003credacted\u003e\"},{\"id\":246,\"name\":\"\u003credacted\u003e\"},{\"id\":253,\"name\":\"\u003credacted\u003e\"},{\"id\":254,\"name\":\"\u003credacted\u003e\"},{\"id\":267,\"name\":\"\u003credacted\u003e\"},{\"id\":268,\"name\":\"\u003credacted\u003e\"},{\"id\":276,\"name\":\"\u003credacted\u003e\"},{\"id\":285,\"name\":\"\u003credacted\u003e\"},{\"id\":286,\"name\":\"\u003credacted\u003e\"},{\"id\":289,\"name\":\"\u003credacted\u003e\"},{\"id\":299,\"name\":\"\u003credacted\u003e\"},{\"id\":300,\"name\":\"\u003credacted\u003e\"},{\"id\":310,\"name\":\"\u003credacted\u003e\"},{\"id\":393,\"name\":\"\u003credacted\u003e\"},{\"id\":413,\"name\":\"\u003credacted\u003e\"},{\"id\":414,\"name\":\"\u003credacted\u003e\"},{\"id\":434,\"name\":\"\u003credacted\u003e\"},{\"id\":435,\"name\":\"\u003credacted\u003e\"},{\"id\":440,\"name\":\"\u003credacted\u003e\"},{\"id\":441,\"name\":\"\u003credacted\u003e\"},{\"id\":447,\"name\":\"\u003credacted\u003e\"},{\"id\":464,\"name\":\"\u003credacted\u003e\"},{\"id\":485,\"name\":\"\u003credacted\u003e\"},{\"id\":486,\"name\":\"\u003credacted\u003e\"},{\"id\":531,\"name\":\"\u003credacted\u003e\"},{\"id\":540,\"name\":\"\u003credacted\u003e\"},{\"id\":550,\"name\":\"\u003credacted\u003e\"},{\"id\":589,\"name\":\"\u003credacted\u003e\"},{\"id\":683,\"name\":\"\u003credacted\u003e\"},{\"id\":701,\"name\":\"\u003credacted\u003e\"},{\"id\":702,\"name\":\"\u003credacted\u003e\"},{\"id\":757,\"name\":\"\u003credacted\u003e\"},{\"id\":806,\"name\":\"\u003credacted\u003e\"},{\"id\":832,\"name\":\"\u003credacted\u003e\"},{\"id\":958,\"name\":\"\u003credacted\u003e\"},{\"id\":991,\"name\":\"\u003credacted\u003e\"},{\"id\":1079,\"name\":\"\u003credacted\u003e\"},{\"id\":1083,\"name\":\"\u003credacted\u003e\"},{\"id\":1085,\"name\":\"\u003credacted\u003e\"},{\"id\":1132,\"name\":\"\u003credacted\u003e\"},{\"id\":1136,\"name\":\"\u003credacted\u003e\"},{\"id\":1162,\"name\":\"\u003credacted\u003e\"},{\"id\":1164,\"name\":\"\u003credacted\u003e\"},{\"id\":1222,\"name\":\"\u003credacted\u003e\"},{\"id\":1247,\"name\":\"\u003credacted\u003e\"},{\"id\":1249,\"name\":\"\u003credacted\u003e\"},{\"id\":1292,\"name\":\"\u003credacted\u003e\"},{\"id\":1307,\"name\":\"\u003credacted\u003e\"},{\"id\":1331,\"name\":\"\u003credacted\u003e\"},{\"id\":1333,\"name\":\"\u003credacted\u003e\"},{\"id\":1338,\"name\":\"\u003credacted\u003e\"},{\"id\":1341,\"name\":\"\u003credacted\u003e\"},{\"id\":1378,\"name\":\"\u003credacted\u003e\"},{\"id\":1448,\"name\":\"\u003credacted\u003e\"},{\"id\":1478,\"name\":\"\u003credacted\u003e\"},{\"id\":1516,\"name\":\"\u003credacted\u003e\"},{\"id\":1578,\"name\":\"\u003credacted\u003e\"},{\"id\":1591,\"name\":\"\u003credacted\u003e\"},{\"id\":1608,\"name\":\"\u003credacted\u003e\"},{\"id\":1616,\"name\":\"\u003credacted\u003e\"},{\"id\":1623,\"name\":\"\u003credacted\u003e\"},{\"id\":1631,\"name\":\"\u003credacted\u003e\"},{\"id\":1953,\"name\":\"\u003credacted\u003e\"},{\"id\":1956,\"name\":\"\u003credacted\u003e\"},{\"id\":1970,\"name\":\"\u003credacted\u003e\"},{\"id\":1976,\"name\":\"\u003credacted\u003e\"},{\"id\":1978,\"name\":\"\u003credacted\u003e\"},{\"id\":1988,\"name\":\"\u003credacted\u003e\"},{\"id\":1995,\"name\":\"\u003credacted\u003e\"},{\"id\":1996,\"name\":\"\u003credacted\u003e\"},{\"id\":2015,\"name\":\"\u003credacted\u003e\"},{\"id\":2016,\"name\":\"\u003credacted\u003e\"},{\"id\":2018,\"name\":\"\u003credacted\u003e\"},{\"id\":2019,\"name\":\"\u003credacted\u003e\"},{\"id\":2023,\"name\":\"\u003credacted\u003e\"},{\"id\":2024,\"name\":\"\u003credacted\u003e\"},{\"id\":2028,\"name\":\"\u003credacted\u003e\"},{\"id\":2034,\"name\":\"\u003credacted\u003e\"},{\"id\":2037,\"name\":\"\u003credacted\u003e\"},{\"id\":2038,\"name\":\"\u003credacted\u003e\"},{\"id\":2040,\"name\":\"\u003credacted\u003e\"},{\"id\":2044,\"name\":\"\u003credacted\u003e\"},{\"id\":2046,\"name\":\"\u003credacted\u003e\"},{\"id\":2047,\"name\":\"\u003credacted\u003e\"},{\"id\":2049,\"name\":\"\u003credacted\u003e\"},{\"id\":2051,\"name\":\"\u003credacted\u003e\"},{\"id\":2053,\"name\":\"\u003credacted\u003e\"},{\"id\":2060,\"name\":\"\u003credacted\u003e\"},{\"id\":2061,\"name\":\"\u003credacted\u003e\"},{\"id\":2062,\"name\":\"\u003credacted\u003e\"},{\"id\":2063,\"name\":\"\u003credacted\u003e\"},{\"id\":2067,\"name\":\"\u003credacted\u003e\"},{\"id\":2072,\"name\":\"\u003credacted\u003e\"},{\"id\":2079,\"name\":\"\u003credacted\u003e\"},{\"id\":2080,\"name\":\"\u003credacted\u003e\"},{\"id\":2082,\"name\":\"\u003credacted\u003e\"},{\"id\":2084,\"name\":\"\u003credacted\u003e\"},{\"id\":2096,\"name\":\"\u003credacted\u003e\"},{\"id\":2099,\"name\":\"\u003credacted\u003e\"},{\"id\":2100,\"name\":\"\u003credacted\u003e\"},{\"id\":2101,\"name\":\"\u003credacted\u003e\"},{\"id\":2110,\"name\":\"\u003credacted\u003e\"},{\"id\":2120,\"name\":\"\u003credacted\u003e\"},{\"id\":2121,\"name\":\"\u003credacted\u003e\"},{\"id\":2126,\"name\":\"\u003credacted\u003e\"},{\"id\":2130,\"name\":\"\u003credacted\u003e\"},{\"id\":2133,\"name\":\"\u003credacted\u003e\"},{\"id\":2135,\"name\":\"\u003credacted\u003e\"},{\"id\":2138,\"name\":\"\u003credacted\u003e\"},{\"id\":2142,\"name\":\"\u003credacted\u003e\"},{\"id\":2143,\"name\":\"\u003credacted\u003e\"},{\"id\":2148,\"name\":\"\u003credacted\u003e\"},{\"…[truncated]"
+    },
+    {
+      "command": "merchants",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  flipp-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  flipp-pp-cli profile delete my-defaults --yes\n  flipp-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  flipp-pp-cli profile list [flags]\n\nExamples:\n  flipp-pp-cli profile list\n  flipp-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile, --config, and --home, which are never\ncaptured: they control profile/config resolution and would never apply).\n\nUsage:\n  flipp-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  flipp-pp-cli profile save my-defaults --json --compact\n  flipp-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  flipp-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  flipp-pp-cli profile show my-defaults\n  flipp-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  flipp-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  flipp-pp-cli profile use my-defaults\n  flipp-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  flipp-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  flipp-pp-cli search \"error timeout\"\n\n  # Force local search only\n  flipp-pp-cli search \"status\" --data-source local\n  # Search a specific resource type locally\n  flipp-pp-cli search \"status\" --type flyers --data-source local\n  # JSON output for piping\n  flipp-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     SQLite database file path (default: resolved data directory data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /items/search returned HTTP 422: {\"code\":602,\"message\":\"postal_code in query is required\"}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. This API does\nnot declare temporal sync filters, so sync performs full pagination unless an\nexplicit resource declares its own incremental filter.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  flipp-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  flipp-pp-cli sync\n\n  # Sync specific resources only\n  flipp-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  flipp-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  flipp-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  flipp-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  flipp-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    SQLite database file path (default: resolved data directory data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --no-prune                     Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns for a fully-enumerated parent partition)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent           …[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"flyers\"}\n{\"event\":\"sync_start\",\"resource\":\"merchants\"}\n{\"event\":\"sync_warning\",\"resource\":\"flyers\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_warning\",\"resource\":\"merchants\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"merchants\",\"fetched\":2508}\n{\"event\":\"sync_complete\",\"resource\":\"merchants\",\"total\":2508,\"duration_ms\":616}\n{\"event\":\"sync_progress\",\"resource\":\"flyers\",\"fetched\":66}\n{\"event\":\"sync_complete\",\"resource\":\"flyers\",\"total\":66,\"duration_ms\":622}\n{\"event\":\"sync_summary\",\"total_records\":2574,\"resources\":2,\"success\":2,\"warned\":0,\"errored\":0,\"duration_ms\":622}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"flyers\"}\n{\"event\":\"sync_start\",\"resource\":\"merchants\"}\n{\"event\":\"sync_warning\",\"resource\":\"flyers\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_warning\",\"resource\":\"merchants\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"merchants\",\"fetched\":2508}\n{\"event\":\"sync_complete\",\"resource\":\"merchants\",\"total\":2508,\"duration_ms\":616}\n{\"event\":\"sync_progress\",\"resource\":\"flyers\",\"fetched\":66}\n{\"event\":\"sync_complete\",\"resource\":\"flyers\",\"total\":66,\"duration_ms\":621}\n{\"event\":\"sync_summary\",\"total_records\":2574,\"resources\":2,\"success\":2,\"warned\":0,\"errored\":0,\"duration_ms\":621}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "unit-price",
+      "kind": "help",
+      "args": [
+        "unit-price",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Normalize item prices by package size when Flipp listings include parseable quantities.\n\nUsage:\n  flipp-pp-cli unit-price \u003cquery\u003e [flags]\n\nExamples:\n  flipp-pp-cli unit-price milk --zip 85001 --agent\n\nFlags:\n  -h, --help            help for unit-price\n      --limit int       Maximum rows to return (default 20)\n      --locale string   Flipp locale, such as en-us or en-ca (default \"en-us\")\n      --zip string      ZIP or postal code used to find local deals (default \"85001\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "unit-price",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [unit-price] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "unit-price",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [unit-price] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "unit-price",
+      "kind": "error_path",
+      "args": [
+        "unit-price",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"query\":\"__printing_press_invalid__\",\"results\":[],\"zip\":\"\u003credacted\u003e\"}"
+    },
+    {
+      "command": "watchlist add",
+      "kind": "help",
+      "args": [
+        "watchlist",
+        "add",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Persist target prices for recurring staples and compare them against future synced snapshots.\n\nUsage:\n  flipp-pp-cli watchlist add \u003cquery\u003e [flags]\n\nExamples:\n  flipp-pp-cli watchlist add milk --target-price 3.50 --zip 85001 --agent\n\nFlags:\n  -h, --help                  help for add\n      --locale string         Flipp locale, such as en-us or en-ca (default \"en-us\")\n      --target-price string   Target price that should trigger a future match\n      --zip string            ZIP or postal code for this watchlist entry (default \"85001\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watchlist add",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "watchlist add",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "watchlist add",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "watchlist add",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  flipp-pp-cli which [query] [flags]\n\nExamples:\n  flipp-pp-cli which \"stale tickets\"\n  flipp-pp-cli which \"bottleneck\"\n  flipp-pp-cli which --limit 1 \"send message\"\n  flipp-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  flipp-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  flipp-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  flipp-pp-cli workflow archive --full\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "Archived 0 items across 0 resources to /var/folders/39/y3drpc295ql9dvkfblcqpnxm0000gn/T/printing-press-subprocess-423806212/.local/share/flipp-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 0,\n  \"store_path\": \"/var/folders/39/y3drpc295ql9dvkfblcqpnxm0000gn/T/printing-press-subprocess-423806212/.local/share/flipp-pp-cli/data.db\",\n  \"timestamp\": \"2026-06-27T20:04:30Z\",\n  \"total_items\": 0\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  flipp-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  flipp-pp-cli workflow status\n\n  # Show status as JSON\n  flipp-pp-cli workflow status --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'flipp-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  flyers                         148 items\n  merchants                      2508 items\n\n  Total: 2656 items\n  Store: /var/folders/39/y3drpc295ql9dvkfblcqpnxm0000gn/T/printing-press-subprocess-423806212/.local/share/flipp-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"flyers\": 148,\n  \"merchants\": 2508\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-27T20:04:11.310198Z"
+}

@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/flipp",
+  "research_dir": "\u003ccli-dir\u003e/20260627-124259-5ec5d802",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "dir": "/Users/labrenz/printing-press/.runstate/codebase-7217492d/runs/20260627-124259-5ec5d802/working/flipp-pp-cli",
+  "dead_functions_found": [
+    "RootCmd",
+    "decodeWriteThroughNonEmptyArray",
+    "ensureFreshForCommand",
+    "hintIfStale",
+    "hintIfUnsynced",
+    "resolvePaginatedRead",
+    "resolveRead",
+    "resolveReadWithStrategy",
+    "writeMutationResponseToStore"
+  ],
+  "removed": [],
+  "build_verified": false,
+  "build_error": "# flipp-pp-cli/internal/cli\ninternal/cli/data_source.go:366:64: undefined: decodeWriteThroughNonEmptyArray\ninternal/cli/data_source.go:384:57: undefined: decodeWriteThroughNonEmptyArray",
+  "restored": [
+    "RootCmd",
+    "decodeWriteThroughNonEmptyArray",
+    "ensureFreshForCommand",
+    "hintIfStale",
+    "hintIfUnsynced",
+    "resolvePaginatedRead",
+    "resolveRead",
+    "resolveReadWithStrategy",
+    "writeMutationResponseToStore"
+  ],
+  "dry_run": false
+}
