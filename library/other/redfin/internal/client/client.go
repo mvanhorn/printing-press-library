@@ -106,9 +106,21 @@ func (c *Client) ProbeGet(path string) (int, error) {
 }
 
 func (c *Client) cacheKey(path string, params map[string]string) string {
+	// PATCH(upstream cli-printing-press): sort the param keys before hashing.
+	// Ranging directly over the params map produced a different key string on
+	// every call (Go randomizes map iteration order), so readCache almost
+	// never found the entry writeCache had just written — silently defeating
+	// the 5-minute GET cache and forcing a fresh live request against
+	// Stingray's anti-bot gis endpoint each time. The "&" separator also keeps
+	// distinct (key,value) pairs from concatenating ambiguously.
+	keys := make([]string, 0, len(params))
+	for k := range params {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
 	key := path
-	for k, v := range params {
-		key += k + "=" + v
+	for _, k := range keys {
+		key += "&" + k + "=" + params[k]
 	}
 	h := sha256.Sum256([]byte(key))
 	return hex.EncodeToString(h[:8])

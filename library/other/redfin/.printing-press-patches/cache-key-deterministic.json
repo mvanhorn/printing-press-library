@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "cache-key-deterministic",
+  "applied_at": "2026-06-27",
+  "base_run_id": "20260504-175601",
+  "base_printing_press_version": "3.8.0",
+  "summary": "The client GET cache key must be stable for a given (path, params); sort the param keys before hashing so it never depends on Go's randomized map iteration order.",
+  "reason": "cacheKey ranged directly over the params map, so the same request produced a different sha256 on each call. readCache almost never found the file writeCache had just written, silently defeating the 5-minute GET cache and forcing a fresh live request against Stingray's anti-bot gis endpoint on every homes/comps/listing/market/trends call — extra traffic that raises the 403/rate-limit risk seen in issue #698. This is a generated-client (client.go) template shape, so a reprint must re-apply the stable-key fix until the generator emits it.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/client_test.go"
+  ],
+  "validated_outcome": "TestCacheKeyDeterministic (1000 calls, same params) and TestCacheKeyOrderIndependent now pass; before the fix both failed with differing keys across calls. TestCacheKeyDistinctParams confirms distinct region_id / path still produce distinct keys."
+}
